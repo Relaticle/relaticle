@@ -11,7 +11,6 @@ class Company extends Model implements HasCustomAttributes
     use UsesCustomAttributes;
 
     protected $fillable = [
-        'name',
-        'address', 'country', 'phone'
+        'name', 'address', 'country', 'phone'
     ];
 }
