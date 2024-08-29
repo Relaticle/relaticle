@@ -1,22 +1,34 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\UserResource\Pages;
 use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Resources\Pages\PageRegistration;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use ManukMinasyan\FilamentAttribute\Filament\Forms\Components\CustomAttributes\CustomAttributesComponent;
 
-class UserResource extends Resource
+final class UserResource extends Resource
 {
+    /**
+     * The model the resource corresponds to.
+     */
     protected static ?string $model = User::class;
 
+    /**
+     * The navigation icon for the resource.
+     */
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
+    /**
+     * Define the form schema for the resource.
+     */
     public static function form(Form $form): Form
     {
         return $form
@@ -38,6 +50,9 @@ class UserResource extends Resource
             ]);
     }
 
+    /**
+     * Define the table schema for the resource.
+     */
     public static function table(Table $table): Table
     {
         return $table
@@ -71,6 +86,9 @@ class UserResource extends Resource
             ]);
     }
 
+    /**
+     * Get the relationships available on the resource.
+     */
     public static function getRelations(): array
     {
         return [
@@ -78,6 +96,11 @@ class UserResource extends Resource
         ];
     }
 
+    /**
+     * Get the pages available for the resource.
+     *
+     * @return array<string, PageRegistration>
+     */
     public static function getPages(): array
     {
         return [
