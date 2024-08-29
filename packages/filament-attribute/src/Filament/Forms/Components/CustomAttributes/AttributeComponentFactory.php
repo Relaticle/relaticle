@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace ManukMinasyan\FilamentAttribute\Filament\Forms\Components\CustomAttributes;
 
-use ManukMinasyan\FilamentAttribute\Enums\AttributeTypeEnum;
-use ManukMinasyan\FilamentAttribute\Models\Attribute;
 use Filament\Forms\Components\Field;
 use Illuminate\Contracts\Container\Container;
 use InvalidArgumentException;
+use ManukMinasyan\FilamentAttribute\Enums\AttributeTypeEnum;
+use ManukMinasyan\FilamentAttribute\Models\Attribute;
 use RuntimeException;
 
 final class AttributeComponentFactory

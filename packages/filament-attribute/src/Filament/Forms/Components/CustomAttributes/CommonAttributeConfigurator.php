@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace ManukMinasyan\FilamentAttribute\Filament\Forms\Components\CustomAttributes;
 
-use Illuminate\Database\Eloquent\Model;
-use ManukMinasyan\FilamentAttribute\Models\Attribute;
 use Filament\Forms\Components\Field;
+use ManukMinasyan\FilamentAttribute\Models\Attribute;
 
 final readonly class CommonAttributeConfigurator
 {
@@ -20,7 +19,7 @@ final readonly class CommonAttributeConfigurator
     {
         return $field
             ->label($attribute->name)
-            ->required((bool)$attribute->is_required)
+            ->required((bool) $attribute->is_required)
             ->afterStateHydrated(function ($component, $state, $record) use ($attribute): void {
                 $component->state($record?->getCustomAttributeValue($attribute->code));
             })

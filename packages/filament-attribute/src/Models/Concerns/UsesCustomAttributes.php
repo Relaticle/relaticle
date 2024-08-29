@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace ManukMinasyan\FilamentAttribute\Models\Concerns;
 
-use ManukMinasyan\FilamentAttribute\Models\Attribute;
-use ManukMinasyan\FilamentAttribute\Models\AttributeValue;
-use ManukMinasyan\FilamentAttribute\Models\Contracts\HasCustomAttributes;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Collection;
+use ManukMinasyan\FilamentAttribute\Models\Attribute;
+use ManukMinasyan\FilamentAttribute\Models\AttributeValue;
+use ManukMinasyan\FilamentAttribute\Models\Contracts\HasCustomAttributes;
 
 /**
  * @see HasCustomAttributes

@@ -19,9 +19,8 @@ return new class extends Migration
             $table->string('lookup_type')->nullable();
             $table->string('entity_type');
             $table->unsignedBigInteger('sort_order')->nullable();
-            $table->string('validation')->nullable();
-            $table->boolean('is_required')->default(0);
-            $table->boolean('is_unique')->default(0);
+            $table->json('validation_rules')->nullable();
+
             $table->boolean('is_user_defined')->default(1);
 
             $table->unique(['code', 'entity_type']);

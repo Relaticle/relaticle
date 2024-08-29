@@ -4,7 +4,6 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\CompanyResource\Pages;
 use App\Models\Company;
-use App\Models\User;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
@@ -31,11 +30,11 @@ class CompanyResource extends Resource
             ->schema([
                 Placeholder::make('created_at')
                     ->label('Created Date')
-                    ->content(fn(?Company $record): string => $record?->created_at?->diffForHumans() ?? '-'),
+                    ->content(fn (?Company $record): string => $record?->created_at?->diffForHumans() ?? '-'),
 
                 Placeholder::make('updated_at')
                     ->label('Last Modified Date')
-                    ->content(fn(?Company $record): string => $record?->updated_at?->diffForHumans() ?? '-'),
+                    ->content(fn (?Company $record): string => $record?->updated_at?->diffForHumans() ?? '-'),
 
                 TextInput::make('name')
                     ->required(),
@@ -50,7 +49,7 @@ class CompanyResource extends Resource
                     ->required(),
 
                 CustomAttributesComponent::make('Additional Attributes')
-                    ->entity(Company::class)
+                    ->entity(Company::class),
             ]);
     }
 

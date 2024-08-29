@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace ManukMinasyan\FilamentAttribute\Database\Factories;
 
-use ManukMinasyan\FilamentAttribute\Models\Attribute;
-use ManukMinasyan\FilamentAttribute\Models\AttributeOption;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Carbon;
+use ManukMinasyan\FilamentAttribute\Models\Attribute;
+use ManukMinasyan\FilamentAttribute\Models\AttributeOption;
 
 /**
  * @extends Factory<AttributeOption>

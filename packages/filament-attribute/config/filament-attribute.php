@@ -3,11 +3,11 @@
 // config for ManukMinasyan/FilamentAttribute
 return [
     'allowed_resources' => [
-        \App\Filament\Resources\UserResource::class
+        \App\Filament\Resources\UserResource::class,
     ],
 
     'disallowed_resources' => [
-        \App\Filament\Resources\CompanyResource::class
+        \App\Filament\Resources\CompanyResource::class,
     ],
 
     'database' => [

@@ -6,13 +6,13 @@ return [
         [
             'entity' => \App\Models\User::class,
             'resource' => \App\Filament\Resources\UserResource::class,
-        ]
+        ],
     ],
 
     'lookup_models' => [
         [
             'model' => \App\Models\User::class,
             'resource' => \App\Filament\Resources\UserResource::class,
-        ]
-    ]
+        ],
+    ],
 ];

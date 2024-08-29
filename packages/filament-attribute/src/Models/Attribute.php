@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace ManukMinasyan\FilamentAttribute\Models;
 
-use ManukMinasyan\FilamentAttribute\Enums\AttributeTypeEnum;
-use ManukMinasyan\FilamentAttribute\Database\Factories\AttributeFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use ManukMinasyan\FilamentAttribute\Database\Factories\AttributeFactory;
+use ManukMinasyan\FilamentAttribute\Enums\AttributeTypeEnum;
 
 /**
  * @property AttributeTypeEnum $type
@@ -29,7 +29,7 @@ final class Attribute extends Model
         'type',
         'lookup_type',
         'name',
-        'code'
+        'code',
     ];
 
     /**
@@ -41,8 +41,9 @@ final class Attribute extends Model
     {
         return [
             'type' => AttributeTypeEnum::class,
-//            'entity_type' => Model::class,
-//            'lookup_type' => AttributeLookupTypeEnum::class,
+            //            'entity_type' => Model::class,
+            //            'lookup_type' => AttributeLookupTypeEnum::class,,
+            //            'validation_rules' =>
         ];
     }
 

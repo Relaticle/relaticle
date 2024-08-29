@@ -29,7 +29,7 @@ enum AttributeValidationRuleEnum: string implements HasLabel
 
     public function hasParameter(): bool
     {
-        return match($this) {
+        return match ($this) {
             self::REQUIRED_WITH, self::ENDS_WITH, self::MIN, self::MAX, self::BETWEEN, self::REGEX => true,
             default => false
         };
@@ -37,7 +37,7 @@ enum AttributeValidationRuleEnum: string implements HasLabel
 
     public function getLabel(): string
     {
-        return match($this) {
+        return match ($this) {
             self::REQUIRED => 'Required',
             self::REQUIRED_WITH => 'Required with',
             self::ENDS_WITH => 'Ends with',
@@ -50,7 +50,7 @@ enum AttributeValidationRuleEnum: string implements HasLabel
 
     public function getDescription(): string
     {
-        return match($this) {
+        return match ($this) {
             self::REQUIRED => 'The field must be filled',
             self::REQUIRED_WITH => 'The field is required when any of the other specified fields are present',
             self::ENDS_WITH => 'The field must end with one of the given values',
@@ -66,6 +66,7 @@ enum AttributeValidationRuleEnum: string implements HasLabel
         if ($rule === null) {
             return false;
         }
+
         return self::tryFrom($rule)?->hasParameter() ?? false;
     }
 
@@ -74,6 +75,7 @@ enum AttributeValidationRuleEnum: string implements HasLabel
         if ($rule === null) {
             return 'Select a rule to see its description.';
         }
+
         return self::tryFrom($rule)?->getDescription() ?? 'Select a rule to see its description.';
     }
 
@@ -83,14 +85,15 @@ enum AttributeValidationRuleEnum: string implements HasLabel
             return '';
         }
         $enum = self::tryFrom($rule);
-        if (!$enum) {
+        if (! $enum) {
             return '';
         }
 
         $label = $enum->getLabel();
-        if (!empty($parameters)) {
-            $label .= ' (' . implode(', ', array_column($parameters, 'value')) . ')';
+        if (! empty($parameters)) {
+            $label .= ' ('.implode(', ', array_column($parameters, 'value')).')';
         }
+
         return $label;
     }
 }

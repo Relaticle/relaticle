@@ -2,10 +2,10 @@
 
 namespace ManukMinasyan\FilamentAttribute\Database\Factories;
 
-use ManukMinasyan\FilamentAttribute\Models\Attribute;
-use ManukMinasyan\FilamentAttribute\Models\AttributeValue;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Carbon;
+use ManukMinasyan\FilamentAttribute\Models\Attribute;
+use ManukMinasyan\FilamentAttribute\Models\AttributeValue;
 
 /**
  * @extends Factory<AttributeValue>

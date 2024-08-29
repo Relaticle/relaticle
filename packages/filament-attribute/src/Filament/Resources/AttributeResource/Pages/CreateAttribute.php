@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace ManukMinasyan\FilamentAttribute\Filament\Resources\AttributeResource\Pages;
 
-use ManukMinasyan\FilamentAttribute\Filament\Resources\AttributeResource;
 use Filament\Resources\Pages\CreateRecord;
+use ManukMinasyan\FilamentAttribute\Filament\Resources\AttributeResource;
 
 final class CreateAttribute extends CreateRecord
 {

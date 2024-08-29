@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace ManukMinasyan\FilamentAttribute\Models;
 
-use ManukMinasyan\FilamentAttribute\Enums\AttributeTypeEnum;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use ManukMinasyan\FilamentAttribute\Enums\AttributeTypeEnum;
 
 /**
  * @property Attribute $attribute
