@@ -2,6 +2,4 @@
 
 namespace ManukMinasyan\FilamentAttribute;
 
-class FilamentAttribute
-{
-}
+class FilamentAttribute {}

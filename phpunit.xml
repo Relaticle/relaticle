@@ -5,16 +5,25 @@
          colors="true"
 >
     <testsuites>
+        <testsuite name="Feature">
+            <directory>tests/Feature</directory>
+        </testsuite>
+        <testsuite name="Console">
+            <directory>tests/Console</directory>
+        </testsuite>
         <testsuite name="Unit">
             <directory>tests/Unit</directory>
         </testsuite>
-        <testsuite name="Feature">
-            <directory>tests/Feature</directory>
+        <testsuite name="Arch">
+            <file>tests/ArchTest.php</file>
+            <directory>tests/Arch</directory>
         </testsuite>
     </testsuites>
     <source>
         <include>
             <directory>app</directory>
+            <directory>config</directory>
+            <directory>routes</directory>
         </include>
     </source>
     <php>

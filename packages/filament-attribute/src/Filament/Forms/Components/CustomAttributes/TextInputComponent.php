@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace ManukMinasyan\FilamentAttribute\Filament\Forms\Components\CustomAttributes;
 
-use ManukMinasyan\FilamentAttribute\Models\Attribute;
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\TextInput;
+use ManukMinasyan\FilamentAttribute\Models\Attribute;
 
 final readonly class TextInputComponent implements AttributeComponentInterface
 {

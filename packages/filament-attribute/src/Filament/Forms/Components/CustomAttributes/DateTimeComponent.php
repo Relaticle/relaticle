@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace ManukMinasyan\FilamentAttribute\Filament\Forms\Components\CustomAttributes;
 
-use ManukMinasyan\FilamentAttribute\Models\Attribute;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Field;
+use ManukMinasyan\FilamentAttribute\Models\Attribute;
 
 final readonly class DateTimeComponent implements AttributeComponentInterface
 {

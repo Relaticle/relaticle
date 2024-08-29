@@ -2,17 +2,14 @@
 
 namespace App\Filament\Resources;
 
-use ManukMinasyan\FilamentAttribute\Filament\Forms\Components\CustomAttributes\CustomAttributesComponent;
 use App\Filament\Resources\UserResource\Pages;
-use App\Filament\Resources\UserResource\RelationManagers;
 use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use ManukMinasyan\FilamentAttribute\Filament\Forms\Components\CustomAttributes\CustomAttributesComponent;
 
 class UserResource extends Resource
 {
@@ -37,7 +34,7 @@ class UserResource extends Resource
                     ->password()
                     ->required()
                     ->maxLength(255),
-                CustomAttributesComponent::make('Additional Attributes')
+                CustomAttributesComponent::make('Additional Attributes'),
             ]);
     }
 

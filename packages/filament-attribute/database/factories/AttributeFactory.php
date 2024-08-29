@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace ManukMinasyan\FilamentAttribute\Database\Factories;
 
+use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Carbon;
 use ManukMinasyan\FilamentAttribute\Enums\AttributeEntityTypeEnum;
 use ManukMinasyan\FilamentAttribute\Enums\AttributeLookupTypeEnum;
 use ManukMinasyan\FilamentAttribute\Enums\AttributeTypeEnum;
 use ManukMinasyan\FilamentAttribute\Models\Attribute;
-use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Carbon;
 
 /**
  * @extends Factory<Attribute>

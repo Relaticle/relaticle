@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace ManukMinasyan\FilamentAttribute\Models\Contracts;
 
-use ManukMinasyan\FilamentAttribute\Models\Attribute;
-use ManukMinasyan\FilamentAttribute\Models\AttributeValue;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use ManukMinasyan\FilamentAttribute\Models\Attribute;
+use ManukMinasyan\FilamentAttribute\Models\AttributeValue;
 
 interface HasCustomAttributes
 {

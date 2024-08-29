@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace ManukMinasyan\FilamentAttribute\Filament\Forms\Components\CustomAttributes;
 
-use Illuminate\Database\Eloquent\Model;
-use ManukMinasyan\FilamentAttribute\Enums\AttributeLookupTypeEnum;
-use ManukMinasyan\FilamentAttribute\Models\Attribute;
 use Filament\Forms\Components\Select;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use ManukMinasyan\FilamentAttribute\Models\Attribute;
 
 final readonly class SelectComponent implements AttributeComponentInterface
 {

@@ -15,6 +15,7 @@ final readonly class AttributeEntityTypeService
      * Get the options for attribute entity types.
      *
      * @return Collection<string, string>
+     *
      * @throws InvalidArgumentException
      */
     public static function options(): Collection
@@ -25,11 +26,13 @@ final readonly class AttributeEntityTypeService
             })
             ->mapWithKeys(function (string $resource): array {
                 $resourceInstance = app($resource);
+
                 return [app($resourceInstance->getModel())->getMorphClass() => $resourceInstance::getBreadcrumb()];
             });
     }
 
-    public static function getMorphClassFromModel(string $model): string {
+    public static function getMorphClassFromModel(string $model): string
+    {
         return app($model)->getMorphClass();
     }
 }

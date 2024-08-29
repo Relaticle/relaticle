@@ -10,11 +10,11 @@ use Filament\Support\Facades\FilamentAsset;
 use Filament\Support\Facades\FilamentIcon;
 use Illuminate\Filesystem\Filesystem;
 use Livewire\Features\SupportTesting\Testable;
+use ManukMinasyan\FilamentAttribute\Commands\FilamentAttributeCommand;
+use ManukMinasyan\FilamentAttribute\Testing\TestsFilamentAttribute;
 use Spatie\LaravelPackageTools\Commands\InstallCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
-use ManukMinasyan\FilamentAttribute\Commands\FilamentAttributeCommand;
-use ManukMinasyan\FilamentAttribute\Testing\TestsFilamentAttribute;
 
 class FilamentAttributeServiceProvider extends PackageServiceProvider
 {
@@ -58,9 +58,7 @@ class FilamentAttributeServiceProvider extends PackageServiceProvider
         }
     }
 
-    public function packageRegistered(): void
-    {
-    }
+    public function packageRegistered(): void {}
 
     public function packageBooted(): void
     {
@@ -80,7 +78,7 @@ class FilamentAttributeServiceProvider extends PackageServiceProvider
 
         // Handle Stubs
         if (app()->runningInConsole()) {
-            foreach (app(Filesystem::class)->files(__DIR__ . '/../stubs/') as $file) {
+            foreach (app(Filesystem::class)->files(__DIR__.'/../stubs/') as $file) {
                 $this->publishes([
                     $file->getRealPath() => base_path("stubs/filament-attribute/{$file->getFilename()}"),
                 ], 'filament-attribute-stubs');
@@ -88,7 +86,7 @@ class FilamentAttributeServiceProvider extends PackageServiceProvider
         }
 
         // Testing
-        Testable::mixin(new TestsFilamentAttribute());
+        Testable::mixin(new TestsFilamentAttribute);
     }
 
     protected function getAssetPackageName(): ?string
@@ -103,8 +101,8 @@ class FilamentAttributeServiceProvider extends PackageServiceProvider
     {
         return [
             // AlpineComponent::make('filament-attribute', __DIR__ . '/../resources/dist/components/filament-attribute.js'),
-//            Css::make('filament-attribute-styles', __DIR__ . '/../resources/dist/filament-attribute.css'),
-//            Js::make('filament-attribute-scripts', __DIR__ . '/../resources/dist/filament-attribute.js'),
+            //            Css::make('filament-attribute-styles', __DIR__ . '/../resources/dist/filament-attribute.css'),
+            //            Js::make('filament-attribute-scripts', __DIR__ . '/../resources/dist/filament-attribute.js'),
         ];
     }
 

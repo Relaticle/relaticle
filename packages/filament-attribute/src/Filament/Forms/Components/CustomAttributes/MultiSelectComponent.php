@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace ManukMinasyan\FilamentAttribute\Filament\Forms\Components\CustomAttributes;
 
-use ManukMinasyan\FilamentAttribute\Enums\AttributeLookupTypeEnum;
-use ManukMinasyan\FilamentAttribute\Models\Attribute;
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\Select;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use ManukMinasyan\FilamentAttribute\Enums\AttributeLookupTypeEnum;
+use ManukMinasyan\FilamentAttribute\Models\Attribute;
 
 final readonly class MultiSelectComponent implements AttributeComponentInterface
 {
