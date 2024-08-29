@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\CompanyResource\Pages;
@@ -7,6 +9,7 @@ use App\Models\Company;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use Filament\Resources\Pages\PageRegistration;
 use Filament\Resources\Resource;
 use Filament\Tables\Actions\BulkActionGroup;
 use Filament\Tables\Actions\DeleteAction;
@@ -16,14 +19,26 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use ManukMinasyan\FilamentAttribute\Filament\Forms\Components\CustomAttributes\CustomAttributesComponent;
 
-class CompanyResource extends Resource
+final class CompanyResource extends Resource
 {
+    /**
+     * The model the resource corresponds to.
+     */
     protected static ?string $model = Company::class;
 
+    /**
+     * The name of the resource.
+     */
     protected static ?string $slug = 'companies';
 
+    /**
+     * The navigation icon for the resource.
+     */
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
+    /**
+     * The form schema definition for the resource.
+     */
     public static function form(Form $form): Form
     {
         return $form
@@ -48,11 +63,13 @@ class CompanyResource extends Resource
                 TextInput::make('phone')
                     ->required(),
 
-                CustomAttributesComponent::make('Additional Attributes')
-                    ->entity(Company::class),
+                CustomAttributesComponent::make('Additional Attributes'),
             ]);
     }
 
+    /**
+     * The table schema definition for the resource.
+     */
     public static function table(Table $table): Table
     {
         return $table
@@ -81,6 +98,11 @@ class CompanyResource extends Resource
             ]);
     }
 
+    /**
+     * Get the pages available for the resource.
+     *
+     * @return array<string, PageRegistration>
+     */
     public static function getPages(): array
     {
         return [
@@ -90,6 +112,13 @@ class CompanyResource extends Resource
         ];
     }
 
+    /**
+     * Get the globally searchable attributes for the resource.
+     *
+     * These attributes are searchable via the global search bar.
+     *
+     * @return array<string>
+     */
     public static function getGloballySearchableAttributes(): array
     {
         return ['name'];
