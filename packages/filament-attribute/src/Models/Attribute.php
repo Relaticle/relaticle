@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace ManukMinasyan\FilamentAttribute\Models;
 
+use ManukMinasyan\FilamentAttribute\Data\ValidationRuleData;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use ManukMinasyan\FilamentAttribute\Database\Factories\AttributeFactory;
 use ManukMinasyan\FilamentAttribute\Enums\AttributeTypeEnum;
+use Spatie\LaravelData\DataCollection;
 
 /**
  * @property AttributeTypeEnum $type
@@ -30,6 +32,7 @@ final class Attribute extends Model
         'lookup_type',
         'name',
         'code',
+        'validation_rules',
     ];
 
     /**
@@ -43,7 +46,7 @@ final class Attribute extends Model
             'type' => AttributeTypeEnum::class,
             //            'entity_type' => Model::class,
             //            'lookup_type' => AttributeLookupTypeEnum::class,,
-            //            'validation_rules' =>
+            'validation_rules' => DataCollection::class.':'.ValidationRuleData::class,
         ];
     }
 

@@ -17,6 +17,13 @@ use ManukMinasyan\FilamentAttribute\Models\Contracts\HasCustomAttributes;
  */
 trait UsesCustomAttributes
 {
+    public function __construct($attributes = [])
+    {
+        // Ensure custom attributes are included in a fillable array
+        $this->fillable = array_merge(['custom_attributes'], $this->fillable);
+        parent::__construct($attributes);
+    }
+
     /**
      * @var array<int, array<string, mixed>>
      */
@@ -24,29 +31,37 @@ trait UsesCustomAttributes
 
     protected static function bootUsesCustomAttributes(): void
     {
-        static::creating(function (Model $model): void {
-            if (! empty($model->custom_attributes) && is_array($model->custom_attributes)) {
-                self::$tempCustomAttributes[spl_object_id($model)] = $model->custom_attributes;
-                unset($model->custom_attributes);
-            }
-        });
-
-        static::created(function (Model $model): void {
-            $objectId = spl_object_id($model);
-            // TODO: Remove the method exists condition and fix type problem with another way
-            if (isset(self::$tempCustomAttributes[$objectId]) && method_exists($model, 'saveCustomAttributes')) {
-                $customAttributes = self::$tempCustomAttributes[$objectId];
-                $model->saveCustomAttributes($customAttributes);
-                unset(self::$tempCustomAttributes[$objectId]);
-            }
-        });
-
         static::saving(function (Model $model): void {
-            if (! empty($model->custom_attributes) && is_array($model->custom_attributes) && method_exists($model, 'saveCustomAttributes')) {
-                $model->saveCustomAttributes($model->custom_attributes);
-                unset($model->custom_attributes);
-            }
+            $model->handleCustomAttributes();
         });
+
+        static::saved(function (Model $model): void {
+            $model->saveCustomAttributesFromTemp();
+        });
+    }
+
+    /**
+     * Handle the custom attributes before saving the model.
+     */
+    protected function handleCustomAttributes(): void
+    {
+        if (! empty($this->custom_attributes) && is_array($this->custom_attributes)) {
+            self::$tempCustomAttributes[spl_object_id($this)] = $this->custom_attributes;
+            unset($this->custom_attributes);
+        }
+    }
+
+    /**
+     * Save custom attributes from temporary storage after the model is created/updated.
+     */
+    protected function saveCustomAttributesFromTemp(): void
+    {
+        $objectId = spl_object_id($this);
+
+        if (isset(self::$tempCustomAttributes[$objectId]) && method_exists($this, 'saveCustomAttributes')) {
+            $this->saveCustomAttributes(self::$tempCustomAttributes[$objectId]);
+            unset(self::$tempCustomAttributes[$objectId]);
+        }
     }
 
     /**

@@ -16,12 +16,13 @@ final class CustomAttributesComponent extends Component
 
     public function __construct(private readonly AttributeComponentFactory $componentFactory)
     {
-        $this->schema($this->generateSchema());
+        // Defer schema generation until we can safely access the record
+        $this->schema(fn() => $this->generateSchema());
     }
 
-    public static function make(?string $name): static
+    public static function make(): static
     {
-        return app(self::class, ['name' => $name]);
+        return app(self::class);
     }
 
     /**
@@ -30,7 +31,7 @@ final class CustomAttributesComponent extends Component
     protected function generateSchema(): array
     {
         return $this->getAttributes()
-            ->map(fn (Attribute $attribute): Field => $this->componentFactory->create($attribute))
+            ->map(fn(Attribute $attribute): Field => $this->componentFactory->create($attribute))
             ->toArray();
     }
 
