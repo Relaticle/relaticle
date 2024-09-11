@@ -8,7 +8,8 @@ use Filament\Forms;
 use Filament\Forms\Components\Component;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
-use ManukMinasyan\FilamentAttribute\Enums\AttributeValidationRuleEnum;
+use ManukMinasyan\FilamentAttribute\Enums\AttributeValidationRule;
+use ManukMinasyan\FilamentAttribute\Enums\AttributeType;
 
 final class AttributeValidationComponent extends Component
 {
@@ -38,35 +39,43 @@ final class AttributeValidationComponent extends Component
                             ->label('Rule')
                             ->options(function (Get $get) {
                                 $existingRules = $get('../../validation_rules') ?? [];
+                                $attributeType = AttributeType::tryFrom($get('../../type'));
+                                $allowedRules = $attributeType instanceof AttributeType ? $attributeType->allowedValidationRules() : [];
 
-                                return collect(AttributeValidationRuleEnum::cases())
-                                    ->reject(function ($enum) use ($existingRules) {
-                                        return $this->hasDuplicateRule($existingRules, $enum->value);
-                                    })
+                                return collect($allowedRules)
+                                    ->reject(fn ($enum): bool => $this->hasDuplicateRule($existingRules, $enum->value))
                                     ->mapWithKeys(fn ($enum) => [$enum->value => $enum->getLabel()])
                                     ->toArray();
                             })
                             ->searchable()
                             ->required()
                             ->live()
-                            ->required()
-                            ->afterStateUpdated(function (Get $get, Set $set, ?string $state, ?string $old) {
+                            ->rules([
+                                'required',
+                            ])
+                            ->afterStateUpdated(function (Get $get, Set $set, ?string $state, ?string $old): void {
                                 if ($old !== $state) {
                                     $set('parameters', []);
                                 }
                             })
                             ->columnSpan(1),
                         Forms\Components\Placeholder::make('description')
-                            ->content(fn (Get $get): string => AttributeValidationRuleEnum::getDescriptionForRule($get('name')))
+                            ->content(fn (Get $get): string => AttributeValidationRule::getDescriptionForRule($get('name')))
                             ->columnSpan(2),
                         $this->buildRuleParametersRepeater(),
                     ]),
             ])
-            ->itemLabel(fn (array $state): string => AttributeValidationRuleEnum::getLabelForRule($state['name'] ?? null, $state['parameters'] ?? []))
+            ->itemLabel(fn (array $state): string => AttributeValidationRule::getLabelForRule((string) $state['name'], $state['parameters'] ?? []))
             ->collapsible()
             ->reorderable()
             ->deletable()
-            ->addable()
+            ->hintColor('danger')
+            ->addable(fn (Get $get): bool => $get('type') && AttributeType::tryFrom($get('type')))
+            ->hint(function (Get $get): string {
+                $isTypeSelected = $get('type') && AttributeType::tryFrom($get('type'));
+
+                return $isTypeSelected ? '' : 'To add validation rules, select an attribute type.';
+            })
             ->hiddenLabel()
             ->defaultItems(0)
             ->columnSpanFull();
@@ -83,7 +92,7 @@ final class AttributeValidationComponent extends Component
                     ->maxLength(255),
             )
             ->columnSpanFull()
-            ->visible(fn (Get $get): bool => AttributeValidationRuleEnum::hasParameterForRule($get('name')))
+            ->visible(fn (Get $get): bool => AttributeValidationRule::hasParameterForRule($get('name')))
             ->minItems(1)
             ->maxItems(3)
             ->reorderable(false)
@@ -91,10 +100,13 @@ final class AttributeValidationComponent extends Component
             ->addActionLabel('Add Parameter');
     }
 
+    /**
+     * Checks if a validation rule already exists in the array of rules.
+     *
+     * @param  array<string, array<string, string>>  $rules
+     */
     private function hasDuplicateRule(array $rules, string $newRule): bool
     {
-        return collect($rules)->contains(function ($rule) use ($newRule) {
-            return $rule['name'] === $newRule;
-        });
+        return collect($rules)->contains(fn (array $rule): bool => $rule['name'] === $newRule);
     }
 }

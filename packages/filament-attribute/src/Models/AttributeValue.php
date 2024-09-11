@@ -7,7 +7,7 @@ namespace ManukMinasyan\FilamentAttribute\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
-use ManukMinasyan\FilamentAttribute\Enums\AttributeTypeEnum;
+use ManukMinasyan\FilamentAttribute\Enums\AttributeType;
 
 /**
  * @property Attribute $attribute
@@ -35,14 +35,14 @@ final class AttributeValue extends Model
      * @var array<string, string>
      */
     public static array $attributeTypeFields = [
-        AttributeTypeEnum::TEXT->value => 'text_value',
-        AttributeTypeEnum::TEXTAREA->value => 'text_value',
-        AttributeTypeEnum::SELECT->value => 'integer_value',
-        AttributeTypeEnum::PRICE->value => 'float_value',
-        AttributeTypeEnum::MULTISELECT->value => 'json_value',
-        AttributeTypeEnum::TOGGLE->value => 'boolean_value',
-        AttributeTypeEnum::DATE->value => 'date_value',
-        AttributeTypeEnum::DATETIME->value => 'datetime_value',
+        AttributeType::TEXT->value => 'text_value',
+        AttributeType::TEXTAREA->value => 'text_value',
+        AttributeType::SELECT->value => 'integer_value',
+        AttributeType::PRICE->value => 'float_value',
+        AttributeType::MULTISELECT->value => 'json_value',
+        AttributeType::TOGGLE->value => 'boolean_value',
+        AttributeType::DATE->value => 'date_value',
+        AttributeType::DATETIME->value => 'datetime_value',
     ];
 
     /**

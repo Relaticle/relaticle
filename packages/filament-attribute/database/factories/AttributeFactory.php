@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Carbon;
 use ManukMinasyan\FilamentAttribute\Enums\AttributeEntityTypeEnum;
 use ManukMinasyan\FilamentAttribute\Enums\AttributeLookupTypeEnum;
-use ManukMinasyan\FilamentAttribute\Enums\AttributeTypeEnum;
+use ManukMinasyan\FilamentAttribute\Enums\AttributeType;
 use ManukMinasyan\FilamentAttribute\Models\Attribute;
 
 /**
@@ -33,7 +33,7 @@ final class AttributeFactory extends Factory
         return [
             'code' => $this->faker->word(),
             'name' => $this->faker->name(),
-            'type' => $this->faker->randomElement(AttributeTypeEnum::cases()),
+            'type' => $this->faker->randomElement(AttributeType::cases()),
             'lookup_type' => $this->faker->randomElement(AttributeLookupTypeEnum::cases()),
             'entity_type' => $this->faker->randomElement(AttributeEntityTypeEnum::cases()),
             'sort_order' => $this->faker->randomNumber(),
