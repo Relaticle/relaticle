@@ -63,7 +63,7 @@ final class CompanyResource extends Resource
                 TextInput::make('phone')
                     ->required(),
 
-                CustomAttributesComponent::make('Additional Attributes'),
+                CustomAttributesComponent::make(),
             ]);
     }
 

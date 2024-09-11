@@ -27,4 +27,10 @@ final class Company extends Model implements HasCustomAttributes
         'country',
         'phone',
     ];
+
+    protected static function boot(): void
+    {
+        parent::boot();
+        self::bootUsesCustomAttributes();
+    }
 }
