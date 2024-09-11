@@ -10,11 +10,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use ManukMinasyan\FilamentAttribute\Database\Factories\AttributeFactory;
-use ManukMinasyan\FilamentAttribute\Enums\AttributeTypeEnum;
+use ManukMinasyan\FilamentAttribute\Enums\AttributeType;
 use Spatie\LaravelData\DataCollection;
 
 /**
- * @property AttributeTypeEnum $type
+ * @property AttributeType $type
  * @property Model $entity_type
  * @property Model|null $lookup_type
  */
@@ -43,7 +43,7 @@ final class Attribute extends Model
     protected function casts(): array
     {
         return [
-            'type' => AttributeTypeEnum::class,
+            'type' => AttributeType::class,
             //            'entity_type' => Model::class,
             //            'lookup_type' => AttributeLookupTypeEnum::class,,
             'validation_rules' => DataCollection::class.':'.ValidationRuleData::class,
@@ -56,7 +56,7 @@ final class Attribute extends Model
      *
      * @noinspection PhpUnused
      */
-    public function scopeForType(Builder $builder, AttributeTypeEnum $type): Builder
+    public function scopeForType(Builder $builder, AttributeType $type): Builder
     {
         return $builder->where('type', $type);
     }

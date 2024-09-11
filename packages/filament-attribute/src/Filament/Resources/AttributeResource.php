@@ -10,7 +10,7 @@ use Filament\Tables;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
 use Illuminate\Validation\Rules\Unique;
-use ManukMinasyan\FilamentAttribute\Enums\AttributeTypeEnum;
+use ManukMinasyan\FilamentAttribute\Enums\AttributeType;
 use ManukMinasyan\FilamentAttribute\Filament\Forms\Components\AttributeResource\AttributeValidationComponent;
 use ManukMinasyan\FilamentAttribute\Filament\Resources\AttributeResource\Pages;
 use ManukMinasyan\FilamentAttribute\Models\Attribute;
@@ -38,7 +38,7 @@ final class AttributeResource extends Resource
                                     ->required(),
                                 Forms\Components\Select::make('type')
                                     ->reactive()
-                                    ->options(AttributeTypeEnum::class)
+                                    ->options(AttributeType::class)
                                     ->searchable()
 
                                     ->required(),
@@ -69,7 +69,7 @@ final class AttributeResource extends Resource
                                         $set('code', strtolower($state ?? ''));
                                     }),
                                 Forms\Components\Select::make('options_lookup_type')
-                                    ->visible(fn (Forms\Get $get): bool => in_array($get('type'), [AttributeTypeEnum::SELECT->value, AttributeTypeEnum::MULTISELECT->value]))
+                                    ->visible(fn (Forms\Get $get): bool => in_array($get('type'), [AttributeType::SELECT->value, AttributeType::MULTISELECT->value]))
                                     ->reactive()
                                     ->options([
                                         'options' => 'Options',
@@ -89,7 +89,7 @@ final class AttributeResource extends Resource
                                     ->options(AttributeEntityTypeService::options())
                                     ->required(),
                                 Forms\Components\Repeater::make('options')
-                                    ->visible(fn (Forms\Get $get): bool => $get('options_lookup_type') === 'options' && in_array($get('type'), [AttributeTypeEnum::SELECT->value, AttributeTypeEnum::MULTISELECT->value]))
+                                    ->visible(fn (Forms\Get $get): bool => $get('options_lookup_type') === 'options' && in_array($get('type'), [AttributeType::SELECT->value, AttributeType::MULTISELECT->value]))
                                     ->relationship()
                                     ->simple(
                                         Forms\Components\TextInput::make('name')
