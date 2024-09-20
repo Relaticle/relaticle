@@ -17,7 +17,7 @@ class TaskResource extends Resource
 {
     protected static ?string $model = Task::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-check';
+    protected static ?string $navigationIcon = 'heroicon-m-check';
 
     protected static ?string $recordTitleAttribute = 'title';
 

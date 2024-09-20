@@ -7,6 +7,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\CompanyResource\Pages;
 use App\Models\Company;
 use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\Section;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Pages\PageRegistration;
@@ -37,7 +38,7 @@ final class CompanyResource extends Resource
     /**
      * The navigation icon for the resource.
      */
-    protected static ?string $navigationIcon = 'heroicon-o-home-modern';
+    protected static ?string $navigationIcon = 'heroicon-m-home-modern';
 
     /**
      * The form schema definition for the resource.
@@ -63,7 +64,10 @@ final class CompanyResource extends Resource
                 TextInput::make('phone')
                     ->required(),
 
-                CustomFieldsComponent::make(),
+                Section::make('Custom Fields')->schema([
+                    CustomFieldsComponent::make(),
+                ])
+
             ]);
     }
 
@@ -81,7 +85,7 @@ final class CompanyResource extends Resource
 
                 TextColumn::make('address'),
 
-                TextColumn::make('phone'),
+                TextColumn::make('phone')
             ])
             ->filters([
                 //
