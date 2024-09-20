@@ -27,7 +27,7 @@ final class UserResource extends Resource
     /**
      * The navigation icon for the resource.
      */
-    protected static ?string $navigationIcon = 'heroicon-o-user';
+    protected static ?string $navigationIcon = 'heroicon-m-user';
 
     /**
      * Define the form schema for the resource.

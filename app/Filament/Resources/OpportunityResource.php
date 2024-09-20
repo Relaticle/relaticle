@@ -18,7 +18,7 @@ class OpportunityResource extends Resource
 {
     protected static ?string $model = Opportunity::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-trophy';
+    protected static ?string $navigationIcon = 'heroicon-m-trophy';
 
     public static function form(Form $form): Form
     {
