@@ -7,7 +7,7 @@ namespace App\Filament\Resources\UserResource\Pages;
 use App\Filament\Resources\UserResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
-use ManukMinasyan\FilamentCustomField\Filament\Concerns\InteractsWithCustomFields;
+use ManukMinasyan\FilamentCustomField\Filament\Tables\Concerns\InteractsWithCustomFields;
 
 final class ListUsers extends ListRecords
 {

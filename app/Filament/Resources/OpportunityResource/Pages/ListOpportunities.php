@@ -5,7 +5,7 @@ namespace App\Filament\Resources\OpportunityResource\Pages;
 use App\Filament\Resources\OpportunityResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
-use ManukMinasyan\FilamentCustomField\Filament\Concerns\InteractsWithCustomFields;
+use ManukMinasyan\FilamentCustomField\Filament\Tables\Concerns\InteractsWithCustomFields;
 
 class ListOpportunities extends ListRecords
 {
