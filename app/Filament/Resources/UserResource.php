@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\UserResource\Pages;
+use App\Filament\Resources\UserResource\RelationManagers\TasksRelationManager;
 use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -12,7 +13,7 @@ use Filament\Resources\Pages\PageRegistration;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use ManukMinasyan\FilamentAttribute\Filament\Forms\Components\CustomAttributes\CustomAttributesComponent;
+use ManukMinasyan\FilamentCustomField\Filament\Forms\Components\CustomFieldsComponent\CustomFieldsComponent;
 
 final class UserResource extends Resource
 {
@@ -21,10 +22,12 @@ final class UserResource extends Resource
      */
     protected static ?string $model = User::class;
 
+    protected static ?string $recordTitleAttribute = 'name';
+
     /**
      * The navigation icon for the resource.
      */
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-user';
 
     /**
      * Define the form schema for the resource.
@@ -46,7 +49,16 @@ final class UserResource extends Resource
                     ->password()
                     ->required()
                     ->maxLength(255),
-                CustomAttributesComponent::make('Additional Attributes'),
+                Forms\Components\Section::make()->schema([
+                    CustomFieldsComponent::make()
+//                        ->forGroup('general')
+                        ->columnSpanFull()
+                        ->columns(),
+//                    CustomFieldsComponent::make()
+//                        ->forGroup('contact')
+//                        ->columnSpanFull()
+//                        ->columns(),
+                ])
             ]);
     }
 
@@ -92,7 +104,7 @@ final class UserResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            TasksRelationManager::class
         ];
     }
 

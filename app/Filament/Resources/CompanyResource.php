@@ -15,9 +15,10 @@ use Filament\Tables\Actions\BulkActionGroup;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\DeleteBulkAction;
 use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use ManukMinasyan\FilamentAttribute\Filament\Forms\Components\CustomAttributes\CustomAttributesComponent;
+use ManukMinasyan\FilamentCustomField\Filament\Forms\Components\CustomFieldsComponent\CustomFieldsComponent;
 
 final class CompanyResource extends Resource
 {
@@ -31,10 +32,12 @@ final class CompanyResource extends Resource
      */
     protected static ?string $slug = 'companies';
 
+    protected static ?string $recordTitleAttribute = 'name';
+
     /**
      * The navigation icon for the resource.
      */
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-home-modern';
 
     /**
      * The form schema definition for the resource.
@@ -57,13 +60,10 @@ final class CompanyResource extends Resource
                 TextInput::make('address')
                     ->required(),
 
-                TextInput::make('country')
-                    ->required(),
-
                 TextInput::make('phone')
                     ->required(),
 
-                CustomAttributesComponent::make(),
+                CustomFieldsComponent::make(),
             ]);
     }
 
@@ -74,13 +74,12 @@ final class CompanyResource extends Resource
     {
         return $table
             ->columns([
+                ImageColumn::make('logo')->label('')->size(30)->square(),
                 TextColumn::make('name')
                     ->searchable()
                     ->sortable(),
 
                 TextColumn::make('address'),
-
-                TextColumn::make('country'),
 
                 TextColumn::make('phone'),
             ])

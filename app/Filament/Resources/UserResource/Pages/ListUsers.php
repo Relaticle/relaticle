@@ -7,9 +7,12 @@ namespace App\Filament\Resources\UserResource\Pages;
 use App\Filament\Resources\UserResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
+use ManukMinasyan\FilamentCustomField\Filament\Concerns\InteractsWithCustomFields;
 
 final class ListUsers extends ListRecords
 {
+    use InteractsWithCustomFields;
+
     /**
      * @var class-string<UserResource>
      */
