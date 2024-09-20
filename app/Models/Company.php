@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Database\Factories\CompanyFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use ManukMinasyan\FilamentAttribute\Models\Concerns\UsesCustomAttributes;
-use ManukMinasyan\FilamentAttribute\Models\Contracts\HasCustomAttributes;
+use ManukMinasyan\FilamentCustomField\Models\Concerns\UsesCustomFields;
+use ManukMinasyan\FilamentCustomField\Models\Contracts\HasCustomFields;
 
 /**
  * @property string $name
@@ -14,9 +16,11 @@ use ManukMinasyan\FilamentAttribute\Models\Contracts\HasCustomAttributes;
  * @property string $country
  * @property string $phone
  */
-final class Company extends Model implements HasCustomAttributes
+final class Company extends Model implements HasCustomFields
 {
-    use UsesCustomAttributes;
+    /** @use HasFactory<CompanyFactory> */
+    use HasFactory;
+    use UsesCustomFields;
 
     /**
      * @var array<int, string>
@@ -28,9 +32,8 @@ final class Company extends Model implements HasCustomAttributes
         'phone',
     ];
 
-    protected static function boot(): void
+    public function getLogoAttribute(): ?string
     {
-        parent::boot();
-        self::bootUsesCustomAttributes();
+        return 'https://ui-avatars.com/api/?background=random&length=1&name='.urlencode($this->name);
     }
 }
