@@ -16,6 +16,7 @@ use Filament\Tables\Actions\BulkActionGroup;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\DeleteBulkAction;
 use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -40,6 +41,11 @@ final class CompanyResource extends Resource
      */
     protected static ?string $navigationIcon = 'heroicon-m-home-modern';
 
+    protected static ?int $navigationSort = 2;
+
+    protected static ?string $navigationGroup = 'Workspace';
+
+
     /**
      * The form schema definition for the resource.
      */
@@ -49,11 +55,11 @@ final class CompanyResource extends Resource
             ->schema([
                 Placeholder::make('created_at')
                     ->label('Created Date')
-                    ->content(fn (?Company $record): string => $record?->created_at?->diffForHumans() ?? '-'),
+                    ->content(fn(?Company $record): string => $record?->created_at?->diffForHumans() ?? '-'),
 
                 Placeholder::make('updated_at')
                     ->label('Last Modified Date')
-                    ->content(fn (?Company $record): string => $record?->updated_at?->diffForHumans() ?? '-'),
+                    ->content(fn(?Company $record): string => $record?->updated_at?->diffForHumans() ?? '-'),
 
                 TextInput::make('name')
                     ->required(),
@@ -64,11 +70,9 @@ final class CompanyResource extends Resource
                 TextInput::make('phone')
                     ->required(),
 
-                Section::make('Custom Fields')->schema([
-                    CustomFieldsComponent::make(),
-                ])
+                CustomFieldsComponent::make(),
 
-            ]);
+            ])->columns(1)->inlineLabel();
     }
 
     /**
@@ -91,6 +95,7 @@ final class CompanyResource extends Resource
                 //
             ])
             ->actions([
+                ViewAction::make(),
                 EditAction::make(),
                 DeleteAction::make(),
             ])

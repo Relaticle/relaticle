@@ -10,11 +10,11 @@ use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use ManukMinasyan\FilamentCustomField\Models\CustomField;
-use ManukMinasyan\FilamentCustomField\Models\Concerns\UsesCustomFields;
-use ManukMinasyan\FilamentCustomField\Models\Contracts\HasCustomFields;
+
 
 /**
  * @property string $name
@@ -22,13 +22,12 @@ use ManukMinasyan\FilamentCustomField\Models\Contracts\HasCustomFields;
  * @property string $password
  * @property-read Collection<int, CustomField> $customFields
  */
-final class User extends Authenticatable implements FilamentUser, HasCustomFields
+final class User extends Authenticatable implements FilamentUser
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory;
 
     use Notifiable;
-    use UsesCustomFields;
 
     /**
      * The attributes that are mass assignable.
@@ -74,8 +73,13 @@ final class User extends Authenticatable implements FilamentUser, HasCustomField
         //        return str_ends_with($this->email, '@yourdomain.com') && $this->hasVerifiedEmail();
     }
 
-    public function tasks(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function createdTasks(): HasMany
     {
-        return $this->hasMany(Task::class);
+        return $this->hasMany(Task::class, 'user_id');
+    }
+
+    public function assignedTasks(): HasMany
+    {
+        return $this->hasMany(Task::class, 'assignee_id');
     }
 }

@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use App\Models\Company;
+use App\Models\Note;
 use App\Models\Opportunity;
+use App\Models\People;
 use App\Models\Task;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
@@ -29,9 +31,11 @@ final class AppServiceProvider extends ServiceProvider
     {
         Relation::enforceMorphMap([
             'user' => User::class,
-            'opportunity' => Opportunity::class,
+            'people' => People::class,
             'company' => Company::class,
+            'opportunity' => Opportunity::class,
             'task' => Task::class,
+            'note' => Note::class,
         ]);
 
         //        Model::unguard();

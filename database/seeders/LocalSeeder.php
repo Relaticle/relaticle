@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Company;
+use App\Models\People;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 
@@ -15,7 +16,7 @@ class LocalSeeder extends Seeder
             'email' => 'manuk@minasyan.info',
         ]);
 
-        User::factory()->count(50)->create();
+        People::factory()->count(50)->create();
 
         Company::factory()->count(50)->create();
     }

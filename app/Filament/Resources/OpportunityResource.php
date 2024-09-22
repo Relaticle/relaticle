@@ -20,6 +20,11 @@ class OpportunityResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-m-trophy';
 
+    protected static ?int $navigationSort = 3;
+
+    protected static ?string $navigationGroup = 'Workspace';
+
+
     public static function form(Form $form): Form
     {
         return $form

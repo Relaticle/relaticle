@@ -10,7 +10,8 @@ return new class extends Migration {
     {
         Schema::create('tasks', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(User::class)->nullable();
+            $table->foreignIdFor(User::class, 'user_id')->nullable();
+            $table->foreignIdFor(User::class, 'assignee_id')->nullable();
 
             $table->string('title');
             $table->string('description')->nullable();
