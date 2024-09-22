@@ -9,7 +9,7 @@ arch()->preset()->php();
 arch()->preset()->security()->ignoring('assert');
 
 arch()->preset()->laravel()
-    ->ignoring('App\Providers\Filament\AdminPanelProvider');
+    ->ignoring('App\Providers\Filament\AppPanelProvider');
 
 arch('strict types')
     ->expect('App')

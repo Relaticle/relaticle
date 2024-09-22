@@ -11,13 +11,13 @@ class LocalSeeder extends Seeder
 {
     public function run(): void
     {
-        User::factory()->create([
+        $user = User::factory()->withPersonalTeam()->create([
             'name' => 'Manuk Minasyan',
             'email' => 'manuk@minasyan.info',
         ]);
 
-        People::factory()->count(50)->create();
+        People::factory()->for($user->personalTeam(), 'team')->count(500)->create();
 
-        Company::factory()->count(50)->create();
+        Company::factory()->for($user->personalTeam(), 'team')->count(50)->create();
     }
 }
