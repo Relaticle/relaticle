@@ -66,7 +66,7 @@ final class AppPanelProvider extends PanelProvider
             ->default()
             ->id('app')
             ->path('app')
-            ->homeUrl('/companies')
+            ->homeUrl('companies')
             ->brandName('Relaticle')
             ->login()
             ->registration()

@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Filament\Facades\Filament;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -16,6 +17,10 @@ return new class extends Migration
          */
         Schema::create(config('custom-fields.table_names.custom_fields'), function (Blueprint $table): void {
             $table->id();
+
+            if (config('custom-fields.teams', false) && Filament::hasTenancy()) {
+                $table->foreignId(config('custom-fields.column_names.team_foreign_key'))->nullable()->index();
+            }
 
             $table->string('code');
             $table->string('name');
@@ -40,6 +45,10 @@ return new class extends Migration
         Schema::create(config('custom-fields.table_names.custom_field_options'), function (Blueprint $table): void {
             $table->id();
 
+            if (config('custom-fields.teams', false) && Filament::hasTenancy()) {
+                $table->foreignId(config('custom-fields.column_names.team_foreign_key'))->nullable()->index();
+            }
+
             $table->foreignIdFor(CustomField::class)
                 ->constrained()
                 ->cascadeOnDelete();
@@ -58,6 +67,10 @@ return new class extends Migration
          */
         Schema::create(config('custom-fields.table_names.custom_field_values'), function (Blueprint $table): void {
             $table->id();
+
+            if (config('custom-fields.teams', false) && Filament::hasTenancy()) {
+                $table->foreignId(config('custom-fields.column_names.team_foreign_key'))->nullable()->index();
+            }
 
             $table->morphs('entity');
             $table->foreignIdFor(CustomField::class)
