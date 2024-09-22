@@ -7,6 +7,7 @@ namespace App\Models;
 use Database\Factories\CompanyFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use ManukMinasyan\FilamentCustomField\Models\Concerns\UsesCustomFields;
 use ManukMinasyan\FilamentCustomField\Models\Contracts\HasCustomFields;
 
@@ -34,6 +35,11 @@ final class Company extends Model implements HasCustomFields
 
     public function getLogoAttribute(): ?string
     {
-        return 'https://ui-avatars.com/api/?background=random&length=1&name='.urlencode($this->name);
+        return 'https://ui-avatars.com/api/?background=random&length=1&name=' . urlencode($this->name);
+    }
+
+    public function team(): BelongsTo
+    {
+        return $this->belongsTo(Team::class);
     }
 }

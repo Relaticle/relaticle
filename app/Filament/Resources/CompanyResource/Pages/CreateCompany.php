@@ -21,4 +21,9 @@ final class CreateCompany extends CreateRecord
 
         ];
     }
+
+    public function mutateFormDataBeforeCreate(array $data): array
+    {
+        return $data;
+    }
 }
