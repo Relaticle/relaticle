@@ -2,12 +2,9 @@
 
 namespace App\Filament\Pages;
 
-use Filament\Navigation\NavigationItem;
 use Filament\Pages\Page;
-use ManukMinasyan\FilamentCustomField\Filament\Resources\CustomFieldResource;
-use ManukMinasyan\FilamentCustomField\Services\EntityTypeOptionsService;
 
-class EditProfile extends SettingsPage
+class EditProfile extends Page
 {
     protected static ?string $navigationIcon = 'heroicon-o-user-circle';
 

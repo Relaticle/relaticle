@@ -6,7 +6,7 @@ use Filament\Facades\Filament;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use ManukMinasyan\FilamentCustomField\Models\CustomField;
+use Relaticle\CustomFields\Models\CustomField;
 
 return new class extends Migration
 {
@@ -19,7 +19,7 @@ return new class extends Migration
             $table->id();
 
             if (config('custom-fields.teams', false) && Filament::hasTenancy()) {
-                $table->foreignId(config('custom-fields.column_names.team_foreign_key'))->nullable()->index();
+                $table->foreignId(config('custom-fields.column_names.tenant_foreign_key'))->nullable()->index();
             }
 
             $table->string('code');
@@ -46,7 +46,7 @@ return new class extends Migration
             $table->id();
 
             if (config('custom-fields.teams', false) && Filament::hasTenancy()) {
-                $table->foreignId(config('custom-fields.column_names.team_foreign_key'))->nullable()->index();
+                $table->foreignId(config('custom-fields.column_names.tenant_foreign_key'))->nullable()->index();
             }
 
             $table->foreignIdFor(CustomField::class)
@@ -69,7 +69,7 @@ return new class extends Migration
             $table->id();
 
             if (config('custom-fields.teams', false) && Filament::hasTenancy()) {
-                $table->foreignId(config('custom-fields.column_names.team_foreign_key'))->nullable()->index();
+                $table->foreignId(config('custom-fields.column_names.tenant_foreign_key'))->nullable()->index();
             }
 
             $table->morphs('entity');

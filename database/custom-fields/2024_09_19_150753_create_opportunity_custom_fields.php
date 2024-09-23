@@ -1,8 +1,8 @@
 <?php
 
 use App\Models\Opportunity;
-use ManukMinasyan\FilamentCustomField\Enums\CustomFieldType;
-use ManukMinasyan\FilamentCustomField\Migrations\CustomFieldsMigration;
+use Relaticle\CustomFields\Enums\CustomFieldType;
+use Relaticle\CustomFields\Migrations\CustomFieldsMigration;
 
 return new class extends CustomFieldsMigration
 {

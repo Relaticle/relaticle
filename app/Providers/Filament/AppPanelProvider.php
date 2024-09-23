@@ -30,7 +30,7 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Laravel\Fortify\Fortify;
 use Laravel\Jetstream\Features;
 use Laravel\Jetstream\Jetstream;
-use ManukMinasyan\FilamentCustomField\FilamentCustomFieldPlugin;
+use Relaticle\CustomFields\CustomFieldsPlugin;
 
 final class AppPanelProvider extends PanelProvider
 {
@@ -82,7 +82,7 @@ final class AppPanelProvider extends PanelProvider
             ->userMenuItems([
                 MenuItem::make()
                     ->label('Profile')
-                    ->icon('heroicon-o-user-circle')
+                    ->icon('heroicon-m-user-circle')
                     ->url(fn() => $this->shouldRegisterMenuItem()
                         ? url(EditProfile::getUrl())
                         : url($panel->getPath())),
@@ -109,7 +109,7 @@ final class AppPanelProvider extends PanelProvider
                 Authenticate::class,
             ])
             ->plugins([
-                FilamentCustomFieldPlugin::make(),
+                CustomFieldsPlugin::make(),
             ])
             ->renderHook(
                 PanelsRenderHook::AUTH_LOGIN_FORM_BEFORE,
@@ -131,15 +131,7 @@ final class AppPanelProvider extends PanelProvider
             $panel
                 ->tenant(Team::class)
                 ->tenantRegistration(CreateTeam::class)
-                ->tenantProfile(EditTeam::class)
-                ->userMenuItems([
-                    MenuItem::make()
-                        ->label('Team Settings')
-                        ->icon('heroicon-o-cog-6-tooth')
-                        ->url(fn () => $this->shouldRegisterMenuItem()
-                            ? url(EditTeam::getUrl())
-                            : url($panel->getPath())),
-                ]);
+                ->tenantProfile(EditTeam::class);
         }
 
 
