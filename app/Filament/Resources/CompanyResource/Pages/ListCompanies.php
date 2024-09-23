@@ -7,7 +7,7 @@ namespace App\Filament\Resources\CompanyResource\Pages;
 use App\Filament\Resources\CompanyResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
-use ManukMinasyan\FilamentCustomField\Filament\Tables\Concerns\InteractsWithCustomFields;
+use Relaticle\CustomFields\Filament\Tables\Concerns\InteractsWithCustomFields;
 
 final class ListCompanies extends ListRecords
 {

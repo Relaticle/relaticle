@@ -5,14 +5,11 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\OpportunityResource\Pages;
 use App\Filament\Resources\OpportunityResource\RelationManagers;
 use App\Models\Opportunity;
-use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use ManukMinasyan\FilamentCustomField\Filament\Forms\Components\CustomFieldsComponent\CustomFieldsComponent;
+use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent;
 
 class OpportunityResource extends Resource
 {
