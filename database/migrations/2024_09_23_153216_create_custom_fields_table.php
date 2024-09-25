@@ -19,7 +19,7 @@ return new class extends Migration
             $table->id();
 
             if (config('custom-fields.tenant_aware', false) && Filament::hasTenancy()) {
-                $table->foreignIdFor(config('custom-fields.column_names.tenant_foreign_key'))->nullable()->index();
+                $table->foreignId(config('custom-fields.column_names.tenant_foreign_key'))->nullable()->index();
             }
 
             $table->string('code');
@@ -46,7 +46,7 @@ return new class extends Migration
             $table->id();
 
             if (config('custom-fields.tenant_aware', false) && Filament::hasTenancy()) {
-                $table->foreignIdFor(config('custom-fields.column_names.tenant_foreign_key'))->nullable()->index();
+                $table->foreignId(config('custom-fields.column_names.tenant_foreign_key'))->nullable()->index();
             }
 
             $table->foreignIdFor(CustomField::class)
@@ -69,7 +69,7 @@ return new class extends Migration
             $table->id();
 
             if (config('custom-fields.tenant_aware', false) && Filament::hasTenancy()) {
-                $table->foreignIdFor(config('custom-fields.column_names.tenant_foreign_key'))->nullable()->index();
+                $table->foreignId(config('custom-fields.column_names.tenant_foreign_key'))->nullable()->index();
             }
 
             $table->morphs('entity');
