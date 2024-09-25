@@ -18,8 +18,8 @@ return new class extends Migration
         Schema::create(config('custom-fields.table_names.custom_fields'), function (Blueprint $table): void {
             $table->id();
 
-            if (config('custom-fields.teams', false) && Filament::hasTenancy()) {
-                $table->foreignId(config('custom-fields.column_names.tenant_foreign_key'))->nullable()->index();
+            if (config('custom-fields.tenant_aware', false) && Filament::hasTenancy()) {
+                $table->foreignIdFor(config('custom-fields.column_names.tenant_foreign_key'))->nullable()->index();
             }
 
             $table->string('code');
@@ -45,8 +45,8 @@ return new class extends Migration
         Schema::create(config('custom-fields.table_names.custom_field_options'), function (Blueprint $table): void {
             $table->id();
 
-            if (config('custom-fields.teams', false) && Filament::hasTenancy()) {
-                $table->foreignId(config('custom-fields.column_names.tenant_foreign_key'))->nullable()->index();
+            if (config('custom-fields.tenant_aware', false) && Filament::hasTenancy()) {
+                $table->foreignIdFor(config('custom-fields.column_names.tenant_foreign_key'))->nullable()->index();
             }
 
             $table->foreignIdFor(CustomField::class)
@@ -68,8 +68,8 @@ return new class extends Migration
         Schema::create(config('custom-fields.table_names.custom_field_values'), function (Blueprint $table): void {
             $table->id();
 
-            if (config('custom-fields.teams', false) && Filament::hasTenancy()) {
-                $table->foreignId(config('custom-fields.column_names.tenant_foreign_key'))->nullable()->index();
+            if (config('custom-fields.tenant_aware', false) && Filament::hasTenancy()) {
+                $table->foreignIdFor(config('custom-fields.column_names.tenant_foreign_key'))->nullable()->index();
             }
 
             $table->morphs('entity');

@@ -67,6 +67,21 @@ return [
     */
     'tenant_aware' => true,
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | Database Migrations Paths
+    |--------------------------------------------------------------------------
+    |
+    | In these directories custom fields migrations will be stored and ran when migrating. A custom fields
+    | migration created via the make:custom-fields-migration command will be stored in the first path or
+    | a custom defined path when running the command.
+    |
+    */
+    'migrations_paths' => [
+        database_path('custom-fields'),
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | Database Table Names

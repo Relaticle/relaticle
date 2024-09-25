@@ -1,7 +1,7 @@
 {
     "name": "laravel/laravel",
     "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
+    "description": "The Next-Generation Open-Source CRM Platform",
     "keywords": [
         "laravel",
         "framework"
@@ -15,7 +15,7 @@
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.9",
         "livewire/livewire": "^3.0",
-        "relaticle/custom-fields": "dev-main",
+        "relaticle/custom-fields": "^0.9",
         "spatie/laravel-login-link": "^1.3",
         "spatie/laravel-settings": "^3.3",
         "stephenjude/filament-jetstream": "^0.0.13"
@@ -95,8 +95,8 @@
     "prefer-stable": true,
     "repositories": [
         {
-            "type": "path",
-            "url": "packages/custom-fields"
+            "type": "composer",
+            "url": "https://satis.relaticle.com"
         }
     ]
 }
