@@ -76,8 +76,9 @@ final class AppPanelProvider extends PanelProvider
             ->brandLogo(asset('relaticle-logo.svg'))
             ->viteTheme('resources/css/app.css')
             ->colors([
-                'primary' => '#28B6E4'
+                'primary' => '#06b6d4'
             ])
+            ->viteTheme('resources/css/filament/app/theme.css')
             ->font('Satoshi')
             ->userMenuItems([
                 MenuItem::make()
