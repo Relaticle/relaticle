@@ -15,7 +15,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('user_social_accounts', function (Blueprint $table) {
-            $table->ulid('id')->primary();
+            $table->id();
             $table->foreignIdFor(User::class)
                 ->constrained()
                 ->onUpdate('cascade')

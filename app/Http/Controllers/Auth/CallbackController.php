@@ -13,49 +13,56 @@ final class CallbackController
     public function __invoke(string $provider, CreatesNewSocialUsers $creator): RedirectResponse
     {
         try {
-            $social_user = Socialite::driver($provider)->user();
-
-            // Find Social Account
-            $account = UserSocialAccount::query()
-                ->where([
-                    'provider_name' => $provider,
-                    'provider_id' => $social_user->getId(),
-                ])
-                ->first();
-
-            // If Social Account Exist then Find User and Login
-            if ($account) {
-                auth()->login($account->user);
-
-                return redirect()->route('dashboard');
-            }
-
-            // Find User
-            $user = User::whereEmail($social_user->getEmail())->first();
-
-            // If User not get then create new user
-            if (! $user) {
-                $user = $creator->create([
-                    'name' => $social_user->getName(),
-                    'email' => $social_user->getEmail(),
-                    'terms' => 'on',
-                ]);
-            }
-
-            // Create Social Account
-            $user->socialAccounts()->create([
-                'provider_id' => $social_user->getId(),
-                'provider_name' => $provider,
-            ]);
-
-            // Login
-            auth()->login($user);
-
-            return redirect()->route('dashboard');
-        } catch (\Exception $e) {
+            $socialUser = Socialite::driver($provider)->user();
+        } catch (\Throwable $e) {
             report($e);
 
-            return redirect()->route('login');
+            return redirect()
+                ->route('login')
+                ->withErrors(['login' => 'Failed to authenticate with ' . ucfirst($provider) . '.']);
         }
+
+        // Attempt to find the user via the social account
+        $account = UserSocialAccount::with('user')
+            ->where('provider_name', $provider)
+            ->where('provider_id', $socialUser->getId())
+            ->first();
+
+        if ($account) {
+            // Log in the user and redirect to the dashboard
+            auth()->login($account->user);
+
+            return redirect()->route('dashboard');
+        }
+
+        // Attempt to find the user by email if available
+        $user = null;
+        $email = $socialUser->getEmail();
+
+        if ($email) {
+            $user = User::where('email', $email)->first();
+        }
+
+        // Create a new user if one doesn't exist
+        if (!$user) {
+            $user = $creator->create([
+                'name' => $socialUser->getName() ?? $socialUser->getNickname() ?? 'Unknown User',
+                'email' => $email ?? sprintf('%s_%s@noemail.app', $provider, $socialUser->getId()),
+                'terms' => 'on',
+            ]);
+        }
+
+        // Link the social account to the user
+        $user->socialAccounts()->updateOrCreate(
+            [
+                'provider_name' => $provider,
+                'provider_id' => $socialUser->getId(),
+            ],
+        );
+
+        // Log in the user and redirect to the dashboard
+        auth()->login($user);
+
+        return redirect()->route('dashboard');
     }
 }
