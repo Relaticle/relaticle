@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Auth\CallbackController;
+use App\Http\Controllers\Auth\RedirectController;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Support\Facades\Route;
 use Laravel\Jetstream\Http\Controllers\TeamInvitationController;
@@ -14,6 +16,13 @@ use Laravel\Jetstream\Http\Controllers\TeamInvitationController;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
+
+Route::middleware('guest')->group(function () {
+    Route::get('/auth/redirect/{provider}', RedirectController::class)
+        ->name('auth.socialite.redirect');
+    Route::get('/auth/callback/{provider}', CallbackController::class)
+        ->name('auth.socialite.callback');
+});
 
 Route::get('/', fn () => view('welcome'));
 
