@@ -13,9 +13,10 @@
         "laravel/framework": "^11.9",
         "laravel/jetstream": "^5.2",
         "laravel/sanctum": "^4.0",
+        "laravel/socialite": "^5.16",
         "laravel/tinker": "^2.9",
         "livewire/livewire": "^3.0",
-        "relaticle/custom-fields": "^0.9",
+        "relaticle/custom-fields": "^0.9.3",
         "spatie/laravel-login-link": "^1.3",
         "spatie/laravel-settings": "^3.3",
         "stephenjude/filament-jetstream": "^0.0.13"

@@ -115,7 +115,12 @@ final class AppPanelProvider extends PanelProvider
             ->renderHook(
                 PanelsRenderHook::AUTH_LOGIN_FORM_BEFORE,
                 fn(): string => Blade::render('@env(\'local\')<x-login-link email="manuk@minasyan.info" redirect-url="' . url('app') . '" />@endenv'),
+            )
+            ->renderHook(
+                PanelsRenderHook::AUTH_LOGIN_FORM_AFTER,
+                fn () => view('filament.auth.github')
             );
+        ;
 
         if (Features::hasApiFeatures()) {
             $panel->userMenuItems([

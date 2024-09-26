@@ -12,7 +12,9 @@ use App\Models\Task;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\URL;
 
 final class AppServiceProvider extends ServiceProvider
 {
@@ -38,6 +40,8 @@ final class AppServiceProvider extends ServiceProvider
             'note' => Note::class,
         ]);
 
-        //        Model::unguard();
+        if(App::isProduction()) {
+            URL::forceScheme('https');
+        }
     }
 }
