@@ -7,6 +7,7 @@ use App\Filament\Pages\ApiTokens;
 use App\Filament\Pages\CreateTeam;
 use App\Filament\Pages\EditProfile;
 use App\Filament\Pages\EditTeam;
+use App\Http\Middleware\ApplyTenantScopes;
 use App\Listeners\SwitchTeam;
 use App\Models\Team;
 use Filament\Events\TenantSet;
@@ -110,6 +111,12 @@ final class AppPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ])
+            ->tenantMiddleware(
+                [
+                    ApplyTenantScopes::class,
+                ],
+                isPersistent: true
+            )
             ->plugins([
                 CustomFieldsPlugin::make(),
             ])
