@@ -11,6 +11,7 @@
         "php": "^8.3",
         "filament/filament": "^3.2",
         "laravel/framework": "^11.9",
+        "laravel/horizon": "^5.29",
         "laravel/jetstream": "^5.2",
         "laravel/sanctum": "^4.0",
         "laravel/socialite": "^5.16",
