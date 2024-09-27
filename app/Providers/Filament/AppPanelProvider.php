@@ -72,6 +72,7 @@ final class AppPanelProvider extends PanelProvider
             ->registration()
             ->passwordReset()
             ->emailVerification()
+            ->databaseNotifications()
             ->brandLogoHeight('2.7rem')
             ->brandLogo(asset('relaticle-logo.svg'))
             ->viteTheme('resources/css/app.css')
@@ -114,20 +115,23 @@ final class AppPanelProvider extends PanelProvider
             ])
             ->renderHook(
                 PanelsRenderHook::AUTH_LOGIN_FORM_BEFORE,
-                fn(): string => Blade::render('@env(\'local\')<x-login-link email="manuk@minasyan.info" redirect-url="' . url('app') . '" />@endenv'),
+                fn(): string => Blade::render('@env(\'local\')<x-login-link email="manuk.minasyan1@gmail.com" redirect-url="' . url('app') . '" />@endenv'),
             )
             ->renderHook(
                 PanelsRenderHook::AUTH_LOGIN_FORM_AFTER,
-                fn () => view('filament.auth.github')
-            );
-        ;
+                fn() => view('filament.auth.github_login_button')
+            )
+            ->renderHook(
+                PanelsRenderHook::AUTH_REGISTER_FORM_AFTER,
+                fn() => view('filament.auth.github_register_button')
+            );;
 
         if (Features::hasApiFeatures()) {
             $panel->userMenuItems([
                 MenuItem::make()
                     ->label('API Tokens')
                     ->icon('heroicon-o-key')
-                    ->url(fn () => $this->shouldRegisterMenuItem()
+                    ->url(fn() => $this->shouldRegisterMenuItem()
                         ? url(ApiTokens::getUrl())
                         : url($panel->getPath())),
             ]);

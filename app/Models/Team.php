@@ -55,6 +55,11 @@ class Team extends JetstreamTeam
         return $this->hasMany(Company::class);
     }
 
+    public function tasks(): HasMany
+    {
+        return $this->hasMany(Task::class);
+    }
+
     public function opportunities(): HasMany
     {
         return $this->hasMany(Opportunity::class);

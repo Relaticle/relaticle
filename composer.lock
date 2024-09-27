@@ -6805,17 +6805,17 @@
         },
         {
             "name": "relaticle/custom-fields",
-            "version": "0.9.3",
+            "version": "0.9.5.2",
             "source": {
                 "type": "git",
                 "url": "git@github.com:Relaticle/custom-fields.git",
-                "reference": "0dbceddc10cbd558986178da82bdb4e3c9a4d5e5"
+                "reference": "5adef9e52fb08ddbbd5587602751c390a353b1f8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://satis.relaticle.com/dist/relaticle/custom-fields/relaticle-custom-fields-0dbceddc10cbd558986178da82bdb4e3c9a4d5e5-zip-537d15.zip",
-                "reference": "0dbceddc10cbd558986178da82bdb4e3c9a4d5e5",
-                "shasum": "25fb21ce2649df9b6a1a0ac7882120da15012195"
+                "url": "https://satis.relaticle.com/dist/relaticle/custom-fields/relaticle-custom-fields-5adef9e52fb08ddbbd5587602751c390a353b1f8-zip-a48c43.zip",
+                "reference": "5adef9e52fb08ddbbd5587602751c390a353b1f8",
+                "shasum": "4961e0d70300a6478938f69100ad5cf6761bcb5f"
             },
             "require": {
                 "filament/filament": "^3.0",
@@ -6898,7 +6898,7 @@
                 "issues": "https://github.com/manukminasyan/custom-fields/issues",
                 "source": "https://github.com/manukminasyan/custom-fields"
             },
-            "time": "2024-09-26T12:35:47+00:00"
+            "time": "2024-09-27T07:58:58+00:00"
         },
         {
             "name": "revolt/event-loop",
@@ -11119,16 +11119,16 @@
         },
         {
             "name": "pestphp/pest",
-            "version": "v3.2.3",
+            "version": "v3.2.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/pestphp/pest.git",
-                "reference": "4e2987d438a3c3b2f291d2c991049544ab2f52bb"
+                "reference": "5fe79d9c18a674e9cce2f36f365516c26ae87b49"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pestphp/pest/zipball/4e2987d438a3c3b2f291d2c991049544ab2f52bb",
-                "reference": "4e2987d438a3c3b2f291d2c991049544ab2f52bb",
+                "url": "https://api.github.com/repos/pestphp/pest/zipball/5fe79d9c18a674e9cce2f36f365516c26ae87b49",
+                "reference": "5fe79d9c18a674e9cce2f36f365516c26ae87b49",
                 "shasum": ""
             },
             "require": {
@@ -11214,7 +11214,7 @@
             ],
             "support": {
                 "issues": "https://github.com/pestphp/pest/issues",
-                "source": "https://github.com/pestphp/pest/tree/v3.2.3"
+                "source": "https://github.com/pestphp/pest/tree/v3.2.4"
             },
             "funding": [
                 {
@@ -11226,7 +11226,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-09-25T15:19:39+00:00"
+            "time": "2024-09-26T22:53:39+00:00"
         },
         {
             "name": "pestphp/pest-plugin",
