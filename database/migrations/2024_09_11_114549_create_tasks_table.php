@@ -18,8 +18,8 @@ return new class extends Migration {
 
             $table->string('title');
             $table->string('description')->nullable();
-            $table->string('status');
-            $table->string('priority');
+            $table->string('status')->nullable();
+            $table->string('priority')->nullable();
 
             $table->timestamps();
             $table->softDeletes();

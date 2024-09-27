@@ -32,11 +32,10 @@ return [
     |
     */
     'allowed_entity_resources' => [
-        // App\Filament\Resources\UserResource::class,
     ],
 
     'disallowed_entity_resources' => [
-        //
+        App\Filament\Resources\UserResource::class,
     ],
 
     /*
