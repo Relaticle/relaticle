@@ -107,6 +107,7 @@
         <h3 class="text-3xl font-bold text-center primary-color mb-12">Join Our Community</h3>
         <p class="text-center text-gray-700 mb-8">
             As an open-source platform written with Laravel and Filament, Relaticle thrives on community collaboration.
+            <br />
             Join our community to get help, share tips, and contribute to the project.
         </p>
         <div class="flex justify-center">
