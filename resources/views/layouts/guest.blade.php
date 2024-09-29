@@ -16,6 +16,7 @@
 
     <!-- Styles -->
     @livewireStyles
+
 </head>
 <body class="antialiased text-gray-800">
 
@@ -31,11 +32,10 @@
                 </a>
             </div>
             <!-- Navigation Links -->
-            <nav class="hidden md:flex space-x-8">
-                <a href="https://github.com/Relaticle" target="_blank"
-                   class="text-gray-500 hover:text-gray-900">GitHub</a>
+            <nav class="hidden md:flex space-x-8 items-center">
                 <a href="{{ route('login') }}" class="text-gray-500 hover:text-gray-900">Sign In</a>
-                <a href="{{ route('register') }}" class="text-gray-500 hover:text-gray-900">Get Started</a>
+                <a href="{{ route('register') }}"
+                   class="transition hover:bg-opacity-90 bg-primary px-3 py-2 rounded-md text-white">Get Started</a>
             </nav>
             <!-- Mobile Menu Button -->
             <div class="md:hidden">
