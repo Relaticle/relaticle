@@ -3,8 +3,8 @@
 namespace App\Listeners;
 
 use App\Models\Company;
-use App\Models\Team;
 use App\Models\User;
+use Illuminate\Support\Facades\Log;
 use Laravel\Jetstream\Events\TeamCreated;
 use Laravel\Jetstream\Features;
 use Relaticle\CustomFields\Contracts\CustomsFieldsMigrators;
@@ -30,11 +30,11 @@ class CreateTeamCustomFields
             // Set the tenant
             $this->migrator->setTenantId($team->id);
 
-            $this->createCustomFieldsForCompany($team);
+            $this->createCustomFieldsForCompany();
         }
     }
 
-    private function createCustomFieldsForCompany(Team $team): void
+    private function createCustomFieldsForCompany(): void
     {
         // ICP - Ideal Customer Profile: Indicates whether the company is the most suitable and valuable customer for you
         $this->migrator

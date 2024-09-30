@@ -6884,17 +6884,17 @@
         },
         {
             "name": "relaticle/custom-fields",
-            "version": "0.9.5.3",
+            "version": "0.9.6",
             "source": {
                 "type": "git",
                 "url": "git@github.com:Relaticle/custom-fields.git",
-                "reference": "bb543323983bb14151c38be2deb71134b1d30564"
+                "reference": "fa2adc8e1b7b6cb50bd12f6b208fae0a8c9b6bd1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://satis.relaticle.com/dist/relaticle/custom-fields/relaticle-custom-fields-bb543323983bb14151c38be2deb71134b1d30564-zip-1f174b.zip",
-                "reference": "bb543323983bb14151c38be2deb71134b1d30564",
-                "shasum": "6ed0364fe49daf503402fd345c56e88171bc1a99"
+                "url": "https://satis.relaticle.com/dist/relaticle/custom-fields/relaticle-custom-fields-fa2adc8e1b7b6cb50bd12f6b208fae0a8c9b6bd1-zip-d0886f.zip",
+                "reference": "fa2adc8e1b7b6cb50bd12f6b208fae0a8c9b6bd1",
+                "shasum": "aa41c9ebb45a905945e35c1ae602ba536d88b7ea"
             },
             "require": {
                 "filament/filament": "^3.0",
@@ -6977,7 +6977,7 @@
                 "issues": "https://github.com/manukminasyan/custom-fields/issues",
                 "source": "https://github.com/manukminasyan/custom-fields"
             },
-            "time": "2024-09-27T08:33:52+00:00"
+            "time": "2024-09-30T07:40:19+00:00"
         },
         {
             "name": "revolt/event-loop",
