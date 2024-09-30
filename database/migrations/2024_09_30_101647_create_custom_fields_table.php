@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-use Filament\Facades\Filament;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use Relaticle\CustomFields\Models\CustomField;
+use Relaticle\CustomFields\Support\Utils;
 
 return new class extends Migration
 {
@@ -20,7 +20,7 @@ return new class extends Migration
 
             $table->id();
 
-            if (config('custom-fields.tenant_aware', false) && Filament::hasTenancy()) {
+            if (Utils::isTenantEnabled()) {
                 $table->foreignId(config('custom-fields.column_names.tenant_foreign_key'))->nullable()->index();
                 $uniqueColumns[] = config('custom-fields.column_names.tenant_foreign_key');
             }
@@ -47,10 +47,13 @@ return new class extends Migration
          * Custom Field Options
          */
         Schema::create(config('custom-fields.table_names.custom_field_options'), function (Blueprint $table): void {
+            $uniqueColumns = ['custom_field_id', 'name'];
+
             $table->id();
 
-            if (config('custom-fields.tenant_aware', false) && Filament::hasTenancy()) {
+            if (Utils::isTenantEnabled()) {
                 $table->foreignId(config('custom-fields.column_names.tenant_foreign_key'))->nullable()->index();
+                $uniqueColumns[] = config('custom-fields.column_names.tenant_foreign_key');
             }
 
             $table->foreignIdFor(CustomField::class)
@@ -63,17 +66,20 @@ return new class extends Migration
             $table->softDeletes();
             $table->timestamps();
 
-            $table->unique(['custom_field_id', 'name']);
+            $table->unique($uniqueColumns);
         });
 
         /**
          * Custom Field Values
          */
         Schema::create(config('custom-fields.table_names.custom_field_values'), function (Blueprint $table): void {
+            $uniqueColumns = ['entity_type', 'entity_id', 'custom_field_id'];
+
             $table->id();
 
-            if (config('custom-fields.tenant_aware', false) && Filament::hasTenancy()) {
+            if (Utils::isTenantEnabled()) {
                 $table->foreignId(config('custom-fields.column_names.tenant_foreign_key'))->nullable()->index();
+                $uniqueColumns[] = config('custom-fields.column_names.tenant_foreign_key');
             }
 
             $table->morphs('entity');
@@ -92,7 +98,7 @@ return new class extends Migration
 
             $table->softDeletes();
 
-            $table->unique(['entity_type', 'entity_id', 'custom_field_id'], 'entity_type_custom_field_value_index_unique');
+            $table->unique($uniqueColumns, 'custom_field_values_entity_type_unique');
         });
     }
 

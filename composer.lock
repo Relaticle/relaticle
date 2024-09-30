@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "289bde6b3f4648ef9c2ee2411d638281",
+    "content-hash": "4a1f5544553feff0d5c13df7a8d5b6c9",
     "packages": [
         {
             "name": "amphp/amp",
@@ -6884,17 +6884,17 @@
         },
         {
             "name": "relaticle/custom-fields",
-            "version": "0.9.6",
+            "version": "0.9.7",
             "source": {
                 "type": "git",
                 "url": "git@github.com:Relaticle/custom-fields.git",
-                "reference": "fa2adc8e1b7b6cb50bd12f6b208fae0a8c9b6bd1"
+                "reference": "4f9bc8ba5e06e9979af94ef489a5d3bba2a50906"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://satis.relaticle.com/dist/relaticle/custom-fields/relaticle-custom-fields-fa2adc8e1b7b6cb50bd12f6b208fae0a8c9b6bd1-zip-d0886f.zip",
-                "reference": "fa2adc8e1b7b6cb50bd12f6b208fae0a8c9b6bd1",
-                "shasum": "aa41c9ebb45a905945e35c1ae602ba536d88b7ea"
+                "url": "https://satis.relaticle.com/dist/relaticle/custom-fields/relaticle-custom-fields-4f9bc8ba5e06e9979af94ef489a5d3bba2a50906-zip-06df59.zip",
+                "reference": "4f9bc8ba5e06e9979af94ef489a5d3bba2a50906",
+                "shasum": "42541c2c87fd72069f6ac519aed6baa9d54bb722"
             },
             "require": {
                 "filament/filament": "^3.0",
@@ -6966,7 +6966,7 @@
                 }
             ],
             "description": "This is my package custom-fields",
-            "homepage": "https://github.com/manukminasyan/custom-fields",
+            "homepage": "https://github.com/relaticle/custom-fields",
             "keywords": [
                 "custom-fields",
                 "laravel",
@@ -6974,10 +6974,10 @@
                 "relaticle"
             ],
             "support": {
-                "issues": "https://github.com/manukminasyan/custom-fields/issues",
-                "source": "https://github.com/manukminasyan/custom-fields"
+                "issues": "https://github.com/relaticle/custom-fields/issues",
+                "source": "https://github.com/relaticle/custom-fields"
             },
-            "time": "2024-09-30T07:40:19+00:00"
+            "time": "2024-09-30T09:28:42+00:00"
         },
         {
             "name": "revolt/event-loop",
@@ -7683,82 +7683,6 @@
                 }
             ],
             "time": "2023-12-25T11:46:58+00:00"
-        },
-        {
-            "name": "stephenjude/filament-jetstream",
-            "version": "0.0.13",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/stephenjude/filament-jetstream.git",
-                "reference": "cb3f6df3137ddf96f9c9660c8fead4135459959d"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/stephenjude/filament-jetstream/zipball/cb3f6df3137ddf96f9c9660c8fead4135459959d",
-                "reference": "cb3f6df3137ddf96f9c9660c8fead4135459959d",
-                "shasum": ""
-            },
-            "require": {
-                "filament/filament": "^3.0",
-                "illuminate/contracts": "^10.0|^11.0",
-                "laravel/jetstream": "^4.2|^5.0",
-                "php": "^8.1",
-                "spatie/laravel-package-tools": "^1.15.0"
-            },
-            "require-dev": {
-                "larastan/larastan": "^2.9",
-                "laravel/pint": "^1.0",
-                "nunomaduro/collision": "^7.9|^8.0",
-                "orchestra/testbench": "^8.14|^9.0",
-                "pestphp/pest": "^2.0",
-                "pestphp/pest-plugin-arch": "^2.0",
-                "pestphp/pest-plugin-laravel": "^2.0",
-                "phpstan/extension-installer": "^1.1",
-                "phpstan/phpstan-deprecation-rules": "^1.0",
-                "phpstan/phpstan-phpunit": "^1.0"
-            },
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "providers": [
-                        "FilamentJetstream\\FilamentJetstream\\FilamentJetstreamServiceProvider"
-                    ]
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "FilamentJetstream\\FilamentJetstream\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "stephenjude",
-                    "email": "stephenjudesuccess@gmail.com",
-                    "role": "Developer"
-                }
-            ],
-            "description": "Supercharge your Filament Admin Panel with Laravel Jetstream.",
-            "homepage": "https://github.com/stephenjude/filament-jetstream",
-            "keywords": [
-                "filament-jetstream",
-                "laravel",
-                "stephenjude"
-            ],
-            "support": {
-                "issues": "https://github.com/stephenjude/filament-jetstream/issues",
-                "source": "https://github.com/stephenjude/filament-jetstream"
-            },
-            "funding": [
-                {
-                    "url": "https://github.com/stephenjude",
-                    "type": "github"
-                }
-            ],
-            "time": "2024-08-03T12:31:02+00:00"
         },
         {
             "name": "symfony/clock",
