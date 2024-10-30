@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Providers\Filament;
 
 use App\Filament\Pages\ApiTokens;
+use App\Filament\Pages\Auth\Login;
 use App\Filament\Pages\CreateTeam;
 use App\Filament\Pages\EditProfile;
 use App\Filament\Pages\EditTeam;
@@ -69,8 +70,7 @@ final class AppPanelProvider extends PanelProvider
             ->path('app')
             ->homeUrl('companies')
             ->brandName('Relaticle')
-            ->login()
-            ->registration()
+            ->login(Login::class)
             ->passwordReset()
             ->emailVerification()
             ->databaseNotifications()
