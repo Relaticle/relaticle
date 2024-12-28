@@ -22,13 +22,12 @@ Route::middleware('guest')->group(function () {
         ->name('auth.socialite.redirect');
     Route::get('/auth/callback/{provider}', CallbackController::class)
         ->name('auth.socialite.callback');
+
+    Route::redirect('/login', '/app/login')->name('login');
+    Route::redirect('/register', '/app/register')->name('register');
 });
 
 Route::get('/', fn () => view('welcome'));
-
-Route::redirect('/login', '/app/login')->name('login');
-
-Route::redirect('/register', '/app/register')->name('register');
 
 Route::redirect('/dashboard', '/app')->name('dashboard');
 
