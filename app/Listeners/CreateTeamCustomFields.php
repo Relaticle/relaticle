@@ -3,6 +3,7 @@
 namespace App\Listeners;
 
 use App\Models\Company;
+use App\Models\People;
 use App\Models\User;
 use Illuminate\Support\Facades\Log;
 use Laravel\Jetstream\Events\TeamCreated;
@@ -31,9 +32,14 @@ class CreateTeamCustomFields
             $this->migrator->setTenantId($team->id);
 
             $this->createCustomFieldsForCompany();
+            $this->createCustomFieldsForPeople();
         }
     }
 
+    /**
+     * Create custom fields for the company model.
+     * @return void
+     */
     private function createCustomFieldsForCompany(): void
     {
         // ICP - Ideal Customer Profile: Indicates whether the company is the most suitable and valuable customer for you
@@ -76,6 +82,53 @@ class CreateTeamCustomFields
                 code: 'account_owner',
             )
             ->lookupType(User::class)
+            ->create();
+    }
+
+    /**
+     * Create custom fields for the people model.
+     * @return void
+     */
+    private function createCustomFieldsForPeople(): void
+    {
+        // Emails - Indicates the emails of the people
+        $this->migrator
+            ->new(
+                model: People::class,
+                type: CustomFieldType::TAGS_INPUT,
+                name: 'Emails',
+                code: 'emails',
+            )
+            ->create();
+
+        // Phone Number - Indicate the phone number of the people
+        $this->migrator
+            ->new(
+                model: People::class,
+                type: CustomFieldType::TEXT,
+                name: 'Phone Number',
+                code: 'phone_number',
+            )
+            ->create();
+
+        // Job Title - Indicates the job title of the people
+        $this->migrator
+            ->new(
+                model: People::class,
+                type: CustomFieldType::TEXT,
+                name: 'Job Title',
+                code: 'job_title',
+            )
+            ->create();
+
+        // Linkedin - Indicates the LinkedIn profile of the people
+        $this->migrator
+            ->new(
+                model: People::class,
+                type: CustomFieldType::LINK,
+                name: 'Linkedin',
+                code: 'linkedin',
+            )
             ->create();
     }
 }
