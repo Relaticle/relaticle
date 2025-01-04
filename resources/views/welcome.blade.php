@@ -14,7 +14,7 @@
                     Get Started
                 </a>
                 <a href="https://github.com/relaticle/relaticle" target="_blank">
-                    <img src="https://img.shields.io/github/stars/relaticle/relaticle" alt="stars">
+                    <img src="/images/github.svg" alt="stars">
                 </a>
             </div>
 
