@@ -5,7 +5,6 @@ namespace App\Listeners;
 use App\Models\Company;
 use App\Models\People;
 use App\Models\User;
-use Illuminate\Support\Facades\Log;
 use Laravel\Jetstream\Events\TeamCreated;
 use Laravel\Jetstream\Features;
 use Relaticle\CustomFields\Contracts\CustomsFieldsMigrators;
