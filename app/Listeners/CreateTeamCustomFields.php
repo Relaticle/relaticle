@@ -3,6 +3,7 @@
 namespace App\Listeners;
 
 use App\Models\Company;
+use App\Models\Note;
 use App\Models\People;
 use App\Models\User;
 use Laravel\Jetstream\Events\TeamCreated;
@@ -31,6 +32,7 @@ class CreateTeamCustomFields
             $this->migrator->setTenantId($team->id);
 
             $this->createCustomFieldsForCompany();
+            $this->createCustomFieldsForNotes();
             $this->createCustomFieldsForPeople();
         }
     }
@@ -85,6 +87,32 @@ class CreateTeamCustomFields
                 section: 'General'
             )
             ->lookupType(User::class)
+            ->create();
+    }
+
+    private function createCustomFieldsForNotes(): void
+    {
+        // Title - Indicates the title of the note
+        $this->migrator
+            ->new(
+                model: Note::class,
+                type: CustomFieldType::TEXT,
+                name: 'Title',
+                code: 'title',
+                section: 'General',
+                systemDefined: true
+            )
+            ->create();
+
+        // Body - Indicates the body of the note
+        $this->migrator
+            ->new(
+                model: Note::class,
+                type: CustomFieldType::RICH_EDITOR,
+                name: 'Body',
+                code: 'body',
+                section: 'General',
+            )
             ->create();
     }
 

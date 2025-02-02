@@ -12,6 +12,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent;
 
 class NoteResource extends Resource
 {
@@ -27,7 +28,9 @@ class NoteResource extends Resource
     {
         return $form
             ->schema([
-                //
+                CustomFieldsComponent::make()
+                    ->columnSpanFull()
+                    ->columns(),
             ]);
     }
 
