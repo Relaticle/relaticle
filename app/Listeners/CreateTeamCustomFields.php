@@ -6,6 +6,7 @@ use App\Models\Company;
 use App\Models\Note;
 use App\Models\People;
 use App\Models\User;
+use App\Models\Opportunity;
 use Laravel\Jetstream\Events\TeamCreated;
 use Laravel\Jetstream\Features;
 use Relaticle\CustomFields\Contracts\CustomsFieldsMigrators;
@@ -32,6 +33,7 @@ class CreateTeamCustomFields
             $this->migrator->setTenantId($team->id);
 
             $this->createCustomFieldsForCompany();
+            $this->createCustomFieldsForOpportunity();
             $this->createCustomFieldsForNotes();
             $this->createCustomFieldsForPeople();
         }
@@ -90,6 +92,98 @@ class CreateTeamCustomFields
             ->create();
     }
 
+    /**
+     * Create custom fields for the opportunity model.
+     * @return void
+     */
+    private function createCustomFieldsForOpportunity(): void
+    {
+        // Name - Indicates the name of the opportunity
+        $this->migrator
+            ->new(
+                model: Opportunity::class,
+                type: CustomFieldType::TEXT,
+                name: 'Name',
+                code: 'name',
+                section: 'General',
+                systemDefined: true
+            )
+            ->create();
+
+        // Amount - Indicates the amount of the opportunity
+        $this->migrator
+            ->new(
+                model: Opportunity::class,
+                type: CustomFieldType::NUMBER,
+                name: 'Amount',
+                code: 'amount',
+                section: 'General',
+            )
+            ->create();
+
+        // Close Date - Indicates the close date of the opportunity
+        $this->migrator
+            ->new(
+                model: Opportunity::class,
+                type: CustomFieldType::DATE,
+                name: 'Close Date',
+                code: 'close_date',
+                section: 'General'
+            )
+            ->create();
+
+        // Stage - Indicates the stage of the opportunity
+        $this->migrator
+            ->new(
+                model: Opportunity::class,
+                type: CustomFieldType::SELECT,
+                name: 'Stage',
+                code: 'stage',
+                section: 'General'
+            )
+            ->options([
+                'Prospecting',
+                'Qualification',
+                'Needs Analysis',
+                'Value Proposition',
+                'Id. Decision Makers',
+                'Perception Analysis',
+                'Proposal/Price Quote',
+                'Negotiation/Review',
+                'Closed Won',
+                'Closed Lost',
+            ])
+            ->create();
+
+        // Company - Indicates the company of the opportunity
+        $this->migrator
+            ->new(
+                model: Opportunity::class,
+                type: CustomFieldType::SELECT,
+                name: 'Company',
+                code: 'company',
+                section: 'General'
+            )
+            ->lookupType(Company::class)
+            ->create();
+
+        // Point of Contact - Indicates the point of contact of the opportunity
+        $this->migrator
+            ->new(
+                model: Opportunity::class,
+                type: CustomFieldType::SELECT,
+                name: 'Point of Contact',
+                code: 'point_of_contact',
+                section: 'General'
+            )
+            ->lookupType(People::class)
+            ->create();
+    }
+
+    /**
+     * Create custom fields for the notes model.
+     * @return void
+     */
     private function createCustomFieldsForNotes(): void
     {
         // Title - Indicates the title of the note
