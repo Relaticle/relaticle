@@ -6845,17 +6845,17 @@
         },
         {
             "name": "relaticle/custom-fields",
-            "version": "1.0.8",
+            "version": "1.0.9",
             "source": {
                 "type": "git",
                 "url": "git@github.com:Relaticle/custom-fields.git",
-                "reference": "124c357cd64313f921764b71f14296206a8aa1e0"
+                "reference": "4aef8bc85d6b8343f835cfe80aea3c460c02ae0d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://satis.relaticle.com/dist/relaticle/custom-fields/relaticle-custom-fields-124c357cd64313f921764b71f14296206a8aa1e0-zip-5ce842.zip",
-                "reference": "124c357cd64313f921764b71f14296206a8aa1e0",
-                "shasum": "46be958b1005dcc11f960e7f70791b88e25b30c9"
+                "url": "https://satis.relaticle.com/dist/relaticle/custom-fields/relaticle-custom-fields-4aef8bc85d6b8343f835cfe80aea3c460c02ae0d-zip-253572.zip",
+                "reference": "4aef8bc85d6b8343f835cfe80aea3c460c02ae0d",
+                "shasum": "d8227fa20aef3f2fbda209d7a016e77cff56b5b3"
             },
             "require": {
                 "filament/filament": "^3.0",
@@ -6938,7 +6938,7 @@
                 "issues": "https://github.com/relaticle/custom-fields/issues",
                 "source": "https://github.com/relaticle/custom-fields"
             },
-            "time": "2025-02-02T09:49:11+00:00"
+            "time": "2025-02-02T09:52:16+00:00"
         },
         {
             "name": "revolt/event-loop",
