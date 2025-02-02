@@ -49,6 +49,7 @@ class CreateTeamCustomFields
                 type: CustomFieldType::TOGGLE,
                 name: 'ICP',
                 code: 'icp',
+                section: 'General'
             )
             ->create();
 
@@ -59,6 +60,7 @@ class CreateTeamCustomFields
                 type: CustomFieldType::LINK,
                 name: 'Domain Name',
                 code: 'domain_name',
+                section: 'General',
                 systemDefined: true // If a field is system-defined, users cannot delete it, they can only deactivate
             )
             ->create();
@@ -70,6 +72,7 @@ class CreateTeamCustomFields
                 type: CustomFieldType::LINK,
                 name: 'Linkedin',
                 code: 'linkedin',
+                section: 'General'
             )
             ->create();
 
@@ -80,6 +83,7 @@ class CreateTeamCustomFields
                 type: CustomFieldType::SELECT,
                 name: 'Account Owner',
                 code: 'account_owner',
+                section: 'General'
             )
             ->lookupType(User::class)
             ->create();
@@ -98,6 +102,7 @@ class CreateTeamCustomFields
                 type: CustomFieldType::TAGS_INPUT,
                 name: 'Emails',
                 code: 'emails',
+                section: 'General'
             )
             ->create();
 
@@ -108,6 +113,7 @@ class CreateTeamCustomFields
                 type: CustomFieldType::TEXT,
                 name: 'Phone Number',
                 code: 'phone_number',
+                section: 'General'
             )
             ->create();
 
@@ -118,6 +124,7 @@ class CreateTeamCustomFields
                 type: CustomFieldType::TEXT,
                 name: 'Job Title',
                 code: 'job_title',
+                section: 'General'
             )
             ->create();
 
@@ -128,6 +135,7 @@ class CreateTeamCustomFields
                 type: CustomFieldType::LINK,
                 name: 'Linkedin',
                 code: 'linkedin',
+                section: 'General'
             )
             ->create();
     }

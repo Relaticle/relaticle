@@ -111,6 +111,7 @@ return [
     |
     */
     'table_names' => [
+        'custom_field_sections' => 'custom_field_sections',
         'custom_fields' => 'custom_fields',
         'custom_field_values' => 'custom_field_values',
         'custom_field_options' => 'custom_field_options',
