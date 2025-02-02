@@ -26,7 +26,8 @@ class OpportunityResource extends Resource
     {
         return $form
             ->schema([
-                CustomFieldsComponent::make(),
+                CustomFieldsComponent::make()
+                    ->columnSpanFull()
             ]);
     }
 
