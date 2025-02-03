@@ -2893,16 +2893,16 @@
         },
         {
             "name": "guzzlehttp/uri-template",
-            "version": "v1.0.3",
+            "version": "v1.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/uri-template.git",
-                "reference": "ecea8feef63bd4fef1f037ecb288386999ecc11c"
+                "reference": "30e286560c137526eccd4ce21b2de477ab0676d2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/uri-template/zipball/ecea8feef63bd4fef1f037ecb288386999ecc11c",
-                "reference": "ecea8feef63bd4fef1f037ecb288386999ecc11c",
+                "url": "https://api.github.com/repos/guzzle/uri-template/zipball/30e286560c137526eccd4ce21b2de477ab0676d2",
+                "reference": "30e286560c137526eccd4ce21b2de477ab0676d2",
                 "shasum": ""
             },
             "require": {
@@ -2959,7 +2959,7 @@
             ],
             "support": {
                 "issues": "https://github.com/guzzle/uri-template/issues",
-                "source": "https://github.com/guzzle/uri-template/tree/v1.0.3"
+                "source": "https://github.com/guzzle/uri-template/tree/v1.0.4"
             },
             "funding": [
                 {
@@ -2975,7 +2975,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-12-03T19:50:20+00:00"
+            "time": "2025-02-03T10:55:03+00:00"
         },
         {
             "name": "kelunik/certificate",
@@ -6845,17 +6845,17 @@
         },
         {
             "name": "relaticle/custom-fields",
-            "version": "1.2.1",
+            "version": "1.2.2",
             "source": {
                 "type": "git",
                 "url": "git@github.com:Relaticle/custom-fields.git",
-                "reference": "4489cba6147cf5d35aeeef5f293fc3134be74a34"
+                "reference": "bcb12f57edb88da046bd99402a6cbead5630b8c9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://satis.relaticle.com/dist/relaticle/custom-fields/relaticle-custom-fields-4489cba6147cf5d35aeeef5f293fc3134be74a34-zip-59a6ad.zip",
-                "reference": "4489cba6147cf5d35aeeef5f293fc3134be74a34",
-                "shasum": "9a338a33db52e92ae32e3f3069841e11c469c0a0"
+                "url": "https://satis.relaticle.com/dist/relaticle/custom-fields/relaticle-custom-fields-bcb12f57edb88da046bd99402a6cbead5630b8c9-zip-a08d3f.zip",
+                "reference": "bcb12f57edb88da046bd99402a6cbead5630b8c9",
+                "shasum": "a70ae01e1d7dc83451e8920e217e91f8c7a9fa06"
             },
             "require": {
                 "filament/filament": "^3.0",
@@ -6938,7 +6938,7 @@
                 "issues": "https://github.com/relaticle/custom-fields/issues",
                 "source": "https://github.com/relaticle/custom-fields"
             },
-            "time": "2025-02-02T15:19:36+00:00"
+            "time": "2025-02-03T17:09:46+00:00"
         },
         {
             "name": "revolt/event-loop",
