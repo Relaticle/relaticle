@@ -8,12 +8,15 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Relaticle\CustomFields\Models\Concerns\UsesCustomFields;
+use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 
-class Task extends Model
+class Task extends Model implements HasCustomFields
 {
     /** @use HasFactory<TaskFactory> */
     use HasFactory;
     use SoftDeletes;
+    use UsesCustomFields;
 
     protected $fillable = [
         'user_id',
