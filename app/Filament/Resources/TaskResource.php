@@ -15,6 +15,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\DB;
+use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent;
+use Relaticle\CustomFields\Filament\Tables\Columns\CustomFieldsColumn;
 
 class TaskResource extends Resource
 {
@@ -33,25 +35,7 @@ class TaskResource extends Resource
         return $form
             ->schema([
                 Forms\Components\TextInput::make('title')->required(),
-                Forms\Components\RichEditor::make('description'),
-                Forms\Components\Grid::make()->schema([
-                    Forms\Components\Select::make('status')
-                        ->options([
-                            'to_do' => 'To do',
-                            'in_progress' => 'In progress',
-                            'done' => 'Done',
-                        ]),
-                    Forms\Components\Select::make('priority')
-                        ->options([
-                            'low' => 'Low',
-                            'medium' => 'Medium',
-                            'high' => 'High',
-                        ])
-                ])->columns(2),
-                Forms\Components\Select::make('assignee_id')
-                    ->label('Assignee')
-                    ->searchable()
-                    ->relationship('assignee', 'name'),
+                CustomFieldsComponent::make()
             ])
             ->columns(1);
     }
@@ -61,8 +45,6 @@ class TaskResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('title'),
-                Tables\Columns\TextColumn::make('status'),
-                Tables\Columns\TextColumn::make('assignee.name'),
             ])
             ->filters([
                 //

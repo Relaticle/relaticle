@@ -5,6 +5,7 @@ namespace App\Listeners;
 use App\Models\Company;
 use App\Models\Note;
 use App\Models\People;
+use App\Models\Task;
 use App\Models\User;
 use App\Models\Opportunity;
 use Laravel\Jetstream\Events\TeamCreated;
@@ -33,8 +34,13 @@ class CreateTeamCustomFields
             $this->migrator->setTenantId($team->id);
 
             $this->createCustomFieldsForCompany();
+
             $this->createCustomFieldsForOpportunity();
+
             $this->createCustomFieldsForNotes();
+
+            $this->createCustomFieldsForTasks();
+
             $this->createCustomFieldsForPeople();
         }
     }
@@ -258,6 +264,93 @@ class CreateTeamCustomFields
                 code: 'linkedin',
                 section: 'General'
             )
+            ->create();
+    }
+
+    /**
+     * Create custom fields for the tasks model.
+     * @return void
+     */
+    private function createCustomFieldsForTasks()
+    {
+        // Status - Indicates the status of the task
+        $this->migrator
+            ->new(
+                model: Task::class,
+                type: CustomFieldType::SELECT,
+                name: 'Status',
+                code: 'status',
+                section: 'General',
+                systemDefined: true
+            )
+            ->options([
+                'To do',
+                'In progress',
+                'Done',
+            ])
+            ->create();
+
+        // Priority - Indicates the priority of the task
+        $this->migrator
+            ->new(
+                model: Task::class,
+                type: CustomFieldType::SELECT,
+                name: 'Priority',
+                code: 'priority',
+                section: 'General',
+                systemDefined: true
+            )
+            ->options([
+                'Low',
+                'Medium',
+                'High',
+            ])
+            ->create();
+
+        // Description - Indicates the description of the task
+        $this->migrator
+            ->new(
+                model: Task::class,
+                type: CustomFieldType::RICH_EDITOR,
+                name: 'Description',
+                code: 'description',
+                section: 'General',
+            )
+            ->create();
+
+        // Due Date - Indicates the due date of the task
+        $this->migrator
+            ->new(
+                model: Task::class,
+                type: CustomFieldType::DATE_TIME,
+                name: 'Due Date',
+                code: 'due_date',
+                section: 'General'
+            )
+            ->create();
+
+        // Assignee - Indicates the assignee of the task
+        $this->migrator
+            ->new(
+                model: Task::class,
+                type: CustomFieldType::SELECT,
+                name: 'Assignee',
+                code: 'assignee',
+                section: 'General',
+            )
+            ->lookupType(User::class)
+            ->create();
+
+        // Company - Indicates the company of the task
+        $this->migrator
+            ->new(
+                model: Task::class,
+                type: CustomFieldType::SELECT,
+                name: 'Company',
+                code: 'company',
+                section: 'General'
+            )
+            ->lookupType(Company::class)
             ->create();
     }
 }
