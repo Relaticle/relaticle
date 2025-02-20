@@ -10,7 +10,6 @@ use Filament\Pages\Page;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use App\Filament\Pages\Concerns\HasEditRecordModal;
-use App\Filament\Pages\Concerns\HasStatusChange;
 use Livewire\Attributes\On;
 use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent;
 use Filament\Forms;
@@ -34,6 +33,7 @@ class TasksKanbanBoard extends Page implements HasForms
     protected static string $recordView = 'filament.pages.tasks-kanban.kanban-record';
 
     protected static string $statusView = 'filament.pages.tasks-kanban.kanban-status';
+    protected static string $editModalView = 'filament.pages.tasks-kanban.components.edit-record-modal';
 
     protected static string $scriptsView = 'filament.pages.tasks-kanban.kanban-scripts';
 
