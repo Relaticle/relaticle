@@ -10,6 +10,6 @@
     </div>
 
     @unless($disableEditModal)
-{{--        <x-filament-kanban::edit-record-modal/>--}}
+        @include(static::$editModalView)
     @endunless
 </x-filament-panels::page>
