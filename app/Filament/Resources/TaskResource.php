@@ -33,7 +33,6 @@ class TaskResource extends Resource
         return $form
             ->schema([
                 Forms\Components\TextInput::make('title')->required(),
-                Forms\Components\TextInput::make('status')->required(),
                 CustomFieldsComponent::make()
             ])
             ->columns(1);

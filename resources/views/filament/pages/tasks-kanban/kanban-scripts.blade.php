@@ -13,19 +13,19 @@
 
     function onAdd(e) {
         const recordId = e.item.id
-        const status = e.to.dataset.statusId
+        const statusId = e.to.dataset.statusId
         const fromOrderedIds = [].slice.call(e.from.children).map(child => child.id)
         const toOrderedIds = [].slice.call(e.to.children).map(child => child.id)
 
-        Livewire.dispatch('status-changed', {recordId, status, fromOrderedIds, toOrderedIds})
+        Livewire.dispatch('status-changed', {recordId, statusId, fromOrderedIds, toOrderedIds})
     }
 
     function onUpdate(e) {
         const recordId = e.item.id
-        const status = e.from.dataset.statusId
+        const statusId = e.from.dataset.statusId
         const orderedIds = [].slice.call(e.from.children).map(child => child.id)
 
-        Livewire.dispatch('sort-changed', {recordId, status, orderedIds})
+        Livewire.dispatch('sort-changed', {recordId, statusId, orderedIds})
     }
 
     document.addEventListener('livewire:navigated', () => {
