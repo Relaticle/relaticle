@@ -11,17 +11,15 @@ use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\DB;
 use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent;
-use Relaticle\CustomFields\Filament\Tables\Columns\CustomFieldsColumn;
 
 class TaskResource extends Resource
 {
     protected static ?string $model = Task::class;
 
+    protected static ?string $navigationLabel = 'Tasks';
     protected static ?string $navigationIcon = 'heroicon-m-check-circle';
 
     protected static ?string $recordTitleAttribute = 'title';
@@ -48,6 +46,10 @@ class TaskResource extends Resource
             ])
             ->filters([
                 //
+            ])
+            ->groups([
+                Tables\Grouping\Group::make('status')
+                    ->getTitleFromRecordUsing(fn (Task $record): string => $record->getCustomFieldValue('status')),
             ])
             ->actions([
                 Tables\Actions\EditAction::make()

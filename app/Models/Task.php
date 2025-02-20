@@ -10,12 +10,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Relaticle\CustomFields\Models\Concerns\UsesCustomFields;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
+use Spatie\EloquentSortable\SortableTrait;
 
 class Task extends Model implements HasCustomFields
 {
     /** @use HasFactory<TaskFactory> */
     use HasFactory;
     use SoftDeletes;
+    use SortableTrait;
     use UsesCustomFields;
 
     protected $fillable = [
@@ -24,6 +26,11 @@ class Task extends Model implements HasCustomFields
         'description',
         'status',
         'priority',
+    ];
+
+    public array $sortable = [
+        'order_column_name' => 'order_column',
+        'sort_when_creating' => true,
     ];
 
     public function team(): BelongsTo
