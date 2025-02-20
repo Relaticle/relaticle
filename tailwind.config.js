@@ -33,6 +33,9 @@ export default {
                     DEFAULT: '#06b6d4',
                 }
             },
+            animation: {
+                'pulse-twice': 'pulse 1s cubic-bezier(0, 0, 0.2, 1) 2',
+            }
         },
     },
 

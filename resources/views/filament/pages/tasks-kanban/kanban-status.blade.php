@@ -7,7 +7,7 @@
     <x-filament::section compact>
     <div
         data-status-id="{{ $status['id'] }}"
-        class="flex flex-col flex-1 h-screen"
+        class="flex flex-col flex-1 space-y-3 h-screen"
     >
         @foreach($status['records'] as $record)
             @include(static::$recordView)

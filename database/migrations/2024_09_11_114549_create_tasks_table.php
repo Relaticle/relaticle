@@ -18,6 +18,8 @@ return new class extends Migration {
 
             $table->string('title');
 
+            $table->unsignedBigInteger('order_column')->nullable();
+
             $table->timestamps();
             $table->softDeletes();
         });
