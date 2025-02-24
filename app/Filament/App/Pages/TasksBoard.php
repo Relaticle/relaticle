@@ -4,52 +4,33 @@ declare(strict_types=1);
 
 namespace App\Filament\App\Pages;
 
-use App\Filament\App\Pages\Concerns\HasEditRecordModal;
 use App\Models\Task;
-use Filament\Forms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Pages\Page;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Livewire\Attributes\On;
-use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent;
 use Relaticle\CustomFields\Models\CustomField;
 
-class TasksKanbanBoard extends Page implements HasForms
+class TasksBoard extends Page implements HasForms
 {
-    use HasEditRecordModal;
+    protected static ?string $navigationLabel = 'Board';
 
-    protected static ?string $navigationLabel = 'By Status';
-    protected static ?string $title = 'Tasks By Status';
+    protected static ?string $title = 'Tasks';
     protected static ?string $navigationParentItem = 'Tasks';
     protected static ?string $navigationGroup = 'Workspace';
 
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
 
-    protected static string $view = 'filament.pages.tasks-kanban.kanban-board';
+    protected static string $view = 'filament.pages.tasks-board.board';
 
-    protected static string $headerView = 'filament.pages.tasks-kanban.kanban-header';
-
-    protected static string $recordView = 'filament.pages.tasks-kanban.kanban-record';
-
-    protected static string $statusView = 'filament.pages.tasks-kanban.kanban-status';
-    protected static string $editModalView = 'filament.pages.tasks-kanban.components.edit-record-modal';
-
-    protected static string $scriptsView = 'filament.pages.tasks-kanban.kanban-scripts';
+    protected static string $scriptsView = 'filament.pages.tasks-board.board-scripts';
 
     protected static string $model = Task::class;
 
-    protected static string $recordTitleAttribute = 'title';
 
     protected static string $recordStatusAttribute = 'status';
 
-    protected function getEditModalFormSchema(null|int $recordId): array
-    {
-        return [
-            Forms\Components\TextInput::make('title')->required(),
-            CustomFieldsComponent::make()
-        ];
-    }
 
     private function statusCustomField()
     {
@@ -80,6 +61,7 @@ class TasksKanbanBoard extends Page implements HasForms
     protected function getViewData(): array
     {
         $records = $this->records();
+
         $statuses = $this->statuses()
             ->map(function ($status) use ($records) {
                 $status['records'] = $this->filterRecordsByStatus($records, $status);
@@ -97,7 +79,7 @@ class TasksKanbanBoard extends Page implements HasForms
         return $records->toQuery()
             ->whereHas('customFieldValues', function (Builder $builder) use ($status): void {
                 $builder->where('custom_field_values.custom_field_id', $status['custom_field_id'])
-                    ->where('custom_field_values.'.$this->statusCustomField()->getValueColumn(), $status['id']);
+                    ->where('custom_field_values.' . $this->statusCustomField()->getValueColumn(), $status['id']);
             })
             ->ordered()
             ->get()

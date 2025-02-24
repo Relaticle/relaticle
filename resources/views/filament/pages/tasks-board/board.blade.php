@@ -1,15 +1,12 @@
 <x-filament-panels::page full-height>
     <div x-data wire:ignore.self class="md:flex overflow-x-auto overflow-y-hidden gap-x-4 ">
         @foreach($statuses as $status)
-            @include(static::$statusView)
+            @livewire('tasks-board.status-component', ['status' => $status], key($status['id']))
         @endforeach
+
 
         <div wire:ignore>
             @include(static::$scriptsView)
         </div>
     </div>
-
-    @unless($disableEditModal)
-        @include(static::$editModalView)
-    @endunless
 </x-filament-panels::page>
