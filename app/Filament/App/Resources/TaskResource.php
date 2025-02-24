@@ -2,6 +2,7 @@
 
 namespace App\Filament\App\Resources;
 
+use App\Filament\App\Resources\TaskResource\Pages\ManageTasks;
 use App\Filament\Resources\TaskResource\Pages;
 use App\Filament\Resources\TaskResource\RelationManagers;
 use App\Models\Task;
@@ -11,9 +12,12 @@ use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use Relaticle\CustomFields\Contracts\ValueResolvers;
 use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent;
+use Relaticle\CustomFields\Models\CustomField;
 
 class TaskResource extends Resource
 {
@@ -40,6 +44,9 @@ class TaskResource extends Resource
 
     public static function table(Table $table): Table
     {
+        $customField = CustomField::query()->where('name', 'status')->firstOrFail();
+        $valueResolver = app(ValueResolvers::class);
+
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('title'),
@@ -49,7 +56,18 @@ class TaskResource extends Resource
             ])
             ->groups([
                 Tables\Grouping\Group::make('status')
-                    ->getTitleFromRecordUsing(fn (Task $record): string => $record->getCustomFieldValue('status')),
+                    ->orderQueryUsing(function (Builder $query, string $direction) use ($customField) {
+                        $table = $query->getModel()->getTable();
+                        $key = $query->getModel()->getKeyName();
+                        return $query->orderBy(
+                            $customField->values()
+                                ->select($customField->getValueColumn())
+                                ->whereColumn('custom_field_values.entity_id', "$table.$key")
+                                ->limit(1),
+                            $direction
+                        );
+                    })
+                    ->getTitleFromRecordUsing(fn(Task $record): ?string => $valueResolver->resolve($record, $customField)),
             ])
             ->actions([
                 Tables\Actions\EditAction::make()
@@ -87,7 +105,7 @@ class TaskResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => \App\Filament\App\Resources\TaskResource\Pages\ManageTasks::route('/'),
+            'index' => ManageTasks::route('/'),
         ];
     }
 }

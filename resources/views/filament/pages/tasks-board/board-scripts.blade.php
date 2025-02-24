@@ -13,6 +13,8 @@
 
     function onAdd(e) {
         const recordId = e.item.id
+
+        console.log(e, recordId)
         const statusId = e.to.dataset.statusId
         const fromOrderedIds = [].slice.call(e.from.children).map(child => child.id)
         const toOrderedIds = [].slice.call(e.to.children).map(child => child.id)
