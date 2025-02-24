@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Exception;
+use Filament\Models\Contracts\HasAvatar;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -20,7 +21,7 @@ use Illuminate\Database\Eloquent\Model;
 use Filament\Models\Contracts\HasTenants;
 use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable implements HasTenants, MustVerifyEmail, FilamentUser
+class User extends Authenticatable implements HasTenants, MustVerifyEmail, FilamentUser, HasAvatar
 {
     use HasApiTokens;
     use HasFactory;
@@ -99,5 +100,10 @@ class User extends Authenticatable implements HasTenants, MustVerifyEmail, Filam
     public function canAccessTenant(Model $tenant): bool
     {
         return $this->belongsToTeam($tenant);
+    }
+
+    public function getFilamentAvatarUrl(): ?string
+    {
+        return 'https://robohash.org/' . urlencode($this->name) . '.png';
     }
 }
