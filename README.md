@@ -24,7 +24,7 @@
 
 ## Installation
 
-Relaticle is a regular Laravel application; it's build on top of Laravel 11 / Filament 3 and uses Livewire / Tailwind
+Relaticle is a regular Laravel application; it's build on top of Laravel 12 / Filament 3 and uses Livewire / Tailwind
 CSS for the frontend. If you are familiar with Laravel, you should feel right at home.
 
 In terms of local development, you can use the following requirements:
