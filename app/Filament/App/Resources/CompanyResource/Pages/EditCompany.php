@@ -16,6 +16,7 @@ final class EditCompany extends EditRecord
     /**
      * Get the actions available on the resource edit header.
      */
+    #[\Override]
     protected function getHeaderActions(): array
     {
         return [

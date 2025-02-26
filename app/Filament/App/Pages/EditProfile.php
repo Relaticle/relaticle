@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\App\Pages;
 
 use Filament\Pages\Page;
 
-class EditProfile extends Page
+final class EditProfile extends Page
 {
     protected static ?string $navigationIcon = 'heroicon-o-user-circle';
 
@@ -12,11 +14,13 @@ class EditProfile extends Page
 
     protected static ?string $navigationLabel = 'Profile';
 
+    #[\Override]
     public static function shouldRegisterNavigation(): bool
     {
         return false;
     }
 
+    #[\Override]
     public static function getNavigationSort(): ?int
     {
         return 1;

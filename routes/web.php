@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Http\Controllers\Auth\CallbackController;
 use App\Http\Controllers\Auth\RedirectController;
 use Illuminate\Session\Middleware\AuthenticateSession;

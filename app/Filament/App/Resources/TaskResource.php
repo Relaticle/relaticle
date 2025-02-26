@@ -1,10 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\App\Resources;
 
 use App\Filament\App\Resources\TaskResource\Pages\ManageTasks;
-use App\Filament\Resources\TaskResource\Pages;
-use App\Filament\Resources\TaskResource\RelationManagers;
 use App\Models\Task;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -19,11 +19,12 @@ use Relaticle\CustomFields\Contracts\ValueResolvers;
 use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent;
 use Relaticle\CustomFields\Models\CustomField;
 
-class TaskResource extends Resource
+final class TaskResource extends Resource
 {
     protected static ?string $model = Task::class;
 
     protected static ?string $navigationLabel = 'Tasks';
+
     protected static ?string $navigationIcon = 'heroicon-m-check-circle';
 
     protected static ?string $recordTitleAttribute = 'title';
@@ -32,16 +33,18 @@ class TaskResource extends Resource
 
     protected static ?string $navigationGroup = 'Workspace';
 
+    #[\Override]
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
                 Forms\Components\TextInput::make('title')->required(),
-                CustomFieldsComponent::make()
+                CustomFieldsComponent::make(),
             ])
             ->columns(1);
     }
 
+    #[\Override]
     public static function table(Table $table): Table
     {
         $customField = CustomField::query()->where('name', 'status')->firstOrFail();
@@ -59,6 +62,7 @@ class TaskResource extends Resource
                     ->orderQueryUsing(function (Builder $query, string $direction) use ($customField) {
                         $table = $query->getModel()->getTable();
                         $key = $query->getModel()->getKeyName();
+
                         return $query->orderBy(
                             $customField->values()
                                 ->select($customField->getValueColumn())
@@ -67,7 +71,7 @@ class TaskResource extends Resource
                             $direction
                         );
                     })
-                    ->getTitleFromRecordUsing(fn(Task $record): ?string => $valueResolver->resolve($record, $customField)),
+                    ->getTitleFromRecordUsing(fn (Task $record): ?string => $valueResolver->resolve($record, $customField)),
             ])
             ->actions([
                 Tables\Actions\EditAction::make()
@@ -75,11 +79,11 @@ class TaskResource extends Resource
                         try {
                             DB::beginTransaction();
 
-                            if ($record->getOriginal('assignee_id') != $record->assignee_id) {
+                            if ($record->getOriginal('assignee_id') !== $record->assignee_id) {
                                 $recipient = $record->assignee;
 
                                 Notification::make()
-                                    ->title('You have been assigned task: #' . $record->id)
+                                    ->title('You have been assigned task: #'.$record->id)
                                     ->sendToDatabase($recipient);
                             }
 
@@ -102,6 +106,7 @@ class TaskResource extends Resource
             ]);
     }
 
+    #[\Override]
     public static function getPages(): array
     {
         return [

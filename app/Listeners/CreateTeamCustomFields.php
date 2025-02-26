@@ -1,26 +1,26 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Listeners;
 
 use App\Models\Company;
 use App\Models\Note;
+use App\Models\Opportunity;
 use App\Models\People;
 use App\Models\Task;
 use App\Models\User;
-use App\Models\Opportunity;
 use Laravel\Jetstream\Events\TeamCreated;
 use Laravel\Jetstream\Features;
 use Relaticle\CustomFields\Contracts\CustomsFieldsMigrators;
 use Relaticle\CustomFields\Enums\CustomFieldType;
 
-class CreateTeamCustomFields
+final readonly class CreateTeamCustomFields
 {
     /**
      * Create the event listener.
      */
-    public function __construct(protected CustomsFieldsMigrators $migrator)
-    {
-    }
+    public function __construct(private CustomsFieldsMigrators $migrator) {}
 
     /**
      * Handle the event.
@@ -47,7 +47,6 @@ class CreateTeamCustomFields
 
     /**
      * Create custom fields for the company model.
-     * @return void
      */
     private function createCustomFieldsForCompany(): void
     {
@@ -100,7 +99,6 @@ class CreateTeamCustomFields
 
     /**
      * Create custom fields for the opportunity model.
-     * @return void
      */
     private function createCustomFieldsForOpportunity(): void
     {
@@ -188,7 +186,6 @@ class CreateTeamCustomFields
 
     /**
      * Create custom fields for the notes model.
-     * @return void
      */
     private function createCustomFieldsForNotes(): void
     {
@@ -218,7 +215,6 @@ class CreateTeamCustomFields
 
     /**
      * Create custom fields for the people model.
-     * @return void
      */
     private function createCustomFieldsForPeople(): void
     {
@@ -269,9 +265,8 @@ class CreateTeamCustomFields
 
     /**
      * Create custom fields for the tasks model.
-     * @return void
      */
-    private function createCustomFieldsForTasks()
+    private function createCustomFieldsForTasks(): void
     {
         // Status - Indicates the status of the task
         $this->migrator

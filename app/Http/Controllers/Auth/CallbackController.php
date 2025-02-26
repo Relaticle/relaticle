@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Auth;
 
 use App\Contracts\User\CreatesNewSocialUsers;
@@ -19,7 +21,7 @@ final class CallbackController
 
             return redirect()
                 ->route('login')
-                ->withErrors(['login' => 'Failed to authenticate with ' . ucfirst($provider) . '.']);
+                ->withErrors(['login' => 'Failed to authenticate with '.ucfirst($provider).'.']);
         }
 
         // Attempt to find the user via the social account
@@ -44,7 +46,7 @@ final class CallbackController
         }
 
         // Create a new user if one doesn't exist
-        if (!$user) {
+        if (! $user) {
             $user = $creator->create([
                 'name' => $socialUser->getName() ?? $socialUser->getNickname() ?? 'Unknown User',
                 'email' => $email ?? sprintf('%s_%s@noemail.app', $provider, $socialUser->getId()),

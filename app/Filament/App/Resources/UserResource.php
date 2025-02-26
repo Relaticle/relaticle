@@ -1,9 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\App\Resources;
 
-use App\Filament\Resources\UserResource\Pages;
-use App\Filament\Resources\UserResource\RelationManagers;
 use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -11,15 +11,19 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 
-class UserResource extends Resource
+final class UserResource extends Resource
 {
     protected static ?string $model = User::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-users';
+
     protected static ?string $tenantOwnershipRelationshipName = 'teams';
+
     protected static ?string $recordTitleAttribute = 'name';
+
     protected static bool $shouldRegisterNavigation = false;
 
+    #[\Override]
     public static function form(Form $form): Form
     {
         return $form
@@ -47,6 +51,7 @@ class UserResource extends Resource
             ]);
     }
 
+    #[\Override]
     public static function table(Table $table): Table
     {
         return $table
@@ -89,6 +94,7 @@ class UserResource extends Resource
             ]);
     }
 
+    #[\Override]
     public static function getPages(): array
     {
         return [
@@ -96,10 +102,9 @@ class UserResource extends Resource
         ];
     }
 
+    #[\Override]
     public static function canAccess(): bool
     {
-        return in_array(auth()->user()->email, [
-            'manuk.minasyan1@gmail.com',
-        ]);
+        return auth()->user()->email === 'manuk.minasyan1@gmail.com';
     }
 }

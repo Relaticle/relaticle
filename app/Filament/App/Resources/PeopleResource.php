@@ -1,9 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\App\Resources;
 
 use App\Filament\App\Resources\PeopleResource\RelationManagers\TasksRelationManager;
-use App\Filament\Resources\PeopleResource\Pages;
 use App\Models\People;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -12,7 +13,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent;
 
-class PeopleResource extends Resource
+final class PeopleResource extends Resource
 {
     protected static ?string $model = People::class;
 
@@ -27,6 +28,7 @@ class PeopleResource extends Resource
 
     protected static ?string $navigationGroup = 'Workspace';
 
+    #[\Override]
     public static function form(Form $form): Form
     {
         return $form
@@ -40,6 +42,7 @@ class PeopleResource extends Resource
             ]);
     }
 
+    #[\Override]
     public static function table(Table $table): Table
     {
         return $table
@@ -68,13 +71,15 @@ class PeopleResource extends Resource
             ]);
     }
 
+    #[\Override]
     public static function getRelations(): array
     {
         return [
-            TasksRelationManager::class
+            TasksRelationManager::class,
         ];
     }
 
+    #[\Override]
     public static function getPages(): array
     {
         return [

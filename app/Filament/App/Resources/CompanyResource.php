@@ -44,21 +44,21 @@ final class CompanyResource extends Resource
 
     protected static ?string $navigationGroup = 'Workspace';
 
-
     /**
      * The form schema definition for the resource.
      */
+    #[\Override]
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
                 Placeholder::make('created_at')
                     ->label('Created Date')
-                    ->content(fn(?Company $record): string => $record?->created_at?->diffForHumans() ?? '-'),
+                    ->content(fn (?Company $record): string => $record?->created_at?->diffForHumans() ?? '-'),
 
                 Placeholder::make('updated_at')
                     ->label('Last Modified Date')
-                    ->content(fn(?Company $record): string => $record?->updated_at?->diffForHumans() ?? '-'),
+                    ->content(fn (?Company $record): string => $record?->updated_at?->diffForHumans() ?? '-'),
 
                 TextInput::make('name')
                     ->required(),
@@ -77,6 +77,7 @@ final class CompanyResource extends Resource
     /**
      * The table schema definition for the resource.
      */
+    #[\Override]
     public static function table(Table $table): Table
     {
         return $table
@@ -88,7 +89,7 @@ final class CompanyResource extends Resource
 
                 TextColumn::make('address'),
 
-                TextColumn::make('phone')
+                TextColumn::make('phone'),
             ])
             ->filters([
                 //
@@ -110,6 +111,7 @@ final class CompanyResource extends Resource
      *
      * @return array<string, PageRegistration>
      */
+    #[\Override]
     public static function getPages(): array
     {
         return [
@@ -126,6 +128,7 @@ final class CompanyResource extends Resource
      *
      * @return array<string>
      */
+    #[\Override]
     public static function getGloballySearchableAttributes(): array
     {
         return ['name'];

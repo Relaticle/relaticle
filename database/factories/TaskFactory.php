@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Factories;
 
 use App\Models\Task;
@@ -7,10 +9,11 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Carbon;
 
-class TaskFactory extends Factory
+final class TaskFactory extends Factory
 {
     protected $model = Task::class;
 
+    #[\Override]
     public function definition(): array
     {
         return [

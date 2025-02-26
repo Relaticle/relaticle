@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Seeders;
 
 use App\Models\Company;
@@ -7,7 +9,7 @@ use App\Models\People;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 
-class LocalSeeder extends Seeder
+final class LocalSeeder extends Seeder
 {
     public function run(): void
     {

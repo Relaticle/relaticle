@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Models\People;
 use App\Models\Task;
 use Illuminate\Database\Migrations\Migration;
@@ -13,7 +15,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('people_task', function (Blueprint $table) {
+        Schema::create('people_task', function (Blueprint $table): void {
             $table->id();
 
             $table->foreignIdFor(People::class, 'people_id');

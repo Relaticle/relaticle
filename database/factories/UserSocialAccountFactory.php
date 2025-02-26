@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Factories;
 
 use App\Models\User;
@@ -9,7 +11,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 /**
  * @extends Factory<UserSocialAccount>
  */
-class UserSocialAccountFactory extends Factory
+final class UserSocialAccountFactory extends Factory
 {
     /**
      * The name of the factory's corresponding model.
@@ -18,6 +20,7 @@ class UserSocialAccountFactory extends Factory
      */
     protected $model = UserSocialAccount::class;
 
+    #[\Override]
     public function definition(): array
     {
         return [

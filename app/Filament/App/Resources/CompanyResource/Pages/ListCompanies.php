@@ -19,6 +19,7 @@ final class ListCompanies extends ListRecords
     /**
      * Get the actions available on the resource index header.
      */
+    #[\Override]
     protected function getHeaderActions(): array
     {
         return [

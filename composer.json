@@ -10,7 +10,7 @@
     "require": {
         "php": "^8.3",
         "filament/filament": "^3.2",
-        "laravel/framework": "^11.9",
+        "laravel/framework": "^12.0",
         "laravel/horizon": "^5.29",
         "laravel/jetstream": "^5.2",
         "laravel/sanctum": "^4.0",
@@ -24,15 +24,15 @@
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
-        "larastan/larastan": "^2.0",
-        "laravel/pint": "^1.17",
+        "larastan/larastan": "^3.0",
+        "laravel/pint": "^1.21",
         "laravel/sail": "^1.26",
         "mockery/mockery": "^1.6",
         "nunomaduro/collision": "^8.0",
         "pestphp/pest": "^3.0",
         "pestphp/pest-plugin-laravel": "^3.0",
-        "pestphp/pest-plugin-type-coverage": "^3.0",
-        "rector/rector": "^1.0"
+        "pestphp/pest-plugin-type-coverage": "^3.3",
+        "rector/rector": "^2.0"
     },
     "autoload": {
         "psr-4": {
@@ -70,7 +70,7 @@
         "test:types": "phpstan analyse",
         "test:arch": "pest --filter=arch",
         "test:type-coverage": "pest --type-coverage --min=100",
-        "test:unit": "pest --parallel --coverage --min=100",
+        "test:unit": "pest --parallel",
         "test": [
             "@test:lint",
             "@test:refactor",

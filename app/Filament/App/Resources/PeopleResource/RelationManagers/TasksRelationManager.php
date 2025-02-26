@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\App\Resources\PeopleResource\RelationManagers;
 
 use Filament\Forms;
@@ -8,10 +10,11 @@ use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
 
-class TasksRelationManager extends RelationManager
+final class TasksRelationManager extends RelationManager
 {
     protected static string $relationship = 'tasks';
 
+    #[\Override]
     public function form(Form $form): Form
     {
         return $form
@@ -22,6 +25,7 @@ class TasksRelationManager extends RelationManager
             ]);
     }
 
+    #[\Override]
     public function table(Table $table): Table
     {
         return $table

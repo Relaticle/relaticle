@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Database\Factories\PeopleFactory;
@@ -10,10 +12,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Relaticle\CustomFields\Models\Concerns\UsesCustomFields;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 
-class People extends Model implements HasCustomFields
+final class People extends Model implements HasCustomFields
 {
     /** @use HasFactory<PeopleFactory> */
     use HasFactory;
+
     use UsesCustomFields;
 
     /**

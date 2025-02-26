@@ -8,7 +8,8 @@ use Illuminate\Support\Facades\Schema;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Support\Utils;
 
-return new class extends Migration {
+return new class extends Migration
+{
     public function up(): void
     {
         /**

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -9,7 +11,7 @@ use Laravel\Jetstream\Events\TeamDeleted;
 use Laravel\Jetstream\Events\TeamUpdated;
 use Laravel\Jetstream\Team as JetstreamTeam;
 
-class Team extends JetstreamTeam
+final class Team extends JetstreamTeam
 {
     use HasFactory;
 
@@ -39,6 +41,7 @@ class Team extends JetstreamTeam
      *
      * @return array<string, string>
      */
+    #[\Override]
     protected function casts(): array
     {
         return [
@@ -50,6 +53,7 @@ class Team extends JetstreamTeam
     {
         return $this->hasMany(People::class);
     }
+
     public function companies(): HasMany
     {
         return $this->hasMany(Company::class);
