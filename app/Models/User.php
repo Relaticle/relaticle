@@ -5,23 +5,23 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Exception;
+use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasAvatar;
+use Filament\Models\Contracts\HasTenants;
+use Filament\Panel;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Collection;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Jetstream\HasTeams;
-use Filament\Panel;
-use Filament\Models\Contracts\FilamentUser;
-use Illuminate\Support\Collection;
-use Illuminate\Database\Eloquent\Model;
-use Filament\Models\Contracts\HasTenants;
 use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable implements HasTenants, MustVerifyEmail, FilamentUser, HasAvatar
+final class User extends Authenticatable implements FilamentUser, HasAvatar, HasTenants, MustVerifyEmail
 {
     use HasApiTokens;
     use HasFactory;
@@ -67,6 +67,7 @@ class User extends Authenticatable implements HasTenants, MustVerifyEmail, Filam
      *
      * @return array<string, string>
      */
+    #[\Override]
     protected function casts(): array
     {
         return [
@@ -83,27 +84,31 @@ class User extends Authenticatable implements HasTenants, MustVerifyEmail, Filam
     /**
      * @throws Exception
      */
+    #[\Override]
     public function canAccessPanel(Panel $panel): bool
     {
         if ($panel->getId() === 'admin') {
-            return (string)$this->email === 'manuk.minasyan1@gmail.com' && $this->hasVerifiedEmail();
+            return (string) $this->email === 'manuk.minasyan1@gmail.com' && $this->hasVerifiedEmail();
         }
 
         return true;
     }
 
+    #[\Override]
     public function getTenants(Panel $panel): Collection
     {
         return $this->allTeams();
     }
 
+    #[\Override]
     public function canAccessTenant(Model $tenant): bool
     {
         return $this->belongsToTeam($tenant);
     }
 
+    #[\Override]
     public function getFilamentAvatarUrl(): ?string
     {
-        return 'https://robohash.org/' . urlencode($this->name) . '.png';
+        return 'https://robohash.org/'.urlencode($this->name).'.png';
     }
 }

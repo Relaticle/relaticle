@@ -11,28 +11,29 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Livewire\Attributes\On;
 use Relaticle\CustomFields\Models\CustomField;
+use Relaticle\CustomFields\Models\CustomFieldOption;
 
-class TasksBoard extends Page implements HasForms
+final class TasksBoard extends Page implements HasForms
 {
     protected static ?string $navigationLabel = 'Board';
 
     protected static ?string $title = 'Tasks';
+
     protected static ?string $navigationParentItem = 'Tasks';
+
     protected static ?string $navigationGroup = 'Workspace';
 
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
 
     protected static string $view = 'filament.pages.tasks-board.board';
 
-    protected static string $scriptsView = 'filament.pages.tasks-board.board-scripts';
+    private static string $scriptsView = 'filament.pages.tasks-board.board-scripts';
 
-    protected static string $model = Task::class;
+    private static string $model = Task::class;
 
+    private static string $recordStatusAttribute = 'status';
 
-    protected static string $recordStatusAttribute = 'status';
-
-
-    private function statusCustomField()
+    private function statusCustomField(): CustomField
     {
         return CustomField::query()
             ->forEntity(self::$model)
@@ -40,30 +41,29 @@ class TasksBoard extends Page implements HasForms
             ->firstOrFail();
     }
 
-    protected function statuses(): Collection
+    private function statuses(): Collection
     {
-        return $this->statusCustomField()->options->map(function ($option) {
-            return [
-                'id' => $option->id,
-                'custom_field_id' => $option->custom_field_id,
-                'name' => $option->name,
-            ];
-        });
+        return $this->statusCustomField()->options->map(fn (CustomFieldOption $option): array => [
+            'id' => $option->id,
+            'custom_field_id' => $option->custom_field_id,
+            'name' => $option->name,
+        ]);
     }
 
-    protected function records(): Collection
+    private function records(): Collection
     {
         return $this->getEloquentQuery()
             ->ordered()
             ->get();
     }
 
+    #[\Override]
     protected function getViewData(): array
     {
         $records = $this->records();
 
         $statuses = $this->statuses()
-            ->map(function ($status) use ($records) {
+            ->map(function (array $status) use ($records) {
                 $status['records'] = $this->filterRecordsByStatus($records, $status);
 
                 return $status;
@@ -74,21 +74,21 @@ class TasksBoard extends Page implements HasForms
         ];
     }
 
-    protected function filterRecordsByStatus(Collection $records, array $status): array
+    private function filterRecordsByStatus(Collection $records, array $status): array
     {
         return $records->toQuery()
             ->whereHas('customFieldValues', function (Builder $builder) use ($status): void {
                 $builder->where('custom_field_values.custom_field_id', $status['custom_field_id'])
-                    ->where('custom_field_values.' . $this->statusCustomField()->getValueColumn(), $status['id']);
+                    ->where('custom_field_values.'.$this->statusCustomField()->getValueColumn(), $status['id']);
             })
             ->ordered()
             ->get()
             ->all();
     }
 
-    protected function getEloquentQuery(): Builder
+    private function getEloquentQuery(): Builder
     {
-        return static::$model::query();
+        return self::$model::query();
     }
 
     #[On('status-changed')]
@@ -101,8 +101,8 @@ class TasksBoard extends Page implements HasForms
     {
         $this->getEloquentQuery()->find($recordId)->saveCustomFieldValue($this->statusCustomField(), $statusId);
 
-        if (method_exists(static::$model, 'setNewOrder')) {
-            static::$model::setNewOrder($toOrderedIds);
+        if (method_exists(self::$model, 'setNewOrder')) {
+            self::$model::setNewOrder($toOrderedIds);
         }
     }
 
@@ -114,8 +114,8 @@ class TasksBoard extends Page implements HasForms
 
     public function onSortChanged(int $recordId, string $statusId, array $orderedIds): void
     {
-        if (method_exists(static::$model, 'setNewOrder')) {
-            static::$model::setNewOrder($orderedIds);
+        if (method_exists(self::$model, 'setNewOrder')) {
+            self::$model::setNewOrder($orderedIds);
         }
     }
 }

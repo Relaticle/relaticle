@@ -1,24 +1,24 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Admin\Resources;
 
 use App\Filament\Admin\Resources\PeopleResource\Pages;
-use App\Filament\Admin\Resources\PeopleResource\RelationManagers;
 use App\Models\People;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class PeopleResource extends Resource
+final class PeopleResource extends Resource
 {
     protected static ?string $model = People::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
+    #[\Override]
     public static function form(Form $form): Form
     {
         return $form
@@ -32,6 +32,7 @@ class PeopleResource extends Resource
             ]);
     }
 
+    #[\Override]
     public static function table(Table $table): Table
     {
         return $table
@@ -64,6 +65,7 @@ class PeopleResource extends Resource
             ]);
     }
 
+    #[\Override]
     public static function getRelations(): array
     {
         return [
@@ -71,6 +73,7 @@ class PeopleResource extends Resource
         ];
     }
 
+    #[\Override]
     public static function getPages(): array
     {
         return [

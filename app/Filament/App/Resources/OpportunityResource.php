@@ -1,9 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\App\Resources;
 
-use App\Filament\Resources\OpportunityResource\Pages;
-use App\Filament\Resources\OpportunityResource\RelationManagers;
 use App\Models\Opportunity;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -11,7 +11,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent;
 
-class OpportunityResource extends Resource
+final class OpportunityResource extends Resource
 {
     protected static ?string $model = Opportunity::class;
 
@@ -21,16 +21,17 @@ class OpportunityResource extends Resource
 
     protected static ?string $navigationGroup = 'Workspace';
 
-
+    #[\Override]
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
                 CustomFieldsComponent::make()
-                    ->columnSpanFull()
+                    ->columnSpanFull(),
             ]);
     }
 
+    #[\Override]
     public static function table(Table $table): Table
     {
         return $table
@@ -57,6 +58,7 @@ class OpportunityResource extends Resource
             ]);
     }
 
+    #[\Override]
     public static function getRelations(): array
     {
         return [
@@ -64,6 +66,7 @@ class OpportunityResource extends Resource
         ];
     }
 
+    #[\Override]
     public static function getPages(): array
     {
         return [

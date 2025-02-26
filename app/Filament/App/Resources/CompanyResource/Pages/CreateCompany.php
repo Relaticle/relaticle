@@ -15,6 +15,7 @@ final class CreateCompany extends CreateRecord
     /**
      * Get the actions available on the resource creation header.
      */
+    #[\Override]
     protected function getHeaderActions(): array
     {
         return [
@@ -22,6 +23,7 @@ final class CreateCompany extends CreateRecord
         ];
     }
 
+    #[\Override]
     public function mutateFormDataBeforeCreate(array $data): array
     {
         return $data;

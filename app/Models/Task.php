@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Database\Factories\TaskFactory;
@@ -12,10 +14,11 @@ use Relaticle\CustomFields\Models\Concerns\UsesCustomFields;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 use Spatie\EloquentSortable\SortableTrait;
 
-class Task extends Model implements HasCustomFields
+final class Task extends Model implements HasCustomFields
 {
     /** @use HasFactory<TaskFactory> */
     use HasFactory;
+
     use SoftDeletes;
     use SortableTrait;
     use UsesCustomFields;

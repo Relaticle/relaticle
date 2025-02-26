@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions\Jetstream;
 
 use App\Models\Team;
@@ -8,7 +10,7 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Jetstream\Contracts\UpdatesTeamNames;
 
-class UpdateTeamName implements UpdatesTeamNames
+final class UpdateTeamName implements UpdatesTeamNames
 {
     /**
      * Validate and update the given team's name.

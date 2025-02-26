@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Providers\Filament;
@@ -37,7 +38,7 @@ use Relaticle\CustomFields\CustomFieldsPlugin;
 
 final class AppPanelProvider extends PanelProvider
 {
-    public function boot()
+    public function boot(): void
     {
         /**
          * Disable Fortify routes
@@ -63,6 +64,7 @@ final class AppPanelProvider extends PanelProvider
      *
      * @throws \Exception
      */
+    #[\Override]
     public function panel(Panel $panel): Panel
     {
         $panel
@@ -79,7 +81,7 @@ final class AppPanelProvider extends PanelProvider
             ->brandLogo(asset('relaticle-logo.svg'))
             ->viteTheme('resources/css/app.css')
             ->colors([
-                'primary' => '#06b6d4'
+                'primary' => '#06b6d4',
             ])
             ->viteTheme('resources/css/filament/app/theme.css')
             ->font('Satoshi')
@@ -87,7 +89,7 @@ final class AppPanelProvider extends PanelProvider
                 MenuItem::make()
                     ->label('Profile')
                     ->icon('heroicon-m-user-circle')
-                    ->url(fn() => $this->shouldRegisterMenuItem()
+                    ->url(fn () => $this->shouldRegisterMenuItem()
                         ? url(EditProfile::getUrl())
                         : url($panel->getPath())),
             ])
@@ -129,23 +131,23 @@ final class AppPanelProvider extends PanelProvider
             ])
             ->renderHook(
                 PanelsRenderHook::AUTH_LOGIN_FORM_BEFORE,
-                fn(): string => Blade::render('@env(\'local\')<x-login-link email="manuk.minasyan1@gmail.com" redirect-url="' . url('app') . '" />@endenv'),
+                fn (): string => Blade::render('@env(\'local\')<x-login-link email="manuk.minasyan1@gmail.com" redirect-url="'.url('app').'" />@endenv'),
             )
             ->renderHook(
                 PanelsRenderHook::AUTH_LOGIN_FORM_AFTER,
-                fn() => view('filament.auth.github_login_button')
+                fn () => view('filament.auth.github_login_button')
             )
             ->renderHook(
                 PanelsRenderHook::AUTH_REGISTER_FORM_AFTER,
-                fn() => view('filament.auth.github_register_button')
-            );;
+                fn () => view('filament.auth.github_register_button')
+            );
 
         if (Features::hasApiFeatures()) {
             $panel->userMenuItems([
                 MenuItem::make()
                     ->label('API Tokens')
                     ->icon('heroicon-o-key')
-                    ->url(fn() => $this->shouldRegisterMenuItem()
+                    ->url(fn () => $this->shouldRegisterMenuItem()
                         ? url(ApiTokens::getUrl())
                         : url($panel->getPath())),
             ]);
@@ -157,7 +159,6 @@ final class AppPanelProvider extends PanelProvider
                 ->tenantRegistration(CreateTeam::class)
                 ->tenantProfile(EditTeam::class);
         }
-
 
         return $panel;
     }

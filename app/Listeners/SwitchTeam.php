@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Listeners;
 
 use Filament\Events\TenantSet;
 use Laravel\Jetstream\Features;
 
-class SwitchTeam
+final class SwitchTeam
 {
     /**
      * Create the event listener.

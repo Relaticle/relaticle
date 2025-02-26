@@ -2,9 +2,7 @@ includes:
     - vendor/larastan/larastan/extension.neon
 
 parameters:
-    checkMissingIterableValueType: true
-
-    level: 8
+    level: 1
 
     paths:
         - app

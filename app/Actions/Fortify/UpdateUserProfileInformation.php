@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions\Fortify;
 
 use App\Models\User;
@@ -8,7 +10,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Laravel\Fortify\Contracts\UpdatesUserProfileInformation;
 
-class UpdateUserProfileInformation implements UpdatesUserProfileInformation
+final class UpdateUserProfileInformation implements UpdatesUserProfileInformation
 {
     /**
      * Validate and update the given user's profile information.
@@ -43,7 +45,7 @@ class UpdateUserProfileInformation implements UpdatesUserProfileInformation
      *
      * @param  array<string, string>  $input
      */
-    protected function updateVerifiedUser(User $user, array $input): void
+    private function updateVerifiedUser(User $user, array $input): void
     {
         $user->forceFill([
             'name' => $input['name'],

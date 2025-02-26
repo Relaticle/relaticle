@@ -1,9 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\App\Resources;
 
-use App\Filament\Resources\NoteResource\Pages;
-use App\Filament\Resources\NoteResource\RelationManagers;
 use App\Models\Note;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -11,7 +11,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent;
 
-class NoteResource extends Resource
+final class NoteResource extends Resource
 {
     protected static ?string $model = Note::class;
 
@@ -21,6 +21,7 @@ class NoteResource extends Resource
 
     protected static ?string $navigationGroup = 'Workspace';
 
+    #[\Override]
     public static function form(Form $form): Form
     {
         return $form
@@ -31,6 +32,7 @@ class NoteResource extends Resource
             ]);
     }
 
+    #[\Override]
     public static function table(Table $table): Table
     {
         return $table
@@ -51,6 +53,7 @@ class NoteResource extends Resource
             ]);
     }
 
+    #[\Override]
     public static function getPages(): array
     {
         return [
