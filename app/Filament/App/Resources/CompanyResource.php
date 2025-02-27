@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Filament\App\Resources;
 
+use App\Filament\App\Resources\CompanyResource\Pages\CreateCompany;
+use App\Filament\App\Resources\CompanyResource\Pages\EditCompany;
+use App\Filament\App\Resources\CompanyResource\Pages\ListCompanies;
 use App\Filament\Resources\CompanyResource\Pages;
 use App\Models\Company;
 use Filament\Forms\Components\Placeholder;
@@ -63,12 +66,6 @@ final class CompanyResource extends Resource
                 TextInput::make('name')
                     ->required(),
 
-                TextInput::make('address')
-                    ->required(),
-
-                TextInput::make('phone')
-                    ->required(),
-
                 CustomFieldsComponent::make()->columns(1),
 
             ])->columns(1)->inlineLabel();
@@ -86,10 +83,6 @@ final class CompanyResource extends Resource
                 TextColumn::make('name')
                     ->searchable()
                     ->sortable(),
-
-                TextColumn::make('address'),
-
-                TextColumn::make('phone'),
             ])
             ->filters([
                 //
@@ -115,9 +108,9 @@ final class CompanyResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => \App\Filament\App\Resources\CompanyResource\Pages\ListCompanies::route('/'),
-            'create' => \App\Filament\App\Resources\CompanyResource\Pages\CreateCompany::route('/create'),
-            'edit' => \App\Filament\App\Resources\CompanyResource\Pages\EditCompany::route('/{record}/edit'),
+            'index' => ListCompanies::route('/'),
+            'create' => CreateCompany::route('/create'),
+            'edit' => EditCompany::route('/{record}/edit'),
         ];
     }
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\App\Resources;
 
+use App\Filament\App\Resources\UserResource\Pages\ManageUsers;
 use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -98,7 +99,7 @@ final class UserResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => \App\Filament\App\Resources\UserResource\Pages\ManageUsers::route('/'),
+            'index' => ManageUsers::route('/'),
         ];
     }
 

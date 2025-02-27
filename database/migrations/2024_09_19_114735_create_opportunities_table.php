@@ -17,7 +17,8 @@ return new class extends Migration
         Schema::create('opportunities', function (Blueprint $table): void {
             $table->id();
 
-            $table->foreignIdFor(Team::class, 'team_id');
+            $table->foreignId('team_id');
+            $table->foreignId('user_id')->nullable()->constrained()->onDelete('set null');
 
             $table->softDeletes();
             $table->timestamps();

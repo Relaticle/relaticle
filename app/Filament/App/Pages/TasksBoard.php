@@ -76,6 +76,10 @@ final class TasksBoard extends Page implements HasForms
 
     private function filterRecordsByStatus(Collection $records, array $status): array
     {
+        if($records->isEmpty()) {
+            return [];
+        }
+
         return $records->toQuery()
             ->whereHas('customFieldValues', function (Builder $builder) use ($status): void {
                 $builder->where('custom_field_values.custom_field_id', $status['custom_field_id'])
