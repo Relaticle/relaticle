@@ -189,18 +189,6 @@ final readonly class CreateTeamCustomFields
      */
     private function createCustomFieldsForNotes(): void
     {
-        // Title - Indicates the title of the note
-        $this->migrator
-            ->new(
-                model: Note::class,
-                type: CustomFieldType::TEXT,
-                name: 'Title',
-                code: 'title',
-                section: 'General',
-                systemDefined: true
-            )
-            ->create();
-
         // Body - Indicates the body of the note
         $this->migrator
             ->new(

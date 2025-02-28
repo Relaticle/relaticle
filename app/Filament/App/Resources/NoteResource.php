@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Filament\App\Resources;
 
 use App\Models\Note;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -15,7 +17,7 @@ final class NoteResource extends Resource
 {
     protected static ?string $model = Note::class;
 
-    protected static ?string $navigationIcon = 'heroicon-m-document-text';
+    protected static ?string $navigationIcon = 'heroicon-o-document-text';
 
     protected static ?int $navigationSort = 5;
 
@@ -26,9 +28,13 @@ final class NoteResource extends Resource
     {
         return $form
             ->schema([
+                TextInput::make('title'),
                 CustomFieldsComponent::make()
                     ->columnSpanFull()
                     ->columns(),
+                Select::make('people')
+                    ->multiple()
+                    ->relationship(titleAttribute: 'name'),
             ]);
     }
 
@@ -37,7 +43,7 @@ final class NoteResource extends Resource
     {
         return $table
             ->columns([
-                //
+                Tables\Columns\TextColumn::make('title'),
             ])
             ->filters([
                 //

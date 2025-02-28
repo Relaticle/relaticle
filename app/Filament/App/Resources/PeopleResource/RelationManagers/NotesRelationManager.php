@@ -10,11 +10,11 @@ use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
 
-final class TasksRelationManager extends RelationManager
+final class NotesRelationManager extends RelationManager
 {
-    protected static string $relationship = 'tasks';
+    protected static string $relationship = 'notes';
 
-    protected static ?string $icon = 'heroicon-o-check-circle';
+    protected static ?string $icon = 'heroicon-o-document-text';
 
     #[\Override]
     public function form(Form $form): Form
@@ -27,7 +27,6 @@ final class TasksRelationManager extends RelationManager
             ]);
     }
 
-    #[\Override]
     public function table(Table $table): Table
     {
         return $table

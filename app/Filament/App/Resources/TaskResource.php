@@ -25,7 +25,7 @@ final class TaskResource extends Resource
 
     protected static ?string $navigationLabel = 'Tasks';
 
-    protected static ?string $navigationIcon = 'heroicon-m-check-circle';
+    protected static ?string $navigationIcon = 'heroicon-o-check-circle';
 
     protected static ?string $recordTitleAttribute = 'title';
 

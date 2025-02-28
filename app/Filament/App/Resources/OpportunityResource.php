@@ -15,7 +15,7 @@ final class OpportunityResource extends Resource
 {
     protected static ?string $model = Opportunity::class;
 
-    protected static ?string $navigationIcon = 'heroicon-m-trophy';
+    protected static ?string $navigationIcon = 'heroicon-o-trophy';
 
     protected static ?int $navigationSort = 3;
 

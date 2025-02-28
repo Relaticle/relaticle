@@ -76,7 +76,7 @@ final class TasksBoard extends Page implements HasForms
 
     private function filterRecordsByStatus(Collection $records, array $status): array
     {
-        if($records->isEmpty()) {
+        if ($records->isEmpty()) {
             return [];
         }
 
