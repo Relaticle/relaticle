@@ -41,7 +41,7 @@ final class CompanyResource extends Resource
     /**
      * The navigation icon for the resource.
      */
-    protected static ?string $navigationIcon = 'heroicon-m-home-modern';
+    protected static ?string $navigationIcon = 'heroicon-o-home-modern';
 
     protected static ?int $navigationSort = 2;
 

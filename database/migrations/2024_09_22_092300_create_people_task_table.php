@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('people_task', function (Blueprint $table): void {
             $table->id();
 
-            $table->foreignId( 'people_id');
+            $table->foreignId('people_id');
             $table->foreignId('task_id');
 
             $table->timestamps();

@@ -7,6 +7,8 @@ namespace App\Filament\App\Resources;
 use App\Filament\App\Resources\PeopleResource\Pages\CreatePeople;
 use App\Filament\App\Resources\PeopleResource\Pages\EditPeople;
 use App\Filament\App\Resources\PeopleResource\Pages\ListPeople;
+use App\Filament\App\Resources\PeopleResource\Pages\ViewPeople;
+use App\Filament\App\Resources\PeopleResource\RelationManagers\NotesRelationManager;
 use App\Filament\App\Resources\PeopleResource\RelationManagers\TasksRelationManager;
 use App\Models\People;
 use Filament\Forms;
@@ -14,6 +16,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent;
 
 final class PeopleResource extends Resource
@@ -25,7 +28,7 @@ final class PeopleResource extends Resource
     /**
      * The navigation icon for the resource.
      */
-    protected static ?string $navigationIcon = 'heroicon-m-user';
+    protected static ?string $navigationIcon = 'heroicon-o-user';
 
     protected static ?int $navigationSort = 1;
 
@@ -64,9 +67,7 @@ final class PeopleResource extends Resource
             ->filters([
                 //
             ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
-            ])
+            ->recordUrl(fn (Model $record): string => PeopleResource::getUrl('view', ['record' => $record]))
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
@@ -79,6 +80,7 @@ final class PeopleResource extends Resource
     {
         return [
             TasksRelationManager::class,
+            NotesRelationManager::class,
         ];
     }
 
@@ -88,6 +90,7 @@ final class PeopleResource extends Resource
         return [
             'index' => ListPeople::route('/'),
             'create' => CreatePeople::route('/create'),
+            'view' => ViewPeople::route('/{record}'),
             'edit' => EditPeople::route('/{record}/edit'),
         ];
     }

@@ -21,6 +21,7 @@ final class Company extends Model implements HasCustomFields
 {
     /** @use HasFactory<CompanyFactory> */
     use HasFactory;
+
     use UsesCustomFields;
 
     /**
