@@ -9,6 +9,7 @@ use App\Filament\App\Pages\Auth\Login;
 use App\Filament\App\Pages\CreateTeam;
 use App\Filament\App\Pages\EditProfile;
 use App\Filament\App\Pages\EditTeam;
+use App\Filament\App\Resources\CompanyResource;
 use App\Http\Middleware\ApplyTenantScopes;
 use App\Listeners\SwitchTeam;
 use App\Models\Team;
@@ -71,7 +72,7 @@ final class AppPanelProvider extends PanelProvider
             ->default()
             ->id('app')
             ->path('app')
-            ->homeUrl('companies')
+            ->homeUrl(fn (): string => CompanyResource::getUrl('index'))
             ->brandName('Relaticle')
             ->login(Login::class)
             ->passwordReset()
