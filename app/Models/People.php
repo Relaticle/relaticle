@@ -32,4 +32,9 @@ final class People extends Model implements HasCustomFields
     {
         return $this->belongsTo(Team::class);
     }
+
+    public function tasks(): BelongsToMany
+    {
+        return $this->belongsToMany(Task::class);
+    }
 }

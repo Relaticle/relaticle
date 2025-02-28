@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Filament\App\Resources;
 
+use App\Filament\App\Resources\PeopleResource\Pages\CreatePeople;
+use App\Filament\App\Resources\PeopleResource\Pages\EditPeople;
+use App\Filament\App\Resources\PeopleResource\Pages\ListPeople;
 use App\Filament\App\Resources\PeopleResource\RelationManagers\TasksRelationManager;
 use App\Models\People;
 use Filament\Forms;
@@ -83,9 +86,9 @@ final class PeopleResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => \App\Filament\App\Resources\PeopleResource\Pages\ListPeople::route('/'),
-            'create' => \App\Filament\App\Resources\PeopleResource\Pages\CreatePeople::route('/create'),
-            'edit' => \App\Filament\App\Resources\PeopleResource\Pages\EditPeople::route('/{record}/edit'),
+            'index' => ListPeople::route('/'),
+            'create' => CreatePeople::route('/create'),
+            'edit' => EditPeople::route('/{record}/edit'),
         ];
     }
 }
