@@ -28,12 +28,15 @@ final class HeaderComponent extends Component implements HasActions, HasForms
             ->iconButton()
             ->icon('heroicon-o-plus-circle')
             ->model(Task::class)
+            ->slideOver()
             ->form([
                 Forms\Components\TextInput::make('title')->required(),
                 CustomFieldsComponent::make(),
             ])
             ->fillForm([
-                'custom_fields.status' => $this->status['id'], // TODO: Implement this functionality, currently not working
+                'custom_fields' => [
+                    'status' => $this->status['id'],
+                ]
             ]);
     }
 
