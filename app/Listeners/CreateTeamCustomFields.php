@@ -13,14 +13,21 @@ use App\Models\User;
 use Laravel\Jetstream\Events\TeamCreated;
 use Laravel\Jetstream\Features;
 use Relaticle\CustomFields\Contracts\CustomsFieldsMigrators;
+use Relaticle\CustomFields\Data\CustomFieldData;
+use Relaticle\CustomFields\Data\CustomFieldSectionData;
+use Relaticle\CustomFields\Data\CustomFieldSettingsData;
+use Relaticle\CustomFields\Enums\CustomFieldSectionType;
 use Relaticle\CustomFields\Enums\CustomFieldType;
+use Relaticle\CustomFields\Enums\CustomFieldWidth;
 
 final readonly class CreateTeamCustomFields
 {
     /**
      * Create the event listener.
      */
-    public function __construct(private CustomsFieldsMigrators $migrator) {}
+    public function __construct(private CustomsFieldsMigrators $migrator)
+    {
+    }
 
     /**
      * Handle the event.
@@ -54,10 +61,16 @@ final readonly class CreateTeamCustomFields
         $this->migrator
             ->new(
                 model: Company::class,
-                type: CustomFieldType::TOGGLE,
-                name: 'ICP',
-                code: 'icp',
-                section: 'General'
+                fieldData: new CustomFieldData(
+                    name: 'ICP',
+                    code: 'icp',
+                    type: CustomFieldType::TOGGLE,
+                    section: new CustomFieldSectionData(
+                        name: 'General',
+                        code: 'general',
+                        type: CustomFieldSectionType::HEADLESS
+                    )
+                )
             )
             ->create();
 
@@ -65,11 +78,17 @@ final readonly class CreateTeamCustomFields
         $this->migrator
             ->new(
                 model: Company::class,
-                type: CustomFieldType::LINK,
-                name: 'Domain Name',
-                code: 'domain_name',
-                section: 'General',
-                systemDefined: true // If a field is system-defined, users cannot delete it, they can only deactivate
+                fieldData: new CustomFieldData(
+                    name: 'Domain Name',
+                    code: 'domain_name',
+                    type: CustomFieldType::LINK,
+                    section: new CustomFieldSectionData(
+                        name: 'General',
+                        code: 'general',
+                        type: CustomFieldSectionType::HEADLESS
+                    ),
+                    systemDefined: true // If a field is system-defined, users cannot delete it, they can only deactivate
+                )
             )
             ->create();
 
@@ -77,10 +96,16 @@ final readonly class CreateTeamCustomFields
         $this->migrator
             ->new(
                 model: Company::class,
-                type: CustomFieldType::LINK,
-                name: 'Linkedin',
-                code: 'linkedin',
-                section: 'General'
+                fieldData: new CustomFieldData(
+                    name: 'Linkedin',
+                    code: 'linkedin',
+                    type: CustomFieldType::LINK,
+                    section: new CustomFieldSectionData(
+                        name: 'General',
+                        code: 'general',
+                        type: CustomFieldSectionType::HEADLESS
+                    )
+                )
             )
             ->create();
 
@@ -88,10 +113,16 @@ final readonly class CreateTeamCustomFields
         $this->migrator
             ->new(
                 model: Company::class,
-                type: CustomFieldType::SELECT,
-                name: 'Account Owner',
-                code: 'account_owner',
-                section: 'General'
+                fieldData: new CustomFieldData(
+                    name: 'Account Owner',
+                    code: 'account_owner',
+                    type: CustomFieldType::SELECT,
+                    section: new CustomFieldSectionData(
+                        name: 'General',
+                        code: 'general',
+                        type: CustomFieldSectionType::HEADLESS
+                    )
+                )
             )
             ->lookupType(User::class)
             ->create();
@@ -106,11 +137,17 @@ final readonly class CreateTeamCustomFields
         $this->migrator
             ->new(
                 model: Opportunity::class,
-                type: CustomFieldType::TEXT,
-                name: 'Name',
-                code: 'name',
-                section: 'General',
-                systemDefined: true
+                fieldData: new CustomFieldData(
+                    name: 'Name',
+                    code: 'name',
+                    type: CustomFieldType::TEXT,
+                    section: new CustomFieldSectionData(
+                        name: 'General',
+                        code: 'general',
+                        type: CustomFieldSectionType::HEADLESS
+                    ),
+                    systemDefined: true
+                )
             )
             ->create();
 
@@ -118,10 +155,16 @@ final readonly class CreateTeamCustomFields
         $this->migrator
             ->new(
                 model: Opportunity::class,
-                type: CustomFieldType::NUMBER,
-                name: 'Amount',
-                code: 'amount',
-                section: 'General',
+                fieldData: new CustomFieldData(
+                    name: 'Amount',
+                    code: 'amount',
+                    type: CustomFieldType::NUMBER,
+                    section: new CustomFieldSectionData(
+                        name: 'General',
+                        code: 'general',
+                        type: CustomFieldSectionType::HEADLESS
+                    )
+                )
             )
             ->create();
 
@@ -129,10 +172,16 @@ final readonly class CreateTeamCustomFields
         $this->migrator
             ->new(
                 model: Opportunity::class,
-                type: CustomFieldType::DATE,
-                name: 'Close Date',
-                code: 'close_date',
-                section: 'General'
+                fieldData: new CustomFieldData(
+                    name: 'Close Date',
+                    code: 'close_date',
+                    type: CustomFieldType::DATE,
+                    section: new CustomFieldSectionData(
+                        name: 'General',
+                        code: 'general',
+                        type: CustomFieldSectionType::HEADLESS
+                    )
+                )
             )
             ->create();
 
@@ -140,10 +189,16 @@ final readonly class CreateTeamCustomFields
         $this->migrator
             ->new(
                 model: Opportunity::class,
-                type: CustomFieldType::SELECT,
-                name: 'Stage',
-                code: 'stage',
-                section: 'General'
+                fieldData: new CustomFieldData(
+                    name: 'Stage',
+                    code: 'stage',
+                    type: CustomFieldType::SELECT,
+                    section: new CustomFieldSectionData(
+                        name: 'General',
+                        code: 'general',
+                        type: CustomFieldSectionType::HEADLESS
+                    )
+                )
             )
             ->options([
                 'Prospecting',
@@ -163,10 +218,16 @@ final readonly class CreateTeamCustomFields
         $this->migrator
             ->new(
                 model: Opportunity::class,
-                type: CustomFieldType::SELECT,
-                name: 'Company',
-                code: 'company',
-                section: 'General'
+                fieldData: new CustomFieldData(
+                    name: 'Company',
+                    code: 'company',
+                    type: CustomFieldType::SELECT,
+                    section: new CustomFieldSectionData(
+                        name: 'General',
+                        code: 'general',
+                        type: CustomFieldSectionType::HEADLESS
+                    )
+                )
             )
             ->lookupType(Company::class)
             ->create();
@@ -175,10 +236,16 @@ final readonly class CreateTeamCustomFields
         $this->migrator
             ->new(
                 model: Opportunity::class,
-                type: CustomFieldType::SELECT,
-                name: 'Point of Contact',
-                code: 'point_of_contact',
-                section: 'General'
+                fieldData: new CustomFieldData(
+                    name: 'Point of Contact',
+                    code: 'point_of_contact',
+                    type: CustomFieldType::SELECT,
+                    section: new CustomFieldSectionData(
+                        name: 'General',
+                        code: 'general',
+                        type: CustomFieldSectionType::HEADLESS
+                    )
+                )
             )
             ->lookupType(People::class)
             ->create();
@@ -193,10 +260,16 @@ final readonly class CreateTeamCustomFields
         $this->migrator
             ->new(
                 model: Note::class,
-                type: CustomFieldType::RICH_EDITOR,
-                name: 'Body',
-                code: 'body',
-                section: 'General',
+                fieldData: new CustomFieldData(
+                    name: 'Body',
+                    code: 'body',
+                    type: CustomFieldType::RICH_EDITOR,
+                    section: new CustomFieldSectionData(
+                        name: 'General',
+                        code: 'general',
+                        type: CustomFieldSectionType::HEADLESS
+                    )
+                )
             )
             ->create();
     }
@@ -210,10 +283,16 @@ final readonly class CreateTeamCustomFields
         $this->migrator
             ->new(
                 model: People::class,
-                type: CustomFieldType::TAGS_INPUT,
-                name: 'Emails',
-                code: 'emails',
-                section: 'General'
+                fieldData: new CustomFieldData(
+                    name: 'Emails',
+                    code: 'emails',
+                    type: CustomFieldType::TAGS_INPUT,
+                    section: new CustomFieldSectionData(
+                        name: 'General',
+                        code: 'general',
+                        type: CustomFieldSectionType::HEADLESS
+                    )
+                )
             )
             ->create();
 
@@ -221,10 +300,16 @@ final readonly class CreateTeamCustomFields
         $this->migrator
             ->new(
                 model: People::class,
-                type: CustomFieldType::TEXT,
-                name: 'Phone Number',
-                code: 'phone_number',
-                section: 'General'
+                fieldData: new CustomFieldData(
+                    name: 'Phone Number',
+                    code: 'phone_number',
+                    type: CustomFieldType::TEXT,
+                    section: new CustomFieldSectionData(
+                        name: 'General',
+                        code: 'general',
+                        type: CustomFieldSectionType::HEADLESS
+                    )
+                )
             )
             ->create();
 
@@ -232,10 +317,16 @@ final readonly class CreateTeamCustomFields
         $this->migrator
             ->new(
                 model: People::class,
-                type: CustomFieldType::TEXT,
-                name: 'Job Title',
-                code: 'job_title',
-                section: 'General'
+                fieldData: new CustomFieldData(
+                    name: 'Job Title',
+                    code: 'job_title',
+                    type: CustomFieldType::TEXT,
+                    section: new CustomFieldSectionData(
+                        name: 'General',
+                        code: 'general',
+                        type: CustomFieldSectionType::HEADLESS
+                    )
+                )
             )
             ->create();
 
@@ -243,10 +334,16 @@ final readonly class CreateTeamCustomFields
         $this->migrator
             ->new(
                 model: People::class,
-                type: CustomFieldType::LINK,
-                name: 'Linkedin',
-                code: 'linkedin',
-                section: 'General'
+                fieldData: new CustomFieldData(
+                    name: 'Linkedin',
+                    code: 'linkedin',
+                    type: CustomFieldType::LINK,
+                    section: new CustomFieldSectionData(
+                        name: 'General',
+                        code: 'general',
+                        type: CustomFieldSectionType::HEADLESS,
+                    )
+                )
             )
             ->create();
     }
@@ -260,11 +357,21 @@ final readonly class CreateTeamCustomFields
         $this->migrator
             ->new(
                 model: Task::class,
-                type: CustomFieldType::SELECT,
-                name: 'Status',
-                code: 'status',
-                section: 'General',
-                systemDefined: true
+                fieldData: new CustomFieldData(
+                    name: 'Status',
+                    code: 'status',
+                    type: CustomFieldType::SELECT,
+                    section: new CustomFieldSectionData(
+                        name: 'General',
+                        code: 'general',
+                        type: CustomFieldSectionType::HEADLESS
+                    ),
+                    systemDefined: true,
+                    width: CustomFieldWidth::_50,
+                    settings: new CustomFieldSettingsData(
+                        list_toggleable_hidden: false
+                    )
+                )
             )
             ->options([
                 'To do',
@@ -277,11 +384,21 @@ final readonly class CreateTeamCustomFields
         $this->migrator
             ->new(
                 model: Task::class,
-                type: CustomFieldType::SELECT,
-                name: 'Priority',
-                code: 'priority',
-                section: 'General',
-                systemDefined: true
+                fieldData: new CustomFieldData(
+                    name: 'Priority',
+                    code: 'priority',
+                    type: CustomFieldType::SELECT,
+                    section: new CustomFieldSectionData(
+                        name: 'General',
+                        code: 'general',
+                        type: CustomFieldSectionType::HEADLESS
+                    ),
+                    systemDefined: true,
+                    width: CustomFieldWidth::_50,
+                    settings: new CustomFieldSettingsData(
+                        list_toggleable_hidden: false
+                    )
+                )
             )
             ->options([
                 'Low',
@@ -294,10 +411,16 @@ final readonly class CreateTeamCustomFields
         $this->migrator
             ->new(
                 model: Task::class,
-                type: CustomFieldType::RICH_EDITOR,
-                name: 'Description',
-                code: 'description',
-                section: 'General',
+                fieldData: new CustomFieldData(
+                    name: 'Description',
+                    code: 'description',
+                    type: CustomFieldType::RICH_EDITOR,
+                    section: new CustomFieldSectionData(
+                        name: 'General',
+                        code: 'general',
+                        type: CustomFieldSectionType::HEADLESS
+                    )
+                )
             )
             ->create();
 
@@ -305,10 +428,16 @@ final readonly class CreateTeamCustomFields
         $this->migrator
             ->new(
                 model: Task::class,
-                type: CustomFieldType::DATE_TIME,
-                name: 'Due Date',
-                code: 'due_date',
-                section: 'General'
+                fieldData: new CustomFieldData(
+                    name: 'Due Date',
+                    code: 'due_date',
+                    type: CustomFieldType::DATE_TIME,
+                    section: new CustomFieldSectionData(
+                        name: 'General',
+                        code: 'general',
+                        type: CustomFieldSectionType::HEADLESS
+                    )
+                )
             )
             ->create();
 
@@ -316,22 +445,34 @@ final readonly class CreateTeamCustomFields
         $this->migrator
             ->new(
                 model: Task::class,
-                type: CustomFieldType::SELECT,
-                name: 'Assignee',
-                code: 'assignee',
-                section: 'General',
+                fieldData: new CustomFieldData(
+                    name: 'Assignee',
+                    code: 'assignee',
+                    type: CustomFieldType::SELECT,
+                    section: new CustomFieldSectionData(
+                        name: 'General',
+                        code: 'general',
+                        type: CustomFieldSectionType::HEADLESS
+                    )
+                )
             )
             ->lookupType(User::class)
-            ->create();
+        ->create();
 
         // Company - Indicates the company of the task
         $this->migrator
             ->new(
                 model: Task::class,
-                type: CustomFieldType::SELECT,
-                name: 'Company',
-                code: 'company',
-                section: 'General'
+                fieldData: new CustomFieldData(
+                    name: 'Company',
+                    code: 'company',
+                    type: CustomFieldType::SELECT,
+                    section: new CustomFieldSectionData(
+                        name: 'General',
+                        code: 'general',
+                        type: CustomFieldSectionType::HEADLESS
+                    )
+                )
             )
             ->lookupType(Company::class)
             ->create();

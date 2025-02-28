@@ -53,6 +53,7 @@ return [
         'table' => [
             'columns_toggleable' => [
                 'enabled' => true,
+                'user_control' => false,
                 'hidden_by_default' => true,
             ],
         ],

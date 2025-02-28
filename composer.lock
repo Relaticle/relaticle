@@ -1086,16 +1086,16 @@
         },
         {
             "name": "brick/math",
-            "version": "0.12.2",
+            "version": "0.12.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/brick/math.git",
-                "reference": "901eddb1e45a8e0f689302e40af871c181ecbe40"
+                "reference": "866551da34e9a618e64a819ee1e01c20d8a588ba"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/brick/math/zipball/901eddb1e45a8e0f689302e40af871c181ecbe40",
-                "reference": "901eddb1e45a8e0f689302e40af871c181ecbe40",
+                "url": "https://api.github.com/repos/brick/math/zipball/866551da34e9a618e64a819ee1e01c20d8a588ba",
+                "reference": "866551da34e9a618e64a819ee1e01c20d8a588ba",
                 "shasum": ""
             },
             "require": {
@@ -1134,7 +1134,7 @@
             ],
             "support": {
                 "issues": "https://github.com/brick/math/issues",
-                "source": "https://github.com/brick/math/tree/0.12.2"
+                "source": "https://github.com/brick/math/tree/0.12.3"
             },
             "funding": [
                 {
@@ -1142,7 +1142,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-02-26T10:21:45+00:00"
+            "time": "2025-02-28T13:11:00+00:00"
         },
         {
             "name": "carbonphp/carbon-doctrine-types",
@@ -4038,16 +4038,16 @@
         },
         {
             "name": "league/csv",
-            "version": "9.21.0",
+            "version": "9.22.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/csv.git",
-                "reference": "72196d11ebba22d868954cb39c0c7346207430cc"
+                "reference": "afc109aa11f3086b8be8dfffa04ac31480b36b76"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/csv/zipball/72196d11ebba22d868954cb39c0c7346207430cc",
-                "reference": "72196d11ebba22d868954cb39c0c7346207430cc",
+                "url": "https://api.github.com/repos/thephpleague/csv/zipball/afc109aa11f3086b8be8dfffa04ac31480b36b76",
+                "reference": "afc109aa11f3086b8be8dfffa04ac31480b36b76",
                 "shasum": ""
             },
             "require": {
@@ -4057,19 +4057,23 @@
             "require-dev": {
                 "ext-dom": "*",
                 "ext-xdebug": "*",
-                "friendsofphp/php-cs-fixer": "^3.64.0",
-                "phpbench/phpbench": "^1.3.1",
-                "phpstan/phpstan": "^1.12.11",
+                "friendsofphp/php-cs-fixer": "^3.69.0",
+                "phpbench/phpbench": "^1.4.0",
+                "phpstan/phpstan": "^1.12.18",
                 "phpstan/phpstan-deprecation-rules": "^1.2.1",
-                "phpstan/phpstan-phpunit": "^1.4.1",
-                "phpstan/phpstan-strict-rules": "^1.6.1",
-                "phpunit/phpunit": "^10.5.16 || ^11.4.3",
-                "symfony/var-dumper": "^6.4.8 || ^7.1.8"
+                "phpstan/phpstan-phpunit": "^1.4.2",
+                "phpstan/phpstan-strict-rules": "^1.6.2",
+                "phpunit/phpunit": "^10.5.16 || ^11.5.7",
+                "symfony/var-dumper": "^6.4.8 || ^7.2.3"
             },
             "suggest": {
                 "ext-dom": "Required to use the XMLConverter and the HTMLConverter classes",
                 "ext-iconv": "Needed to ease transcoding CSV using iconv stream filters",
-                "ext-mbstring": "Needed to ease transcoding CSV using mb stream filters"
+                "ext-mbstring": "Needed to ease transcoding CSV using mb stream filters",
+                "ext-mysqli": "Requiered to use the package with the MySQLi extension",
+                "ext-pdo": "Required to use the package with the PDO extension",
+                "ext-pgsql": "Requiered to use the package with the PgSQL extension",
+                "ext-sqlite3": "Required to use the package with the SQLite3 extension"
             },
             "type": "library",
             "extra": {
@@ -4082,7 +4086,7 @@
                     "src/functions_include.php"
                 ],
                 "psr-4": {
-                    "League\\Csv\\": "src/"
+                    "League\\Csv\\": "src"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -4121,7 +4125,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-01-08T19:27:58+00:00"
+            "time": "2025-02-28T10:00:39+00:00"
         },
         {
             "name": "league/flysystem",
@@ -6844,17 +6848,17 @@
         },
         {
             "name": "relaticle/custom-fields",
-            "version": "1.3.2",
+            "version": "1.3.3",
             "source": {
                 "type": "git",
                 "url": "git@github.com:Relaticle/custom-fields.git",
-                "reference": "9364e924b223dfb68daa96ffdfb8a0ffb2ad5587"
+                "reference": "7ffa673206be16ab2129d182b4f048f15ed87d3f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://satis.relaticle.com/dist/relaticle/custom-fields/relaticle-custom-fields-9364e924b223dfb68daa96ffdfb8a0ffb2ad5587-zip-48bee0.zip",
-                "reference": "9364e924b223dfb68daa96ffdfb8a0ffb2ad5587",
-                "shasum": "8a03458ee49d8ef24f79569a95c4701e34fe6654"
+                "url": "https://satis.relaticle.com/dist/relaticle/custom-fields/relaticle-custom-fields-7ffa673206be16ab2129d182b4f048f15ed87d3f-zip-f63d62.zip",
+                "reference": "7ffa673206be16ab2129d182b4f048f15ed87d3f",
+                "shasum": "d361fb59e33adeaa4e45a420de247701085d4be3"
             },
             "require": {
                 "filament/filament": "^3.0",
@@ -6937,7 +6941,7 @@
                 "issues": "https://github.com/relaticle/custom-fields/issues",
                 "source": "https://github.com/relaticle/custom-fields"
             },
-            "time": "2025-02-20T20:48:05+00:00"
+            "time": "2025-02-28T13:14:09+00:00"
         },
         {
             "name": "revolt/event-loop",
