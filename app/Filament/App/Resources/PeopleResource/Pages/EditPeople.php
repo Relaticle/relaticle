@@ -12,7 +12,6 @@ final class EditPeople extends EditRecord
 {
     protected static string $resource = PeopleResource::class;
 
-    #[\Override]
     protected function getHeaderActions(): array
     {
         return [
