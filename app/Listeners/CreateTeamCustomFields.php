@@ -69,6 +69,9 @@ final readonly class CreateTeamCustomFields
                         name: 'General',
                         code: 'general',
                         type: CustomFieldSectionType::HEADLESS
+                    ),
+                    settings: new CustomFieldSettingsData(
+                        list_toggleable_hidden: false
                     )
                 )
             )
@@ -87,7 +90,10 @@ final readonly class CreateTeamCustomFields
                         code: 'general',
                         type: CustomFieldSectionType::HEADLESS
                     ),
-                    systemDefined: true // If a field is system-defined, users cannot delete it, they can only deactivate
+                    systemDefined: true, // If a field is system-defined, users cannot delete it, they can only deactivate
+                    settings: new CustomFieldSettingsData(
+                        list_toggleable_hidden: false
+                    )
                 )
             )
             ->create();
@@ -121,6 +127,9 @@ final readonly class CreateTeamCustomFields
                         name: 'General',
                         code: 'general',
                         type: CustomFieldSectionType::HEADLESS
+                    ),
+                    settings: new CustomFieldSettingsData(
+                        list_toggleable_hidden: false
                     )
                 )
             )
@@ -162,6 +171,9 @@ final readonly class CreateTeamCustomFields
                         name: 'General',
                         code: 'general',
                         type: CustomFieldSectionType::HEADLESS
+                    ),
+                    settings: new CustomFieldSettingsData(
+                        list_toggleable_hidden: false
                     )
                 )
             )
@@ -179,6 +191,9 @@ final readonly class CreateTeamCustomFields
                         name: 'General',
                         code: 'general',
                         type: CustomFieldSectionType::HEADLESS
+                    ),
+                    settings: new CustomFieldSettingsData(
+                        list_toggleable_hidden: false
                     )
                 )
             )
@@ -208,6 +223,9 @@ final readonly class CreateTeamCustomFields
                         name: 'General',
                         code: 'general',
                         type: CustomFieldSectionType::HEADLESS
+                    ),
+                    settings: new CustomFieldSettingsData(
+                        list_toggleable_hidden: false
                     )
                 )
             )
@@ -273,6 +291,9 @@ final readonly class CreateTeamCustomFields
                         name: 'General',
                         code: 'general',
                         type: CustomFieldSectionType::HEADLESS
+                    ),
+                    settings: new CustomFieldSettingsData(
+                        list_toggleable_hidden: false
                     )
                 )
             )
@@ -307,6 +328,9 @@ final readonly class CreateTeamCustomFields
                         name: 'General',
                         code: 'general',
                         type: CustomFieldSectionType::HEADLESS
+                    ),
+                    settings: new CustomFieldSettingsData(
+                        list_toggleable_hidden: false
                     )
                 )
             )
@@ -435,11 +459,14 @@ final readonly class CreateTeamCustomFields
                         name: 'General',
                         code: 'general',
                         type: CustomFieldSectionType::HEADLESS
+                    ),
+                    settings: new CustomFieldSettingsData(
+                        list_toggleable_hidden: false
                     )
                 )
             )
             ->lookupType(User::class)
-        ->create();
+            ->create();
 
         // Company - Indicates the company of the task
         $this->migrator
