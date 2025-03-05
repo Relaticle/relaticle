@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace App\Filament\App\Resources;
 
+use App\Filament\App\Resources\OpportunityResource\Pages\CreateOpportunity;
+use App\Filament\App\Resources\OpportunityResource\Pages\EditOpportunity;
+use App\Filament\App\Resources\OpportunityResource\Pages\ListOpportunities;
 use App\Models\Opportunity;
-use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent;
+use Filament\Forms\{Form, Components\TextInput};
 
 final class OpportunityResource extends Resource
 {
@@ -27,6 +30,9 @@ final class OpportunityResource extends Resource
     {
         return $form
             ->schema([
+                TextInput::make('name')
+                    ->required()
+                    ->maxLength(255),
                 CustomFieldsComponent::make()
                     ->columnSpanFull(),
             ]);
@@ -37,6 +43,8 @@ final class OpportunityResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('name')
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -71,9 +79,9 @@ final class OpportunityResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => \App\Filament\App\Resources\OpportunityResource\Pages\ListOpportunities::route('/'),
-            'create' => \App\Filament\App\Resources\OpportunityResource\Pages\CreateOpportunity::route('/create'),
-            'edit' => \App\Filament\App\Resources\OpportunityResource\Pages\EditOpportunity::route('/{record}/edit'),
+            'index' => ListOpportunities::route('/'),
+            'create' => CreateOpportunity::route('/create'),
+            'edit' => EditOpportunity::route('/{record}/edit'),
         ];
     }
 }
