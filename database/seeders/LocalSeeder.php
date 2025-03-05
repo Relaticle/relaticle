@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Database\Seeders;
 
 use App\Models\Company;
+use App\Models\Opportunity;
 use App\Models\People;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -23,5 +24,7 @@ final class LocalSeeder extends Seeder
         People::factory()->for($user->personalTeam(), 'team')->count(500)->create();
 
         Company::factory()->for($user->personalTeam(), 'team')->count(50)->create();
+
+        Opportunity::factory()->for($user->personalTeam(), 'team')->count(100)->create();
     }
 }
