@@ -16,7 +16,6 @@ final class TasksRelationManager extends RelationManager
 
     protected static ?string $icon = 'heroicon-o-check-circle';
 
-    #[\Override]
     public function form(Form $form): Form
     {
         return $form
@@ -24,10 +23,14 @@ final class TasksRelationManager extends RelationManager
                 Forms\Components\TextInput::make('title')
                     ->required()
                     ->maxLength(255),
+                Forms\Components\Hidden::make('team_id')
+                    ->required()
+                    ->default(function () {
+                        return $this->getOwnerRecord()->team_id;
+                    }), // TODO: Handle globally
             ]);
     }
 
-    #[\Override]
     public function table(Table $table): Table
     {
         return $table
