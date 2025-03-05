@@ -133,24 +133,6 @@ final readonly class CreateTeamCustomFields
      */
     private function createCustomFieldsForOpportunity(): void
     {
-        // Name - Indicates the name of the opportunity
-        $this->migrator
-            ->new(
-                model: Opportunity::class,
-                fieldData: new CustomFieldData(
-                    name: 'Name',
-                    code: 'name',
-                    type: CustomFieldType::TEXT,
-                    section: new CustomFieldSectionData(
-                        name: 'General',
-                        code: 'general',
-                        type: CustomFieldSectionType::HEADLESS
-                    ),
-                    systemDefined: true
-                )
-            )
-            ->create();
-
         // Amount - Indicates the amount of the opportunity
         $this->migrator
             ->new(
