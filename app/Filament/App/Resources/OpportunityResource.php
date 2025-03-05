@@ -14,6 +14,7 @@ use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent;
 final class OpportunityResource extends Resource
 {
     protected static ?string $model = Opportunity::class;
+    protected static ?string $recordTitleAttribute = 'name';
 
     protected static ?string $navigationIcon = 'heroicon-o-trophy';
 
