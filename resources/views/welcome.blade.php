@@ -21,7 +21,7 @@
             <!-- App Preview Image with Animation -->
             <div class="mt-12 flex justify-center">
                 <img src="{{ asset('images/app-preview.png') }}" alt="App Preview"
-                     class="w-full border-2 shadow-2xl rounded max-w-3xl">
+                     class="w-full border-2 shadow-2xl rounded max-w-4xl">
             </div>
         </div>
     </section>
