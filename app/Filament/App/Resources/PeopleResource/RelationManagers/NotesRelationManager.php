@@ -28,9 +28,7 @@ final class NotesRelationManager extends RelationManager
                 CustomFieldsComponent::make()->columnSpanFull(),
                 Forms\Components\Hidden::make('team_id')
                     ->required()
-                    ->default(function () {
-                        return $this->getOwnerRecord()->team_id;
-                    }),
+                    ->default(fn () => $this->getOwnerRecord()->team_id),
             ]);
     }
 

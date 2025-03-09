@@ -7,7 +7,7 @@ namespace Database\Factories;
 use App\Models\Opportunity;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-class OpportunityFactory extends Factory
+final class OpportunityFactory extends Factory
 {
     protected $model = Opportunity::class;
 

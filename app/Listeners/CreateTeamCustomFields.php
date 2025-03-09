@@ -25,9 +25,7 @@ final readonly class CreateTeamCustomFields
     /**
      * Create the event listener.
      */
-    public function __construct(private CustomsFieldsMigrators $migrator)
-    {
-    }
+    public function __construct(private CustomsFieldsMigrators $migrator) {}
 
     /**
      * Handle the event.

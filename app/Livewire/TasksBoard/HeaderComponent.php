@@ -36,7 +36,7 @@ final class HeaderComponent extends Component implements HasActions, HasForms
             ->fillForm([
                 'custom_fields' => [
                     'status' => $this->status['id'],
-                ]
+                ],
             ]);
     }
 
