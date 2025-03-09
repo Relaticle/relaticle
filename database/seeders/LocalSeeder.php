@@ -31,15 +31,17 @@ final class LocalSeeder extends Seeder
         // Create people.
         People::factory()->for($user->personalTeam(), 'team')->count(500)->create();
 
-        $customFieldDomainName = CustomField::query()
-            ->where('code', 'domain_name')
-            ->first();
+        $customFields = CustomField::query()
+            ->whereIn('code', ['icp', 'domain_name'])
+            ->get()
+            ->keyBy('code');
 
         Company::factory()
             ->for($user->personalTeam(), 'team')
             ->count(50)
-            ->afterCreating(function (Company $company) use ($customFieldDomainName) {
-                $company->saveCustomFieldValue($customFieldDomainName, 'https://' . fake()->domainName());
+            ->afterCreating(function (Company $company) use ($customFields) {
+                $company->saveCustomFieldValue($customFields->get('domain_name'), 'https://' . fake()->domainName());
+                $company->saveCustomFieldValue($customFields->get('icp'), fake()->boolean(70));
             })
             ->create();
 
