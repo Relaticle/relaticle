@@ -12,7 +12,7 @@
             <div class="space-y-8">
                 <!-- Animated Badge -->
                 <div class="flex justify-center">
-                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary/10 text-primary border border-primary/20 animate-pulse">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary/10 text-primary border border-primary/20 ">
                         <span class="mr-1.5 h-2 w-2 rounded-full bg-primary"></span>
                         Open Source CRM
                     </span>
