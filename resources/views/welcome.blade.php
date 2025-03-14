@@ -5,9 +5,12 @@
         <div class="absolute inset-0 overflow-hidden">
             <div class="absolute -top-24 -right-24 w-96 h-96 bg-primary opacity-5 rounded-full blur-3xl"></div>
             <div class="absolute top-1/2 -left-24 w-96 h-96 bg-indigo-400 opacity-5 rounded-full blur-3xl"></div>
+            <!-- New particle elements for brand identity -->
+            <div class="absolute bottom-1/4 right-1/4 w-24 h-24 bg-primary/10 rounded-full blur-xl"></div>
+            <div class="absolute top-1/3 left-1/3 w-16 h-16 bg-indigo-300/20 rounded-full blur-lg"></div>
         </div>
 
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-28 relative z-10">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:pb-28 pt-24 relative z-10">
             <!-- Main Content -->
             <div class="space-y-8">
                 <!-- Animated Badge -->
@@ -44,27 +47,91 @@
                     </a>
                 </div>
 
-                <!-- App Preview with Enhanced Visual Appeal -->
-                <div class="mt-16 relative max-w-4xl mx-auto">
+                <!-- App Preview with Professional Browser Mockup -->
+                <div class="mt-16 relative max-w-5xl mx-auto transform perspective-1000 hover:scale-[1.01] transition-all duration-700">
                     <!-- Decorative elements -->
                     <div class="absolute -top-6 -left-6 w-24 h-24 bg-yellow-300 opacity-20 rounded-full blur-xl"></div>
                     <div class="absolute -bottom-8 -right-8 w-32 h-32 bg-primary opacity-20 rounded-full blur-xl"></div>
 
-                    <!-- App image with enhanced styling -->
-                    <div class="relative overflow-hidden rounded-xl shadow-2xl ring-1 ring-slate-200">
-                        <img src="{{ asset('images/app-preview.png') }}" alt="Relaticle App Preview"
-                            class="w-full h-auto transform hover:scale-[1.02] transition-transform duration-700"
-                            loading="lazy">
-                        <!-- Reflection overlay -->
-                        <div class="absolute inset-0 bg-gradient-to-t from-transparent to-white/10 pointer-events-none"></div>
+                    <!-- Browser Window Mockup -->
+                    <div class="relative bg-white rounded-xl shadow-2xl overflow-hidden border border-gray-200/80">
+                        <!-- Browser Header -->
+                        <div class="bg-gray-100 border-b border-gray-200 px-4 py-2 flex items-center">
+                            <!-- Window Controls -->
+                            <div class="flex space-x-2">
+                                <div class="w-3 h-3 rounded-full bg-red-400"></div>
+                                <div class="w-3 h-3 rounded-full bg-yellow-400"></div>
+                                <div class="w-3 h-3 rounded-full bg-green-400"></div>
+                            </div>
+
+                            <!-- Browser Tabs -->
+                            <div class="ml-4 flex space-x-1">
+                                <div class="px-4 py-1.5 rounded-t-lg bg-white text-sm font-medium text-gray-700 border-b-2 border-primary">
+                                    Relaticle
+                                </div>
+                            </div>
+
+                            <!-- Flexible Space -->
+                            <div class="flex-1"></div>
+
+                            <!-- Browser Menu Icons -->
+                            <div class="flex space-x-2 text-gray-500">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                </svg>
+                            </div>
+                        </div>
+
+                        <!-- Browser Address Bar -->
+                        <div class="bg-white border-b border-gray-200 px-4 py-2 flex items-center">
+                            <!-- Navigation Controls -->
+                            <div class="flex space-x-3 text-gray-400">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                                </svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                </svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                </svg>
+                            </div>
+
+                            <!-- URL Bar -->
+                            <div class="ml-4 flex-1 bg-gray-100 rounded-md px-3 py-1 text-sm text-gray-600 flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                </svg>
+                                <span>app.relaticle.com/dashboard</span>
+                            </div>
+
+                            <!-- Icons -->
+                            <div class="ml-4 flex space-x-3 text-gray-400">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                                </svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                        </div>
+
+                        <!-- Browser Content Area -->
+                        <div class="relative bg-gray-50">
+                            <img src="{{ asset('images/app-preview.png') }}" alt="Relaticle CRM Dashboard" class="w-full h-auto" loading="lazy">
+                            <!-- Subtle overlay to integrate with browser frame -->
+                            <div class="absolute inset-0 bg-gradient-to-t from-transparent via-transparent to-white/5 pointer-events-none"></div>
+                            <!-- Mouse cursor for added realism -->
+                            <div class="absolute hidden md:block" style="top: 30%; left: 45%;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-gray-800 opacity-70">
+                                    <path d="M4 4l7.07 17 2.51-7.39L21 11.07z"></path>
+                                </svg>
+                            </div>
+                        </div>
                     </div>
 
-                    <!-- Browser-like decorative dots -->
-                    <div class="absolute -top-2 left-4 flex space-x-1.5">
-                        <div class="w-3 h-3 rounded-full bg-red-400"></div>
-                        <div class="w-3 h-3 rounded-full bg-yellow-400"></div>
-                        <div class="w-3 h-3 rounded-full bg-green-400"></div>
-                    </div>
+                    <!-- Subtle shadow under browser -->
+                    <div class="absolute -bottom-2 inset-x-4 h-8 bg-black/5 blur-lg rounded-full"></div>
                 </div>
             </div>
         </div>
