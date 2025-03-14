@@ -10,7 +10,7 @@ export default {
         './storage/framework/views/*.php',
         './resources/views/**/*.blade.php',
     ],
-
+    darkMode: 'class',
     theme: {
         extend: {
             fontFamily: {
@@ -18,23 +18,45 @@ export default {
             },
             colors: {
                 primary: {
-                    '50': '#ecfeff',
-                    '100': '#cffafe',
-                    '200': '#a5f3fc',
-                    '300': '#67e8f9',
-                    '400': '#22d3ee',
-                    '500': '#06b6d4',
-                    '600': '#0891b2',
-                    '700': '#0e7490',
-                    '800': '#155e75',
-                    '900': '#164e63',
-                    '950': '#083344',
-                    DEFAULT: '#06b6d4',
+                    '50': '#f5f3ff',
+                    '100': '#ede9fe',
+                    '200': '#ddd6fe',
+                    '300': '#c4b5fd',
+                    '400': '#a78bfa',
+                    '500': '#8b5cf6',
+                    '600': '#7c3aed',
+                    '700': '#6d28d9',
+                    '800': '#5b21b6',
+                    '900': '#4c1d95',
+                    '950': '#2e1065',
+                    DEFAULT: '#7c3aed',
                 }
             },
             animation: {
                 'pulse-twice': 'pulse 1s cubic-bezier(0, 0, 0.2, 1) 2',
                 blob: "blob 7s infinite",
+                'float': 'float 5s ease-in-out infinite',
+                'subtle-pulse': 'subtle-pulse 4s ease-in-out infinite',
+                'data-flow': 'data-flow 3s ease-in-out infinite',
+                'spin-slow': 'spin 6s linear infinite',
+                'bounce-slow': 'bounce 3s infinite',
+                'fade-in': 'fadeIn 1s ease-out',
+                'slide-up': 'slideUp 0.5s ease-out',
+                'slide-in-right': 'slideInRight 0.5s ease-out',
+            },
+            keyframes: {
+                fadeIn: {
+                    '0%': { opacity: '0' },
+                    '100%': { opacity: '1' },
+                },
+                slideUp: {
+                    '0%': { transform: 'translateY(20px)', opacity: '0' },
+                    '100%': { transform: 'translateY(0)', opacity: '1' },
+                },
+                slideInRight: {
+                    '0%': { transform: 'translateX(20px)', opacity: '0' },
+                    '100%': { transform: 'translateX(0)', opacity: '1' },
+                }
             }
         },
     },

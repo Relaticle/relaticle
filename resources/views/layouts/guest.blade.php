@@ -28,9 +28,9 @@
         <div class="flex justify-between items-center py-4">
             <!-- Logo with hover animation -->
             <div class="flex-shrink-0 transition-transform duration-300 hover:scale-105">
-                <a href="{{ url('/') }}" class="flex items-center space-x-2" aria-label="Relaticle Home">
-                    <img class="h-10 w-auto" src="{{ asset('relaticle-logo.svg') }}" alt="Relaticle Logo">
-                    <span class="font-semibold text-lg text-primary hidden sm:block">Relaticle</span>
+                <a href="{{ url('/') }}" class="flex items-center space-x-1" aria-label="Relaticle Home">
+                    <img class="h-12 w-auto" src="{{ asset('relaticle-logo.svg') }}" alt="Relaticle Logo">
+                    <span class="font-semibold text-lg text-[#4841D5] hidden sm:block">Relaticle</span>
                 </a>
             </div>
 
@@ -91,13 +91,13 @@
 {{ $slot }}
 
 <!-- Modern Footer -->
-<footer class="bg-gradient-to-b from-gray-800 to-gray-900 text-white py-12">
+<footer class="bg-gradient-to-b from-gray-900 to-gray-900 text-white py-12">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
             <!-- Company Info -->
             <div class="space-y-4">
                 <div class="flex items-center space-x-2">
-                    <img class="h-8 w-auto" src="{{ asset('relaticle-logo.svg') }}" alt="Relaticle Logo">
+                    <img class="h-10 w-auto" src="{{ asset('relaticle-logo.svg') }}" alt="Relaticle Logo">
                     <span class="font-bold text-xl">Relaticle</span>
                 </div>
                 <p class="text-gray-300 text-sm">The Next-Generation Open-Source CRM Platform designed to streamline your customer relationships.</p>
@@ -191,9 +191,7 @@
             window.addEventListener('scroll', () => {
                 if (window.scrollY > 10) {
                     header.classList.add('py-2', 'shadow');
-                    header.classList.remove('py-4', 'shadow-sm');
                 } else {
-                    header.classList.add('py-4', 'shadow-sm');
                     header.classList.remove('py-2', 'shadow');
                 }
             });
