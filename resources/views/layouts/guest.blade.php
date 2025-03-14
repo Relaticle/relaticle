@@ -28,7 +28,7 @@
         <div class="flex justify-between items-center py-4">
             <!-- Logo with hover animation -->
             <div class="flex-shrink-0 transition-transform duration-300 hover:scale-105">
-                <a href="{{ url('/') }}" class="flex items-center space-x-1" aria-label="Relaticle Home">
+                <a href="{{ url('/') }}" class="flex items-center space-x-2" aria-label="Relaticle Home">
                     <img class="h-12 w-auto" src="{{ asset('relaticle-logo.svg') }}" alt="Relaticle Logo">
                     <span class="font-bold text-lg text-[#4841D5] hidden sm:block">Relaticle</span>
                 </a>
