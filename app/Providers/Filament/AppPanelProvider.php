@@ -78,7 +78,7 @@ final class AppPanelProvider extends PanelProvider
             ->passwordReset()
             ->emailVerification()
             ->databaseNotifications()
-            ->brandLogoHeight('3.2rem')
+            ->brandLogoHeight('2.6rem')
             ->brandLogo(asset('relaticle-logo.svg'))
             ->viteTheme('resources/css/app.css')
             ->colors([
