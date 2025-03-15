@@ -1,4 +1,3 @@
-<br>
 <p align="center">
   <a href="https://relaticle.com">
     <img src="https://relaticle.com/relaticle-logo.svg" width="100px" alt="Relaticle logo" />
