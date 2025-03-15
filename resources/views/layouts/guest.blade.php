@@ -78,7 +78,7 @@
            Sign In
         </a>
         <a href="{{ route('register') }}"
-           class="block bg-gradient-to-r from-primary to-primary-dark text-white px-3 py-2 mt-2 rounded-lg transition-all duration-200">
+           class="block bg-gradient-to-r from-primary to-primary/90 text-white px-3 py-2 mt-2 rounded-lg transition-all duration-200">
            Get Started
         </a>
     </div>
