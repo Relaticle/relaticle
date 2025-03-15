@@ -19,7 +19,7 @@ use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Model;
+use App\Filament\App\Resources\CompanyResource\RelationManagers;
 use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent;
 
 final class CompanyResource extends Resource
@@ -79,6 +79,8 @@ final class CompanyResource extends Resource
                 ]),
             ]);
     }
+
+  
 
     public static function getPages(): array
     {

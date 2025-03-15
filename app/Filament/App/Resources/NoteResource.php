@@ -28,13 +28,23 @@ final class NoteResource extends Resource
     {
         return $form
             ->schema([
-                TextInput::make('title'),
+                TextInput::make('title')
+                    ->label('Title')
+                    ->rules(['max:255'])
+                    ->columnSpanFull()
+                    ->required(),
                 CustomFieldsComponent::make()
                     ->columnSpanFull()
                     ->columns(),
-                Select::make('people')
+                Select::make('companies')
+                    ->label('Companies')
                     ->multiple()
-                    ->relationship(titleAttribute: 'name'),
+                    ->relationship('companies', 'name'),
+                Select::make('people')
+                    ->label('People')
+                    ->multiple()
+                    ->relationship('people', 'name')
+                    ->nullable(),
             ]);
     }
 

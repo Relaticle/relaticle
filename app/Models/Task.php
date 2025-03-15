@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Relaticle\CustomFields\Models\Concerns\UsesCustomFields;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
@@ -46,13 +47,23 @@ final class Task extends Model implements HasCustomFields
         return $this->belongsTo(User::class);
     }
 
-    public function assignee(): BelongsTo
+    public function assignees(): BelongsToMany
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsToMany(User::class);
     }
 
-    public function people(): BelongsToMany
+    public function companies(): MorphToMany
     {
-        return $this->belongsToMany(People::class);
+        return $this->morphedByMany(Company::class, 'taskable');
+    }
+
+    public function opportunities(): MorphToMany
+    {
+        return $this->morphedByMany(Opportunity::class, 'taskable');
+    }
+
+    public function people(): MorphToMany
+    {
+        return $this->morphedByMany(People::class, 'taskable');
     }
 }

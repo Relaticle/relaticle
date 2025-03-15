@@ -37,6 +37,11 @@ final class PeopleResource extends Resource
                 Forms\Components\TextInput::make('name')
                     ->required()
                     ->maxLength(255),
+                Forms\Components\Select::make('company_id')
+                    ->relationship('company', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->required(),
                 CustomFieldsComponent::make()
                     ->columnSpanFull()
                     ->columns(),

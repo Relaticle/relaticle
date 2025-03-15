@@ -32,6 +32,7 @@ final class ViewPeople extends ViewRecord
         return $infolist->schema([
             Components\Section::make()->schema([
                 Components\TextEntry::make('name'),
+                Components\TextEntry::make('company.name')->label('Company'),
                 CustomFieldsInfolists::make()->columnSpanFull(),
             ]),
         ]);
