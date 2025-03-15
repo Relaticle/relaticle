@@ -31,7 +31,6 @@ final class TasksBoard extends Page implements HasForms
 
     private static string $model = Task::class;
 
-    private static string $recordStatusAttribute = 'status';
 
     private function statusCustomField(): CustomField
     {
