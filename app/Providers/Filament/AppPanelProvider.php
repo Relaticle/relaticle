@@ -79,7 +79,7 @@ final class AppPanelProvider extends PanelProvider
             ->emailVerification()
             ->databaseNotifications()
             ->brandLogoHeight('2.6rem')
-            ->brandLogo(asset('relaticle-logo.svg'))
+            ->brandLogo(fn () => view('filament.app.logo'))
             ->viteTheme('resources/css/app.css')
             ->colors([
                 'primary' => '#5D54E8',
