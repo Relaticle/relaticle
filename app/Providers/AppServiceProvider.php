@@ -15,6 +15,10 @@ use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
+use Filament\Actions\Action;
+use Filament\Actions\DeleteAction;
+use Filament\Tables\Actions\Action as TableAction;
+use Filament\Tables\Actions\DeleteAction as TableDeleteAction;
 
 final class AppServiceProvider extends ServiceProvider
 {
@@ -46,5 +50,25 @@ final class AppServiceProvider extends ServiceProvider
         if (App::isProduction()) {
             URL::forceScheme('https');
         }
+
+        $this->configureFilament();
+    }
+
+    /**
+     * Configure Filament.
+     */
+    private function configureFilament(): void
+    {
+        Action::configureUsing(function (Action $action) {
+            if (!$action instanceof DeleteAction) {
+                return $action->slideOver();
+            }
+        });
+
+        TableAction::configureUsing(function (TableAction $action) {
+            if (!$action instanceof TableDeleteAction) {
+                return $action->slideOver();
+            }
+        });
     }
 }

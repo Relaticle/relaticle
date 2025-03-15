@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\App\Resources;
 
-use App\Filament\App\Resources\OpportunityResource\Pages\CreateOpportunity;
-use App\Filament\App\Resources\OpportunityResource\Pages\EditOpportunity;
-use App\Filament\App\Resources\OpportunityResource\Pages\ListOpportunities;
+use App\Filament\App\Resources\OpportunityResource\Pages;
 use App\Models\Opportunity;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
@@ -60,7 +58,12 @@ final class OpportunityResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\ViewAction::make(),
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\DeleteAction::make(),
+                ]),
+
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -81,9 +84,9 @@ final class OpportunityResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => ListOpportunities::route('/'),
-            'create' => CreateOpportunity::route('/create'),
-            'edit' => EditOpportunity::route('/{record}/edit'),
+            'index' => Pages\ListOpportunities::route('/'),
+            'create' => Pages\CreateOpportunity::route('/create'),
+            'view' => Pages\ViewOpportunity::route('/{record}'),
         ];
     }
 }
