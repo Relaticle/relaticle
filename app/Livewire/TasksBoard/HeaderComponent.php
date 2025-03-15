@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Livewire\TasksBoard; 
+namespace App\Livewire\TasksBoard;
 
 use App\Models\Task;
 use Filament\Actions\Action;
@@ -31,7 +31,7 @@ final class HeaderComponent extends Component implements HasActions, HasForms
             ->model(Task::class)
             ->slideOver()
             ->form([
-                Forms\Components\TextInput::make('title')->required(),
+                Forms\Components\TextInput::make('title')->rules(['max:255'])->required(),
                 CustomFieldsComponent::make(),
             ])
             ->fillForm([
@@ -39,7 +39,17 @@ final class HeaderComponent extends Component implements HasActions, HasForms
                     'status' => $this->status['id'],
                 ],
             ])
-            ->action(fn (array $data) => Auth::user()->currentTeam->tasks()->create($data));
+            ->action(function (array $data) {
+                $task = Auth::user()->currentTeam->tasks()->create($data);
+
+                // Dispatch event with the new task and status info
+                $this->dispatch('task-created',
+                    task: $task->id,
+                    statusId: $this->status['id']
+                );
+
+                return $task;
+            });
     }
 
     public function render(): View

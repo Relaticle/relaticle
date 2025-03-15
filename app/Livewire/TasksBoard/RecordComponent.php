@@ -35,7 +35,7 @@ final class RecordComponent extends Component implements HasActions, HasForms
             ->model(Task::class)
             ->record($this->task)
             ->form([
-                Forms\Components\TextInput::make('title')->required(),
+                Forms\Components\TextInput::make('title')->rules(['max:255'])->required(),
                 CustomFieldsComponent::make(),
             ])
             ->fillForm($this->task->attributesToArray())
