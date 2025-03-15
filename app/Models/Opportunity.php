@@ -10,11 +10,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Relaticle\CustomFields\Models\Concerns\UsesCustomFields;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
+use Spatie\EloquentSortable\SortableTrait;
 
 final class Opportunity extends Model implements HasCustomFields
 {
     use HasFactory;
     use UsesCustomFields;
+    use SortableTrait;
 
     public function team(): BelongsTo
     {
