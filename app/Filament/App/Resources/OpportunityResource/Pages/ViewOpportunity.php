@@ -31,6 +31,8 @@ class ViewOpportunity extends ViewRecord
                 Components\Section::make()->schema([
                     Infolists\Components\TextEntry::make('name'),
                     CustomFieldsInfolists::make()->columnSpanFull(),
+                    Infolists\Components\TextEntry::make('company.name')->label('Company'),
+                    Infolists\Components\TextEntry::make('contact.name')->label('Point of Contact'),
                 ]),
             ]);
     }

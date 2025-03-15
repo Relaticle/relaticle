@@ -7,6 +7,7 @@ namespace App\Filament\App\Resources;
 use App\Filament\App\Resources\OpportunityResource\Pages;
 use App\Filament\App\Resources\OpportunityResource\RelationManagers;
 use App\Models\Opportunity;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -36,6 +37,14 @@ final class OpportunityResource extends Resource
                     ->maxLength(255),
                 CustomFieldsComponent::make()
                     ->columnSpanFull(),
+                Select::make('company_id')
+                    ->label('Company')
+                    ->relationship('company', 'name')
+                    ->searchable(),
+                Select::make('contact_id')
+                    ->label('Point of Contact')
+                    ->relationship('contact', 'name')
+                    ->searchable()
             ]);
     }
 

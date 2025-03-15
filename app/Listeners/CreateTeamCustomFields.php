@@ -208,45 +208,6 @@ final readonly class CreateTeamCustomFields
                 'Closed Lost',
             ])
             ->create();
-
-        // Company - Indicates the company of the opportunity
-        $this->migrator
-            ->new(
-                model: Opportunity::class,
-                fieldData: new CustomFieldData(
-                    name: 'Company',
-                    code: 'company',
-                    type: CustomFieldType::SELECT,
-                    section: new CustomFieldSectionData(
-                        name: 'General',
-                        code: 'general',
-                        type: CustomFieldSectionType::HEADLESS
-                    ),
-                    settings: new CustomFieldSettingsData(
-                        list_toggleable_hidden: false
-                    )
-                )
-            )
-            ->lookupType(Company::class)
-            ->create();
-
-        // Point of Contact - Indicates the point of contact of the opportunity
-        $this->migrator
-            ->new(
-                model: Opportunity::class,
-                fieldData: new CustomFieldData(
-                    name: 'Point of Contact',
-                    code: 'point_of_contact',
-                    type: CustomFieldType::SELECT,
-                    section: new CustomFieldSectionData(
-                        name: 'General',
-                        code: 'general',
-                        type: CustomFieldSectionType::HEADLESS
-                    )
-                )
-            )
-            ->lookupType(People::class)
-            ->create();
     }
 
     /**

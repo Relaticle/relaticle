@@ -19,9 +19,11 @@ return new class extends Migration
             $table->foreignId('team_id');
             $table->foreignId('user_id')->nullable()->constrained()->onDelete('set null');
             $table->foreignId('company_id')->nullable()->constrained()->onDelete('set null');
-            $table->foreignId('contact_id')->nullable()->constrained()->onDelete('set null');
+            $table->foreignId('contact_id')->nullable()->constrained('people')->onDelete('set null');
 
             $table->string('name');
+
+            $table->unsignedBigInteger('order_column')->nullable();
 
             $table->softDeletes();
             $table->timestamps();
