@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Livewire\TasksBoard;
+namespace App\Livewire\TasksBoard; 
 
 use App\Models\Task;
 use Filament\Actions\Action;
@@ -11,6 +11,7 @@ use Filament\Actions\Contracts\HasActions;
 use Filament\Forms;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 use Livewire\Component;
 use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent;
@@ -37,7 +38,8 @@ final class HeaderComponent extends Component implements HasActions, HasForms
                 'custom_fields' => [
                     'status' => $this->status['id'],
                 ],
-            ]);
+            ])
+            ->action(fn (array $data) => Auth::user()->currentTeam->tasks()->create($data));
     }
 
     public function render(): View
