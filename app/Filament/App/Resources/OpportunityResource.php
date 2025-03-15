@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\App\Resources;
 
 use App\Filament\App\Resources\OpportunityResource\Pages;
+use App\Filament\App\Resources\OpportunityResource\RelationManagers;
 use App\Models\Opportunity;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
@@ -76,7 +77,8 @@ final class OpportunityResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            RelationManagers\TasksRelationManager::class,
+            RelationManagers\NotesRelationManager::class,
         ];
     }
 

@@ -13,11 +13,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('people_task', function (Blueprint $table): void {
+        Schema::create('noteables', function (Blueprint $table) {
             $table->id();
 
-            $table->foreignId('people_id');
-            $table->foreignId('task_id');
+            $table->foreignId('note_id');
+
+            $table->morphs('noteable');
 
             $table->timestamps();
         });
@@ -28,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('people_task');
+        Schema::dropIfExists('noteables');
     }
 };

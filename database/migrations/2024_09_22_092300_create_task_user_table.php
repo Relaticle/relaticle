@@ -13,11 +13,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('note_people', function (Blueprint $table): void {
+        Schema::create('task_user', function (Blueprint $table): void {
             $table->id();
 
-            $table->foreignId('people_id');
-            $table->foreignId('note_id');
+            $table->foreignId('task_id');
+            $table->foreignId('user_id');
 
             $table->timestamps();
         });
@@ -28,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('note_people');
+        Schema::dropIfExists('task_user');
     }
 };

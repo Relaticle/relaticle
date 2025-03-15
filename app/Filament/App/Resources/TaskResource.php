@@ -5,8 +5,12 @@ declare(strict_types=1);
 namespace App\Filament\App\Resources;
 
 use App\Filament\App\Resources\TaskResource\Pages\ManageTasks;
+use App\Models\Company;
+use App\Models\People;
 use App\Models\Task;
 use Filament\Forms;
+use Filament\Forms\Components\MorphToSelect;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
@@ -39,6 +43,20 @@ final class TaskResource extends Resource
         return $form
             ->schema([
                 Forms\Components\TextInput::make('title')->required(),
+                Select::make('companies')
+                    ->label('Companies')
+                    ->multiple()
+                    ->relationship('companies', 'name'),
+                Select::make('people')
+                    ->label('People')
+                    ->multiple()
+                    ->relationship('people', 'name')
+                    ->nullable(),
+                Select::make('assignees')
+                    ->label('Assignees')
+                    ->multiple()
+                    ->relationship('assignees', 'name')
+                    ->nullable(),
                 CustomFieldsComponent::make(),
             ])
             ->columns(1);
@@ -71,7 +89,7 @@ final class TaskResource extends Resource
                             $direction
                         );
                     })
-                    ->getTitleFromRecordUsing(fn (Task $record): ?string => $valueResolver->resolve($record, $customField)),
+                    ->getTitleFromRecordUsing(fn(Task $record): ?string => $valueResolver->resolve($record, $customField)),
             ])
             ->actions([
                 Tables\Actions\EditAction::make()
@@ -83,7 +101,7 @@ final class TaskResource extends Resource
                                 $recipient = $record->assignee;
 
                                 Notification::make()
-                                    ->title('You have been assigned task: #'.$record->id)
+                                    ->title('You have been assigned task: #' . $record->id)
                                     ->sendToDatabase($recipient);
                             }
 

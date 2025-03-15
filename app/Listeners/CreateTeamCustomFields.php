@@ -444,44 +444,5 @@ final readonly class CreateTeamCustomFields
                 )
             )
             ->create();
-
-        // Assignee - Indicates the assignee of the task
-        $this->migrator
-            ->new(
-                model: Task::class,
-                fieldData: new CustomFieldData(
-                    name: 'Assignee',
-                    code: 'assignee',
-                    type: CustomFieldType::SELECT,
-                    section: new CustomFieldSectionData(
-                        name: 'General',
-                        code: 'general',
-                        type: CustomFieldSectionType::HEADLESS
-                    ),
-                    settings: new CustomFieldSettingsData(
-                        list_toggleable_hidden: false
-                    )
-                )
-            )
-            ->lookupType(User::class)
-            ->create();
-
-        // Company - Indicates the company of the task
-        $this->migrator
-            ->new(
-                model: Task::class,
-                fieldData: new CustomFieldData(
-                    name: 'Company',
-                    code: 'company',
-                    type: CustomFieldType::SELECT,
-                    section: new CustomFieldSectionData(
-                        name: 'General',
-                        code: 'general',
-                        type: CustomFieldSectionType::HEADLESS
-                    )
-                )
-            )
-            ->lookupType(Company::class)
-            ->create();
     }
 }

@@ -13,14 +13,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('people', function (Blueprint $table): void {
+        Schema::create('taskables', function (Blueprint $table) {
             $table->id();
 
-            $table->foreignId('team_id');
-            $table->foreignId('user_id')->nullable()->constrained()->onDelete('set null');
-            $table->foreignId('company_id')->nullable()->constrained()->onDelete('set null');
-
-            $table->string('name');
+            $table->foreignId('task_id');
+            $table->foreignId('taskable_id');
+            $table->string('taskable_type');
 
             $table->timestamps();
         });
@@ -31,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('people');
+        Schema::dropIfExists('taskables');
     }
 };
