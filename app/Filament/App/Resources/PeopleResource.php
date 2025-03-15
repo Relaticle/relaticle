@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Filament\App\Resources;
 
 use App\Filament\App\Resources\PeopleResource\Pages\CreatePeople;
-use App\Filament\App\Resources\PeopleResource\Pages\EditPeople;
 use App\Filament\App\Resources\PeopleResource\Pages\ListPeople;
 use App\Filament\App\Resources\PeopleResource\Pages\ViewPeople;
 use App\Filament\App\Resources\PeopleResource\RelationManagers\NotesRelationManager;
@@ -25,16 +24,12 @@ final class PeopleResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name';
 
-    /**
-     * The navigation icon for the resource.
-     */
     protected static ?string $navigationIcon = 'heroicon-o-user';
 
     protected static ?int $navigationSort = 1;
 
     protected static ?string $navigationGroup = 'Workspace';
 
-    #[\Override]
     public static function form(Form $form): Form
     {
         return $form
@@ -48,7 +43,6 @@ final class PeopleResource extends Resource
             ]);
     }
 
-    #[\Override]
     public static function table(Table $table): Table
     {
         return $table
@@ -67,7 +61,6 @@ final class PeopleResource extends Resource
             ->filters([
                 //
             ])
-            ->recordUrl(fn (Model $record): string => PeopleResource::getUrl('view', ['record' => $record]))
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
@@ -89,7 +82,6 @@ final class PeopleResource extends Resource
             'index' => ListPeople::route('/'),
             'create' => CreatePeople::route('/create'),
             'view' => ViewPeople::route('/{record}'),
-            'edit' => EditPeople::route('/{record}/edit'),
         ];
     }
 }
