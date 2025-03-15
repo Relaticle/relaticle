@@ -6,5 +6,6 @@ namespace App\Enums;
 
 enum SocialiteProvider: string
 {
+    case GOOGLE = 'google';
     case GITHUB = 'github';
 }
