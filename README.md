@@ -14,9 +14,9 @@
 <p align="center">
   <a href="https://www.relaticle.com">
     <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://relaticle.com/images/app-preview.png">
-      <source media="(prefers-color-scheme: light)" srcset="https://relaticle.com/images/app-preview.png">
-      <img src="https://relaticle.com/images/app-preview.png" alt="Companies view" />
+      <source media="(prefers-color-scheme: dark)" srcset="https://relaticle.com/images/app-preview.png?a=1">
+      <source media="(prefers-color-scheme: light)" srcset="https://relaticle.com/images/app-preview.png?a=1">
+      <img src="https://relaticle.com/images/app-preview.png?a=1" alt="Companies view" />
     </picture>
   </a>
 </p>
