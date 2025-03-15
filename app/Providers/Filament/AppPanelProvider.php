@@ -136,11 +136,7 @@ final class AppPanelProvider extends PanelProvider
             )
             ->renderHook(
                 PanelsRenderHook::AUTH_LOGIN_FORM_AFTER,
-                fn () => view('filament.auth.github_login_button')
-            )
-            ->renderHook(
-                PanelsRenderHook::AUTH_REGISTER_FORM_AFTER,
-                fn () => view('filament.auth.github_register_button')
+                fn () => view('filament.auth.social_login_buttons')
             );
 
         if (Features::hasApiFeatures()) {
