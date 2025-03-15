@@ -20,7 +20,7 @@
     :href="route('auth.socialite.redirect', 'github')"
     tag="a"
     color="gray"
-    class="w-full justify-center flex bg-[#24292e] hover:bg-[#1a1e22] text-white"
+    class="w-full justify-center flex"
 >
     <span class="flex">
         <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="currentColor">
