@@ -85,7 +85,6 @@ final class PeopleResource extends Resource
     {
         return [
             'index' => ListPeople::route('/'),
-            'create' => CreatePeople::route('/create'),
             'view' => ViewPeople::route('/{record}'),
         ];
     }

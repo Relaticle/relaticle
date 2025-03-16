@@ -38,14 +38,6 @@ final class CompanyResource extends Resource
     {
         return $form
             ->schema([
-                Placeholder::make('created_at')
-                    ->label('Created Date')
-                    ->content(fn(?Company $record): string => $record?->created_at?->diffForHumans() ?? '-'),
-
-                Placeholder::make('updated_at')
-                    ->label('Last Modified Date')
-                    ->content(fn(?Company $record): string => $record?->updated_at?->diffForHumans() ?? '-'),
-
                 TextInput::make('name')
                     ->required(),
 
@@ -80,13 +72,12 @@ final class CompanyResource extends Resource
             ]);
     }
 
-  
+
 
     public static function getPages(): array
     {
         return [
             'index' => Pages\ListCompanies::route('/'),
-            'create' => Pages\CreateCompany::route('/create'),
             'view' => Pages\ViewCompany::route('/{record}'),
         ];
     }

@@ -96,7 +96,6 @@ final class OpportunityResource extends Resource
     {
         return [
             'index' => Pages\ListOpportunities::route('/'),
-            'create' => Pages\CreateOpportunity::route('/create'),
             'view' => Pages\ViewOpportunity::route('/{record}'),
         ];
     }
