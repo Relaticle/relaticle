@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Filament\App\Resources\PeopleResource\Pages;
 
+use App\Filament\Admin\Resources\CompanyResource;
 use App\Filament\App\Resources\PeopleResource;
 use Filament\Actions;
 use Filament\Infolists\Components;
+use Filament\Infolists\Components\Split;
 use Filament\Infolists\Infolist;
 use Filament\Resources\Pages\ViewRecord;
 use Relaticle\CustomFields\Filament\Infolists\CustomFieldsInfolists;
@@ -15,7 +17,6 @@ final class ViewPeople extends ViewRecord
 {
     protected static string $resource = PeopleResource::class;
 
-    #[\Override]
     protected function getHeaderActions(): array
     {
         return [
@@ -26,13 +27,22 @@ final class ViewPeople extends ViewRecord
         ];
     }
 
-    #[\Override]
     public function infolist(Infolist $infolist): Infolist
     {
         return $infolist->schema([
             Components\Section::make()->schema([
-                Components\TextEntry::make('name'),
-                Components\TextEntry::make('company.name')->label('Company'),
+                Split::make([
+                    Components\ImageEntry::make('avatar')
+                        ->label('')
+                        ->height(30)
+                        ->circular(),
+                    Components\TextEntry::make('name')
+                        ->size(Components\TextEntry\TextEntrySize::Large),
+                    Components\TextEntry::make('company.name')
+                        ->label('Company')
+                        ->color('primary')
+                        ->url(fn($record) => CompanyResource::getUrl('view', [$record->company])),
+                ]),
                 CustomFieldsInfolists::make()->columnSpanFull(),
             ]),
         ]);
