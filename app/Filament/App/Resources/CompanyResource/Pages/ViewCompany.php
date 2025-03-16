@@ -37,11 +37,13 @@ final class ViewCompany extends ViewRecord
                 Split::make([
                     Section::make([
                         Split::make([
-                        Infolists\Components\ImageEntry::make('logo')
+                            Infolists\Components\ImageEntry::make('logo')
                                 ->label('')
                                 ->height(40)
-                                ->square(),
+                                ->square()
+                                ->grow(false),
                             Infolists\Components\TextEntry::make('name')
+                                ->label('')
                                 ->size(TextEntry\TextEntrySize::Large),
                             Infolists\Components\TextEntry::make('accountOwner.name')
                                 ->label('Account Owner'),

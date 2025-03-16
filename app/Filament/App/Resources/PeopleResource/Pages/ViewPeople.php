@@ -35,13 +35,15 @@ final class ViewPeople extends ViewRecord
                     Components\ImageEntry::make('avatar')
                         ->label('')
                         ->height(30)
-                        ->circular(),
+                        ->circular()
+                        ->grow(false),
                     Components\TextEntry::make('name')
+                    ->label('')
                         ->size(Components\TextEntry\TextEntrySize::Large),
                     Components\TextEntry::make('company.name')
                         ->label('Company')
                         ->color('primary')
-                        ->url(fn($record) => CompanyResource::getUrl('view', [$record->company])),
+                        ->url(fn($record) => $record->company ? CompanyResource::getUrl('view', [$record->company]) : null),
                 ]),
                 CustomFieldsInfolists::make()->columnSpanFull(),
             ]),
