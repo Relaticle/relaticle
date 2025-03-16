@@ -1,4 +1,6 @@
-<div class="flex flex-col w-80 flex-shrink-0 bg-gray-50 dark:bg-gray-800/30 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden animate-slide-in-right">
+<div class="flex flex-col w-80 flex-shrink-0 bg-gray-50 dark:bg-gray-800/30 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden animate-slide-in-right"
+     x-on:status-updated.window="($event.detail.statusId === '{{ $status['id'] }}') && $dispatch('refresh')"
+>
     <div class="bg-gray-50 dark:bg-gray-800/30 border-b border-gray-200 dark:border-gray-700 shadow-sm">
         @livewire(
             'kanban-board.header-component',
