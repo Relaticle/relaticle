@@ -7,9 +7,11 @@ use Filament\Actions;
 use Filament\Resources\Pages\ViewRecord;
 use Filament\Infolists;
 use Filament\Infolists\Infolist;
-use Filament\Infolists\Components;
 use Relaticle\CustomFields\Filament\Infolists\CustomFieldsInfolists;
 use App\Filament\App\Resources\CompanyResource\RelationManagers;
+use Filament\Infolists\Components\Section;
+use Filament\Infolists\Components\Split;
+use Filament\Infolists\Components\TextEntry;
 
 class ViewCompany extends ViewRecord
 {
@@ -30,10 +32,18 @@ class ViewCompany extends ViewRecord
     {
         return $infolist
             ->schema([
-                Components\Section::make()->schema([
-                    Infolists\Components\TextEntry::make('name'),
-                    CustomFieldsInfolists::make()->columnSpanFull(),
-                ]),
+                Split::make([
+                    Section::make([
+                        Infolists\Components\TextEntry::make('name'),
+                        CustomFieldsInfolists::make()
+                    ]),
+                    Section::make([
+                        TextEntry::make('created_at')
+                            ->dateTime(),
+                        TextEntry::make('updated_at')
+                            ->dateTime(),
+                    ])->grow(false)
+                ])->columnSpan('full')
             ]);
     }
 
