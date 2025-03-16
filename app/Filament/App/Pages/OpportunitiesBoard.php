@@ -46,6 +46,7 @@ final class OpportunitiesBoard extends AbstractKanbanBoard implements HasForms
                 ->columnSpanFull(),
             Forms\Components\Select::make('company_id')
                 ->relationship('company', 'name')
+                ->searchable()
                 ->preload()
                 ->required(),
             Forms\Components\Select::make('contact_id')
