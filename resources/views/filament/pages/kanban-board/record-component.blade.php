@@ -15,7 +15,7 @@
                 {{ $record->{$this->titleAttribute()} }}
             </div>
 
-            <button type="utton" class="ml-2 opacity-0 roup-hover:opacity-100 transition-opacity text-gray-400 hover:text-primary-500 dark:text-gray-500 dark:hover:text-primary-400">
+            <button type="button" class="ml-2 opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-primary-500 dark:text-gray-500 dark:hover:text-primary-400" aria-label="Edit">
                 <x-heroicon-m-pencil-square class="w-4 h-4" />
             </button>
         </div>
