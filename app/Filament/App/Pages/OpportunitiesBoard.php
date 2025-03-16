@@ -5,16 +5,12 @@ declare(strict_types=1);
 namespace App\Filament\App\Pages;
 
 use App\Models\Opportunity;
-use App\Models\Task;
+use Filament\Forms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Pages\Page;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Collection;
-use Livewire\Attributes\On;
-use Relaticle\CustomFields\Models\CustomField;
-use Relaticle\CustomFields\Models\CustomFieldOption;
+use Illuminate\Database\Eloquent\Model;
+use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent;
 
-final class OpportunitiesBoard extends Page implements HasForms
+final class OpportunitiesBoard extends AbstractKanbanBoard implements HasForms
 {
     protected static ?string $navigationLabel = 'Board';
 
@@ -26,100 +22,63 @@ final class OpportunitiesBoard extends Page implements HasForms
 
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
 
-    protected static string $view = 'filament.pages.tasks-board.board';
-
-    private static string $scriptsView = 'filament.pages.tasks-board.board-scripts';
-
-    private static string $model = Opportunity::class;
-
-
-    private function statusCustomField(): CustomField
+    protected function getModelClass(): string
     {
-        return CustomField::query()
-            ->forEntity(self::$model)
-            ->where('code', 'stage')
-            ->firstOrFail();
+        return Opportunity::class;
     }
 
-    private function statuses(): Collection
+    public function getTitleAttribute(): string
     {
-        return $this->statusCustomField()->options->map(fn (CustomFieldOption $option): array => [
-            'id' => $option->id,
-            'custom_field_id' => $option->custom_field_id,
-            'name' => $option->name,
-        ]);
+        return 'name';
     }
 
-    private function records(): Collection
+    protected function getStatusFieldCode(): string
     {
-        return $this->getEloquentQuery()
-            ->ordered()
-            ->get();
+        return 'stage';
     }
 
-    #[\Override]
-    protected function getViewData(): array
+    public function getFormSchema(): array
     {
-        $records = $this->records();
-
-        $statuses = $this->statuses()
-            ->map(function (array $status) use ($records) {
-                $status['records'] = $this->filterRecordsByStatus($records, $status);
-
-                return $status;
-            });
-
         return [
-            'statuses' => $statuses,
+            Forms\Components\TextInput::make('name')
+                ->required()
+                ->placeholder('Enter opportunity title')
+                ->columnSpanFull(),
+            Forms\Components\Select::make('company_id')
+                ->relationship('company', 'name')
+                ->preload()
+                ->required(),
+            Forms\Components\Select::make('contact_id')
+                ->relationship('contact', 'name')
+                ->preload(),
+            CustomFieldsComponent::make()->model($this->getModelClass()),
         ];
     }
 
-    private function filterRecordsByStatus(Collection $records, array $status): array
+    /**
+     * Get the default form data for a new record
+     */
+    public function getDefaultFormData(array $status): array
     {
-        if ($records->isEmpty()) {
-            return [];
-        }
-
-        return $records->toQuery()
-            ->whereHas('customFieldValues', function (Builder $builder) use ($status): void {
-                $builder->where('custom_field_values.custom_field_id', $status['custom_field_id'])
-                    ->where('custom_field_values.'.$this->statusCustomField()->getValueColumn(), $status['id']);
-            })
-            ->ordered()
-            ->get()
-            ->all();
+        return [
+            'custom_fields' => [
+                $this->getStatusFieldCode() => $status['id'],
+            ],
+        ];
     }
 
-    private function getEloquentQuery(): Builder
+    /**
+     * Create a new record with the given data
+     */
+    public function createRecord(array $data): Model
     {
-        return self::$model::query();
+        return auth()->user()->currentTeam->opportunities()->create($data);
     }
 
-    #[On('status-changed')]
-    public function statusChanged(int $recordId, int $statusId, array $fromOrderedIds, array $toOrderedIds): void
+    public function updateRecord(Model $record, array $data): Model
     {
-        $this->onStatusChanged($recordId, $statusId, $fromOrderedIds, $toOrderedIds);
-    }
+        $record->update($data);
 
-    public function onStatusChanged(int $recordId, int $statusId, array $fromOrderedIds, array $toOrderedIds): void
-    {
-        $this->getEloquentQuery()->find($recordId)->saveCustomFieldValue($this->statusCustomField(), $statusId);
-
-        if (method_exists(self::$model, 'setNewOrder')) {
-            self::$model::setNewOrder($toOrderedIds);
-        }
-    }
-
-    #[On('sort-changed')]
-    public function sortChanged(int $recordId, string $statusId, array $orderedIds): void
-    {
-        $this->onSortChanged($recordId, $statusId, $orderedIds);
-    }
-
-    public function onSortChanged(int $recordId, string $statusId, array $orderedIds): void
-    {
-        if (method_exists(self::$model, 'setNewOrder')) {
-            self::$model::setNewOrder($orderedIds);
-        }
+        return $record;
     }
 }
