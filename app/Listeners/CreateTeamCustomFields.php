@@ -112,27 +112,6 @@ final readonly class CreateTeamCustomFields
                 )
             )
             ->create();
-
-        // Account Owner - Indicates the account owner of the company
-        $this->migrator
-            ->new(
-                model: Company::class,
-                fieldData: new CustomFieldData(
-                    name: 'Account Owner',
-                    code: 'account_owner',
-                    type: CustomFieldType::SELECT,
-                    section: new CustomFieldSectionData(
-                        name: 'General',
-                        code: 'general',
-                        type: CustomFieldSectionType::HEADLESS
-                    ),
-                    settings: new CustomFieldSettingsData(
-                        list_toggleable_hidden: false
-                    )
-                )
-            )
-            ->lookupType(User::class)
-            ->create();
     }
 
     /**

@@ -53,6 +53,10 @@ final class PeopleResource extends Resource
                 Tables\Columns\ImageColumn::make('avatar')->label('')->size(24)->circular(),
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
+                Tables\Columns\TextColumn::make('company.name')
+                    ->label('Company')
+                    ->searchable()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

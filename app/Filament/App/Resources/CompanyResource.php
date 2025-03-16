@@ -6,6 +6,7 @@ namespace App\Filament\App\Resources;
 
 use App\Filament\App\Resources\CompanyResource\Pages;
 use App\Models\Company;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -38,7 +39,11 @@ final class CompanyResource extends Resource
             ->schema([
                 TextInput::make('name')
                     ->required(),
-
+                Select::make('account_owner_id')
+                    ->relationship('accountOwner', 'name')
+                    ->label('Account Owner')
+                    ->preload()
+                    ->searchable(),
                 CustomFieldsComponent::make()->columns(1),
 
             ])->columns(1)->inlineLabel();
@@ -50,6 +55,10 @@ final class CompanyResource extends Resource
             ->columns([
                 ImageColumn::make('logo')->label('')->size(30)->square(),
                 TextColumn::make('name')
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('accountOwner.name')
+                    ->label('Account Owner')
                     ->searchable()
                     ->sortable(),
             ])

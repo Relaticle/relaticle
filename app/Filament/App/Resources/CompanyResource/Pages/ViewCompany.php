@@ -33,9 +33,19 @@ final class ViewCompany extends ViewRecord
     {
         return $infolist
             ->schema([
+
                 Split::make([
                     Section::make([
-                        Infolists\Components\TextEntry::make('name'),
+                        Split::make([
+                        Infolists\Components\ImageEntry::make('logo')
+                                ->label('')
+                                ->height(40)
+                                ->square(),
+                            Infolists\Components\TextEntry::make('name')
+                                ->size(TextEntry\TextEntrySize::Large),
+                            Infolists\Components\TextEntry::make('accountOwner.name')
+                                ->label('Account Owner'),
+                        ]),
                         CustomFieldsInfolists::make(),
                     ]),
                     Section::make([

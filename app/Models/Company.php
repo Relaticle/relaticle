@@ -47,6 +47,11 @@ final class Company extends Model implements HasCustomFields
         return $this->belongsTo(Team::class);
     }
 
+    public function accountOwner(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'account_owner_id');
+    }
+
     public function people(): HasMany
     {
         return $this->hasMany(People::class);
