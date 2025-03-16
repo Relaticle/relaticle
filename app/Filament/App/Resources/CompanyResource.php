@@ -6,7 +6,6 @@ namespace App\Filament\App\Resources;
 
 use App\Filament\App\Resources\CompanyResource\Pages;
 use App\Models\Company;
-use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -19,7 +18,6 @@ use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use App\Filament\App\Resources\CompanyResource\RelationManagers;
 use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent;
 
 final class CompanyResource extends Resource
@@ -63,7 +61,7 @@ final class CompanyResource extends Resource
                     ViewAction::make(),
                     EditAction::make(),
                     DeleteAction::make(),
-                ])
+                ]),
             ])
             ->bulkActions([
                 BulkActionGroup::make([
@@ -71,8 +69,6 @@ final class CompanyResource extends Resource
                 ]),
             ]);
     }
-
-
 
     public static function getPages(): array
     {

@@ -1,16 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\App\Resources\OpportunityResource\Pages;
 
 use App\Filament\App\Resources\OpportunityResource;
-use Filament\Resources\Pages\ViewRecord;
-use Filament\Infolists;
-use Filament\Infolists\Infolist;
-use Filament\Infolists\Components;
-use Relaticle\CustomFields\Filament\Infolists\CustomFieldsInfolists;
 use Filament\Actions;
+use Filament\Infolists;
+use Filament\Infolists\Components;
+use Filament\Infolists\Infolist;
+use Filament\Resources\Pages\ViewRecord;
+use Relaticle\CustomFields\Filament\Infolists\CustomFieldsInfolists;
 
-class ViewOpportunity extends ViewRecord
+final class ViewOpportunity extends ViewRecord
 {
     protected static string $resource = OpportunityResource::class;
 

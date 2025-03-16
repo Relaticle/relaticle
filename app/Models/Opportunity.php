@@ -15,8 +15,8 @@ use Spatie\EloquentSortable\SortableTrait;
 final class Opportunity extends Model implements HasCustomFields
 {
     use HasFactory;
-    use UsesCustomFields;
     use SortableTrait;
+    use UsesCustomFields;
 
     public function team(): BelongsTo
     {

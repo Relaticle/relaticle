@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Services\AvatarService;
 use Database\Factories\CompanyFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -38,7 +39,7 @@ final class Company extends Model implements HasCustomFields
 
     public function getLogoAttribute(): ?string
     {
-        return 'https://ui-avatars.com/api/?background=random&length=1&name='.urlencode($this->name);
+        return app(AvatarService::class)->generateAuto(name: $this->name);
     }
 
     public function team(): BelongsTo

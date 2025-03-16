@@ -5,11 +5,8 @@ declare(strict_types=1);
 namespace App\Filament\App\Resources;
 
 use App\Filament\App\Resources\TaskResource\Pages\ManageTasks;
-use App\Models\Company;
-use App\Models\People;
 use App\Models\Task;
 use Filament\Forms;
-use Filament\Forms\Components\MorphToSelect;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
@@ -89,7 +86,7 @@ final class TaskResource extends Resource
                             $direction
                         );
                     })
-                    ->getTitleFromRecordUsing(fn(Task $record): ?string => $valueResolver->resolve($record, $customField)),
+                    ->getTitleFromRecordUsing(fn (Task $record): ?string => $valueResolver->resolve($record, $customField)),
             ])
             ->actions([
                 Tables\Actions\EditAction::make()
@@ -101,7 +98,7 @@ final class TaskResource extends Resource
                                 $recipient = $record->assignee;
 
                                 Notification::make()
-                                    ->title('You have been assigned task: #' . $record->id)
+                                    ->title('You have been assigned task: #'.$record->id)
                                     ->sendToDatabase($recipient);
                             }
 

@@ -10,15 +10,15 @@ use App\Models\Opportunity;
 use App\Models\People;
 use App\Models\Task;
 use App\Models\User;
+use Filament\Actions\Action;
+use Filament\Actions\DeleteAction;
+use Filament\Tables\Actions\Action as TableAction;
+use Filament\Tables\Actions\DeleteAction as TableDeleteAction;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
-use Filament\Actions\Action;
-use Filament\Actions\DeleteAction;
-use Filament\Tables\Actions\Action as TableAction;
-use Filament\Tables\Actions\DeleteAction as TableDeleteAction;
 
 final class AppServiceProvider extends ServiceProvider
 {
@@ -60,13 +60,13 @@ final class AppServiceProvider extends ServiceProvider
     private function configureFilament(): void
     {
         Action::configureUsing(function (Action $action) {
-            if (!$action instanceof DeleteAction) {
+            if (! $action instanceof DeleteAction) {
                 return $action->slideOver();
             }
         });
 
         TableAction::configureUsing(function (TableAction $action) {
-            if (!$action instanceof TableDeleteAction) {
+            if (! $action instanceof TableDeleteAction) {
                 return $action->slideOver();
             }
         });
