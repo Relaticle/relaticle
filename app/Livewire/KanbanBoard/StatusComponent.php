@@ -2,9 +2,8 @@
 
 declare(strict_types=1);
 
-namespace App\Livewire\TasksBoard;
+namespace App\Livewire\KanbanBoard;
 
-use App\Models\Task;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -19,18 +18,19 @@ final class StatusComponent extends Component implements HasActions, HasForms
     use InteractsWithForms;
 
     public array $status;
+    public string $modelClass;
+    public ?string $boardClass = null;
 
-    #[On('task-created')]
-    public function handleTaskCreated(Task $task, int $statusId): void
+    #[On('record-created')]
+    public function handleRecordCreated(int|string $recordId, int|string $statusId): void
     {
-        // Only add to this component if the task belongs to this status
         if ((int)$this->status['id'] === $statusId) {
-            $this->status['records'][] = $task;
+            $this->status['records'][] = app($this->modelClass)->find($recordId);
         }
     }
 
     public function render(): View
     {
-        return view('filament.pages.tasks-board.status-component');
+        return view('filament.pages.kanban-board.status-component');
     }
 }
