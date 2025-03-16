@@ -39,8 +39,8 @@ final class LocalSeeder extends Seeder
         Company::factory()
             ->for($user->personalTeam(), 'team')
             ->count(50)
-            ->afterCreating(function (Company $company) use ($customFields) {
-                $company->saveCustomFieldValue($customFields->get('domain_name'), 'https://' . fake()->domainName());
+            ->afterCreating(function (Company $company) use ($customFields): void {
+                $company->saveCustomFieldValue($customFields->get('domain_name'), 'https://'.fake()->domainName());
                 $company->saveCustomFieldValue($customFields->get('icp'), fake()->boolean(70));
             })
             ->create();

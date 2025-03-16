@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Services\AvatarService;
 use Exception;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasAvatar;
@@ -110,6 +111,6 @@ final class User extends Authenticatable implements FilamentUser, HasAvatar, Has
 
     public function getFilamentAvatarUrl(): ?string
     {
-        return 'https://robohash.org/'.urlencode($this->name).'.png';
+        return app(AvatarService::class)->generate($this->name);
     }
 }

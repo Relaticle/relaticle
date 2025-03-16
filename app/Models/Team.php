@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Services\AvatarService;
+use Filament\Models\Contracts\HasAvatar;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Laravel\Jetstream\Events\TeamCreated;
@@ -11,7 +13,7 @@ use Laravel\Jetstream\Events\TeamDeleted;
 use Laravel\Jetstream\Events\TeamUpdated;
 use Laravel\Jetstream\Team as JetstreamTeam;
 
-final class Team extends JetstreamTeam
+final class Team extends JetstreamTeam implements HasAvatar
 {
     use HasFactory;
 
@@ -47,6 +49,11 @@ final class Team extends JetstreamTeam
         return [
             'personal_team' => 'boolean',
         ];
+    }
+
+    public function getFilamentAvatarUrl(): ?string
+    {
+        return app(AvatarService::class)->generate(name: $this->name, bgColor: '#000000', textColor: '#ffffff');
     }
 
     public function people(): HasMany

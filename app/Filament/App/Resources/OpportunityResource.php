@@ -44,7 +44,7 @@ final class OpportunityResource extends Resource
                 Select::make('contact_id')
                     ->label('Point of Contact')
                     ->relationship('contact', 'name')
-                    ->searchable()
+                    ->searchable(),
             ]);
     }
 

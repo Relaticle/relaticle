@@ -30,7 +30,6 @@ abstract class AbstractKanbanBoard extends Page implements HasForms
 
     abstract public function updateRecord(Model $record, array $data): Model;
 
-
     protected function statusCustomField(): CustomField
     {
         try {
@@ -38,14 +37,14 @@ abstract class AbstractKanbanBoard extends Page implements HasForms
                 ->forEntity($this->getModelClass())
                 ->where('code', $this->getStatusFieldCode())
                 ->firstOrFail();
-        } catch (\Exception $e) {
-            throw new \Exception('Custom field not found for model class: ' . $this->getModelClass() . ' and code: ' . $this->getStatusFieldCode());
+        } catch (\Exception) {
+            throw new \Exception('Custom field not found for model class: '.$this->getModelClass().' and code: '.$this->getStatusFieldCode());
         }
     }
 
     protected function statuses(): Collection
     {
-        return $this->statusCustomField()->options->map(fn($option): array => [
+        return $this->statusCustomField()->options->map(fn ($option): array => [
             'id' => $option->id,
             'custom_field_id' => $option->custom_field_id,
             'name' => $option->name,
@@ -85,7 +84,7 @@ abstract class AbstractKanbanBoard extends Page implements HasForms
         return $records->toQuery()
             ->whereHas('customFieldValues', function (Builder $builder) use ($status): void {
                 $builder->where('custom_field_values.custom_field_id', $status['custom_field_id'])
-                    ->where('custom_field_values.' . $this->statusCustomField()->getValueColumn(), $status['id']);
+                    ->where('custom_field_values.'.$this->statusCustomField()->getValueColumn(), $status['id']);
             })
             ->ordered()
             ->get()
@@ -95,6 +94,7 @@ abstract class AbstractKanbanBoard extends Page implements HasForms
     protected function getEloquentQuery(): Builder
     {
         $modelClass = $this->getModelClass();
+
         return $modelClass::query();
     }
 

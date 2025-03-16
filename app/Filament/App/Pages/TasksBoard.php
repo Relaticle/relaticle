@@ -53,7 +53,6 @@ final class TasksBoard extends AbstractKanbanBoard implements HasForms
         ];
     }
 
-
     /**
      * Get the default form data for a new record
      */

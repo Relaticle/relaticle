@@ -19,6 +19,7 @@ final class RecordComponent extends Component implements HasActions, HasForms
     use InteractsWithForms;
 
     public Model $record;
+
     public ?string $boardClass = null;
 
     public function mount(Model $record, ?string $boardClass = null): void
@@ -29,7 +30,7 @@ final class RecordComponent extends Component implements HasActions, HasForms
 
     public function editAction(): Action
     {
-        $modelClass = get_class($this->record);
+        $modelClass = $this->record::class;
 
         return Action::make('Edit')
             ->iconButton()
@@ -38,7 +39,7 @@ final class RecordComponent extends Component implements HasActions, HasForms
             ->record($this->record)
             ->form($this->getFormSchema())
             ->fillForm($this->record->attributesToArray())
-            ->action(function (array $data) {
+            ->action(function (array $data): void {
                 // If board class is provided, delegate record update to it
                 if ($this->boardClass && class_exists($this->boardClass)) {
                     $board = app($this->boardClass);
@@ -56,7 +57,7 @@ final class RecordComponent extends Component implements HasActions, HasForms
     protected function getFormSchema(): array
     {
         // Get the model class from the task
-        $modelClass = get_class($this->record);
+        $modelClass = $this->record::class;
 
         if ($this->boardClass && class_exists($this->boardClass)) {
             $board = app($this->boardClass);
@@ -65,7 +66,7 @@ final class RecordComponent extends Component implements HasActions, HasForms
             }
         }
 
-        throw new \Exception('Form schema not found for model class: ' . $modelClass);
+        throw new \Exception('Form schema not found for model class: '.$modelClass);
     }
 
     public function titleAttribute(): string

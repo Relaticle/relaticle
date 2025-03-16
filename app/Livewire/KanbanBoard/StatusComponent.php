@@ -9,8 +9,8 @@ use Filament\Actions\Contracts\HasActions;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Illuminate\View\View;
-use Livewire\Component;
 use Livewire\Attributes\On;
+use Livewire\Component;
 
 final class StatusComponent extends Component implements HasActions, HasForms
 {
@@ -18,13 +18,15 @@ final class StatusComponent extends Component implements HasActions, HasForms
     use InteractsWithForms;
 
     public array $status;
+
     public string $modelClass;
+
     public ?string $boardClass = null;
 
     #[On('record-created')]
     public function handleRecordCreated(int|string $recordId, int|string $statusId): void
     {
-        if ((int)$this->status['id'] === $statusId) {
+        if ((int) $this->status['id'] === $statusId) {
             $this->status['records'][] = app($this->modelClass)->find($recordId);
         }
     }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\App\Resources\CompanyResource\RelationManagers;
 
 use Filament\Forms;
@@ -7,10 +9,8 @@ use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class TasksRelationManager extends RelationManager
+final class TasksRelationManager extends RelationManager
 {
     protected static string $relationship = 'tasks';
 

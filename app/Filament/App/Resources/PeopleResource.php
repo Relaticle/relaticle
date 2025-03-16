@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Filament\App\Resources;
 
-use App\Filament\App\Resources\PeopleResource\Pages\CreatePeople;
 use App\Filament\App\Resources\PeopleResource\Pages\ListPeople;
 use App\Filament\App\Resources\PeopleResource\Pages\ViewPeople;
 use App\Filament\App\Resources\PeopleResource\RelationManagers\NotesRelationManager;
@@ -15,7 +14,6 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Model;
 use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent;
 
 final class PeopleResource extends Resource
@@ -52,6 +50,7 @@ final class PeopleResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\ImageColumn::make('avatar')->label('')->size(24)->circular(),
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Services\AvatarService;
 use Database\Factories\PeopleFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -27,6 +28,11 @@ final class People extends Model implements HasCustomFields
     protected $fillable = [
         'name',
     ];
+
+    public function getAvatarAttribute(): ?string
+    {
+        return app(AvatarService::class)->generateAuto(name: $this->name, initialCount: 1);
+    }
 
     public function team(): BelongsTo
     {

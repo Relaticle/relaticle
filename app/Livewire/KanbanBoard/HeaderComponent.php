@@ -7,10 +7,8 @@ namespace App\Livewire\KanbanBoard;
 use Filament\Actions\Action;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
-use Filament\Forms;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 use Livewire\Component;
 
@@ -20,7 +18,9 @@ final class HeaderComponent extends Component implements HasActions, HasForms
     use InteractsWithForms;
 
     public array $status;
+
     public string $modelClass;
+
     public ?string $boardClass = null;
 
     public function mount(array $status, string $modelClass, ?string $boardClass = null): void
@@ -41,7 +41,7 @@ final class HeaderComponent extends Component implements HasActions, HasForms
             ->slideOver()
             ->form($board->getFormSchema())
             ->fillForm($board->getDefaultFormData($this->status))
-            ->action(function (array $data) use($board) {
+            ->action(function (array $data) use ($board) {
                 $record = $board->createRecord($data);
 
                 $this->dispatch(
