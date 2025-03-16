@@ -62,6 +62,7 @@ document.addEventListener('alpine:init', () => {
                             onUpdate: this.onUpdate.bind(this),
                             setData: this.setData.bind(this),
                             onAdd: this.onAdd.bind(this),
+                            onRemove: this.onRemove.bind(this),
 
                             // Better mobile experience
                             scrollSpeed: 40,
@@ -103,12 +104,29 @@ document.addEventListener('alpine:init', () => {
             }, 0);
         },
 
+        onRemove(e) {
+            try {
+                const fromStatusId = e.from.dataset.statusId;
+                // Dispatch an event to notify the column that a record was removed
+                window.dispatchEvent(new CustomEvent('record-removed', {
+                    detail: { statusId: fromStatusId }
+                }));
+            } catch (error) {
+                console.error('Error in onRemove handler:', error);
+            }
+        },
+
         onAdd(e) {
             try {
                 const recordId = e.item.id;
                 const statusId = e.to.dataset.statusId;
-                const fromOrderedIds = [].slice.call(e.from.children).map(child => child.id);
-                const toOrderedIds = [].slice.call(e.to.children).map(child => child.id);
+                const fromOrderedIds = Array.from(e.from.children).map(child => child.id);
+                const toOrderedIds = Array.from(e.to.children).map(child => child.id);
+
+                // Dispatch an event to notify the column that a record was added
+                window.dispatchEvent(new CustomEvent('record-added', {
+                    detail: { statusId: statusId }
+                }));
 
                 Livewire.dispatch('status-changed', {recordId, statusId, fromOrderedIds, toOrderedIds});
             } catch (error) {
@@ -122,7 +140,7 @@ document.addEventListener('alpine:init', () => {
             try {
                 const recordId = e.item.id;
                 const statusId = e.from.dataset.statusId;
-                const orderedIds = [].slice.call(e.from.children).map(child => child.id);
+                const orderedIds = Array.from(e.from.children).map(child => child.id);
 
                 Livewire.dispatch('sort-changed', {recordId, statusId, orderedIds});
             } catch (error) {
