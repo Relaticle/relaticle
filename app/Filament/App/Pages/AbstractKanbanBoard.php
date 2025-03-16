@@ -16,8 +16,6 @@ abstract class AbstractKanbanBoard extends Page implements HasForms
 {
     protected static string $view = 'filament.pages.kanban-board.board';
 
-    protected static string $scriptsView = 'filament.pages.kanban-board.board-scripts';
-
     abstract protected function getModelClass(): string;
 
     abstract protected function getStatusFieldCode(): string;
