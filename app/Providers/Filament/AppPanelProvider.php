@@ -98,6 +98,7 @@ final class AppPanelProvider extends PanelProvider
             ->discoverPages(in: app_path('Filament/App/Pages'), for: 'App\\Filament\\App\\Pages')
             ->discoverWidgets(in: app_path('Filament/App/Widgets'), for: 'App\\Filament\\App\\Widgets')
             ->discoverClusters(in: app_path('Filament/App/Clusters'), for: 'App\\Filament\\App\\Clusters')
+            ->readOnlyRelationManagersOnResourceViewPagesByDefault(false)
             ->pages([
                 EditProfile::class,
                 ApiTokens::class,
