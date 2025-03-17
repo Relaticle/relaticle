@@ -66,6 +66,16 @@ final class CompanyResource extends Resource
                     ->label('Created By')
                     ->searchable()
                     ->sortable(),
+                TextColumn::make('created_at')
+                    ->label('Creation Date')
+                    ->dateTime()
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('updated_at')
+                    ->label('Last Update')
+                    ->since()
+                    ->searchable()
+                    ->sortable(),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
