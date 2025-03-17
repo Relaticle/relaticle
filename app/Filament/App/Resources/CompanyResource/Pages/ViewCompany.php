@@ -6,6 +6,7 @@ namespace App\Filament\App\Resources\CompanyResource\Pages;
 
 use App\Filament\App\Resources\CompanyResource;
 use App\Filament\App\Resources\CompanyResource\RelationManagers;
+use App\Filament\Components\Infolists\AvatarName;
 use Filament\Actions;
 use Filament\Infolists;
 use Filament\Infolists\Components\Section;
@@ -37,23 +38,38 @@ final class ViewCompany extends ViewRecord
                 Split::make([
                     Section::make([
                         Split::make([
-                            Infolists\Components\ImageEntry::make('logo')
-                                ->label('')
-                                ->height(40)
+                            AvatarName::make('logo')
+                                ->avatar('logo')
+                                ->name('name')
+                                ->avatarSize('lg')
+                                ->textSize('xl')
                                 ->square()
-                                ->grow(false),
-                            Infolists\Components\TextEntry::make('name')
-                                ->label('')
-                                ->size(TextEntry\TextEntrySize::Large),
-                            Infolists\Components\TextEntry::make('accountOwner.name')
+                                ->label(''),
+                            AvatarName::make('creator')
+                                ->avatar('creator.avatar')
+                                ->name('creator.name')
+                                ->avatarSize('md')
+                                ->textSize('sm')  // Default text size for creator
+                                ->circular()
+                                ->label('Created By'),
+                            AvatarName::make('accountOwner')
+                                ->avatar('accountOwner.avatar')
+                                ->name('accountOwner.name')
+                                ->avatarSize('sm')
+                                ->textSize('sm')  // Default text size for account owner
+                                ->circular()
                                 ->label('Account Owner'),
                         ]),
                         CustomFieldsInfolists::make(),
                     ]),
                     Section::make([
                         TextEntry::make('created_at')
+                            ->label('Created Date')
+                            ->icon('heroicon-o-clock')
                             ->dateTime(),
                         TextEntry::make('updated_at')
+                            ->label('Last Updated')
+                            ->icon('heroicon-o-clock')
                             ->dateTime(),
                     ])->grow(false),
                 ])->columnSpan('full'),
