@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Observers\CompanyObserver;
 use App\Services\AvatarService;
 use Database\Factories\CompanyFactory;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -13,6 +15,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Relaticle\CustomFields\Models\Concerns\UsesCustomFields;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
 /**
  * @property string $name
@@ -20,12 +24,14 @@ use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
  * @property string $country
  * @property string $phone
  */
-final class Company extends Model implements HasCustomFields
+#[ObservedBy(CompanyObserver::class)]
+final class Company extends Model implements HasCustomFields, HasMedia
 {
     /** @use HasFactory<CompanyFactory> */
     use HasFactory;
 
     use UsesCustomFields;
+    use InteractsWithMedia;
 
     /**
      * @var array<int, string>
@@ -39,12 +45,19 @@ final class Company extends Model implements HasCustomFields
 
     public function getLogoAttribute(): ?string
     {
-        return app(AvatarService::class)->generateAuto(name: $this->name);
+        $logo = $this->getFirstMediaUrl('logo');
+
+        return !empty($logo) ? $logo : app(AvatarService::class)->generateAuto(name: $this->name);
     }
 
     public function team(): BelongsTo
     {
         return $this->belongsTo(Team::class);
+    }
+
+    public function creator(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 
     public function accountOwner(): BelongsTo
