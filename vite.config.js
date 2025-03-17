@@ -7,8 +7,8 @@ export default defineConfig({
             input: [
                 'resources/css/app.css',
                 'resources/js/app.js',
-                'resources/js/kanban-board.js',
                 'resources/css/filament/app/theme.css',
+                'resources/js/kanban-board.js',
             ],
             refresh: true,
         }),
