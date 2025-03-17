@@ -55,6 +55,7 @@ final class NoteResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('title'),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])
