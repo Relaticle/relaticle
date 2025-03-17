@@ -45,8 +45,9 @@ final class CompanyResource extends Resource
                     ->preload()
                     ->searchable(),
                 CustomFieldsComponent::make()->columns(1),
-
-            ])->columns(1)->inlineLabel();
+            ])
+            ->columns(1)
+            ->inlineLabel();
     }
 
     public static function table(Table $table): Table
@@ -59,6 +60,10 @@ final class CompanyResource extends Resource
                     ->sortable(),
                 TextColumn::make('accountOwner.name')
                     ->label('Account Owner')
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('creator.name')
+                    ->label('Created By')
                     ->searchable()
                     ->sortable(),
             ])
