@@ -4,13 +4,15 @@ declare(strict_types=1);
 
 namespace App\Filament\App\Pages;
 
+use App\Filament\App\Resources\OpportunityResource;
 use App\Models\Opportunity;
-use Filament\Forms;
-use Filament\Forms\Contracts\HasForms;
-use Illuminate\Database\Eloquent\Model;
-use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent;
+use Illuminate\Support\Collection;
+use Relaticle\CustomFields\Models\CustomField;
+use Relaticle\Flowforge\Contracts\KanbanAdapterInterface;
+use Relaticle\Flowforge\Filament\Pages\KanbanBoardPage;
+use App\Filament\App\Adapters\OpportunitiesKanbanAdapter;
 
-final class OpportunitiesBoard extends AbstractKanbanBoard implements HasForms
+final class OpportunitiesBoard extends KanbanBoardPage
 {
     protected static ?string $navigationLabel = 'Board';
 
@@ -22,64 +24,47 @@ final class OpportunitiesBoard extends AbstractKanbanBoard implements HasForms
 
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
 
-    protected function getModelClass(): string
+    /**
+     * @return void
+     */
+    public function mount(): void
     {
-        return Opportunity::class;
-    }
-
-    public function getTitleAttribute(): string
-    {
-        return 'name';
-    }
-
-    protected function getStatusFieldCode(): string
-    {
-        return 'stage';
-    }
-
-    public function getFormSchema(): array
-    {
-        return [
-            Forms\Components\TextInput::make('name')
-                ->required()
-                ->placeholder('Enter opportunity title')
-                ->columnSpanFull(),
-            Forms\Components\Select::make('company_id')
-                ->relationship('company', 'name')
-                ->searchable()
-                ->preload()
-                ->required(),
-            Forms\Components\Select::make('contact_id')
-                ->relationship('contact', 'name')
-                ->preload(),
-            CustomFieldsComponent::make()->model($this->getModelClass()),
-        ];
+        $this->titleField('name')
+            ->columnField('stage')
+            ->descriptionField('description')
+            ->orderField('order_column')
+            ->columns($this->stages()->pluck('name', 'id')->toArray())
+            ->columnColors();
     }
 
     /**
-     * Get the default form data for a new record
+     * @return KanbanAdapterInterface
      */
-    public function getDefaultFormData(array $status): array
+    public function getAdapter(): KanbanAdapterInterface
     {
-        return [
-            'custom_fields' => [
-                $this->getStatusFieldCode() => $status['id'],
-            ],
-        ];
+        return new OpportunitiesKanbanAdapter(Opportunity::query(), $this->config);
     }
 
     /**
-     * Create a new record with the given data
+     * @return CustomField
      */
-    public function createRecord(array $data): Model
+    protected function stageCustomField(): CustomField
     {
-        return auth()->user()->currentTeam->opportunities()->create($data);
+        return CustomField::query()
+            ->forEntity(Opportunity::class)
+            ->where('code', 'stage')
+            ->firstOrFail();
     }
 
-    public function updateRecord(Model $record, array $data): Model
+    /**
+     * @return Collection
+     */
+    protected function stages(): Collection
     {
-        $record->update($data);
-
-        return $record;
+        return $this->stageCustomField()->options->map(fn($option): array => [
+            'id' => $option->id,
+            'custom_field_id' => $option->custom_field_id,
+            'name' => $option->name,
+        ]);
     }
 }
