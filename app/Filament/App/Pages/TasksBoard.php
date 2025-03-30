@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace App\Filament\App\Pages;
 
+use App\Filament\App\Adapters\TasksKanbanAdapter;
 use App\Models\Task;
-use Filament\Forms;
-use Filament\Forms\Contracts\HasForms;
-use Illuminate\Database\Eloquent\Model;
-use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent;
+use Illuminate\Support\Collection;
+use Relaticle\CustomFields\Models\CustomField;
+use Relaticle\Flowforge\Contracts\KanbanAdapterInterface;
+use Relaticle\Flowforge\Filament\Pages\KanbanBoardPage;
 
-final class TasksBoard extends AbstractKanbanBoard implements HasForms
+final class TasksBoard extends KanbanBoardPage
 {
     protected static ?string $navigationLabel = 'Board';
 
@@ -22,61 +23,47 @@ final class TasksBoard extends AbstractKanbanBoard implements HasForms
 
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
 
-    protected function getModelClass(): string
+    /**
+     * @return void
+     */
+    public function mount(): void
     {
-        return Task::class;
-    }
-
-    public function getTitleAttribute(): string
-    {
-        return 'title';
-    }
-
-    protected function getStatusFieldCode(): string
-    {
-        return 'status';
-    }
-
-    public function getFormSchema(): array
-    {
-        return [
-            Forms\Components\TextInput::make('title')
-                ->required()
-                ->placeholder('Enter task title')
-                ->rules(['max:255']),
-            Forms\Components\Select::make('assignees')
-                ->relationship('assignees', 'name')
-                ->multiple()
-                ->preload()
-                ->label('Assign to'),
-            CustomFieldsComponent::make()->model($this->getModelClass()),
-        ];
+        $this->titleField('title')
+            ->columnField('status')
+            ->descriptionField('description')
+            ->orderField('order_column')
+            ->columns($this->statuses()->pluck('name', 'id')->toArray())
+            ->columnColors();
     }
 
     /**
-     * Get the default form data for a new record
+     * @return KanbanAdapterInterface
      */
-    public function getDefaultFormData(array $status): array
+    public function getAdapter(): KanbanAdapterInterface
     {
-        return [
-            'custom_fields' => [
-                $this->getStatusFieldCode() => $status['id'],
-            ],
-        ];
+        return new TasksKanbanAdapter(Task::query(), $this->config);
     }
 
     /**
-     * Create a new record with the given data
+     * @return CustomField
      */
-    public function createRecord(array $data): Model
+    protected function stageCustomField(): CustomField
     {
-        return auth()->user()->currentTeam->tasks()->create($data);
+        return CustomField::query()
+            ->forEntity(Task::class)
+            ->where('code', 'status')
+            ->firstOrFail();
     }
 
-    public function updateRecord($record, array $data): Model
+    /**
+     * @return Collection
+     */
+    protected function statuses(): Collection
     {
-        $record->update($data);
-
-        return $record;
+        return $this->stageCustomField()->options->map(fn($option): array => [
+            'id' => $option->id,
+            'custom_field_id' => $option->custom_field_id,
+            'name' => $option->name,
+        ]);
     }
 }
