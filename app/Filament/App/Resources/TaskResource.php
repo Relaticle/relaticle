@@ -71,7 +71,9 @@ final class TaskResource extends Resource
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('assignees')
+                    ->multiple()
+                    ->relationship('assignees', 'name')
             ])
             ->groups([
                 Tables\Grouping\Group::make('status')
