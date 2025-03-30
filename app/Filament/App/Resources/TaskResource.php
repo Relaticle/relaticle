@@ -62,7 +62,7 @@ final class TaskResource extends Resource
     #[\Override]
     public static function table(Table $table): Table
     {
-        $customField = CustomField::query()->where('name', 'status')->firstOrFail();
+        $customFields = CustomField::query()->whereIn('code', ['status', 'priority'])->get()->keyBy('code');
         $valueResolver = app(ValueResolvers::class);
 
         return $table
@@ -77,19 +77,33 @@ final class TaskResource extends Resource
             ])
             ->groups([
                 Tables\Grouping\Group::make('status')
-                    ->orderQueryUsing(function (Builder $query, string $direction) use ($customField) {
+                    ->orderQueryUsing(function (Builder $query, string $direction) use ($customFields) {
                         $table = $query->getModel()->getTable();
                         $key = $query->getModel()->getKeyName();
 
                         return $query->orderBy(
-                            $customField->values()
-                                ->select($customField->getValueColumn())
+                            $customFields->get('status')->values()
+                                ->select($customFields->get('status')->getValueColumn())
                                 ->whereColumn('custom_field_values.entity_id', "$table.$key")
                                 ->limit(1),
                             $direction
                         );
                     })
-                    ->getTitleFromRecordUsing(fn (Task $record): ?string => $valueResolver->resolve($record, $customField)),
+                    ->getTitleFromRecordUsing(fn (Task $record): ?string => $valueResolver->resolve($record, $customFields->get('status'))),
+                Tables\Grouping\Group::make('priority')
+                    ->orderQueryUsing(function (Builder $query, string $direction) use ($customFields) {
+                        $table = $query->getModel()->getTable();
+                        $key = $query->getModel()->getKeyName();
+
+                        return $query->orderBy(
+                            $customFields->get('priority')->values()
+                                ->select($customFields->get('priority')->getValueColumn())
+                                ->whereColumn('custom_field_values.entity_id', "$table.$key")
+                                ->limit(1),
+                            $direction
+                        );
+                    })
+                    ->getTitleFromRecordUsing(fn (Task $record): ?string => $valueResolver->resolve($record, $customFields->get('priority'))),
             ])
             ->actions([
                 Tables\Actions\EditAction::make()
