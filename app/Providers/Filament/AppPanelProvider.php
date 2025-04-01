@@ -12,9 +12,7 @@ use App\Filament\App\Pages\EditTeam;
 use App\Filament\App\Resources\CompanyResource;
 use App\Http\Middleware\ApplyTenantScopes;
 use App\Listeners\SwitchTeam;
-use App\Listeners\CreatePersonalTeam;
 use App\Models\Team;
-use Filament\Events\Auth\Registered;
 use Filament\Events\TenantSet;
 use Filament\Facades\Filament;
 use Filament\Http\Middleware\Authenticate;
@@ -39,7 +37,6 @@ use Laravel\Fortify\Fortify;
 use Laravel\Jetstream\Features;
 use Laravel\Jetstream\Jetstream;
 use Relaticle\CustomFields\CustomFieldsPlugin;
-use Relaticle\Flowforge\FlowforgePlugin;
 
 final class AppPanelProvider extends PanelProvider
 {
@@ -61,14 +58,6 @@ final class AppPanelProvider extends PanelProvider
         Event::listen(
             TenantSet::class,
             SwitchTeam::class,
-        );
-
-        /**
-         * Listen for user registration to create a personal team and add sample data
-         */
-        Event::listen(
-            Registered::class,
-            CreatePersonalTeam::class,
         );
     }
 
