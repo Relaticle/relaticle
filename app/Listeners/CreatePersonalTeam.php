@@ -5,18 +5,18 @@ declare(strict_types=1);
 namespace App\Listeners;
 
 use App\Models\Team;
+use Database\Seeders\SampleData\SampleDataSeeder;
 use Filament\Events\Auth\Registered;
 use Laravel\Jetstream\Features;
 
-final class CreatePersonalTeam
+final readonly class CreatePersonalTeam
 {
     /**
      * Create the event listener.
      */
-    public function __construct()
-    {
-        //
-    }
+    public function __construct(
+        private SampleDataSeeder $seeder
+    ) {}
 
     /**
      * Handle the event.
@@ -35,6 +35,8 @@ final class CreatePersonalTeam
             $user->ownedTeams()->save($team);
 
             $user->switchTeam($team);
+
+            $this->seeder->run($user);
         }
     }
 }

@@ -12,7 +12,9 @@ use App\Filament\App\Pages\EditTeam;
 use App\Filament\App\Resources\CompanyResource;
 use App\Http\Middleware\ApplyTenantScopes;
 use App\Listeners\SwitchTeam;
+use App\Listeners\CreatePersonalTeam;
 use App\Models\Team;
+use Filament\Events\Auth\Registered;
 use Filament\Events\TenantSet;
 use Filament\Facades\Filament;
 use Filament\Http\Middleware\Authenticate;
@@ -29,6 +31,7 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Event;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
@@ -58,6 +61,14 @@ final class AppPanelProvider extends PanelProvider
         Event::listen(
             TenantSet::class,
             SwitchTeam::class,
+        );
+
+        /**
+         * Listen for user registration to create a personal team and add sample data
+         */
+        Event::listen(
+            Registered::class,
+            CreatePersonalTeam::class,
         );
     }
 
@@ -164,7 +175,7 @@ final class AppPanelProvider extends PanelProvider
 
     public function shouldRegisterMenuItem(): bool
     {
-        $hasVerifiedEmail = auth()->user()?->hasVerifiedEmail();
+        $hasVerifiedEmail = Auth::user()?->hasVerifiedEmail();
 
         return Filament::hasTenancy()
             ? $hasVerifiedEmail && Filament::getTenant()
