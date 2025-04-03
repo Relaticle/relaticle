@@ -8,10 +8,12 @@ use App\Models\Company;
 use App\Models\Opportunity;
 use App\Models\People;
 use App\Models\User;
+use App\Listeners\CreatePersonalTeam;
 use Filament\Facades\Filament;
 use Filament\Events\Auth\Registered;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Event;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldOption;
 
@@ -25,8 +27,6 @@ final class LocalSeeder extends Seeder
                 'name' => 'Manuk Minasyan',
                 'email' => 'manuk.minasyan1@gmail.com',
             ]);
-
-        event(new Registered($user));
 
 //        // Set the current user and tenant.
 //        Auth::setUser($user);
