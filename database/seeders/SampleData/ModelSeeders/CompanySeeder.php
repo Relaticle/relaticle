@@ -49,7 +49,7 @@ class CompanySeeder extends BaseModelSeeder
         ]);
 
         $notionCompany = $this->createCompany($team, $user, 'Notion', [
-            CompanyCustomField::DOMAIN_NAME->value => 'https://notion.so',
+            CompanyCustomField::DOMAIN_NAME->value => 'https://notion.com',
             CompanyCustomField::ICP->value => true,
             CompanyCustomField::LINKEDIN->value => 'https://www.linkedin.com/company/notion-so'
         ]);

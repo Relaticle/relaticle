@@ -83,7 +83,7 @@ enum Task: string
     public function isListToggleableHidden(): bool
     {
         return match($this) {
-            self::STATUS, self::PRIORITY => false,
+            self::STATUS, self::PRIORITY, self::DUE_DATE => false,
             default => true,
         };
     }

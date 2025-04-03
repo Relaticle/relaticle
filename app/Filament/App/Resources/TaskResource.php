@@ -105,30 +105,32 @@ final class TaskResource extends Resource
                     ->getTitleFromRecordUsing(fn (Task $record): ?string => $valueResolver->resolve($record, $customFields->get('priority'))),
             ])
             ->actions([
-                Tables\Actions\EditAction::make()
-                    ->using(function (Model $record, array $data): Model {
-                        try {
-                            DB::beginTransaction();
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\EditAction::make()
+                        ->using(function (Model $record, array $data): Model {
+                            try {
+                                DB::beginTransaction();
 
-                            if ($record->getOriginal('assignee_id') !== $record->assignee_id) {
-                                $recipient = $record->assignee;
+                                if ($record->assignees->isNotEmpty()) {
+                                    $record->assignees->each(function (Model $recipient) use ($record) {
+                                        Notification::make()
+                                            ->title('You have been assigned task: #'.$record->id)
+                                            ->sendToDatabase($recipient);
+                                    });
+                                }
 
-                                Notification::make()
-                                    ->title('You have been assigned task: #'.$record->id)
-                                    ->sendToDatabase($recipient);
+                                $record->update($data);
+
+                                DB::commit();
+                            } catch (\Throwable $e) {
+                                DB::rollBack();
+                                throw $e;
                             }
 
-                            $record->update($data);
-
-                            DB::commit();
-                        } catch (\Throwable $e) {
-                            DB::rollBack();
-                            throw $e;
-                        }
-
-                        return $record;
-                    }),
-                Tables\Actions\DeleteAction::make(),
+                            return $record;
+                        }),
+                    Tables\Actions\DeleteAction::make(),
+                ])
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
