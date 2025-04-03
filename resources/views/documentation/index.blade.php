@@ -76,7 +76,12 @@
                 // Highlight current section when scrolling
                 tocEntry.addEventListener('click', function (e) {
                     e.preventDefault();
-                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    const headerOffset = 80; // Adjust this value based on your header height
+                    const elementPosition = document.querySelector(this.getAttribute('href')).getBoundingClientRect().top;
+                    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                    
+                    window.scrollTo({
+                        top: offsetPosition,
                         behavior: 'smooth'
                     });
                 });
