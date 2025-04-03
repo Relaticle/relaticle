@@ -38,5 +38,8 @@ Route::get('/team-invitations/{invitation}', [TeamInvitationController::class, '
     ->middleware(['signed', 'verified', 'auth', AuthenticateSession::class])
     ->name('team-invitations.accept');
 
-
-Route::get('/documentation', DocumentationController::class)->name('documentation');
+// Documentation routes
+Route::prefix('documentation')->name('documentation.')->group(function () {
+    Route::get('/', DocumentationController::class)->name('index');
+    Route::get('/{type}', DocumentationController::class)->name('show');
+});
