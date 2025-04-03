@@ -35,13 +35,23 @@ class DocumentationController
         ];
 
         // Default to index if an invalid type is provided
-        if (! array_key_exists($type, $validTypes)) {
+        if (!array_key_exists($type, $validTypes)) {
             $type = 'index';
         }
 
-        $documentFile = resource_path('markdown/' . $validTypes[$type]['file']);
-        $documentContent = file_exists($documentFile) 
-            ? file_get_contents($documentFile)
+        $documentFile = $validTypes[$type]['file'];
+        $path = resource_path('markdown/' . $documentFile);
+        
+        // Validate the path is within the intended directory
+        $realPath = realpath($path);
+        $resourcePath = realpath(resource_path('markdown'));
+        
+        if (!$realPath || !str_starts_with($realPath, $resourcePath)) {
+            abort(404, 'Document not found');
+        }
+
+        $documentContent = file_exists($realPath) 
+            ? file_get_contents($realPath)
             : '# Document Not Found';
 
         return view('documentation.index', [
