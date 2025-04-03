@@ -35,9 +35,9 @@ class TaskSeeder extends BaseModelSeeder
         $task1 = $this->createTask(
             $team,
             $user,
-            'Follow up with Jane',
+            'Follow up with Dylan',
             [
-                TaskCustomField::DESCRIPTION->value => 'Discuss the new service contract proposal and address any questions she may have.',
+                TaskCustomField::DESCRIPTION->value => 'Discuss the Figma enterprise plan proposal and address any questions he may have.',
                 TaskCustomField::DUE_DATE->value => now()->addDays(3)->format('Y-m-d H:i:s'),
                 TaskCustomField::STATUS->value => $this->getOptionId(
                     TaskCustomField::STATUS->value,
@@ -53,9 +53,9 @@ class TaskSeeder extends BaseModelSeeder
         $task2 = $this->createTask(
             $team,
             $user,
-            'Send contract to John',
+            'Send proposal to Tim',
             [
-                TaskCustomField::DESCRIPTION->value => 'Prepare and send the final contract for review.',
+                TaskCustomField::DESCRIPTION->value => 'Prepare and send the final proposal for the Apple developer partnership.',
                 TaskCustomField::DUE_DATE->value => now()->addDays(5)->format('Y-m-d H:i:s'),
                 TaskCustomField::STATUS->value => $this->getOptionId(
                     TaskCustomField::STATUS->value,
@@ -71,10 +71,28 @@ class TaskSeeder extends BaseModelSeeder
         $task3 = $this->createTask(
             $team,
             $user,
-            'Technical discovery call with Sarah',
+            'Discovery call with Brian',
             [
-                TaskCustomField::DESCRIPTION->value => 'Schedule a call to discuss technical requirements for the integration project.',
+                TaskCustomField::DESCRIPTION->value => 'Schedule a call to discuss potential partnership opportunities with Airbnb.',
                 TaskCustomField::DUE_DATE->value => now()->addDays(7)->format('Y-m-d H:i:s'),
+                TaskCustomField::STATUS->value => $this->getOptionId(
+                    TaskCustomField::STATUS->value,
+                    'To do'
+                ),
+                TaskCustomField::PRIORITY->value => $this->getOptionId(
+                    TaskCustomField::PRIORITY->value,
+                    'High'
+                )
+            ]
+        );
+        
+        $task4 = $this->createTask(
+            $team,
+            $user,
+            'Integration meeting with Ivan',
+            [
+                TaskCustomField::DESCRIPTION->value => 'Discuss API integration possibilities with Notion and explore collaboration features.',
+                TaskCustomField::DUE_DATE->value => now()->addDays(10)->format('Y-m-d H:i:s'),
                 TaskCustomField::STATUS->value => $this->getOptionId(
                     TaskCustomField::STATUS->value,
                     'To do'
@@ -88,9 +106,10 @@ class TaskSeeder extends BaseModelSeeder
         
         return [
             'tasks' => [
-                'jane_followup' => $task1,
-                'john_contract' => $task2,
-                'sarah_call' => $task3
+                'dylan_followup' => $task1,
+                'tim_proposal' => $task2,
+                'brian_call' => $task3,
+                'ivan_meeting' => $task4
             ]
         ];
     }
@@ -104,9 +123,10 @@ class TaskSeeder extends BaseModelSeeder
             return;
         }
         
-        $tasks['jane_followup']->people()->attach($people['jane']->id);
-        $tasks['john_contract']->people()->attach($people['john']->id);
-        $tasks['sarah_call']->people()->attach($people['sarah']->id);
+        $tasks['dylan_followup']->people()->attach($people['dylan']->id);
+        $tasks['tim_proposal']->people()->attach($people['tim']->id);
+        $tasks['brian_call']->people()->attach($people['brian']->id);
+        $tasks['ivan_meeting']->people()->attach($people['ivan']->id);
     }
     
     private function createTask(Team $team, User $user, string $title, array $customData): Task

@@ -34,7 +34,6 @@ final class TaskResource extends Resource
 
     protected static ?string $navigationGroup = 'Workspace';
 
-    #[\Override]
     public static function form(Form $form): Form
     {
         return $form
@@ -59,7 +58,6 @@ final class TaskResource extends Resource
             ->columns(1);
     }
 
-    #[\Override]
     public static function table(Table $table): Table
     {
         $customFields = CustomField::query()->whereIn('code', ['status', 'priority'])->get()->keyBy('code');
@@ -67,7 +65,8 @@ final class TaskResource extends Resource
 
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('title'),
+                Tables\Columns\TextColumn::make('title')
+                    ->searchable(),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([

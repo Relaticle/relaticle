@@ -9,6 +9,7 @@ use App\Models\Note;
 use App\Models\Opportunity;
 use App\Models\People;
 use App\Models\Task;
+use Database\Seeders\SampleData\SampleDataSeeder;
 use Laravel\Jetstream\Events\TeamCreated;
 use Laravel\Jetstream\Features;
 use Relaticle\CustomFields\Contracts\CustomsFieldsMigrators;
@@ -21,8 +22,6 @@ use App\Enums\CustomFields\Note as NoteCustomField;
 use App\Enums\CustomFields\Opportunity as OpportunityCustomField;
 use App\Enums\CustomFields\People as PeopleCustomField;
 use App\Enums\CustomFields\Task as TaskCustomField;
-use Throwable;
-use Psr\Log\LoggerInterface;
 
 /**
  * Creates custom fields for a team when it's created
@@ -31,7 +30,7 @@ final readonly class CreateTeamCustomFields
 {
     /**
      * Maps model classes to their corresponding custom field enum classes
-     * 
+     *
      * @var array<class-string, class-string>
      */
     private const MODEL_ENUM_MAP = [
@@ -47,8 +46,10 @@ final readonly class CreateTeamCustomFields
      */
     public function __construct(
         private CustomsFieldsMigrators $migrator,
-        private LoggerInterface $logger,
-    ) {}
+        private SampleDataSeeder $sampleDataSeeder,
+    )
+    {
+    }
 
     /**
      * Handle the team created event
@@ -58,31 +59,27 @@ final readonly class CreateTeamCustomFields
         if (!Features::hasTeamFeatures()) {
             return;
         }
-        
+
         $team = $event->team;
 
-        try {
-            // Set the tenant ID for the custom fields migrator
-            $this->migrator->setTenantId($team->id);
-            
-            // Create custom fields for all models defined in the map
-            foreach (self::MODEL_ENUM_MAP as $modelClass => $enumClass) {
-                foreach ($enumClass::cases() as $enum) {
-                    $this->createCustomField($modelClass, $enum);
-                }
+        // Set the tenant ID for the custom fields migrator
+        $this->migrator->setTenantId($team->id);
+
+        // Create custom fields for all models defined in the map
+        foreach (self::MODEL_ENUM_MAP as $modelClass => $enumClass) {
+            foreach ($enumClass::cases() as $enum) {
+                $this->createCustomField($modelClass, $enum);
             }
-        } catch (Throwable $e) {
-            $this->logger->error('Failed to create custom fields for team', [
-                'team_id' => $team->id,
-                'error' => $e->getMessage(),
-                'exception' => $e,
-            ]);
+        }
+
+        if($team->isPersonalTeam()) {
+            $this->sampleDataSeeder->run($team->owner);
         }
     }
 
     /**
      * Create a custom field using the provided enum configuration
-     * 
+     *
      * @param string $model The model class name
      * @param object $enum The custom field enum instance
      */
@@ -119,5 +116,6 @@ final readonly class CreateTeamCustomFields
 
         // Create the field in the database
         $migrator->create();
+
     }
 }

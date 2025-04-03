@@ -61,21 +61,26 @@ final class CompanyResource extends Resource
                 TextColumn::make('accountOwner.name')
                     ->label('Account Owner')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
                 TextColumn::make('creator.name')
                     ->label('Created By')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable()
+                    ->toggledHiddenByDefault(),
                 TextColumn::make('created_at')
                     ->label('Creation Date')
                     ->dateTime()
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
                 TextColumn::make('updated_at')
                     ->label('Last Update')
                     ->since()
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([

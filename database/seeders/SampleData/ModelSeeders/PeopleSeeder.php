@@ -38,47 +38,60 @@ class PeopleSeeder extends BaseModelSeeder
             return ['people' => []];
         }
         
-        $janePerson = $this->createPerson(
-            $companies['acme'], 
+        $dylanPerson = $this->createPerson(
+            $companies['figma'], 
             $user, 
-            'Jane Doe', 
+            'Dylan Field', 
             [
-                PeopleCustomField::EMAILS->value => ['jane@example.com'],
+                PeopleCustomField::EMAILS->value => ['dylan@figma.com'],
                 PeopleCustomField::PHONE_NUMBER->value => '555-123-4567',
-                PeopleCustomField::JOB_TITLE->value => 'Marketing Director',
-                PeopleCustomField::LINKEDIN->value => 'https://linkedin.com/in/jane-doe'
+                PeopleCustomField::JOB_TITLE->value => 'CEO',
+                PeopleCustomField::LINKEDIN->value => 'https://www.linkedin.com/in/dylanfield/'
             ]
         );
         
-        $johnPerson = $this->createPerson(
-            $companies['acme'], 
+        $timPerson = $this->createPerson(
+            $companies['apple'], 
             $user, 
-            'John Smith', 
+            'Tim Cook', 
             [
-                PeopleCustomField::EMAILS->value => ['john@example.com'],
+                PeopleCustomField::EMAILS->value => ['tim@apple.com'],
                 PeopleCustomField::PHONE_NUMBER->value => '555-987-6543',
-                PeopleCustomField::JOB_TITLE->value => 'Chief Financial Officer',
-                PeopleCustomField::LINKEDIN->value => 'https://linkedin.com/in/john-smith'
+                PeopleCustomField::JOB_TITLE->value => 'CEO',
+                PeopleCustomField::LINKEDIN->value => 'https://www.linkedin.com/in/timcook/'
             ]
         );
         
-        $sarahPerson = $this->createPerson(
-            $companies['technova'], 
+        $brianPerson = $this->createPerson(
+            $companies['airbnb'], 
             $user, 
-            'Sarah Johnson', 
+            'Brian Chesky', 
             [
-                PeopleCustomField::EMAILS->value => ['sarah@technova.example.com'],
+                PeopleCustomField::EMAILS->value => ['brian@airbnb.com'],
                 PeopleCustomField::PHONE_NUMBER->value => '555-456-7890',
-                PeopleCustomField::JOB_TITLE->value => 'Chief Technology Officer',
-                PeopleCustomField::LINKEDIN->value => 'https://linkedin.com/in/sarah-johnson'
+                PeopleCustomField::JOB_TITLE->value => 'CEO & Co-founder',
+                PeopleCustomField::LINKEDIN->value => 'https://www.linkedin.com/in/brianchesky/'
+            ]
+        );
+        
+        $ivanPerson = $this->createPerson(
+            $companies['notion'], 
+            $user, 
+            'Ivan Zhao', 
+            [
+                PeopleCustomField::EMAILS->value => ['ivan@notion.so'],
+                PeopleCustomField::PHONE_NUMBER->value => '555-789-0123',
+                PeopleCustomField::JOB_TITLE->value => 'Co-founder',
+                PeopleCustomField::LINKEDIN->value => 'https://www.linkedin.com/in/ivzhao/'
             ]
         );
         
         return [
             'people' => [
-                'jane' => $janePerson,
-                'john' => $johnPerson,
-                'sarah' => $sarahPerson
+                'dylan' => $dylanPerson,
+                'tim' => $timPerson,
+                'brian' => $brianPerson,
+                'ivan' => $ivanPerson
             ]
         ];
     }

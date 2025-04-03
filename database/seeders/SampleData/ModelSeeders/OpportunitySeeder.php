@@ -40,8 +40,8 @@ class OpportunitySeeder extends BaseModelSeeder
         $opportunity1 = $this->createOpportunity(
             $team,
             $user,
-            'Acme Corp Service Contract',
-            $companies['acme'],
+            'Figma Enterprise Plan',
+            $companies['figma'],
             [
                 OpportunityCustomField::AMOUNT->value => 15000,
                 OpportunityCustomField::CLOSE_DATE->value => now()->addWeeks(2)->format('Y-m-d'),
@@ -55,8 +55,8 @@ class OpportunitySeeder extends BaseModelSeeder
         $opportunity2 = $this->createOpportunity(
             $team,
             $user,
-            'TechNova Integration Project',
-            $companies['technova'],
+            'Apple Developer Partnership',
+            $companies['apple'],
             [
                 OpportunityCustomField::AMOUNT->value => 25000,
                 OpportunityCustomField::CLOSE_DATE->value => now()->addMonths(1)->format('Y-m-d'),
@@ -67,10 +67,42 @@ class OpportunitySeeder extends BaseModelSeeder
             ]
         );
         
+        $opportunity3 = $this->createOpportunity(
+            $team,
+            $user,
+            'Airbnb Host Analytics Platform',
+            $companies['airbnb'],
+            [
+                OpportunityCustomField::AMOUNT->value => 20000,
+                OpportunityCustomField::CLOSE_DATE->value => now()->addWeeks(4)->format('Y-m-d'),
+                OpportunityCustomField::STAGE->value => $this->getOptionId(
+                    OpportunityCustomField::STAGE->value,
+                    'Initial Contact'
+                )
+            ]
+        );
+        
+        $opportunity4 = $this->createOpportunity(
+            $team,
+            $user,
+            'Notion API Integration',
+            $companies['notion'],
+            [
+                OpportunityCustomField::AMOUNT->value => 18000,
+                OpportunityCustomField::CLOSE_DATE->value => now()->addWeeks(3)->format('Y-m-d'),
+                OpportunityCustomField::STAGE->value => $this->getOptionId(
+                    OpportunityCustomField::STAGE->value,
+                    'Discovery/Qualification'
+                )
+            ]
+        );
+        
         return [
             'opportunities' => [
-                'acme_contract' => $opportunity1,
-                'technova_project' => $opportunity2
+                'figma_enterprise' => $opportunity1,
+                'apple_partnership' => $opportunity2,
+                'airbnb_analytics' => $opportunity3,
+                'notion_integration' => $opportunity4
             ]
         ];
     }

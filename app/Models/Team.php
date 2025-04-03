@@ -43,12 +43,16 @@ final class Team extends JetstreamTeam implements HasAvatar
      *
      * @return array<string, string>
      */
-    #[\Override]
     protected function casts(): array
     {
         return [
             'personal_team' => 'boolean',
         ];
+    }
+
+    public function isPersonalTeam(): bool
+    {
+        return $this->personal_team;
     }
 
     public function getFilamentAvatarUrl(): ?string

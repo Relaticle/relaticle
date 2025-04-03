@@ -13,16 +13,16 @@ use Database\Seeders\SampleData\Support\BaseModelSeeder;
 class CompanySeeder extends BaseModelSeeder
 {
     protected string $modelClass = Company::class;
-    
+
     protected array $fieldCodes = [
         CompanyCustomField::DOMAIN_NAME->value,
         CompanyCustomField::ICP->value,
         CompanyCustomField::LINKEDIN->value,
     ];
-    
+
     /**
      * Seed model implementation
-     * 
+     *
      * @param Team $team The team to create data for
      * @param User $user The user creating the data
      * @param array<string, mixed> $context Context data from previous seeders
@@ -30,35 +30,50 @@ class CompanySeeder extends BaseModelSeeder
      */
     protected function seedModel(Team $team, User $user, array $context = []): array
     {
-        $acmeCompany = $this->createCompany($team, $user, 'Acme Corp', [
-            CompanyCustomField::DOMAIN_NAME->value => 'acme.example.com',
+        $figmaCompany = $this->createCompany($team, $user, 'Figma', [
+            CompanyCustomField::DOMAIN_NAME->value => 'https://figma.com',
             CompanyCustomField::ICP->value => true,
-            CompanyCustomField::LINKEDIN->value => 'https://linkedin.com/company/acme-corp'
+            CompanyCustomField::LINKEDIN->value => 'https://www.linkedin.com/company/figma'
         ]);
-        
-        $techCompany = $this->createCompany($team, $user, 'TechNova Solutions', [
-            CompanyCustomField::DOMAIN_NAME->value => 'technova.example.com',
+
+        $appleCompany = $this->createCompany($team, $user, 'Apple', [
+            CompanyCustomField::DOMAIN_NAME->value => 'https://apple.com',
             CompanyCustomField::ICP->value => true,
-            CompanyCustomField::LINKEDIN->value => 'https://linkedin.com/company/technova-solutions'
+            CompanyCustomField::LINKEDIN->value => 'https://www.linkedin.com/company/apple'
         ]);
-        
+
+        $airbnbCompany = $this->createCompany($team, $user, 'Airbnb', [
+            CompanyCustomField::DOMAIN_NAME->value => 'https://airbnb.com',
+            CompanyCustomField::ICP->value => true,
+            CompanyCustomField::LINKEDIN->value => 'https://www.linkedin.com/company/airbnb'
+        ]);
+
+        $notionCompany = $this->createCompany($team, $user, 'Notion', [
+            CompanyCustomField::DOMAIN_NAME->value => 'https://notion.so',
+            CompanyCustomField::ICP->value => true,
+            CompanyCustomField::LINKEDIN->value => 'https://www.linkedin.com/company/notion-so'
+        ]);
+
         return [
             'companies' => [
-                'acme' => $acmeCompany,
-                'technova' => $techCompany
+                'figma' => $figmaCompany,
+                'apple' => $appleCompany,
+                'airbnb' => $airbnbCompany,
+                'notion' => $notionCompany
             ]
         ];
     }
-    
+
     private function createCompany(Team $team, User $user, string $name, array $customData): Company
     {
         $company = $team->companies()->create([
             'name' => $name,
             'creator_id' => $user->id,
+            'account_owner_id' => $user->id,
         ]);
-        
+
         $this->applyCustomFields($company, $customData);
-        
+
         return $company;
     }
-} 
+}

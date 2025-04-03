@@ -6,6 +6,7 @@ namespace App\Filament\App\Pages;
 
 use App\Filament\App\Adapters\TasksKanbanAdapter;
 use App\Models\Task;
+use App\Enums\CustomFields\Task as TaskCustomField;
 use Illuminate\Support\Collection;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\Flowforge\Contracts\KanbanAdapterInterface;
@@ -47,12 +48,12 @@ final class TasksBoard extends KanbanBoardPage
     /**
      * @return CustomField
      */
-    protected function stageCustomField(): CustomField
+    protected function statusCustomField(): CustomField
     {
         return CustomField::query()
             ->forEntity(Task::class)
-            ->where('code', 'status')
-            ->firstOrFail();
+            ->where('code', TaskCustomField::STATUS)
+            ->first();
     }
 
     /**
@@ -60,7 +61,7 @@ final class TasksBoard extends KanbanBoardPage
      */
     protected function statuses(): Collection
     {
-        return $this->stageCustomField()->options->map(fn($option): array => [
+        return $this->statusCustomField()->options->map(fn($option): array => [
             'id' => $option->id,
             'custom_field_id' => $option->custom_field_id,
             'name' => $option->name,
