@@ -39,7 +39,7 @@
                 <a href="{{ url('/#features') }}"
                    class="text-gray-600 hover:text-primary transition-colors duration-200"
                    aria-label="Product features">Features</a>
-                <a href="{{ route('documentation') }}"
+                <a href="{{ route('documentation.index') }}"
                    class="text-gray-600 hover:text-primary transition-colors duration-200"
                    aria-label="Documentation">Documentation</a>
                 <a href="https://github.com/Relaticle" target="_blank" rel="noopener"
@@ -83,7 +83,7 @@
            class="block text-center text-gray-700 hover:bg-gray-50 hover:text-primary px-3 py-2 rounded-md transition-colors duration-200">
             Features
         </a>
-        <a href="{{ route('documentation') }}"
+        <a href="{{ route('documentation.index') }}"
            class="block text-center text-gray-700 hover:bg-gray-50 hover:text-primary px-3 py-2 rounded-md transition-colors duration-200">
             Documentation
         </a>
@@ -147,7 +147,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="{{ route('documentation') }}"
+                        <a href="{{ route('documentation.index') }}"
                            class="text-gray-300 hover:text-white transition-colors duration-200 flex items-center gap-2">
                             <i class="fas fa-book text-xs"></i> Documentation
                         </a>
