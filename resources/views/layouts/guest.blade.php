@@ -23,9 +23,9 @@
 <body class="antialiased text-gray-800">
 
 <!-- Modern Header with Logo and Navigation Links -->
-<header class="bg-gradient-to-r from-white to-gray-50 shadow-sm fixed w-full top-0 z-50 transition-all duration-300">
+<header class="bg-gradient-to-r from-white py-4 to-gray-50 shadow-sm fixed w-full top-0 z-50 transition-all duration-300">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center py-4">
+        <div class="flex justify-between items-center">
             <!-- Logo with hover animation -->
             <div class="flex-shrink-0 transition-transform duration-300 hover:scale-105">
                 <a href="{{ url('/') }}" class="flex items-center space-x-2" aria-label="Relaticle Home">
@@ -222,9 +222,11 @@
             const header = document.querySelector('header');
             window.addEventListener('scroll', () => {
                 if (window.scrollY > 10) {
+                    header.classList.remove('py-4');
                     header.classList.add('py-2', 'shadow');
                 } else {
                     header.classList.remove('py-2', 'shadow');
+                    header.classList.add('py-4');
                 }
             });
         }
