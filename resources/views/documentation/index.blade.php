@@ -5,10 +5,10 @@
             <div class="mb-6 bg-white dark:bg-gray-800 rounded-lg shadow-md p-2 sm:p-4">
                 <div class="flex flex-wrap items-center justify-start gap-2 sm:gap-4">
                     @foreach($documentTypes as $typeKey => $typeValue)
-                        <a href="{{ route('documentation.show', $typeKey) }}" 
-                           class="px-3 py-2 text-sm sm:text-base rounded-md transition-colors duration-200 
-                                  {{ $currentType === $typeKey 
-                                    ? 'bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 font-medium' 
+                        <a href="{{ route('documentation.show', $typeKey) }}"
+                           class="px-3 py-2 text-sm sm:text-base rounded-md transition-colors duration-200
+                                  {{ $currentType === $typeKey
+                                    ? 'bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 font-medium'
                                     : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700' }}">
                             {{ $typeValue['title'] }}
                         </a>
@@ -52,7 +52,6 @@
 
                 <!-- Main Content -->
                 <div class="bg-white col-span-12 sm:col-span-8 lg:col-span-9 dark:bg-gray-800 p-4 sm:p-6 md:p-8 rounded-lg shadow-lg">
-                    <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-6">{{ $documentTitle }}</h1>
                     <div id="documentation-content" class="prose prose-sm sm:prose md:prose-lg dark:prose-invert max-w-none">
                         {!! $documentContent !!}
                     </div>
@@ -141,12 +140,12 @@
                     const headerOffset = window.innerWidth < 768 ? 100 : 80; // Increased offset for mobile
                     const elementPosition = document.querySelector(this.getAttribute('href')).getBoundingClientRect().top;
                     const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-                    
+
                     window.scrollTo({
                         top: offsetPosition,
                         behavior: 'smooth'
                     });
-                    
+
                     // Hide TOC on mobile after clicking
                     if (window.innerWidth < 640) {
                         tocContainer.classList.add('hidden');
@@ -167,7 +166,7 @@
                 // Determine which section is in view
                 let activeHeading = headingElements[0];
                 const headerOffset = 100;
-                
+
                 headingElements.forEach((heading) => {
                     const rect = heading.getBoundingClientRect();
                     if (rect.top <= headerOffset + 50) {
