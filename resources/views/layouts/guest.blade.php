@@ -34,13 +34,23 @@
                 </a>
             </div>
 
-            <!-- Desktop Navigation Links -->
-            <nav class="hidden md:flex space-x-6 items-center">
+            <!-- Desktop Navigation Links - Centered -->
+            <nav class="hidden md:flex flex-1 justify-center space-x-6 items-center">
+                <a href="{{ url('/#features') }}"
+                   class="text-gray-600 hover:text-primary transition-colors duration-200"
+                   aria-label="Product features">Features</a>
+                <a href="{{ route('documentation') }}"
+                   class="text-gray-600 hover:text-primary transition-colors duration-200"
+                   aria-label="Documentation">Documentation</a>
                 <a href="https://github.com/Relaticle" target="_blank" rel="noopener"
                    class="text-gray-600 hover:text-primary transition-colors duration-200 flex items-center gap-1"
                    aria-label="GitHub Repository">
                     <i class="fab fa-github"></i><span>GitHub</span>
                 </a>
+            </nav>
+
+            <!-- Auth Links -->
+            <div class="hidden md:flex space-x-4 items-center">
                 <a href="{{ route('login') }}"
                    class="text-gray-600 hover:text-primary transition-colors duration-200"
                    aria-label="Sign in to your account">Sign In</a>
@@ -48,7 +58,7 @@
                    class="bg-gradient-to-r from-primary to-primary/90 hover:from-primary-dark hover:to-primary
                    px-5 py-2.5 rounded-lg text-white font-medium shadow-sm hover:shadow-md transition-all duration-300"
                    aria-label="Create a new account">Get Started</a>
-            </nav>
+            </div>
 
             <!-- Mobile Menu Button with improved animation -->
             <div class="md:hidden">
@@ -69,17 +79,25 @@
     <!-- Mobile Menu with smooth animation -->
     <div id="mobile-menu"
          class="md:hidden hidden opacity-0 transform -translate-y-4 px-2 pt-2 pb-3 space-y-1 bg-white shadow-lg rounded-b-lg transition-all duration-300 ease-in-out">
+        <a href="#features"
+           class="block text-center text-gray-700 hover:bg-gray-50 hover:text-primary px-3 py-2 rounded-md transition-colors duration-200">
+            Features
+        </a>
+        <a href="{{ route('documentation') }}"
+           class="block text-center text-gray-700 hover:bg-gray-50 hover:text-primary px-3 py-2 rounded-md transition-colors duration-200">
+            Documentation
+        </a>
         <a href="https://github.com/Relaticle" target="_blank" rel="noopener"
-           class="flex items-center gap-2 text-gray-700 hover:bg-gray-50 hover:text-primary px-3 py-2 rounded-md transition-colors duration-200">
-           <i class="fab fa-github"></i><span>GitHub</span>
+           class="flex items-center justify-center gap-2 text-gray-700 hover:bg-gray-50 hover:text-primary px-3 py-2 rounded-md transition-colors duration-200">
+            <i class="fab fa-github"></i><span>GitHub</span>
         </a>
         <a href="{{ route('login') }}"
            class="block text-gray-700 hover:bg-gray-50 hover:text-primary px-3 py-2 rounded-md transition-colors duration-200">
-           Sign In
+            Sign In
         </a>
         <a href="{{ route('register') }}"
            class="block bg-gradient-to-r from-primary to-primary/90 text-white px-3 py-2 mt-2 rounded-lg transition-all duration-200">
-           Get Started
+            Get Started
         </a>
     </div>
 </header>
@@ -100,15 +118,19 @@
                     <img class="h-10 w-auto" src="{{ asset('relaticle-logo.svg') }}" alt="Relaticle Logo">
                     <span class="font-bold text-xl">Relaticle</span>
                 </div>
-                <p class="text-gray-300 text-sm">The Next-Generation Open-Source CRM Platform designed to streamline your customer relationships.</p>
+                <p class="text-gray-300 text-sm">The Next-Generation Open-Source CRM Platform designed to streamline
+                    your customer relationships.</p>
                 <div class="flex space-x-4 pt-2">
-                    <a href="https://github.com/Relaticle" target="_blank" rel="noopener" class="text-gray-300 hover:text-white transition-colors duration-200" aria-label="GitHub">
+                    <a href="https://github.com/Relaticle" target="_blank" rel="noopener"
+                       class="text-gray-300 hover:text-white transition-colors duration-200" aria-label="GitHub">
                         <i class="fab fa-github text-xl"></i>
                     </a>
-                    <a href="#" class="text-gray-300 hover:text-white transition-colors duration-200" aria-label="Twitter">
+                    <a href="#" class="text-gray-300 hover:text-white transition-colors duration-200"
+                       aria-label="Twitter">
                         <i class="fab fa-twitter text-xl"></i>
                     </a>
-                    <a href="#" class="text-gray-300 hover:text-white transition-colors duration-200" aria-label="LinkedIn">
+                    <a href="#" class="text-gray-300 hover:text-white transition-colors duration-200"
+                       aria-label="LinkedIn">
                         <i class="fab fa-linkedin text-xl"></i>
                     </a>
                 </div>
@@ -118,18 +140,24 @@
             <div>
                 <h3 class="font-semibold text-lg mb-4 border-b border-gray-700 pb-2">Quick Links</h3>
                 <ul class="space-y-2">
-                    <li><a href="{{ url('/') }}" class="text-gray-300 hover:text-white transition-colors duration-200 flex items-center gap-2">
-                        <i class="fas fa-home text-xs"></i> Home
-                    </a></li>
-                    <li><a href="{{ url('features') }}" class="text-gray-300 hover:text-white transition-colors duration-200 flex items-center gap-2">
-                        <i class="fas fa-star text-xs"></i> Features
-                    </a></li>
-                    <li><a href="{{ url('pricing') }}" class="text-gray-300 hover:text-white transition-colors duration-200 flex items-center gap-2">
-                        <i class="fas fa-tag text-xs"></i> Pricing
-                    </a></li>
-                    <li><a href="https://github.com/Relaticle" target="_blank" rel="noopener" class="text-gray-300 hover:text-white transition-colors duration-200 flex items-center gap-2">
-                        <i class="fab fa-github text-xs"></i> GitHub
-                    </a></li>
+                    <li>
+                        <a href="{{ url('/') }}"
+                           class="text-gray-300 hover:text-white transition-colors duration-200 flex items-center gap-2">
+                            <i class="fas fa-home text-xs"></i> Home
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('documentation') }}"
+                           class="text-gray-300 hover:text-white transition-colors duration-200 flex items-center gap-2">
+                            <i class="fas fa-book text-xs"></i> Documentation
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://github.com/Relaticle" target="_blank" rel="noopener"
+                           class="text-gray-300 hover:text-white transition-colors duration-200 flex items-center gap-2">
+                            <i class="fab fa-github text-xs"></i> GitHub
+                        </a>
+                    </li>
                 </ul>
             </div>
 
@@ -137,20 +165,24 @@
             <div>
                 <h3 class="font-semibold text-lg mb-4 border-b border-gray-700 pb-2">Support & Legal</h3>
                 <ul class="space-y-2">
-                    <li><a href="{{ url('privacy-policy') }}" class="text-gray-300 hover:text-white transition-colors duration-200 flex items-center gap-2">
-                        <i class="fas fa-shield-alt text-xs"></i> Privacy Policy
-                    </a></li>
-                    <li><a href="{{ url('terms-of-service') }}" class="text-gray-300 hover:text-white transition-colors duration-200 flex items-center gap-2">
-                        <i class="fas fa-file-contract text-xs"></i> Terms of Service
-                    </a></li>
-                    <li><a href="mailto:manuk.minasyan1@gmail.com" class="text-gray-300 hover:text-white transition-colors duration-200 flex items-center gap-2">
-                        <i class="fas fa-envelope text-xs"></i> Contact Us
-                    </a></li>
+                    <li><a href="{{ url('privacy-policy') }}"
+                           class="text-gray-300 hover:text-white transition-colors duration-200 flex items-center gap-2">
+                            <i class="fas fa-shield-alt text-xs"></i> Privacy Policy
+                        </a></li>
+                    <li><a href="{{ url('terms-of-service') }}"
+                           class="text-gray-300 hover:text-white transition-colors duration-200 flex items-center gap-2">
+                            <i class="fas fa-file-contract text-xs"></i> Terms of Service
+                        </a></li>
+                    <li><a href="mailto:manuk.minasyan1@gmail.com"
+                           class="text-gray-300 hover:text-white transition-colors duration-200 flex items-center gap-2">
+                            <i class="fas fa-envelope text-xs"></i> Contact Us
+                        </a></li>
                 </ul>
             </div>
         </div>
 
-        <div class="mt-8 pt-4 border-t border-gray-700 flex flex-col md:flex-row md:justify-between items-center text-sm">
+        <div
+            class="mt-8 pt-4 border-t border-gray-700 flex flex-col md:flex-row md:justify-between items-center text-sm">
             <p>&copy; 2025 Relaticle. All rights reserved.</p>
             <p class="mt-2 md:mt-0 text-gray-400">Made with <span class="text-red-500">♥</span> for open-source</p>
         </div>
@@ -159,7 +191,7 @@
 
 <!-- Enhanced Mobile Menu Script -->
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         const menuButton = document.getElementById('mobile-menu-button');
         const mobileMenu = document.getElementById('mobile-menu');
         const menuIcon = document.getElementById('menu-icon');

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Http\Controllers\Auth\CallbackController;
 use App\Http\Controllers\Auth\RedirectController;
+use App\Http\Controllers\DocumentationController;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Support\Facades\Route;
 use Laravel\Jetstream\Http\Controllers\TeamInvitationController;
@@ -36,3 +37,6 @@ Route::redirect('/dashboard', '/app')->name('dashboard');
 Route::get('/team-invitations/{invitation}', [TeamInvitationController::class, 'accept'])
     ->middleware(['signed', 'verified', 'auth', AuthenticateSession::class])
     ->name('team-invitations.accept');
+
+
+Route::get('/documentation', DocumentationController::class)->name('documentation');
