@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Http\Controllers\Auth\CallbackController;
 use App\Http\Controllers\Auth\RedirectController;
 use App\Http\Controllers\DocumentationController;
+use App\Http\Controllers\HomeController;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Support\Facades\Route;
 use Laravel\Jetstream\Http\Controllers\TeamInvitationController;
@@ -30,7 +31,7 @@ Route::middleware('guest')->group(function () {
     Route::redirect('/register', '/app/register')->name('register');
 });
 
-Route::get('/', fn () => view('welcome'));
+Route::get('/', HomeController::class);
 
 Route::redirect('/dashboard', '/app')->name('dashboard');
 
