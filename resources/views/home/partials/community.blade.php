@@ -69,7 +69,7 @@
                             </svg>
                         </a>
 
-                        <a href="#"
+                        <a href="https://discord.gg/MnsuPRfp"
                            class="flex items-center p-4 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors group">
                             <div class="flex-shrink-0 mr-4">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-500" fill="none"
@@ -94,4 +94,4 @@
             </div>
         </div>
     </div>
-</section> 
+</section>
