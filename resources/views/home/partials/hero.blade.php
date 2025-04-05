@@ -1,5 +1,5 @@
 <!-- Modern Minimalist Hero Section -->
-<section class="relative py-20 md:py-28 lg:py-36 bg-white dark:bg-black overflow-hidden">
+<section class="relative py-16 md:py-24 bg-white dark:bg-black overflow-hidden">
     <!-- Subtle background elements -->
     <div class="absolute inset-0 bg-grid-pattern opacity-[0.01] dark:opacity-[0.02]"></div>
     <div class="absolute -top-24 -left-24 w-96 h-96 bg-primary/5 dark:bg-primary/10 rounded-full blur-3xl"></div>
