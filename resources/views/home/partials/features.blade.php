@@ -1,24 +1,24 @@
 <!-- Modern Minimalist Features Section -->
-<section id="features" class="py-24 md:py-32 bg-white dark:bg-black border-t border-gray-100 dark:border-gray-900 relative overflow-hidden">
-    <!-- Subtle gradient blob -->
+<section id="features" class="py-24 md:py-32 bg-gray-50 dark:bg-gray-950 relative overflow-hidden">
+    <!-- Subtle gradient background element -->
     <div class="absolute -bottom-64 left-0 w-96 h-96 bg-primary/5 dark:bg-primary/10 rounded-full blur-3xl"></div>
     
     <div class="container max-w-6xl mx-auto px-6 lg:px-8 relative">
         <!-- Section Header -->
-        <div class="max-w-3xl mx-auto text-center mb-16 md:mb-24">
-            <span class="inline-block px-3 py-1 bg-gray-50 dark:bg-gray-900 rounded-full text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-3">
+        <div class="max-w-3xl mx-auto text-center mb-16 md:mb-20">
+            <span class="inline-block px-3 py-1 bg-white dark:bg-gray-900 rounded-full text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-3">
                 Features
             </span>
             <h2 class="mt-4 text-3xl sm:text-4xl font-bold text-black dark:text-white">
                 Everything you need to manage relationships
             </h2>
-            <p class="mt-5 text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto leading-relaxed">
+            <p class="mt-5 text-base md:text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto leading-relaxed">
                 A comprehensive suite of tools designed to streamline your client management workflow
             </p>
         </div>
 
-        <!-- Features Grid - Clean & Minimal -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
+        <!-- Features Grid - Cleaner & More Minimal -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             @php
                 $features = [
                     [
@@ -56,43 +56,34 @@
             @endphp
 
             @foreach ($features as $feature)
-                <div class="group relative bg-white dark:bg-black border border-gray-100 dark:border-gray-800 rounded-xl p-6 sm:p-8 transition duration-300 hover:border-gray-200 dark:hover:border-gray-700 hover:shadow-sm">
-                    <div class="mb-6 flex items-center">
-                        <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-gray-50 dark:bg-gray-900 text-black dark:text-white group-hover:bg-primary/10 dark:group-hover:bg-primary/20 transition-colors duration-300">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                <div class="group relative bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl p-6 transition-all duration-300 hover:border-gray-200 dark:hover:border-gray-700 hover:shadow-sm">
+                    <div class="mb-5">
+                        <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-50 dark:bg-gray-800 text-primary dark:text-primary-400 group-hover:bg-primary/10 dark:group-hover:bg-primary/20 transition-colors duration-300">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                                 {!! $feature['icon'] !!}
                             </svg>
                         </div>
                     </div>
-                    <h3 class="text-xl font-semibold text-black dark:text-white mb-3 group-hover:text-primary dark:group-hover:text-primary-400 transition-colors duration-300">
+                    <h3 class="text-lg font-medium text-black dark:text-white mb-2 group-hover:text-primary dark:group-hover:text-primary-400 transition-colors duration-300">
                         {{ $feature['title'] }}
                     </h3>
-                    <p class="text-gray-600 dark:text-gray-300 text-base leading-relaxed">
+                    <p class="text-gray-600 dark:text-gray-300 text-sm leading-relaxed">
                         {{ $feature['description'] }}
                     </p>
-                    
-                    <!-- Subtle visual indicator for interaction -->
-                    <div class="mt-5 flex items-center text-sm text-gray-500 dark:text-gray-400 font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <span>Learn more</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1 transition-transform duration-300 group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                        </svg>
-                    </div>
                 </div>
             @endforeach
         </div>
 
-        <!-- Call-to-action - Refined -->
-        <div class="mt-24 text-center">
-            <div class="inline-block pt-10 px-6 md:px-16 border-t border-gray-100 dark:border-gray-800 max-w-3xl mx-auto">
-                <h3 class="text-2xl font-bold text-black dark:text-white mb-4">Ready to transform your customer relationships?</h3>
-                <p class="text-gray-600 dark:text-gray-300 mb-8 text-lg max-w-xl mx-auto">Experience the power of Relaticle CRM today with a free account.</p>
-                <a href="{{ route('register') }}" class="group inline-flex items-center justify-center gap-2 bg-black hover:bg-gray-900 dark:bg-white dark:hover:bg-gray-50 text-white dark:text-black px-8 py-4 rounded-md font-medium text-base transition-all duration-300 relative overflow-hidden shadow-sm hover:shadow">
-                    <span class="relative z-10">Get Started Free</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <!-- Call-to-action - Simplified -->
+        <div class="mt-20 text-center">
+            <div class="inline-block pt-10 px-4 md:px-8 border-t border-gray-200 dark:border-gray-800 max-w-2xl mx-auto">
+                <h3 class="text-xl font-semibold text-black dark:text-white mb-4">Ready to transform your customer relationships?</h3>
+                <p class="text-gray-600 dark:text-gray-300 mb-6 text-base">Experience the power of Relaticle CRM today with a free account.</p>
+                <a href="{{ route('register') }}" class="group inline-flex items-center justify-center gap-2 bg-primary hover:bg-primary-600 text-white px-8 py-3.5 rounded-md font-medium text-base transition-all duration-300">
+                    <span>Get Started Free</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
                     </svg>
-                    <span class="absolute inset-0 bg-gradient-to-r from-gray-800 to-black dark:from-gray-200 dark:to-white opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
                 </a>
             </div>
         </div>
