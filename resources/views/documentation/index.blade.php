@@ -1,71 +1,124 @@
 <x-guest-layout>
     <div class="py-8 md:py-12 bg-white dark:bg-black min-h-[calc(100vh-5rem)]">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <!-- Improved Mobile Controls - Only visible on mobile -->
+            <!-- Page Header with Animation -->
+            <div class="mb-8 animate-fade-in">
+                <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">{{ $documentTitle ?? 'Documentation' }}</h1>
+                <p class="text-gray-600 dark:text-gray-400">Learn how to use Relaticle and maximize your experience.</p>
+            </div>
+
+            <!-- Improved Mobile Controls with Better Styling -->
             <div class="flex flex-col space-y-4 sm:hidden mb-6">
-                <!-- Mobile Doc Type Navigation Toggle -->
-                <button id="doc-types-toggle" class="w-full flex justify-between items-center px-4 py-3 text-left text-sm font-medium text-black dark:text-white bg-gray-100 dark:bg-gray-900 rounded-lg">
-                    <span>Documentation Types</span>
+                <!-- Mobile Doc Type Navigation Toggle - Enhanced Design -->
+                <button id="doc-types-toggle" class="w-full flex justify-between items-center px-4 py-3.5 text-left text-sm font-medium text-black dark:text-white bg-gray-100 dark:bg-gray-900 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500/40">
+                    <div class="flex items-center space-x-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary dark:text-primary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                        </svg>
+                        <span>Documentation Types</span>
+                    </div>
                     <svg id="doc-types-toggle-icon" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                     </svg>
                 </button>
                 
-                <!-- Mobile Doc Types Container (initially hidden) -->
-                <div id="doc-types-container" class="hidden bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-800 overflow-hidden">
-                    <div class="p-2 flex flex-col space-y-1">
+                <!-- Mobile Doc Types Container - Enhanced Styling -->
+                <div id="doc-types-container" class="hidden bg-white dark:bg-gray-900 rounded-lg shadow-md border border-gray-200 dark:border-gray-800 overflow-hidden transform origin-top transition-all duration-200 scale-y-95 opacity-0">
+                    <div class="p-3 flex flex-col space-y-1.5">
                         @foreach($documentTypes as $typeKey => $typeValue)
                             <a href="{{ route('documentation.show', $typeKey) }}"
-                               class="px-4 py-2 text-sm rounded-md flex items-center gap-1.5 
+                               class="px-4 py-2.5 text-sm rounded-md flex items-center gap-2 transition-colors 
                                       {{ $currentType === $typeKey
                                         ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 font-medium'
                                         : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800/70' }}">
                                 @if(isset($typeValue['icon']))
                                     <i class="{{ $typeValue['icon'] }} opacity-80"></i>
+                                @else
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 {{ $currentType === $typeKey ? 'text-primary dark:text-primary-400' : 'text-gray-500 dark:text-gray-500' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                    </svg>
                                 @endif
                                 <span>{{ $typeValue['title'] }}</span>
+                                @if($currentType === $typeKey)
+                                    <span class="ml-auto text-xs bg-primary-100 dark:bg-primary-900/40 text-primary-600 dark:text-primary-400 px-2 py-0.5 rounded-full">Active</span>
+                                @endif
                             </a>
                         @endforeach
                     </div>
                 </div>
                 
-                <!-- Mobile TOC Toggle Button -->
-                <button id="toc-toggle" class="w-full flex justify-between items-center px-4 py-3 text-left text-sm font-medium text-black dark:text-white bg-gray-100 dark:bg-gray-900 rounded-lg">
-                    <span>On this page</span>
+                <!-- Mobile TOC Toggle Button - Enhanced Design -->
+                <button id="toc-toggle" class="w-full flex justify-between items-center px-4 py-3.5 text-left text-sm font-medium text-black dark:text-white bg-gray-100 dark:bg-gray-900 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500/40">
+                    <div class="flex items-center space-x-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary dark:text-primary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 12h16M4 18h7" />
+                        </svg>
+                        <span>On this page</span>
+                    </div>
                     <svg id="toc-toggle-icon" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                     </svg>
                 </button>
             </div>
 
-            <!-- Three Column Layout Grid -->
+            <!-- Three Column Layout Grid with Animation -->
             <div class="grid grid-cols-12 gap-6 lg:gap-8">
-                <!-- Left Sidebar: Documentation Types - Hidden on mobile -->
-                <div class="hidden sm:block col-span-12 sm:col-span-3 lg:col-span-2">
+                <!-- Left Sidebar: Documentation Types - Hidden on mobile, Animated on desktop -->
+                <div class="hidden sm:block col-span-12 sm:col-span-3 lg:col-span-2 animate-fade-in" style="animation-delay: 100ms;">
                     <div class="sticky top-24 pr-4">
-                        <h2 class="text-sm font-semibold text-black dark:text-white mb-4">
-                            Documentation
+                        <h2 class="text-sm font-semibold text-black dark:text-white mb-4 flex items-center space-x-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-primary dark:text-primary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                            </svg>
+                            <span>Documentation</span>
                         </h2>
-                        <div class="flex flex-col space-y-1">
+                        <div class="flex flex-col space-y-1.5 border-l border-gray-200 dark:border-gray-800">
                             @foreach($documentTypes as $typeKey => $typeValue)
                                 <a href="{{ route('documentation.show', $typeKey) }}"
-                                   class="px-3 py-2 text-sm rounded-md flex items-center gap-1.5 
+                                   class="pl-4 py-2 text-sm rounded-r-md flex items-center gap-2 transition-all 
                                           {{ $currentType === $typeKey
-                                            ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 font-medium'
-                                            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800/70' }}">
+                                            ? 'border-l-2 border-l-primary-500 -ml-[1px] pl-[17px] dark:border-l-primary-400 bg-primary-50/50 dark:bg-primary-900/10 text-primary-600 dark:text-primary-400 font-medium'
+                                            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800/50 hover:border-l hover:border-l-gray-300 dark:hover:border-l-gray-700 hover:-ml-[1px] hover:pl-[17px]' }}">
                                     @if(isset($typeValue['icon']))
                                         <i class="{{ $typeValue['icon'] }} opacity-80"></i>
+                                    @else
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 {{ $currentType === $typeKey ? 'text-primary-500 dark:text-primary-400' : 'text-gray-500 dark:text-gray-500' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                        </svg>
                                     @endif
                                     <span>{{ $typeValue['title'] }}</span>
                                 </a>
                             @endforeach
                         </div>
+                        
+                        <!-- Feedback Section -->
+                        <div class="mt-8 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800">
+                            <h3 class="text-sm font-medium text-gray-900 dark:text-white mb-2">Documentation Feedback</h3>
+                            <p class="text-xs text-gray-600 dark:text-gray-400 mb-3">Was this page helpful? Help us improve our docs.</p>
+                            <div class="flex space-x-2">
+                                <button class="flex-1 px-3 py-1.5 text-xs bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/30">
+                                    <span>👍 Yes</span>
+                                </button>
+                                <button class="flex-1 px-3 py-1.5 text-xs bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/30">
+                                    <span>👎 No</span>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
-                <!-- Main Content (Middle) -->
-                <div class="col-span-12 sm:col-span-9 md:col-span-6 lg:col-span-7">
-                    <!-- Main documentation content with Tailwind-style typography -->
+                <!-- Main Content (Middle) - Enhanced with Animation -->
+                <div class="col-span-12 sm:col-span-9 md:col-span-6 lg:col-span-7 animate-fade-in" style="animation-delay: 150ms;">
+                    <!-- Content header with breadcrumbs -->
+                    <div class="mb-6 flex flex-wrap items-center text-sm text-gray-500 dark:text-gray-400">
+                        <a href="{{ route('documentation.index') }}" class="hover:text-primary dark:hover:text-primary-400 transition-colors">Docs</a>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mx-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                        <span class="font-medium text-gray-800 dark:text-gray-200">{{ $documentTitle ?? 'Documentation' }}</span>
+                    </div>
+                
+                    <!-- Main documentation content with improved typography -->
                     <div id="documentation-content" class="prose prose-sm sm:prose max-w-none dark:prose-invert
                         prose-headings:font-medium prose-headings:text-black dark:prose-headings:text-white prose-headings:scroll-mt-24
                         prose-h1:text-3xl prose-h1:font-bold prose-h1:mb-6
@@ -83,16 +136,35 @@
                         prose-table:border prose-table:border-gray-200 dark:prose-table:border-gray-800
                         prose-th:bg-gray-100 dark:prose-th:bg-gray-900 prose-th:p-2 prose-th:text-left
                         prose-td:p-2 prose-td:border-t prose-td:border-gray-200 dark:prose-td:border-gray-800
-                        prose-blockquote:border-l-4 prose-blockquote:border-gray-300 dark:prose-blockquote:border-gray-700 prose-blockquote:bg-gray-50 dark:prose-blockquote:bg-gray-900 prose-blockquote:pl-4 prose-blockquote:py-1 prose-blockquote:text-gray-800 dark:prose-blockquote:text-gray-200">
+                        prose-blockquote:border-l-4 prose-blockquote:border-primary-200 dark:prose-blockquote:border-primary-900 prose-blockquote:bg-primary-50/30 dark:prose-blockquote:bg-primary-900/10 prose-blockquote:pl-4 prose-blockquote:py-1 prose-blockquote:text-gray-800 dark:prose-blockquote:text-gray-200">
                         {!! $documentContent !!}
+                    </div>
+                    
+                    <!-- Pagination Navigation -->
+                    <div class="mt-12 pt-6 border-t border-gray-200 dark:border-gray-800 grid grid-cols-2 gap-4">
+                        <a href="#" class="flex items-center justify-start space-x-2 text-sm text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary-400 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                            </svg>
+                            <span>Previous: Getting Started</span>
+                        </a>
+                        <a href="#" class="flex items-center justify-end space-x-2 text-sm text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary-400 transition-colors">
+                            <span>Next: API Reference</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </a>
                     </div>
                 </div>
                 
-                <!-- Right Sidebar: TOC Container -->
-                <div id="toc-container" class="col-span-12 sm:col-span-3 hidden sm:block">
+                <!-- Right Sidebar: TOC Container with Animation -->
+                <div id="toc-container" class="col-span-12 sm:col-span-3 hidden sm:block animate-fade-in" style="animation-delay: 200ms;">
                     <div class="sticky top-24 border-l border-gray-200 dark:border-gray-800 pl-6">
-                        <h2 class="text-sm font-semibold text-black dark:text-white mb-4">
-                            On this page
+                        <h2 class="text-sm font-semibold text-black dark:text-white mb-4 flex items-center space-x-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-primary dark:text-primary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 12h16M4 18h7" />
+                            </svg>
+                            <span>On this page</span>
                         </h2>
                         <div id="toc" class="text-sm max-h-[calc(100vh-10rem)] overflow-y-auto pr-2 custom-scrollbar">
                             <!-- Table of contents will be generated by JavaScript -->
@@ -104,6 +176,17 @@
     </div>
 
     <style>
+        /* Animation Keyframes */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Utility Animation Classes */
+        .animate-fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+        
         /* Tailwind-style custom scrollbar */
         .custom-scrollbar::-webkit-scrollbar {
             width: 3px;
@@ -130,7 +213,7 @@
             scrollbar-width: none;  /* Firefox */
         }
         
-        /* Clean code blocks */
+        /* Improved code blocks with syntax highlighting theme */
         #documentation-content pre {
             background-color: #f8fafc;
             border-color: #e2e8f0;
@@ -140,11 +223,45 @@
             background-color: #0f172a;
             border-color: #1e293b;
         }
+        
+        /* Code block language tag */
+        #documentation-content pre:before {
+            content: attr(data-language);
+            display: block;
+            font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            font-size: 0.75rem;
+            color: #64748b;
+            padding: 0.5rem 1rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .dark #documentation-content pre:before {
+            color: #94a3b8;
+            border-bottom: 1px solid #1e293b;
+        }
 
         /* Tailwind-style link focus */
         #documentation-content a:focus {
             outline: 2px solid #3b82f6;
             outline-offset: 2px;
+        }
+        
+        /* Improved accessibility for keyboard users */
+        a:focus-visible, button:focus-visible {
+            outline: 2px solid #3b82f6 !important;
+            outline-offset: 2px !important;
+        }
+        
+        /* Active TOC item highlight */
+        .toc-active {
+            color: #7c3aed !important; /* primary-600 */
+            font-weight: 500;
+            border-left-color: #7c3aed !important;
+        }
+        
+        .dark .toc-active {
+            color: #a78bfa !important; /* primary-400 */
+            border-left-color: #a78bfa !important;
         }
         
         /* Responsive adjustments */
@@ -155,6 +272,25 @@
                 border-top: 1px solid #e5e7eb;
                 border-left: none;
                 padding-left: 0;
+            }
+            
+            #doc-types-container.show {
+                transform: scaleY(1);
+                opacity: 1;
+            }
+        }
+        
+        /* Reduced motion preferences */
+        @media (prefers-reduced-motion: reduce) {
+            .animate-fade-in {
+                animation: none !important;
+                opacity: 1 !important;
+                transform: translateY(0) !important;
+            }
+            
+            * {
+                transition-duration: 0.05s !important;
+                animation-duration: 0.05s !important;
             }
         }
     </style>
@@ -171,9 +307,25 @@
             const docTypesToggle = document.getElementById('doc-types-toggle');
             const docTypesToggleIcon = document.getElementById('doc-types-toggle-icon');
             const docTypesContainer = document.getElementById('doc-types-container');
+            
+            // Add language indicators to code blocks
+            document.querySelectorAll('pre code').forEach(block => {
+                const classNames = block.className.split(' ');
+                let language = 'code';
+                
+                for (const className of classNames) {
+                    if (className.startsWith('language-')) {
+                        language = className.replace('language-', '');
+                        break;
+                    }
+                }
+                
+                // Set data attribute on parent pre element
+                block.parentElement.setAttribute('data-language', language);
+            });
 
-            // Mobile TOC toggle functionality
-            if (tocToggle) {
+            // Enhanced Mobile TOC toggle functionality
+            if (tocToggle && tocContainer) {
                 tocToggle.addEventListener('click', function() {
                     tocContainer.classList.toggle('hidden');
                     if (tocContainer.classList.contains('hidden')) {
@@ -184,28 +336,50 @@
                 });
             }
             
-            // Mobile Doc Types toggle functionality
-            if (docTypesToggle) {
+            // Enhanced Mobile Doc Types toggle functionality
+            if (docTypesToggle && docTypesContainer) {
                 docTypesToggle.addEventListener('click', function() {
+                    const isHidden = docTypesContainer.classList.contains('hidden');
+                    
+                    // Toggle visibility
                     docTypesContainer.classList.toggle('hidden');
-                    if (docTypesContainer.classList.contains('hidden')) {
-                        docTypesToggleIcon.style.transform = 'rotate(0deg)';
-                    } else {
+                    
+                    if (isHidden) {
+                        // First make it visible, then animate it in
+                        docTypesContainer.classList.add('show');
                         docTypesToggleIcon.style.transform = 'rotate(180deg)';
+                        setTimeout(() => {
+                            docTypesContainer.style.transform = 'scaleY(1)';
+                            docTypesContainer.style.opacity = '1';
+                        }, 10);
+                    } else {
+                        // First animate it out, then hide it
+                        docTypesContainer.style.transform = 'scaleY(0.95)';
+                        docTypesContainer.style.opacity = '0';
+                        docTypesToggleIcon.style.transform = 'rotate(0deg)';
+                        docTypesContainer.classList.remove('show');
+                        
+                        setTimeout(() => {
+                            docTypesContainer.classList.add('hidden');
+                        }, 200);
                     }
                 });
             }
 
-            // Handle window resize for visibility
+            // Enhanced window resize handler
             window.addEventListener('resize', function() {
                 if (window.innerWidth >= 640) {
+                    // Ensure desktop elements are properly displayed
                     tocContainer.classList.remove('hidden');
                     if (docTypesContainer) {
                         docTypesContainer.classList.add('hidden');
+                        docTypesContainer.style.transform = '';
+                        docTypesContainer.style.opacity = '';
                     }
                 } else {
+                    // Reset mobile menu states
                     tocContainer.classList.add('hidden');
-                    if (tocToggle) {
+                    if (tocToggleIcon) {
                         tocToggleIcon.style.transform = 'rotate(0deg)';
                     }
                 }
@@ -214,7 +388,7 @@
             // Clear any existing TOC content
             toc.innerHTML = '';
 
-            // Generate table of contents with Tailwind-style
+            // Generate enhanced table of contents with active state tracking
             headings.forEach((heading, index) => {
                 // Create a unique ID for each heading if it doesn't have one
                 if (!heading.id) {
@@ -227,6 +401,7 @@
                 // Create TOC entry
                 const tocEntry = document.createElement('a');
                 tocEntry.href = '#' + heading.id;
+                tocEntry.dataset.target = heading.id;
                 tocEntry.textContent = heading.textContent;
                 
                 // Base classes for all TOC entries
@@ -236,129 +411,115 @@
                     'hover:text-primary-600',
                     'dark:hover:text-primary-400',
                     'transition-colors',
-                    'truncate'
+                    'truncate',
+                    'border-l',
+                    'pl-3',
+                    'py-1'
                 );
 
                 // Add styling based on heading level
                 if (level === 0) {
-                    tocEntry.classList.add('text-black', 'dark:text-white', 'font-medium');
-                    tocEntry.style.paddingLeft = '0';
+                    tocEntry.classList.add('text-gray-900', 'dark:text-gray-100', 'font-medium', 'border-gray-200', 'dark:border-gray-800');
                 } else if (level === 1) {
-                    tocEntry.classList.add('text-gray-900', 'dark:text-gray-100');
-                    tocEntry.style.paddingLeft = '0.75rem';
+                    tocEntry.classList.add('text-gray-700', 'dark:text-gray-300', 'pl-5', 'border-gray-200', 'dark:border-gray-800');
                 } else {
-                    tocEntry.classList.add('text-gray-600', 'dark:text-gray-400');
-                    tocEntry.style.paddingLeft = '1.5rem';
+                    tocEntry.classList.add('text-gray-600', 'dark:text-gray-400', 'pl-7', 'border-gray-200', 'dark:border-gray-800');
                 }
 
-                // Smooth scrolling
-                tocEntry.addEventListener('click', function (e) {
+                // Clicking on TOC entry scrolls smoothly to the heading
+                tocEntry.addEventListener('click', function(e) {
                     e.preventDefault();
-                    const headerOffset = 80;
-                    const elementPosition = document.querySelector(this.getAttribute('href')).getBoundingClientRect().top;
-                    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-
-                    window.scrollTo({
-                        top: offsetPosition,
-                        behavior: 'smooth'
-                    });
-
-                    // Hide TOC on mobile after clicking
-                    if (window.innerWidth < 640) {
-                        tocContainer.classList.add('hidden');
-                        tocToggleIcon.style.transform = 'rotate(0deg)';
-                        tocToggle.setAttribute('data-open', 'false');
+                    const targetId = this.getAttribute('href').substring(1);
+                    const targetElement = document.getElementById(targetId);
+                    
+                    if (targetElement) {
+                        // Smooth scroll to target with offset for fixed header
+                        window.scrollTo({
+                            top: targetElement.offsetTop - 90,
+                            behavior: 'smooth'
+                        });
+                        
+                        // Update URL hash without scrolling
+                        history.pushState(null, null, '#' + targetId);
+                        
+                        // Highlight target heading temporarily
+                        targetElement.classList.add('bg-primary-50', 'dark:bg-primary-900/20');
+                        setTimeout(() => {
+                            targetElement.classList.remove('bg-primary-50', 'dark:bg-primary-900/20');
+                        }, 1500);
                     }
                 });
 
                 toc.appendChild(tocEntry);
             });
-
-            // Active section highlighting
-            function highlightActiveTocItem() {
-                // Get all section headers
-                const headingElements = Array.from(headings);
-                if (headingElements.length === 0) return;
-
-                // Determine which section is in view
-                let activeHeading = headingElements[0];
-                const headerOffset = 100;
-
-                headingElements.forEach((heading) => {
-                    const rect = heading.getBoundingClientRect();
-                    if (rect.top <= headerOffset + 50) {
-                        activeHeading = heading;
+            
+            // Highlight active TOC item on scroll
+            const observerOptions = {
+                root: null,
+                rootMargin: '-100px 0px -66%',
+                threshold: 0
+            };
+            
+            const headingObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    const id = entry.target.getAttribute('id');
+                    const tocItem = document.querySelector(`#toc a[data-target="${id}"]`);
+                    
+                    if (tocItem) {
+                        if (entry.isIntersecting) {
+                            // Remove active class from all TOC items
+                            document.querySelectorAll('#toc a').forEach(item => {
+                                item.classList.remove('toc-active');
+                            });
+                            
+                            // Add active class to current TOC item
+                            tocItem.classList.add('toc-active');
+                        }
                     }
                 });
-
-                // Remove active class from all TOC items
-                const tocItems = toc.querySelectorAll('a');
-                tocItems.forEach(item => {
-                    item.classList.remove('text-primary-600', 'dark:text-primary-400', 'font-medium');
-                });
-
-                // Add active class to current TOC item
-                const currentTocItem = toc.querySelector(`a[href="#${activeHeading.id}"]`);
-                if (currentTocItem) {
-                    currentTocItem.classList.add('text-primary-600', 'dark:text-primary-400', 'font-medium');
-                }
-            }
-
-            // Highlight active section on scroll
-            let isScrolling = false;
-            window.addEventListener('scroll', function() {
-                if (!isScrolling) {
-                    window.requestAnimationFrame(function() {
-                        highlightActiveTocItem();
-                        isScrolling = false;
-                    });
-                    isScrolling = true;
-                }
+            }, observerOptions);
+            
+            // Observe all headings
+            headings.forEach(heading => {
+                headingObserver.observe(heading);
             });
             
-            // Initialize active section
-            highlightActiveTocItem();
-            
-            // Add copy button to code blocks
-            document.querySelectorAll('pre').forEach(block => {
-                // Create wrapper for positioning
-                const wrapper = document.createElement('div');
-                wrapper.className = 'relative group';
-                block.parentNode.insertBefore(wrapper, block);
-                wrapper.appendChild(block);
+            // Show appropriate section if hash in URL
+            if (window.location.hash) {
+                const targetId = window.location.hash.substring(1);
+                const targetHeading = document.getElementById(targetId);
+                const tocItem = document.querySelector(`#toc a[data-target="${targetId}"]`);
                 
-                // Create copy button
-                const button = document.createElement('button');
-                button.className = 'absolute top-3 right-3 bg-white dark:bg-gray-800 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white p-1.5 rounded-md border border-gray-200 dark:border-gray-700 opacity-0 group-hover:opacity-100 transition-opacity';
-                button.innerHTML = `
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                        <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
-                        <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z" />
-                    </svg>
-                `;
-                
-                button.addEventListener('click', () => {
-                    const code = block.querySelector('code').textContent;
-                    navigator.clipboard.writeText(code);
+                if (targetHeading && tocItem) {
+                    // Highlight TOC item
+                    tocItem.classList.add('toc-active');
                     
-                    // Show copied indicator
-                    button.innerHTML = `
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-500" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                        </svg>
-                    `;
-                    
+                    // Scroll to heading after a short delay to ensure page is loaded
                     setTimeout(() => {
-                        button.innerHTML = `
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                                <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
-                                <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z" />
-                            </svg>
-                        `;
-                    }, 1000);
+                        window.scrollTo({
+                            top: targetHeading.offsetTop - 90,
+                            behavior: 'auto'
+                        });
+                    }, 300);
+                }
+            } else {
+                // If no hash, highlight first TOC item
+                const firstTocItem = document.querySelector('#toc a');
+                if (firstTocItem) {
+                    firstTocItem.classList.add('toc-active');
+                }
+            }
+            
+            // Add click handlers to feedback buttons
+            document.querySelectorAll('.feedback-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // Here you would typically send feedback data to your server
+                    alert('Thank you for your feedback! This helps us improve our documentation.');
+                    
+                    // Visual feedback
+                    const parent = this.parentElement;
+                    parent.innerHTML = '<span class="text-green-600 dark:text-green-400">Thanks for your feedback!</span>';
                 });
-                
-                wrapper.appendChild(button);
             });
         });
     </script>
