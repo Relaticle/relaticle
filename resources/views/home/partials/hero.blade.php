@@ -21,14 +21,6 @@
                             <img src="https://filamentphp.com/favicon/safari-pinned-tab.svg" alt="Filament" class="h-3.5 w-3.5">
                             <span class="font-medium text-gray-700 dark:text-gray-300">Filament</span>
                         </div>
-                        <span class="text-gray-300 dark:text-gray-600">·</span>
-                        <div class="flex items-center gap-1">
-                            <span class="relative flex h-2 w-2">
-                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary/75"></span>
-                                <span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
-                            </span>
-                            <span class="font-medium text-primary dark:text-primary-400">Open Source</span>
-                        </div>
                     </div>
                 </div>
             </div>
