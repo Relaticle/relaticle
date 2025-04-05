@@ -116,7 +116,7 @@
                     </div>
 
                     <a href="{{ route('register') }}"
-                       class="flex-shrink-0 inline-flex items-center gap-2 bg-white dark:bg-gray-900 text-primary dark:text-primary-400 px-8 py-4 rounded-full text-lg font-medium shadow-lg shadow-black/10 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300">
+                       class="flex-shrink-0 inline-flex items-center gap-2 bg-white dark:bg-gray-900 text-primary dark:text-white px-8 py-4 rounded-full text-lg font-medium shadow-lg shadow-black/10 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300">
                         Get Started Free
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
                              stroke="currentColor">
