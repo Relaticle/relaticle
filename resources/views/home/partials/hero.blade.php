@@ -43,7 +43,7 @@
                 <div class="flex justify-center">
                     <!-- Tech Stack Badge - New addition -->
                     <div
-                        class="hidden md:flex px-3 py-1.5 bg-gray-100 dark:bg-gray-800 rounded-full items-center gap-2 border border-gray-200 dark:border-gray-700">
+                        class="flex px-3 py-1.5 bg-gray-100 dark:bg-gray-800 rounded-full items-center gap-2 border border-gray-200 dark:border-gray-700">
                         <span class="text-xs text-gray-500 dark:text-gray-400">Built with</span>
                         <img src="https://laravel.com/img/logomark.min.svg" alt="Laravel" class="h-5 w-5">
                         <span class="text-xs font-medium text-gray-700 dark:text-gray-300">Laravel</span>
@@ -245,11 +245,11 @@
 
     <!-- Decorative wave shape divider -->
     <div class="absolute bottom-0 left-0 right-0 overflow-hidden leading-0 transform">
-        <svg class="relative block h-16 sm:h-24" viewBox="0 0 1200 120" preserveAspectRatio="none"
+        <svg class="relative block w-full h-16 sm:h-24" viewBox="0 0 1200 120" preserveAspectRatio="none"
              xmlns="http://www.w3.org/2000/svg">
             <path
                 d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V120H0V0C0,0,0,74,321.39,56.44Z"
-                fill="#fff" fill-opacity="0.3" class="dark:fill-gray-900 dark:fill-opacity-0.3"></path>
+                fill="#fff" fill-opacity="0.9" class="dark:fill-gray-900"></path>
         </svg>
     </div>
 </section>

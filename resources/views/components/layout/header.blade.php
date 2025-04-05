@@ -1,5 +1,5 @@
 <!-- Enhanced Header with Modern Design and Improved UX -->
-<header class="bg-white dark:bg-gray-900 py-4 shadow-sm fixed w-full top-0 z-50 transition-all duration-300 backdrop-blur-sm bg-white/90 dark:bg-gray-900/90">
+<header class="bg-white dark:bg-gray-950/95 py-4 shadow-sm fixed w-full top-0 z-50 transition-all duration-300 backdrop-blur-sm">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center">
             <!-- Logo with hover animation -->
@@ -12,7 +12,7 @@
 
             <!-- Desktop Navigation Links - With modern styling -->
             <nav class="hidden md:flex flex-1 justify-center">
-                <div class="flex items-center space-x-1 bg-gray-100 dark:bg-gray-800 rounded-full px-2 py-1 backdrop-blur-sm">
+                <div class="flex items-center space-x-1 bg-gray-100 dark:bg-gray-900/95 rounded-full px-2 py-1 backdrop-blur-sm">
                     <a href="{{ url('/#features') }}"
                        class="text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-white px-4 py-2 rounded-full hover:bg-white dark:hover:bg-gray-700 transition-all duration-200"
                        aria-label="Product features">Features</a>
@@ -101,18 +101,6 @@
     <!-- Mobile Menu with modern design and dark mode support -->
     <div id="mobile-menu"
          class="md:hidden hidden opacity-0 transform -translate-y-4 px-2 pt-2 pb-3 space-y-1 bg-white dark:bg-gray-900 shadow-lg dark:shadow-gray-800/20 rounded-b-2xl transition-all duration-300 ease-in-out">
-        <!-- Tech Badge for Mobile -->
-        <div class="flex items-center justify-center mb-4">
-            <div class="flex px-3 py-1.5 bg-gray-100 dark:bg-gray-800 rounded-full items-center gap-2 text-xs border border-gray-200 dark:border-gray-700">
-                <span class="text-gray-500 dark:text-gray-400">Built with</span>
-                <img src="https://laravel.com/img/logomark.min.svg" alt="Laravel" class="h-4 w-4">
-                <span class="font-medium text-gray-700 dark:text-gray-300">Laravel</span>
-                <span class="text-gray-300 dark:text-gray-600">|</span>
-                <img src="https://filamentphp.com/images/favicon.svg" alt="Filament" class="h-4 w-4">
-                <span class="font-medium text-gray-700 dark:text-gray-300">Filament</span>
-            </div>
-        </div>
-
         <a href="#features"
            class="block text-center text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-primary dark:hover:text-white px-3 py-2 rounded-xl transition-colors duration-200">
             Features
