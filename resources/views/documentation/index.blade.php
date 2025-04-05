@@ -1,5 +1,13 @@
 <x-guest-layout>
+    <!-- Add this script to the very top of the document to apply loading state quickly -->
+    <script>
+        // Set loading state on initial page load
+        document.documentElement.classList.add('is-loading');
+    </script>
     <div class="py-8 md:py-12 bg-white dark:bg-black min-h-[calc(100vh-5rem)]">
+        <!-- Page Transition Overlay -->
+        <div id="page-transition-overlay" class="fixed inset-0 bg-white dark:bg-black z-50 pointer-events-none transition-opacity duration-300"></div>
+        
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <!-- Page Header with Animation -->
             <div class="mb-8 animate-fade-in">
@@ -151,13 +159,30 @@
     <style>
         /* Animation Keyframes */
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+            from { opacity: 0; transform: translateY(5px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
         /* Utility Animation Classes */
         .animate-fade-in {
-            animation: fadeIn 0.4s ease-out forwards;
+            opacity: 0;
+            animation: fadeIn 0.3s ease-out forwards;
+            animation-delay: 0ms;
+        }
+        
+        /* Page Transition Overlay */
+        #page-transition-overlay {
+            opacity: 0;
+        }
+        
+        html.is-loading #page-transition-overlay {
+            opacity: 1;
+        }
+        
+        /* Immediate render for critical content to prevent layout shift */
+        .critical-content {
+            animation: none !important;
+            opacity: 1 !important;
         }
 
         /* Tailwind-style custom scrollbar */
@@ -269,6 +294,29 @@
     </style>
 
     <script>
+        // Page Transition Handling
+        document.addEventListener('DOMContentLoaded', function() {
+            // Remove loading state after content is fully loaded
+            document.documentElement.classList.remove('is-loading');
+            
+            // Fade out the overlay
+            const overlay = document.getElementById('page-transition-overlay');
+            overlay.style.opacity = '0';
+            
+            // Make animations start after overlay fades
+            setTimeout(() => {
+                document.querySelectorAll('.animate-fade-in').forEach((el) => {
+                    el.style.opacity = '0';
+                    el.style.animation = 'fadeIn 0.3s ease-out forwards';
+                });
+            }, 50);
+        });
+        
+        // Apply loading state immediately on navigation
+        window.addEventListener('beforeunload', function() {
+            document.documentElement.classList.add('is-loading');
+        });
+        
         document.addEventListener('DOMContentLoaded', function () {
             // Find all headings in the documentation content
             const content = document.getElementById('documentation-content');
