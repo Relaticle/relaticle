@@ -21,23 +21,16 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                     </svg>
                 </button>
-                
+
                 <!-- Mobile Doc Types Container - Enhanced Styling -->
                 <div id="doc-types-container" class="hidden bg-white dark:bg-gray-900 rounded-lg shadow-md border border-gray-200 dark:border-gray-800 overflow-hidden transform origin-top transition-all duration-200 scale-y-95 opacity-0">
                     <div class="p-3 flex flex-col space-y-1.5">
                         @foreach($documentTypes as $typeKey => $typeValue)
                             <a href="{{ route('documentation.show', $typeKey) }}"
-                               class="px-4 py-2.5 text-sm rounded-md flex items-center gap-2 transition-colors 
+                               class="px-4 py-2.5 text-sm rounded-md flex items-center gap-2 transition-colors
                                       {{ $currentType === $typeKey
                                         ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 font-medium'
                                         : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800/70' }}">
-                                @if(isset($typeValue['icon']))
-                                    <i class="{{ $typeValue['icon'] }} opacity-80"></i>
-                                @else
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 {{ $currentType === $typeKey ? 'text-primary dark:text-primary-400' : 'text-gray-500 dark:text-gray-500' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                    </svg>
-                                @endif
                                 <span>{{ $typeValue['title'] }}</span>
                                 @if($currentType === $typeKey)
                                     <span class="ml-auto text-xs bg-primary-100 dark:bg-primary-900/40 text-primary-600 dark:text-primary-400 px-2 py-0.5 rounded-full">Active</span>
@@ -46,9 +39,9 @@
                         @endforeach
                     </div>
                 </div>
-                
+
                 <!-- Mobile TOC Toggle Button - Enhanced Design -->
-                <button id="toc-toggle" class="w-full flex justify-between items-center px-4 py-3.5 text-left text-sm font-medium text-black dark:text-white bg-gray-100 dark:bg-gray-900 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500/40">
+                <button id="toc-toggle" class="w-full flex justify-between items-center px-4 py-3.5 text-left text-sm font-medium text-black dark:text-white bg-gray-00 dark:bg-gray-900 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500/40">
                     <div class="flex items-center space-x-2">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary dark:text-primary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 12h16M4 18h7" />
@@ -75,38 +68,18 @@
                         <div class="flex flex-col space-y-1.5 border-l border-gray-200 dark:border-gray-800">
                             @foreach($documentTypes as $typeKey => $typeValue)
                                 <a href="{{ route('documentation.show', $typeKey) }}"
-                                   class="pl-4 py-2 text-sm rounded-r-md flex items-center gap-2 transition-all 
+                                   class="pl-4 py-2 text-sm rounded-r-md flex items-center gap-2 transition-all
                                           {{ $currentType === $typeKey
                                             ? 'border-l-2 border-l-primary-500 -ml-[1px] pl-[17px] dark:border-l-primary-400 bg-primary-50/50 dark:bg-primary-900/10 text-primary-600 dark:text-primary-400 font-medium'
                                             : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800/50 hover:border-l hover:border-l-gray-300 dark:hover:border-l-gray-700 hover:-ml-[1px] hover:pl-[17px]' }}">
-                                    @if(isset($typeValue['icon']))
-                                        <i class="{{ $typeValue['icon'] }} opacity-80"></i>
-                                    @else
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 {{ $currentType === $typeKey ? 'text-primary-500 dark:text-primary-400' : 'text-gray-500 dark:text-gray-500' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                        </svg>
-                                    @endif
+
                                     <span>{{ $typeValue['title'] }}</span>
                                 </a>
                             @endforeach
                         </div>
-                        
-                        <!-- Feedback Section -->
-                        <div class="mt-8 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800">
-                            <h3 class="text-sm font-medium text-gray-900 dark:text-white mb-2">Documentation Feedback</h3>
-                            <p class="text-xs text-gray-600 dark:text-gray-400 mb-3">Was this page helpful? Help us improve our docs.</p>
-                            <div class="flex space-x-2">
-                                <button class="flex-1 px-3 py-1.5 text-xs bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/30">
-                                    <span>👍 Yes</span>
-                                </button>
-                                <button class="flex-1 px-3 py-1.5 text-xs bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/30">
-                                    <span>👎 No</span>
-                                </button>
-                            </div>
-                        </div>
                     </div>
                 </div>
-                
+
                 <!-- Main Content (Middle) - Enhanced with Animation -->
                 <div class="col-span-12 sm:col-span-9 md:col-span-6 lg:col-span-7 animate-fade-in" style="animation-delay: 150ms;">
                     <!-- Content header with breadcrumbs -->
@@ -117,7 +90,7 @@
                         </svg>
                         <span class="font-medium text-gray-800 dark:text-gray-200">{{ $documentTitle ?? 'Documentation' }}</span>
                     </div>
-                
+
                     <!-- Main documentation content with improved typography -->
                     <div id="documentation-content" class="prose prose-sm sm:prose max-w-none dark:prose-invert
                         prose-headings:font-medium prose-headings:text-black dark:prose-headings:text-white prose-headings:scroll-mt-24
@@ -139,7 +112,7 @@
                         prose-blockquote:border-l-4 prose-blockquote:border-primary-200 dark:prose-blockquote:border-primary-900 prose-blockquote:bg-primary-50/30 dark:prose-blockquote:bg-primary-900/10 prose-blockquote:pl-4 prose-blockquote:py-1 prose-blockquote:text-gray-800 dark:prose-blockquote:text-gray-200">
                         {!! $documentContent !!}
                     </div>
-                    
+
                     <!-- Pagination Navigation -->
                     <div class="mt-12 pt-6 border-t border-gray-200 dark:border-gray-800 grid grid-cols-2 gap-4">
                         <a href="#" class="flex items-center justify-start space-x-2 text-sm text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary-400 transition-colors">
@@ -156,10 +129,10 @@
                         </a>
                     </div>
                 </div>
-                
+
                 <!-- Right Sidebar: TOC Container with Animation -->
                 <div id="toc-container" class="col-span-12 sm:col-span-3 hidden sm:block animate-fade-in" style="animation-delay: 200ms;">
-                    <div class="sticky top-24 border-l border-gray-200 dark:border-gray-800 pl-6">
+                    <div class="sticky top-24 border-gray-200 dark:border-gray-800 pl-6">
                         <h2 class="text-sm font-semibold text-black dark:text-white mb-4 flex items-center space-x-2">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-primary dark:text-primary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 12h16M4 18h7" />
@@ -181,12 +154,12 @@
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        
+
         /* Utility Animation Classes */
         .animate-fade-in {
             animation: fadeIn 0.4s ease-out forwards;
         }
-        
+
         /* Tailwind-style custom scrollbar */
         .custom-scrollbar::-webkit-scrollbar {
             width: 3px;
@@ -201,29 +174,29 @@
         .dark .custom-scrollbar::-webkit-scrollbar-thumb {
             background: #4b5563;
         }
-        
+
         /* Hide scrollbar for Chrome, Safari and Opera */
         .scrollbar-hide::-webkit-scrollbar {
             display: none;
         }
-        
+
         /* Hide scrollbar for IE, Edge and Firefox */
         .scrollbar-hide {
             -ms-overflow-style: none;  /* IE and Edge */
             scrollbar-width: none;  /* Firefox */
         }
-        
+
         /* Improved code blocks with syntax highlighting theme */
         #documentation-content pre {
             background-color: #f8fafc;
             border-color: #e2e8f0;
         }
-        
+
         .dark #documentation-content pre {
             background-color: #0f172a;
             border-color: #1e293b;
         }
-        
+
         /* Code block language tag */
         #documentation-content pre:before {
             content: attr(data-language);
@@ -234,7 +207,7 @@
             padding: 0.5rem 1rem;
             border-bottom: 1px solid #e2e8f0;
         }
-        
+
         .dark #documentation-content pre:before {
             color: #94a3b8;
             border-bottom: 1px solid #1e293b;
@@ -245,25 +218,25 @@
             outline: 2px solid #3b82f6;
             outline-offset: 2px;
         }
-        
+
         /* Improved accessibility for keyboard users */
         a:focus-visible, button:focus-visible {
             outline: 2px solid #3b82f6 !important;
             outline-offset: 2px !important;
         }
-        
+
         /* Active TOC item highlight */
         .toc-active {
             color: #7c3aed !important; /* primary-600 */
             font-weight: 500;
             border-left-color: #7c3aed !important;
         }
-        
+
         .dark .toc-active {
             color: #a78bfa !important; /* primary-400 */
             border-left-color: #a78bfa !important;
         }
-        
+
         /* Responsive adjustments */
         @media (max-width: 640px) {
             #toc-container.sm\:block:not(.hidden) {
@@ -273,13 +246,13 @@
                 border-left: none;
                 padding-left: 0;
             }
-            
+
             #doc-types-container.show {
                 transform: scaleY(1);
                 opacity: 1;
             }
         }
-        
+
         /* Reduced motion preferences */
         @media (prefers-reduced-motion: reduce) {
             .animate-fade-in {
@@ -287,7 +260,7 @@
                 opacity: 1 !important;
                 transform: translateY(0) !important;
             }
-            
+
             * {
                 transition-duration: 0.05s !important;
                 animation-duration: 0.05s !important;
@@ -307,19 +280,19 @@
             const docTypesToggle = document.getElementById('doc-types-toggle');
             const docTypesToggleIcon = document.getElementById('doc-types-toggle-icon');
             const docTypesContainer = document.getElementById('doc-types-container');
-            
+
             // Add language indicators to code blocks
             document.querySelectorAll('pre code').forEach(block => {
                 const classNames = block.className.split(' ');
                 let language = 'code';
-                
+
                 for (const className of classNames) {
                     if (className.startsWith('language-')) {
                         language = className.replace('language-', '');
                         break;
                     }
                 }
-                
+
                 // Set data attribute on parent pre element
                 block.parentElement.setAttribute('data-language', language);
             });
@@ -335,15 +308,15 @@
                     }
                 });
             }
-            
+
             // Enhanced Mobile Doc Types toggle functionality
             if (docTypesToggle && docTypesContainer) {
                 docTypesToggle.addEventListener('click', function() {
                     const isHidden = docTypesContainer.classList.contains('hidden');
-                    
+
                     // Toggle visibility
                     docTypesContainer.classList.toggle('hidden');
-                    
+
                     if (isHidden) {
                         // First make it visible, then animate it in
                         docTypesContainer.classList.add('show');
@@ -358,7 +331,7 @@
                         docTypesContainer.style.opacity = '0';
                         docTypesToggleIcon.style.transform = 'rotate(0deg)';
                         docTypesContainer.classList.remove('show');
-                        
+
                         setTimeout(() => {
                             docTypesContainer.classList.add('hidden');
                         }, 200);
@@ -403,7 +376,7 @@
                 tocEntry.href = '#' + heading.id;
                 tocEntry.dataset.target = heading.id;
                 tocEntry.textContent = heading.textContent;
-                
+
                 // Base classes for all TOC entries
                 tocEntry.classList.add(
                     'block',
@@ -431,17 +404,17 @@
                     e.preventDefault();
                     const targetId = this.getAttribute('href').substring(1);
                     const targetElement = document.getElementById(targetId);
-                    
+
                     if (targetElement) {
                         // Smooth scroll to target with offset for fixed header
                         window.scrollTo({
                             top: targetElement.offsetTop - 90,
                             behavior: 'smooth'
                         });
-                        
+
                         // Update URL hash without scrolling
                         history.pushState(null, null, '#' + targetId);
-                        
+
                         // Highlight target heading temporarily
                         targetElement.classList.add('bg-primary-50', 'dark:bg-primary-900/20');
                         setTimeout(() => {
@@ -452,48 +425,48 @@
 
                 toc.appendChild(tocEntry);
             });
-            
+
             // Highlight active TOC item on scroll
             const observerOptions = {
                 root: null,
                 rootMargin: '-100px 0px -66%',
                 threshold: 0
             };
-            
+
             const headingObserver = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     const id = entry.target.getAttribute('id');
                     const tocItem = document.querySelector(`#toc a[data-target="${id}"]`);
-                    
+
                     if (tocItem) {
                         if (entry.isIntersecting) {
                             // Remove active class from all TOC items
                             document.querySelectorAll('#toc a').forEach(item => {
                                 item.classList.remove('toc-active');
                             });
-                            
+
                             // Add active class to current TOC item
                             tocItem.classList.add('toc-active');
                         }
                     }
                 });
             }, observerOptions);
-            
+
             // Observe all headings
             headings.forEach(heading => {
                 headingObserver.observe(heading);
             });
-            
+
             // Show appropriate section if hash in URL
             if (window.location.hash) {
                 const targetId = window.location.hash.substring(1);
                 const targetHeading = document.getElementById(targetId);
                 const tocItem = document.querySelector(`#toc a[data-target="${targetId}"]`);
-                
+
                 if (targetHeading && tocItem) {
                     // Highlight TOC item
                     tocItem.classList.add('toc-active');
-                    
+
                     // Scroll to heading after a short delay to ensure page is loaded
                     setTimeout(() => {
                         window.scrollTo({
@@ -509,13 +482,13 @@
                     firstTocItem.classList.add('toc-active');
                 }
             }
-            
+
             // Add click handlers to feedback buttons
             document.querySelectorAll('.feedback-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
                     // Here you would typically send feedback data to your server
                     alert('Thank you for your feedback! This helps us improve our documentation.');
-                    
+
                     // Visual feedback
                     const parent = this.parentElement;
                     parent.innerHTML = '<span class="text-green-600 dark:text-green-400">Thanks for your feedback!</span>';
