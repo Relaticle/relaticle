@@ -13,12 +13,12 @@
                     <span class="text-gray-500 dark:text-gray-400 mr-2">Built with</span>
                     <div class="flex items-center gap-3">
                         <div class="flex items-center gap-1">
-                            <img src="https://laravel.com/img/logomark.min.svg" alt="Laravel" class="h-3.5 w-3.5">
+                            @include('components.logos.laravel', ['class' => 'h-3.5 w-3.5'])
                             <span class="font-medium text-gray-700 dark:text-gray-300">Laravel</span>
                         </div>
                         <span class="text-gray-300 dark:text-gray-600">·</span>
                         <div class="flex items-center gap-1">
-                            <img src="https://filamentphp.com/favicon/safari-pinned-tab.svg" alt="Filament" class="h-3.5 w-3.5">
+                            @include('components.logos.filament', ['class' => 'h-3.5 w-3.5 dark:fill-white'])
                             <span class="font-medium text-gray-700 dark:text-gray-300">Filament</span>
                         </div>
                     </div>
@@ -30,7 +30,7 @@
                 <h1 class="text-4xl sm:text-5xl md:text-6xl font-bold text-black dark:text-white leading-[1.1] tracking-tight">
                     The Next-Generation<br class="hidden sm:block"/> <span class="relative inline-block">
                         <span class="relative z-10">Open-Source CRM</span>
-                        <span class="absolute bottom-2 left-0 w-full h-3 bg-primary/10 dark:bg-primary/20 -rotate-1 z-0"></span>
+                        <span class="absolute bottom-2 sm:left-0 right-1/4 w-1/2 sm:w-full h-3 bg-primary/10 dark:bg-primary/20 sm:dark:bg-primary/30 -rotate-1 z-0"></span>
                     </span>
                 </h1>
 
@@ -79,12 +79,13 @@
 
                     <!-- Browser Content Area -->
                     <div class="relative">
-                        <picture>
-                            <!-- Dark mode image -->
-                            <source media="(prefers-color-scheme: dark)" srcset="{{ asset('images/app-preview-dark.png') }}">
-                            <!-- Default light mode image -->
-                            <img src="{{ asset('images/app-preview.png') }}" alt="Relaticle CRM Dashboard" class="w-full h-auto" width="1200" height="675" loading="lazy">
-                        </picture>
+                        <img id="app-preview-image"
+                             src="{{ asset('images/app-preview.png') }}"
+                             alt="Relaticle CRM Dashboard"
+                             class="w-full h-auto"
+                             width="1200"
+                             height="675"
+                             loading="lazy">
 
                         <!-- Subtle highlight overlay -->
                         <div class="absolute inset-0 bg-gradient-to-tr from-primary/5 via-transparent to-transparent opacity-60 pointer-events-none"></div>
@@ -114,3 +115,35 @@
         </div>
     </div>
 </section>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const appPreviewImage = document.getElementById('app-preview-image');
+        const lightImage = "{{ asset('images/app-preview.png') }}";
+        const darkImage = "{{ asset('images/app-preview-dark.png') }}";
+
+        // Initial setup based on current theme
+        updateImageSource();
+
+        // Create a MutationObserver to detect changes to the html element's class list
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.attributeName === 'class') {
+                    updateImageSource();
+                }
+            });
+        });
+
+        // Start observing the html element for class changes
+        observer.observe(document.documentElement, { attributes: true });
+
+        // Function to update the image source based on dark mode
+        function updateImageSource() {
+            if (document.documentElement.classList.contains('dark')) {
+                appPreviewImage.src = darkImage;
+            } else {
+                appPreviewImage.src = lightImage;
+            }
+        }
+    });
+</script>
