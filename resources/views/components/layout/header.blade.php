@@ -1,4 +1,15 @@
 <!-- Minimalist Header -->
+@push('scripts')
+<script>
+    // On page load or when changing themes, best to add inline in `head` to avoid FOUC
+    if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+    } else {
+        document.documentElement.classList.remove('dark');
+    }
+</script>
+@endpush
+
 <header class="bg-white dark:bg-black py-4 fixed w-full top-0 z-50 transition-all duration-300 border-b border-gray-100 dark:border-gray-900 backdrop-blur-sm bg-white/95 dark:bg-black/95">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Three-column layout: Logo | Nav (centered) | Actions -->
@@ -17,13 +28,13 @@
             <div class="hidden md:flex flex-grow items-center justify-center">
                 <nav class="flex items-center space-x-8">
                     <a href="{{ url('/#features') }}"
-                        class="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary-400 text-sm font-medium transition-all duration-200 relative after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:w-0 after:bg-primary dark:after:bg-primary after:transition-all hover:after:w-full"
+                        class="text-gray-600 text-white hover:text-primary dark:hover:text-primary-400 text-sm font-medium transition-all duration-200 relative after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:w-0 after:bg-primary dark:after:bg-primary after:transition-all hover:after:w-full"
                         aria-label="Product features">Features</a>
                     <a href="{{ route('documentation.index') }}"
-                        class="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary-400 text-sm font-medium transition-all duration-200 relative after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:w-0 after:bg-primary dark:after:bg-primary after:transition-all hover:after:w-full"
+                        class="text-gray-600 text-white hover:text-primary dark:hover:text-primary-400 text-sm font-medium transition-all duration-200 relative after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:w-0 after:bg-primary dark:after:bg-primary after:transition-all hover:after:w-full"
                         aria-label="Documentation">Documentation</a>
                     <a href="https://github.com/Relaticle" target="_blank" rel="noopener"
-                        class="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary-400 text-sm font-medium transition-all duration-200 flex items-center gap-1.5 relative after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:w-0 after:bg-primary dark:after:bg-primary after:transition-all hover:after:w-full"
+                        class="text-gray-600 text-white hover:text-primary dark:hover:text-primary-400 text-sm font-medium transition-all duration-200 flex items-center gap-1.5 relative after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:w-0 after:bg-primary dark:after:bg-primary after:transition-all hover:after:w-full"
                         aria-label="GitHub Repository">
                         <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.237 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
@@ -50,7 +61,7 @@
                 <!-- Auth Links -->
                 <div class="hidden lg:flex items-center space-x-6">
                     <a href="{{ route('login') }}"
-                        class="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary-400 text-sm font-medium transition-all duration-200 {{ Route::is('login') ? 'text-primary dark:text-primary-400' : '' }}"
+                        class="text-gray-600 text-white hover:text-primary dark:hover:text-primary-400 text-sm font-medium transition-all duration-200 {{ Route::is('login') ? 'text-primary dark:text-primary-400' : '' }}"
                         aria-label="Sign in to your account">Sign In</a>
 
                     <a href="{{ route('register') }}"
@@ -198,6 +209,34 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        // Dark mode toggle functionality - define at the top level
+        const themeToggleButton = document.getElementById('theme-toggle');
+        const htmlElement = document.documentElement;
+        const mobileThemeToggle = document.querySelector('.mobile-theme-toggle');
+
+        // Function to toggle dark mode
+        function toggleDarkMode() {
+            if (htmlElement.classList.contains('dark')) {
+                htmlElement.classList.remove('dark');
+                localStorage.theme = 'light';
+            } else {
+                htmlElement.classList.add('dark');
+                localStorage.theme = 'dark';
+            }
+        }
+
+        // Initialize theme on page load
+        document.documentElement.classList.toggle(
+            "dark",
+            localStorage.theme === "dark" ||
+            (!("theme" in localStorage) && window.matchMedia("(prefers-color-scheme: dark)").matches)
+        );
+
+        // Add event listeners to theme toggle buttons
+        if (themeToggleButton) {
+            themeToggleButton.addEventListener('click', toggleDarkMode);
+        }
+
         // Mobile menu functionality - enhanced
         const menuButton = document.getElementById('mobile-menu-button');
         const mobileMenu = document.getElementById('mobile-menu');
@@ -205,7 +244,6 @@
         const mobileMenuClose = document.getElementById('mobile-menu-close');
         const bodyElement = document.body;
         const menuItems = document.querySelectorAll('.menu-item');
-        const mobileThemeToggle = document.querySelector('.mobile-theme-toggle');
 
         function openMobileMenu() {
             // Show menu with animation
@@ -296,36 +334,6 @@
 
             lastScrollTop = scrollTop;
         });
-
-        // Dark mode toggle functionality
-        const themeToggleButton = document.getElementById('theme-toggle');
-        const htmlElement = document.documentElement;
-
-        // Function to toggle dark mode
-        function toggleDarkMode() {
-            if (htmlElement.classList.contains('dark')) {
-                htmlElement.classList.remove('dark');
-                localStorage.setItem('theme', 'light');
-            } else {
-                htmlElement.classList.add('dark');
-                localStorage.setItem('theme', 'dark');
-            }
-        }
-
-        // Add event listeners to theme toggle buttons
-        if (themeToggleButton) {
-            themeToggleButton.addEventListener('click', toggleDarkMode);
-        }
-
-        // Initialize theme based on system preference or saved preference
-        const savedTheme = localStorage.getItem('theme');
-        const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-        if (savedTheme === 'dark' || (!savedTheme && prefersDarkMode)) {
-            htmlElement.classList.add('dark');
-        } else {
-            htmlElement.classList.remove('dark');
-        }
 
         // Check for user preference for reduced motion
         const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;

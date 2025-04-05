@@ -7,7 +7,7 @@
     <div class="py-8 md:py-12 bg-white dark:bg-black min-h-[calc(100vh-5rem)]">
         <!-- Page Transition Overlay -->
         <div id="page-transition-overlay" class="fixed inset-0 bg-white dark:bg-black z-50 pointer-events-none transition-opacity duration-300"></div>
-        
+
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <!-- Page Header with Animation -->
             <div class="mb-8 animate-fade-in">
@@ -120,22 +120,6 @@
                         prose-blockquote:border-l-4 prose-blockquote:border-primary-200 dark:prose-blockquote:border-primary-900 prose-blockquote:bg-primary-50/30 dark:prose-blockquote:bg-primary-900/10 prose-blockquote:pl-4 prose-blockquote:py-1 prose-blockquote:text-gray-800 dark:prose-blockquote:text-gray-200">
                         {!! $documentContent !!}
                     </div>
-
-                    <!-- Pagination Navigation -->
-                    <div class="mt-12 pt-6 border-t border-gray-200 dark:border-gray-800 grid grid-cols-2 gap-4">
-                        <a href="#" class="flex items-center justify-start space-x-2 text-sm text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary-400 transition-colors">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                            </svg>
-                            <span>Previous: Getting Started</span>
-                        </a>
-                        <a href="#" class="flex items-center justify-end space-x-2 text-sm text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary-400 transition-colors">
-                            <span>Next: API Reference</span>
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                            </svg>
-                        </a>
-                    </div>
                 </div>
 
                 <!-- Right Sidebar: TOC Container with Animation -->
@@ -169,16 +153,16 @@
             animation: fadeIn 0.3s ease-out forwards;
             animation-delay: 0ms;
         }
-        
+
         /* Page Transition Overlay */
         #page-transition-overlay {
             opacity: 0;
         }
-        
+
         html.is-loading #page-transition-overlay {
             opacity: 1;
         }
-        
+
         /* Immediate render for critical content to prevent layout shift */
         .critical-content {
             animation: none !important;
@@ -298,11 +282,11 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Remove loading state after content is fully loaded
             document.documentElement.classList.remove('is-loading');
-            
+
             // Fade out the overlay
             const overlay = document.getElementById('page-transition-overlay');
             overlay.style.opacity = '0';
-            
+
             // Make animations start after overlay fades
             setTimeout(() => {
                 document.querySelectorAll('.animate-fade-in').forEach((el) => {
@@ -311,12 +295,12 @@
                 });
             }, 50);
         });
-        
+
         // Apply loading state immediately on navigation
         window.addEventListener('beforeunload', function() {
             document.documentElement.classList.add('is-loading');
         });
-        
+
         document.addEventListener('DOMContentLoaded', function () {
             // Find all headings in the documentation content
             const content = document.getElementById('documentation-content');
