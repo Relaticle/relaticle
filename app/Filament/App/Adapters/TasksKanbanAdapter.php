@@ -39,11 +39,11 @@ class TasksKanbanAdapter extends DefaultKanbanAdapter
      */
     public function createRecord(array $attributes, mixed $currentColumn): ?Model
     {
-        $opportunity = Auth::user()->currentTeam->opportunities()->create($attributes);
+        unset($attributes['status']);
+        $task = Auth::user()->currentTeam->tasks()->create($attributes);
+        $task->saveCustomFieldValue($this->statusCustomField(), $currentColumn);
 
-        $opportunity->saveCustomFieldValue($this->statusCustomField(), $currentColumn);
-
-        return $opportunity;
+        return $task;
     }
 
     /**

@@ -34,7 +34,8 @@ final class OpportunitiesBoard extends KanbanBoardPage
             ->descriptionField('description')
             ->orderField('order_column')
             ->columns($this->stages()->pluck('name', 'id')->toArray())
-            ->columnColors();
+            ->columnColors()
+            ->cardLabel('Opportunity');
     }
 
     /**
