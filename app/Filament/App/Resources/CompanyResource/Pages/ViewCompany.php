@@ -8,7 +8,6 @@ use App\Filament\App\Resources\CompanyResource;
 use App\Filament\App\Resources\CompanyResource\RelationManagers;
 use App\Filament\Components\Infolists\AvatarName;
 use Filament\Actions;
-use Filament\Infolists;
 use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\Split;
 use Filament\Infolists\Components\TextEntry;
@@ -19,16 +18,6 @@ use Relaticle\CustomFields\Filament\Infolists\CustomFieldsInfolists;
 final class ViewCompany extends ViewRecord
 {
     protected static string $resource = CompanyResource::class;
-
-    protected function getHeaderActions(): array
-    {
-        return [
-            Actions\ActionGroup::make([
-                Actions\EditAction::make(),
-                Actions\DeleteAction::make(),
-            ]),
-        ];
-    }
 
     public function infolist(Infolist $infolist): Infolist
     {
@@ -82,6 +71,16 @@ final class ViewCompany extends ViewRecord
             RelationManagers\PeopleRelationManager::class,
             RelationManagers\TasksRelationManager::class,
             RelationManagers\NotesRelationManager::class,
+        ];
+    }
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            Actions\ActionGroup::make([
+                Actions\EditAction::make(),
+                Actions\DeleteAction::make(),
+            ]),
         ];
     }
 }

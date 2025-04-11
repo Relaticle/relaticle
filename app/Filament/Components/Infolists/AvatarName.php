@@ -6,13 +6,13 @@ namespace App\Filament\Components\Infolists;
 
 use Filament\Infolists\Components\Entry;
 
-class AvatarName extends Entry
+final class AvatarName extends Entry
 {
     protected string $view = 'filament.components.infolists.avatar-name';
 
-    protected string|null $avatarPath = null;
+    protected ?string $avatarPath = null;
 
-    protected string|null $namePath = null;
+    protected ?string $namePath = null;
 
     protected string $avatarSize = 'md';
 

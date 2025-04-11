@@ -8,7 +8,7 @@ use App\Models\Opportunity;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
-class OpportunityPolicy
+final class OpportunityPolicy
 {
     use HandlesAuthorization;
 

@@ -17,6 +17,13 @@ use Relaticle\CustomFields\Enums\CustomFieldWidth;
 trait CustomFieldTrait
 {
     /**
+     * Get the field type
+     *
+     * @return CustomFieldType The type of form field to use
+     */
+    abstract public function getFieldType(): CustomFieldType;
+
+    /**
      * Get the display name for the field
      *
      * @return string The human-readable name of the field
@@ -25,13 +32,6 @@ trait CustomFieldTrait
     {
         return Str::title($this->name);
     }
-
-    /**
-     * Get the field type
-     *
-     * @return CustomFieldType The type of form field to use
-     */
-    abstract public function getFieldType(): CustomFieldType;
 
     /**
      * Get whether this field is system defined

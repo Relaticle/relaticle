@@ -8,11 +8,8 @@ use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Auth;
 
-class SampleDataSeeder extends Seeder
+final class SampleDataSeeder extends Seeder
 {
-    /**
-     * @var SampleDataManager
-     */
     private SampleDataManager $manager;
 
     /**

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Filament\App\Pages;
 
+use App\Enums\CustomFields\Task as TaskCustomField;
 use App\Filament\App\Adapters\TasksKanbanAdapter;
 use App\Models\Task;
-use App\Enums\CustomFields\Task as TaskCustomField;
 use Illuminate\Support\Collection;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\Flowforge\Contracts\KanbanAdapterInterface;
@@ -24,9 +24,6 @@ final class TasksBoard extends KanbanBoardPage
 
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
 
-    /**
-     * @return void
-     */
     public function mount(): void
     {
         $this->titleField('title')
@@ -37,17 +34,11 @@ final class TasksBoard extends KanbanBoardPage
             ->columnColors();
     }
 
-    /**
-     * @return KanbanAdapterInterface
-     */
     public function getAdapter(): KanbanAdapterInterface
     {
         return new TasksKanbanAdapter(Task::query(), $this->config);
     }
 
-    /**
-     * @return CustomField
-     */
     protected function statusCustomField(): CustomField
     {
         return CustomField::query()
@@ -56,12 +47,9 @@ final class TasksBoard extends KanbanBoardPage
             ->first();
     }
 
-    /**
-     * @return Collection
-     */
     protected function statuses(): Collection
     {
-        return $this->statusCustomField()->options->map(fn($option): array => [
+        return $this->statusCustomField()->options->map(fn ($option): array => [
             'id' => $option->id,
             'custom_field_id' => $option->custom_field_id,
             'name' => $option->name,

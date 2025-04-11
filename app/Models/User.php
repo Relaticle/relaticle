@@ -64,19 +64,6 @@ final class User extends Authenticatable implements FilamentUser, HasAvatar, Has
         'profile_photo_url',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
-    {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
-    }
-
     public function socialAccounts(): HasMany
     {
         return $this->hasMany(UserSocialAccount::class);
@@ -117,5 +104,18 @@ final class User extends Authenticatable implements FilamentUser, HasAvatar, Has
     public function getFilamentAvatarUrl(): ?string
     {
         return app(AvatarService::class)->generate($this->name);
+    }
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+        ];
     }
 }

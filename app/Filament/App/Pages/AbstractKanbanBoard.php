@@ -28,6 +28,47 @@ abstract class AbstractKanbanBoard extends Page implements HasForms
 
     abstract public function updateRecord(Model $record, array $data): Model;
 
+    #[On('status-changed')]
+    public function statusChanged(int $recordId, int $statusId, array $fromOrderedIds, array $toOrderedIds): void
+    {
+        $this->onStatusChanged($recordId, $statusId, $fromOrderedIds, $toOrderedIds);
+    }
+
+    public function onStatusChanged(int $recordId, int $statusId, array $fromOrderedIds, array $toOrderedIds): void
+    {
+        $this->getEloquentQuery()->find($recordId)->saveCustomFieldValue($this->statusCustomField(), $statusId);
+
+        $modelClass = $this->getModelClass();
+        if (method_exists($modelClass, 'setNewOrder')) {
+            $modelClass::setNewOrder($toOrderedIds);
+        }
+    }
+
+    #[On('sort-changed')]
+    public function sortChanged(int $recordId, string $statusId, array $orderedIds): void
+    {
+        $this->onSortChanged($recordId, $statusId, $orderedIds);
+    }
+
+    public function onSortChanged(int $recordId, string $statusId, array $orderedIds): void
+    {
+        $modelClass = $this->getModelClass();
+        if (method_exists($modelClass, 'setNewOrder')) {
+            $modelClass::setNewOrder($orderedIds);
+        }
+    }
+
+    /**
+     * Get component options for passing to Livewire components
+     */
+    public function getBoardComponentOptions(): array
+    {
+        return [
+            'modelClass' => $this->getModelClass(),
+            'statusFieldCode' => $this->getStatusFieldCode(),
+        ];
+    }
+
     protected function statusCustomField(): CustomField
     {
         try {
@@ -94,46 +135,5 @@ abstract class AbstractKanbanBoard extends Page implements HasForms
         $modelClass = $this->getModelClass();
 
         return $modelClass::query();
-    }
-
-    #[On('status-changed')]
-    public function statusChanged(int $recordId, int $statusId, array $fromOrderedIds, array $toOrderedIds): void
-    {
-        $this->onStatusChanged($recordId, $statusId, $fromOrderedIds, $toOrderedIds);
-    }
-
-    public function onStatusChanged(int $recordId, int $statusId, array $fromOrderedIds, array $toOrderedIds): void
-    {
-        $this->getEloquentQuery()->find($recordId)->saveCustomFieldValue($this->statusCustomField(), $statusId);
-
-        $modelClass = $this->getModelClass();
-        if (method_exists($modelClass, 'setNewOrder')) {
-            $modelClass::setNewOrder($toOrderedIds);
-        }
-    }
-
-    #[On('sort-changed')]
-    public function sortChanged(int $recordId, string $statusId, array $orderedIds): void
-    {
-        $this->onSortChanged($recordId, $statusId, $orderedIds);
-    }
-
-    public function onSortChanged(int $recordId, string $statusId, array $orderedIds): void
-    {
-        $modelClass = $this->getModelClass();
-        if (method_exists($modelClass, 'setNewOrder')) {
-            $modelClass::setNewOrder($orderedIds);
-        }
-    }
-
-    /**
-     * Get component options for passing to Livewire components
-     */
-    public function getBoardComponentOptions(): array
-    {
-        return [
-            'modelClass' => $this->getModelClass(),
-            'statusFieldCode' => $this->getStatusFieldCode(),
-        ];
     }
 }

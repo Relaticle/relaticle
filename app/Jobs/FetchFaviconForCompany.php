@@ -11,7 +11,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Foundation\Queue\Queueable;
 
-class FetchFaviconForCompany implements ShouldQueue, ShouldBeUnique
+final class FetchFaviconForCompany implements ShouldBeUnique, ShouldQueue
 {
     use Dispatchable, Queueable;
 
@@ -39,7 +39,6 @@ class FetchFaviconForCompany implements ShouldQueue, ShouldBeUnique
             $favicon = Favicon::withFallback('google-shared-stuff')->fetch($domainName);
             $url = $favicon?->getFaviconUrl();
 
-
             if ($url === null) {
                 return;
             }
@@ -59,6 +58,6 @@ class FetchFaviconForCompany implements ShouldQueue, ShouldBeUnique
      */
     public function uniqueId(): string
     {
-        return (string)$this->company->getKey();
+        return (string) $this->company->getKey();
     }
 }

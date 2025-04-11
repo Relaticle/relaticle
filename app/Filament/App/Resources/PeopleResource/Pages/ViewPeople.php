@@ -17,16 +17,6 @@ final class ViewPeople extends ViewRecord
 {
     protected static string $resource = PeopleResource::class;
 
-    protected function getHeaderActions(): array
-    {
-        return [
-            Actions\ActionGroup::make([
-                Actions\EditAction::make(),
-                Actions\DeleteAction::make(),
-            ]),
-        ];
-    }
-
     public function infolist(Infolist $infolist): Infolist
     {
         return $infolist->schema([
@@ -38,15 +28,25 @@ final class ViewPeople extends ViewRecord
                         ->circular()
                         ->grow(false),
                     Components\TextEntry::make('name')
-                    ->label('')
+                        ->label('')
                         ->size(Components\TextEntry\TextEntrySize::Large),
                     Components\TextEntry::make('company.name')
                         ->label('Company')
                         ->color('primary')
-                        ->url(fn($record) => $record->company ? CompanyResource::getUrl('view', [$record->company]) : null),
+                        ->url(fn ($record) => $record->company ? CompanyResource::getUrl('view', [$record->company]) : null),
                 ]),
                 CustomFieldsInfolists::make()->columnSpanFull(),
             ]),
         ]);
+    }
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            Actions\ActionGroup::make([
+                Actions\EditAction::make(),
+                Actions\DeleteAction::make(),
+            ]),
+        ];
     }
 }

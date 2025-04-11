@@ -19,16 +19,6 @@ final class ViewOpportunity extends ViewRecord
 {
     protected static string $resource = OpportunityResource::class;
 
-    protected function getHeaderActions(): array
-    {
-        return [
-            Actions\ActionGroup::make([
-                Actions\EditAction::make(),
-                Actions\DeleteAction::make(),
-            ]),
-        ];
-    }
-
     public function infolist(Infolist $infolist): Infolist
     {
         return $infolist
@@ -39,16 +29,26 @@ final class ViewOpportunity extends ViewRecord
                         Infolists\Components\TextEntry::make('company.name')
                             ->label('Company')
                             ->color('primary')
-                            ->url(fn($record) => $record->company? CompanyResource::getUrl('view', [$record->company]) : null)
+                            ->url(fn ($record) => $record->company ? CompanyResource::getUrl('view', [$record->company]) : null)
                             ->grow(false),
                         Infolists\Components\TextEntry::make('contact.name')
                             ->label('Point of Contact')
                             ->color('primary')
-                            ->url(fn($record) => $record->contact ? PeopleResource::getUrl('view', [$record->contact]) : null)
+                            ->url(fn ($record) => $record->contact ? PeopleResource::getUrl('view', [$record->contact]) : null)
                             ->grow(false),
                     ]),
                     CustomFieldsInfolists::make()->columnSpanFull(),
                 ]),
             ]);
+    }
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            Actions\ActionGroup::make([
+                Actions\EditAction::make(),
+                Actions\DeleteAction::make(),
+            ]),
+        ];
     }
 }

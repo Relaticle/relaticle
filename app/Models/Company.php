@@ -30,8 +30,8 @@ final class Company extends Model implements HasCustomFields, HasMedia
     /** @use HasFactory<CompanyFactory> */
     use HasFactory;
 
-    use UsesCustomFields;
     use InteractsWithMedia;
+    use UsesCustomFields;
 
     /**
      * @var array<int, string>
@@ -47,7 +47,7 @@ final class Company extends Model implements HasCustomFields, HasMedia
     {
         $logo = $this->getFirstMediaUrl('logo');
 
-        return !empty($logo) ? $logo : app(AvatarService::class)->generateAuto(name: $this->name);
+        return ! empty($logo) ? $logo : app(AvatarService::class)->generateAuto(name: $this->name);
     }
 
     public function team(): BelongsTo

@@ -79,7 +79,7 @@ final class NoteResource extends Resource
                     ->dateTime('Y-m-d H:i:s')
                     ->sortable()
                     ->toggleable()
-                    ->toggledHiddenByDefault()
+                    ->toggledHiddenByDefault(),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
@@ -89,7 +89,7 @@ final class NoteResource extends Resource
                 Tables\Actions\ActionGroup::make([
                     Tables\Actions\EditAction::make(),
                     Tables\Actions\DeleteAction::make(),
-                ])
+                ]),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

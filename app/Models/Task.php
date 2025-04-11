@@ -24,17 +24,17 @@ final class Task extends Model implements HasCustomFields
     use SortableTrait;
     use UsesCustomFields;
 
+    public array $sortable = [
+        'order_column_name' => 'order_column',
+        'sort_when_creating' => true,
+    ];
+
     protected $fillable = [
         'user_id',
         'title',
         'description',
         'status',
         'priority',
-    ];
-
-    public array $sortable = [
-        'order_column_name' => 'order_column',
-        'sort_when_creating' => true,
     ];
 
     public function team(): BelongsTo

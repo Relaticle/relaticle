@@ -11,23 +11,38 @@ use App\Models\Team;
 use App\Models\User;
 use Database\Seeders\SampleData\Support\BaseModelSeeder;
 
-class TaskSeeder extends BaseModelSeeder
+final class TaskSeeder extends BaseModelSeeder
 {
     protected string $modelClass = Task::class;
-    
+
     protected array $fieldCodes = [
         TaskCustomField::DESCRIPTION->value,
         TaskCustomField::DUE_DATE->value,
         TaskCustomField::STATUS->value,
         TaskCustomField::PRIORITY->value,
     ];
-    
+
+    /**
+     * Associate tasks with people
+     */
+    public function associateWithPeople(array $tasks, array $people): void
+    {
+        if (empty($tasks) || empty($people)) {
+            return;
+        }
+
+        $tasks['dylan_followup']->people()->attach($people['dylan']->id);
+        $tasks['tim_proposal']->people()->attach($people['tim']->id);
+        $tasks['brian_call']->people()->attach($people['brian']->id);
+        $tasks['ivan_meeting']->people()->attach($people['ivan']->id);
+    }
+
     /**
      * Seed model implementation
-     * 
-     * @param Team $team The team to create data for
-     * @param User $user The user creating the data
-     * @param array<string, mixed> $context Context data from previous seeders
+     *
+     * @param  Team  $team  The team to create data for
+     * @param  User  $user  The user creating the data
+     * @param  array<string, mixed>  $context  Context data from previous seeders
      * @return array<string, mixed> Seeded data for use by subsequent seeders
      */
     protected function seedModel(Team $team, User $user, array $context = []): array
@@ -46,10 +61,10 @@ class TaskSeeder extends BaseModelSeeder
                 TaskCustomField::PRIORITY->value => $this->getOptionId(
                     TaskCustomField::PRIORITY->value,
                     'High'
-                )
+                ),
             ]
         );
-        
+
         $task2 = $this->createTask(
             $team,
             $user,
@@ -64,10 +79,10 @@ class TaskSeeder extends BaseModelSeeder
                 TaskCustomField::PRIORITY->value => $this->getOptionId(
                     TaskCustomField::PRIORITY->value,
                     'Medium'
-                )
+                ),
             ]
         );
-        
+
         $task3 = $this->createTask(
             $team,
             $user,
@@ -82,10 +97,10 @@ class TaskSeeder extends BaseModelSeeder
                 TaskCustomField::PRIORITY->value => $this->getOptionId(
                     TaskCustomField::PRIORITY->value,
                     'High'
-                )
+                ),
             ]
         );
-        
+
         $task4 = $this->createTask(
             $team,
             $user,
@@ -100,35 +115,20 @@ class TaskSeeder extends BaseModelSeeder
                 TaskCustomField::PRIORITY->value => $this->getOptionId(
                     TaskCustomField::PRIORITY->value,
                     'High'
-                )
+                ),
             ]
         );
-        
+
         return [
             'tasks' => [
                 'dylan_followup' => $task1,
                 'tim_proposal' => $task2,
                 'brian_call' => $task3,
-                'ivan_meeting' => $task4
-            ]
+                'ivan_meeting' => $task4,
+            ],
         ];
     }
-    
-    /**
-     * Associate tasks with people
-     */
-    public function associateWithPeople(array $tasks, array $people): void
-    {
-        if (empty($tasks) || empty($people)) {
-            return;
-        }
-        
-        $tasks['dylan_followup']->people()->attach($people['dylan']->id);
-        $tasks['tim_proposal']->people()->attach($people['tim']->id);
-        $tasks['brian_call']->people()->attach($people['brian']->id);
-        $tasks['ivan_meeting']->people()->attach($people['ivan']->id);
-    }
-    
+
     private function createTask(Team $team, User $user, string $title, array $customData): Task
     {
         $task = $team->tasks()->create([
@@ -136,9 +136,9 @@ class TaskSeeder extends BaseModelSeeder
             'user_id' => $user->id,
             'team_id' => $team->id,
         ]);
-        
+
         $this->applyCustomFields($task, $customData);
-        
+
         return $task;
     }
-} 
+}

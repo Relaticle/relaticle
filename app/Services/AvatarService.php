@@ -99,6 +99,24 @@ final readonly class AvatarService
     }
 
     /**
+     * Validate if a color string is a valid hex or RGB color.
+     */
+    public function validateColor(?string $color): bool
+    {
+        if ($color === null) {
+            return false;
+        }
+
+        // Validate hex color format (#RGB or #RRGGBB)
+        if (preg_match('/^#([A-Fa-f0-9]{3}){1,2}$/', $color)) {
+            return true;
+        }
+
+        // Validate rgb() and rgba() formats
+        return (bool) preg_match('/^rgba?\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*(?:,\s*[\d.]+\s*)?\)$/', $color);
+    }
+
+    /**
      * Create the SVG data URL for an avatar.
      */
     private function createSvgDataUrl(
@@ -120,24 +138,6 @@ final readonly class AvatarService
         $svg = $this->generateSvg($initials, $backgroundColor, $textFillColor, $size);
 
         return 'data:image/svg+xml;base64,'.base64_encode($svg);
-    }
-
-    /**
-     * Validate if a color string is a valid hex or RGB color.
-     */
-    public function validateColor(?string $color): bool
-    {
-        if ($color === null) {
-            return false;
-        }
-
-        // Validate hex color format (#RGB or #RRGGBB)
-        if (preg_match('/^#([A-Fa-f0-9]{3}){1,2}$/', $color)) {
-            return true;
-        }
-
-        // Validate rgb() and rgba() formats
-        return (bool) preg_match('/^rgba?\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*(?:,\s*[\d.]+\s*)?\)$/', $color);
     }
 
     /**

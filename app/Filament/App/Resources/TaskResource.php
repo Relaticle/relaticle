@@ -73,7 +73,7 @@ final class TaskResource extends Resource
             ->filters([
                 Tables\Filters\SelectFilter::make('assignees')
                     ->multiple()
-                    ->relationship('assignees', 'name')
+                    ->relationship('assignees', 'name'),
             ])
             ->groups([
                 Tables\Grouping\Group::make('status')
@@ -124,9 +124,9 @@ final class TaskResource extends Resource
                                             ->exists();
 
                                         // Only send notification if one doesn't already exist
-                                        if (!$notificationExists) {
+                                        if (! $notificationExists) {
                                             Notification::make()
-                                                ->title('New Task Assignment: ' . $record->title)
+                                                ->title('New Task Assignment: '.$record->title)
                                                 ->actions([
                                                     Action::make('view')
                                                         ->button()
@@ -151,7 +151,7 @@ final class TaskResource extends Resource
                             return $record;
                         }),
                     Tables\Actions\DeleteAction::make(),
-                ])
+                ]),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

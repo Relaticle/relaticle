@@ -7,7 +7,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
-class DocumentationController
+final class DocumentationController
 {
     public function __invoke(Request $request, string $type = 'index')
     {
@@ -35,22 +35,22 @@ class DocumentationController
         ];
 
         // Default to index if an invalid type is provided
-        if (!array_key_exists($type, $validTypes)) {
+        if (! array_key_exists($type, $validTypes)) {
             $type = 'index';
         }
 
         $documentFile = $validTypes[$type]['file'];
-        $path = resource_path('markdown/' . $documentFile);
-        
+        $path = resource_path('markdown/'.$documentFile);
+
         // Validate the path is within the intended directory
         $realPath = realpath($path);
         $resourcePath = realpath(resource_path('markdown'));
-        
-        if (!$realPath || !str_starts_with($realPath, $resourcePath)) {
+
+        if (! $realPath || ! str_starts_with($realPath, $resourcePath)) {
             abort(404, 'Document not found');
         }
 
-        $documentContent = file_exists($realPath) 
+        $documentContent = file_exists($realPath)
             ? file_get_contents($realPath)
             : '# Document Not Found';
 

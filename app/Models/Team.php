@@ -38,18 +38,6 @@ final class Team extends JetstreamTeam implements HasAvatar
         'deleted' => TeamDeleted::class,
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
-    {
-        return [
-            'personal_team' => 'boolean',
-        ];
-    }
-
     public function isPersonalTeam(): bool
     {
         return $this->personal_team;
@@ -83,5 +71,17 @@ final class Team extends JetstreamTeam implements HasAvatar
     public function notes(): HasMany
     {
         return $this->hasMany(Note::class);
+    }
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'personal_team' => 'boolean',
+        ];
     }
 }

@@ -7,7 +7,7 @@ namespace App\Observers;
 use App\Jobs\FetchFaviconForCompany;
 use App\Models\Company;
 
-class CompanyObserver
+final class CompanyObserver
 {
     /**
      * Handle the Company "creating" event.

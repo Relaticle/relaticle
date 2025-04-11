@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\App\Adapters;
 
 use App\Models\Opportunity;
+use Filament\Forms;
 use Filament\Forms\Form;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -13,15 +14,9 @@ use Illuminate\Support\Facades\Auth;
 use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\Flowforge\Adapters\DefaultKanbanAdapter;
-use Filament\Forms;
 
-class OpportunitiesKanbanAdapter extends DefaultKanbanAdapter
+final class OpportunitiesKanbanAdapter extends DefaultKanbanAdapter
 {
-    /**
-     * @param Form $form
-     * @param mixed $currentColumn
-     * @return Form
-     */
     public function getCreateForm(Form $form, mixed $currentColumn): Form
     {
         return $form->schema([
@@ -41,11 +36,6 @@ class OpportunitiesKanbanAdapter extends DefaultKanbanAdapter
         ]);
     }
 
-    /**
-     * @param array $attributes
-     * @param mixed $currentColumn
-     * @return Model|null
-     */
     public function createRecord(array $attributes, mixed $currentColumn): ?Model
     {
         $opportunity = Auth::user()->currentTeam->opportunities()->create($attributes);
@@ -55,10 +45,6 @@ class OpportunitiesKanbanAdapter extends DefaultKanbanAdapter
         return $opportunity;
     }
 
-    /**
-     * @param Forms\Form $form
-     * @return Forms\Form
-     */
     public function getEditForm(Forms\Form $form): Forms\Form
     {
         return $form->schema([
@@ -74,16 +60,15 @@ class OpportunitiesKanbanAdapter extends DefaultKanbanAdapter
             Forms\Components\Select::make('contact_id')
                 ->relationship('contact', 'name')
                 ->preload(),
-            CustomFieldsComponent::make()
+            CustomFieldsComponent::make(),
         ]);
     }
 
     /**
      * Update an existing card with the given attributes.
      *
-     * @param Opportunity|Model $record The card to update
-     * @param array<string, mixed> $attributes The card attributes to update
-     * @return bool
+     * @param  Opportunity|Model  $record  The card to update
+     * @param  array<string, mixed>  $attributes  The card attributes to update
      */
     public function updateRecord(Opportunity|Model $record, array $attributes): bool
     {
@@ -101,11 +86,6 @@ class OpportunitiesKanbanAdapter extends DefaultKanbanAdapter
         return $record->save();
     }
 
-    /**
-     * @param string|int $columnId
-     * @param int $limit
-     * @return Collection
-     */
     public function getItemsForColumn(string|int $columnId, int $limit = 50): Collection
     {
         $orderField = $this->config->getOrderField();
@@ -113,7 +93,7 @@ class OpportunitiesKanbanAdapter extends DefaultKanbanAdapter
         $query = $this->newQuery()
             ->whereHas('customFieldValues', function (Builder $builder) use ($columnId): void {
                 $builder->where('custom_field_values.custom_field_id', $this->stageCustomField()->id)
-                    ->where('custom_field_values.' . $this->stageCustomField()->getValueColumn(), $columnId);
+                    ->where('custom_field_values.'.$this->stageCustomField()->getValueColumn(), $columnId);
             });
 
         if ($orderField !== null) {
@@ -125,25 +105,16 @@ class OpportunitiesKanbanAdapter extends DefaultKanbanAdapter
         return $this->formatCardsForDisplay($models);
     }
 
-    /**
-     * @param string|int $columnId
-     * @return int
-     */
     public function getColumnItemsCount(string|int $columnId): int
     {
         return $this->newQuery()
             ->whereHas('customFieldValues', function (Builder $builder) use ($columnId): void {
                 $builder->where('custom_field_values.custom_field_id', $this->stageCustomField()->id)
-                    ->where('custom_field_values.' . $this->stageCustomField()->getValueColumn(), $columnId);
+                    ->where('custom_field_values.'.$this->stageCustomField()->getValueColumn(), $columnId);
             })
             ->count();
     }
 
-    /**
-     * @param string|int $columnId
-     * @param array $recordIds
-     * @return bool
-     */
     public function updateRecordsOrderAndColumn(string|int $columnId, array $recordIds): bool
     {
         Opportunity::query()
@@ -157,9 +128,6 @@ class OpportunitiesKanbanAdapter extends DefaultKanbanAdapter
         return true;
     }
 
-    /**
-     * @return CustomField
-     */
     protected function stageCustomField(): CustomField
     {
         return CustomField::query()
