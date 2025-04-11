@@ -21,12 +21,15 @@ final class LocalSeeder extends Seeder
 {
     public function run(): void
     {
-        $user = User::factory()
+        User::factory()
             ->withPersonalTeam()
             ->create([
                 'name' => 'Manuk Minasyan',
                 'email' => 'manuk.minasyan1@gmail.com',
             ]);
+
+        // Create 10 Test Users
+        User::factory()->withPersonalTeam()->count(10)->create();
 
 //        // Set the current user and tenant.
 //        Auth::setUser($user);
