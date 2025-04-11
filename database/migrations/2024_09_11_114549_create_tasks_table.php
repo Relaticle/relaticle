@@ -21,7 +21,6 @@ return new class extends Migration
             $table->unsignedBigInteger('order_column')->nullable();
 
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 
