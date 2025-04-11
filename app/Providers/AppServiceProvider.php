@@ -59,16 +59,20 @@ final class AppServiceProvider extends ServiceProvider
      */
     private function configureFilament(): void
     {
-        Action::configureUsing(function (Action $action) {
-            if (! $action instanceof DeleteAction) {
+        Action::configureUsing(function (Action $action): Action {
+            if (! $action instanceof DeleteAction && $action->getName() !== 'delete') {
                 return $action->slideOver();
             }
+
+            return $action;
         });
 
-        TableAction::configureUsing(function (TableAction $action) {
-            if (! $action instanceof TableDeleteAction) {
+        TableAction::configureUsing(function (TableAction $action): TableAction {
+            if (! $action instanceof TableDeleteAction && $action->getName() !== 'delete') {
                 return $action->slideOver();
             }
+
+            return $action;
         });
     }
 }

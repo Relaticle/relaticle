@@ -13,7 +13,7 @@ return new class extends Migration
         Schema::create('companies', function (Blueprint $table): void {
             $table->id();
 
-            $table->foreignId('team_id');
+            $table->foreignId('team_id')->constrained('teams')->cascadeOnDelete();
             $table->foreignId('creator_id')->nullable()->constrained('users')->onDelete('set null');
 
             // Account Owner For Companies: Your team member responsible for managing the company account
