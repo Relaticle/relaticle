@@ -25,7 +25,6 @@ final class AppServiceProvider extends ServiceProvider
     /**
      * Register any application services.
      */
-    #[\Override]
     public function register(): void
     {
         //
@@ -68,7 +67,7 @@ final class AppServiceProvider extends ServiceProvider
         });
 
         TableAction::configureUsing(function (TableAction $action): TableAction {
-            if (! $action instanceof TableDeleteAction && $action->getName() !== 'delete') {
+            if (! $action instanceof TableDeleteAction && $action->getName() !== 'delete' && $action->getName() !== 'openFilters') {
                 return $action->slideOver();
             }
 

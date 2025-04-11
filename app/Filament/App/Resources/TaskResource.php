@@ -67,13 +67,43 @@ final class TaskResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('title')
-                    ->searchable(),
+                    ->searchable()
+                    ->wrap()
+                    ->limit(50)
+                    ->weight('medium'),
+                Tables\Columns\TextColumn::make('assignees.name')
+                    ->label('Assignee')
+                    ->badge()
+                    ->color('primary')
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('updated_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->defaultSort('created_at', 'desc')
+            ->searchable()
+            ->paginated([10, 25, 50])
             ->filters([
+                Tables\Filters\Filter::make('assigned_to_me')
+                    ->label('Assigned to me')
+                    ->query(function (Builder $query): Builder {
+                        return $query->whereHas('assignees', function (Builder $query) {
+                            $query->where('users.id', auth()->id());
+                        });
+                    })
+                    ->toggle(),
                 Tables\Filters\SelectFilter::make('assignees')
                     ->multiple()
                     ->relationship('assignees', 'name')
+                    ->searchable()
+                    ->preload(),
             ])
             ->groups([
                 Tables\Grouping\Group::make('status')
