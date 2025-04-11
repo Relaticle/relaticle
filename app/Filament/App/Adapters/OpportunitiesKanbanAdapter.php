@@ -48,6 +48,7 @@ class OpportunitiesKanbanAdapter extends DefaultKanbanAdapter
      */
     public function createRecord(array $attributes, mixed $currentColumn): ?Model
     {
+        unset($attributes['stage']);
         $opportunity = Auth::user()->currentTeam->opportunities()->create($attributes);
 
         $opportunity->saveCustomFieldValue($this->stageCustomField(), $currentColumn);
