@@ -14,16 +14,16 @@ use Database\Seeders\SampleData\Support\BaseModelSeeder;
 class OpportunitySeeder extends BaseModelSeeder
 {
     protected string $modelClass = Opportunity::class;
-    
+
     protected array $fieldCodes = [
         OpportunityCustomField::AMOUNT->value,
         OpportunityCustomField::CLOSE_DATE->value,
         OpportunityCustomField::STAGE->value,
     ];
-    
+
     /**
      * Seed model implementation
-     * 
+     *
      * @param Team $team The team to create data for
      * @param User $user The user creating the data
      * @param array<string, mixed> $context Context data from previous seeders
@@ -32,11 +32,11 @@ class OpportunitySeeder extends BaseModelSeeder
     protected function seedModel(Team $team, User $user, array $context = []): array
     {
         $companies = $context['companies'] ?? [];
-        
+
         if (empty($companies)) {
             return ['opportunities' => []];
         }
-        
+
         $opportunity1 = $this->createOpportunity(
             $team,
             $user,
@@ -51,7 +51,7 @@ class OpportunitySeeder extends BaseModelSeeder
                 )
             ]
         );
-        
+
         $opportunity2 = $this->createOpportunity(
             $team,
             $user,
@@ -66,7 +66,7 @@ class OpportunitySeeder extends BaseModelSeeder
                 )
             ]
         );
-        
+
         $opportunity3 = $this->createOpportunity(
             $team,
             $user,
@@ -81,7 +81,7 @@ class OpportunitySeeder extends BaseModelSeeder
                 )
             ]
         );
-        
+
         $opportunity4 = $this->createOpportunity(
             $team,
             $user,
@@ -96,7 +96,7 @@ class OpportunitySeeder extends BaseModelSeeder
                 )
             ]
         );
-        
+
         return [
             'opportunities' => [
                 'figma_enterprise' => $opportunity1,
@@ -106,22 +106,22 @@ class OpportunitySeeder extends BaseModelSeeder
             ]
         ];
     }
-    
+
     private function createOpportunity(
-        Team $team, 
-        User $user, 
-        string $name, 
-        Company $company, 
+        Team $team,
+        User $user,
+        string $name,
+        Company $company,
         array $customData
     ): Opportunity {
         $opportunity = $team->opportunities()->create([
             'name' => $name,
             'company_id' => $company->id,
-            'user_id' => $user->id,
+            'creator_id' => $user->id,
         ]);
-        
+
         $this->applyCustomFields($opportunity, $customData);
-        
+
         return $opportunity;
     }
-} 
+}

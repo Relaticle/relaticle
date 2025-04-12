@@ -14,17 +14,17 @@ use Database\Seeders\SampleData\Support\BaseModelSeeder;
 class TaskSeeder extends BaseModelSeeder
 {
     protected string $modelClass = Task::class;
-    
+
     protected array $fieldCodes = [
         TaskCustomField::DESCRIPTION->value,
         TaskCustomField::DUE_DATE->value,
         TaskCustomField::STATUS->value,
         TaskCustomField::PRIORITY->value,
     ];
-    
+
     /**
      * Seed model implementation
-     * 
+     *
      * @param Team $team The team to create data for
      * @param User $user The user creating the data
      * @param array<string, mixed> $context Context data from previous seeders
@@ -49,7 +49,7 @@ class TaskSeeder extends BaseModelSeeder
                 )
             ]
         );
-        
+
         $task2 = $this->createTask(
             $team,
             $user,
@@ -67,7 +67,7 @@ class TaskSeeder extends BaseModelSeeder
                 )
             ]
         );
-        
+
         $task3 = $this->createTask(
             $team,
             $user,
@@ -85,7 +85,7 @@ class TaskSeeder extends BaseModelSeeder
                 )
             ]
         );
-        
+
         $task4 = $this->createTask(
             $team,
             $user,
@@ -103,7 +103,7 @@ class TaskSeeder extends BaseModelSeeder
                 )
             ]
         );
-        
+
         return [
             'tasks' => [
                 'dylan_followup' => $task1,
@@ -113,7 +113,7 @@ class TaskSeeder extends BaseModelSeeder
             ]
         ];
     }
-    
+
     /**
      * Associate tasks with people
      */
@@ -122,23 +122,23 @@ class TaskSeeder extends BaseModelSeeder
         if (empty($tasks) || empty($people)) {
             return;
         }
-        
+
         $tasks['dylan_followup']->people()->attach($people['dylan']->id);
         $tasks['tim_proposal']->people()->attach($people['tim']->id);
         $tasks['brian_call']->people()->attach($people['brian']->id);
         $tasks['ivan_meeting']->people()->attach($people['ivan']->id);
     }
-    
+
     private function createTask(Team $team, User $user, string $title, array $customData): Task
     {
         $task = $team->tasks()->create([
             'title' => $title,
-            'user_id' => $user->id,
+            'creator_id' => $user->id,
             'team_id' => $team->id,
         ]);
-        
+
         $this->applyCustomFields($task, $customData);
-        
+
         return $task;
     }
-} 
+}

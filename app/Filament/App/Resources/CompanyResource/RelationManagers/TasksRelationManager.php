@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\App\Resources\CompanyResource\RelationManagers;
 
-use Filament\Forms;
+use App\Filament\App\Resources\TaskResource\Forms\TaskForm;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
@@ -18,12 +18,7 @@ final class TasksRelationManager extends RelationManager
 
     public function form(Form $form): Form
     {
-        return $form
-            ->schema([
-                Forms\Components\TextInput::make('title')
-                    ->required()
-                    ->maxLength(255),
-            ]);
+        return TaskForm::get($form);
     }
 
     public function table(Table $table): Table

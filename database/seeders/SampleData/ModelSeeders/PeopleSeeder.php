@@ -101,7 +101,7 @@ class PeopleSeeder extends BaseModelSeeder
         $person = $company->people()->create([
             'name' => $name,
             'company_id' => $company->id,
-            'user_id' => $user->id,
+            'creator_id' => $user->id,
             'team_id' => $company->team_id,
         ]);
 

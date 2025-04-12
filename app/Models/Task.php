@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Observers\TaskObserver;
 use Database\Factories\TaskFactory;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -14,6 +16,7 @@ use Relaticle\CustomFields\Models\Concerns\UsesCustomFields;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 use Spatie\EloquentSortable\SortableTrait;
 
+#[ObservedBy(TaskObserver::class)]
 final class Task extends Model implements HasCustomFields
 {
     /** @use HasFactory<TaskFactory> */
@@ -40,7 +43,7 @@ final class Task extends Model implements HasCustomFields
         return $this->belongsTo(Team::class);
     }
 
-    public function user(): BelongsTo
+    public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
