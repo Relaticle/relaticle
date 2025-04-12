@@ -4,13 +4,17 @@ declare(strict_types=1);
 
 namespace App\Filament\App\Pages;
 
-use App\Filament\App\Resources\OpportunityResource;
 use App\Models\Opportunity;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
+use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\Flowforge\Contracts\KanbanAdapterInterface;
 use Relaticle\Flowforge\Filament\Pages\KanbanBoardPage;
 use App\Filament\App\Adapters\OpportunitiesKanbanAdapter;
+use Filament\Actions\Action;
+use Filament\Forms;
+use Illuminate\Support\Facades\Auth;
 
 final class OpportunitiesBoard extends KanbanBoardPage
 {
@@ -24,6 +28,11 @@ final class OpportunitiesBoard extends KanbanBoardPage
 
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
 
+    public function getSubject(): Builder
+    {
+        return Opportunity::query();
+    }
+
     /**
      * @return void
      */
@@ -36,6 +45,63 @@ final class OpportunitiesBoard extends KanbanBoardPage
             ->columns($this->stages()->pluck('name', 'id')->toArray())
             ->columnColors()
             ->cardLabel('Opportunity');
+    }
+
+    /**
+     * @param Action $action
+     * @return Action
+     */
+    public function createAction(Action $action): Action
+    {
+        return $action
+            ->iconButton()
+            ->icon('heroicon-o-plus')
+            ->slideOver(false)
+            ->label('Create Opportunity')
+            ->modalWidth('2xl')
+            ->form([
+                Forms\Components\TextInput::make('name')
+                    ->required()
+                    ->placeholder('Enter opportunity title')
+                    ->columnSpanFull(),
+                Forms\Components\Select::make('company_id')
+                    ->relationship('company', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->required(),
+                Forms\Components\Select::make('contact_id')
+                    ->relationship('contact', 'name')
+                    ->preload(),
+                CustomFieldsComponent::make()->columnSpanFull(),
+            ])
+            ->action(function (Action $action, array $arguments): void {
+                $opportunity = Auth::user()->currentTeam->opportunities()->create($action->getFormData());
+                $opportunity->saveCustomFieldValue($this->stageCustomField(), $arguments['column']);
+            });
+    }
+
+    /**
+     * @param Action $action
+     * @return Action
+     */
+    public function editAction(Action $action): Action
+    {
+        return $action
+            ->form([
+                Forms\Components\TextInput::make('name')
+                    ->required()
+                    ->placeholder('Enter opportunity title')
+                    ->columnSpanFull(),
+                Forms\Components\Select::make('company_id')
+                    ->relationship('company', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->required(),
+                Forms\Components\Select::make('contact_id')
+                    ->relationship('contact', 'name')
+                    ->preload(),
+                CustomFieldsComponent::make()
+            ]);
     }
 
     /**

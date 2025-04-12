@@ -7,10 +7,15 @@ namespace App\Filament\App\Pages;
 use App\Filament\App\Adapters\TasksKanbanAdapter;
 use App\Models\Task;
 use App\Enums\CustomFields\Task as TaskCustomField;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\Flowforge\Contracts\KanbanAdapterInterface;
 use Relaticle\Flowforge\Filament\Pages\KanbanBoardPage;
+use Filament\Actions\Action;
+use Filament\Forms;
+use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent;
 
 final class TasksBoard extends KanbanBoardPage
 {
@@ -24,6 +29,11 @@ final class TasksBoard extends KanbanBoardPage
 
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
 
+    public function getSubject(): Builder
+    {
+        return Task::query();
+    }
+
     /**
      * @return void
      */
@@ -36,6 +46,47 @@ final class TasksBoard extends KanbanBoardPage
             ->columns($this->statuses()->pluck('name', 'id')->toArray())
             ->columnColors()
             ->cardLabel('Task');
+    }
+
+    /**
+     * @param Action $action
+     * @return Action
+     */
+    public function createAction(Action $action): Action
+    {
+        return $action
+            ->slideOver(false)
+            ->modalWidth('2xl')
+            ->iconButton()
+            ->icon('heroicon-o-plus')
+            ->form([
+                Forms\Components\TextInput::make('title')
+                    ->required()
+                    ->maxLength(255),
+                CustomFieldsComponent::make()->columnSpanFull(),
+            ])
+            ->action(function (Action $action, array $arguments): void {
+                $task = Auth::user()->currentTeam->tasks()->create($action->getFormData());
+                $task->saveCustomFieldValue($this->statusCustomField(), $arguments['column']);
+            });
+    }
+
+    /**
+     * @param Action $action
+     * @return Action
+     */
+    public function editAction(Action $action): Action
+    {
+        return $action
+            ->form([
+                Forms\Components\TextInput::make('title')
+                    ->required()
+                    ->maxLength(255),
+                Forms\Components\Select::make('assignees')
+                    ->multiple()
+                    ->relationship('assignees', 'name'),
+                CustomFieldsComponent::make()
+            ]);
     }
 
     /**

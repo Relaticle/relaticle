@@ -7123,17 +7123,17 @@
         },
         {
             "name": "relaticle/custom-fields",
-            "version": "1.3.8",
+            "version": "1.3.9",
             "source": {
                 "type": "git",
                 "url": "git@github.com:Relaticle/custom-fields.git",
-                "reference": "ed3fb9e33a5987fc8b916e568a976773ba0a503a"
+                "reference": "35bb7ee53060a20ab093bac8e51d931eefe5cb4e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://satis.relaticle.com/dist/relaticle/custom-fields/relaticle-custom-fields-ed3fb9e33a5987fc8b916e568a976773ba0a503a-zip-d8b36b.zip",
-                "reference": "ed3fb9e33a5987fc8b916e568a976773ba0a503a",
-                "shasum": "299f1b2d2c6b8ef29fca007845009fbbb4f09f74"
+                "url": "https://satis.relaticle.com/dist/relaticle/custom-fields/relaticle-custom-fields-35bb7ee53060a20ab093bac8e51d931eefe5cb4e-zip-4dba13.zip",
+                "reference": "35bb7ee53060a20ab093bac8e51d931eefe5cb4e",
+                "shasum": "40e33bffd1e9696dab59332bdc3082d93946a9e9"
             },
             "require": {
                 "filament/filament": "^3.0",
@@ -7216,20 +7216,20 @@
                 "issues": "https://github.com/relaticle/custom-fields/issues",
                 "source": "https://github.com/relaticle/custom-fields"
             },
-            "time": "2025-04-06T18:53:25+00:00"
+            "time": "2025-04-12T14:47:08+00:00"
         },
         {
             "name": "relaticle/flowforge",
-            "version": "0.1.4",
+            "version": "0.1.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Relaticle/flowforge.git",
-                "reference": "7b92a6e010b5c770df886bfc2d626e6627c113c6"
+                "reference": "4e7c8d2046e7db9f33de86da32ff9920325a35b4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Relaticle/flowforge/zipball/7b92a6e010b5c770df886bfc2d626e6627c113c6",
-                "reference": "7b92a6e010b5c770df886bfc2d626e6627c113c6",
+                "url": "https://api.github.com/repos/Relaticle/flowforge/zipball/4e7c8d2046e7db9f33de86da32ff9920325a35b4",
+                "reference": "4e7c8d2046e7db9f33de86da32ff9920325a35b4",
                 "shasum": ""
             },
             "require": {
@@ -7295,7 +7295,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-04-11T21:02:53+00:00"
+            "time": "2025-04-12T13:53:27+00:00"
         },
         {
             "name": "revolt/event-loop",

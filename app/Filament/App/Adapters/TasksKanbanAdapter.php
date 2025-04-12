@@ -5,63 +5,13 @@ declare(strict_types=1);
 namespace App\Filament\App\Adapters;
 
 use App\Models\Task;
-use Filament\Forms\Form;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Auth;
-use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\Flowforge\Adapters\DefaultKanbanAdapter;
-use Filament\Forms;
 
 class TasksKanbanAdapter extends DefaultKanbanAdapter
 {
-    /**
-     * @param Form $form
-     * @param mixed $currentColumn
-     * @return Form
-     */
-    public function getCreateForm(Form $form, mixed $currentColumn): Form
-    {
-        return $form->schema([
-            Forms\Components\TextInput::make('title')
-                ->required()
-                ->maxLength(255),
-            CustomFieldsComponent::make()->columnSpanFull(),
-        ]);
-    }
-
-    /**
-     * @param array $attributes
-     * @param mixed $currentColumn
-     * @return Model|null
-     */
-    public function createRecord(array $attributes, mixed $currentColumn): ?Model
-    {
-        unset($attributes['status']);
-        $task = Auth::user()->currentTeam->tasks()->create($attributes);
-        $task->saveCustomFieldValue($this->statusCustomField(), $currentColumn);
-
-        return $task;
-    }
-
-    /**
-     * @param Forms\Form $form
-     * @return Forms\Form
-     */
-    public function getEditForm(Forms\Form $form): Forms\Form
-    {
-        return $form->schema([
-            Forms\Components\TextInput::make('title')
-                ->required()
-                ->maxLength(255),
-            Forms\Components\Select::make('assignees')
-                ->multiple()
-                ->relationship('assignees', 'name'),
-            CustomFieldsComponent::make()
-        ]);
-    }
     /**
      * @param string|int $columnId
      * @param int $limit
