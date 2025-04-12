@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\App\Resources;
 
+use App\Filament\App\Resources\TaskResource\Forms\TaskForm;
 use App\Filament\App\Resources\TaskResource\Pages\ManageTasks;
 use App\Models\Task;
 use Filament\Forms;
@@ -37,26 +38,7 @@ final class TaskResource extends Resource
 
     public static function form(Form $form): Form
     {
-        return $form
-            ->schema([
-                Forms\Components\TextInput::make('title')->required(),
-                Select::make('companies')
-                    ->label('Companies')
-                    ->multiple()
-                    ->relationship('companies', 'name'),
-                Select::make('people')
-                    ->label('People')
-                    ->multiple()
-                    ->relationship('people', 'name')
-                    ->nullable(),
-                Select::make('assignees')
-                    ->label('Assignees')
-                    ->multiple()
-                    ->relationship('assignees', 'name')
-                    ->nullable(),
-                CustomFieldsComponent::make(),
-            ])
-            ->columns(1);
+        return TaskForm::get($form);
     }
 
     public static function table(Table $table): Table
