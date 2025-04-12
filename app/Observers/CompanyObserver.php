@@ -14,7 +14,10 @@ class CompanyObserver
      */
     public function creating(Company $company): void
     {
-        $company->creator_id = auth()->id();
+        if (auth()->check()) {
+            $company->creator_id = auth()->id();
+            $company->team_id = auth()->user()->currentTeam->getKey();
+        }
     }
 
     /**

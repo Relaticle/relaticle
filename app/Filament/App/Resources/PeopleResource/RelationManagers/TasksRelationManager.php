@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace App\Filament\App\Resources\PeopleResource\RelationManagers;
 
-use Filament\Forms;
+use App\Filament\App\Resources\TaskResource\Forms\TaskForm;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent;
 use Relaticle\CustomFields\Filament\Tables\Columns\CustomFieldsColumn;
 
 final class TasksRelationManager extends RelationManager
@@ -20,16 +19,7 @@ final class TasksRelationManager extends RelationManager
 
     public function form(Form $form): Form
     {
-        return $form
-            ->schema([
-                Forms\Components\TextInput::make('title')
-                    ->required()
-                    ->maxLength(255),
-                CustomFieldsComponent::make()->columnSpanFull(),
-                Forms\Components\Hidden::make('team_id')
-                    ->required()
-                    ->default(fn () => $this->getOwnerRecord()->team_id), // TODO: Handle globally
-            ]);
+        return TaskForm::get($form);
     }
 
     public function table(Table $table): Table

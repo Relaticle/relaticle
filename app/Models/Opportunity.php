@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Observers\OpportunityObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -12,6 +14,7 @@ use Relaticle\CustomFields\Models\Concerns\UsesCustomFields;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 use Spatie\EloquentSortable\SortableTrait;
 
+#[ObservedBy(OpportunityObserver::class)]
 final class Opportunity extends Model implements HasCustomFields
 {
     use HasFactory;
@@ -21,6 +24,11 @@ final class Opportunity extends Model implements HasCustomFields
     public function team(): BelongsTo
     {
         return $this->belongsTo(Team::class);
+    }
+
+    public function creator(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 
     public function company(): BelongsTo
