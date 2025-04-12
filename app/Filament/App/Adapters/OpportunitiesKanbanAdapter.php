@@ -5,103 +5,13 @@ declare(strict_types=1);
 namespace App\Filament\App\Adapters;
 
 use App\Models\Opportunity;
-use Filament\Forms\Form;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Auth;
-use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\Flowforge\Adapters\DefaultKanbanAdapter;
-use Filament\Forms;
 
 class OpportunitiesKanbanAdapter extends DefaultKanbanAdapter
 {
-    /**
-     * @param Form $form
-     * @param mixed $currentColumn
-     * @return Form
-     */
-    public function getCreateForm(Form $form, mixed $currentColumn): Form
-    {
-        return $form->schema([
-            Forms\Components\TextInput::make('name')
-                ->required()
-                ->placeholder('Enter opportunity title')
-                ->columnSpanFull(),
-            Forms\Components\Select::make('company_id')
-                ->relationship('company', 'name')
-                ->searchable()
-                ->preload()
-                ->required(),
-            Forms\Components\Select::make('contact_id')
-                ->relationship('contact', 'name')
-                ->preload(),
-            CustomFieldsComponent::make()->columnSpanFull(),
-        ]);
-    }
-
-    /**
-     * @param array $attributes
-     * @param mixed $currentColumn
-     * @return Model|null
-     */
-    public function createRecord(array $attributes, mixed $currentColumn): ?Model
-    {
-        unset($attributes['stage']);
-        $opportunity = Auth::user()->currentTeam->opportunities()->create($attributes);
-
-        $opportunity->saveCustomFieldValue($this->stageCustomField(), $currentColumn);
-
-        return $opportunity;
-    }
-
-    /**
-     * @param Forms\Form $form
-     * @return Forms\Form
-     */
-    public function getEditForm(Forms\Form $form): Forms\Form
-    {
-        return $form->schema([
-            Forms\Components\TextInput::make('name')
-                ->required()
-                ->placeholder('Enter opportunity title')
-                ->columnSpanFull(),
-            Forms\Components\Select::make('company_id')
-                ->relationship('company', 'name')
-                ->searchable()
-                ->preload()
-                ->required(),
-            Forms\Components\Select::make('contact_id')
-                ->relationship('contact', 'name')
-                ->preload(),
-            CustomFieldsComponent::make()
-        ]);
-    }
-
-    /**
-     * Update an existing card with the given attributes.
-     *
-     * @param Opportunity|Model $record The card to update
-     * @param array<string, mixed> $attributes The card attributes to update
-     * @return bool
-     */
-    public function updateRecord(Opportunity|Model $record, array $attributes): bool
-    {
-        if (isset($attributes['stage'])) {
-            $record->saveCustomFieldValue(
-                $this->stageCustomField(),
-                $attributes['stage'],
-            );
-        }
-
-        unset($attributes['stage']);
-        unset($attributes['description']);
-        $record->fill($attributes);
-
-        return $record->save();
-    }
-
     /**
      * @param string|int $columnId
      * @param int $limit
