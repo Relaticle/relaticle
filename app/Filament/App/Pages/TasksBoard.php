@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\App\Pages;
 
 use App\Filament\App\Adapters\TasksKanbanAdapter;
+use App\Filament\App\Resources\TaskResource\Forms\TaskForm;
 use App\Models\Task;
 use App\Enums\CustomFields\Task as TaskCustomField;
 use Illuminate\Database\Eloquent\Builder;
@@ -59,12 +60,9 @@ final class TasksBoard extends KanbanBoardPage
             ->modalWidth('2xl')
             ->iconButton()
             ->icon('heroicon-o-plus')
-            ->form([
-                Forms\Components\TextInput::make('title')
-                    ->required()
-                    ->maxLength(255),
-                CustomFieldsComponent::make()->columnSpanFull(),
-            ])
+            ->form(function (Forms\Form $form) {
+                return TaskForm::get($form);
+            })
             ->action(function (Action $action, array $arguments): void {
                 $task = Auth::user()->currentTeam->tasks()->create($action->getFormData());
                 $task->saveCustomFieldValue($this->statusCustomField(), $arguments['column']);
@@ -77,16 +75,9 @@ final class TasksBoard extends KanbanBoardPage
      */
     public function editAction(Action $action): Action
     {
-        return $action
-            ->form([
-                Forms\Components\TextInput::make('title')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\Select::make('assignees')
-                    ->multiple()
-                    ->relationship('assignees', 'name'),
-                CustomFieldsComponent::make()
-            ]);
+        return $action->form(function (Forms\Form $form) {
+            return TaskForm::get($form);
+        });
     }
 
     /**

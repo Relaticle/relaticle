@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\App\Pages;
 
+use App\Filament\App\Resources\OpportunityResource\Forms\OpportunityForm;
 use App\Models\Opportunity;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
@@ -59,21 +60,9 @@ final class OpportunitiesBoard extends KanbanBoardPage
             ->slideOver(false)
             ->label('Create Opportunity')
             ->modalWidth('2xl')
-            ->form([
-                Forms\Components\TextInput::make('name')
-                    ->required()
-                    ->placeholder('Enter opportunity title')
-                    ->columnSpanFull(),
-                Forms\Components\Select::make('company_id')
-                    ->relationship('company', 'name')
-                    ->searchable()
-                    ->preload()
-                    ->required(),
-                Forms\Components\Select::make('contact_id')
-                    ->relationship('contact', 'name')
-                    ->preload(),
-                CustomFieldsComponent::make()->columnSpanFull(),
-            ])
+            ->form(function (Forms\Form $form) {
+                return OpportunityForm::get($form);
+            })
             ->action(function (Action $action, array $arguments): void {
                 $opportunity = Auth::user()->currentTeam->opportunities()->create($action->getFormData());
                 $opportunity->saveCustomFieldValue($this->stageCustomField(), $arguments['column']);
@@ -86,22 +75,9 @@ final class OpportunitiesBoard extends KanbanBoardPage
      */
     public function editAction(Action $action): Action
     {
-        return $action
-            ->form([
-                Forms\Components\TextInput::make('name')
-                    ->required()
-                    ->placeholder('Enter opportunity title')
-                    ->columnSpanFull(),
-                Forms\Components\Select::make('company_id')
-                    ->relationship('company', 'name')
-                    ->searchable()
-                    ->preload()
-                    ->required(),
-                Forms\Components\Select::make('contact_id')
-                    ->relationship('contact', 'name')
-                    ->preload(),
-                CustomFieldsComponent::make()
-            ]);
+        return $action->form(function (Forms\Form $form) {
+            return OpportunityForm::get($form);
+        });
     }
 
     /**
