@@ -9,30 +9,40 @@ use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent;
 
 class TaskForm
 {
-    public static function get(Forms\Form $form): Forms\Form
+    public static function get(Forms\Form $form, array $excludeFields = []): Forms\Form
     {
+        $schema = [
+            Forms\Components\TextInput::make('title')
+                ->required()
+                ->columnSpanFull(),
+        ];
+        
+        if (!in_array('companies', $excludeFields)) {
+            $schema[] = Forms\Components\Select::make('companies')
+                ->label('Companies')
+                ->multiple()
+                ->relationship('companies', 'name')
+                ->columnSpanFull();
+        }
+        
+        if (!in_array('people', $excludeFields)) {
+            $schema[] = Forms\Components\Select::make('people')
+                ->label('People')
+                ->multiple()
+                ->relationship('people', 'name')
+                ->nullable();
+        }
+        
+        $schema[] = Forms\Components\Select::make('assignees')
+            ->label('Assignees')
+            ->multiple()
+            ->relationship('assignees', 'name')
+            ->nullable();
+            
+        $schema[] = CustomFieldsComponent::make()->columnSpanFull();
+        
         return $form
-            ->schema([
-                Forms\Components\TextInput::make('title')
-                    ->required()
-                    ->columnSpanFull(),
-                Forms\Components\Select::make('companies')
-                    ->label('Companies')
-                    ->multiple()
-                    ->relationship('companies', 'name')
-                    ->columnSpanFull(),
-                Forms\Components\Select::make('people')
-                    ->label('People')
-                    ->multiple()
-                    ->relationship('people', 'name')
-                    ->nullable(),
-                Forms\Components\Select::make('assignees')
-                    ->label('Assignees')
-                    ->multiple()
-                    ->relationship('assignees', 'name')
-                    ->nullable(),
-                CustomFieldsComponent::make()->columnSpanFull(),
-            ])
+            ->schema($schema)
             ->columns(2);
     }
 }

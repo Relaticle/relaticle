@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace App\Filament\App\Resources\CompanyResource\RelationManagers;
 
 use Filament\Forms;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent;
 
 final class NotesRelationManager extends RelationManager
 {
@@ -20,9 +23,19 @@ final class NotesRelationManager extends RelationManager
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('title')
-                    ->required()
-                    ->maxLength(255),
+                TextInput::make('title')
+                    ->label('Title')
+                    ->rules(['max:255'])
+                    ->columnSpanFull()
+                    ->required(),
+                CustomFieldsComponent::make()
+                    ->columnSpanFull()
+                    ->columns(),
+                Select::make('people')
+                    ->label('People')
+                    ->multiple()
+                    ->relationship('people', 'name')
+                    ->nullable(),
             ]);
     }
 
@@ -32,6 +45,15 @@ final class NotesRelationManager extends RelationManager
             ->recordTitleAttribute('title')
             ->columns([
                 Tables\Columns\TextColumn::make('title'),
+                Tables\Columns\TextColumn::make('people.name')
+                    ->label('People')
+                    ->badge()
+                    ->color('primary')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(),
             ])
             ->filters([
                 //
@@ -41,9 +63,12 @@ final class NotesRelationManager extends RelationManager
                 Tables\Actions\AttachAction::make(),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DetachAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\DetachAction::make(),
+                    Tables\Actions\DeleteAction::make(),
+                ])
+
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

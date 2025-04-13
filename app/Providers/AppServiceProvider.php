@@ -11,9 +11,7 @@ use App\Models\People;
 use App\Models\Task;
 use App\Models\User;
 use Filament\Actions\Action;
-use Filament\Actions\DeleteAction;
 use Filament\Tables\Actions\Action as TableAction;
-use Filament\Tables\Actions\DeleteAction as TableDeleteAction;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\App;
@@ -58,16 +56,18 @@ final class AppServiceProvider extends ServiceProvider
      */
     private function configureFilament(): void
     {
-        Action::configureUsing(function (Action $action): Action {
-            if (! $action instanceof DeleteAction && $action->getName() !== 'delete') {
+        $slideOverActions = ['create', 'edit', 'view'];
+
+        Action::configureUsing(function (Action $action) use ($slideOverActions): Action {
+            if (in_array($action->getName(), $slideOverActions)) {
                 return $action->slideOver();
             }
 
             return $action;
         });
 
-        TableAction::configureUsing(function (TableAction $action): TableAction {
-            if (! $action instanceof TableDeleteAction && $action->getName() !== 'delete' && $action->getName() !== 'openFilters') {
+        TableAction::configureUsing(function (TableAction $action) use ($slideOverActions): TableAction {
+            if (in_array($action->getName(), $slideOverActions)) {
                 return $action->slideOver();
             }
 
