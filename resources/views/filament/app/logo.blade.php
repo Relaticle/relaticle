@@ -1,4 +1,4 @@
-<div class="w-12">
+<div class="w-10 flex items-center">
     <svg viewBox="0 0 785 785" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M392.5 387.591L120.864 183.864" stroke="url(#paint0_linear_21_11)" stroke-width="1.5" stroke-linecap="round"/>
         <path d="M392.5 387.591L686.773 206.5" stroke="url(#paint1_linear_21_11)" stroke-width="1.5" stroke-linecap="round"/>
