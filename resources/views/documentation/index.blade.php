@@ -1,4 +1,4 @@
-<x-guest-layout>
+<x-guest-layout :title="($documentTitle ?? 'Documentation') . ' - ' . config('app.name')">
     <!-- Add this script to the very top of the document to apply loading state quickly -->
     <script>
         // Set loading state on initial page load
