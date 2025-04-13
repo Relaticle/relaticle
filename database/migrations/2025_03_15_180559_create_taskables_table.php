@@ -17,8 +17,8 @@ return new class extends Migration
             $table->id();
 
             $table->foreignId('task_id');
-            $table->foreignId('taskable_id');
-            $table->string('taskable_type');
+
+            $table->morphs('taskable');
 
             $table->timestamps();
         });

@@ -18,7 +18,7 @@ final class TasksRelationManager extends RelationManager
 
     public function form(Form $form): Form
     {
-        return TaskForm::get($form);
+        return TaskForm::get($form, ['companies']);
     }
 
     public function table(Table $table): Table
@@ -27,6 +27,21 @@ final class TasksRelationManager extends RelationManager
             ->recordTitleAttribute('title')
             ->columns([
                 Tables\Columns\TextColumn::make('title'),
+                Tables\Columns\TextColumn::make('assignees.name')
+                    ->label('Assignee')
+                    ->badge()
+                    ->color('primary')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('people.name')
+                    ->label('People')
+                    ->badge()
+                    ->color('primary')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->label('Created At')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(),
             ])
             ->filters([
                 //
@@ -36,8 +51,11 @@ final class TasksRelationManager extends RelationManager
                 Tables\Actions\AttachAction::make(),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\DetachAction::make(),
+                    Tables\Actions\DeleteAction::make(),
+                ]),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

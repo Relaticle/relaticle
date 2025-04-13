@@ -18,7 +18,7 @@ final class TasksRelationManager extends RelationManager
 
     public function form(Form $form): Form
     {
-        return TaskForm::get($form);
+        return TaskForm::get($form, ['opportunities']);
     }
 
     public function table(Table $table): Table

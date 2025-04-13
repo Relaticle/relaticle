@@ -34,7 +34,8 @@ final class PeopleResource extends Resource
             ->schema([
                 Forms\Components\TextInput::make('name')
                     ->required()
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->columnSpanFull(),
                 Forms\Components\Select::make('company_id')
                     ->relationship('company', 'name')
                     ->searchable()
@@ -55,7 +56,7 @@ final class PeopleResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('company.name')
                     ->label('Company')
-                    ->url(fn (People $record): string => CompanyResource::getUrl('view', [$record->company_id]))
+                    ->url(fn(People $record): string => CompanyResource::getUrl('view', [$record->company_id]))
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
