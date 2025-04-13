@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\App\Resources\OpportunityResource\RelationManagers;
 
-use Filament\Forms;
+use App\Filament\App\Resources\NoteResource\Forms\NoteForm;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
@@ -18,12 +18,7 @@ final class NotesRelationManager extends RelationManager
 
     public function form(Form $form): Form
     {
-        return $form
-            ->schema([
-                Forms\Components\TextInput::make('title')
-                    ->required()
-                    ->maxLength(255),
-            ]);
+        return NoteForm::get($form, ['opportunities']);
     }
 
     public function table(Table $table): Table
