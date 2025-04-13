@@ -13,7 +13,7 @@ use Database\Seeders\SampleData\ModelSeeders\PeopleSeeder;
 use Database\Seeders\SampleData\ModelSeeders\TaskSeeder;
 use Illuminate\Support\Facades\Log;
 
-class SampleDataManager
+final class SampleDataManager
 {
     /**
      * The ordered sequence of model seeders to run
@@ -38,14 +38,14 @@ class SampleDataManager
     /**
      * Generate sample data for a user
      *
-     * @param User $user The user to create sample data for
+     * @param  User  $user  The user to create sample data for
      * @return bool Whether the seeding was successful
      */
     public function generateFor(User $user): bool
     {
         $team = $user->currentTeam;
 
-        if (!$team) {
+        if (! $team) {
             return false;
         }
 
@@ -73,7 +73,7 @@ class SampleDataManager
                 'user_id' => $user->id,
                 'team_id' => $team->id,
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
 
             return false;
@@ -93,8 +93,8 @@ class SampleDataManager
     /**
      * Create relationships between tasks and people
      *
-     * @param array<string, mixed> $tasks
-     * @param array<string, mixed> $people
+     * @param  array<string, mixed>  $tasks
+     * @param  array<string, mixed>  $people
      */
     protected function createTaskPeopleRelationships(array $tasks, array $people): void
     {

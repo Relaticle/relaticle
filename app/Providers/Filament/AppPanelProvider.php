@@ -74,10 +74,11 @@ final class AppPanelProvider extends PanelProvider
         $panel
             ->default()
             ->id('app')
-            ->domain('app.'.parse_url(config('app.url'))['host'])
+            ->domain('app.'.parse_url((string) config('app.url'))['host'])
             ->homeUrl(fn (): string => CompanyResource::getUrl())
             ->brandName('Relaticle')
             ->login(Login::class)
+            ->registration()
             ->passwordReset()
             ->emailVerification()
             ->databaseNotifications()
@@ -139,7 +140,11 @@ final class AppPanelProvider extends PanelProvider
                 fn (): string => Blade::render('@env(\'local\')<x-login-link email="manuk.minasyan1@gmail.com" redirect-url="'.url('/').'" />@endenv'),
             )
             ->renderHook(
-                PanelsRenderHook::AUTH_LOGIN_FORM_AFTER,
+                PanelsRenderHook::AUTH_LOGIN_FORM_BEFORE,
+                fn () => view('filament.auth.social_login_buttons')
+            )
+            ->renderHook(
+                PanelsRenderHook::AUTH_REGISTER_FORM_BEFORE,
                 fn () => view('filament.auth.social_login_buttons')
             );
 

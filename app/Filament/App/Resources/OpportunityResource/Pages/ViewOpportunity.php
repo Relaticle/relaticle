@@ -39,12 +39,12 @@ final class ViewOpportunity extends ViewRecord
                         Infolists\Components\TextEntry::make('company.name')
                             ->label('Company')
                             ->color('primary')
-                            ->url(fn($record): ?string => $record->company? CompanyResource::getUrl('view', [$record->company]) : null)
+                            ->url(fn ($record): ?string => $record->company ? CompanyResource::getUrl('view', [$record->company]) : null)
                             ->grow(false),
                         Infolists\Components\TextEntry::make('contact.name')
                             ->label('Point of Contact')
                             ->color('primary')
-                            ->url(fn($record): ?string => $record->contact ? PeopleResource::getUrl('view', [$record->contact]) : null)
+                            ->url(fn ($record): ?string => $record->contact ? PeopleResource::getUrl('view', [$record->contact]) : null)
                             ->grow(false),
                     ]),
                     CustomFieldsInfolists::make()->columnSpanFull(),

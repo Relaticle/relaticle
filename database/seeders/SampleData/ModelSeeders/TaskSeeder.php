@@ -11,7 +11,7 @@ use App\Models\Team;
 use App\Models\User;
 use Database\Seeders\SampleData\Support\BaseModelSeeder;
 
-class TaskSeeder extends BaseModelSeeder
+final class TaskSeeder extends BaseModelSeeder
 {
     protected string $modelClass = Task::class;
 
@@ -25,9 +25,9 @@ class TaskSeeder extends BaseModelSeeder
     /**
      * Seed model implementation
      *
-     * @param Team $team The team to create data for
-     * @param User $user The user creating the data
-     * @param array<string, mixed> $context Context data from previous seeders
+     * @param  Team  $team  The team to create data for
+     * @param  User  $user  The user creating the data
+     * @param  array<string, mixed>  $context  Context data from previous seeders
      * @return array<string, mixed> Seeded data for use by subsequent seeders
      */
     protected function seedModel(Team $team, User $user, array $context = []): array
@@ -46,7 +46,7 @@ class TaskSeeder extends BaseModelSeeder
                 TaskCustomField::PRIORITY->value => $this->getOptionId(
                     TaskCustomField::PRIORITY->value,
                     'High'
-                )
+                ),
             ]
         );
 
@@ -64,7 +64,7 @@ class TaskSeeder extends BaseModelSeeder
                 TaskCustomField::PRIORITY->value => $this->getOptionId(
                     TaskCustomField::PRIORITY->value,
                     'Medium'
-                )
+                ),
             ]
         );
 
@@ -82,7 +82,7 @@ class TaskSeeder extends BaseModelSeeder
                 TaskCustomField::PRIORITY->value => $this->getOptionId(
                     TaskCustomField::PRIORITY->value,
                     'High'
-                )
+                ),
             ]
         );
 
@@ -100,7 +100,7 @@ class TaskSeeder extends BaseModelSeeder
                 TaskCustomField::PRIORITY->value => $this->getOptionId(
                     TaskCustomField::PRIORITY->value,
                     'High'
-                )
+                ),
             ]
         );
 
@@ -109,8 +109,8 @@ class TaskSeeder extends BaseModelSeeder
                 'dylan_followup' => $task1,
                 'tim_proposal' => $task2,
                 'brian_call' => $task3,
-                'ivan_meeting' => $task4
-            ]
+                'ivan_meeting' => $task4,
+            ],
         ];
     }
 

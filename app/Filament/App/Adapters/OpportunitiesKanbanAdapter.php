@@ -10,7 +10,7 @@ use Illuminate\Support\Collection;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\Flowforge\Adapters\DefaultKanbanAdapter;
 
-class OpportunitiesKanbanAdapter extends DefaultKanbanAdapter
+final class OpportunitiesKanbanAdapter extends DefaultKanbanAdapter
 {
     public function getItemsForColumn(string|int $columnId, int $limit = 50): Collection
     {
@@ -19,7 +19,7 @@ class OpportunitiesKanbanAdapter extends DefaultKanbanAdapter
         $query = $this->newQuery()
             ->whereHas('customFieldValues', function (Builder $builder) use ($columnId): void {
                 $builder->where('custom_field_values.custom_field_id', $this->stageCustomField()->id)
-                    ->where('custom_field_values.' . $this->stageCustomField()->getValueColumn(), $columnId);
+                    ->where('custom_field_values.'.$this->stageCustomField()->getValueColumn(), $columnId);
             });
 
         if ($orderField !== null) {
@@ -36,7 +36,7 @@ class OpportunitiesKanbanAdapter extends DefaultKanbanAdapter
         return $this->newQuery()
             ->whereHas('customFieldValues', function (Builder $builder) use ($columnId): void {
                 $builder->where('custom_field_values.custom_field_id', $this->stageCustomField()->id)
-                    ->where('custom_field_values.' . $this->stageCustomField()->getValueColumn(), $columnId);
+                    ->where('custom_field_values.'.$this->stageCustomField()->getValueColumn(), $columnId);
             })
             ->count();
     }

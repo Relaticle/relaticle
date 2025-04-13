@@ -8,7 +8,6 @@ use App\Filament\App\Resources\CompanyResource;
 use App\Filament\App\Resources\CompanyResource\RelationManagers;
 use App\Filament\Components\Infolists\AvatarName;
 use Filament\Actions;
-use Filament\Infolists;
 use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\Split;
 use Filament\Infolists\Components\TextEntry;

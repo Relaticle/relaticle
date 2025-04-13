@@ -6,7 +6,7 @@ namespace App\Observers;
 
 use App\Models\Opportunity;
 
-class OpportunityObserver
+final class OpportunityObserver
 {
     public function creating(Opportunity $opportunity): void
     {

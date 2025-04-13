@@ -6,7 +6,7 @@ namespace App\Observers;
 
 use App\Models\Note;
 
-class NoteObserver
+final class NoteObserver
 {
     public function creating(Note $note): void
     {

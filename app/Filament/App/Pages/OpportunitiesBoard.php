@@ -4,18 +4,17 @@ declare(strict_types=1);
 
 namespace App\Filament\App\Pages;
 
+use App\Filament\App\Adapters\OpportunitiesKanbanAdapter;
 use App\Filament\App\Resources\OpportunityResource\Forms\OpportunityForm;
 use App\Models\Opportunity;
+use Filament\Actions\Action;
+use Filament\Forms;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
-use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent;
+use Illuminate\Support\Facades\Auth;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\Flowforge\Contracts\KanbanAdapterInterface;
 use Relaticle\Flowforge\Filament\Pages\KanbanBoardPage;
-use App\Filament\App\Adapters\OpportunitiesKanbanAdapter;
-use Filament\Actions\Action;
-use Filament\Forms;
-use Illuminate\Support\Facades\Auth;
 
 final class OpportunitiesBoard extends KanbanBoardPage
 {
@@ -53,7 +52,7 @@ final class OpportunitiesBoard extends KanbanBoardPage
             ->slideOver(false)
             ->label('Create Opportunity')
             ->modalWidth('2xl')
-            ->form(fn(Forms\Form $form): \Filament\Forms\Form => OpportunityForm::get($form))
+            ->form(fn (Forms\Form $form): \Filament\Forms\Form => OpportunityForm::get($form))
             ->action(function (Action $action, array $arguments): void {
                 $opportunity = Auth::user()->currentTeam->opportunities()->create($action->getFormData());
                 $opportunity->saveCustomFieldValue($this->stageCustomField(), $arguments['column']);
@@ -62,7 +61,7 @@ final class OpportunitiesBoard extends KanbanBoardPage
 
     public function editAction(Action $action): Action
     {
-        return $action->form(fn(Forms\Form $form): \Filament\Forms\Form => OpportunityForm::get($form));
+        return $action->form(fn (Forms\Form $form): \Filament\Forms\Form => OpportunityForm::get($form));
     }
 
     public function getAdapter(): KanbanAdapterInterface
@@ -80,7 +79,7 @@ final class OpportunitiesBoard extends KanbanBoardPage
 
     private function stages(): Collection
     {
-        return $this->stageCustomField()->options->map(fn($option): array => [
+        return $this->stageCustomField()->options->map(fn ($option): array => [
             'id' => $option->id,
             'custom_field_id' => $option->custom_field_id,
             'name' => $option->name,

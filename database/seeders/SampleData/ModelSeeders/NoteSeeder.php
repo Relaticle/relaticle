@@ -11,7 +11,7 @@ use App\Models\User;
 use Database\Seeders\SampleData\Support\BaseModelSeeder;
 use Illuminate\Database\Eloquent\Model;
 
-class NoteSeeder extends BaseModelSeeder
+final class NoteSeeder extends BaseModelSeeder
 {
     protected string $modelClass = Note::class;
 
@@ -22,9 +22,9 @@ class NoteSeeder extends BaseModelSeeder
     /**
      * Seed model implementation
      *
-     * @param Team $team The team to create data for
-     * @param User $user The user creating the data
-     * @param array<string, mixed> $context Context data from previous seeders
+     * @param  Team  $team  The team to create data for
+     * @param  User  $user  The user creating the data
+     * @param  array<string, mixed>  $context  Context data from previous seeders
      * @return array<string, mixed> Seeded data for use by subsequent seeders
      */
     protected function seedModel(Team $team, User $user, array $context = []): array
@@ -100,10 +100,10 @@ class NoteSeeder extends BaseModelSeeder
     /**
      * Create a note with custom fields
      *
-     * @param Model $noteable The model to attach the note to
-     * @param User $user The user creating the note
-     * @param string $title The note title
-     * @param string $body The note body content
+     * @param  Model  $noteable  The model to attach the note to
+     * @param  User  $user  The user creating the note
+     * @param  string  $title  The note title
+     * @param  string  $body  The note body content
      * @return Note The created note
      */
     private function createNote(Model $noteable, User $user, string $title, string $body): Note

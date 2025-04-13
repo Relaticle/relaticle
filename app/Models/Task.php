@@ -16,6 +16,9 @@ use Relaticle\CustomFields\Models\Concerns\UsesCustomFields;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 use Spatie\EloquentSortable\SortableTrait;
 
+/**
+ * @property int $id
+ */
 #[ObservedBy(TaskObserver::class)]
 final class Task extends Model implements HasCustomFields
 {

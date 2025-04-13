@@ -30,8 +30,8 @@ final class Company extends Model implements HasCustomFields, HasMedia
     /** @use HasFactory<CompanyFactory> */
     use HasFactory;
 
-    use UsesCustomFields;
     use InteractsWithMedia;
+    use UsesCustomFields;
 
     /**
      * @var array<int, string>

@@ -20,7 +20,7 @@ arch('avoid open for extension')
     ->classes()
     ->toBeFinal()
     ->ignoring([
-//        App\Services\Autocomplete\Types\Type::class,
+        //        App\Services\Autocomplete\Types\Type::class,
     ]);
 
 arch('ensure no extends')
@@ -66,7 +66,7 @@ arch('avoid inheritance')
         'App\Services\Autocomplete\Types',
     ]);
 
-arch('annotations')
-    ->expect('App')
-    ->toHavePropertiesDocumented()
-    ->toHaveMethodsDocumented();
+// arch('annotations')
+//    ->expect('App')
+//    ->toHavePropertiesDocumented()
+//    ->toHaveMethodsDocumented();

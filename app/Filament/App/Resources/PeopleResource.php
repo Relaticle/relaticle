@@ -56,7 +56,7 @@ final class PeopleResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('company.name')
                     ->label('Company')
-                    ->url(fn(People $record): string => CompanyResource::getUrl('view', [$record->company_id]))
+                    ->url(fn (People $record): string => CompanyResource::getUrl('view', [$record->company_id]))
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')

@@ -9,7 +9,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent;
 
-class NoteForm
+final class NoteForm
 {
     public static function get(Forms\Form $form, array $excludeFields = []): Forms\Form
     {
@@ -20,26 +20,26 @@ class NoteForm
                 ->columnSpanFull()
                 ->required(),
         ];
-        
-        if (!in_array('companies', $excludeFields)) {
+
+        if (! in_array('companies', $excludeFields)) {
             $schema[] = Select::make('companies')
                 ->label('Companies')
                 ->multiple()
                 ->relationship('companies', 'name');
         }
-        
-        if (!in_array('people', $excludeFields)) {
+
+        if (! in_array('people', $excludeFields)) {
             $schema[] = Select::make('people')
                 ->label('People')
                 ->multiple()
                 ->relationship('people', 'name')
                 ->nullable();
         }
-        
+
         $schema[] = CustomFieldsComponent::make()
             ->columnSpanFull()
             ->columns();
-        
+
         return $form
             ->schema($schema)
             ->columns(2);
