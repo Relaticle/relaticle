@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\App\Resources\CompanyResource\RelationManagers;
 
+use App\Filament\App\Resources\NoteResource\Forms\NoteForm;
 use Filament\Forms;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -21,22 +22,7 @@ final class NotesRelationManager extends RelationManager
 
     public function form(Form $form): Form
     {
-        return $form
-            ->schema([
-                TextInput::make('title')
-                    ->label('Title')
-                    ->rules(['max:255'])
-                    ->columnSpanFull()
-                    ->required(),
-                CustomFieldsComponent::make()
-                    ->columnSpanFull()
-                    ->columns(),
-                Select::make('people')
-                    ->label('People')
-                    ->multiple()
-                    ->relationship('people', 'name')
-                    ->nullable(),
-            ]);
+        return NoteForm::get($form, ['companies']);
     }
 
     public function table(Table $table): Table
