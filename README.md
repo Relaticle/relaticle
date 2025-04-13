@@ -6,7 +6,7 @@
 
 <h2 align="center" >The Next-Generation Open-Source CRM Platform</h3>
 
-<p align="center"><a href="https://relaticle.com">🌐 Website</a> · <a href="https://relaticle.com/developers">📚 Documentation</a> · <a href="https://github.com/orgs/Relaticle/projects/1/views/1">🛣️ Roadmap </a>
+<p align="center"><a href="https://relaticle.com">🌐 Website</a> · <a href="https://relaticle.com/documentation">📚 Documentation</a> · <a href="https://github.com/orgs/Relaticle/projects/1/views/1">🛣️ Roadmap </a>
 <p>
 <br />
 
