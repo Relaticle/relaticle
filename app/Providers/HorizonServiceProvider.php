@@ -29,11 +29,10 @@ final class HorizonServiceProvider extends HorizonApplicationServiceProvider
      *
      * This gate determines who can access Horizon in non-local environments.
      */
-    #[\Override]
     protected function gate(): void
     {
         Gate::define('viewHorizon', fn (Model $user): bool => in_array($user->email, [
-            //
+            'manuk.minasyan1@gmail.com'
         ]));
     }
 }
