@@ -47,25 +47,6 @@ Route::get('/dashboard', function () {
     return redirect()->away(UrlHelper::getAppUrl('dashboard'));
 })->name('dashboard');
 
-// Routes needed for tests to pass
-Route::middleware(['auth'])->group(function () {
-    Route::get('/email/verify', function () {
-        return view('auth.verify-email');
-    })->name('verification.notice');
-
-    Route::get('/email/verify/{id}/{hash}', function () {
-        return redirect('/app');
-    })->middleware(['signed'])->name('verification.verify');
-
-    Route::get('/user/confirm-password', function () {
-        return view('auth.confirm-password');
-    })->name('password.confirm');
-
-    Route::post('/user/confirm-password', function () {
-        return redirect()->back();
-    });
-});
-
 Route::get('/team-invitations/{invitation}', [TeamInvitationController::class, 'accept'])
     ->middleware(['signed', 'verified', 'auth', AuthenticateSession::class])
     ->name('team-invitations.accept');
