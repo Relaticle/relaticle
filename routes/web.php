@@ -27,8 +27,18 @@ Route::middleware('guest')->group(function () {
     Route::get('/auth/callback/{provider}', CallbackController::class)
         ->name('auth.socialite.callback');
 
-    Route::redirect('/login', '/app/login')->name('login');
-    Route::redirect('/register', '/app/register')->name('register');
+    // Get app subdomain URL components from config
+    $appHost = 'app.'.parse_url(config('app.url'))['host'];
+    $scheme = parse_url(config('app.url'))['scheme'] ?? 'https';
+
+    // Use proper Laravel helpers for external redirects
+    Route::get('/login', function () use ($scheme, $appHost) {
+        return redirect()->away($scheme.'://'.$appHost.'/login');
+    })->name('login');
+
+    Route::get('/register', function () use ($scheme, $appHost) {
+        return redirect()->away($scheme.'://'.$appHost.'/register');
+    })->name('register');
 });
 
 Route::get('/', HomeController::class);
