@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Database\Seeders\SampleData;
 
-use App\Models\User;
 use Database\Seeders\SampleData\Contracts\ModelSeederInterface;
 use Database\Seeders\SampleData\ModelSeeders\CompanySeeder;
 use Database\Seeders\SampleData\ModelSeeders\NoteSeeder;
 use Database\Seeders\SampleData\ModelSeeders\OpportunitySeeder;
 use Database\Seeders\SampleData\ModelSeeders\PeopleSeeder;
 use Database\Seeders\SampleData\ModelSeeders\TaskSeeder;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Facades\Log;
 
 final class SampleDataManager
@@ -38,10 +38,10 @@ final class SampleDataManager
     /**
      * Generate sample data for a user
      *
-     * @param  User  $user  The user to create sample data for
+     * @param  Authenticatable  $user  The user to create sample data for
      * @return bool Whether the seeding was successful
      */
-    public function generateFor(User $user): bool
+    public function generateFor(Authenticatable $user): bool
     {
         $team = $user->currentTeam;
 
