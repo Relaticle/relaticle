@@ -13,11 +13,20 @@ use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Actions\ForceDeleteAction;
+use Filament\Tables\Actions\ForceDeleteBulkAction;
+use Filament\Tables\Actions\RestoreAction;
+use Filament\Tables\Actions\RestoreBulkAction;
+use Filament\Tables\Filters\TrashedFilter;
+use Filament\Tables\Actions\ActionGroup;
+use Filament\Tables\Actions\BulkActionGroup;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Relaticle\CustomFields\Contracts\ValueResolvers;
 use Relaticle\CustomFields\Models\CustomField;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 final class TaskResource extends Resource
 {
@@ -65,6 +74,11 @@ final class TaskResource extends Resource
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('deleted_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable()
+                    ->toggledHiddenByDefault(),
             ])
             ->defaultSort('created_at', 'desc')
             ->searchable()
@@ -81,6 +95,7 @@ final class TaskResource extends Resource
                     ->relationship('assignees', 'name')
                     ->searchable()
                     ->preload(),
+                TrashedFilter::make(),
             ])
             ->groups([
                 Tables\Grouping\Group::make('status')
@@ -159,10 +174,14 @@ final class TaskResource extends Resource
                         }),
                     Tables\Actions\DeleteAction::make(),
                 ]),
+                ForceDeleteAction::make(),
+                RestoreAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+                    ForceDeleteBulkAction::make(),
+                    RestoreBulkAction::make(),
                 ]),
             ]);
     }
@@ -172,5 +191,13 @@ final class TaskResource extends Resource
         return [
             'index' => ManageTasks::route('/'),
         ];
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->withoutGlobalScopes([
+                SoftDeletingScope::class,
+            ]);
     }
 }

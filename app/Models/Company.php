@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Relaticle\CustomFields\Models\Concerns\UsesCustomFields;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 use Spatie\MediaLibrary\HasMedia;
@@ -23,6 +24,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  * @property string $address
  * @property string $country
  * @property string $phone
+ * @property \Illuminate\Support\Carbon|null $deleted_at
  */
 #[ObservedBy(CompanyObserver::class)]
 final class Company extends Model implements HasCustomFields, HasMedia
@@ -31,6 +33,7 @@ final class Company extends Model implements HasCustomFields, HasMedia
     use HasFactory;
 
     use InteractsWithMedia;
+    use SoftDeletes;
     use UsesCustomFields;
 
     /**

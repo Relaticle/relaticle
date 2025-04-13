@@ -10,13 +10,18 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Relaticle\CustomFields\Models\Concerns\UsesCustomFields;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 
+/**
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ */
 #[ObservedBy(NoteObserver::class)]
 final class Note extends Model implements HasCustomFields
 {
     use HasFactory;
+    use SoftDeletes;
     use UsesCustomFields;
 
     public function team(): BelongsTo
