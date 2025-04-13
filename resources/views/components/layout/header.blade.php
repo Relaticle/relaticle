@@ -33,7 +33,7 @@
                     <a href="{{ route('documentation.index') }}"
                         class="text-gray-700 dark:text-white hover:text-primary dark:hover:text-primary-400 text-sm font-medium transition-all duration-200 relative after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:w-0 after:bg-primary dark:after:bg-primary after:transition-all hover:after:w-full"
                         aria-label="Documentation">Documentation</a>
-                    <a href="https://github.com/Relaticle" target="_blank" rel="noopener"
+                    <a href="https://github.com/Relaticle/relaticle" target="_blank" rel="noopener"
                         class="text-gray-700 dark:text-white hover:text-primary dark:hover:text-primary-400 text-sm font-medium transition-all duration-200 flex items-center gap-1.5 relative after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:w-0 after:bg-primary dark:after:bg-primary after:transition-all hover:after:w-full"
                         aria-label="GitHub Repository">
                         <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
@@ -132,7 +132,7 @@
                     <span class="font-medium">Documentation</span>
                 </a>
 
-                <a href="https://github.com/Relaticle" target="_blank" rel="noopener"
+                <a href="https://github.com/Relaticle/relaticle" target="_blank" rel="noopener"
                     class="menu-item opacity-0 transform translate-x-4 flex items-center px-3 py-3 text-gray-700 dark:text-gray-200 hover:text-primary dark:hover:text-primary-400 text-base transition-all duration-200 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/70"
                     style="transition-delay: 200ms;">
                     <svg class="mr-3 h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
