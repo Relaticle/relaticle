@@ -6,7 +6,7 @@ namespace App\Filament\App\Resources;
 
 use App\Filament\App\Resources\CompanyResource\Pages;
 use App\Models\Company;
-use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -19,7 +19,6 @@ use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Model;
 use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent;
 
 final class CompanyResource extends Resource
@@ -38,20 +37,17 @@ final class CompanyResource extends Resource
     {
         return $form
             ->schema([
-                Placeholder::make('created_at')
-                    ->label('Created Date')
-                    ->content(fn(?Company $record): string => $record?->created_at?->diffForHumans() ?? '-'),
-
-                Placeholder::make('updated_at')
-                    ->label('Last Modified Date')
-                    ->content(fn(?Company $record): string => $record?->updated_at?->diffForHumans() ?? '-'),
-
                 TextInput::make('name')
                     ->required(),
-
+                Select::make('account_owner_id')
+                    ->relationship('accountOwner', 'name')
+                    ->label('Account Owner')
+                    ->preload()
+                    ->searchable(),
                 CustomFieldsComponent::make()->columns(1),
-
-            ])->columns(1)->inlineLabel();
+            ])
+            ->columns(1)
+            ->inlineLabel();
     }
 
     public static function table(Table $table): Table
@@ -62,7 +58,31 @@ final class CompanyResource extends Resource
                 TextColumn::make('name')
                     ->searchable()
                     ->sortable(),
+                TextColumn::make('accountOwner.name')
+                    ->label('Account Owner')
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable(),
+                TextColumn::make('creator.name')
+                    ->label('Created By')
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable()
+                    ->toggledHiddenByDefault(),
+                TextColumn::make('created_at')
+                    ->label('Creation Date')
+                    ->dateTime()
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable(),
+                TextColumn::make('updated_at')
+                    ->label('Last Update')
+                    ->since()
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable(),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])
@@ -71,7 +91,7 @@ final class CompanyResource extends Resource
                     ViewAction::make(),
                     EditAction::make(),
                     DeleteAction::make(),
-                ])
+                ]),
             ])
             ->bulkActions([
                 BulkActionGroup::make([
@@ -84,7 +104,6 @@ final class CompanyResource extends Resource
     {
         return [
             'index' => Pages\ListCompanies::route('/'),
-            'create' => Pages\CreateCompany::route('/create'),
             'view' => Pages\ViewCompany::route('/{record}'),
         ];
     }

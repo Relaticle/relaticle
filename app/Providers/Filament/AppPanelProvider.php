@@ -29,6 +29,7 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Event;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
@@ -39,6 +40,11 @@ use Relaticle\CustomFields\CustomFieldsPlugin;
 
 final class AppPanelProvider extends PanelProvider
 {
+    /**
+     * Perform post-registration booting of components.
+     *
+     * @return void
+     */
     public function boot(): void
     {
         /**
@@ -65,14 +71,13 @@ final class AppPanelProvider extends PanelProvider
      *
      * @throws \Exception
      */
-    #[\Override]
     public function panel(Panel $panel): Panel
     {
         $panel
             ->default()
             ->id('app')
             ->path('app')
-            ->homeUrl(fn (): string => CompanyResource::getUrl('index'))
+            ->homeUrl(fn (): string => CompanyResource::getUrl())
             ->brandName('Relaticle')
             ->login(Login::class)
             ->passwordReset()
@@ -98,6 +103,7 @@ final class AppPanelProvider extends PanelProvider
             ->discoverPages(in: app_path('Filament/App/Pages'), for: 'App\\Filament\\App\\Pages')
             ->discoverWidgets(in: app_path('Filament/App/Widgets'), for: 'App\\Filament\\App\\Widgets')
             ->discoverClusters(in: app_path('Filament/App/Clusters'), for: 'App\\Filament\\App\\Clusters')
+            ->readOnlyRelationManagersOnResourceViewPagesByDefault(false)
             ->pages([
                 EditProfile::class,
                 ApiTokens::class,
@@ -162,7 +168,7 @@ final class AppPanelProvider extends PanelProvider
 
     public function shouldRegisterMenuItem(): bool
     {
-        $hasVerifiedEmail = auth()->user()?->hasVerifiedEmail();
+        $hasVerifiedEmail = Auth::user()?->hasVerifiedEmail();
 
         return Filament::hasTenancy()
             ? $hasVerifiedEmail && Filament::getTenant()

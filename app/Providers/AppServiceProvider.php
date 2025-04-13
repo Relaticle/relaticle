@@ -10,22 +10,19 @@ use App\Models\Opportunity;
 use App\Models\People;
 use App\Models\Task;
 use App\Models\User;
+use Filament\Actions\Action;
+use Filament\Tables\Actions\Action as TableAction;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
-use Filament\Actions\Action;
-use Filament\Actions\DeleteAction;
-use Filament\Tables\Actions\Action as TableAction;
-use Filament\Tables\Actions\DeleteAction as TableDeleteAction;
 
 final class AppServiceProvider extends ServiceProvider
 {
     /**
      * Register any application services.
      */
-    #[\Override]
     public function register(): void
     {
         //
@@ -59,16 +56,22 @@ final class AppServiceProvider extends ServiceProvider
      */
     private function configureFilament(): void
     {
-        Action::configureUsing(function (Action $action) {
-            if (!$action instanceof DeleteAction) {
+        $slideOverActions = ['create', 'edit', 'view'];
+
+        Action::configureUsing(function (Action $action) use ($slideOverActions): Action {
+            if (in_array($action->getName(), $slideOverActions)) {
                 return $action->slideOver();
             }
+
+            return $action;
         });
 
-        TableAction::configureUsing(function (TableAction $action) {
-            if (!$action instanceof TableDeleteAction) {
+        TableAction::configureUsing(function (TableAction $action) use ($slideOverActions): TableAction {
+            if (in_array($action->getName(), $slideOverActions)) {
                 return $action->slideOver();
             }
+
+            return $action;
         });
     }
 }

@@ -16,8 +16,8 @@ return new class extends Migration
         Schema::create('notes', function (Blueprint $table): void {
             $table->id();
 
-            $table->foreignId('team_id');
-            $table->foreignId('user_id')->nullable()->constrained()->onDelete('set null');
+            $table->foreignId('team_id')->constrained('teams')->cascadeOnDelete();
+            $table->foreignId('creator_id')->nullable()->constrained('users')->onDelete('set null');
 
             $table->string('title');
 
