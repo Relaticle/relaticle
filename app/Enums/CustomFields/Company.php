@@ -9,8 +9,8 @@ use Relaticle\CustomFields\Enums\CustomFieldType;
 
 enum Company: string
 {
-    use EnumValues;
     use CustomFieldTrait;
+    use EnumValues;
 
     /**
      * Ideal Customer Profile: Indicates whether the company is the most suitable customer for you
@@ -29,7 +29,7 @@ enum Company: string
 
     public function getDisplayName(): string
     {
-        return match($this) {
+        return match ($this) {
             self::ICP => 'ICP',
             self::DOMAIN_NAME => 'Domain Name',
             self::LINKEDIN => 'LinkedIn', // Fixed capitalization
@@ -38,7 +38,7 @@ enum Company: string
 
     public function getFieldType(): CustomFieldType
     {
-        return match($this) {
+        return match ($this) {
             self::ICP => CustomFieldType::TOGGLE,
             self::DOMAIN_NAME, self::LINKEDIN => CustomFieldType::LINK,
         };
@@ -46,7 +46,7 @@ enum Company: string
 
     public function isSystemDefined(): bool
     {
-        return match($this) {
+        return match ($this) {
             self::DOMAIN_NAME => true,
             default => false,
         };
@@ -54,7 +54,7 @@ enum Company: string
 
     public function isListToggleableHidden(): bool
     {
-        return match($this) {
+        return match ($this) {
             self::ICP, self::DOMAIN_NAME => false,
             default => true,
         };
@@ -62,7 +62,7 @@ enum Company: string
 
     public function getDescription(): ?string
     {
-        return match($this) {
+        return match ($this) {
             self::ICP => 'Indicates whether this company is an Ideal Customer Profile',
             self::DOMAIN_NAME => 'The website domain of the company (e.g., example.com)',
             self::LINKEDIN => 'URL to the company\'s LinkedIn profile',

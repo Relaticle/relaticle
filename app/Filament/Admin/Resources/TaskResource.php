@@ -70,7 +70,7 @@ final class TaskResource extends Resource
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('assignees')
-                    ->relationship('assignees', 'name')
+                    ->relationship('assignees', 'name'),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),

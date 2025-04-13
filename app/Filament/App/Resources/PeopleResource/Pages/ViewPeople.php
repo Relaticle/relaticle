@@ -38,12 +38,12 @@ final class ViewPeople extends ViewRecord
                         ->circular()
                         ->grow(false),
                     Components\TextEntry::make('name')
-                    ->label('')
+                        ->label('')
                         ->size(Components\TextEntry\TextEntrySize::Large),
                     Components\TextEntry::make('company.name')
                         ->label('Company')
                         ->color('primary')
-                        ->url(fn($record): ?string => $record->company ? CompanyResource::getUrl('view', [$record->company]) : null),
+                        ->url(fn ($record): ?string => $record->company ? CompanyResource::getUrl('view', [$record->company]) : null),
                 ]),
                 CustomFieldsInfolists::make()->columnSpanFull(),
             ]),

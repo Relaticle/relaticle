@@ -16,12 +16,12 @@ abstract class BaseModelSeeder implements ModelSeederInterface
      * The custom fields collection
      */
     protected Collection $fields;
-    
+
     /**
      * The model class this seeder handles
      */
     protected string $modelClass;
-    
+
     /**
      * The field codes to fetch
      *
@@ -33,7 +33,7 @@ abstract class BaseModelSeeder implements ModelSeederInterface
      * Current team ID
      */
     protected ?int $teamId = null;
-    
+
     /**
      * Initialize the seeder
      */
@@ -41,7 +41,7 @@ abstract class BaseModelSeeder implements ModelSeederInterface
     {
         return $this;
     }
-    
+
     /**
      * Set team ID for custom fields retrieval
      */
@@ -49,7 +49,7 @@ abstract class BaseModelSeeder implements ModelSeederInterface
     {
         $this->teamId = $teamId;
     }
-    
+
     /**
      * Get custom fields for the model
      *
@@ -60,7 +60,7 @@ abstract class BaseModelSeeder implements ModelSeederInterface
         if ($this->teamId === null || $this->teamId === 0) {
             return collect();
         }
-        
+
         return CustomField::query()
             ->whereTenantId($this->teamId)
             ->forEntity($this->modelClass)
@@ -68,7 +68,7 @@ abstract class BaseModelSeeder implements ModelSeederInterface
             ->get()
             ->keyBy('code');
     }
-    
+
     /**
      * Prepare for seeding
      */
@@ -77,31 +77,32 @@ abstract class BaseModelSeeder implements ModelSeederInterface
         $this->setTeamId($team->id);
         $this->fields = $this->customFields();
     }
-    
+
     /**
      * Run the model seed process
      */
     public function seed(Team $team, User $user, array $context = []): array
     {
         $this->prepareForSeed($team);
+
         return $this->seedModel($team, $user, $context);
     }
-    
+
     /**
      * Seed model implementation
-     * 
-     * @param Team $team The team to create data for
-     * @param User $user The user creating the data
-     * @param array<string, mixed> $context Context data from previous seeders
+     *
+     * @param  Team  $team  The team to create data for
+     * @param  User  $user  The user creating the data
+     * @param  array<string, mixed>  $context  Context data from previous seeders
      * @return array<string, mixed> Seeded data for use by subsequent seeders
      */
     abstract protected function seedModel(Team $team, User $user, array $context = []): array;
-    
+
     /**
      * Apply custom fields to a model
      *
-     * @param object $model The model to apply fields to
-     * @param array<string, mixed> $data The field data
+     * @param  object  $model  The model to apply fields to
+     * @param  array<string, mixed>  $data  The field data
      */
     protected function applyCustomFields(object $model, array $data): void
     {
@@ -111,25 +112,25 @@ abstract class BaseModelSeeder implements ModelSeederInterface
             }
         }
     }
-    
+
     /**
      * Get option ID from a custom field by label
      *
-     * @param string $fieldCode The field code
-     * @param string $optionLabel The option label to find
+     * @param  string  $fieldCode  The field code
+     * @param  string  $optionLabel  The option label to find
      * @return mixed The option ID or null if not found
      */
     protected function getOptionId(string $fieldCode, string $optionLabel): mixed
     {
         $field = $this->fields[$fieldCode] ?? null;
-        
-        if (!$field || !$field->options || $field->options->isEmpty()) {
+
+        if (! $field || ! $field->options || $field->options->isEmpty()) {
             return null;
         }
-        
+
         $option = $field->options->firstWhere('label', $optionLabel)
             ?? $field->options->first();
-            
+
         return $option ? $option->id : null;
     }
-} 
+}

@@ -10,7 +10,7 @@ use App\Models\UserSocialAccount;
 use Illuminate\Http\RedirectResponse;
 use Laravel\Socialite\Facades\Socialite;
 
-final class CallbackController
+final readonly class CallbackController
 {
     public function __invoke(string $provider, CreatesNewSocialUsers $creator): RedirectResponse
     {

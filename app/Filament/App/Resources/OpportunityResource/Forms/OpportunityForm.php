@@ -7,7 +7,7 @@ namespace App\Filament\App\Resources\OpportunityResource\Forms;
 use Filament\Forms;
 use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent;
 
-class OpportunityForm
+final class OpportunityForm
 {
     public static function get(Forms\Form $form): Forms\Form
     {

@@ -11,7 +11,7 @@ use App\Models\Team;
 use App\Models\User;
 use Database\Seeders\SampleData\Support\BaseModelSeeder;
 
-class OpportunitySeeder extends BaseModelSeeder
+final class OpportunitySeeder extends BaseModelSeeder
 {
     protected string $modelClass = Opportunity::class;
 
@@ -24,9 +24,9 @@ class OpportunitySeeder extends BaseModelSeeder
     /**
      * Seed model implementation
      *
-     * @param Team $team The team to create data for
-     * @param User $user The user creating the data
-     * @param array<string, mixed> $context Context data from previous seeders
+     * @param  Team  $team  The team to create data for
+     * @param  User  $user  The user creating the data
+     * @param  array<string, mixed>  $context  Context data from previous seeders
      * @return array<string, mixed> Seeded data for use by subsequent seeders
      */
     protected function seedModel(Team $team, User $user, array $context = []): array
@@ -48,7 +48,7 @@ class OpportunitySeeder extends BaseModelSeeder
                 OpportunityCustomField::STAGE->value => $this->getOptionId(
                     OpportunityCustomField::STAGE->value,
                     'Proposal/Price Quote'
-                )
+                ),
             ]
         );
 
@@ -63,7 +63,7 @@ class OpportunitySeeder extends BaseModelSeeder
                 OpportunityCustomField::STAGE->value => $this->getOptionId(
                     OpportunityCustomField::STAGE->value,
                     'Needs Analysis'
-                )
+                ),
             ]
         );
 
@@ -78,7 +78,7 @@ class OpportunitySeeder extends BaseModelSeeder
                 OpportunityCustomField::STAGE->value => $this->getOptionId(
                     OpportunityCustomField::STAGE->value,
                     'Initial Contact'
-                )
+                ),
             ]
         );
 
@@ -93,7 +93,7 @@ class OpportunitySeeder extends BaseModelSeeder
                 OpportunityCustomField::STAGE->value => $this->getOptionId(
                     OpportunityCustomField::STAGE->value,
                     'Discovery/Qualification'
-                )
+                ),
             ]
         );
 
@@ -102,8 +102,8 @@ class OpportunitySeeder extends BaseModelSeeder
                 'figma_enterprise' => $opportunity1,
                 'apple_partnership' => $opportunity2,
                 'airbnb_analytics' => $opportunity3,
-                'notion_integration' => $opportunity4
-            ]
+                'notion_integration' => $opportunity4,
+            ],
         ];
     }
 

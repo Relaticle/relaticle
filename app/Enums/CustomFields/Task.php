@@ -10,8 +10,8 @@ use Relaticle\CustomFields\Enums\CustomFieldWidth;
 
 enum Task: string
 {
-    use EnumValues;
     use CustomFieldTrait;
+    use EnumValues;
 
     /**
      * Task status tracking
@@ -40,7 +40,7 @@ enum Task: string
      */
     public function getDisplayName(): string
     {
-        return match($this) {
+        return match ($this) {
             self::STATUS => 'Status',
             self::PRIORITY => 'Priority',
             self::DESCRIPTION => 'Description',
@@ -55,7 +55,7 @@ enum Task: string
      */
     public function getFieldType(): CustomFieldType
     {
-        return match($this) {
+        return match ($this) {
             self::STATUS, self::PRIORITY => CustomFieldType::SELECT,
             self::DESCRIPTION => CustomFieldType::RICH_EDITOR,
             self::DUE_DATE => CustomFieldType::DATE_TIME,
@@ -69,7 +69,7 @@ enum Task: string
      */
     public function isSystemDefined(): bool
     {
-        return match($this) {
+        return match ($this) {
             self::STATUS, self::PRIORITY => true,
             default => false,
         };
@@ -82,7 +82,7 @@ enum Task: string
      */
     public function isListToggleableHidden(): bool
     {
-        return match($this) {
+        return match ($this) {
             self::STATUS, self::PRIORITY, self::DUE_DATE => false,
             default => true,
         };
@@ -95,7 +95,7 @@ enum Task: string
      */
     public function getWidth(): ?CustomFieldWidth
     {
-        return match($this) {
+        return match ($this) {
             self::STATUS, self::PRIORITY => CustomFieldWidth::_50,
             default => CustomFieldWidth::_100,
         };
@@ -108,7 +108,7 @@ enum Task: string
      */
     public function getOptions(): ?array
     {
-        return match($this) {
+        return match ($this) {
             self::STATUS => [
                 'To do',
                 'In progress',
@@ -130,7 +130,7 @@ enum Task: string
      */
     public function getDescription(): ?string
     {
-        return match($this) {
+        return match ($this) {
             self::STATUS => 'Current status of the task',
             self::PRIORITY => 'Priority level for this task',
             self::DESCRIPTION => 'Detailed description of what needs to be done',

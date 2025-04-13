@@ -5,14 +5,10 @@ declare(strict_types=1);
 namespace App\Filament\App\Resources\CompanyResource\RelationManagers;
 
 use App\Filament\App\Resources\NoteResource\Forms\NoteForm;
-use Filament\Forms;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent;
 
 final class NotesRelationManager extends RelationManager
 {
@@ -53,7 +49,7 @@ final class NotesRelationManager extends RelationManager
                     Tables\Actions\EditAction::make(),
                     Tables\Actions\DetachAction::make(),
                     Tables\Actions\DeleteAction::make(),
-                ])
+                ]),
 
             ])
             ->bulkActions([

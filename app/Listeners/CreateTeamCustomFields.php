@@ -4,6 +4,11 @@ declare(strict_types=1);
 
 namespace App\Listeners;
 
+use App\Enums\CustomFields\Company as CompanyCustomField;
+use App\Enums\CustomFields\Note as NoteCustomField;
+use App\Enums\CustomFields\Opportunity as OpportunityCustomField;
+use App\Enums\CustomFields\People as PeopleCustomField;
+use App\Enums\CustomFields\Task as TaskCustomField;
 use App\Models\Company;
 use App\Models\Note;
 use App\Models\Opportunity;
@@ -17,11 +22,6 @@ use Relaticle\CustomFields\Data\CustomFieldData;
 use Relaticle\CustomFields\Data\CustomFieldSectionData;
 use Relaticle\CustomFields\Data\CustomFieldSettingsData;
 use Relaticle\CustomFields\Enums\CustomFieldSectionType;
-use App\Enums\CustomFields\Company as CompanyCustomField;
-use App\Enums\CustomFields\Note as NoteCustomField;
-use App\Enums\CustomFields\Opportunity as OpportunityCustomField;
-use App\Enums\CustomFields\People as PeopleCustomField;
-use App\Enums\CustomFields\Task as TaskCustomField;
 
 /**
  * Creates custom fields for a team when it's created
@@ -47,16 +47,14 @@ final readonly class CreateTeamCustomFields
     public function __construct(
         private CustomsFieldsMigrators $migrator,
         private SampleDataSeeder $sampleDataSeeder,
-    )
-    {
-    }
+    ) {}
 
     /**
      * Handle the team created event
      */
     public function handle(TeamCreated $event): void
     {
-        if (!Features::hasTeamFeatures()) {
+        if (! Features::hasTeamFeatures()) {
             return;
         }
 
@@ -72,7 +70,7 @@ final readonly class CreateTeamCustomFields
             }
         }
 
-        if($team->isPersonalTeam()) {
+        if ($team->isPersonalTeam()) {
             $this->sampleDataSeeder->run($team->owner);
         }
     }
@@ -80,8 +78,8 @@ final readonly class CreateTeamCustomFields
     /**
      * Create a custom field using the provided enum configuration
      *
-     * @param string $model The model class name
-     * @param object $enum The custom field enum instance
+     * @param  string  $model  The model class name
+     * @param  object  $enum  The custom field enum instance
      */
     private function createCustomField(string $model, object $enum): void
     {

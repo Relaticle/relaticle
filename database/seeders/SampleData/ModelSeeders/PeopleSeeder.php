@@ -11,7 +11,7 @@ use App\Models\Team;
 use App\Models\User;
 use Database\Seeders\SampleData\Support\BaseModelSeeder;
 
-class PeopleSeeder extends BaseModelSeeder
+final class PeopleSeeder extends BaseModelSeeder
 {
     protected string $modelClass = People::class;
 
@@ -25,9 +25,9 @@ class PeopleSeeder extends BaseModelSeeder
     /**
      * Seed model implementation
      *
-     * @param Team $team The team to create data for
-     * @param User $user The user creating the data
-     * @param array<string, mixed> $context Context data from previous seeders
+     * @param  Team  $team  The team to create data for
+     * @param  User  $user  The user creating the data
+     * @param  array<string, mixed>  $context  Context data from previous seeders
      * @return array<string, mixed> Seeded data for use by subsequent seeders
      */
     protected function seedModel(Team $team, User $user, array $context = []): array
@@ -46,7 +46,7 @@ class PeopleSeeder extends BaseModelSeeder
                 PeopleCustomField::EMAILS->value => ['dylan@figma.com'],
                 PeopleCustomField::PHONE_NUMBER->value => '555-123-4567',
                 PeopleCustomField::JOB_TITLE->value => 'CEO',
-                PeopleCustomField::LINKEDIN->value => 'https://www.linkedin.com/in/dylanfield/'
+                PeopleCustomField::LINKEDIN->value => 'https://www.linkedin.com/in/dylanfield/',
             ]
         );
 
@@ -58,7 +58,7 @@ class PeopleSeeder extends BaseModelSeeder
                 PeopleCustomField::EMAILS->value => ['tim@apple.com'],
                 PeopleCustomField::PHONE_NUMBER->value => '555-987-6543',
                 PeopleCustomField::JOB_TITLE->value => 'CEO',
-                PeopleCustomField::LINKEDIN->value => 'https://www.linkedin.com/in/timcook/'
+                PeopleCustomField::LINKEDIN->value => 'https://www.linkedin.com/in/timcook/',
             ]
         );
 
@@ -70,7 +70,7 @@ class PeopleSeeder extends BaseModelSeeder
                 PeopleCustomField::EMAILS->value => ['brian@airbnb.com'],
                 PeopleCustomField::PHONE_NUMBER->value => '555-456-7890',
                 PeopleCustomField::JOB_TITLE->value => 'CEO & Co-founder',
-                PeopleCustomField::LINKEDIN->value => 'https://www.linkedin.com/in/brianchesky/'
+                PeopleCustomField::LINKEDIN->value => 'https://www.linkedin.com/in/brianchesky/',
             ]
         );
 
@@ -82,7 +82,7 @@ class PeopleSeeder extends BaseModelSeeder
                 PeopleCustomField::EMAILS->value => ['ivan@notion.com'],
                 PeopleCustomField::PHONE_NUMBER->value => '555-789-0123',
                 PeopleCustomField::JOB_TITLE->value => 'Co-founder',
-                PeopleCustomField::LINKEDIN->value => 'https://www.linkedin.com/in/ivzhao/'
+                PeopleCustomField::LINKEDIN->value => 'https://www.linkedin.com/in/ivzhao/',
             ]
         );
 
@@ -91,8 +91,8 @@ class PeopleSeeder extends BaseModelSeeder
                 'dylan' => $dylanPerson,
                 'tim' => $timPerson,
                 'brian' => $brianPerson,
-                'ivan' => $ivanPerson
-            ]
+                'ivan' => $ivanPerson,
+            ],
         ];
     }
 

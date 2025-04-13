@@ -4,45 +4,43 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
-use App\Models\Opportunity;
-use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
-class OpportunityPolicy
+final readonly class OpportunityPolicy
 {
     use HandlesAuthorization;
 
-    public function viewAny(User $user): bool
+    public function viewAny(): bool
     {
         return true;
     }
 
-    public function view(User $user, Opportunity $opportunity): bool
+    public function view(): bool
     {
         return true;
     }
 
-    public function create(User $user): bool
+    public function create(): bool
     {
         return true;
     }
 
-    public function update(User $user, Opportunity $opportunity): bool
+    public function update(): bool
     {
         return true;
     }
 
-    public function delete(User $user, Opportunity $opportunity): bool
+    public function delete(): bool
     {
         return true;
     }
 
-    public function restore(User $user, Opportunity $opportunity): bool
+    public function restore(): bool
     {
         return true;
     }
 
-    public function forceDelete(User $user, Opportunity $opportunity): bool
+    public function forceDelete(): bool
     {
         return true;
     }

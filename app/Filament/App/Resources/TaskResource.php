@@ -7,8 +7,6 @@ namespace App\Filament\App\Resources;
 use App\Filament\App\Resources\TaskResource\Forms\TaskForm;
 use App\Filament\App\Resources\TaskResource\Pages\ManageTasks;
 use App\Models\Task;
-use Filament\Forms;
-use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
 use Filament\Notifications\Actions\Action;
 use Filament\Notifications\Notification;
@@ -19,7 +17,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Relaticle\CustomFields\Contracts\ValueResolvers;
-use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent;
 use Relaticle\CustomFields\Models\CustomField;
 
 final class TaskResource extends Resource
@@ -75,7 +72,7 @@ final class TaskResource extends Resource
             ->filters([
                 Tables\Filters\Filter::make('assigned_to_me')
                     ->label('Assigned to me')
-                    ->query(fn(Builder $query): Builder => $query->whereHas('assignees', function (Builder $query): void {
+                    ->query(fn (Builder $query): Builder => $query->whereHas('assignees', function (Builder $query): void {
                         $query->where('users.id', auth()->id());
                     }))
                     ->toggle(),
@@ -134,9 +131,9 @@ final class TaskResource extends Resource
                                             ->exists();
 
                                         // Only send notification if one doesn't already exist
-                                        if (!$notificationExists) {
+                                        if (! $notificationExists) {
                                             Notification::make()
-                                                ->title('New Task Assignment: ' . $record->title)
+                                                ->title('New Task Assignment: '.$record->title)
                                                 ->actions([
                                                     Action::make('view')
                                                         ->button()
@@ -161,7 +158,7 @@ final class TaskResource extends Resource
                             return $record;
                         }),
                     Tables\Actions\DeleteAction::make(),
-                ])
+                ]),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

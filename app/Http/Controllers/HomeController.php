@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-class HomeController
+final readonly class HomeController
 {
     public function __invoke()
     {

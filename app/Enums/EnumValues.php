@@ -16,7 +16,7 @@ trait EnumValues
     {
         return array_column(self::cases(), 'value');
     }
-    
+
     /**
      * Check if a value exists in the enum
      */
@@ -24,7 +24,7 @@ trait EnumValues
     {
         return in_array($value, self::values(), true);
     }
-    
+
     /**
      * Get an enum case by its value
      */
@@ -35,7 +35,7 @@ trait EnumValues
                 return $case;
             }
         }
-        
+
         return null;
     }
-} 
+}

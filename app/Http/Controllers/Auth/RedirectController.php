@@ -8,7 +8,7 @@ use App\Enums\SocialiteProvider;
 use Laravel\Socialite\Facades\Socialite;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
-final class RedirectController
+final readonly class RedirectController
 {
     public function __invoke(SocialiteProvider $provider): RedirectResponse
     {
