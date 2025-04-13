@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Actions\Fortify;
 
 use App\Contracts\User\CreatesNewSocialUsers;
-use App\Models\Team;
 use App\Models\User;
+use Filament\Events\Auth\Registered;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -31,22 +31,10 @@ final readonly class CreateNewSocialUser implements CreatesNewSocialUsers
             'name' => $input['name'],
             'email' => $input['email'],
         ]), function (User $user): void {
-            $this->createTeam($user);
+            event(new Registered($user));
             if ($user->markEmailAsVerified()) {
                 event(new Verified($user));
             }
         }));
-    }
-
-    /**
-     * Create a personal team for the user.
-     */
-    private function createTeam(User $user): void
-    {
-        $user->ownedTeams()->save(Team::forceCreate([
-            'user_id' => $user->id,
-            'name' => explode(' ', $user->name, 2)[0]."'s Team",
-            'personal_team' => true,
-        ]));
     }
 }

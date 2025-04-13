@@ -25,15 +25,9 @@ final readonly class CompanyObserver
      */
     public function saved(Company $company): void
     {
-        FetchFaviconForCompany::dispatch($company);
-    }
-
-    /**
-     * @param Company $company
-     * @return void
-     */
-    public function created(Company $company): void
-    {
+        info('Company saved', [
+            'company' => $company->toArray(),
+        ]);
         FetchFaviconForCompany::dispatch($company);
     }
 }
