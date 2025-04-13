@@ -44,7 +44,7 @@ Route::middleware('guest')->group(function () {
 Route::get('/', HomeController::class);
 
 Route::get('/dashboard', function () {
-    return redirect()->away(UrlHelper::getAppUrl('dashboard'));
+    return redirect()->away(UrlHelper::getAppUrl());
 })->name('dashboard');
 
 Route::get('/team-invitations/{invitation}', [TeamInvitationController::class, 'accept'])
