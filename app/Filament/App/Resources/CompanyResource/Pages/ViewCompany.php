@@ -48,7 +48,7 @@ final class ViewCompany extends ViewRecord
                             AvatarName::make('creator')
                                 ->avatar('creator.avatar')
                                 ->name('creator.name')
-                                ->avatarSize('md')
+                                ->avatarSize('sm')
                                 ->textSize('sm')  // Default text size for creator
                                 ->circular()
                                 ->label('Created By'),
