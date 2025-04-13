@@ -57,7 +57,7 @@ abstract class BaseModelSeeder implements ModelSeederInterface
      */
     public function customFields(): Collection
     {
-        if (!$this->teamId) {
+        if ($this->teamId === null || $this->teamId === 0) {
             return collect();
         }
         

@@ -20,10 +20,10 @@ arch('avoid open for extension')
     ->classes()
     ->toBeFinal()
     ->ignoring([
-        App\Services\Autocomplete\Types\Type::class,
+//        App\Services\Autocomplete\Types\Type::class,
     ]);
 
-test('ensure no extends')
+arch('ensure no extends')
     ->expect('App')
     ->classes()
     ->not->toBeAbstract();

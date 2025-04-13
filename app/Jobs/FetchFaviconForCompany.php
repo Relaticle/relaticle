@@ -49,7 +49,7 @@ class FetchFaviconForCompany implements ShouldQueue, ShouldBeUnique
                 ->toMediaCollection('logo');
 
             $this->company->clearMediaCollectionExcept('logo', $logo);
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             $this->company->clearMediaCollection('logo');
         }
     }

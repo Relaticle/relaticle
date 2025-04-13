@@ -47,7 +47,7 @@ final class Company extends Model implements HasCustomFields, HasMedia
     {
         $logo = $this->getFirstMediaUrl('logo');
 
-        return !empty($logo) ? $logo : app(AvatarService::class)->generateAuto(name: $this->name);
+        return $logo === '' || $logo === '0' ? app(AvatarService::class)->generateAuto(name: $this->name) : $logo;
     }
 
     public function team(): BelongsTo

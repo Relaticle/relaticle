@@ -66,7 +66,7 @@ class AvatarName extends Entry
     {
         $record = $this->getRecord();
 
-        if (! $record) {
+        if (!$record instanceof \Illuminate\Database\Eloquent\Model) {
             return [
                 'avatar' => null,
                 'name' => null,
@@ -76,8 +76,8 @@ class AvatarName extends Entry
             ];
         }
 
-        $avatarValue = $this->avatarPath ? $this->resolvePath($record, $this->avatarPath) : null;
-        $nameValue = $this->namePath ? $this->resolvePath($record, $this->namePath) : null;
+        $avatarValue = $this->avatarPath !== null && $this->avatarPath !== '' && $this->avatarPath !== '0' ? $this->resolvePath($record, $this->avatarPath) : null;
+        $nameValue = $this->namePath !== null && $this->namePath !== '' && $this->namePath !== '0' ? $this->resolvePath($record, $this->namePath) : null;
 
         return [
             'avatar' => $avatarValue,

@@ -33,7 +33,7 @@ final readonly class CreateTeamCustomFields
      *
      * @var array<class-string, class-string>
      */
-    private const MODEL_ENUM_MAP = [
+    private const array MODEL_ENUM_MAP = [
         Company::class => CompanyCustomField::class,
         Opportunity::class => OpportunityCustomField::class,
         Note::class => NoteCustomField::class,

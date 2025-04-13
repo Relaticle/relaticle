@@ -119,7 +119,7 @@ class TaskSeeder extends BaseModelSeeder
      */
     public function associateWithPeople(array $tasks, array $people): void
     {
-        if (empty($tasks) || empty($people)) {
+        if ($tasks === [] || $people === []) {
             return;
         }
 

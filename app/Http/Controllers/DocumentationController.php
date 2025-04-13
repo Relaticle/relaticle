@@ -46,7 +46,7 @@ class DocumentationController
         $realPath = realpath($path);
         $resourcePath = realpath(resource_path('markdown'));
         
-        if (!$realPath || !str_starts_with($realPath, $resourcePath)) {
+        if ($realPath === '' || $realPath === '0' || $realPath === false || !str_starts_with($realPath, $resourcePath)) {
             abort(404, 'Document not found');
         }
 
