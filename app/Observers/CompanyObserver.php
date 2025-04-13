@@ -27,4 +27,13 @@ final readonly class CompanyObserver
     {
         FetchFaviconForCompany::dispatch($company);
     }
+
+    /**
+     * @param Company $company
+     * @return void
+     */
+    public function created(Company $company): void
+    {
+        FetchFaviconForCompany::dispatch($company);
+    }
 }
