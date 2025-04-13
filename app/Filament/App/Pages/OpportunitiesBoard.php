@@ -34,9 +34,6 @@ final class OpportunitiesBoard extends KanbanBoardPage
         return Opportunity::query();
     }
 
-    /**
-     * @return void
-     */
     public function mount(): void
     {
         $this->titleField('name')
@@ -48,10 +45,6 @@ final class OpportunitiesBoard extends KanbanBoardPage
             ->cardLabel('Opportunity');
     }
 
-    /**
-     * @param Action $action
-     * @return Action
-     */
     public function createAction(Action $action): Action
     {
         return $action
@@ -60,38 +53,24 @@ final class OpportunitiesBoard extends KanbanBoardPage
             ->slideOver(false)
             ->label('Create Opportunity')
             ->modalWidth('2xl')
-            ->form(function (Forms\Form $form) {
-                return OpportunityForm::get($form);
-            })
+            ->form(fn(Forms\Form $form): \Filament\Forms\Form => OpportunityForm::get($form))
             ->action(function (Action $action, array $arguments): void {
                 $opportunity = Auth::user()->currentTeam->opportunities()->create($action->getFormData());
                 $opportunity->saveCustomFieldValue($this->stageCustomField(), $arguments['column']);
             });
     }
 
-    /**
-     * @param Action $action
-     * @return Action
-     */
     public function editAction(Action $action): Action
     {
-        return $action->form(function (Forms\Form $form) {
-            return OpportunityForm::get($form);
-        });
+        return $action->form(fn(Forms\Form $form): \Filament\Forms\Form => OpportunityForm::get($form));
     }
 
-    /**
-     * @return KanbanAdapterInterface
-     */
     public function getAdapter(): KanbanAdapterInterface
     {
         return new OpportunitiesKanbanAdapter(Opportunity::query(), $this->config);
     }
 
-    /**
-     * @return CustomField
-     */
-    protected function stageCustomField(): CustomField
+    private function stageCustomField(): CustomField
     {
         return CustomField::query()
             ->forEntity(Opportunity::class)
@@ -99,10 +78,7 @@ final class OpportunitiesBoard extends KanbanBoardPage
             ->firstOrFail();
     }
 
-    /**
-     * @return Collection
-     */
-    protected function stages(): Collection
+    private function stages(): Collection
     {
         return $this->stageCustomField()->options->map(fn($option): array => [
             'id' => $option->id,

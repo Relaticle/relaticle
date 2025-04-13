@@ -12,11 +12,6 @@ use Relaticle\Flowforge\Adapters\DefaultKanbanAdapter;
 
 class TasksKanbanAdapter extends DefaultKanbanAdapter
 {
-    /**
-     * @param string|int $columnId
-     * @param int $limit
-     * @return Collection
-     */
     public function getItemsForColumn(string|int $columnId, int $limit = 50): Collection
     {
         $orderField = $this->config->getOrderField();
@@ -36,10 +31,6 @@ class TasksKanbanAdapter extends DefaultKanbanAdapter
         return $this->formatCardsForDisplay($models);
     }
 
-    /**
-     * @param string|int $columnId
-     * @return int
-     */
     public function getColumnItemsCount(string|int $columnId): int
     {
         return $this->newQuery()
@@ -50,11 +41,6 @@ class TasksKanbanAdapter extends DefaultKanbanAdapter
             ->count();
     }
 
-    /**
-     * @param string|int $columnId
-     * @param array $recordIds
-     * @return bool
-     */
     public function updateRecordsOrderAndColumn(string|int $columnId, array $recordIds): bool
     {
         Task::query()
@@ -68,9 +54,6 @@ class TasksKanbanAdapter extends DefaultKanbanAdapter
         return true;
     }
 
-    /**
-     * @return CustomField
-     */
     protected function statusCustomField(): CustomField
     {
         return CustomField::query()

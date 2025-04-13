@@ -31,8 +31,6 @@ final class HorizonServiceProvider extends HorizonApplicationServiceProvider
      */
     protected function gate(): void
     {
-        Gate::define('viewHorizon', fn (Model $user): bool => in_array($user->email, [
-            'manuk.minasyan1@gmail.com'
-        ]));
+        Gate::define('viewHorizon', fn (Model $user): bool => $user->email == 'manuk.minasyan1@gmail.com');
     }
 }

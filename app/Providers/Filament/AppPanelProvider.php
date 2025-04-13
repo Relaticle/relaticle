@@ -42,8 +42,6 @@ final class AppPanelProvider extends PanelProvider
 {
     /**
      * Perform post-registration booting of components.
-     *
-     * @return void
      */
     public function boot(): void
     {
@@ -76,7 +74,7 @@ final class AppPanelProvider extends PanelProvider
         $panel
             ->default()
             ->id('app')
-            ->path('app')
+            ->domain('app.'.parse_url(config('app.url'))['host'])
             ->homeUrl(fn (): string => CompanyResource::getUrl())
             ->brandName('Relaticle')
             ->login(Login::class)

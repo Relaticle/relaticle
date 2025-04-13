@@ -98,7 +98,7 @@ class SampleDataManager
      */
     protected function createTaskPeopleRelationships(array $tasks, array $people): void
     {
-        if (empty($tasks) || empty($people)) {
+        if ($tasks === [] || $people === []) {
             return;
         }
 

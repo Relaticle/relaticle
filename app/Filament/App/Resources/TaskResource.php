@@ -75,11 +75,9 @@ final class TaskResource extends Resource
             ->filters([
                 Tables\Filters\Filter::make('assigned_to_me')
                     ->label('Assigned to me')
-                    ->query(function (Builder $query): Builder {
-                        return $query->whereHas('assignees', function (Builder $query) {
-                            $query->where('users.id', auth()->id());
-                        });
-                    })
+                    ->query(fn(Builder $query): Builder => $query->whereHas('assignees', function (Builder $query): void {
+                        $query->where('users.id', auth()->id());
+                    }))
                     ->toggle(),
                 Tables\Filters\SelectFilter::make('assignees')
                     ->multiple()
@@ -129,7 +127,7 @@ final class TaskResource extends Resource
                                 // TODO: Improve the logic to check if the task is already assigned to the user
                                 // Send notifications to assignees if they haven't been notified about this task yet
                                 if ($record->assignees->isNotEmpty()) {
-                                    $record->assignees->each(function (Model $recipient) use ($record) {
+                                    $record->assignees->each(function (Model $recipient) use ($record): void {
                                         // Check if a notification for this task already exists for this user
                                         $notificationExists = $recipient->notifications()
                                             ->where('data->viewData->task_id', $record->id)

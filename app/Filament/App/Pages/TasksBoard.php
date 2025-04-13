@@ -35,9 +35,6 @@ final class TasksBoard extends KanbanBoardPage
         return Task::query();
     }
 
-    /**
-     * @return void
-     */
     public function mount(): void
     {
         $this->titleField('title')
@@ -49,10 +46,6 @@ final class TasksBoard extends KanbanBoardPage
             ->cardLabel('Task');
     }
 
-    /**
-     * @param Action $action
-     * @return Action
-     */
     public function createAction(Action $action): Action
     {
         return $action
@@ -60,38 +53,24 @@ final class TasksBoard extends KanbanBoardPage
             ->modalWidth('2xl')
             ->iconButton()
             ->icon('heroicon-o-plus')
-            ->form(function (Forms\Form $form) {
-                return TaskForm::get($form);
-            })
+            ->form(fn(Forms\Form $form): \Filament\Forms\Form => TaskForm::get($form))
             ->action(function (Action $action, array $arguments): void {
                 $task = Auth::user()->currentTeam->tasks()->create($action->getFormData());
                 $task->saveCustomFieldValue($this->statusCustomField(), $arguments['column']);
             });
     }
 
-    /**
-     * @param Action $action
-     * @return Action
-     */
     public function editAction(Action $action): Action
     {
-        return $action->form(function (Forms\Form $form) {
-            return TaskForm::get($form);
-        });
+        return $action->form(fn(Forms\Form $form): \Filament\Forms\Form => TaskForm::get($form));
     }
 
-    /**
-     * @return KanbanAdapterInterface
-     */
     public function getAdapter(): KanbanAdapterInterface
     {
         return new TasksKanbanAdapter(Task::query(), $this->config);
     }
 
-    /**
-     * @return CustomField
-     */
-    protected function statusCustomField(): CustomField
+    private function statusCustomField(): CustomField
     {
         return CustomField::query()
             ->forEntity(Task::class)
@@ -99,10 +78,7 @@ final class TasksBoard extends KanbanBoardPage
             ->first();
     }
 
-    /**
-     * @return Collection
-     */
-    protected function statuses(): Collection
+    private function statuses(): Collection
     {
         return $this->statusCustomField()->options->map(fn($option): array => [
             'id' => $option->id,

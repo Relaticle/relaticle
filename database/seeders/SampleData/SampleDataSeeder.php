@@ -11,16 +11,10 @@ use Illuminate\Support\Facades\Auth;
 class SampleDataSeeder extends Seeder
 {
     /**
-     * @var SampleDataManager
-     */
-    private SampleDataManager $manager;
-
-    /**
      * Constructor with dependency injection
      */
-    public function __construct(SampleDataManager $manager)
+    public function __construct(private readonly SampleDataManager $manager)
     {
-        $this->manager = $manager;
     }
 
     /**
