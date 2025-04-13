@@ -11,7 +11,7 @@ use Illuminate\Auth\Events\Verified;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
-final class CreateNewSocialUser implements CreatesNewSocialUsers
+final readonly class CreateNewSocialUser implements CreatesNewSocialUsers
 {
     /**
      * Create a newly registered user.

@@ -12,7 +12,7 @@ use Illuminate\Validation\ValidationException;
 use Laravel\Jetstream\Contracts\RemovesTeamMembers;
 use Laravel\Jetstream\Events\TeamMemberRemoved;
 
-final class RemoveTeamMember implements RemovesTeamMembers
+final readonly class RemoveTeamMember implements RemovesTeamMembers
 {
     /**
      * Remove the team member from the given team.

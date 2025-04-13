@@ -18,7 +18,7 @@ use Laravel\Jetstream\Jetstream;
 use Laravel\Jetstream\Mail\TeamInvitation;
 use Laravel\Jetstream\Rules\Role;
 
-final class InviteTeamMember implements InvitesTeamMembers
+final readonly class InviteTeamMember implements InvitesTeamMembers
 {
     /**
      * Invite a new team member to the given team.
