@@ -6,7 +6,7 @@ namespace App\Observers;
 
 use App\Models\Task;
 
-final class TaskObserver
+final readonly class TaskObserver
 {
     public function creating(Task $task): void
     {

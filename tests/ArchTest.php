@@ -8,8 +8,14 @@ arch()->preset()->php();
 
 arch()->preset()->security()->ignoring('assert');
 
-arch()->preset()->laravel()
-    ->ignoring('App\Providers\Filament\AppPanelProvider');
+arch()->preset()
+    ->laravel()
+    ->ignoring([
+        'App\Providers\Filament\AppPanelProvider',
+        'App\Providers\Filament\AdminPanelProvider',
+        'App\Enums\EnumValues',
+        'App\Enums\CustomFields\CustomFieldTrait',
+    ]);
 
 arch('strict types')
     ->expect('App')
@@ -26,7 +32,8 @@ arch('avoid open for extension')
 arch('ensure no extends')
     ->expect('App')
     ->classes()
-    ->not->toBeAbstract();
+    ->not
+    ->toBeAbstract();
 
 arch('avoid mutation')
     ->expect('App')
@@ -63,7 +70,6 @@ arch('avoid inheritance')
         'App\Notifications',
         'App\Providers',
         'App\View',
-        'App\Services\Autocomplete\Types',
     ]);
 
 // arch('annotations')

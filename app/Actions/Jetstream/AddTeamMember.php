@@ -15,7 +15,7 @@ use Laravel\Jetstream\Events\TeamMemberAdded;
 use Laravel\Jetstream\Jetstream;
 use Laravel\Jetstream\Rules\Role;
 
-final class AddTeamMember implements AddsTeamMembers
+final readonly class AddTeamMember implements AddsTeamMembers
 {
     /**
      * Add a new team member to the given team.

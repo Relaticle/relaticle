@@ -48,7 +48,7 @@ final readonly class AvatarService
         // Add custom colors to cache key if provided
         $bgColorKey = $bgColor !== null && $bgColor !== '' && $bgColor !== '0' ? "_bg{$bgColor}" : '';
         $textColorKey = $textColor !== null && $textColor !== '' && $textColor !== '0' ? "_txt{$textColor}" : '';
-        $cacheKey = 'avatar_'.md5("{$name}_{$size}{$bgColorKey}{$textColorKey}_initials{$initialCount}");
+        $cacheKey = 'avatar_'.hash('sha256', "{$name}_{$size}{$bgColorKey}{$textColorKey}_initials{$initialCount}");
 
         return $this->cache->remember(
             $cacheKey,
@@ -67,7 +67,7 @@ final readonly class AvatarService
      */
     public function generateAuto(string $name, int $size = 64, int $initialCount = 2): string
     {
-        $cacheKey = 'avatar_auto_'.md5("{$name}_{$size}_initials{$initialCount}");
+        $cacheKey = 'avatar_auto_'.hash('sha256', "{$name}_{$size}_initials{$initialCount}");
 
         return $this->cache->remember(
             $cacheKey,
@@ -188,6 +188,11 @@ final readonly class AvatarService
                 }
             }
 
+            // Default: first two characters for single names (prioritized for names like "John")
+            if ($nameLength >= 2) {
+                return Str::upper(substr($singleName, 0, 2));
+            }
+
             // For unusual or unique single names, use first and last character if they differ
             if ($nameLength >= 4) {
                 $firstChar = substr($singleName, 0, 1);
@@ -215,11 +220,6 @@ final readonly class AvatarService
                     return Str::upper(substr($singleName, $consonantVowelPairs[0], 1).
                                      substr($singleName, $consonantVowelPairs[1], 1));
                 }
-            }
-
-            // Default: first two characters for medium-length names
-            if ($nameLength >= 2) {
-                return Str::upper(substr($singleName, 0, 2));
             }
 
             return Str::upper(substr($singleName, 0, 1));
