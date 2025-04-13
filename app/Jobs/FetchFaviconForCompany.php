@@ -29,7 +29,10 @@ final class FetchFaviconForCompany implements ShouldBeUnique, ShouldQueue
     public function handle(): void
     {
         try {
-            $customFieldDomain = $this->company->customFields()->where('code', 'domain_name')->first();
+            $customFieldDomain = $this->company->customFields()
+                ->whereBelongsTo($this->company->team)
+                ->where('code', 'domain_name')
+                ->first();
             $domainName = $this->company->getCustomFieldValue($customFieldDomain);
 
             if ($domainName === null) {
@@ -45,11 +48,13 @@ final class FetchFaviconForCompany implements ShouldBeUnique, ShouldQueue
 
             $logo = $this->company
                 ->addMediaFromUrl($url)
+                ->usingFileName('favicon.png')
+                ->usingName('company_favicon')
                 ->toMediaCollection('logo');
 
             $this->company->clearMediaCollectionExcept('logo', $logo);
-        } catch (\Exception) {
-            $this->company->clearMediaCollection('logo');
+        } catch (\Exception $exception) {
+            report($exception);
         }
     }
 

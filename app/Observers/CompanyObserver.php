@@ -25,9 +25,6 @@ final readonly class CompanyObserver
      */
     public function saved(Company $company): void
     {
-        info('Company saved', [
-            'company' => $company->toArray(),
-        ]);
-        FetchFaviconForCompany::dispatch($company);
+        FetchFaviconForCompany::dispatch($company)->afterCommit();
     }
 }
