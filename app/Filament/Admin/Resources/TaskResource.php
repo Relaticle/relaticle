@@ -18,7 +18,6 @@ final class TaskResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
-    #[\Override]
     public static function form(Form $form): Form
     {
         return $form
@@ -38,7 +37,6 @@ final class TaskResource extends Resource
             ]);
     }
 
-    #[\Override]
     public static function table(Table $table): Table
     {
         return $table
@@ -71,7 +69,8 @@ final class TaskResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('assignees')
+                    ->relationship('assignees', 'name')
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
@@ -84,7 +83,6 @@ final class TaskResource extends Resource
             ]);
     }
 
-    #[\Override]
     public static function getRelations(): array
     {
         return [
@@ -92,7 +90,6 @@ final class TaskResource extends Resource
         ];
     }
 
-    #[\Override]
     public static function getPages(): array
     {
         return [

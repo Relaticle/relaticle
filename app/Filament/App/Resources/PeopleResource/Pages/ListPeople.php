@@ -15,7 +15,6 @@ final class ListPeople extends ListRecords
 
     protected static string $resource = PeopleResource::class;
 
-    #[\Override]
     protected function getHeaderActions(): array
     {
         return [

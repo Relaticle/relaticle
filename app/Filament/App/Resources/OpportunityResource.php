@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace App\Filament\App\Resources;
 
+use App\Filament\App\Resources\OpportunityResource\Forms\OpportunityForm;
 use App\Filament\App\Resources\OpportunityResource\Pages;
+use App\Filament\App\Resources\OpportunityResource\RelationManagers;
 use App\Models\Opportunity;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent;
 
 final class OpportunityResource extends Resource
 {
@@ -25,20 +25,11 @@ final class OpportunityResource extends Resource
 
     protected static ?string $navigationGroup = 'Workspace';
 
-    #[\Override]
     public static function form(Form $form): Form
     {
-        return $form
-            ->schema([
-                TextInput::make('name')
-                    ->required()
-                    ->maxLength(255),
-                CustomFieldsComponent::make()
-                    ->columnSpanFull(),
-            ]);
+        return OpportunityForm::get($form);
     }
 
-    #[\Override]
     public static function table(Table $table): Table
     {
         return $table
@@ -54,6 +45,7 @@ final class OpportunityResource extends Resource
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])
@@ -72,11 +64,11 @@ final class OpportunityResource extends Resource
             ]);
     }
 
-    #[\Override]
     public static function getRelations(): array
     {
         return [
-            //
+            RelationManagers\TasksRelationManager::class,
+            RelationManagers\NotesRelationManager::class,
         ];
     }
 
@@ -85,7 +77,6 @@ final class OpportunityResource extends Resource
     {
         return [
             'index' => Pages\ListOpportunities::route('/'),
-            'create' => Pages\CreateOpportunity::route('/create'),
             'view' => Pages\ViewOpportunity::route('/{record}'),
         ];
     }

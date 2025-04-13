@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Filament\App\Resources;
 
-use App\Filament\App\Resources\PeopleResource\Pages\CreatePeople;
 use App\Filament\App\Resources\PeopleResource\Pages\ListPeople;
 use App\Filament\App\Resources\PeopleResource\Pages\ViewPeople;
 use App\Filament\App\Resources\PeopleResource\RelationManagers\NotesRelationManager;
@@ -15,7 +14,6 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Model;
 use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent;
 
 final class PeopleResource extends Resource
@@ -36,7 +34,13 @@ final class PeopleResource extends Resource
             ->schema([
                 Forms\Components\TextInput::make('name')
                     ->required()
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->columnSpanFull(),
+                Forms\Components\Select::make('company_id')
+                    ->relationship('company', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->required(),
                 CustomFieldsComponent::make()
                     ->columnSpanFull()
                     ->columns(),
@@ -47,8 +51,14 @@ final class PeopleResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\ImageColumn::make('avatar')->label('')->size(24)->circular(),
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
+                Tables\Columns\TextColumn::make('company.name')
+                    ->label('Company')
+                    ->url(fn(People $record): string => CompanyResource::getUrl('view', [$record->company_id]))
+                    ->searchable()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -58,6 +68,7 @@ final class PeopleResource extends Resource
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])
@@ -80,7 +91,6 @@ final class PeopleResource extends Resource
     {
         return [
             'index' => ListPeople::route('/'),
-            'create' => CreatePeople::route('/create'),
             'view' => ViewPeople::route('/{record}'),
         ];
     }

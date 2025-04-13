@@ -4,14 +4,18 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Observers\PeopleObserver;
+use App\Services\AvatarService;
 use Database\Factories\PeopleFactory;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Relaticle\CustomFields\Models\Concerns\UsesCustomFields;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 
+#[ObservedBy(PeopleObserver::class)]
 final class People extends Model implements HasCustomFields
 {
     /** @use HasFactory<PeopleFactory> */
@@ -28,18 +32,33 @@ final class People extends Model implements HasCustomFields
         'name',
     ];
 
+    public function getAvatarAttribute(): ?string
+    {
+        return app(AvatarService::class)->generateAuto(name: $this->name, initialCount: 1);
+    }
+
     public function team(): BelongsTo
     {
         return $this->belongsTo(Team::class);
     }
 
-    public function tasks(): BelongsToMany
+    public function creator(): BelongsTo
     {
-        return $this->belongsToMany(Task::class);
+        return $this->belongsTo(User::class);
     }
 
-    public function notes(): BelongsToMany
+    public function company(): BelongsTo
     {
-        return $this->belongsToMany(Note::class);
+        return $this->belongsTo(Company::class);
+    }
+
+    public function tasks(): MorphToMany
+    {
+        return $this->morphToMany(Task::class, 'taskable');
+    }
+
+    public function notes(): MorphToMany
+    {
+        return $this->morphToMany(Note::class, 'noteable');
     }
 }

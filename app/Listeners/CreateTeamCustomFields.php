@@ -9,7 +9,7 @@ use App\Models\Note;
 use App\Models\Opportunity;
 use App\Models\People;
 use App\Models\Task;
-use App\Models\User;
+use Database\Seeders\SampleData\SampleDataSeeder;
 use Laravel\Jetstream\Events\TeamCreated;
 use Laravel\Jetstream\Features;
 use Relaticle\CustomFields\Contracts\CustomsFieldsMigrators;
@@ -17,471 +17,105 @@ use Relaticle\CustomFields\Data\CustomFieldData;
 use Relaticle\CustomFields\Data\CustomFieldSectionData;
 use Relaticle\CustomFields\Data\CustomFieldSettingsData;
 use Relaticle\CustomFields\Enums\CustomFieldSectionType;
-use Relaticle\CustomFields\Enums\CustomFieldType;
-use Relaticle\CustomFields\Enums\CustomFieldWidth;
+use App\Enums\CustomFields\Company as CompanyCustomField;
+use App\Enums\CustomFields\Note as NoteCustomField;
+use App\Enums\CustomFields\Opportunity as OpportunityCustomField;
+use App\Enums\CustomFields\People as PeopleCustomField;
+use App\Enums\CustomFields\Task as TaskCustomField;
 
+/**
+ * Creates custom fields for a team when it's created
+ */
 final readonly class CreateTeamCustomFields
 {
     /**
-     * Create the event listener.
+     * Maps model classes to their corresponding custom field enum classes
+     *
+     * @var array<class-string, class-string>
      */
-    public function __construct(private CustomsFieldsMigrators $migrator) {}
+    private const MODEL_ENUM_MAP = [
+        Company::class => CompanyCustomField::class,
+        Opportunity::class => OpportunityCustomField::class,
+        Note::class => NoteCustomField::class,
+        People::class => PeopleCustomField::class,
+        Task::class => TaskCustomField::class,
+    ];
 
     /**
-     * Handle the event.
+     * Create a new event listener instance
+     */
+    public function __construct(
+        private CustomsFieldsMigrators $migrator,
+        private SampleDataSeeder $sampleDataSeeder,
+    )
+    {
+    }
+
+    /**
+     * Handle the team created event
      */
     public function handle(TeamCreated $event): void
     {
-        if (Features::hasTeamFeatures()) {
-            $team = $event->team;
+        if (!Features::hasTeamFeatures()) {
+            return;
+        }
 
-            // Set the tenant
-            $this->migrator->setTenantId($team->id);
+        $team = $event->team;
 
-            $this->createCustomFieldsForCompany();
+        // Set the tenant ID for the custom fields migrator
+        $this->migrator->setTenantId($team->id);
 
-            $this->createCustomFieldsForOpportunity();
+        // Create custom fields for all models defined in the map
+        foreach (self::MODEL_ENUM_MAP as $modelClass => $enumClass) {
+            foreach ($enumClass::cases() as $enum) {
+                $this->createCustomField($modelClass, $enum);
+            }
+        }
 
-            $this->createCustomFieldsForNotes();
-
-            $this->createCustomFieldsForTasks();
-
-            $this->createCustomFieldsForPeople();
+        if($team->isPersonalTeam()) {
+            $this->sampleDataSeeder->run($team->owner);
         }
     }
 
     /**
-     * Create custom fields for the company model.
+     * Create a custom field using the provided enum configuration
+     *
+     * @param string $model The model class name
+     * @param object $enum The custom field enum instance
      */
-    private function createCustomFieldsForCompany(): void
+    private function createCustomField(string $model, object $enum): void
     {
-        // ICP - Ideal Customer Profile: Indicates whether the company is the most suitable and valuable customer for you
-        $this->migrator
-            ->new(
-                model: Company::class,
-                fieldData: new CustomFieldData(
-                    name: 'ICP',
-                    code: 'icp',
-                    type: CustomFieldType::TOGGLE,
-                    section: new CustomFieldSectionData(
-                        name: 'General',
-                        code: 'general',
-                        type: CustomFieldSectionType::HEADLESS
-                    ),
-                    settings: new CustomFieldSettingsData(
-                        list_toggleable_hidden: false
-                    )
-                )
+        // Extract field configuration from the enum
+        $fieldData = new CustomFieldData(
+            name: $enum->getDisplayName(),
+            code: $enum->value,
+            type: $enum->getFieldType(),
+            section: new CustomFieldSectionData(
+                name: 'General',
+                code: 'general',
+                type: CustomFieldSectionType::HEADLESS
+            ),
+            systemDefined: $enum->isSystemDefined(),
+            width: $enum->getWidth(),
+            settings: new CustomFieldSettingsData(
+                list_toggleable_hidden: $enum->isListToggleableHidden()
             )
-            ->create();
+        );
 
-        // Domain Name - Indicates the domain name of the company
-        $this->migrator
-            ->new(
-                model: Company::class,
-                fieldData: new CustomFieldData(
-                    name: 'Domain Name',
-                    code: 'domain_name',
-                    type: CustomFieldType::LINK,
-                    section: new CustomFieldSectionData(
-                        name: 'General',
-                        code: 'general',
-                        type: CustomFieldSectionType::HEADLESS
-                    ),
-                    systemDefined: true, // If a field is system-defined, users cannot delete it, they can only deactivate
-                    settings: new CustomFieldSettingsData(
-                        list_toggleable_hidden: false
-                    )
-                )
-            )
-            ->create();
+        // Create the migrator for this field
+        $migrator = $this->migrator->new(
+            model: $model,
+            fieldData: $fieldData
+        );
 
-        // Linkedin - Indicates the LinkedIn profile of the company
-        $this->migrator
-            ->new(
-                model: Company::class,
-                fieldData: new CustomFieldData(
-                    name: 'Linkedin',
-                    code: 'linkedin',
-                    type: CustomFieldType::LINK,
-                    section: new CustomFieldSectionData(
-                        name: 'General',
-                        code: 'general',
-                        type: CustomFieldSectionType::HEADLESS
-                    )
-                )
-            )
-            ->create();
+        // Add options for select-type fields if available
+        $options = $enum->getOptions();
+        if ($options !== null) {
+            $migrator->options($options);
+        }
 
-        // Account Owner - Indicates the account owner of the company
-        $this->migrator
-            ->new(
-                model: Company::class,
-                fieldData: new CustomFieldData(
-                    name: 'Account Owner',
-                    code: 'account_owner',
-                    type: CustomFieldType::SELECT,
-                    section: new CustomFieldSectionData(
-                        name: 'General',
-                        code: 'general',
-                        type: CustomFieldSectionType::HEADLESS
-                    ),
-                    settings: new CustomFieldSettingsData(
-                        list_toggleable_hidden: false
-                    )
-                )
-            )
-            ->lookupType(User::class)
-            ->create();
-    }
+        // Create the field in the database
+        $migrator->create();
 
-    /**
-     * Create custom fields for the opportunity model.
-     */
-    private function createCustomFieldsForOpportunity(): void
-    {
-        // Amount - Indicates the amount of the opportunity
-        $this->migrator
-            ->new(
-                model: Opportunity::class,
-                fieldData: new CustomFieldData(
-                    name: 'Amount',
-                    code: 'amount',
-                    type: CustomFieldType::NUMBER,
-                    section: new CustomFieldSectionData(
-                        name: 'General',
-                        code: 'general',
-                        type: CustomFieldSectionType::HEADLESS
-                    )
-                )
-            )
-            ->create();
-
-        // Close Date - Indicates the close date of the opportunity
-        $this->migrator
-            ->new(
-                model: Opportunity::class,
-                fieldData: new CustomFieldData(
-                    name: 'Close Date',
-                    code: 'close_date',
-                    type: CustomFieldType::DATE,
-                    section: new CustomFieldSectionData(
-                        name: 'General',
-                        code: 'general',
-                        type: CustomFieldSectionType::HEADLESS
-                    ),
-                    settings: new CustomFieldSettingsData(
-                        list_toggleable_hidden: false
-                    )
-                )
-            )
-            ->create();
-
-        // Stage - Indicates the stage of the opportunity
-        $this->migrator
-            ->new(
-                model: Opportunity::class,
-                fieldData: new CustomFieldData(
-                    name: 'Stage',
-                    code: 'stage',
-                    type: CustomFieldType::SELECT,
-                    section: new CustomFieldSectionData(
-                        name: 'General',
-                        code: 'general',
-                        type: CustomFieldSectionType::HEADLESS
-                    ),
-                    settings: new CustomFieldSettingsData(
-                        list_toggleable_hidden: false
-                    )
-                )
-            )
-            ->options([
-                'Prospecting',
-                'Qualification',
-                'Needs Analysis',
-                'Value Proposition',
-                'Id. Decision Makers',
-                'Perception Analysis',
-                'Proposal/Price Quote',
-                'Negotiation/Review',
-                'Closed Won',
-                'Closed Lost',
-            ])
-            ->create();
-
-        // Company - Indicates the company of the opportunity
-        $this->migrator
-            ->new(
-                model: Opportunity::class,
-                fieldData: new CustomFieldData(
-                    name: 'Company',
-                    code: 'company',
-                    type: CustomFieldType::SELECT,
-                    section: new CustomFieldSectionData(
-                        name: 'General',
-                        code: 'general',
-                        type: CustomFieldSectionType::HEADLESS
-                    ),
-                    settings: new CustomFieldSettingsData(
-                        list_toggleable_hidden: false
-                    )
-                )
-            )
-            ->lookupType(Company::class)
-            ->create();
-
-        // Point of Contact - Indicates the point of contact of the opportunity
-        $this->migrator
-            ->new(
-                model: Opportunity::class,
-                fieldData: new CustomFieldData(
-                    name: 'Point of Contact',
-                    code: 'point_of_contact',
-                    type: CustomFieldType::SELECT,
-                    section: new CustomFieldSectionData(
-                        name: 'General',
-                        code: 'general',
-                        type: CustomFieldSectionType::HEADLESS
-                    )
-                )
-            )
-            ->lookupType(People::class)
-            ->create();
-    }
-
-    /**
-     * Create custom fields for the notes model.
-     */
-    private function createCustomFieldsForNotes(): void
-    {
-        // Body - Indicates the body of the note
-        $this->migrator
-            ->new(
-                model: Note::class,
-                fieldData: new CustomFieldData(
-                    name: 'Body',
-                    code: 'body',
-                    type: CustomFieldType::RICH_EDITOR,
-                    section: new CustomFieldSectionData(
-                        name: 'General',
-                        code: 'general',
-                        type: CustomFieldSectionType::HEADLESS
-                    )
-                )
-            )
-            ->create();
-    }
-
-    /**
-     * Create custom fields for the people model.
-     */
-    private function createCustomFieldsForPeople(): void
-    {
-        // Emails - Indicates the emails of the people
-        $this->migrator
-            ->new(
-                model: People::class,
-                fieldData: new CustomFieldData(
-                    name: 'Emails',
-                    code: 'emails',
-                    type: CustomFieldType::TAGS_INPUT,
-                    section: new CustomFieldSectionData(
-                        name: 'General',
-                        code: 'general',
-                        type: CustomFieldSectionType::HEADLESS
-                    ),
-                    settings: new CustomFieldSettingsData(
-                        list_toggleable_hidden: false
-                    )
-                )
-            )
-            ->create();
-
-        // Phone Number - Indicate the phone number of the people
-        $this->migrator
-            ->new(
-                model: People::class,
-                fieldData: new CustomFieldData(
-                    name: 'Phone Number',
-                    code: 'phone_number',
-                    type: CustomFieldType::TEXT,
-                    section: new CustomFieldSectionData(
-                        name: 'General',
-                        code: 'general',
-                        type: CustomFieldSectionType::HEADLESS
-                    )
-                )
-            )
-            ->create();
-
-        // Job Title - Indicates the job title of the people
-        $this->migrator
-            ->new(
-                model: People::class,
-                fieldData: new CustomFieldData(
-                    name: 'Job Title',
-                    code: 'job_title',
-                    type: CustomFieldType::TEXT,
-                    section: new CustomFieldSectionData(
-                        name: 'General',
-                        code: 'general',
-                        type: CustomFieldSectionType::HEADLESS
-                    ),
-                    settings: new CustomFieldSettingsData(
-                        list_toggleable_hidden: false
-                    )
-                )
-            )
-            ->create();
-
-        // Linkedin - Indicates the LinkedIn profile of the people
-        $this->migrator
-            ->new(
-                model: People::class,
-                fieldData: new CustomFieldData(
-                    name: 'Linkedin',
-                    code: 'linkedin',
-                    type: CustomFieldType::LINK,
-                    section: new CustomFieldSectionData(
-                        name: 'General',
-                        code: 'general',
-                        type: CustomFieldSectionType::HEADLESS,
-                    )
-                )
-            )
-            ->create();
-    }
-
-    /**
-     * Create custom fields for the tasks model.
-     */
-    private function createCustomFieldsForTasks(): void
-    {
-        // Status - Indicates the status of the task
-        $this->migrator
-            ->new(
-                model: Task::class,
-                fieldData: new CustomFieldData(
-                    name: 'Status',
-                    code: 'status',
-                    type: CustomFieldType::SELECT,
-                    section: new CustomFieldSectionData(
-                        name: 'General',
-                        code: 'general',
-                        type: CustomFieldSectionType::HEADLESS
-                    ),
-                    systemDefined: true,
-                    width: CustomFieldWidth::_50,
-                    settings: new CustomFieldSettingsData(
-                        list_toggleable_hidden: false
-                    )
-                )
-            )
-            ->options([
-                'To do',
-                'In progress',
-                'Done',
-            ])
-            ->create();
-
-        // Priority - Indicates the priority of the task
-        $this->migrator
-            ->new(
-                model: Task::class,
-                fieldData: new CustomFieldData(
-                    name: 'Priority',
-                    code: 'priority',
-                    type: CustomFieldType::SELECT,
-                    section: new CustomFieldSectionData(
-                        name: 'General',
-                        code: 'general',
-                        type: CustomFieldSectionType::HEADLESS
-                    ),
-                    systemDefined: true,
-                    width: CustomFieldWidth::_50,
-                    settings: new CustomFieldSettingsData(
-                        list_toggleable_hidden: false
-                    )
-                )
-            )
-            ->options([
-                'Low',
-                'Medium',
-                'High',
-            ])
-            ->create();
-
-        // Description - Indicates the description of the task
-        $this->migrator
-            ->new(
-                model: Task::class,
-                fieldData: new CustomFieldData(
-                    name: 'Description',
-                    code: 'description',
-                    type: CustomFieldType::RICH_EDITOR,
-                    section: new CustomFieldSectionData(
-                        name: 'General',
-                        code: 'general',
-                        type: CustomFieldSectionType::HEADLESS
-                    )
-                )
-            )
-            ->create();
-
-        // Due Date - Indicates the due date of the task
-        $this->migrator
-            ->new(
-                model: Task::class,
-                fieldData: new CustomFieldData(
-                    name: 'Due Date',
-                    code: 'due_date',
-                    type: CustomFieldType::DATE_TIME,
-                    section: new CustomFieldSectionData(
-                        name: 'General',
-                        code: 'general',
-                        type: CustomFieldSectionType::HEADLESS
-                    )
-                )
-            )
-            ->create();
-
-        // Assignee - Indicates the assignee of the task
-        $this->migrator
-            ->new(
-                model: Task::class,
-                fieldData: new CustomFieldData(
-                    name: 'Assignee',
-                    code: 'assignee',
-                    type: CustomFieldType::SELECT,
-                    section: new CustomFieldSectionData(
-                        name: 'General',
-                        code: 'general',
-                        type: CustomFieldSectionType::HEADLESS
-                    ),
-                    settings: new CustomFieldSettingsData(
-                        list_toggleable_hidden: false
-                    )
-                )
-            )
-            ->lookupType(User::class)
-            ->create();
-
-        // Company - Indicates the company of the task
-        $this->migrator
-            ->new(
-                model: Task::class,
-                fieldData: new CustomFieldData(
-                    name: 'Company',
-                    code: 'company',
-                    type: CustomFieldType::SELECT,
-                    section: new CustomFieldSectionData(
-                        name: 'General',
-                        code: 'general',
-                        type: CustomFieldSectionType::HEADLESS
-                    )
-                )
-            )
-            ->lookupType(Company::class)
-            ->create();
     }
 }

@@ -43,6 +43,9 @@ export default {
                 'fade-in': 'fadeIn 1s ease-out',
                 'slide-up': 'slideUp 0.5s ease-out',
                 'slide-in-right': 'slideInRight 0.5s ease-out',
+                'card-drop': 'cardDrop 0.3s ease-out',
+                'column-fade': 'columnFade 0.4s ease-out',
+                'appear': 'appear 0.2s ease-out',
             },
             keyframes: {
                 fadeIn: {
@@ -56,10 +59,48 @@ export default {
                 slideInRight: {
                     '0%': { transform: 'translateX(20px)', opacity: '0' },
                     '100%': { transform: 'translateX(0)', opacity: '1' },
-                }
+                },
+                cardDrop: {
+                    '0%': { transform: 'translateY(-8px)', opacity: '0.6' },
+                    '50%': { transform: 'translateY(2px)' },
+                    '100%': { transform: 'translateY(0)', opacity: '1' },
+                },
+                columnFade: {
+                    '0%': { opacity: '0.6', transform: 'translateX(12px)' },
+                    '100%': { opacity: '1', transform: 'translateX(0)' },
+                },
+                appear: {
+                    '0%': { opacity: '0' },
+                    '100%': { opacity: '1' },
+                },
             }
         },
     },
-
-    plugins: [forms, typography],
+    plugins: [
+        forms,
+        typography,
+        // Add a custom plugin for scrollbar styling
+        function({ addUtilities }) {
+            const newUtilities = {
+                '.scrollbar-thin': {
+                    scrollbarWidth: 'thin',
+                    '&::-webkit-scrollbar': {
+                        width: '4px',
+                        height: '4px',
+                    },
+                },
+                '.scrollbar-thumb-rounded': {
+                    '&::-webkit-scrollbar-thumb': {
+                        borderRadius: '0.25rem',
+                    },
+                },
+                '.scrollbar-track-transparent': {
+                    '&::-webkit-scrollbar-track': {
+                        backgroundColor: 'transparent',
+                    },
+                },
+            };
+            addUtilities(newUtilities, ['responsive', 'dark']);
+        },
+    ],
 };

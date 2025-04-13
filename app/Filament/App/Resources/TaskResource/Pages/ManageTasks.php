@@ -15,7 +15,6 @@ final class ManageTasks extends ManageRecords
 
     protected static string $resource = TaskResource::class;
 
-    #[\Override]
     protected function getHeaderActions(): array
     {
         return [

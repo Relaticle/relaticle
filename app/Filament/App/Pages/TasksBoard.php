@@ -4,16 +4,21 @@ declare(strict_types=1);
 
 namespace App\Filament\App\Pages;
 
+use App\Filament\App\Adapters\TasksKanbanAdapter;
+use App\Filament\App\Resources\TaskResource\Forms\TaskForm;
 use App\Models\Task;
-use Filament\Forms\Contracts\HasForms;
-use Filament\Pages\Page;
+use App\Enums\CustomFields\Task as TaskCustomField;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
-use Livewire\Attributes\On;
+use Illuminate\Support\Facades\Auth;
 use Relaticle\CustomFields\Models\CustomField;
-use Relaticle\CustomFields\Models\CustomFieldOption;
+use Relaticle\Flowforge\Contracts\KanbanAdapterInterface;
+use Relaticle\Flowforge\Filament\Pages\KanbanBoardPage;
+use Filament\Actions\Action;
+use Filament\Forms;
+use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent;
 
-final class TasksBoard extends Page implements HasForms
+final class TasksBoard extends KanbanBoardPage
 {
     protected static ?string $navigationLabel = 'Board';
 
@@ -25,100 +30,84 @@ final class TasksBoard extends Page implements HasForms
 
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
 
-    protected static string $view = 'filament.pages.tasks-board.board';
-
-    private static string $scriptsView = 'filament.pages.tasks-board.board-scripts';
-
-    private static string $model = Task::class;
-
-
-    private function statusCustomField(): CustomField
+    public function getSubject(): Builder
     {
-        return CustomField::query()
-            ->forEntity(self::$model)
-            ->where('code', 'status')
-            ->firstOrFail();
+        return Task::query();
     }
 
-    private function statuses(): Collection
+    /**
+     * @return void
+     */
+    public function mount(): void
     {
-        return $this->statusCustomField()->options->map(fn (CustomFieldOption $option): array => [
+        $this->titleField('title')
+            ->columnField('status')
+            ->descriptionField('description')
+            ->orderField('order_column')
+            ->columns($this->statuses()->pluck('name', 'id')->toArray())
+            ->columnColors()
+            ->cardLabel('Task');
+    }
+
+    /**
+     * @param Action $action
+     * @return Action
+     */
+    public function createAction(Action $action): Action
+    {
+        return $action
+            ->slideOver(false)
+            ->modalWidth('2xl')
+            ->iconButton()
+            ->icon('heroicon-o-plus')
+            ->form(function (Forms\Form $form) {
+                return TaskForm::get($form);
+            })
+            ->action(function (Action $action, array $arguments): void {
+                $task = Auth::user()->currentTeam->tasks()->create($action->getFormData());
+                $task->saveCustomFieldValue($this->statusCustomField(), $arguments['column']);
+            });
+    }
+
+    /**
+     * @param Action $action
+     * @return Action
+     */
+    public function editAction(Action $action): Action
+    {
+        return $action->form(function (Forms\Form $form) {
+            return TaskForm::get($form);
+        });
+    }
+
+    /**
+     * @return KanbanAdapterInterface
+     */
+    public function getAdapter(): KanbanAdapterInterface
+    {
+        return new TasksKanbanAdapter(Task::query(), $this->config);
+    }
+
+    /**
+     * @return CustomField
+     */
+    protected function statusCustomField(): CustomField
+    {
+        return CustomField::query()
+            ->forEntity(Task::class)
+            ->where('code', TaskCustomField::STATUS)
+            ->first();
+    }
+
+    /**
+     * @return Collection
+     */
+    protected function statuses(): Collection
+    {
+        return $this->statusCustomField()->options->map(fn($option): array => [
             'id' => $option->id,
             'custom_field_id' => $option->custom_field_id,
             'name' => $option->name,
         ]);
-    }
-
-    private function records(): Collection
-    {
-        return $this->getEloquentQuery()
-            ->ordered()
-            ->get();
-    }
-
-    #[\Override]
-    protected function getViewData(): array
-    {
-        $records = $this->records();
-
-        $statuses = $this->statuses()
-            ->map(function (array $status) use ($records) {
-                $status['records'] = $this->filterRecordsByStatus($records, $status);
-
-                return $status;
-            });
-
-        return [
-            'statuses' => $statuses,
-        ];
-    }
-
-    private function filterRecordsByStatus(Collection $records, array $status): array
-    {
-        if ($records->isEmpty()) {
-            return [];
-        }
-
-        return $records->toQuery()
-            ->whereHas('customFieldValues', function (Builder $builder) use ($status): void {
-                $builder->where('custom_field_values.custom_field_id', $status['custom_field_id'])
-                    ->where('custom_field_values.'.$this->statusCustomField()->getValueColumn(), $status['id']);
-            })
-            ->ordered()
-            ->get()
-            ->all();
-    }
-
-    private function getEloquentQuery(): Builder
-    {
-        return self::$model::query();
-    }
-
-    #[On('status-changed')]
-    public function statusChanged(int $recordId, int $statusId, array $fromOrderedIds, array $toOrderedIds): void
-    {
-        $this->onStatusChanged($recordId, $statusId, $fromOrderedIds, $toOrderedIds);
-    }
-
-    public function onStatusChanged(int $recordId, int $statusId, array $fromOrderedIds, array $toOrderedIds): void
-    {
-        $this->getEloquentQuery()->find($recordId)->saveCustomFieldValue($this->statusCustomField(), $statusId);
-
-        if (method_exists(self::$model, 'setNewOrder')) {
-            self::$model::setNewOrder($toOrderedIds);
-        }
-    }
-
-    #[On('sort-changed')]
-    public function sortChanged(int $recordId, string $statusId, array $orderedIds): void
-    {
-        $this->onSortChanged($recordId, $statusId, $orderedIds);
-    }
-
-    public function onSortChanged(int $recordId, string $statusId, array $orderedIds): void
-    {
-        if (method_exists(self::$model, 'setNewOrder')) {
-            self::$model::setNewOrder($orderedIds);
-        }
     }
 }
