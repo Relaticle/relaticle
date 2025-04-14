@@ -25,7 +25,9 @@
         "spatie/laravel-medialibrary": "^11.12",
         "spatie/laravel-prefixed-ids": "^1.4",
         "spatie/laravel-settings": "^3.3",
-        "spatie/laravel-sitemap": "^7.3"
+        "spatie/laravel-sitemap": "^7.3",
+        "symfony/http-client": "^7.2",
+        "symfony/postmark-mailer": "^7.2"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
