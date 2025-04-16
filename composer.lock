@@ -7274,16 +7274,16 @@
         },
         {
             "name": "relaticle/flowforge",
-            "version": "0.1.8",
+            "version": "0.1.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Relaticle/flowforge.git",
-                "reference": "88ebae3ad25e53c76933b27ee7728f96f431e370"
+                "reference": "be26d564e84324d82bf3e5145fb2d66401846350"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Relaticle/flowforge/zipball/88ebae3ad25e53c76933b27ee7728f96f431e370",
-                "reference": "88ebae3ad25e53c76933b27ee7728f96f431e370",
+                "url": "https://api.github.com/repos/Relaticle/flowforge/zipball/be26d564e84324d82bf3e5145fb2d66401846350",
+                "reference": "be26d564e84324d82bf3e5145fb2d66401846350",
                 "shasum": ""
             },
             "require": {
@@ -7349,7 +7349,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-04-16T14:09:34+00:00"
+            "time": "2025-04-16T15:33:06+00:00"
         },
         {
             "name": "revolt/event-loop",
