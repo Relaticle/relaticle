@@ -41,7 +41,19 @@ final class OpportunitiesBoard extends KanbanBoardPage
             ->orderField('order_column')
             ->columns($this->stages()->pluck('name', 'id')->toArray())
             ->columnColors()
-            ->cardLabel('Opportunity');
+            ->cardLabel('Opportunity')
+            ->cardAttributes([
+                'company.name' => null,
+                'contact.name' => null,
+            ])
+            ->cardAttributeColors([
+                'company.name' => 'white',
+                'contact.name' => 'white',
+            ])
+            ->cardAttributeIcons([
+                'contact.name' => 'heroicon-o-user',
+                'company.name' => 'heroicon-o-building-office',
+            ]);
     }
 
     public function createAction(Action $action): Action
