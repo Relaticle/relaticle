@@ -30,6 +30,16 @@ Relaticle comes with comprehensive documentation:
 - [Technical Guide](resources/markdown/technical-guide.md) - Architecture and development information
 - [API Documentation](resources/markdown/api-guide.md) - Integration with the Relaticle API
 
+## Premium Component
+
+Relaticle includes one premium component in its ecosystem - the **Data Model (Custom Fields)** plugin. This Filament plugin is developed by Relaticle and provides powerful dynamic data management capabilities throughout the application.
+
+For detailed information about this component, see:
+- **Documentation**: [custom-fields.relaticle.com/introduction](https://custom-fields.relaticle.com/introduction)
+- **Marketplace**: [filamentphp.com/plugins/relaticle-custom-fields](https://filamentphp.com/plugins/relaticle-custom-fields)
+
+This is the only paid component in the Relaticle ecosystem and represents a significant intellectual property investment that enables the platform's flexible data modeling capabilities.
+
 ## Installation
 
 Relaticle is a regular Laravel application; it's build on top of Laravel 12 / Filament 3 and uses Livewire / Tailwind

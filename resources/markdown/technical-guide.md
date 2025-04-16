@@ -14,6 +14,25 @@ Relaticle is built on the Laravel 12 framework with Filament 3 for the admin pan
 - **Static Analysis**: PHPStan
 - **Code Quality**: Laravel Pint, Rector
 
+### Paid Dependencies
+
+Relaticle includes one premium component in its technology stack:
+
+**Data Model (Custom Fields)** - A powerful Filament plugin **developed by Relaticle** that serves as the backbone for dynamic data management throughout the application.
+
+- **Documentation**: [custom-fields.relaticle.com/introduction](https://custom-fields.relaticle.com/introduction)
+- **Marketplace**: [filamentphp.com/plugins/relaticle-custom-fields](https://filamentphp.com/plugins/relaticle-custom-fields)
+
+As the creators of this plugin, we've engineered it specifically to address the limitations of existing solutions. The Custom Fields package is commercial for several reasons:
+
+1. It represents thousands of development hours and specialized expertise
+2. Ongoing maintenance and regular updates ensure compatibility with the Filament ecosystem
+3. The commercial model supports dedicated customer service and technical support
+4. Enterprise-grade performance optimizations for handling complex data structures
+5. Regular feature additions based on real-world customer feedback
+
+This is the **only** paid component in the Relaticle ecosystem. While we're committed to open source, this particular module represents a significant intellectual property investment that enables Relaticle to deliver unparalleled flexibility in data modeling without sacrificing performance or user experience.
+
 ## Core Components
 
 ### Models
