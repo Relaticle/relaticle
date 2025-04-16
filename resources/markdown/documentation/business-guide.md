@@ -1,4 +1,4 @@
-# Relaticle Business Guide
+# Business Guide
 
 ## Welcome to Relaticle
 
