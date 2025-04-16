@@ -40,7 +40,7 @@ final readonly class DocumentationController
         }
 
         $documentFile = $validTypes[$type]['file'];
-        $path = resource_path('markdown/'.$documentFile);
+        $path = resource_path('markdown/documentation/'.$documentFile);
 
         // Validate the path is within the intended directory
         $realPath = realpath($path);

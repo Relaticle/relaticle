@@ -1,4 +1,4 @@
-# Relaticle API Documentation
+# API Documentation
 
 This guide provides documentation for the Relaticle API, allowing developers to integrate Relaticle's CRM capabilities with other applications.
 

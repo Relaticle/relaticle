@@ -6,32 +6,33 @@
     </script>
     <div class="py-8 md:py-12 bg-white dark:bg-black min-h-[calc(100vh-5rem)]">
         <!-- Page Transition Overlay -->
-        <div id="page-transition-overlay" class="fixed inset-0 bg-white dark:bg-black z-50 pointer-events-none transition-opacity duration-300"></div>
+        <div id="page-transition-overlay"
+             class="fixed inset-0 bg-white dark:bg-black z-50 pointer-events-none transition-opacity duration-300"></div>
 
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <!-- Page Header with Animation -->
-            <div class="mb-8 animate-fade-in">
-                <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">{{ $documentTitle ?? 'Documentation' }}</h1>
-                <p class="text-gray-600 dark:text-gray-400">Learn how to use Relaticle and maximize your experience.</p>
-            </div>
-
             <!-- Improved Mobile Controls with Better Styling -->
             <div class="flex flex-col space-y-4 sm:hidden mb-6">
                 <!-- Mobile Doc Type Navigation Toggle - Enhanced Design -->
-                <button id="doc-types-toggle" class="w-full flex justify-between items-center px-4 py-3.5 text-left text-sm font-medium text-black dark:text-white bg-gray-100 dark:bg-gray-900 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500/40">
+                <button id="doc-types-toggle"
+                        class="w-full flex justify-between items-center px-4 py-3.5 text-left text-sm font-medium text-black dark:text-white bg-gray-100 dark:bg-gray-900 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500/40">
                     <div class="flex items-center space-x-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary dark:text-primary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary dark:text-primary-400"
+                             fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                  d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
                         </svg>
                         <span>Documentation Types</span>
                     </div>
-                    <svg id="doc-types-toggle-icon" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    <svg id="doc-types-toggle-icon" xmlns="http://www.w3.org/2000/svg"
+                         class="h-4 w-4 transition-transform duration-200" fill="none" viewBox="0 0 24 24"
+                         stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                     </svg>
                 </button>
 
                 <!-- Mobile Doc Types Container - Enhanced Styling -->
-                <div id="doc-types-container" class="hidden bg-white dark:bg-gray-900 rounded-lg shadow-md border border-gray-200 dark:border-gray-800 overflow-hidden transform origin-top transition-all duration-200 scale-y-95 opacity-0">
+                <div id="doc-types-container"
+                     class="hidden bg-white dark:bg-gray-900 rounded-lg shadow-md border border-gray-200 dark:border-gray-800 overflow-hidden transform origin-top transition-all duration-200 scale-y-95 opacity-0">
                     <div class="p-3 flex flex-col space-y-1.5">
                         @foreach($documentTypes as $typeKey => $typeValue)
                             <a href="{{ route('documentation.show', $typeKey) }}"
@@ -41,7 +42,8 @@
                                         : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800/70' }}">
                                 <span>{{ $typeValue['title'] }}</span>
                                 @if($currentType === $typeKey)
-                                    <span class="ml-auto text-xs bg-primary-100 dark:bg-primary-900/40 text-primary-600 dark:text-primary-400 px-2 py-0.5 rounded-full">Active</span>
+                                    <span
+                                        class="ml-auto text-xs bg-primary-100 dark:bg-primary-900/40 text-primary-600 dark:text-primary-400 px-2 py-0.5 rounded-full">Active</span>
                                 @endif
                             </a>
                         @endforeach
@@ -49,15 +51,20 @@
                 </div>
 
                 <!-- Mobile TOC Toggle Button - Enhanced Design -->
-                <button id="toc-toggle" class="w-full flex justify-between items-center px-4 py-3.5 text-left text-sm font-medium text-black dark:text-white bg-gray-00 dark:bg-gray-900 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500/40">
+                <button id="toc-toggle"
+                        class="w-full flex justify-between items-center px-4 py-3.5 text-left text-sm font-medium text-black dark:text-white bg-gray-00 dark:bg-gray-900 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500/40">
                     <div class="flex items-center space-x-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary dark:text-primary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 12h16M4 18h7" />
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary dark:text-primary-400"
+                             fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                  d="M4 6h16M4 12h16M4 18h7"/>
                         </svg>
                         <span>On this page</span>
                     </div>
-                    <svg id="toc-toggle-icon" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    <svg id="toc-toggle-icon" xmlns="http://www.w3.org/2000/svg"
+                         class="h-4 w-4 transition-transform duration-200" fill="none" viewBox="0 0 24 24"
+                         stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                     </svg>
                 </button>
             </div>
@@ -65,11 +72,14 @@
             <!-- Three Column Layout Grid with Animation -->
             <div class="grid grid-cols-12 gap-6 lg:gap-8">
                 <!-- Left Sidebar: Documentation Types - Hidden on mobile, Animated on desktop -->
-                <div class="hidden sm:block col-span-12 sm:col-span-3 lg:col-span-2 animate-fade-in" style="animation-delay: 100ms;">
+                <div class="hidden sm:block col-span-12 sm:col-span-3 lg:col-span-2 animate-fade-in"
+                     style="animation-delay: 100ms;">
                     <div class="sticky top-24 pr-4">
                         <h2 class="text-sm font-semibold text-black dark:text-white mb-4 flex items-center space-x-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-primary dark:text-primary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-primary dark:text-primary-400"
+                                 fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                      d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
                             </svg>
                             <span>Documentation</span>
                         </h2>
@@ -89,15 +99,9 @@
                 </div>
 
                 <!-- Main Content (Middle) - Enhanced with Animation -->
-                <div class="col-span-12 sm:col-span-9 md:col-span-6 lg:col-span-7 animate-fade-in" style="animation-delay: 150ms;">
-                    <!-- Content header with breadcrumbs -->
-                    <div class="mb-6 flex flex-wrap items-center text-sm text-gray-500 dark:text-gray-400">
-                        <a href="{{ route('documentation.index') }}" class="hover:text-primary dark:hover:text-primary-400 transition-colors">Docs</a>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mx-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                        </svg>
-                        <span class="font-medium text-gray-800 dark:text-gray-200">{{ $documentTitle ?? 'Documentation' }}</span>
-                    </div>
+                <div class="col-span-12 sm:col-span-9 md:col-span-6 lg:col-span-7 animate-fade-in"
+                     style="animation-delay: 150ms;">
+
 
                     <!-- Main documentation content with improved typography -->
                     <div id="documentation-content" class="prose prose-sm sm:prose max-w-none dark:prose-invert
