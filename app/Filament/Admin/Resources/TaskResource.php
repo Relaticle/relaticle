@@ -16,7 +16,22 @@ final class TaskResource extends Resource
 {
     protected static ?string $model = Task::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-check';
+
+    protected static ?string $navigationGroup = 'Task Management';
+    
+    protected static ?int $navigationSort = 1;
+
+    protected static ?string $modelLabel = 'Task';
+
+    protected static ?string $pluralModelLabel = 'Tasks';
+
+    public static function getNavigationBadge(): ?string
+    {
+        return self::getModel()::count() > 0 ? (string) self::getModel()::count() : null;
+    }
+
+    protected static ?string $slug = 'tasks';
 
     public static function form(Form $form): Form
     {

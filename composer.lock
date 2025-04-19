@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4b10ea67f3be66c9e64e83567dd2eb33",
+    "content-hash": "9ce67b46cafaee6cc51abc6dbd058919",
     "packages": [
         {
             "name": "amphp/amp",
@@ -951,6 +951,73 @@
                 }
             ],
             "time": "2025-02-24T00:06:49+00:00"
+        },
+        {
+            "name": "awcodes/overlook",
+            "version": "v2.2.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/awcodes/overlook.git",
+                "reference": "830c175a333f0dd20f3b6cbcd429b8dae2775567"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/awcodes/overlook/zipball/830c175a333f0dd20f3b6cbcd429b8dae2775567",
+                "reference": "830c175a333f0dd20f3b6cbcd429b8dae2775567",
+                "shasum": ""
+            },
+            "require": {
+                "ext-intl": "*",
+                "filament/filament": "^3.0",
+                "php": "^8.1",
+                "spatie/laravel-package-tools": "^1.15"
+            },
+            "require-dev": {
+                "laravel/pint": "^1.0",
+                "spatie/laravel-ray": "^1.26"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Awcodes\\Overlook\\OverlookServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Awcodes\\Overlook\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Adam Weston",
+                    "email": "awcodes1@gmail.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "A Filament plugin that adds an app overview widget to your admin panel.",
+            "homepage": "https://github.com/awcodes/overlook",
+            "keywords": [
+                "awcodes",
+                "laravel",
+                "overlook"
+            ],
+            "support": {
+                "issues": "https://github.com/awcodes/overlook/issues",
+                "source": "https://github.com/awcodes/overlook"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/awcodes",
+                    "type": "github"
+                }
+            ],
+            "time": "2025-04-17T18:35:54+00:00"
         },
         {
             "name": "bacon/bacon-qr-code",

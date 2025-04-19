@@ -16,7 +16,22 @@ final class OpportunityResource extends Resource
 {
     protected static ?string $model = Opportunity::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-currency-dollar';
+
+    protected static ?string $navigationGroup = 'CRM';
+    
+    protected static ?int $navigationSort = 3;
+
+    protected static ?string $modelLabel = 'Opportunity';
+
+    protected static ?string $pluralModelLabel = 'Opportunities';
+
+    public static function getNavigationBadge(): ?string
+    {
+        return self::getModel()::count() > 0 ? (string) self::getModel()::count() : null;
+    }
+
+    protected static ?string $slug = 'opportunities';
 
     #[\Override]
     public static function form(Form $form): Form
