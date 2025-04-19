@@ -22,6 +22,7 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use App\Filament\Admin\Pages\Dashboard;
 
 final class AdminPanelProvider extends PanelProvider
 {
@@ -35,6 +36,7 @@ final class AdminPanelProvider extends PanelProvider
                 'primary' => Color::Amber,
             ])
             ->brandName('Relaticle Admin')
+            ->favicon('images/logo.png')
             ->discoverResources(in: app_path('Filament/Admin/Resources'), for: 'App\\Filament\\Admin\\Resources')
             ->discoverPages(in: app_path('Filament/Admin/Pages'), for: 'App\\Filament\\Admin\\Pages')
             ->navigationGroups([
@@ -47,14 +49,19 @@ final class AdminPanelProvider extends PanelProvider
                 NavigationGroup::make()
                     ->label('Content'),
             ])
+            ->globalSearch(true)
+            ->darkMode(true)
+            ->maxContentWidth('full')
+            ->sidebarCollapsibleOnDesktop()
             ->pages([
-                Pages\Dashboard::class,
+                Dashboard::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Admin/Widgets'), for: 'App\\Filament\\Admin\\Widgets')
             ->widgets([
                 Widgets\AccountWidget::class,
                 OverlookWidget::class,
             ])
+            ->databaseNotifications()
             ->plugins([
                 OverlookPlugin::make()
                     ->sort(2)
