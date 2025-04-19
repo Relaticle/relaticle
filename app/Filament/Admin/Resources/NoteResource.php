@@ -16,7 +16,17 @@ final class NoteResource extends Resource
 {
     protected static ?string $model = Note::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-document-text';
+
+    protected static ?string $navigationGroup = 'Content';
+    
+    protected static ?int $navigationSort = 1;
+
+    protected static ?string $modelLabel = 'Note';
+
+    protected static ?string $pluralModelLabel = 'Notes';
+
+    protected static ?string $slug = 'notes';
 
     #[\Override]
     public static function form(Form $form): Form

@@ -16,7 +16,22 @@ final class CompanyResource extends Resource
 {
     protected static ?string $model = Company::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-building-office';
+
+    protected static ?string $navigationGroup = 'CRM';
+    
+    protected static ?int $navigationSort = 1;
+
+    protected static ?string $modelLabel = 'Company';
+
+    protected static ?string $pluralModelLabel = 'Companies';
+
+    public static function getNavigationBadge(): ?string
+    {
+        return self::getModel()::count() > 0 ? (string) self::getModel()::count() : null;
+    }
+
+    protected static ?string $slug = 'companies';
 
     public static function form(Form $form): Form
     {

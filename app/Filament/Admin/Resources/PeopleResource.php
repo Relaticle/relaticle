@@ -16,7 +16,22 @@ final class PeopleResource extends Resource
 {
     protected static ?string $model = People::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-users';
+
+    protected static ?string $navigationGroup = 'CRM';
+    
+    protected static ?int $navigationSort = 2;
+
+    protected static ?string $modelLabel = 'Person';
+
+    protected static ?string $pluralModelLabel = 'People';
+
+    public static function getNavigationBadge(): ?string
+    {
+        return self::getModel()::count() > 0 ? (string) self::getModel()::count() : null;
+    }
+
+    protected static ?string $slug = 'people';
 
     #[\Override]
     public static function form(Form $form): Form
