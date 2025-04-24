@@ -19,7 +19,7 @@ final class UserResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-user';
 
     protected static ?string $navigationGroup = 'User Management';
-    
+
     protected static ?int $navigationSort = 1;
 
     protected static ?string $modelLabel = 'User';
@@ -28,7 +28,6 @@ final class UserResource extends Resource
 
     protected static ?string $slug = 'users';
 
-    #[\Override]
     public static function form(Form $form): Form
     {
         return $form
@@ -45,12 +44,15 @@ final class UserResource extends Resource
                     ->password()
                     ->maxLength(255),
                 Forms\Components\Textarea::make('two_factor_secret')
+                    ->disabled()
                     ->columnSpanFull(),
                 Forms\Components\Textarea::make('two_factor_recovery_codes')
+                    ->disabled()
                     ->columnSpanFull(),
                 Forms\Components\DateTimePicker::make('two_factor_confirmed_at'),
-                Forms\Components\TextInput::make('current_team_id')
-                    ->numeric(),
+                Forms\Components\Select::make('current_team_id')
+                    ->searchable()
+                    ->relationship('currentTeam', 'name'),
                 Forms\Components\TextInput::make('profile_photo_path')
                     ->maxLength(2048),
             ]);

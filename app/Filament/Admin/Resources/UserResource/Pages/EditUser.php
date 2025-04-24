@@ -12,12 +12,22 @@ final class EditUser extends EditRecord
 {
     protected static string $resource = UserResource::class;
 
-    #[\Override]
     protected function getHeaderActions(): array
     {
         return [
             Actions\ViewAction::make(),
             Actions\DeleteAction::make(),
         ];
+    }
+
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        if (! empty($data['password'])) {
+            $data['password'] = bcrypt($data['password']);
+        } else {
+            unset($data['password']);
+        }
+
+        return $data;
     }
 }
