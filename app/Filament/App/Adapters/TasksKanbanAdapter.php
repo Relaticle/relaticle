@@ -54,7 +54,7 @@ final class TasksKanbanAdapter extends DefaultKanbanAdapter
         return true;
     }
 
-    protected function statusCustomField(): CustomField
+    private function statusCustomField(): CustomField
     {
         return CustomField::query()
             ->forEntity(Task::class)

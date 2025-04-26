@@ -10,15 +10,15 @@ final class AvatarName extends Entry
 {
     protected string $view = 'filament.components.infolists.avatar-name';
 
-    protected ?string $avatarPath = null;
+    private ?string $avatarPath = null;
 
-    protected ?string $namePath = null;
+    private ?string $namePath = null;
 
-    protected string $avatarSize = 'md';
+    private string $avatarSize = 'md';
 
-    protected string $textSize = 'sm';
+    private string $textSize = 'sm';
 
-    protected bool $circular = true;
+    private bool $circular = true;
 
     public function avatar(string $path): static
     {
@@ -88,7 +88,7 @@ final class AvatarName extends Entry
         ];
     }
 
-    protected function resolvePath(mixed $record, string $path): mixed
+    private function resolvePath(mixed $record, string $path): mixed
     {
         return $this->evaluate(function () use ($record, $path) {
             $segments = explode('.', $path);

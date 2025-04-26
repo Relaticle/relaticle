@@ -15,8 +15,8 @@ final class UrlHelper
     public static function getAppUrl(string $path = ''): string
     {
         $baseUrl = config('app.url');
-        $scheme = parse_url($baseUrl)['scheme'] ?? 'https';
-        $host = 'app.'.parse_url($baseUrl)['host'];
+        $scheme = parse_url((string) $baseUrl)['scheme'] ?? 'https';
+        $host = 'app.'.parse_url((string) $baseUrl)['host'];
 
         return $scheme.'://'.$host.'/'.ltrim($path, '/');
     }

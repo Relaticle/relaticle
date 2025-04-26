@@ -19,7 +19,7 @@ final class OpportunityResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-currency-dollar';
 
     protected static ?string $navigationGroup = 'CRM';
-    
+
     protected static ?int $navigationSort = 3;
 
     protected static ?string $modelLabel = 'Opportunity';
