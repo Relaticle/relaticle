@@ -9,8 +9,6 @@ use Filament\Events\Auth\Registered;
 
 final class CreatePersonalTeamListener
 {
-    public function __construct() {}
-
     public function handle(Registered $event): void
     {
         $user = $event->getUser();

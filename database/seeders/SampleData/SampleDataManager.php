@@ -20,7 +20,7 @@ final class SampleDataManager
      *
      * @var array<class-string<ModelSeederInterface>>
      */
-    protected array $seederSequence = [
+    private array $seederSequence = [
         CompanySeeder::class,
         PeopleSeeder::class,
         OpportunitySeeder::class,
@@ -33,7 +33,7 @@ final class SampleDataManager
      *
      * @var array<string, ModelSeederInterface>
      */
-    protected array $seeders = [];
+    private array $seeders = [];
 
     /**
      * Generate sample data for a user
@@ -83,7 +83,7 @@ final class SampleDataManager
     /**
      * Initialize all seeders
      */
-    protected function initializeSeeders(): void
+    private function initializeSeeders(): void
     {
         foreach ($this->seederSequence as $seederClass) {
             $this->seeders[$seederClass] = app($seederClass)->initialize();
@@ -96,7 +96,7 @@ final class SampleDataManager
      * @param  array<string, mixed>  $tasks
      * @param  array<string, mixed>  $people
      */
-    protected function createTaskPeopleRelationships(array $tasks, array $people): void
+    private function createTaskPeopleRelationships(array $tasks, array $people): void
     {
         if ($tasks === [] || $people === []) {
             return;

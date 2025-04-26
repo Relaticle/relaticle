@@ -54,7 +54,7 @@ final class OpportunitiesKanbanAdapter extends DefaultKanbanAdapter
         return true;
     }
 
-    protected function stageCustomField(): CustomField
+    private function stageCustomField(): CustomField
     {
         return CustomField::query()
             ->forEntity(Opportunity::class)
