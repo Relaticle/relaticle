@@ -2,7 +2,7 @@
 <section class="py-24 md:py-32 bg-white dark:bg-black relative overflow-hidden">
     <!-- Subtle gradient accent -->
     <div class="absolute top-0 right-0 w-96 h-96 bg-primary/5 dark:bg-primary/10 rounded-full blur-3xl"></div>
-    
+
     <div class="container max-w-6xl mx-auto px-6 lg:px-8 relative">
         <!-- Section heading -->
         <div class="max-w-3xl mx-auto text-center mb-16 md:mb-20">
@@ -40,7 +40,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Discord -->
                 <div class="bg-gray-50 dark:bg-gray-900 p-8 rounded-xl">
                     <div class="flex flex-col h-full">
@@ -52,7 +52,7 @@
                         <h3 class="text-xl font-semibold text-black dark:text-white mb-3">Discord Community</h3>
                         <p class="text-gray-600 dark:text-gray-300 mb-6 text-sm">Chat with developers, get help, and share ideas. Join our growing community and connect with other Relaticle users.</p>
                         <div class="mt-auto">
-                            <a href="https://discord.gg/MnsuPRfp" target="_blank" class="inline-flex items-center text-primary dark:text-primary-400 hover:text-primary-600 dark:hover:text-primary-300 font-medium text-sm transition-colors">
+                            <a href="https://discord.gg/b9WxzUce4Q" target="_blank" class="inline-flex items-center text-primary dark:text-primary-400 hover:text-primary-600 dark:hover:text-primary-300 font-medium text-sm transition-colors">
                                 Join Discord
                                 <svg xmlns="http://www.w3.org/2000/svg" class="ml-1.5 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
@@ -61,7 +61,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Documentation -->
                 <div class="bg-gray-50 dark:bg-gray-900 p-8 rounded-xl">
                     <div class="flex flex-col h-full">
@@ -83,7 +83,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <!-- Community highlights - Simplified -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div class="py-3 px-4 text-center border border-gray-100 dark:border-gray-800 rounded-lg bg-white dark:bg-black">
