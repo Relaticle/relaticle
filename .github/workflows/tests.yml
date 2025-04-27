@@ -57,6 +57,9 @@ jobs:
           tools: composer:v2
           coverage: xdebug
 
+      - name: Add HTTP basic auth credentials
+        run: echo '${{ secrets.COMPOSER_AUTH_JSON }}' > $GITHUB_WORKSPACE/auth.json
+
       - name: Set up Node & NPM
         uses: actions/setup-node@v2
         with:
