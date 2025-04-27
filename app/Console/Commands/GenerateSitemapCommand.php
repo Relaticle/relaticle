@@ -7,7 +7,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use Spatie\Sitemap\SitemapGenerator;
 
-final class GenerateSitemap extends Command
+final class GenerateSitemapCommand extends Command
 {
     /**
      * The name and signature of the console command.
