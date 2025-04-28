@@ -160,11 +160,3 @@ For more details, see our [Contributing Guide](CONTRIBUTING.md).
 ## 📝 License
 
 Relaticle is open-source software licensed under the [GPL-3.0 license](LICENSE).
-
----
-
-<p align="center">
-  Built with ❤️ by the Relaticle Team
-</p>
-
-`
