@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Helpers;
 
-readonly final class UrlHelper
+final readonly class UrlHelper
 {
     /**
      * Get the app subdomain URL with the given path

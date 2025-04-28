@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Http\Responses\LoginResponse;
 use App\Models\Company;
 use App\Models\Note;
 use App\Models\Opportunity;
@@ -11,6 +12,7 @@ use App\Models\People;
 use App\Models\Task;
 use App\Models\User;
 use Filament\Actions\Action;
+use Filament\Http\Responses\Auth\Contracts\LoginResponse as LoginResponseContract;
 use Filament\Tables\Actions\Action as TableAction;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -25,7 +27,7 @@ final class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->bind(LoginResponseContract::class, LoginResponse::class);
     }
 
     /**

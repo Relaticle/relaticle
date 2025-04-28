@@ -11,6 +11,7 @@ arch()->preset()->security()->ignoring('assert');
 arch()->preset()
     ->laravel()
     ->ignoring([
+        'App\Providers\AppServiceProvider',
         'App\Providers\Filament\AppPanelProvider',
         'App\Providers\Filament\AdminPanelProvider',
         'App\Enums\EnumValues',
