@@ -2,12 +2,11 @@
 
 declare(strict_types=1);
 
-use App\Helpers\UrlHelper;
 use App\Models\User;
 use Filament\Facades\Filament;
 
 test('login screen can be rendered', function () {
-    $response = $this->get(UrlHelper::getAppUrl('login'));
+    $response = $this->get(url()->getAppUrl('login'));
 
     $response->assertStatus(200);
 });
@@ -15,7 +14,7 @@ test('login screen can be rendered', function () {
 test('users can authenticate using the login screen', function () {
     $user = User::factory()->withPersonalTeam()->create();
 
-    $response = $this->post(UrlHelper::getAppUrl('login'), [
+    $response = $this->post(url()->getAppUrl('login'), [
         'email' => $user->email,
         'password' => 'password',
     ]);
@@ -29,7 +28,7 @@ test('users can authenticate using the login screen', function () {
 test('users cannot authenticate with invalid password', function () {
     $user = User::factory()->create();
 
-    $this->post(UrlHelper::getAppUrl('login'), [
+    $this->post(url()->getAppUrl('login'), [
         'email' => $user->email,
         'password' => 'wrong-password',
     ]);
