@@ -4,7 +4,7 @@
   </a>
 </p>
 
-<h1 align="center">Relaticle - Open-Source CRM Platform</h1>
+<h1 align="center"> Next-Generation Open-Source CRM</h1>
 
 
 <p align="center">
