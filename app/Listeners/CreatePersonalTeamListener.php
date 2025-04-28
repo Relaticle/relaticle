@@ -7,7 +7,7 @@ namespace App\Listeners;
 use App\Models\Team;
 use Filament\Events\Auth\Registered;
 
-readonly final class CreatePersonalTeamListener
+final readonly class CreatePersonalTeamListener
 {
     public function handle(Registered $event): void
     {
