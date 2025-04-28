@@ -1,10 +1,10 @@
-# Relaticle - Open-Source CRM Platform
-
 <p align="center">
   <a href="https://relaticle.com">
     <img src="https://relaticle.com/relaticle-logo.svg" width="100px" alt="Relaticle logo" />
   </a>
 </p>
+
+<h1 align="center">Relaticle - Open-Source CRM Platform</h1>
 
 <p align="center">
   <a href="https://laravel.com/docs/12.x"><img src="https://img.shields.io/badge/Laravel-12.x-FF2D20?style=flat-square&logo=laravel" alt="Laravel 12"></a>
@@ -16,8 +16,7 @@
 <p align="center">
   <a href="https://relaticle.com">🌐 Website</a> ·
   <a href="https://relaticle.com/documentation">📚 Documentation</a> ·
-  <a href="https://github.com/orgs/Relaticle/projects/1/views/1">🛣️ Roadmap</a> ·
-  <a href="#contributing">👥 Contributing</a>
+  <a href="https://github.com/orgs/Relaticle/projects/1/views/1">🛣️ Roadmap</a>
 </p>
 
 ---
