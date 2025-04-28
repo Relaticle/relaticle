@@ -13,7 +13,6 @@
         </testsuite>
         <testsuite name="Arch">
             <file>tests/ArchTest.php</file>
-            <directory>tests/Arch</directory>
         </testsuite>
     </testsuites>
     <source>
