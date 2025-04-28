@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use App\Helpers\UrlHelper;
 use App\Http\Controllers\Auth\CallbackController;
 use App\Http\Controllers\Auth\RedirectController;
 use App\Http\Controllers\DocumentationController;
@@ -29,22 +28,22 @@ Route::middleware('guest')->group(function () {
         ->name('auth.socialite.callback');
 
     Route::get('/login', function () {
-        return redirect()->away(UrlHelper::getAppUrl('login'));
+        return redirect()->away(url()->getAppUrl('login'));
     })->name('login');
 
     Route::get('/register', function () {
-        return redirect()->away(UrlHelper::getAppUrl('register'));
+        return redirect()->away(url()->getAppUrl('register'));
     })->name('register');
 
     Route::get('/forgot-password', function () {
-        return redirect()->away(UrlHelper::getAppUrl('forgot-password'));
+        return redirect()->away(url()->getAppUrl('forgot-password'));
     })->name('password.request');
 });
 
 Route::get('/', HomeController::class);
 
 Route::get('/dashboard', function () {
-    return redirect()->away(UrlHelper::getAppUrl());
+    return redirect()->away(url()->getAppUrl());
 })->name('dashboard');
 
 Route::get('/team-invitations/{invitation}', [TeamInvitationController::class, 'accept'])
