@@ -4,169 +4,134 @@
   </a>
 </p>
 
-<h2 align="center" >The Next-Generation Open-Source CRM Platform</h3>
+<h1 align="center">Relaticle</h1>
+<h3 align="center">The Next-Generation Open-Source CRM Platform</h3>
 
-<p align="center"><a href="https://relaticle.com">🌐 Website</a> · <a href="https://relaticle.com/documentation">📚 Documentation</a> · <a href="https://github.com/orgs/Relaticle/projects/1/views/1">🛣️ Roadmap </a>
-<p>
-<br />
+<p align="center">
+  <a href="https://laravel.com/docs/12.x"><img src="https://img.shields.io/badge/Laravel-12.x-FF2D20?style=flat-square&logo=laravel" alt="Laravel 12"></a>
+  <a href="https://php.net"><img src="https://img.shields.io/badge/PHP-8.3-777BB4?style=flat-square&logo=php" alt="PHP 8.3"></a>
+  <a href="https://github.com/Relaticle/relaticle/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-GPL--3.0-blue.svg?style=flat-square" alt="License"></a>
+  <a href="https://github.com/Relaticle/relaticle/actions"><img src="https://img.shields.io/github/actions/workflow/status/Relaticle/relaticle/tests.yml?branch=main&style=flat-square&label=tests" alt="Tests"></a>
+</p>
 
+<p align="center">
+  <a href="https://relaticle.com">🌐 Website</a> ·
+  <a href="https://relaticle.com/documentation">📚 Documentation</a> ·
+  <a href="https://github.com/orgs/Relaticle/projects/1/views/1">🛣️ Roadmap</a> ·
+  <a href="#contributing">👥 Contributing</a>
+</p>
+
+<hr>
+
+## 🚀 Introduction
+
+Relaticle is a powerful, flexible CRM platform built for modern businesses. Unlike traditional CRM solutions that force you to adapt your workflows to their systems, Relaticle adapts to how *your* team actually works.
+
+**Key advantages:**
+- 💪 **Fully Customizable Data Model** - Create custom fields, relationships, and workflows without coding
+- 🔄 **Seamless Integration** - Connect with your existing tools through our comprehensive API
+- 🚀 **Built for Performance** - Engineered to handle enterprise-scale data without sacrificing speed
+- 🔒 **Privacy-Focused** - Self-host on your infrastructure with complete data ownership
+- 🌱 **Open Source** - Transparent, community-driven development with GPL-3.0 license
 
 <p align="center">
   <a href="https://www.relaticle.com">
     <picture>
       <source media="(prefers-color-scheme: dark)" srcset="https://relaticle.com/images/app-preview.png?a=1">
       <source media="(prefers-color-scheme: light)" srcset="https://relaticle.com/images/app-preview.png?a=1">
-      <img src="https://relaticle.com/images/app-preview.png?a=1" alt="Companies view" />
+      <img src="https://relaticle.com/images/app-preview.png?a=1" alt="Relaticle Dashboard" style="max-width: 100%; border-radius: 8px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);" />
     </picture>
   </a>
 </p>
 
-## Documentation
+## ✨ Features
 
-Relaticle comes with comprehensive documentation:
+- **360° Customer View** - Unified profiles combining contact details, interaction history, and opportunities
+- **Dynamic Pipelines** - Customizable sales funnels that adapt to your unique sales process
+- **Task Management** - Track and prioritize work across your team with smart assignments
+- **Rich Reporting** - Data-driven insights with customizable dashboards and exportable reports
+- **User Permissions** - Fine-grained access control to protect sensitive customer data
+- **White-Labeling** - Fully rebrand the platform for your organization or clients
+- **Multi-Team Support** - Securely manage multiple business units with team isolation
 
-- [Business Guide](resources/markdown/business-guide.md) - Overview of Relaticle from a business perspective
-- [Quick Start Guide](resources/markdown/quick-start-guide.md) - Step-by-step guide for new users
-- [Technical Guide](resources/markdown/technical-guide.md) - Architecture and development information
-- [API Documentation](resources/markdown/api-guide.md) - Integration with the Relaticle API
+## 🏁 Quick Start
 
-## Premium Component
+### Prerequisites
 
-Relaticle includes one premium component in its ecosystem - the **Data Model (Custom Fields)** plugin. This Filament plugin is developed by Relaticle and provides powerful dynamic data management capabilities throughout the application.
+- PHP 8.3+ with PostgreSQL, GD, and required extensions
+- Node.js 16+
+- Composer
 
-For detailed information about this component, see:
-- **Documentation**: [custom-fields.relaticle.com/introduction](https://custom-fields.relaticle.com/introduction)
-- **Marketplace**: [filamentphp.com/plugins/relaticle-custom-fields](https://filamentphp.com/plugins/relaticle-custom-fields)
-
-This is the only paid component in the Relaticle ecosystem and represents a significant intellectual property investment that enables the platform's flexible data modeling capabilities.
-
-## Installation
-
-Relaticle is a regular Laravel application; it's build on top of Laravel 12 / Filament 3 and uses Livewire / Tailwind
-CSS for the frontend. If you are familiar with Laravel, you should feel right at home.
-
-In terms of local development, you can use the following requirements:
-
-- PHP 8.3 - with Postgres, GD, and other common extensions.
-- Node.js 16 or more recent.
-
-If you have these requirements, you can start by cloning the repository and installing the dependencies:
+### Installation in 5 Minutes
 
 ```bash
+# Clone the repository
 git clone https://github.com/Relaticle/relaticle.git
-
 cd relaticle
 
-git checkout -b feat/your-feature # or fix/your-fix
-```
-
-> **Don't push directly to the `main` branch**. Instead, create a new branch and push it to your branch.
-
-Next, install the dependencies using [Composer](https://getcomposer.org) and [NPM](https://www.npmjs.com):
-
-```bash
+# Install dependencies
 composer install
-
 npm install
-```
 
-After that, set up your `.env` file:
-
-```bash
+# Set up environment
 cp .env.example .env
-
 php artisan key:generate
-```
 
-Run the migrations:
-
-```bash
+# Run migrations and link storage
 php artisan migrate
-```
-
-Link the storage to the public folder:
-
-```bash
 php artisan storage:link
-```
 
-In a **separate terminal**, build the assets in watch mode:
-
-```bash
+# Build assets and start server
 npm run dev
-```
-
-Also in a **separate terminal**, run the queue worker:
-
-```bash
-php artisan queue:work
-```
-
-Finally, start the development server:
-
-```bash
 php artisan serve
 ```
 
-> Note: By default, emails are sent to the `log` driver. You can change this in the `.env` file to something like
-`mailtrap`.
+Visit `http://localhost:8000` in your browser and create your admin account to get started!
 
-Once you are done with the code changes, be sure to run the test suite to ensure everything is still working:
+For detailed setup instructions, including production deployment, see our [Technical Guide](resources/markdown/documentation/technical-guide.md).
 
-```bash
-composer test
-```
+## 📚 Documentation
 
-If everything is green, push your branch and create a pull request:
+Relaticle comes with comprehensive documentation to help you get the most out of the platform:
 
-```bash
-git commit -am "Your commit message"
+- [Business Guide](resources/markdown/documentation/business-guide.md) - Overview of Relaticle from a business perspective
+- [Quick Start Guide](resources/markdown/documentation/quick-start-guide.md) - Step-by-step guide for new users
+- [Technical Guide](resources/markdown/documentation/technical-guide.md) - Architecture and development information
+- [API Documentation](resources/markdown/documentation/api-guide.md) - Integration with the Relaticle API
 
-git push
-```
+## 🧩 Premium Component
 
-Visit [github.com/Relaticle/relaticle/pulls](https://github.com/Relaticle/relaticle/pulls) and create a pull request.
+While Relaticle is fully open-source, we offer one premium component that significantly enhances its capabilities:
 
-## Tooling
+**Data Model (Custom Fields)** - This Filament plugin provides powerful dynamic data management throughout the application, enabling unlimited customization possibilities without coding.
 
-Relaticle uses a few tools to ensure the code quality and consistency. Of course, [Pest](https://pestphp.com) is the
-testing framework of choice, and we also use [PHPStan](https://phpstan.org) for static analysis. Pest's type coverage is
-at 100%, and the test suite is also at 100% coverage.
+- [Documentation](https://custom-fields.relaticle.com/introduction)
+- [Marketplace](https://filamentphp.com/plugins/relaticle-custom-fields)
 
-In terms of code style, we use [Laravel Pint](https://laravel.com/docs/12.x/pint) to ensure the code is consistent and
-follows the Laravel conventions. We also use [Rector](https://getrector.org) to ensure the code is up to date with the
-latest PHP version.
+This is the only paid component in the Relaticle ecosystem and supports ongoing development of the open-source platform.
 
-You run these tools individually using the following commands:
+## 🤝 Contributing
 
-```bash
-# Lint the code using Pint
-composer lint
-composer test:lint
+We welcome contributions from developers of all skill levels! Here's how to get started:
 
-# Refactor the code using Rector
-composer refactor
-composer test:refactor
+### Development Workflow
 
-# Run PHPStan
-composer test:types
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feat/amazing-feature`
+3. Make your changes following our coding standards
+4. Run tests to ensure quality: `composer test`
+5. Commit your changes: `git commit -am 'Add some amazing feature'`
+6. Push to your branch: `git push origin feat/amazing-feature`
+7. Create a Pull Request
 
-# Run the test suite
-composer test:unit
+For more details, see our [Contributing Guide](CONTRIBUTING.md).
 
-# Run all the tools
-composer test
-```
+## 🌟 Community
 
-Pull requests that don't pass the test suite will not be merged. So, as suggested on the [Installation](#installation)
-section, be sure to run the test suite before pushing your branch.
+- Join our [Discord community](https://discord.gg/relaticle)
+- Follow us on [Twitter](https://twitter.com/relaticle)
+- Subscribe to our [YouTube channel](https://youtube.com/relaticle) for tutorials
 
-## Git Hooks
+## 📝 License
 
-Relaticle uses [Git Hooks](https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks) to ensure the code quality and
-consistency. The hooks are located in the `.githooks` directory, and you can enable them by running the following
-command:
-
-```bash
-git config core.hooksPath .githooks.
-```
+Relaticle is open-sourced software licensed under the [GPL-3.0 license](LICENSE).
