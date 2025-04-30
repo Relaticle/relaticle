@@ -1,0 +1,8 @@
+title: Discovery call with Brian
+assigned_people:
+  - brian
+custom_fields:
+  description: Schedule a call to discuss potential partnership opportunities with Airbnb.
+  due_date: '{{ now()->addDays(7)->format("Y-m-d H:i:s") }}'
+  status: To do
+  priority: High 
