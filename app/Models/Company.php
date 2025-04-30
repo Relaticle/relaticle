@@ -37,6 +37,7 @@ final class Company extends Model implements HasCustomFields, HasMedia
 
     /** @use HasFactory<CompanyFactory> */
     use HasFactory;
+
     use InteractsWithMedia;
     use SoftDeletes;
     use UsesCustomFields;
