@@ -1,6 +1,0 @@
-name: Airbnb Host Analytics Platform
-company: airbnb
-custom_fields:
-  amount: 20000
-  close_date: '{{ now()->addWeeks(4)->format("Y-m-d") }}'
-  stage: Initial Contact 
