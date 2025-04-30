@@ -10,14 +10,13 @@ use App\Models\Note;
 use App\Models\Opportunity;
 use App\Models\People;
 use App\Models\Task;
+use App\Models\Team;
 use App\Models\User;
 use Filament\Actions\Action;
 use Filament\Http\Responses\Auth\Contracts\LoginResponse as LoginResponseContract;
 use Filament\Tables\Actions\Action as TableAction;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
-use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 
 final class AppServiceProvider extends ServiceProvider
@@ -35,9 +34,20 @@ final class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        $this->configureModels();
+        $this->configureFilament();
+    }
+
+    /**
+     * Configure the models for the application.
+     */
+    private function configureModels(): void
+    {
         Model::unguard();
+        Model::shouldBeStrict(! $this->app->isProduction());
 
         Relation::enforceMorphMap([
+            'team' => Team::class,
             'user' => User::class,
             'people' => People::class,
             'company' => Company::class,
@@ -45,12 +55,6 @@ final class AppServiceProvider extends ServiceProvider
             'task' => Task::class,
             'note' => Note::class,
         ]);
-
-        if (App::isProduction()) {
-            URL::forceScheme('https');
-        }
-
-        $this->configureFilament();
     }
 
     /**
