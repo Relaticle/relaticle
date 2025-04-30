@@ -1,0 +1,8 @@
+title: Integration meeting with Ivan
+assigned_people:
+  - ivan
+custom_fields:
+  description: Discuss API integration possibilities with Notion and explore collaboration features.
+  due_date: '{{ now()->addDays(10)->format("Y-m-d H:i:s") }}'
+  status: To do
+  priority: High 
