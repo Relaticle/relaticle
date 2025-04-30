@@ -14,7 +14,6 @@ use App\Models\Note;
 use App\Models\Opportunity;
 use App\Models\People;
 use App\Models\Task;
-use Database\Seeders\SampleData\SampleDataSeeder;
 use Laravel\Jetstream\Events\TeamCreated;
 use Laravel\Jetstream\Features;
 use Relaticle\CustomFields\Contracts\CustomsFieldsMigrators;
@@ -22,6 +21,7 @@ use Relaticle\CustomFields\Data\CustomFieldData;
 use Relaticle\CustomFields\Data\CustomFieldSectionData;
 use Relaticle\CustomFields\Data\CustomFieldSettingsData;
 use Relaticle\CustomFields\Enums\CustomFieldSectionType;
+use Relaticle\OnboardSeed\SampleDataSeeder;
 
 /**
  * Creates custom fields for a team when it's created
