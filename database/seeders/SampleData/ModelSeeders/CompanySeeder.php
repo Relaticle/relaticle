@@ -70,6 +70,7 @@ final class CompanySeeder extends BaseModelSeeder
             'name' => $name,
             'creator_id' => $user->id,
             'account_owner_id' => $user->id,
+            ...$this->getGlobalAttributes(),
         ]);
 
         $this->applyCustomFields($company, $customData);

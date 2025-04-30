@@ -51,5 +51,5 @@ return [
 
     'fathom' => [
         'site_id' => env('FATHOM_ANALYTICS_SITE_ID'),
-    ]
+    ],
 ];

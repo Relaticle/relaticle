@@ -118,6 +118,7 @@ final class OpportunitySeeder extends BaseModelSeeder
             'name' => $name,
             'company_id' => $company->id,
             'creator_id' => $user->id,
+            ...$this->getGlobalAttributes(),
         ]);
 
         $this->applyCustomFields($opportunity, $customData);

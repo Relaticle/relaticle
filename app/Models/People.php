@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\CreationSource;
+use App\Models\Concerns\HasCreator;
 use App\Observers\PeopleObserver;
 use App\Services\AvatarService;
 use Database\Factories\PeopleFactory;
@@ -18,13 +20,15 @@ use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 
 /**
  * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property CreationSource $creation_source
  */
 #[ObservedBy(PeopleObserver::class)]
 final class People extends Model implements HasCustomFields
 {
+    use HasCreator;
+
     /** @use HasFactory<PeopleFactory> */
     use HasFactory;
-
     use SoftDeletes;
     use UsesCustomFields;
 
@@ -35,7 +39,27 @@ final class People extends Model implements HasCustomFields
      */
     protected $fillable = [
         'name',
+        'creation_source',
     ];
+
+    /**
+     * @var array<string, mixed>
+     */
+    protected $attributes = [
+        'creation_source' => CreationSource::WEB,
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @return array<string, string|class-string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'creation_source' => CreationSource::class,
+        ];
+    }
 
     public function getAvatarAttribute(): ?string
     {
@@ -45,11 +69,6 @@ final class People extends Model implements HasCustomFields
     public function team(): BelongsTo
     {
         return $this->belongsTo(Team::class);
-    }
-
-    public function creator(): BelongsTo
-    {
-        return $this->belongsTo(User::class);
     }
 
     public function company(): BelongsTo

@@ -112,6 +112,7 @@ final class NoteSeeder extends BaseModelSeeder
             'title' => $title,
             'creator_id' => $user->id,
             'team_id' => $user->currentTeam->id,
+            ...$this->getGlobalAttributes(),
         ]);
 
         if (isset($this->fields[NoteCustomField::BODY->value])) {

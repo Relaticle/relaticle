@@ -12,7 +12,6 @@ final class ViewPeople extends ViewRecord
 {
     protected static string $resource = PeopleResource::class;
 
-    #[\Override]
     protected function getHeaderActions(): array
     {
         return [

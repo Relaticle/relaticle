@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Seeders\SampleData\Support;
 
+use App\Enums\CreationSource;
 use App\Models\Team;
 use App\Models\User;
 use Database\Seeders\SampleData\Contracts\ModelSeederInterface;
@@ -62,6 +63,7 @@ abstract class BaseModelSeeder implements ModelSeederInterface
         }
 
         return CustomField::query()
+            ->with('options')
             ->whereTenantId($this->teamId)
             ->forEntity($this->modelClass)
             ->whereIn('code', $this->fieldCodes)
@@ -132,5 +134,17 @@ abstract class BaseModelSeeder implements ModelSeederInterface
             ?? $field->options->first();
 
         return $option ? $option->id : null;
+    }
+
+    /**
+     * Get global attributes for the model
+     *
+     * @return array<string, mixed>
+     */
+    protected function getGlobalAttributes(): array
+    {
+        return [
+            'creation_source' => CreationSource::SYSTEM,
+        ];
     }
 }
