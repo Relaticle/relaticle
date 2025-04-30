@@ -1,6 +1,0 @@
-name: Apple Developer Partnership
-company: apple
-custom_fields:
-  amount: 25000
-  close_date: '{{ now()->addMonths(1)->format("Y-m-d") }}'
-  stage: Needs Analysis 
