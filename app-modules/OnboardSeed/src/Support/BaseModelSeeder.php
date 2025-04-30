@@ -173,20 +173,47 @@ abstract class BaseModelSeeder implements ModelSeederInterface
 
     /**
      * Process dynamic template expressions in fixture data
-     * Handles expressions like {{ now()->addDays(3) }}
+     * Handles expressions like {{ +5d }} for dates (days, weeks, months, years)
      *
      * @param  string  $template  The template string with {{ expression }}
      * @return mixed The evaluated result
      */
     protected function evaluateTemplateExpression(string $template): mixed
     {
-        if (str_starts_with($template, '{{') && str_ends_with($template, '}}')) {
-            $expression = trim(substr($template, 2, -2));
-
-            return eval("return {$expression};");
+        // If not a template expression, return as is
+        if (! str_starts_with($template, '{{') || ! str_ends_with($template, '}}')) {
+            return $template;
         }
 
-        return $template;
+        $expression = trim(substr($template, 2, -2));
+
+        // Handle simple date patterns: +5d, +1w, +3m, +1y, +2b (business days)
+        if (preg_match('/^([+])(\d+)([dwmyb])$/', $expression, $matches)) {
+            $value = (int) $matches[2];
+            $unit = $matches[3];
+
+            return match ($unit) {
+                'd' => now()->addDays($value),
+                'w' => now()->addWeeks($value),
+                'm' => now()->addMonths($value),
+                'y' => now()->addYears($value),
+                'b' => now()->addWeekdays($value),
+                default => $template
+            };
+        }
+
+        // Handle specific date keywords
+        return match ($expression) {
+            'now' => now(),
+            'today' => today(),
+            'tomorrow' => today()->addDay(),
+            'yesterday' => today()->subDay(),
+            'nextWeek' => today()->addWeek(),
+            'lastWeek' => today()->subWeek(),
+            'nextMonth' => today()->addMonth(),
+            'lastMonth' => today()->subMonth(),
+            default => $template
+        };
     }
 
     /**

@@ -2,5 +2,5 @@ name: Notion API Integration
 company: notion
 custom_fields:
   amount: 18000
-  close_date: '{{ now()->addWeeks(3)->format("Y-m-d") }}'
+  close_date: '{{ +3w }}'
   stage: Discovery/Qualification 
