@@ -31,6 +31,7 @@ final class Task extends Model implements HasCustomFields
 
     /** @use HasFactory<TaskFactory> */
     use HasFactory;
+
     use SoftDeletes;
     use SortableTrait;
     use UsesCustomFields;
