@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use ApiPlatform\Metadata\ApiResource;
 use App\Enums\CreationSource;
 use App\Models\Concerns\HasCreator;
 use App\Observers\CompanyObserver;
@@ -31,6 +32,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  * @property CreationSource $creation_source
  */
 #[ObservedBy(CompanyObserver::class)]
+#[ApiResource]
 final class Company extends Model implements HasCustomFields, HasMedia
 {
     use HasCreator;
