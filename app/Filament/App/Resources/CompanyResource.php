@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\App\Resources;
 
+use App\Enums\CreationSource;
 use App\Filament\App\Resources\CompanyResource\Pages;
 use App\Models\Company;
 use Filament\Forms\Components\Select;
@@ -22,6 +23,7 @@ use Filament\Tables\Actions\RestoreBulkAction;
 use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -75,7 +77,8 @@ final class CompanyResource extends Resource
                     ->searchable()
                     ->sortable()
                     ->toggleable()
-                    ->toggledHiddenByDefault(),
+                    ->getStateUsing(fn (Company $record): string => $record->createdBy)
+                    ->color(fn (Company $record): string => $record->isSystemCreated() ? 'secondary' : 'primary'),
                 TextColumn::make('deleted_at')
                     ->dateTime()
                     ->sortable()
@@ -96,6 +99,10 @@ final class CompanyResource extends Resource
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
+                SelectFilter::make('creation_source')
+                    ->label('Creation Source')
+                    ->options(CreationSource::class)
+                    ->multiple(),
                 TrashedFilter::make(),
             ])
             ->actions([

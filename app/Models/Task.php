@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\CreationSource;
+use App\Models\Concerns\HasCreator;
 use App\Observers\TaskObserver;
 use Database\Factories\TaskFactory;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
@@ -20,13 +22,15 @@ use Spatie\EloquentSortable\SortableTrait;
 /**
  * @property int $id
  * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property CreationSource $creation_source
  */
 #[ObservedBy(TaskObserver::class)]
 final class Task extends Model implements HasCustomFields
 {
+    use HasCreator;
+
     /** @use HasFactory<TaskFactory> */
     use HasFactory;
-
     use SoftDeletes;
     use SortableTrait;
     use UsesCustomFields;
@@ -37,7 +41,27 @@ final class Task extends Model implements HasCustomFields
         'description',
         'status',
         'priority',
+        'creation_source',
     ];
+
+    /**
+     * @var array<string, mixed>
+     */
+    protected $attributes = [
+        'creation_source' => CreationSource::WEB,
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @return array<string, string|class-string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'creation_source' => CreationSource::class,
+        ];
+    }
 
     public array $sortable = [
         'order_column_name' => 'order_column',
@@ -47,11 +71,6 @@ final class Task extends Model implements HasCustomFields
     public function team(): BelongsTo
     {
         return $this->belongsTo(Team::class);
-    }
-
-    public function creator(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'creator_id');
     }
 
     public function assignees(): BelongsToMany

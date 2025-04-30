@@ -135,6 +135,7 @@ final class TaskSeeder extends BaseModelSeeder
             'title' => $title,
             'creator_id' => $user->id,
             'team_id' => $team->id,
+            ...$this->getGlobalAttributes(),
         ]);
 
         $this->applyCustomFields($task, $customData);

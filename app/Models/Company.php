@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\CreationSource;
+use App\Models\Concerns\HasCreator;
 use App\Observers\CompanyObserver;
 use App\Services\AvatarService;
 use Database\Factories\CompanyFactory;
@@ -14,6 +16,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Relaticle\CustomFields\Models\Concerns\UsesCustomFields;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 use Spatie\MediaLibrary\HasMedia;
@@ -24,14 +27,16 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  * @property string $address
  * @property string $country
  * @property string $phone
- * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property Carbon|null $deleted_at
+ * @property CreationSource $creation_source
  */
 #[ObservedBy(CompanyObserver::class)]
 final class Company extends Model implements HasCustomFields, HasMedia
 {
+    use HasCreator;
+
     /** @use HasFactory<CompanyFactory> */
     use HasFactory;
-
     use InteractsWithMedia;
     use SoftDeletes;
     use UsesCustomFields;
@@ -44,7 +49,27 @@ final class Company extends Model implements HasCustomFields, HasMedia
         'address',
         'country',
         'phone',
+        'creation_source',
     ];
+
+    /**
+     * @var array<string, mixed>
+     */
+    protected $attributes = [
+        'creation_source' => CreationSource::WEB,
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @return array<string, string|class-string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'creation_source' => CreationSource::class,
+        ];
+    }
 
     public function getLogoAttribute(): ?string
     {
@@ -56,11 +81,6 @@ final class Company extends Model implements HasCustomFields, HasMedia
     public function team(): BelongsTo
     {
         return $this->belongsTo(Team::class);
-    }
-
-    public function creator(): BelongsTo
-    {
-        return $this->belongsTo(User::class);
     }
 
     public function accountOwner(): BelongsTo

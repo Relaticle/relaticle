@@ -103,6 +103,7 @@ final class PeopleSeeder extends BaseModelSeeder
             'company_id' => $company->id,
             'creator_id' => $user->id,
             'team_id' => $company->team_id,
+            ...$this->getGlobalAttributes(),
         ]);
 
         $this->applyCustomFields($person, $customData);

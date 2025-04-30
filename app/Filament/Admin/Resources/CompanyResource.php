@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace App\Filament\Admin\Resources;
 
+use App\Enums\CreationSource;
 use App\Filament\Admin\Resources\CompanyResource\Pages;
 use App\Models\Company;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 
 final class CompanyResource extends Resource
@@ -52,6 +54,9 @@ final class CompanyResource extends Resource
                     ->tel()
                     ->required()
                     ->maxLength(255),
+                Forms\Components\Select::make('creation_source')
+                    ->options(CreationSource::class)
+                    ->default(CreationSource::WEB),
             ]);
     }
 
@@ -71,6 +76,15 @@ final class CompanyResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('phone')
                     ->searchable(),
+                Tables\Columns\TextColumn::make('creation_source')
+                    ->badge()
+                    ->color(fn (CreationSource $state): string => match ($state) {
+                        CreationSource::WEB => 'info',
+                        CreationSource::SYSTEM => 'warning',
+                        CreationSource::IMPORT => 'success',
+                    })
+                    ->label('Source')
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('deleted_at')
                     ->dateTime()
                     ->sortable()
@@ -85,7 +99,10 @@ final class CompanyResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                SelectFilter::make('creation_source')
+                    ->label('Creation Source')
+                    ->options(CreationSource::class)
+                    ->multiple(),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),

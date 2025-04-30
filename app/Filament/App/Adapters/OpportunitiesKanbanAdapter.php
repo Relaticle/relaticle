@@ -17,6 +17,7 @@ final class OpportunitiesKanbanAdapter extends DefaultKanbanAdapter
         $orderField = $this->config->getOrderField();
 
         $query = $this->newQuery()
+            ->with(['company', 'contact'])
             ->whereHas('customFieldValues', function (Builder $builder) use ($columnId): void {
                 $builder->where('custom_field_values.custom_field_id', $this->stageCustomField()->id)
                     ->where('custom_field_values.'.$this->stageCustomField()->getValueColumn(), $columnId);

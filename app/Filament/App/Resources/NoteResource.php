@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace App\Filament\App\Resources;
 
+use App\Enums\CreationSource;
 use App\Filament\App\Resources\NoteResource\Forms\NoteForm;
 use App\Filament\App\Resources\NoteResource\Pages\ManageNotes;
 use App\Models\Note;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -43,6 +46,13 @@ final class NoteResource extends Resource
                     ->label('People')
                     ->sortable()
                     ->toggleable(),
+                TextColumn::make('creator.name')
+                    ->label('Created By')
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable()
+                    ->getStateUsing(fn (Note $record): string => $record->createdBy)
+                    ->color(fn (Note $record): string => $record->isSystemCreated() ? 'secondary' : 'primary'),
                 Tables\Columns\TextColumn::make('deleted_at')
                     ->dateTime()
                     ->sortable()
@@ -62,6 +72,10 @@ final class NoteResource extends Resource
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
+                SelectFilter::make('creation_source')
+                    ->label('Creation Source')
+                    ->options(CreationSource::class)
+                    ->multiple(),
                 Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([

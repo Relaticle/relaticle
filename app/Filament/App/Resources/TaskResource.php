@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\App\Resources;
 
+use App\Enums\CreationSource;
 use App\Filament\App\Resources\TaskResource\Forms\TaskForm;
 use App\Filament\App\Resources\TaskResource\Pages\ManageTasks;
 use App\Models\Task;
@@ -16,6 +17,8 @@ use Filament\Tables\Actions\ForceDeleteAction;
 use Filament\Tables\Actions\ForceDeleteBulkAction;
 use Filament\Tables\Actions\RestoreAction;
 use Filament\Tables\Actions\RestoreBulkAction;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -63,6 +66,13 @@ final class TaskResource extends Resource
                     ->searchable()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('creator.name')
+                    ->label('Created By')
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable()
+                    ->getStateUsing(fn ($record): string => $record->createdBy)
+                    ->color(fn ($record): string => $record->isSystemCreated() ? 'secondary' : 'primary'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -92,6 +102,10 @@ final class TaskResource extends Resource
                     ->relationship('assignees', 'name')
                     ->searchable()
                     ->preload(),
+                SelectFilter::make('creation_source')
+                    ->label('Creation Source')
+                    ->options(CreationSource::class)
+                    ->multiple(),
                 TrashedFilter::make(),
             ])
             ->groups([
