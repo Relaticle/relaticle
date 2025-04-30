@@ -95,7 +95,9 @@ final class TaskSeeder extends BaseModelSeeder
 
         // Define field mappings for custom processing
         $fieldMappings = [
-            TaskCustomField::DUE_DATE->value => fn ($value) => is_string($value) ? $this->evaluateTemplateExpression($value) : $value,
+            TaskCustomField::DUE_DATE->value => fn ($value) => is_string($value)
+                ? $this->formatDate($this->evaluateTemplateExpression($value))
+                : $value,
             TaskCustomField::STATUS->value => 'option',
             TaskCustomField::PRIORITY->value => 'option',
         ];
@@ -104,5 +106,20 @@ final class TaskSeeder extends BaseModelSeeder
         $processedFields = $this->processCustomFieldValues($customFields, $fieldMappings);
 
         return $this->registerEntityFromFixture($key, $attributes, $processedFields, $team, $user);
+    }
+
+    /**
+     * Format a date value for the task due date
+     *
+     * @param  mixed  $dateValue  The date value returned from template expression
+     * @return string The formatted date string
+     */
+    private function formatDate(mixed $dateValue): string
+    {
+        if ($dateValue instanceof \Illuminate\Support\Carbon) {
+            return $dateValue->format('Y-m-d H:i:s');
+        }
+
+        return (string) $dateValue;
     }
 }

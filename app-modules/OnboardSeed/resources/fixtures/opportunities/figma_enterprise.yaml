@@ -2,5 +2,5 @@ name: Figma Enterprise Plan
 company: figma
 custom_fields:
   amount: 15000
-  close_date: '{{ now()->addWeeks(2)->format("Y-m-d") }}'
+  close_date: '{{ +2w }}'
   stage: Proposal/Price Quote 

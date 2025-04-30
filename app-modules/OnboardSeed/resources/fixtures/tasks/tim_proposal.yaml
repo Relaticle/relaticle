@@ -3,6 +3,6 @@ assigned_people:
   - tim
 custom_fields:
   description: Prepare and send the final proposal for the Apple developer partnership.
-  due_date: '{{ now()->addDays(5)->format("Y-m-d H:i:s") }}'
+  due_date: '{{ +5d }}'
   status: To do
   priority: Medium 

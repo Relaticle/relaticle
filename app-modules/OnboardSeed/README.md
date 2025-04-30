@@ -40,8 +40,8 @@ custom_fields: # All custom field values under this key
     field_code: value              # Simple value
     another_field: [ value1, value2 ]  # Array value
 
-    # Dynamic value using Laravel's functions
-    date_field: '{{ now()->addDays(5)->format("Y-m-d") }}'
+    # Dynamic value using simple date expression
+    date_field: '{{ +5d }}'
 ```
 
 ### Relationship Types in YAML
@@ -107,7 +107,7 @@ assigned_people:
     - person_key2
 custom_fields:
     description: Weekly team meeting
-    due_date: '{{ now()->addDays(2)->format("Y-m-d H:i:s") }}'
+    due_date: '{{ +2d }}'
     status: To do
     priority: High
 ```
@@ -239,13 +239,28 @@ private array $entityTypeMap = [
 
 ## Template Expressions
 
-You can use dynamic values in fixtures using Laravel's expressive syntax:
+You can use dynamic date values in fixtures using simple expressions:
 
 ```yaml
-due_date: '{{ now()->addDays(7)->format("Y-m-d H:i:s") }}'
+# Simple date keywords
+due_date: '{{ now }}'           # Current datetime
+start_date: '{{ today }}'       # Today's date
+end_date: '{{ tomorrow }}'      # Tomorrow's date
+last_contact: '{{ yesterday }}' # Yesterday's date
+meeting_date: '{{ nextWeek }}'  # One week from today
+previous_date: '{{ lastWeek }}' # One week before today
+payment_date: '{{ nextMonth }}' # One month from today
+last_payment: '{{ lastMonth }}' # One month before today
+
+# Relative dates with simple syntax
+followup_date: '{{ +7d }}'      # 7 days from now (+Nd for N days)
+review_date: '{{ +2w }}'        # 2 weeks from now (+Nw for N weeks)
+renewal_date: '{{ +3m }}'       # 3 months from now (+Nm for N months)
+contract_date: '{{ +1y }}'      # 1 year from now (+Ny for N years)
+deadline_date: '{{ +5b }}'      # 5 business days from now (+Nb for N business days)
 ```
 
-These expressions will be evaluated at runtime.
+For formatting dates, you can handle that in your model's accessor/mutator or in the seeder class.
 
 ## Best Practices
 
