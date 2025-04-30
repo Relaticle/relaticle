@@ -1,0 +1,8 @@
+title: Send proposal to Tim
+assigned_people:
+  - tim
+custom_fields:
+  description: Prepare and send the final proposal for the Apple developer partnership.
+  due_date: '{{ now()->addDays(5)->format("Y-m-d H:i:s") }}'
+  status: To do
+  priority: Medium 
