@@ -45,6 +45,7 @@ final class AppServiceProvider extends ServiceProvider
     {
         Model::unguard();
         Model::shouldBeStrict(! $this->app->isProduction());
+//        Model::automaticallyEagerLoadRelationships();
 
         Relation::enforceMorphMap([
             'team' => Team::class,

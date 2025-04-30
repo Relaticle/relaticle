@@ -1,6 +1,6 @@
 @props(['title'])
 
-<!DOCTYPE html>
+    <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
@@ -20,15 +20,21 @@
 
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    @if(app()->isProduction() && !empty(config('services.fathom.site_id')))
+        <!-- Fathom - beautiful, simple website analytics -->
+        <script src="https://cdn.usefathom.com/script.js" data-site="{{ config('services.fathom.site_id') }}" defer></script>
+        <!-- / Fathom -->
+    @endif
 </head>
 <body class="antialiased text-gray-800">
 
-<x-layout.header />
+<x-layout.header/>
 
 <!-- Main Content -->
 {{ $slot }}
 
-<x-layout.footer />
+<x-layout.footer/>
 
 @livewireScripts
 </body>
