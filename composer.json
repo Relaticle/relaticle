@@ -9,6 +9,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.3",
+        "api-platform/laravel": "^4.1",
         "ashallendesign/favicon-fetcher": "^3.8",
         "awcodes/overlook": "^2.2",
         "filament/filament": "^3.2",
