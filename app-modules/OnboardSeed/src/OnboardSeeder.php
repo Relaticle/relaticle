@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace Database\Seeders\SampleData;
+namespace Relaticle\OnboardSeed;
 
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Auth;
 
-final class SampleDataSeeder extends Seeder
+final class OnboardSeeder extends Seeder
 {
     /**
      * Constructor with dependency injection
      */
-    public function __construct(private readonly SampleDataManager $manager) {}
+    public function __construct(private readonly OnboardSeedManager $manager) {}
 
     /**
      * Run the database seeds.
