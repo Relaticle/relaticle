@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Database\Seeders\SampleData\Contracts;
+namespace Relaticle\OnboardSeed\Contracts;
 
 use App\Models\Team;
-use App\Models\User;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Collection;
 
 interface ModelSeederInterface
@@ -14,11 +14,11 @@ interface ModelSeederInterface
      * Run the model seed process
      *
      * @param  Team  $team  The team to create data for
-     * @param  User  $user  The user creating the data
+     * @param  Authenticatable  $user  The user creating the data
      * @param  array<string, mixed>  $context  Context data from previous seeders
      * @return array<string, mixed> Seeded data for use by subsequent seeders
      */
-    public function seed(Team $team, User $user, array $context = []): array;
+    public function seed(Team $team, Authenticatable $user, array $context = []): array;
 
     /**
      * Get custom fields for this model
