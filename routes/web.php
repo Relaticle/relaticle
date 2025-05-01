@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use App\Http\Controllers\Auth\CallbackController;
 use App\Http\Controllers\Auth\RedirectController;
-use App\Http\Controllers\DocumentationController;
 use App\Http\Controllers\HomeController;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Support\Facades\Route;
@@ -49,9 +48,3 @@ Route::get('/dashboard', function () {
 Route::get('/team-invitations/{invitation}', [TeamInvitationController::class, 'accept'])
     ->middleware(['signed', 'verified', 'auth', AuthenticateSession::class])
     ->name('team-invitations.accept');
-
-// Documentation routes
-Route::prefix('documentation')->name('documentation.')->group(function () {
-    Route::get('/', DocumentationController::class)->name('index');
-    Route::get('/{type}', DocumentationController::class)->name('show');
-});
