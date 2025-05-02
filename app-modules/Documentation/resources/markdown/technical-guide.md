@@ -2,7 +2,8 @@
 
 ## Architecture Overview
 
-Relaticle is built on the Laravel 12 framework with Filament 3 for the admin panel interface. The front-end uses Livewire and Tailwind CSS to create a responsive and interactive user experience.
+Relaticle is built on the Laravel 12 framework with Filament 3 for the admin panel interface. The front-end uses
+Livewire and Tailwind CSS to create a responsive and interactive user experience.
 
 ### Tech Stack
 
@@ -20,12 +21,14 @@ Relaticle is built on the Laravel 12 framework with Filament 3 for the admin pan
 
 Relaticle includes one premium component in its technology stack:
 
-**Data Model (Custom Fields)** - A powerful Filament plugin **developed by Relaticle** that serves as the backbone for dynamic data management throughout the application.
+**Data Model (Custom Fields)** - A powerful Filament plugin **developed by Relaticle** that serves as the backbone for
+dynamic data management throughout the application.
 
 - **Documentation**: [custom-fields.relaticle.com/introduction](https://custom-fields.relaticle.com/introduction)
 - **Marketplace**: [filamentphp.com/plugins/relaticle-custom-fields](https://filamentphp.com/plugins/relaticle-custom-fields)
 
-As the creators of this plugin, we've engineered it specifically to address the limitations of existing solutions. The Custom Fields package is commercial for several reasons:
+As the creators of this plugin, we've engineered it specifically to address the limitations of existing solutions. The
+Custom Fields package is commercial for several reasons:
 
 1. It represents thousands of development hours and specialized expertise
 2. Ongoing maintenance and regular updates ensure compatibility with the Filament ecosystem
@@ -33,7 +36,9 @@ As the creators of this plugin, we've engineered it specifically to address the 
 4. Enterprise-grade performance optimizations for handling complex data structures
 5. Regular feature additions based on real-world customer feedback
 
-This is the **only** paid component in the Relaticle ecosystem. While we're committed to open source, this particular module represents a significant intellectual property investment that enables Relaticle to deliver unparalleled flexibility in data modeling without sacrificing performance or user experience.
+This is the **only** paid component in the Relaticle ecosystem. While we're committed to open source, this particular
+module represents a significant intellectual property investment that enables Relaticle to deliver unparalleled
+flexibility in data modeling without sacrificing performance or user experience.
 
 ## Core Components
 
@@ -67,16 +72,16 @@ Relaticle's data structure revolves around these key models:
 To develop Relaticle locally, you'll need:
 
 - **PHP 8.3+** with the following extensions:
-  - pdo_pgsql
-  - gd
-  - bcmath
-  - ctype
-  - fileinfo
-  - json
-  - mbstring
-  - openssl
-  - tokenizer
-  - xml
+    - pdo_pgsql
+    - gd
+    - bcmath
+    - ctype
+    - fileinfo
+    - json
+    - mbstring
+    - openssl
+    - tokenizer
+    - xml
 - **PostgreSQL 13+**
 - **Node.js 16+** with npm
 - **Composer 2+**
@@ -85,74 +90,75 @@ To develop Relaticle locally, you'll need:
 
 1. **Clone the repository**
 
-   ```bash
-   git clone https://github.com/Relaticle/relaticle.git
-   cd relaticle
-   ```
+```bash
+git clone https://github.com/Relaticle/relaticle.git
+cd relaticle
+```
 
 2. **Create a feature branch**
 
-   ```bash
-   git checkout -b feat/your-feature # or fix/your-fix
-   ```
+```bash
+git checkout -b feat/your-feature # or fix/your-fix
+```
 
-   > **Important:** Don't push directly to the `main` branch. Instead, create a new branch and open a pull request.
+> **Important:** Don't push directly to the `main` branch. Instead, create a new branch and open a pull request.
 
 3. **Install dependencies**
 
-   ```bash
-   composer install
-   npm install
-   ```
+```bash
+composer install
+npm install
+```
 
 4. **Configure environment**
 
-   ```bash
-   cp .env.example .env
-   php artisan key:generate
-   ```
+```bash
+cp .env.example .env
+php artisan key:generate
+```
 
-   Open the `.env` file and configure your database connection:
+Open the `.env` file and configure your database connection:
 
-   ```
-   DB_CONNECTION=pgsql
-   DB_HOST=127.0.0.1
-   DB_PORT=5432
-   DB_DATABASE=relaticle
-   DB_USERNAME=postgres
-   DB_PASSWORD=your_password
-   ```
+```
+DB_CONNECTION=pgsql
+DB_HOST=127.0.0.1
+DB_PORT=5432
+DB_DATABASE=relaticle
+DB_USERNAME=postgres
+DB_PASSWORD=your_password
+```
 
 5. **Run migrations**
 
-   ```bash
-   php artisan migrate
-   ```
+```bash
+php artisan migrate
+```
 
 6. **Link storage**
 
-   ```bash
-   php artisan storage:link
-   ```
+```bash
+php artisan storage:link
+```
 
 7. **Start development services**
 
-   In separate terminal windows, run:
+In separate terminal windows, run:
 
-   ```bash
-   # Terminal 1: Asset compilation with hot reload
-   npm run dev
+```bash
+# Terminal 1: Asset compilation with hot reload
+npm run dev
 
-   # Terminal 2: Queue worker
-   php artisan queue:work
+# Terminal 2: Queue worker
+php artisan queue:work
 
-   # Terminal 3: Development server
-   php artisan serve
-   ```
+# Terminal 3: Development server
+php artisan serve
+```
 
    Visit `http://localhost:8000` in your browser to access the application.
 
-   > **Note:** By default, emails are sent to the `log` driver. You can change this in the `.env` file to something like `mailtrap` for development.
+   > **Note:** By default, emails are sent to the `log` driver. You can change this in the `.env` file to something like
+   `mailtrap` for development.
 
 ## Development Guidelines
 
@@ -194,11 +200,13 @@ composer test:type-coverage
 composer test
 ```
 
-> Pull requests that don't pass the test suite will not be merged. Always run `composer test` before submitting your changes.
+> Pull requests that don't pass the test suite will not be merged. Always run `composer test` before submitting your
+> changes.
 
 ### Git Hooks
 
-Relaticle uses Git Hooks to automate quality checks during the development process. The hooks are located in the `.githooks` directory, and you can enable them by running:
+Relaticle uses Git Hooks to automate quality checks during the development process. The hooks are located in the
+`.githooks` directory, and you can enable them by running:
 
 ```bash
 git config core.hooksPath .githooks
