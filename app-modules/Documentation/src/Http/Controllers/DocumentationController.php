@@ -31,7 +31,7 @@ class DocumentationController
     public function show(string $type = 'business')
     {
         $document = $this->documentationService->getDocument($type);
-        
+
         return view('documentation::show', [
             'content' => $document->content,
             'tableOfContents' => $document->tableOfContents,
@@ -40,7 +40,7 @@ class DocumentationController
             'documentTypes' => $this->documentationService->getAllDocumentTypes(),
         ]);
     }
-    
+
     /**
      * Search documentation
      */
@@ -48,11 +48,7 @@ class DocumentationController
     {
         $searchRequest = DocumentSearchRequest::from($request);
         $results = $this->documentationService->search($searchRequest);
-        
-        if ($request->expectsJson()) {
-            return response()->json($results);
-        }
-        
+
         return view('documentation::search', [
             'results' => $results,
             'query' => $searchRequest->query,
