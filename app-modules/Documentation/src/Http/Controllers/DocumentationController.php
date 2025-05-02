@@ -6,6 +6,7 @@ namespace Relaticle\Documentation\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Spatie\LaravelMarkdown\MarkdownRenderer;
 
 final readonly class DocumentationController
 {
@@ -54,12 +55,31 @@ final readonly class DocumentationController
             ? file_get_contents($realPath)
             : '# Document Not Found';
 
+        $documentContent = app(MarkdownRenderer::class)
+            ->toHtml($documentContent);
+
+        $tableOfContents = $this->extractTableOfContents($documentContent);
+
         return view('documentation::index', [
-            'documentContent' => Str::markdown($documentContent),
+            'documentContent' => $documentContent,
+            'tableOfContents' => $tableOfContents,
             'currentType' => $type,
             'documentTitle' => $validTypes[$type]['title'],
             'documentTypes' => $validTypes,
         ]);
+    }
+
+    private function extractTableOfContents(string $contents)
+    {
+        $matches = [];
+
+        preg_match_all('/<h2.*><a.*id="([^"]+)".*>#<\/a>([^<]+)/', $contents, $matches);
+
+        $allMatches = array_combine($matches[1], $matches[2]);
+
+        return collect($allMatches)
+            ->reject(fn (string $result) => str_contains($result, 'Beatles'))
+            ->toArray();
     }
 
     /**
