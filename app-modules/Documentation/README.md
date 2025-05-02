@@ -1,92 +1,122 @@
 # Documentation Module
 
-The Documentation module provides a flexible and modular documentation system for Relaticle, allowing you to present markdown-based documentation with a clean, interactive UI.
+A dedicated documentation module for the Relaticle application with a modern, customized frontend architecture.
 
-## Overview
+## Features
 
-This module includes:
-
-- A dedicated controller for serving documentation content
-- A view system for rendering documentation with responsive layout
-- Markdown storage and processing
-- TOC (Table of Contents) generation with automatic scrollspy
-- Mobile-friendly navigation
+- Modern frontend architecture with TailwindCSS 3 and Alpine.js 3
+- Responsive design with mobile-first approach
+- Dark mode support with system preference detection
+- Interactive table of contents with active state highlighting
+- Code block syntax highlighting with copy functionality
+- Search functionality with highlighted results
+- Custom callout components for warnings, tips, notes
+- Keyboard navigation and accessibility improvements
+- Print styles for documentation pages
 
 ## Installation
 
-The module is automatically loaded by the application through the service provider registration in `bootstrap/providers.php`.
+The Documentation module is included in the Relaticle application by default. If you need to install it manually:
 
-## Configuration
+```bash
+# Publish the module's resources
+php artisan vendor:publish --tag=documentation-views
+php artisan vendor:publish --tag=documentation-markdown
+php artisan vendor:publish --tag=documentation-config
 
-No additional configuration is required. The module works out of the box.
+# Install dependencies
+cd app-modules/Documentation
+npm install
+
+# Build assets
+npm run build
+```
+
+## Development
+
+To work on the Documentation module's frontend:
+
+```bash
+# Start the Vite development server
+cd app-modules/Documentation
+npm run dev
+```
+
+## Asset Architecture
+
+The Documentation module uses a dedicated asset pipeline with separate CSS and JS files:
+
+- `resources/css/documentation.css`: Main CSS file with Tailwind directives
+- `resources/js/documentation.js`: Main JS file with Alpine.js components
+- `tailwind.config.js`: TailwindCSS configuration for the Documentation module
+- `vite.config.js`: Vite configuration for the Documentation module
+
+## Components
+
+### Layout Components
+- `<x-documentation::layout>`: The main layout component for documentation pages
+- `<x-documentation::content>`: The content component for documentation pages
+
+### UI Components
+- `<x-documentation::callout>`: Callout component for warnings, tips, notes
 
 ## Usage
 
-### Accessing Documentation
-
-Documentation can be accessed at these URLs:
-
-- `/documentation` - Main documentation index
-- `/documentation/{type}` - Specific documentation types (e.g., technical, business, etc.)
-
-### Adding New Documentation
-
-To add a new documentation type:
-
-1. Edit the `DocumentationController.php` file in the module's `src/Http/Controllers` directory
-2. Add your new type to the `$validTypes` array:
+To render a documentation page:
 
 ```php
-$validTypes = [
-    // ... existing types
-    'your-type' => [
-        'title' => 'Your Type Title',
-        'file' => 'your-type-guide.md',
-    ],
-];
+<x-documentation::layout :title="$documentTitle">
+    <x-documentation::content :content="$documentContent" />
+</x-documentation::layout>
 ```
 
-3. Create a corresponding Markdown file in `resources/markdown` directory
+To create a callout:
 
-## Extending the Module
-
-### Publishing Resources
-
-To customize the module's views or markdown files:
-
-```bash
-php artisan vendor:publish --tag=documentation-views
-php artisan vendor:publish --tag=documentation-markdown
+```php
+<x-documentation::callout type="tip" title="Quick Tip">
+    This is a helpful tip for the documentation.
+</x-documentation::callout>
 ```
 
-### Customizing the Look and Feel
+Available callout types:
+- `info` (default)
+- `warning`
+- `danger`
+- `tip`
 
-The module uses a dedicated view at `resources/views/index.blade.php` that can be customized after publishing.
+## Customization
 
-### Adding New Features
+### Styling
+The Documentation module uses TailwindCSS 3 with a custom configuration. You can customize the styles by editing:
 
-To extend the module with new features:
+- `tailwind.config.js`: Colors, typography, and other Tailwind settings
+- `resources/css/documentation.css`: Custom components and utilities
 
-1. Create a new service provider that extends or decorates the DocumentationServiceProvider
-2. Override the necessary methods or add new functionality
-3. Register your provider in `bootstrap/providers.php` after the DocumentationServiceProvider
+### Templates
+The Documentation module's templates are located in:
 
-## Structure
+- `resources/views/components/`: Blade components
+- `resources/views/`: Blade templates
 
-```
-app-modules/Documentation/
-├── resources/
-│   ├── markdown/          # Markdown documentation files
-│   └── views/             # Blade templates
-├── routes/
-│   └── web.php            # Module routes
-└── src/
-    ├── DocumentationServiceProvider.php     # Service provider
-    └── Http/
-        └── Controllers/
-            └── DocumentationController.php  # Controller
-```
+## Accessibility
 
-## Contributing
+The Documentation module is designed with accessibility in mind:
 
-Contributions to the Documentation module are welcome. Please ensure your changes follow the project's coding standards and include tests where appropriate. 
+- Proper ARIA attributes on interactive elements
+- Keyboard navigation for all features
+- Focus management for interactive components
+- Color contrast meeting WCAG AA standards
+- Dark mode support for reduced eye strain
+
+## Browser Support
+
+The Documentation module supports all modern browsers:
+
+- Chrome (latest)
+- Firefox (latest)
+- Safari (latest)
+- Edge (latest)
+
+## License
+
+The Documentation module is open-source software licensed under the [MIT license](https://opensource.org/licenses/MIT). 
