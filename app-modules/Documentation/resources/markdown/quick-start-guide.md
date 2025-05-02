@@ -2,7 +2,7 @@
 
 Welcome to Relaticle! This guide will help you get up and running quickly with our CRM platform. Follow these steps to set up your account and start managing your customer relationships more effectively.
 
-## 1. Set Up Your Account
+## Set Up Your Account
 
 After signing up for Relaticle:
 
@@ -16,7 +16,7 @@ After signing up for Relaticle:
    - Understand the dashboard layout
    - Learn how to access key features
 
-## 2. Create Your Team Structure
+## Create Your Team Structure
 
 1. **Create your first team**
    - Go to Teams > Create New Team
@@ -33,7 +33,7 @@ After signing up for Relaticle:
    - Establish team hierarchies
    - Configure team visibility settings
 
-## 3. Start Adding Your Data
+## Start Adding Your Data
 
 1. **Add your first company**
    - Go to Companies > Add New Company
@@ -59,7 +59,7 @@ After signing up for Relaticle:
    - Set due dates and priorities
    - Add detailed instructions if needed
 
-## 4. Configure Your Sales Process
+## Configure Your Sales Process
 
 1. **Define your opportunity stages**
    - Go to Settings > Opportunity Settings
@@ -67,7 +67,7 @@ After signing up for Relaticle:
    - Set probability percentages for each stage
    - Establish a clear workflow for your team
 
-## 5. Establish Your Daily Routine
+## Establish Your Daily Routine
 
 Develop a daily Relaticle routine:
 
@@ -86,7 +86,7 @@ Develop a daily Relaticle routine:
    - Update any changes in opportunities
    - Plan tasks for tomorrow
 
-## 6. Best Practices
+## Best Practices
 
 1. **Be consistent** - Update your CRM daily
 2. **Be thorough** - Include all relevant details in records
