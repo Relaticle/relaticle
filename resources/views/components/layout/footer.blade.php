@@ -27,12 +27,12 @@
                     <a href="https://x.com/relaticle" target="_blank" class="text-gray-400 hover:text-primary dark:hover:text-primary-400 transition-colors"
                        aria-label="X">
                         <span class="sr-only">X</span>
-                        <x-heroicon-o-chat-bubble-left-right class="h-5 w-5" />
+                        <x-icon-x-twitter class="h-5 w-5" />
                     </a>
                     <a href="https://www.linkedin.com/company/relaticle"  target="_blank" class="text-gray-400 hover:text-primary dark:hover:text-primary-400 transition-colors"
                        aria-label="LinkedIn">
                         <span class="sr-only">LinkedIn</span>
-                        <x-heroicon-o-globe-alt class="h-5 w-5" />
+                        <x-icon-linkedin class="h-5 w-5" />
                     </a>
                 </div>
             </div>

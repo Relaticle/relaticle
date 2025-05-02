@@ -38,6 +38,7 @@
                         aria-label="GitHub Repository">
                         <x-icon-github class="w-4 h-4" />
                         <span>GitHub</span>
+                        <x-heroicon-o-arrow-up-right class="h-3 w-3 text-gray-400" />
                     </a>
                 </nav>
             </div>
