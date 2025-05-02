@@ -47,7 +47,7 @@
             <div class="flex items-center justify-end space-x-5 w-1/4">
                 <!-- Dark Mode Toggle -->
                 <button id="theme-toggle"
-                    class="p-2 text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-primary-400 focus:outline-none focus:ring-2 focus:ring-primary/30 rounded-full transition-transform active:scale-90"
+                    class="p-2 text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-primary-400 focus:outline-none focus:ring-2 focus:ring-primary/30 rounded-full transition-transform duration-300 active:scale-90"
                     aria-label="Toggle dark mode">
                     <x-heroicon-o-sun class="h-5 w-5 hidden dark:block" />
                     <x-heroicon-o-moon class="h-5 w-5 block dark:hidden" />

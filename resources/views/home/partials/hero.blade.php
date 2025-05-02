@@ -12,14 +12,14 @@
                 <div
                     class="inline-flex items-center px-3 py-1.5 border border-gray-100 dark:border-gray-800 rounded-full text-xs shadow-sm">
                     <span class="text-gray-500 dark:text-gray-400 mr-2">Built with</span>
-                    <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-1">
                         <div class="flex items-center gap-1">
-                            @include('components.logos.laravel', ['class' => 'h-3.5 w-3.5'])
+                            <x-icon-laravel class="h-3.5 w-3.5 "/>
                             <span class="font-medium text-gray-700 dark:text-gray-300">Laravel</span>
                         </div>
-                        <span class="text-gray-300 dark:text-gray-600">·</span>
+                        <span class="text-gray-400">·</span>
                         <div class="flex items-center gap-1">
-                            @include('components.logos.filament', ['class' => 'h-3.5 w-3.5 dark:fill-white'])
+                            <x-icon-filament class="h-3.5 w-3.5 dark:fill-white"/>
                             <span class="font-medium text-gray-700 dark:text-gray-300">Filament</span>
                         </div>
                     </div>
@@ -47,12 +47,7 @@
                 <a href="{{ route('register') }}"
                    class="group w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-primary hover:bg-primary-600 text-white px-7 py-3.5 rounded-md text-base font-medium transition-all duration-200 shadow-sm hover:shadow">
                     <span>Get Started</span>
-                    <svg xmlns="http://www.w3.org/2000/svg"
-                         class="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" fill="none"
-                         viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M13 7l5 5m0 0l-5 5m5-5H6"/>
-                    </svg>
+                    <x-heroicon-c-arrow-right class="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1"/>
                 </a>
 
                 <a href="https://github.com/relaticle/relaticle" target="_blank"
