@@ -20,9 +20,6 @@
     <!-- Styles -->
     @livewireStyles
 
-    <!-- Font Awesome for icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
     @if(app()->isProduction() && !empty(config('services.fathom.site_id')))
         <!-- Fathom - beautiful, simple website analytics -->
         <script src="https://cdn.usefathom.com/script.js" data-site="{{ config('services.fathom.site_id') }}" defer></script>

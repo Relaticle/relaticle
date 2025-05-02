@@ -36,9 +36,7 @@
                     <a href="https://github.com/Relaticle/relaticle" target="_blank" rel="noopener"
                         class="text-gray-700 dark:text-white hover:text-primary dark:hover:text-primary-400 text-sm font-medium transition-all duration-200 flex items-center gap-1.5 relative after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:w-0 after:bg-primary dark:after:bg-primary after:transition-all hover:after:w-full"
                         aria-label="GitHub Repository">
-                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.237 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-                        </svg>
+                        <x-icon-github class="w-4 h-4" />
                         <span>GitHub</span>
                     </a>
                 </nav>
@@ -50,12 +48,8 @@
                 <button id="theme-toggle"
                     class="p-2 text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-primary-400 focus:outline-none focus:ring-2 focus:ring-primary/30 rounded-full transition-transform active:scale-90"
                     aria-label="Toggle dark mode">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden dark:block" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-                    </svg>
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 block dark:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-                    </svg>
+                    <x-heroicon-o-sun class="h-5 w-5 hidden dark:block" />
+                    <x-heroicon-o-moon class="h-5 w-5 block dark:hidden" />
                 </button>
 
                 <!-- Auth Links -->
@@ -79,9 +73,7 @@
                         aria-label="Toggle mobile menu"
                         aria-expanded="false"
                         aria-controls="mobile-menu">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path id="menu-icon" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 12h16M4 18h16"/>
-                        </svg>
+                        <x-heroicon-o-bars-3 class="h-6 w-6" id="menu-icon" />
                     </button>
                 </div>
             </div>
@@ -101,9 +93,7 @@
                 <button id="mobile-menu-close"
                     class="p-1.5 text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-primary-400 focus:outline-none focus:ring-2 focus:ring-primary/30 rounded-full transition-all active:scale-90"
                     aria-label="Close menu">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 18L18 6M6 6l12 12"/>
-                    </svg>
+                    <x-heroicon-o-x-mark class="h-5 w-5" />
                 </button>
             </div>
 
@@ -117,31 +107,23 @@
                 <a href="#features"
                     class="menu-item opacity-0 transform translate-x-4 flex items-center px-3 py-3 text-gray-700 dark:text-gray-200 hover:text-primary dark:hover:text-primary-400 text-base transition-all duration-200 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/70 {{ request()->is('/') || request()->is('/#features') ? 'bg-primary/5 dark:bg-primary/10 text-primary dark:text-primary-400' : '' }}"
                     style="transition-delay: 100ms;">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="mr-3 h-5 w-5 {{ request()->is('/') || request()->is('/#features') ? 'text-primary dark:text-primary-400' : '' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
-                    </svg>
+                    <x-heroicon-o-squares-2x2 class="mr-3 h-5 w-5 {{ request()->is('/') || request()->is('/#features') ? 'text-primary dark:text-primary-400' : '' }}" />
                     <span class="font-medium">Features</span>
                 </a>
 
                 <a href="{{ route('documentation.index') }}"
                     class="menu-item opacity-0 transform translate-x-4 flex items-center px-3 py-3 text-gray-700 dark:text-gray-200 hover:text-primary dark:hover:text-primary-400 text-base transition-all duration-200 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/70 {{ Route::is('documentation.*') ? 'bg-primary/5 dark:bg-primary/10 text-primary dark:text-primary-400' : '' }}"
                     style="transition-delay: 150ms;">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="mr-3 h-5 w-5 {{ Route::is('documentation.*') ? 'text-primary dark:text-primary-400' : '' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
+                    <x-heroicon-o-document-text class="mr-3 h-5 w-5 {{ Route::is('documentation.*') ? 'text-primary dark:text-primary-400' : '' }}" />
                     <span class="font-medium">Documentation</span>
                 </a>
 
                 <a href="https://github.com/Relaticle/relaticle" target="_blank" rel="noopener"
                     class="menu-item opacity-0 transform translate-x-4 flex items-center px-3 py-3 text-gray-700 dark:text-gray-200 hover:text-primary dark:hover:text-primary-400 text-base transition-all duration-200 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/70"
                     style="transition-delay: 200ms;">
-                    <svg class="mr-3 h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.237 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-                    </svg>
+                    <x-icon-github />
                     <span class="font-medium">GitHub</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" class="ml-auto h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                    </svg>
+                    <x-heroicon-o-arrow-top-right-on-square class="ml-auto h-4 w-4 text-gray-400" />
                 </a>
             </nav>
 
@@ -155,9 +137,7 @@
                 <a href="{{ route('login') }}"
                     class="menu-item opacity-0 transform translate-x-4 flex items-center px-3 py-3 text-gray-700 dark:text-gray-200 hover:text-primary dark:hover:text-primary-400 text-base transition-all duration-200 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/70 {{ Route::is('login') ? 'bg-primary/5 dark:bg-primary/10 text-primary dark:text-primary-400' : '' }}"
                     style="transition-delay: 250ms;">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="mr-3 h-5 w-5 {{ Route::is('login') ? 'text-primary dark:text-primary-400' : '' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
-                    </svg>
+                    <x-heroicon-o-arrow-right-on-rectangle class="mr-3 h-5 w-5 {{ Route::is('login') ? 'text-primary dark:text-primary-400' : '' }}" />
                     <span class="font-medium">Sign In</span>
                     @if(Route::is('login'))
                         <span class="ml-auto bg-primary/10 dark:bg-primary/20 text-primary dark:text-primary-400 text-xs font-medium px-2 py-0.5 rounded-full">Active</span>
@@ -167,9 +147,7 @@
                 <a href="{{ route('register') }}"
                     class="menu-item opacity-0 transform translate-x-4 mt-2 flex items-center justify-center text-center py-3 px-3 bg-primary hover:bg-primary-600 text-white text-base rounded-lg font-medium transition-all duration-200 shadow-sm active:scale-[0.98] {{ Route::is('register') ? 'bg-primary-600' : '' }}"
                     style="transition-delay: 300ms;">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="mr-3 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
+                    <x-heroicon-o-user-plus class="mr-3 h-5 w-5" />
                     Get Started
                 </a>
             </div>
@@ -181,12 +159,8 @@
                     class="mobile-theme-toggle w-full flex items-center justify-between px-3 py-3 text-gray-700 dark:text-gray-200 hover:text-primary dark:hover:text-primary-400 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/70"
                     aria-label="Toggle dark mode">
                     <div class="flex items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="mr-3 h-5 w-5 hidden dark:inline-block" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-                        </svg>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="mr-3 h-5 w-5 inline-block dark:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-                        </svg>
+                        <x-heroicon-o-sun class="mr-3 h-5 w-5 hidden dark:inline-block" />
+                        <x-heroicon-o-moon class="mr-3 h-5 w-5 inline-block dark:hidden" />
                     </div>
                     <div class="relative">
                         <div class="w-10 h-5 bg-gray-200 dark:bg-gray-700 rounded-full shadow-inner transition-colors duration-200"></div>
