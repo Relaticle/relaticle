@@ -14,7 +14,7 @@ final readonly class DocumentationController
         $validTypes = [
             'index' => [
                 'title' => 'Documentation',
-                'file' => 'documentation-index.md',
+                'file' => 'index.md',
             ],
             'business' => [
                 'title' => 'Business Guide',
@@ -77,4 +77,4 @@ final readonly class DocumentationController
     {
         return __DIR__.'/../../../resources/markdown';
     }
-} 
+}

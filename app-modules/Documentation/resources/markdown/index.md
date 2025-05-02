@@ -4,8 +4,12 @@ Welcome to the Relaticle documentation hub. Here you'll find guides and resource
 
 ## Available Documentation
 
+<div class="card">
+
 ### Business Guide
 The [Business Guide](/documentation/business) provides an overview of Relaticle from a business perspective. It explains how Relaticle can benefit your organization and how to leverage its features effectively. This is the perfect starting point for business users and decision-makers.
+
+</div>
 
 ### Quick Start Guide
 The [Quick Start Guide](/documentation/quickstart) offers step-by-step instructions for new users. It walks you through setting up your account, creating your first records, and establishing an effective workflow. Perfect for users who want to get up and running quickly.

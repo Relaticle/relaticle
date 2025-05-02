@@ -4,19 +4,12 @@ declare(strict_types=1);
 
 namespace Relaticle\Documentation;
 
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 
-class DocumentationServiceProvider extends ServiceProvider
+final class DocumentationServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     */
-    public function register(): void
-    {
-        //
-    }
-
     /**
      * Bootstrap any application services.
      */
@@ -24,7 +17,7 @@ class DocumentationServiceProvider extends ServiceProvider
     {
         $this->registerRoutes();
         $this->registerViews();
-        $this->publishResources();
+        $this->registerComponents();
     }
 
     /**
@@ -47,18 +40,14 @@ class DocumentationServiceProvider extends ServiceProvider
     }
 
     /**
-     * Publish resources for the module.
+     * Register Blade components.
      */
-    private function publishResources(): void
+    private function registerComponents(): void
     {
-        if ($this->app->runningInConsole()) {
-            $this->publishes([
-                __DIR__.'/../resources/views' => resource_path('views/vendor/documentation'),
-            ], 'documentation-views');
+        // Register components with the 'documentation::' namespace
+        Blade::componentNamespace('Relaticle\\Documentation\\View\\Components', 'documentation');
 
-            $this->publishes([
-                __DIR__.'/../resources/markdown' => resource_path('markdown/vendor/documentation'),
-            ], 'documentation-markdown');
-        }
+        // Register anonymous components
+        $this->loadViewComponentsAs('documentation', []);
     }
-} 
+}

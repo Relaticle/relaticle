@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite';
+import {defineConfig} from 'vite';
 import laravel from 'laravel-vite-plugin';
 
 export default defineConfig({
@@ -8,7 +8,10 @@ export default defineConfig({
                 'resources/css/app.css',
                 'resources/js/app.js',
                 'resources/css/filament/app/theme.css',
-                'resources/css/filament/admin/theme.css'
+                'resources/css/filament/admin/theme.css',
+                // Documentation
+                'app-modules/Documentation/resources/js/documentation.js',
+                'app-modules/Documentation/resources/css/documentation.css',
             ],
             refresh: true,
         }),
