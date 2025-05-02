@@ -1,69 +1,45 @@
-<x-documentation::layout :title="config('app.name') . ' - ' . __('Documentation')" class="documentation-hub bg-gray-50">
-    <div class="container px-4 py-12 mx-auto">
-        <header class="mb-12 text-center">
-            <h1 class="text-4xl font-bold mb-4 text-primary-600">
-                Relaticle Documentation
+<x-documentation::layout :title="config('app.name') . ' - ' . __('Documentation')" class="documentation-hub">
+    <div class="max-w-5xl mx-auto">
+        <!-- Tech Badge - Simplified -->
+        <div class="flex justify-center mb-12">
+            <div class="inline-flex items-center px-3 py-1.5 border border-gray-100 dark:border-gray-800 rounded-full text-xs shadow-sm">
+                <span class="text-gray-500 dark:text-gray-400 mr-2">Documentation</span>
+                <div class="flex items-center gap-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                    </svg>
+                    <span class="font-medium text-gray-700 dark:text-gray-300">Resources</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hero Text - Enhanced Typography -->
+        <div class="text-center space-y-6 max-w-3xl mx-auto mb-12">
+            <h1 class="text-4xl sm:text-5xl font-bold text-black dark:text-white leading-[1.1] tracking-tight">
+                <span class="relative inline-block">
+                    <span class="relative z-10">Documentation</span>
+                    <span class="absolute bottom-2 sm:left-0 right-1/4 w-1/2 sm:w-full h-3 bg-primary/10 dark:bg-primary/20 -rotate-1 z-0"></span>
+                </span>
             </h1>
 
-            <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+            <p class="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto leading-relaxed">
                 Welcome to the Relaticle documentation hub. Here you'll find guides and resources to help you get the
                 most out of Relaticle CRM.
             </p>
-        </header>
+        </div>
 
-        <section class="mb-12">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div class="mb-8">
+            <x-documentation::search-form />
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            @foreach($documentTypes as $type => $document)
                 <x-documentation::card
-                    title="Business Guide"
-                    icon="<path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' />"
-                    url="/documentation/business"
-                    class="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 border border-gray-100"
-                >
-                    <p class="text-gray-600">
-                        The Business Guide provides an overview of Relaticle from a business perspective. It explains
-                        how Relaticle can benefit your organization and how to leverage its features effectively.
-                    </p>
-                </x-documentation::card>
-
-                <x-documentation::card
-                    title="Quick Start Guide"
-                    icon="<path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 6v6m0 0v6m0-6h6m-6 0H6' />"
-                    url="/documentation/quickstart"
-                    class="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 border border-gray-100"
-                >
-                    <p class="text-gray-600">
-                        The Quick Start Guide offers step-by-step instructions for new users. It walks you through
-                        setting up your account, creating your first records, and establishing an effective workflow.
-                        Perfect for users who want to get up and running quickly.
-                    </p>
-                </x-documentation::card>
-
-                <x-documentation::card
-                    title="Technical Guide"
-                    icon="<path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4' />"
-                    url="/documentation/technical"
-                    class="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 border border-gray-100"
-                >
-                    <p class="text-gray-600">
-                        The Technical Guide details the system architecture and development guidelines. It covers the
-                        tech stack, core components, relationships, development standards, and more. This guide is
-                        intended for developers and technical administrators.
-                    </p>
-                </x-documentation::card>
-
-                <x-documentation::card
-                    title="API Documentation"
-                    icon="<path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z' />"
-                    url="/documentation/api"
-                    class="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 border border-gray-100"
-                >
-                    <p class="text-gray-600">
-                        The API Documentation provides information for developers who want to integrate with the
-                        Relaticle API. It includes authentication methods, endpoint details, and best practices for API
-                        usage.
-                    </p>
-                </x-documentation::card>
-            </div>
-        </section>
+                    :title="$document['title']"
+                    :description="$document['description'] ?? ''"
+                    :link="route('documentation.show', ['type' => $type])"
+                />
+            @endforeach
+        </div>
     </div>
 </x-documentation::layout>

@@ -1,41 +1,48 @@
-@props(['title' => null, 'header' => null, 'icon' => null, 'url' => null, 'class' => '', 'iconClass' => ''])
+@props([
+    'title',
+    'description',
+    'link',
+    'icon' => null,
+])
 
-<div {{ $attributes->merge(['class' => 'bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden transition-all duration-300 ' . $class]) }}>
-    @if($header)
-        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
-            <h3 class="text-lg font-medium text-gray-900 dark:text-white">{{ $header }}</h3>
-        </div>
-    @endif
-    
-    <div class="p-6">
-        @if($title || $icon)
-            <div class="flex items-center space-x-4 mb-5">
-                @if($icon)
-                    <div class="flex-shrink-0 h-12 w-12 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center shadow-sm card-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-primary-600 dark:text-primary-400 {{ $iconClass }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            {!! $icon !!}
-                        </svg>
-                    </div>
-                @endif
-                @if($title)
-                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white">{{ $title }}</h3>
-                @endif
-            </div>
-        @endif
-
-        <div class="prose prose-sm dark:prose-invert prose-p:text-gray-600 dark:prose-p:text-gray-300">
-            {{ $slot }}
-        </div>
-
-        @if($url)
-            <div class="mt-5 pt-3 border-t border-gray-100 dark:border-gray-700">
-                <a href="{{ $url }}" class="group inline-flex items-center text-sm font-medium text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors">
-                    Read more
-                    <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-4 w-4 transform transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+<div {{ $attributes->merge(['class' => 'group bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 hover:border-gray-200 dark:hover:border-gray-700 transition-all duration-300 hover:shadow-sm transform hover:-translate-y-1']) }}>
+    <a href="{{ $link }}" class="block p-6">
+        <div class="space-y-4">
+            @if($icon)
+                <div class="w-10 h-10 flex items-center justify-center rounded-lg bg-gray-50 dark:bg-gray-800 text-primary dark:text-primary-400 group-hover:bg-primary/10 dark:group-hover:bg-primary/20 transition-colors duration-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        {!! $icon !!}
                     </svg>
-                </a>
+                </div>
+            @else
+                <div class="w-10 h-10 flex items-center justify-center rounded-lg bg-gray-50 dark:bg-gray-800 text-primary dark:text-primary-400 group-hover:bg-primary/10 dark:group-hover:bg-primary/20 transition-colors duration-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                    </svg>
+                </div>
+            @endif
+            
+            <div>
+                <h3 class="text-lg font-medium text-black dark:text-white group-hover:text-primary dark:group-hover:text-primary-400 transition-colors duration-300">
+                    {{ $title }}
+                </h3>
+                <div class="mt-2 text-gray-600 dark:text-gray-300 text-sm leading-relaxed">
+                    @if($description)
+                        <p>{{ $description }}</p>
+                    @else
+                        {{ $slot }}
+                    @endif
+                </div>
             </div>
-        @endif
-    </div>
+            
+            <div class="pt-2">
+                <span class="inline-flex items-center text-sm font-medium text-primary dark:text-primary-400 group-hover:text-primary-600 dark:group-hover:text-primary-300 transition-colors duration-300">
+                    Read documentation
+                    <svg class="ml-1 h-4 w-4 transform transition-transform duration-300 group-hover:translate-x-0.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                    </svg>
+                </span>
+            </div>
+        </div>
+    </a>
 </div>
