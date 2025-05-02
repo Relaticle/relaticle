@@ -2,29 +2,20 @@
 Documentation
 */
 
+/*
+* Basic typography enhancement for content - can be added inline later if needed
+* but keeping this to ensure content is properly formatted
+*/
 #documentation-content {
-    @apply prose prose-sm sm:prose-base lg:prose-lg dark:prose-invert max-w-none mx-auto;
+    /* All styles are now handled by Tailwind classes in the template */
 
+    /* Permalink for headings - minimal styling that's hard to do with Tailwind */
     .heading-permalink {
-        @apply mr-2;
-    }
-
-    pre {
-        @apply bg-gray-100 dark:bg-gray-800 p-4 rounded-lg overflow-x-auto border border-gray-200 dark:border-gray-700 shadow-sm font-mono text-sm relative;
-
-        code {
-            @apply font-mono text-gray-800 dark:text-gray-200;
-        }
+        @apply mr-2 text-gray-700/10 dark:text-gray-600 hover:text-primary dark:hover:text-primary-400 transition-colors;
     }
 }
 
-/* Responsive adjustments */
+/* Minimal responsive adjustments */
 @media (max-width: 768px) {
-    .documentation-hub h1 {
-        @apply text-3xl;
-    }
-
-    .documentation-hub p {
-        @apply text-base;
-    }
+    /* All responsive styles now handled by Tailwind's responsive classes */
 }

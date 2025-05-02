@@ -7,9 +7,20 @@ namespace Relaticle\Documentation;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
+use Relaticle\Documentation\Services\DocumentationService;
 
 final class DocumentationServiceProvider extends ServiceProvider
 {
+    /**
+     * Register any application services.
+     */
+    public function register(): void
+    {
+        $this->mergeConfigFrom(__DIR__.'/../config/documentation.php', 'documentation');
+        
+        $this->app->singleton(DocumentationService::class);
+    }
+
     /**
      * Bootstrap any application services.
      */
@@ -18,6 +29,7 @@ final class DocumentationServiceProvider extends ServiceProvider
         $this->registerRoutes();
         $this->registerViews();
         $this->registerComponents();
+        $this->registerPublishing();
     }
 
     /**
@@ -49,5 +61,28 @@ final class DocumentationServiceProvider extends ServiceProvider
 
         // Register anonymous components
         $this->loadViewComponentsAs('documentation', []);
+    }
+    
+    /**
+     * Register publishable resources.
+     */
+    private function registerPublishing(): void
+    {
+        if ($this->app->runningInConsole()) {
+            // Config
+            $this->publishes([
+                __DIR__.'/../config/documentation.php' => config_path('documentation.php'),
+            ], 'documentation-config');
+            
+            // Views
+            $this->publishes([
+                __DIR__.'/../resources/views' => resource_path('views/vendor/documentation'),
+            ], 'documentation-views');
+            
+            // Markdown
+            $this->publishes([
+                __DIR__.'/../resources/markdown' => resource_path('markdown/documentation'),
+            ], 'documentation-markdown');
+        }
     }
 }

@@ -5,100 +5,58 @@ declare(strict_types=1);
 namespace Relaticle\Documentation\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Spatie\LaravelMarkdown\MarkdownRenderer;
+use Relaticle\Documentation\Data\DocumentSearchRequest;
+use Relaticle\Documentation\Services\DocumentationService;
 
-final readonly class DocumentationController
+class DocumentationController
 {
+    public function __construct(
+        private readonly DocumentationService $documentationService
+    ) {
+    }
+
     /**
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\Illuminate\View\View|object
+     * Display the documentation index page
      */
     public function index()
     {
-        return view('documentation::index');
-    }
-
-    /**
-     * @param  Request  $request
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\Illuminate\View\View|object
-     */
-    public function show(string $type = 'index')
-    {
-        $validTypes = [
-            'business' => [
-                'title' => 'Business Guide',
-                'file' => 'business-guide.md',
-            ],
-            'technical' => [
-                'title' => 'Technical Guide',
-                'file' => 'technical-guide.md',
-            ],
-            'quickstart' => [
-                'title' => 'Quick Start Guide',
-                'file' => 'quick-start-guide.md',
-            ],
-            'api' => [
-                'title' => 'API Documentation',
-                'file' => 'api-guide.md',
-            ],
-        ];
-
-        abort_if(! array_key_exists($type, $validTypes), 404);
-
-        $documentFile = $validTypes[$type]['file'];
-        $path = $this->getMarkdownPath($documentFile);
-
-        // Validate the path is within the intended directory
-        $realPath = realpath($path);
-        $resourcePath = realpath($this->getMarkdownBasePath());
-
-        if ($realPath === '' || $realPath === '0' || $realPath === false || ! str_starts_with($realPath, $resourcePath)) {
-            abort(404, 'Document not found');
-        }
-
-        $documentContent = file_exists($realPath)
-            ? file_get_contents($realPath)
-            : '# Document Not Found';
-
-        $documentContent = app(MarkdownRenderer::class)
-            ->toHtml($documentContent);
-
-        $tableOfContents = $this->extractTableOfContents($documentContent);
-
-        return view('documentation::show', [
-            'content' => $documentContent,
-            'tableOfContents' => $tableOfContents,
-            'currentType' => $type,
-            'documentTitle' => $validTypes[$type]['title'],
-            'documentTypes' => $validTypes,
+        return view('documentation::index', [
+            'documentTypes' => $this->documentationService->getAllDocumentTypes(),
         ]);
     }
 
-    private function extractTableOfContents(string $contents)
-    {
-        $matches = [];
-
-        preg_match_all('/<h2.*><a.*id="([^"]+)".*>#<\/a>([^<]+)/', $contents, $matches);
-
-        $allMatches = array_combine($matches[1], $matches[2]);
-
-        return collect($allMatches)
-            ->reject(fn (string $result): bool => str_contains($result, 'Beatles'))
-            ->toArray();
-    }
-
     /**
-     * Get the path to the markdown file.
+     * Display a specific documentation page
      */
-    private function getMarkdownPath(string $file): string
+    public function show(string $type = 'business')
     {
-        return $this->getMarkdownBasePath().'/'.$file;
+        $document = $this->documentationService->getDocument($type);
+        
+        return view('documentation::show', [
+            'content' => $document->content,
+            'tableOfContents' => $document->tableOfContents,
+            'currentType' => $document->type,
+            'documentTitle' => $document->title,
+            'documentTypes' => $this->documentationService->getAllDocumentTypes(),
+        ]);
     }
-
+    
     /**
-     * Get the base path for markdown files.
+     * Search documentation
      */
-    private function getMarkdownBasePath(): string
+    public function search(Request $request)
     {
-        return __DIR__.'/../../../resources/markdown';
+        $searchRequest = DocumentSearchRequest::from($request);
+        $results = $this->documentationService->search($searchRequest);
+        
+        if ($request->expectsJson()) {
+            return response()->json($results);
+        }
+        
+        return view('documentation::search', [
+            'results' => $results,
+            'query' => $searchRequest->query,
+            'documentTypes' => $this->documentationService->getAllDocumentTypes(),
+        ]);
     }
 }
