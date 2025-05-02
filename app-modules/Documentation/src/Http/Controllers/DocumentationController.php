@@ -18,8 +18,7 @@ final readonly class DocumentationController
     }
 
     /**
-     * @param Request $request
-     * @param string $type
+     * @param  Request  $request
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\Illuminate\View\View|object
      */
     public function show(string $type = 'index')
@@ -43,7 +42,7 @@ final readonly class DocumentationController
             ],
         ];
 
-        abort_if(!array_key_exists($type, $validTypes), 404);
+        abort_if(! array_key_exists($type, $validTypes), 404);
 
         $documentFile = $validTypes[$type]['file'];
         $path = $this->getMarkdownPath($documentFile);
@@ -52,7 +51,7 @@ final readonly class DocumentationController
         $realPath = realpath($path);
         $resourcePath = realpath($this->getMarkdownBasePath());
 
-        if ($realPath === '' || $realPath === '0' || $realPath === false || !str_starts_with($realPath, $resourcePath)) {
+        if ($realPath === '' || $realPath === '0' || $realPath === false || ! str_starts_with($realPath, $resourcePath)) {
             abort(404, 'Document not found');
         }
 
@@ -83,7 +82,7 @@ final readonly class DocumentationController
         $allMatches = array_combine($matches[1], $matches[2]);
 
         return collect($allMatches)
-            ->reject(fn(string $result) => str_contains($result, 'Beatles'))
+            ->reject(fn (string $result): bool => str_contains($result, 'Beatles'))
             ->toArray();
     }
 
@@ -92,7 +91,7 @@ final readonly class DocumentationController
      */
     private function getMarkdownPath(string $file): string
     {
-        return $this->getMarkdownBasePath() . '/' . $file;
+        return $this->getMarkdownBasePath().'/'.$file;
     }
 
     /**
@@ -100,6 +99,6 @@ final readonly class DocumentationController
      */
     private function getMarkdownBasePath(): string
     {
-        return __DIR__ . '/../../../resources/markdown';
+        return __DIR__.'/../../../resources/markdown';
     }
 }

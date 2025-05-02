@@ -26,7 +26,7 @@ final class DocumentationServiceProvider extends ServiceProvider
     private function registerRoutes(): void
     {
         Route::middleware('web')
-            ->group(function () {
+            ->group(function (): void {
                 $this->loadRoutesFrom(__DIR__.'/../routes/web.php');
             });
     }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'code_highlighting' => [
         /*
@@ -57,7 +59,6 @@ return [
      */
     'cache_store' => null,
 
-
     /*
      * When cache_store is enabled, this value will be used to determine
      * how long the cache will be valid. If you set this to `null` the
@@ -83,7 +84,7 @@ return [
      * More info: https://commonmark.thephpleague.com/2.4/extensions/overview/
      */
     'extensions' => [
-        League\CommonMark\Extension\HeadingPermalink\HeadingPermalinkExtension::class
+        League\CommonMark\Extension\HeadingPermalink\HeadingPermalinkExtension::class,
     ],
 
     /*
