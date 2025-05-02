@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Relaticle\Documentation\Services;
 
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Relaticle\Documentation\Data\DocumentData;
 use Relaticle\Documentation\Data\DocumentSearchRequest;
 use Relaticle\Documentation\Data\DocumentSearchResultData;
-use Spatie\LaravelData\DataCollection;
 
 final class DocumentationService
 {
@@ -25,7 +25,7 @@ final class DocumentationService
         return Cache::remember(
             "documentation.{$type}",
             config('documentation.cache.ttl', 3600),
-            fn () => DocumentData::fromType($type)
+            fn (): \Relaticle\Documentation\Data\DocumentData => DocumentData::fromType($type)
         );
     }
 
@@ -40,7 +40,7 @@ final class DocumentationService
     /**
      * Search for documents matching the query
      */
-    public function search(DocumentSearchRequest $searchRequest)
+    public function search(DocumentSearchRequest $searchRequest): Collection
     {
         $query = $searchRequest->query;
         $type = $searchRequest->type;
@@ -112,7 +112,7 @@ final class DocumentationService
         }
 
         if ($start + $length < strlen($content)) {
-            $excerpt = $excerpt.'...';
+            $excerpt .= '...';
         }
 
         // Highlight the matched query if configured
@@ -137,7 +137,7 @@ final class DocumentationService
             return [];
         }
 
-        return array_map(function ($match) use ($content) {
+        return array_map(function ($match) use ($content): array {
             [$text, $position] = $match;
             // Get a small snippet around the match
             $start = max(0, $position - 20);
@@ -149,7 +149,7 @@ final class DocumentationService
             }
 
             if ($start + $length < strlen($content)) {
-                $snippet = $snippet.'...';
+                $snippet .= '...';
             }
 
             return [

@@ -17,7 +17,7 @@ final class DocumentationServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->mergeConfigFrom(__DIR__.'/../config/documentation.php', 'documentation');
-        
+
         $this->app->singleton(DocumentationService::class);
     }
 
@@ -62,7 +62,7 @@ final class DocumentationServiceProvider extends ServiceProvider
         // Register anonymous components
         $this->loadViewComponentsAs('documentation', []);
     }
-    
+
     /**
      * Register publishable resources.
      */
@@ -73,12 +73,12 @@ final class DocumentationServiceProvider extends ServiceProvider
             $this->publishes([
                 __DIR__.'/../config/documentation.php' => config_path('documentation.php'),
             ], 'documentation-config');
-            
+
             // Views
             $this->publishes([
                 __DIR__.'/../resources/views' => resource_path('views/vendor/documentation'),
             ], 'documentation-views');
-            
+
             // Markdown
             $this->publishes([
                 __DIR__.'/../resources/markdown' => resource_path('markdown/documentation'),

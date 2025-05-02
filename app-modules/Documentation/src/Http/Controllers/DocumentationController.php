@@ -8,12 +8,11 @@ use Illuminate\Http\Request;
 use Relaticle\Documentation\Data\DocumentSearchRequest;
 use Relaticle\Documentation\Services\DocumentationService;
 
-class DocumentationController
+final readonly class DocumentationController
 {
     public function __construct(
-        private readonly DocumentationService $documentationService
-    ) {
-    }
+        private DocumentationService $documentationService
+    ) {}
 
     /**
      * Display the documentation index page
