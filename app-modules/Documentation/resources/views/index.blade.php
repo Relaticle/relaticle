@@ -1,15 +1,5 @@
 <x-documentation::layout :title="config('app.name') . ' - ' . __('Documentation')" class="documentation-hub">
     <div class="max-w-5xl mx-auto">
-        <!-- Tech Badge - Simplified -->
-        <div class="flex justify-center mb-12">
-            <div class="inline-flex items-center px-3 py-1.5 border border-gray-100 dark:border-gray-800 rounded-full text-xs shadow-sm">
-                <span class="text-gray-500 dark:text-gray-400 mr-2">Documentation</span>
-                <div class="flex items-center gap-1">
-                    <x-heroicon-o-book-open class="h-3.5 w-3.5 text-primary" />
-                    <span class="font-medium text-gray-700 dark:text-gray-300">Resources</span>
-                </div>
-            </div>
-        </div>
 
         <!-- Hero Text - Enhanced Typography -->
         <div class="text-center space-y-6 max-w-3xl mx-auto mb-12">
@@ -26,10 +16,10 @@
             </p>
         </div>
 
-        <div class="mb-8">
+        <div class="mb-12">
             <x-documentation::search-form />
         </div>
-        
+
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             @php
                 $documentIcons = [
@@ -39,7 +29,7 @@
                     'api' => 'heroicon-o-variable'
                 ];
             @endphp
-            
+
             @foreach($documentTypes as $type => $document)
                 <x-documentation::card
                     :title="$document['title']"
