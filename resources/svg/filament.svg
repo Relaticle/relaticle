@@ -1,7 +1,6 @@
 <svg version="1.0" xmlns="http://www.w3.org/2000/svg"
      width="512.000000pt" height="512.000000pt" viewBox="0 0 512.000000 512.000000"
      preserveAspectRatio="xMidYMid meet"
-     @empty(!$class) class="{{ $class }}" @endempty
 >
     <metadata>
         Created by potrace 1.14, written by Peter Selinger 2001-2017
