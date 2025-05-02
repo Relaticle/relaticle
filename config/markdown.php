@@ -14,7 +14,7 @@ return [
          *
          * More info: https://github.com/shikijs/shiki/blob/main/docs/themes.md
          */
-        'theme' => 'github-light',
+        'theme' => 'github-dark',
     ],
 
     /*
@@ -43,7 +43,7 @@ return [
             'max_heading_level' => 6,
             'title' => 'Permalink',
             'symbol' => '#',
-            'aria_hidden' => false,
+            'aria_hidden' => true,
         ],
     ],
 

@@ -25,8 +25,7 @@ Relaticle includes one premium component in its technology stack:
 dynamic data management throughout the application.
 
 - **Documentation**: [custom-fields.relaticle.com/introduction](https://custom-fields.relaticle.com/introduction)
-- **Marketplace
-  **: [filamentphp.com/plugins/relaticle-custom-fields](https://filamentphp.com/plugins/relaticle-custom-fields)
+- **Marketplace**: [filamentphp.com/plugins/relaticle-custom-fields](https://filamentphp.com/plugins/relaticle-custom-fields)
 
 As the creators of this plugin, we've engineered it specifically to address the limitations of existing solutions. The
 Custom Fields package is commercial for several reasons:
@@ -92,68 +91,68 @@ To develop Relaticle locally, you'll need:
 1. **Clone the repository**
 
 ```bash
-   git clone https://github.com/Relaticle/relaticle.git
-   cd relaticle
+git clone https://github.com/Relaticle/relaticle.git
+cd relaticle
 ```
 
 2. **Create a feature branch**
 
 ```bash
-   git checkout -b feat/your-feature # or fix/your-fix
+git checkout -b feat/your-feature # or fix/your-fix
 ```
 
-   > **Important:** Don't push directly to the `main` branch. Instead, create a new branch and open a pull request.
+> **Important:** Don't push directly to the `main` branch. Instead, create a new branch and open a pull request.
 
 3. **Install dependencies**
 
 ```bash
-   composer install
-   npm install
+composer install
+npm install
 ```
 
 4. **Configure environment**
 
 ```bash
-   cp .env.example .env
-   php artisan key:generate
+cp .env.example .env
+php artisan key:generate
 ```
 
-   Open the `.env` file and configure your database connection:
+Open the `.env` file and configure your database connection:
 
 ```
-   DB_CONNECTION=pgsql
-   DB_HOST=127.0.0.1
-   DB_PORT=5432
-   DB_DATABASE=relaticle
-   DB_USERNAME=postgres
-   DB_PASSWORD=your_password
+DB_CONNECTION=pgsql
+DB_HOST=127.0.0.1
+DB_PORT=5432
+DB_DATABASE=relaticle
+DB_USERNAME=postgres
+DB_PASSWORD=your_password
 ```
 
 5. **Run migrations**
 
 ```bash
-   php artisan migrate
+php artisan migrate
 ```
 
 6. **Link storage**
 
 ```bash
-   php artisan storage:link
+php artisan storage:link
 ```
 
 7. **Start development services**
 
-   In separate terminal windows, run:
+In separate terminal windows, run:
 
 ```bash
-   # Terminal 1: Asset compilation with hot reload
-   npm run dev
+# Terminal 1: Asset compilation with hot reload
+npm run dev
 
-   # Terminal 2: Queue worker
-   php artisan queue:work
+# Terminal 2: Queue worker
+php artisan queue:work
 
-   # Terminal 3: Development server
-   php artisan serve
+# Terminal 3: Development server
+php artisan serve
 ```
 
    Visit `http://localhost:8000` in your browser to access the application.
