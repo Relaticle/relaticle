@@ -1,3 +1,38 @@
 /*
 Documentation
 */
+
+#documentation-content {
+    @apply prose prose-sm sm:prose-base lg:prose-lg dark:prose-invert max-w-none mx-auto;
+    .heading-permalink {
+        @apply mr-2;
+    }
+}
+
+/* Documentation Cards */
+.docs-card-grid {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6;
+}
+
+.docs-card {
+    @apply bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700;
+    @apply hover:shadow-md;
+    @apply transition-all duration-200;
+}
+
+/* Documentation content scrollbar */
+.docs-scrollbar::-webkit-scrollbar {
+    @apply w-1.5 h-1.5;
+}
+
+.docs-scrollbar::-webkit-scrollbar-track {
+    @apply bg-transparent;
+}
+
+.docs-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-gray-300 dark:bg-gray-700 rounded-full;
+}
+
+.docs-scrollbar::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-400 dark:bg-gray-600;
+}
