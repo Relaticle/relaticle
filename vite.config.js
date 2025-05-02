@@ -10,8 +10,8 @@ export default defineConfig({
                 'resources/css/filament/app/theme.css',
                 'resources/css/filament/admin/theme.css',
                 // Documentation
-                'app-modules/Documentation/resources/js/documentation.js',
                 'app-modules/Documentation/resources/css/documentation.css',
+                'app-modules/Documentation/resources/js/documentation.js',
             ],
             refresh: true,
         }),

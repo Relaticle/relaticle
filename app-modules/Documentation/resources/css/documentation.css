@@ -2,8 +2,6 @@
 Documentation
 */
 
-@config 'tailwind.config.js';
-
 #documentation-content {
     @apply prose prose-sm sm:prose-base lg:prose-lg dark:prose-invert max-w-none mx-auto;
 
