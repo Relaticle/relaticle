@@ -33,11 +33,21 @@
         </div>
         
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            @php
+                $documentIcons = [
+                    'business' => 'heroicon-o-briefcase',
+                    'technical' => 'heroicon-o-code-bracket',
+                    'quickstart' => 'heroicon-o-rocket-launch',
+                    'api' => 'heroicon-o-variable'
+                ];
+            @endphp
+            
             @foreach($documentTypes as $type => $document)
                 <x-documentation::card
                     :title="$document['title']"
                     :description="$document['description'] ?? ''"
                     :link="route('documentation.show', ['type' => $type])"
+                    :icon="$documentIcons[$type] ?? null"
                 />
             @endforeach
         </div>
