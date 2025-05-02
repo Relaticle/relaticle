@@ -4,12 +4,7 @@
         <div class="hidden sm:block col-span-12 sm:col-span-3 lg:col-span-2 relative">
             <div class="sticky top-24 pt-0.5 max-h-[calc(100vh-6rem)] overflow-y-auto pr-4 pb-16">
                 <h2 class="text-sm font-semibold text-black dark:text-white mb-4 flex items-center space-x-2">
-                    <svg xmlns="http://www.w3.org/2000/svg"
-                         class="h-4 w-4 text-primary dark:text-primary-400"
-                         fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                              d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                    </svg>
+                    <x-heroicon-o-book-open class="h-4 w-4 text-primary dark:text-primary-400" />
                     <span>Documentation</span>
                 </h2>
                 <div class="flex flex-col space-y-1 border-l border-gray-200 dark:border-gray-800">
@@ -40,11 +35,7 @@
             <div class="sticky top-[5rem] pt-0.5 overflow-y-auto pb-16">
                 @if(count($tableOfContents))
                     <h3 class="text-sm font-semibold text-black dark:text-white mb-4 flex items-center space-x-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-primary dark:text-primary-400"
-                             fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                  d="M4 6h16M4 12h16M4 18h7"></path>
-                        </svg>
+                        <x-heroicon-o-list-bullet class="h-4 w-4 text-primary dark:text-primary-400" />
                         <span>On this page</span>
                     </h3>
                     <nav>
