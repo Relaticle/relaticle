@@ -10,7 +10,7 @@ return [
     |
     */
     'cache' => [
-        'enabled' => env('DOCUMENTATION_CACHE_ENABLED', false),
+        'enabled' => env('DOCUMENTATION_CACHE_ENABLED', true),
         'ttl' => env('DOCUMENTATION_CACHE_TTL', 3600), // In seconds
     ],
 

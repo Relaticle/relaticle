@@ -1,6 +1,5 @@
 <x-documentation::layout :title="config('app.name') . ' - ' . __('Documentation')" class="documentation-hub">
     <div class="max-w-5xl mx-auto">
-
         <!-- Hero Text - Enhanced Typography -->
         <div class="text-center space-y-6 max-w-3xl mx-auto mb-12">
             <h1 class="text-4xl sm:text-5xl font-bold text-black dark:text-white leading-[1.1] tracking-tight">
@@ -16,8 +15,8 @@
             </p>
         </div>
 
-        <div class="mb-12">
-            <x-documentation::search-form />
+        <div class="mb-12 max-w-xl mx-auto">
+            <x-documentation::search-form  />
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
