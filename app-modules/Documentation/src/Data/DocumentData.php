@@ -9,7 +9,7 @@ use Spatie\LaravelData\Attributes\Validation\StringType;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Lazy;
 
-class DocumentData extends Data
+final class DocumentData extends Data
 {
     public function __construct(
         #[StringType]
@@ -25,9 +25,8 @@ class DocumentData extends Data
 
         public Collection|Lazy|null $sections = null,
 
-        public string|null $description = null,
-    ) {
-    }
+        public ?string $description = null,
+    ) {}
 
     /**
      * Create a document from the given type
@@ -36,7 +35,7 @@ class DocumentData extends Data
     {
         $documents = config('documentation.documents', []);
 
-        abort_if(!isset($documents[$type]), 404, 'Document not found');
+        abort_if(! isset($documents[$type]), 404, 'Document not found');
 
         $documentConfig = $documents[$type];
         $file = $documentConfig['file'];
@@ -49,7 +48,7 @@ class DocumentData extends Data
         $realPath = realpath($path);
         $resourcePath = realpath(config('documentation.markdown.base_path'));
 
-        if (!$realPath || !str_starts_with($realPath, $resourcePath)) {
+        if ($realPath === '' || $realPath === '0' || $realPath === false || ! str_starts_with($realPath, $resourcePath)) {
             abort(404, 'Document not found');
         }
 
@@ -80,7 +79,7 @@ class DocumentData extends Data
 
         preg_match_all('/<h2.*><a.*id="([^"]+)".*>#<\/a>([^<]+)/', $contents, $matches);
 
-        if (!isset($matches[1]) || !isset($matches[2])) {
+        if (! isset($matches[1]) || ! isset($matches[2])) {
             return [];
         }
 
@@ -92,6 +91,6 @@ class DocumentData extends Data
      */
     private static function getMarkdownPath(string $file): string
     {
-        return config('documentation.markdown.base_path') . '/' . $file;
+        return config('documentation.markdown.base_path').'/'.$file;
     }
 }
