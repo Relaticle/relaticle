@@ -26,20 +26,20 @@
 
 ---
 
-## 🚀 Introduction
+## Introduction
 
 Relaticle is a powerful, adaptable CRM platform built with modern technologies to help businesses effectively manage client relationships, streamline sales processes, and enhance team collaboration. Unlike traditional CRM solutions, Relaticle adapts to your team's workflows through customizable data models and workspace segmentation.
 
 **Core Strengths:**
-- 💪 **Fully Customizable** - Create and manage custom fields without coding
-- 🔄 **Multi-Team Support** - Securely manage multiple business units with isolated workspaces
-- 🚀 **Modern Technology** - Built on Laravel 12, PHP 8.3, and Filament 3
-- 🔒 **Privacy-Focused** - Self-host with complete data ownership
-- 🌱 **Open Source** - Transparent development with GPL-3.0 license
+- **Fully Customizable** - Create and manage custom fields without coding
+- **Multi-Team Support** - Securely manage multiple business units with isolated workspaces
+- **Modern Technology** - Built on Laravel 12, PHP 8.3, and Filament 3
+- **Privacy-Focused** - Self-host with complete data ownership
+- **Open Source** - Transparent development with GPL-3.0 license
 
 Visit our [website](https://relaticle.com) to learn more about Relaticle's capabilities.
 
-## 📚 Documentation
+## Documentation
 
 For comprehensive documentation, please refer to our official website:
 
@@ -48,14 +48,18 @@ For comprehensive documentation, please refer to our official website:
 - [Quick Start Guide](https://relaticle.com/documentation/quickstart) - Step-by-step getting started guide
 - [API Documentation](https://relaticle.com/documentation/api) - Integration with the Relaticle API
 
-## 🧩 Premium Components
+## Paid Dependencies
 
-While Relaticle is fully open-source, it includes one premium component:
+Relaticle is open-source, but includes one premium component that powers its flexibility:
 
-**Custom Fields** - A Filament plugin providing dynamic data modeling capabilities throughout the application.
+**Custom Fields** - This Filament plugin enables unlimited custom data fields without coding. It's the core of what makes Relaticle adaptable to any business workflow.
 
-Visit our [Technical Guide](https://relaticle.com/documentation/technical) for more information about this component.
+This component is paid to fund ongoing development of the open-source platform and provide dedicated support. With thousands of development hours invested, it delivers enterprise-grade data modeling that would otherwise require significant custom development.
 
-## 📝 License
+**[Get Custom Fields →](https://custom-fields.relaticle.com/introduction)**
+
+**Open-Source Discount:** Use code `OPENSOURCE` for 50% off.
+
+## License
 
 Relaticle is open-source software licensed under the [GPL-3.0 license](LICENSE).

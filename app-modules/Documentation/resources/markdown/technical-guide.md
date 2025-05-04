@@ -22,24 +22,23 @@ Livewire and Tailwind CSS to create a responsive and interactive user experience
 
 Relaticle includes one premium component in its technology stack:
 
-**Data Model (Custom Fields)** - A powerful Filament plugin **developed by Relaticle** that serves as the backbone for
-dynamic data management throughout the application.
+**Custom Fields** - A powerful Filament plugin developed by Relaticle that enables unlimited custom data fields without coding. It's the core of what makes Relaticle adaptable to any business workflow.
 
 - **Documentation**: [custom-fields.relaticle.com/introduction](https://custom-fields.relaticle.com/introduction)
-- **Marketplace**: [filamentphp.com/plugins/relaticle-custom-fields](https://filamentphp.com/plugins/relaticle-custom-fields)
+- **Open-Source Discount**: Use code `OPENSOURCE` for 50% off
 
-As the creators of this plugin, we've engineered it specifically to address the limitations of existing solutions. The
-Custom Fields package is commercial for several reasons:
+#### Why Custom Fields is a Paid Component
 
-1. It represents thousands of development hours and specialized expertise
-2. Ongoing maintenance and regular updates ensure compatibility with the Filament ecosystem
-3. The commercial model supports dedicated customer service and technical support
-4. Enterprise-grade performance optimizations for handling complex data structures
-5. Regular feature additions based on real-world customer feedback
+This component is paid to fund ongoing development of the open-source platform and provide dedicated support. With thousands of development hours invested, it delivers enterprise-grade data modeling that would otherwise require significant custom development.
 
-This is the **only** paid component in the Relaticle ecosystem. While we're committed to open source, this particular
-module represents a significant intellectual property investment that enables Relaticle to deliver unparalleled
-flexibility in data modeling without sacrificing performance or user experience.
+Key justifications for the commercial model:
+1. Funds continuous improvements to the open-source core
+2. Ensures regular updates and compatibility with the Filament ecosystem
+3. Enables dedicated technical support and documentation
+4. Delivers enterprise-grade performance optimizations for complex data structures
+5. Powers rapid feature development based on real-world feedback
+
+This is the **only** paid component in Relaticle. Our commitment to open source remains strong, with this single commercial element supporting the sustainability of the entire ecosystem.
 
 ## Core Components
 
