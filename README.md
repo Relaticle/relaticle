@@ -37,116 +37,28 @@ Relaticle is a powerful, adaptable CRM platform built with modern technologies t
 - 🔒 **Privacy-Focused** - Self-host with complete data ownership
 - 🌱 **Open Source** - Transparent development with GPL-3.0 license
 
-## ✨ Features
-
-Relaticle includes a robust set of features to help you manage your business relationships:
-
-- **Contact Management**
-    - Unified company and people profiles
-    - Custom fields for contacts and organizations
-    - LinkedIn profile integration
-
-- **Sales Pipeline**
-    - Visual kanban board for opportunities
-    - Customizable sales stages
-    - Deal tracking with monetary values
-
-- **Task Management**
-    - Task assignment and tracking
-    - Visual task board by status and priority
-    - Due date management
-    - Task notifications
-
-- **Notes & Documentation**
-    - Rich text editor for detailed notes
-    - Notes linked to companies, people, and opportunities
-    - Collaborative note-taking
-
-- **Team Collaboration**
-    - Team-based workspaces
-    - Role-based access control
-    - Team member invitations
-    - Personal and shared workspace segmentation
-
-- **Security**
-    - Two-factor authentication
-    - Social login (Google, GitHub)
-    - API token management
-    - Secure password handling
-
-## 🏁 Quick Start
-
-### Prerequisites
-
-- PHP 8.3+ with PostgreSQL support
-- Composer
-- Node.js & NPM
-
-### Installation
-
-```bash
-# Clone the repository
-git clone https://github.com/Relaticle/relaticle.git
-cd relaticle
-
-# Install dependencies
-composer install
-npm install
-
-# Set up environment and database
-cp .env.example .env
-php artisan key:generate
-
-# Configure your database in .env then run migrations
-php artisan migrate
-
-# Link storage for file uploads
-php artisan storage:link
-
-# Build assets and start the development server
-npm run dev
-php artisan serve
-```
-
-Visit `http://localhost:8000` in your browser and create your admin account to get started.
+Visit our [website](https://relaticle.com) to learn more about Relaticle's capabilities.
 
 ## 📚 Documentation
 
-Relaticle comes with comprehensive documentation:
+For comprehensive documentation, please refer to our official website:
 
-- [Business Guide](resources/markdown/documentation/business-guide.md) - Using Relaticle from a business perspective
-- [Quick Start Guide](resources/markdown/documentation/quick-start-guide.md) - Step-by-step getting started guide
-- [Technical Guide](resources/markdown/documentation/technical-guide.md) - Architecture and development information
-- [API Documentation](resources/markdown/documentation/api-guide.md) - Integration with the Relaticle API
+- [Business Guide](https://relaticle.com/documentation/business) - Using Relaticle from a business perspective
+- [Technical Guide](https://relaticle.com/documentation/technical) - Architecture and development information
+- [Quick Start Guide](https://relaticle.com/documentation/quickstart) - Step-by-step getting started guide
+- [API Documentation](https://relaticle.com/documentation/api) - Integration with the Relaticle API
 
 ## 🧩 Premium Components
 
-While Relaticle is fully open-source, it offers a premium component:
+While Relaticle is fully open-source, it includes one premium component:
 
-**Custom Fields** - A Filament plugin providing dynamic data modeling capabilities throughout the application, enabling unlimited customization possibilities without coding. This component is required for full functionality.
+**Custom Fields** - A Filament plugin providing dynamic data modeling capabilities throughout the application.
 
-- [Documentation](https://custom-fields.relaticle.com/introduction)
-- [Marketplace](https://filamentphp.com/plugins/relaticle-custom-fields)
-
-This premium component supports ongoing development of the open-source platform.
-
-## 🔧 Tech Stack
-
-Relaticle is built with modern technologies:
-
-- **Backend**: PHP 8.3, Laravel 12
-- **Frontend**: Tailwind CSS, Alpine.js
-- **Admin Interface**: Filament 3
-- **Database**: PostgreSQL (recommended), SQLite support for development
-- **Authentication**: Laravel Jetstream, Laravel Fortify
-- **Queue Processing**: Laravel Horizon
-- **Error Tracking**: Sentry integration
+Visit our [Technical Guide](https://relaticle.com/documentation/technical) for more information about this component.
 
 ## 🤝 Contributing
 
 We welcome contributions from developers of all skill levels!
-
-### Development Workflow
 
 1. Fork the repository
 2. Create a feature branch: `git checkout -b feat/amazing-feature`
@@ -156,7 +68,7 @@ We welcome contributions from developers of all skill levels!
 6. Push to your branch: `git push origin feat/amazing-feature`
 7. Create a Pull Request
 
-For more details, see our [Contributing Guide](CONTRIBUTING.md).
+For more detailed development guidelines, see our [Technical Guide](https://relaticle.com/documentation/technical).
 
 ## 📝 License
 
