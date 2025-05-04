@@ -9,13 +9,14 @@ Livewire and Tailwind CSS to create a responsive and interactive user experience
 
 - **Backend**: PHP 8.3, Laravel 12
 - **Admin UI**: Filament 3
-- **Frontend**: Livewire, Tailwind CSS
-- **Database**: PostgreSQL
+- **Frontend**: Livewire, Tailwind CSS, Alpine.js
+- **Database**: PostgreSQL (recommended), MySQL (supported)
 - **Testing**: Pest
 - **Static Analysis**: PHPStan
 - **Code Quality**: Laravel Pint, Rector
 - **Task Queue**: Laravel Horizon
-- **Authentication**: Laravel Jetstream
+- **Authentication**: Laravel Jetstream, Laravel Fortify
+- **Error Tracking**: Sentry integration
 
 ### Paid Dependencies
 
@@ -72,7 +73,7 @@ Relaticle's data structure revolves around these key models:
 To develop Relaticle locally, you'll need:
 
 - **PHP 8.3+** with the following extensions:
-    - pdo_pgsql
+    - pdo_pgsql (or pdo_mysql)
     - gd
     - bcmath
     - ctype
@@ -82,11 +83,11 @@ To develop Relaticle locally, you'll need:
     - openssl
     - tokenizer
     - xml
-- **PostgreSQL 13+**
+- **PostgreSQL 13+** (recommended) or MySQL 8.0+
 - **Node.js 16+** with npm
 - **Composer 2+**
 
-### Detailed Installation Steps
+### Installation Steps
 
 1. **Clone the repository**
 
@@ -95,22 +96,14 @@ git clone https://github.com/Relaticle/relaticle.git
 cd relaticle
 ```
 
-2. **Create a feature branch**
-
-```bash
-git checkout -b feat/your-feature # or fix/your-fix
-```
-
-> **Important:** Don't push directly to the `main` branch. Instead, create a new branch and open a pull request.
-
-3. **Install dependencies**
+2. **Install dependencies**
 
 ```bash
 composer install
 npm install
 ```
 
-4. **Configure environment**
+3. **Configure environment**
 
 ```bash
 cp .env.example .env
@@ -128,19 +121,19 @@ DB_USERNAME=postgres
 DB_PASSWORD=your_password
 ```
 
-5. **Run migrations**
+4. **Run migrations**
 
 ```bash
 php artisan migrate
 ```
 
-6. **Link storage**
+5. **Link storage**
 
 ```bash
 php artisan storage:link
 ```
 
-7. **Start development services**
+6. **Start development services**
 
 In separate terminal windows, run:
 
@@ -155,10 +148,10 @@ php artisan queue:work
 php artisan serve
 ```
 
-   Visit `http://localhost:8000` in your browser to access the application.
+Visit `http://localhost:8000` in your browser to access the application.
 
-   > **Note:** By default, emails are sent to the `log` driver. You can change this in the `.env` file to something like
-   `mailtrap` for development.
+> **Note:** By default, emails are sent to the `log` driver. You can change this in the `.env` file to something like
+> `mailtrap` for development.
 
 ## Development Guidelines
 
@@ -214,15 +207,6 @@ git config core.hooksPath .githooks
 
 This will automatically run the appropriate checks when you commit or push code.
 
-### Git Workflow
-
-1. Create feature branches from `main` (e.g., `feat/your-feature` or `fix/your-fix`)
-2. Develop and test your changes locally
-3. Run the full test suite with `composer test`
-4. Commit your changes with a descriptive message
-5. Push your branch and create a pull request
-6. Wait for CI checks and code review before merging
-
 ### Testing Requirements
 
 All code contributions should include:
@@ -247,7 +231,7 @@ When adding new features:
 
 ### Creating Custom Components
 
-The Filament ecosystem makes it easy to create custom components:
+The Filament ecosystem makes it easy to create custom components. Here's an example of a Filament resource:
 
 ```php
 namespace App\Filament\App\Resources;
@@ -263,6 +247,28 @@ class CompanyResource extends Resource
     protected static ?string $model = Company::class;
     
     // Resource configuration...
+    protected static ?string $navigationIcon = 'heroicon-o-building-office';
+    
+    public static function form(Forms\Form $form): Forms\Form
+    {
+        return $form
+            ->schema([
+                Forms\Components\TextInput::make('name')
+                    ->required()
+                    ->maxLength(255),
+                // Additional form fields...
+            ]);
+    }
+    
+    public static function table(Tables\Table $table): Tables\Table
+    {
+        return $table
+            ->columns([
+                Tables\Columns\TextColumn::make('name')
+                    ->searchable(),
+                // Additional table columns...
+            ]);
+    }
 }
 ```
 
@@ -273,6 +279,9 @@ class CompanyResource extends Resource
 - Optimize database indexes for common queries
 - Use Laravel queues for processing background tasks
 - Implement caching for expensive operations
+- Consider database query optimization for large datasets
+- Set up proper indexing for search functionality
+
 
 ## Security Best Practices
 
@@ -281,6 +290,9 @@ class CompanyResource extends Resource
 - Implement proper CSRF protection
 - Use Laravel Sanctum for API authentication
 - Regularly update dependencies for security patches
+- Implement rate limiting for sensitive endpoints
+- Follow the principle of the least privilege for user permissions
+- Properly sanitize user inputs, especially for database queries
 
 ## Deployment
 
@@ -307,7 +319,7 @@ class CompanyResource extends Resource
 ### Server Requirements
 
 - PHP 8.3+ with required extensions
-- PostgreSQL 13+
+- PostgreSQL 13+ or MySQL 8.0+
 - Redis (recommended for caching and queues)
 - Nginx or Apache
 - Supervisor (for managing queue workers)
@@ -339,9 +351,50 @@ chown -R www-data:www-data storage bootstrap/cache
 
 Use Laravel Telescope or Clockwork to identify slow queries, then add appropriate indexes.
 
+#### Custom Fields Plugin Not Working
+
+1. Verify the license is active
+2. Check that the package is properly installed: `composer require relaticle/custom-fields`
+
+#### Filament Admin Panel Loading Issues
+
+1. Clear the view cache: `php artisan view:clear`
+2. Rebuild the assets: `npm run build`
+3. Check browser console for JavaScript errors
+
+## Contributing
+
+We welcome contributions from developers of all skill levels! Relaticle is an open-source project that thrives on community involvement.
+
+### How to Contribute
+
+1. **Fork the repository** on GitHub
+2. **Create a feature branch**: `git checkout -b feat/amazing-feature` or `fix/your-fix`
+3. **Make your changes** following our coding standards outlined in the Development Guidelines section
+4. **Run tests** to ensure quality: `composer test`
+5. **Commit your changes** with descriptive messages following conventional commits
+6. **Push to your branch**: `git push origin feat/amazing-feature`
+7. **Create a Pull Request** and explain your changes clearly
+
+### Types of Contributions
+
+- **Bug fixes** - Help us improve stability
+- **Feature additions** - Implement new capabilities
+- **Documentation improvements** - Enhance guides and examples
+- **Test coverage** - Add or improve tests
+- **UI/UX enhancements** - Improve the user experience
+
+### Code of Conduct
+
+We strive to maintain a welcoming and inclusive environment for all contributors. Please be respectful in all interactions and focus on constructive feedback.
+
+Remember that all contributions to Relaticle are subject to review and must align with the project's goals and quality standards. Working closely with maintainers will help ensure your contribution is accepted and merged efficiently.
+
 ## Additional Resources
 
 - [Laravel Documentation](https://laravel.com/docs/12.x)
 - [Filament Documentation](https://filamentphp.com/docs)
 - [Livewire Documentation](https://livewire.laravel.com/)
-- [Pest Testing Framework](https://pestphp.com/) 
+- [Pest Testing Framework](https://pestphp.com/)
+- [PostgreSQL Documentation](https://www.postgresql.org/docs/)
+- [Tailwind CSS Documentation](https://tailwindcss.com/docs) 
