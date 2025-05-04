@@ -56,20 +56,6 @@ While Relaticle is fully open-source, it includes one premium component:
 
 Visit our [Technical Guide](https://relaticle.com/documentation/technical) for more information about this component.
 
-## 🤝 Contributing
-
-We welcome contributions from developers of all skill levels!
-
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feat/amazing-feature`
-3. Make your changes following our coding standards
-4. Run tests to ensure quality: `composer test`
-5. Commit your changes: `git commit -am 'Add some amazing feature'`
-6. Push to your branch: `git push origin feat/amazing-feature`
-7. Create a Pull Request
-
-For more detailed development guidelines, see our [Technical Guide](https://relaticle.com/documentation/technical).
-
 ## 📝 License
 
 Relaticle is open-source software licensed under the [GPL-3.0 license](LICENSE).
