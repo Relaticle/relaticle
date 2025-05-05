@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace App\Filament\Admin\Resources;
 
+use App\Enums\CreationSource;
 use App\Filament\Admin\Resources\PeopleResource\Pages;
 use App\Models\People;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 
 final class PeopleResource extends Resource
@@ -44,6 +46,9 @@ final class PeopleResource extends Resource
                 Forms\Components\TextInput::make('name')
                     ->required()
                     ->maxLength(255),
+                Forms\Components\Select::make('creation_source')
+                    ->options(CreationSource::class)
+                    ->default(CreationSource::WEB),
             ]);
     }
 
@@ -57,6 +62,15 @@ final class PeopleResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
+                Tables\Columns\TextColumn::make('creation_source')
+                    ->badge()
+                    ->color(fn (CreationSource $state): string => match ($state) {
+                        CreationSource::WEB => 'info',
+                        CreationSource::SYSTEM => 'warning',
+                        CreationSource::IMPORT => 'success',
+                    })
+                    ->label('Source')
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -67,7 +81,10 @@ final class PeopleResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                SelectFilter::make('creation_source')
+                    ->label('Creation Source')
+                    ->options(CreationSource::class)
+                    ->multiple(),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
