@@ -1,9 +1,3 @@
-# Terms Of Service
-
-Use of the Relaticle website and all related services is subject to the following terms of service.
-
-<hr class="w-3/4" />
-
 ## Abuse
 
 We reserve the right to take action in response to reports of abuse of our services. This action may include, but is not

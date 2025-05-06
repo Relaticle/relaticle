@@ -1,5 +1,3 @@
-# Privacy Policy
-
 ### Guaranteed legal and secure processing of personal data.
 
 Each client can be sure his personal data will be dealt with honestly and legally. We only use that data for the legitimate reasons outlined above, and we can guarantee that it will always be kept safe from accidental or intentional misuse.
