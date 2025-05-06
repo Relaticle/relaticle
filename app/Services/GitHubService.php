@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Number;
 
-final class GitHubService
+final readonly class GitHubService
 {
     /**
      * Get the stargazers count for a GitHub repository
