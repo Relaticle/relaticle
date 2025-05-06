@@ -12,11 +12,13 @@ use App\Models\People;
 use App\Models\Task;
 use App\Models\Team;
 use App\Models\User;
+use App\Services\GitHubService;
 use Filament\Actions\Action;
 use Filament\Http\Responses\Auth\Contracts\LoginResponse as LoginResponseContract;
 use Filament\Tables\Actions\Action as TableAction;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
 final class AppServiceProvider extends ServiceProvider
@@ -36,6 +38,7 @@ final class AppServiceProvider extends ServiceProvider
     {
         $this->configureModels();
         $this->configureFilament();
+        $this->configureGitHubStars();
     }
 
     /**
@@ -78,6 +81,24 @@ final class AppServiceProvider extends ServiceProvider
             }
 
             return $action;
+        });
+    }
+
+    /**
+     * Configure GitHub stars count.
+     */
+    private function configureGitHubStars(): void
+    {
+        // Share GitHub stars count with the header component
+        View::composer('components.layout.header', function ($view): void {
+            $gitHubService = app(GitHubService::class);
+            $starsCount = $gitHubService->getStarsCount();
+            $formattedStarsCount = $gitHubService->getFormattedStarsCount();
+
+            $view->with([
+                'githubStars' => $starsCount,
+                'formattedGithubStars' => $formattedStarsCount,
+            ]);
         });
     }
 }
