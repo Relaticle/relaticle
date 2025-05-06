@@ -1,9 +1,7 @@
 <x-guest-layout :title="'Privacy Policy - ' . config('app.name')">
-    <div class="py-4 bg-gray-100 dark:bg-gray-900">
-        <div class="min-h-screen flex flex-col items-center pt-6 sm:pt-0">
-            <div class="w-full sm:max-w-2xl mt-6 p-6 bg-white dark:bg-gray-800 shadow-md overflow-hidden sm:rounded-lg prose dark:prose-invert">
-                {!! $policy !!}
-            </div>
-        </div>
-    </div>
+    <x-legal-document
+        title="Privacy Policy"
+        subtitle="How we collect, use, and protect your personal information."
+        :content="$policy"
+    />
 </x-guest-layout>
