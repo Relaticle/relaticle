@@ -18,8 +18,9 @@ use Filament\Http\Responses\Auth\Contracts\LoginResponse as LoginResponseContrac
 use Filament\Tables\Actions\Action as TableAction;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
-use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\View\View;
 
 final class AppServiceProvider extends ServiceProvider
 {
@@ -90,7 +91,7 @@ final class AppServiceProvider extends ServiceProvider
     private function configureGitHubStars(): void
     {
         // Share GitHub stars count with the header component
-        View::composer('components.layout.header', function ($view): void {
+        Facades\View::composer('components.layout.header', function (View $view): void {
             $gitHubService = app(GitHubService::class);
             $starsCount = $gitHubService->getStarsCount();
             $formattedStarsCount = $gitHubService->getFormattedStarsCount();
