@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace App\Filament\App\Resources\CompanyResource\Pages;
 
-use App\Filament\App\Exports\CompanyExporter;
 use App\Filament\App\Resources\CompanyResource;
 use Filament\Actions\CreateAction;
-use Filament\Actions\ExportAction;
 use Filament\Resources\Pages\ListRecords;
 use Relaticle\CustomFields\Filament\Tables\Concerns\InteractsWithCustomFields;
 
@@ -26,8 +24,6 @@ final class ListCompanies extends ListRecords
     {
         return [
             CreateAction::make(),
-            ExportAction::make()
-                ->exporter(CompanyExporter::class),
         ];
     }
 }

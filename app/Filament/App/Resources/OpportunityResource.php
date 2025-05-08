@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\App\Resources;
 
 use App\Enums\CreationSource;
+use App\Filament\App\Exports\OpportunityExporter;
 use App\Filament\App\Resources\OpportunityResource\Forms\OpportunityForm;
 use App\Filament\App\Resources\OpportunityResource\Pages;
 use App\Filament\App\Resources\OpportunityResource\RelationManagers;
@@ -12,6 +13,7 @@ use App\Models\Opportunity;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\ExportBulkAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -81,6 +83,8 @@ final class OpportunityResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
+                    ExportBulkAction::make()
+                        ->exporter(OpportunityExporter::class),
                     Tables\Actions\DeleteBulkAction::make(),
                     Tables\Actions\ForceDeleteBulkAction::make(),
                     Tables\Actions\RestoreBulkAction::make(),
