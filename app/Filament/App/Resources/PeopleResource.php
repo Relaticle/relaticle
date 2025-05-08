@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\App\Resources;
 
 use App\Enums\CreationSource;
+use App\Filament\App\Exports\PeopleExporter;
 use App\Filament\App\Resources\PeopleResource\Pages\ListPeople;
 use App\Filament\App\Resources\PeopleResource\Pages\ViewPeople;
 use App\Filament\App\Resources\PeopleResource\RelationManagers\NotesRelationManager;
@@ -14,6 +15,7 @@ use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\ExportBulkAction;
 use Filament\Tables\Actions\ForceDeleteAction;
 use Filament\Tables\Actions\ForceDeleteBulkAction;
 use Filament\Tables\Actions\RestoreAction;
@@ -105,6 +107,8 @@ final class PeopleResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
+                    ExportBulkAction::make()
+                        ->exporter(PeopleExporter::class),
                     Tables\Actions\DeleteBulkAction::make(),
                     ForceDeleteBulkAction::make(),
                     Tables\Actions\RestoreBulkAction::make(),
