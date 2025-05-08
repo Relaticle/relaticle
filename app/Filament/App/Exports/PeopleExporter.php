@@ -11,6 +11,7 @@ use Filament\Actions\Exports\Exporter;
 use Filament\Actions\Exports\Models\Export;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
+use Relaticle\CustomFields\Filament\Exports\CustomFieldsExporter;
 
 final class PeopleExporter extends Exporter
 {
@@ -73,6 +74,9 @@ final class PeopleExporter extends Exporter
             ExportColumn::make('creation_source')
                 ->label('Creation Source')
                 ->formatStateUsing(fn ($state): string => $state->value ?? (string) $state),
+
+            // Add all custom fields automatically
+            ...CustomFieldsExporter::getColumns(self::getModel()),
         ];
     }
 
