@@ -130,6 +130,7 @@ return new class extends Migration
             $table->json('json_value')->nullable();
 
             $table->unique($uniqueColumns, 'custom_field_values_entity_type_unique');
+            $table->index(['entity_id', 'custom_field_id'], 'custom_field_values_entity_id_custom_field_id_index');
         });
     }
 
