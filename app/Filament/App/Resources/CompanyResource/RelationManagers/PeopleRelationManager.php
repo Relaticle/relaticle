@@ -16,6 +16,8 @@ final class PeopleRelationManager extends RelationManager
 {
     protected static string $relationship = 'people';
 
+    protected static ?string $modelLabel = 'person';
+
     protected static ?string $icon = 'heroicon-o-user';
 
     public function form(Form $form): Form
