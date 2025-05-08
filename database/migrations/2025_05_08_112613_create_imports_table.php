@@ -15,6 +15,9 @@ return new class extends Migration
     {
         Schema::create('imports', function (Blueprint $table): void {
             $table->id();
+
+            $table->foreignId('team_id')->constrained('teams')->cascadeOnDelete();
+
             $table->timestamp('completed_at')->nullable();
             $table->string('file_name');
             $table->string('file_path');
