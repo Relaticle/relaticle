@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Filament\App\Resources\PeopleResource\Pages;
 
-use App\Filament\Admin\Resources\CompanyResource;
 use App\Filament\App\Resources\PeopleResource;
 use Filament\Actions;
 use Filament\Infolists\Components;
 use Filament\Infolists\Components\Split;
 use Filament\Infolists\Infolist;
 use Filament\Resources\Pages\ViewRecord;
+use Relaticle\Admin\Filament\Resources\CompanyResource;
 use Relaticle\CustomFields\Filament\Infolists\CustomFieldsInfolists;
 
 final class ViewPeople extends ViewRecord
