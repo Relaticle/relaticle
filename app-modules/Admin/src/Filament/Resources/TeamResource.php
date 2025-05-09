@@ -1,32 +1,25 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Relaticle\Admin\Filament\Resources;
 
+use Relaticle\Admin\Filament\Resources\TeamResource\Pages;
+use Relaticle\Admin\Filament\Resources\TeamResource\RelationManagers;
 use App\Models\Team;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Relaticle\Admin\Filament\Resources\TeamResource\Pages;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-final class TeamResource extends Resource
+class TeamResource extends Resource
 {
     protected static ?string $model = Team::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-user-group';
+    protected static ?string $navigationIcon = 'heroicon-o-users';
 
     protected static ?string $navigationGroup = 'User Management';
-
-    protected static ?int $navigationSort = 2;
-
-    protected static ?string $modelLabel = 'Team';
-
-    protected static ?string $pluralModelLabel = 'Teams';
-
-    protected static ?string $slug = 'teams';
 
     public static function form(Form $form): Form
     {
@@ -67,7 +60,6 @@ final class TeamResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
@@ -89,7 +81,6 @@ final class TeamResource extends Resource
         return [
             'index' => Pages\ListTeams::route('/'),
             'create' => Pages\CreateTeam::route('/create'),
-            'view' => Pages\ViewTeam::route('/{record}'),
             'edit' => Pages\EditTeam::route('/{record}/edit'),
         ];
     }

@@ -39,9 +39,8 @@ final class AdminPanelProvider extends PanelProvider
                 'primary' => Color::Amber,
             ])
             ->brandName('Relaticle Admin')
-            ->favicon('images/logo.png')
-            ->discoverResources(in: app_path('Filament/App/Resources'), for: 'Relaticle\\Admin\\Filament\\Resources')
-            ->discoverPages(in: app_path('Filament/App/Pages'), for: 'Relaticle\\Admin\\Filament\\Pages')
+            ->discoverResources(in: base_path('app-modules/Admin/src/Filament/Resources'), for: 'Relaticle\\Admin\\Filament\\Resources')
+            ->discoverPages(in: base_path('app-modules/Admin/src/Filament/Pages'), for: 'Relaticle\\Admin\\Filament\\Pages')
             ->navigationGroups([
                 NavigationGroup::make()
                     ->label('User Management'),
@@ -59,7 +58,7 @@ final class AdminPanelProvider extends PanelProvider
             ->pages([
                 Dashboard::class,
             ])
-            ->discoverWidgets(in: app_path('Filament/App/Widgets'), for: 'Relaticle\\Admin\\Filament\\Widgets')
+            ->discoverWidgets(in: base_path('app-modules/Admin/src/Filament/Widgets'), for: 'Relaticle\\Admin\\Filament\\Widgets')
             ->widgets([
                 Widgets\AccountWidget::class,
                 OverlookWidget::class,

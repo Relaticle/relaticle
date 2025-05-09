@@ -1,13 +1,12 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Relaticle\Admin\Filament\Resources\TeamResource\Pages;
 
-use Filament\Resources\Pages\CreateRecord;
 use Relaticle\Admin\Filament\Resources\TeamResource;
+use Filament\Actions;
+use Filament\Resources\Pages\CreateRecord;
 
-final class CreateTeam extends CreateRecord
+class CreateTeam extends CreateRecord
 {
     protected static string $resource = TeamResource::class;
 }
