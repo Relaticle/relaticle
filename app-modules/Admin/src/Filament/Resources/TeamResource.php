@@ -1,19 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Relaticle\Admin\Filament\Resources;
 
-use Relaticle\Admin\Filament\Resources\TeamResource\Pages;
-use Relaticle\Admin\Filament\Resources\TeamResource\RelationManagers;
 use App\Models\Team;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Relaticle\Admin\Filament\Resources\TeamResource\Pages;
 
-class TeamResource extends Resource
+final class TeamResource extends Resource
 {
     protected static ?string $model = Team::class;
 
