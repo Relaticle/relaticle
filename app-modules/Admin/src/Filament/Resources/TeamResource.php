@@ -28,7 +28,6 @@ final class TeamResource extends Resource
 
     protected static ?string $slug = 'teams';
 
-    #[\Override]
     public static function form(Form $form): Form
     {
         return $form
@@ -44,7 +43,6 @@ final class TeamResource extends Resource
             ]);
     }
 
-    #[\Override]
     public static function table(Table $table): Table
     {
         return $table
@@ -79,7 +77,6 @@ final class TeamResource extends Resource
             ]);
     }
 
-    #[\Override]
     public static function getRelations(): array
     {
         return [
@@ -87,7 +84,6 @@ final class TeamResource extends Resource
         ];
     }
 
-    #[\Override]
     public static function getPages(): array
     {
         return [
