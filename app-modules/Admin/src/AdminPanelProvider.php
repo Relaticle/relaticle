@@ -7,7 +7,6 @@ namespace Relaticle\Admin;
 use Awcodes\Overlook\OverlookPlugin;
 use Awcodes\Overlook\Widgets\OverlookWidget;
 use Filament\Http\Middleware\Authenticate;
-use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Navigation\NavigationGroup;
@@ -19,6 +18,7 @@ use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
+use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Relaticle\Admin\Filament\Pages\Dashboard;
@@ -33,14 +33,15 @@ final class AdminPanelProvider extends PanelProvider
         return $panel
             ->id('admin')
             ->domain('admin.'.parse_url((string) config('app.url'))['host'])
-            ->path('')
+            ->login()
+            ->spa()
             ->colors([
                 'primary' => Color::Amber,
             ])
             ->brandName('Relaticle Admin')
             ->favicon('images/logo.png')
-            ->discoverResources(in: app_path('Filament/Admin/Resources'), for: 'Relaticle\\Admin\\Filament\\Resources')
-            ->discoverPages(in: app_path('Filament/Admin/Pages'), for: 'Relaticle\\Admin\\Filament\\Pages')
+            ->discoverResources(in: app_path('Filament/App/Resources'), for: 'Relaticle\\Admin\\Filament\\Resources')
+            ->discoverPages(in: app_path('Filament/App/Pages'), for: 'Relaticle\\Admin\\Filament\\Pages')
             ->navigationGroups([
                 NavigationGroup::make()
                     ->label('User Management'),
@@ -58,7 +59,7 @@ final class AdminPanelProvider extends PanelProvider
             ->pages([
                 Dashboard::class,
             ])
-            ->discoverWidgets(in: app_path('Filament/Admin/Widgets'), for: 'Relaticle\\Admin\\Filament\\Widgets')
+            ->discoverWidgets(in: app_path('Filament/App/Widgets'), for: 'Relaticle\\Admin\\Filament\\Widgets')
             ->widgets([
                 Widgets\AccountWidget::class,
                 OverlookWidget::class,
