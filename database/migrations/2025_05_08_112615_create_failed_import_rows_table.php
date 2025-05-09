@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('failed_import_rows', function (Blueprint $table): void {
             $table->id();
 
-            $table->foreignId('team_id')->constrained('teams')->cascadeOnDelete();
+            $table->foreignId('team_id')->nullable()->constrained('teams')->cascadeOnDelete();
 
             $table->json('data');
             $table->foreignId('import_id')->constrained()->cascadeOnDelete();
