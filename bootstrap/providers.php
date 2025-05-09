@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 return [
     App\Providers\AppServiceProvider::class,
-    App\Providers\Filament\AdminPanelProvider::class,
+    Relaticle\Admin\AdminPanelProvider::class,
     App\Providers\Filament\AppPanelProvider::class,
     App\Providers\FortifyServiceProvider::class,
     App\Providers\HorizonServiceProvider::class,
