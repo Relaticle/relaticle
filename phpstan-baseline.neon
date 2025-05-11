@@ -1,0 +1,157 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Actions/Jetstream/RemoveTeamMember.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Filament/App/Exports/CompanyExporter.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Filament/App/Exports/OpportunityExporter.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Filament/App/Exports/PeopleExporter.php
+
+		-
+			message: '#^Access to an undefined property Relaticle\\CustomFields\\Models\\CustomFieldOption\:\:\$custom_field_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Filament/App/Pages/OpportunitiesBoard.php
+
+		-
+			message: '#^Access to an undefined property Relaticle\\CustomFields\\Models\\CustomFieldOption\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Filament/App/Pages/OpportunitiesBoard.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:opportunities\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Filament/App/Pages/OpportunitiesBoard.php
+
+		-
+			message: '#^Access to an undefined property Relaticle\\CustomFields\\Models\\CustomFieldOption\:\:\$custom_field_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Filament/App/Pages/TasksBoard.php
+
+		-
+			message: '#^Access to an undefined property Relaticle\\CustomFields\\Models\\CustomFieldOption\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Filament/App/Pages/TasksBoard.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:tasks\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Filament/App/Pages/TasksBoard.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Company\:\:\$createdBy\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Filament/App/Resources/CompanyResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Note\:\:\$createdBy\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Filament/App/Resources/NoteResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Opportunity\:\:\$createdBy\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Filament/App/Resources/OpportunityResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\People\:\:\$createdBy\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Filament/App/Resources/PeopleResource.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$assignees\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Filament/App/Resources/TaskResource.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Filament/App/Resources/TaskResource.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$title\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Filament/App/Resources/TaskResource.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:getValueColumn\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: app/Filament/App/Resources/TaskResource.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:notifications\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Filament/App/Resources/TaskResource.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:values\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: app/Filament/App/Resources/TaskResource.php
+
+		-
+			message: '#^Call to an undefined method App\\Contracts\\User\\CreatesNewSocialUsers\:\:create\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Http/Controllers/Auth/CallbackController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Middleware/ApplyTenantScopes.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Contracts\\Auth\\Authenticatable\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Listeners/CreatePersonalTeamListener.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Contracts\\Auth\\Authenticatable\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Listeners/CreatePersonalTeamListener.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$email\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Providers/HorizonServiceProvider.php
+
+		-
+			message: '#^PHPDoc tag @param references unknown parameter\: \$count$#'
+			identifier: parameter.notFound
+			count: 1
+			path: app/Services/AvatarService.php
