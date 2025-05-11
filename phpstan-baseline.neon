@@ -1,10 +1,28 @@
 parameters:
 	ignoreErrors:
 		-
+			message: '#^Method App\\Actions\\Jetstream\\CreateTeam\:\:create\(\) should return App\\Models\\Team but returns Illuminate\\Database\\Eloquent\\Model\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Actions/Jetstream/CreateTeam.php
+
+		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
 			identifier: property.notFound
 			count: 1
 			path: app/Actions/Jetstream/RemoveTeamMember.php
+
+		-
+			message: '#^Method App\\Filament\\App\\Adapters\\OpportunitiesKanbanAdapter\:\:stageCustomField\(\) should return Relaticle\\CustomFields\\Models\\CustomField but returns Illuminate\\Database\\Eloquent\\Model\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Filament/App/Adapters/OpportunitiesKanbanAdapter.php
+
+		-
+			message: '#^Method App\\Filament\\App\\Adapters\\TasksKanbanAdapter\:\:statusCustomField\(\) should return Relaticle\\CustomFields\\Models\\CustomField but returns Illuminate\\Database\\Eloquent\\Model\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Filament/App/Adapters/TasksKanbanAdapter.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
@@ -43,6 +61,12 @@ parameters:
 			path: app/Filament/App/Pages/OpportunitiesBoard.php
 
 		-
+			message: '#^Method App\\Filament\\App\\Pages\\OpportunitiesBoard\:\:stageCustomField\(\) should return Relaticle\\CustomFields\\Models\\CustomField but returns Illuminate\\Database\\Eloquent\\Model\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Filament/App/Pages/OpportunitiesBoard.php
+
+		-
 			message: '#^Access to an undefined property Relaticle\\CustomFields\\Models\\CustomFieldOption\:\:\$custom_field_id\.$#'
 			identifier: property.notFound
 			count: 1
@@ -57,6 +81,12 @@ parameters:
 		-
 			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:tasks\(\)\.$#'
 			identifier: method.notFound
+			count: 1
+			path: app/Filament/App/Pages/TasksBoard.php
+
+		-
+			message: '#^Method App\\Filament\\App\\Pages\\TasksBoard\:\:statusCustomField\(\) should return Relaticle\\CustomFields\\Models\\CustomField but returns Illuminate\\Database\\Eloquent\\Model\|null\.$#'
+			identifier: return.type
 			count: 1
 			path: app/Filament/App/Pages/TasksBoard.php
 
@@ -143,6 +173,54 @@ parameters:
 			identifier: property.notFound
 			count: 1
 			path: app/Listeners/CreatePersonalTeamListener.php
+
+		-
+			message: '#^PHPDoc type array\<int, string\> of property App\\Models\\Company\:\:\$fillable is not covariant with PHPDoc type list\<string\> of overridden property Illuminate\\Database\\Eloquent\\Model\:\:\$fillable\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: app/Models/Company.php
+
+		-
+			message: '#^PHPDoc type array\<int, string\> of property App\\Models\\Note\:\:\$fillable is not covariant with PHPDoc type list\<string\> of overridden property Illuminate\\Database\\Eloquent\\Model\:\:\$fillable\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: app/Models/Note.php
+
+		-
+			message: '#^PHPDoc type array\<int, string\> of property App\\Models\\Opportunity\:\:\$fillable is not covariant with PHPDoc type list\<string\> of overridden property Illuminate\\Database\\Eloquent\\Model\:\:\$fillable\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: app/Models/Opportunity.php
+
+		-
+			message: '#^PHPDoc type array\<int, string\> of property App\\Models\\People\:\:\$fillable is not covariant with PHPDoc type list\<string\> of overridden property Illuminate\\Database\\Eloquent\\Model\:\:\$fillable\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: app/Models/People.php
+
+		-
+			message: '#^PHPDoc type array\<int, string\> of property App\\Models\\Team\:\:\$fillable is not covariant with PHPDoc type list\<string\> of overridden property Illuminate\\Database\\Eloquent\\Model\:\:\$fillable\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: app/Models/Team.php
+
+		-
+			message: '#^PHPDoc type array\<int, string\> of property App\\Models\\User\:\:\$appends is not covariant with PHPDoc type list\<string\> of overridden property Illuminate\\Database\\Eloquent\\Model\:\:\$appends\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^PHPDoc type array\<int, string\> of property App\\Models\\User\:\:\$fillable is not covariant with PHPDoc type list\<string\> of overridden property Illuminate\\Database\\Eloquent\\Model\:\:\$fillable\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^PHPDoc type array\<int, string\> of property App\\Models\\User\:\:\$hidden is not covariant with PHPDoc type list\<string\> of overridden property Illuminate\\Database\\Eloquent\\Model\:\:\$hidden\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: app/Models/User.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$email\.$#'
