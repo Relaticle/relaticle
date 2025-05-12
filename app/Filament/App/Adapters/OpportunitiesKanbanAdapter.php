@@ -57,6 +57,7 @@ final class OpportunitiesKanbanAdapter extends DefaultKanbanAdapter
 
     private function stageCustomField(): CustomField
     {
+        /** @var CustomField */
         return CustomField::query()
             ->forEntity(Opportunity::class)
             ->where('code', 'stage')

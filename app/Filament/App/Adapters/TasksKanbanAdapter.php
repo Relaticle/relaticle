@@ -56,6 +56,7 @@ final class TasksKanbanAdapter extends DefaultKanbanAdapter
 
     private function statusCustomField(): CustomField
     {
+        /** @var CustomField */
         return CustomField::query()
             ->forEntity(Task::class)
             ->where('code', 'status')
