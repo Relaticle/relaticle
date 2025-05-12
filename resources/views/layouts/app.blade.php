@@ -5,6 +5,13 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
+        <meta name="description" content="{{ $description ?? 'Relaticle - The Next-Generation Open-Source CRM Platform for modern businesses' }}">
+        <meta property="og:title" content="{{ $ogTitle ?? $title ?? config('app.name', 'Relaticle') }}"/>
+        <meta property="og:description" content="{{ $ogDescription ?? $description ?? 'Relaticle - The Next-Generation Open-Source CRM Platform for modern businesses' }}"/>
+        <meta property="og:image" content="{{ $ogImage ?? url('/images/og-image.jpg') }}"/>
+        <meta property="og:url" content="{{ request()->getUri() }}"/>
+        <meta property="og:type" content="website" />
+
         <title>{{ $title ?? config('app.name', 'Relaticle') }}</title>
 
         <!-- Fonts -->

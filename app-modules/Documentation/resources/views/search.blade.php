@@ -1,4 +1,6 @@
-<x-documentation::layout title="Search Results">
+<x-documentation::layout :document="[
+    'title' => 'Search Results for: ' . $query
+]">
     <div class="max-w-5xl mx-auto px-4 sm:px-6">
 
         <!-- Back link -->

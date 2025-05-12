@@ -1,4 +1,4 @@
-<x-documentation::layout :title="config('app.name') . ' - ' . __('Documentation')">
+<x-documentation::layout :document="$document ?? null">
     <div class="grid grid-cols-12 gap-6 lg:gap-8 min-h-screen">
         <!-- Left Sidebar: Documentation Types -->
         <div class="hidden sm:block col-span-12 sm:col-span-3 lg:col-span-2 relative">

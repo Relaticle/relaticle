@@ -10,6 +10,17 @@ use Illuminate\View\View;
 final class AppLayout extends Component
 {
     /**
+     * Create a new component instance.
+     */
+    public function __construct(
+        public ?string $title = null,
+        public ?string $description = null,
+        public ?string $ogTitle = null,
+        public ?string $ogDescription = null,
+        public ?string $ogImage = null,
+    ) {}
+
+    /**
      * Get the view / contents that represents the component.
      */
     #[\Override]
