@@ -1,4 +1,4 @@
-<x-documentation::layout :title="config('app.name') . ' - ' . __('Documentation')" class="documentation-hub">
+<x-documentation::layout :document="null" class="documentation-hub">
     <div class="max-w-5xl mx-auto">
         <!-- Hero Text - Enhanced Typography -->
         <div class="text-center space-y-6 max-w-3xl mx-auto mb-12">

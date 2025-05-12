@@ -32,6 +32,7 @@ final readonly class DocumentationController
         $document = $this->documentationService->getDocument($type);
 
         return view('documentation::show', [
+            'document' => $document,
             'content' => $document->content,
             'tableOfContents' => $document->tableOfContents,
             'currentType' => $document->type,
