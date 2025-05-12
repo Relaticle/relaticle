@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\App\Exports;
 
 use App\Models\Company;
+use App\Models\Team;
 use Carbon\Carbon;
 use Filament\Actions\Exports\ExportColumn;
 use Filament\Actions\Exports\Exporter;
@@ -30,7 +31,9 @@ final class CompanyExporter extends Exporter
 
         // Set the team_id on the export record
         if (Auth::check() && Auth::user()->currentTeam) {
-            $export->team_id = Auth::user()->currentTeam->id;
+            /** @var Team $currentTeam */
+            $currentTeam = Auth::user()->currentTeam;
+            $export->team_id = $currentTeam->getKey();
         }
     }
 
@@ -40,7 +43,10 @@ final class CompanyExporter extends Exporter
     public static function modifyQuery(Builder $query): Builder
     {
         if (Auth::check() && Auth::user()->currentTeam) {
-            return $query->where('team_id', Auth::user()->currentTeam->id);
+            /** @var Team $currentTeam */
+            $currentTeam = Auth::user()->currentTeam;
+
+            return $query->where('team_id', $currentTeam->getKey());
         }
 
         return $query;

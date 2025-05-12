@@ -1,24 +1,6 @@
 parameters:
 	ignoreErrors:
 		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/Filament/App/Exports/CompanyExporter.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/Filament/App/Exports/OpportunityExporter.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/Filament/App/Exports/PeopleExporter.php
-
-		-
 			message: '#^Access to an undefined property Relaticle\\CustomFields\\Models\\CustomFieldOption\:\:\$custom_field_id\.$#'
 			identifier: property.notFound
 			count: 1
