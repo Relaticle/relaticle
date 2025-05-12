@@ -1,18 +1,6 @@
 parameters:
 	ignoreErrors:
 		-
-			message: '#^Method App\\Filament\\App\\Adapters\\OpportunitiesKanbanAdapter\:\:stageCustomField\(\) should return Relaticle\\CustomFields\\Models\\CustomField but returns Illuminate\\Database\\Eloquent\\Model\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Filament/App/Adapters/OpportunitiesKanbanAdapter.php
-
-		-
-			message: '#^Method App\\Filament\\App\\Adapters\\TasksKanbanAdapter\:\:statusCustomField\(\) should return Relaticle\\CustomFields\\Models\\CustomField but returns Illuminate\\Database\\Eloquent\\Model\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Filament/App/Adapters/TasksKanbanAdapter.php
-
-		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
 			identifier: property.notFound
 			count: 2
