@@ -44,7 +44,9 @@ final readonly class RemoveTeamMember implements RemovesTeamMembers
      */
     private function ensureUserDoesNotOwnTeam(User $teamMember, Team $team): void
     {
-        if ($teamMember->id === $team->owner->id) {
+        /** @var \Illuminate\Database\Eloquent\Model&\App\Models\User $owner */
+        $owner = $team->owner;
+        if ($teamMember->id === $owner->id) {
             throw ValidationException::withMessages([
                 'team' => [__('You may not leave a team that you created.')],
             ])->errorBag('removeTeamMember');

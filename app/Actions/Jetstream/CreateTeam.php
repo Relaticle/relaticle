@@ -34,6 +34,7 @@ final readonly class CreateTeam implements CreatesTeams
             'personal_team' => false,
         ]));
 
+        /** @var Team $team */
         return $team;
     }
 }

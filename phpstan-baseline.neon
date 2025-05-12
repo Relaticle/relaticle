@@ -1,18 +1,6 @@
 parameters:
 	ignoreErrors:
 		-
-			message: '#^Method App\\Actions\\Jetstream\\CreateTeam\:\:create\(\) should return App\\Models\\Team but returns Illuminate\\Database\\Eloquent\\Model\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Actions/Jetstream/CreateTeam.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Actions/Jetstream/RemoveTeamMember.php
-
-		-
 			message: '#^Method App\\Filament\\App\\Adapters\\OpportunitiesKanbanAdapter\:\:stageCustomField\(\) should return Relaticle\\CustomFields\\Models\\CustomField but returns Illuminate\\Database\\Eloquent\\Model\.$#'
 			identifier: return.type
 			count: 1
