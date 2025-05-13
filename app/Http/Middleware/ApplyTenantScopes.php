@@ -20,10 +20,12 @@ final readonly class ApplyTenantScopes
 {
     public function handle(Request $request, Closure $next): mixed
     {
+        $tenantId = Filament::getTenant()->getKey();
+
         User::addGlobalScope(
             fn (Builder $query) => $query
-                ->whereHas('teams', fn (Builder $query) => $query->where('teams.id', Filament::getTenant()->id))
-                ->orWhereHas('ownedTeams', fn (Builder $query) => $query->where('teams.id', Filament::getTenant()->id))
+                ->whereHas('teams', fn (Builder $query) => $query->where('teams.id', $tenantId))
+                ->orWhereHas('ownedTeams', fn (Builder $query) => $query->where('teams.id', $tenantId))
         );
 
         Company::addGlobalScope(new TeamScope);
