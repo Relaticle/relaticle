@@ -1,13 +1,2 @@
 parameters:
 	ignoreErrors:
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$email\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Providers/HorizonServiceProvider.php
-
-		-
-			message: '#^PHPDoc tag @param references unknown parameter\: \$count$#'
-			identifier: parameter.notFound
-			count: 1
-			path: app/Services/AvatarService.php

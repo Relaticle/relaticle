@@ -145,7 +145,7 @@ final readonly class AvatarService
      * Enhanced to better handle various name formats and cultural patterns.
      *
      * @param  string  $name  The name to extract initials from
-     * @param  int  $count  The number of initials to return (1 or 2)
+     * @param  int  $initialCount  The number of initials to return (1 or 2)
      * @return string The extracted initials
      */
     private function getInitials(string $name, int $initialCount = 2): string
