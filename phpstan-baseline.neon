@@ -1,42 +1,6 @@
 parameters:
 	ignoreErrors:
 		-
-			message: '#^Method Relaticle\\Documentation\\Services\\DocumentationService\:\:search\(\) should return Illuminate\\Support\\Collection but returns array\<Relaticle\\Documentation\\Data\\DocumentSearchResultData\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app-modules/Documentation/src/Services/DocumentationService.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Contracts\\Auth\\Authenticatable\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app-modules/OnboardSeed/src/ModelSeeders/CompanySeeder.php
-
-		-
-			message: '#^Method Relaticle\\OnboardSeed\\ModelSeeders\\CompanySeeder\:\:createCompanyFromFixture\(\) should return App\\Models\\Company but returns Illuminate\\Database\\Eloquent\\Model\.$#'
-			identifier: return.type
-			count: 1
-			path: app-modules/OnboardSeed/src/ModelSeeders/CompanySeeder.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Contracts\\Auth\\Authenticatable\:\:\$currentTeam\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app-modules/OnboardSeed/src/ModelSeeders/NoteSeeder.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Contracts\\Auth\\Authenticatable\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app-modules/OnboardSeed/src/ModelSeeders/NoteSeeder.php
-
-		-
-			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:notes\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app-modules/OnboardSeed/src/ModelSeeders/NoteSeeder.php
-
-		-
 			message: '#^Method Relaticle\\OnboardSeed\\ModelSeeders\\OpportunitySeeder\:\:createOpportunityFromFixture\(\) should return App\\Models\\Opportunity but returns Illuminate\\Database\\Eloquent\\Model\.$#'
 			identifier: return.type
 			count: 1
@@ -71,12 +35,6 @@ parameters:
 			identifier: property.notFound
 			count: 1
 			path: app-modules/OnboardSeed/src/OnboardSeedManager.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Contracts\\Auth\\Authenticatable\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app-modules/OnboardSeed/src/Support/BaseModelSeeder.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'

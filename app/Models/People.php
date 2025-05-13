@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Enums\CreationSource;
 use App\Models\Concerns\HasCreator;
+use App\Models\Concerns\HasNotes;
 use App\Observers\PeopleObserver;
 use App\Services\AvatarService;
 use Database\Factories\PeopleFactory;
@@ -30,7 +31,7 @@ final class People extends Model implements HasCustomFields
 
     /** @use HasFactory<PeopleFactory> */
     use HasFactory;
-
+    use HasNotes;
     use SoftDeletes;
     use UsesCustomFields;
 
@@ -81,10 +82,5 @@ final class People extends Model implements HasCustomFields
     public function tasks(): MorphToMany
     {
         return $this->morphToMany(Task::class, 'taskable');
-    }
-
-    public function notes(): MorphToMany
-    {
-        return $this->morphToMany(Note::class, 'noteable');
     }
 }

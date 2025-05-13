@@ -48,7 +48,7 @@ final class DocumentationService
         $minLength = config('documentation.search.min_length', 3);
 
         if (strlen($query) < $minLength) {
-            return DocumentSearchResultData::collect([]);
+            return DocumentSearchResultData::collect([], Collection::class);
         }
 
         $documentTypes = $this->getAllDocumentTypes();
@@ -88,7 +88,7 @@ final class DocumentationService
         // Sort by relevance
         $sortedResults = $results->sortByDesc('relevance')->values();
 
-        return DocumentSearchResultData::collect($sortedResults);
+        return DocumentSearchResultData::collect($sortedResults, Collection::class);
     }
 
     /**
