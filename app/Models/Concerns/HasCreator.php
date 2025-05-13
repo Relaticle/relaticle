@@ -9,6 +9,9 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property-read string $created_by
+ */
 trait HasCreator
 {
     /**

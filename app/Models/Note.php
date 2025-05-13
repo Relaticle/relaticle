@@ -7,24 +7,29 @@ namespace App\Models;
 use App\Enums\CreationSource;
 use App\Models\Concerns\HasCreator;
 use App\Observers\NoteObserver;
+use Database\Factories\NoteFactory;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Relaticle\CustomFields\Models\Concerns\UsesCustomFields;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 
 /**
- * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property Carbon|null $deleted_at
  * @property CreationSource $creation_source
  */
 #[ObservedBy(NoteObserver::class)]
 final class Note extends Model implements HasCustomFields
 {
     use HasCreator;
+
+    /** @use HasFactory<NoteFactory> */
     use HasFactory;
+
     use SoftDeletes;
     use UsesCustomFields;
 

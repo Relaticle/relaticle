@@ -51,7 +51,7 @@ final class NoteResource extends Resource
                     ->searchable()
                     ->sortable()
                     ->toggleable()
-                    ->getStateUsing(fn (Note $record): string => $record->createdBy)
+                    ->getStateUsing(fn (Note $record): string => $record->created_by)
                     ->color(fn (Note $record): string => $record->isSystemCreated() ? 'secondary' : 'primary'),
                 Tables\Columns\TextColumn::make('deleted_at')
                     ->dateTime()
