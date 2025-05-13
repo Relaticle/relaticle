@@ -31,6 +31,7 @@ final class People extends Model implements HasCustomFields
 
     /** @use HasFactory<PeopleFactory> */
     use HasFactory;
+
     use HasNotes;
     use SoftDeletes;
     use UsesCustomFields;
