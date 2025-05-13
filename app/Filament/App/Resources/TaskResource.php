@@ -8,6 +8,7 @@ use App\Enums\CreationSource;
 use App\Filament\App\Resources\TaskResource\Forms\TaskForm;
 use App\Filament\App\Resources\TaskResource\Pages\ManageTasks;
 use App\Models\Task;
+use App\Models\User;
 use Filament\Forms\Form;
 use Filament\Notifications\Actions\Action;
 use Filament\Notifications\Notification;
@@ -22,7 +23,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\DB;
 use Relaticle\CustomFields\Contracts\ValueResolvers;
@@ -49,7 +50,9 @@ final class TaskResource extends Resource
 
     public static function table(Table $table): Table
     {
+        /** @var Collection<int, CustomField> $customFields */
         $customFields = CustomField::query()->whereIn('code', ['status', 'priority'])->get()->keyBy('code');
+        /** @var ValueResolvers $valueResolver */
         $valueResolver = app(ValueResolvers::class);
 
         return $table
@@ -122,7 +125,13 @@ final class TaskResource extends Resource
                             $direction
                         );
                     })
-                    ->getTitleFromRecordUsing(fn (Task $record): ?string => $valueResolver->resolve($record, $customFields->get('status'))),
+                    ->getTitleFromRecordUsing(function (Task $record) use ($valueResolver, $customFields): ?string {
+                        if (! isset($customFields['status'])) {
+                            return null;
+                        }
+
+                        return $valueResolver->resolve($record, $customFields['status']);
+                    }),
                 Tables\Grouping\Group::make('priority')
                     ->orderQueryUsing(function (Builder $query, string $direction) use ($customFields) {
                         $table = $query->getModel()->getTable();
@@ -136,12 +145,18 @@ final class TaskResource extends Resource
                             $direction
                         );
                     })
-                    ->getTitleFromRecordUsing(fn (Task $record): ?string => $valueResolver->resolve($record, $customFields->get('priority'))),
+                    ->getTitleFromRecordUsing(function (Task $record) use ($valueResolver, $customFields): ?string {
+                        if (! isset($customFields['priority'])) {
+                            return null;
+                        }
+
+                        return $valueResolver->resolve($record, $customFields['priority']);
+                    }),
             ])
             ->actions([
                 Tables\Actions\ActionGroup::make([
                     Tables\Actions\EditAction::make()
-                        ->using(function (Model $record, array $data): Model {
+                        ->using(function (Task $record, array $data): Task {
                             try {
                                 DB::beginTransaction();
 
@@ -150,7 +165,10 @@ final class TaskResource extends Resource
                                 // TODO: Improve the logic to check if the task is already assigned to the user
                                 // Send notifications to assignees if they haven't been notified about this task yet
                                 if ($record->assignees->isNotEmpty()) {
-                                    $record->assignees->each(function (Model $recipient) use ($record): void {
+                                    /** @var Collection<int, User> $assignees */
+                                    $assignees = $record->assignees;
+
+                                    $assignees->each(function (User $recipient) use ($record): void {
                                         // Check if a notification for this task already exists for this user
                                         $notificationExists = $recipient->notifications()
                                             ->where('data->viewData->task_id', $record->id)
