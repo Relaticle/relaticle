@@ -3501,16 +3501,16 @@
         },
         {
             "name": "laravel/framework",
-            "version": "v12.13.0",
+            "version": "v12.14.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/framework.git",
-                "reference": "52b588bcd8efc6d01bc1493d2d67848f8065f269"
+                "reference": "d0a0132a3c84c3c7d5737214dd824dd8fff3cf16"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/framework/zipball/52b588bcd8efc6d01bc1493d2d67848f8065f269",
-                "reference": "52b588bcd8efc6d01bc1493d2d67848f8065f269",
+                "url": "https://api.github.com/repos/laravel/framework/zipball/d0a0132a3c84c3c7d5737214dd824dd8fff3cf16",
+                "reference": "d0a0132a3c84c3c7d5737214dd824dd8fff3cf16",
                 "shasum": ""
             },
             "require": {
@@ -3712,7 +3712,7 @@
                 "issues": "https://github.com/laravel/framework/issues",
                 "source": "https://github.com/laravel/framework"
             },
-            "time": "2025-05-07T17:29:01+00:00"
+            "time": "2025-05-13T14:27:37+00:00"
         },
         {
             "name": "laravel/horizon",
@@ -7382,17 +7382,17 @@
         },
         {
             "name": "relaticle/custom-fields",
-            "version": "1.4.1",
+            "version": "1.4.21",
             "source": {
                 "type": "git",
                 "url": "git@github.com:Relaticle/custom-fields.git",
-                "reference": "71d91cb363f645369fe67ebf57e339cd2abe6afa"
+                "reference": "f251bc1d3c2927326530db24e808b23687edc7d7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://satis.relaticle.com/dist/relaticle/custom-fields/relaticle-custom-fields-71d91cb363f645369fe67ebf57e339cd2abe6afa-zip-d1edb5.zip",
-                "reference": "71d91cb363f645369fe67ebf57e339cd2abe6afa",
-                "shasum": "85298356ccdb3422a588adb44594d8afe7dcba4b"
+                "url": "https://satis.relaticle.com/dist/relaticle/custom-fields/relaticle-custom-fields-f251bc1d3c2927326530db24e808b23687edc7d7-zip-4add40.zip",
+                "reference": "f251bc1d3c2927326530db24e808b23687edc7d7",
+                "shasum": "50c445c0dcf6a7f10fff5f5a9ec69fe6a8599d0a"
             },
             "require": {
                 "filament/filament": "^3.0",
@@ -7475,7 +7475,7 @@
                 "issues": "https://github.com/relaticle/custom-fields/issues",
                 "source": "https://github.com/relaticle/custom-fields"
             },
-            "time": "2025-05-08T12:37:28+00:00"
+            "time": "2025-05-13T14:34:02+00:00"
         },
         {
             "name": "relaticle/flowforge",
@@ -7708,16 +7708,16 @@
         },
         {
             "name": "sentry/sentry",
-            "version": "4.11.0",
+            "version": "4.11.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/getsentry/sentry-php.git",
-                "reference": "ebf67deb9902b6da58a4b3383cbd12fed3f4f555"
+                "reference": "53dc0bcb6a667cac5b760b46f98d5380e63e02ca"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/getsentry/sentry-php/zipball/ebf67deb9902b6da58a4b3383cbd12fed3f4f555",
-                "reference": "ebf67deb9902b6da58a4b3383cbd12fed3f4f555",
+                "url": "https://api.github.com/repos/getsentry/sentry-php/zipball/53dc0bcb6a667cac5b760b46f98d5380e63e02ca",
+                "reference": "53dc0bcb6a667cac5b760b46f98d5380e63e02ca",
                 "shasum": ""
             },
             "require": {
@@ -7781,7 +7781,7 @@
             ],
             "support": {
                 "issues": "https://github.com/getsentry/sentry-php/issues",
-                "source": "https://github.com/getsentry/sentry-php/tree/4.11.0"
+                "source": "https://github.com/getsentry/sentry-php/tree/4.11.1"
             },
             "funding": [
                 {
@@ -7793,7 +7793,7 @@
                     "type": "custom"
                 }
             ],
-            "time": "2025-04-14T09:04:23+00:00"
+            "time": "2025-05-12T11:30:33+00:00"
         },
         {
             "name": "sentry/sentry-laravel",
@@ -14498,16 +14498,16 @@
         },
         {
             "name": "rector/rector",
-            "version": "2.0.15",
+            "version": "2.0.16",
             "source": {
                 "type": "git",
                 "url": "https://github.com/rectorphp/rector.git",
-                "reference": "abbbf32474a67e242d26bffc098a712a05b3d32a"
+                "reference": "f1366d1f8c7490541c8f7af6e5c7cef7cca1b5a2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rectorphp/rector/zipball/abbbf32474a67e242d26bffc098a712a05b3d32a",
-                "reference": "abbbf32474a67e242d26bffc098a712a05b3d32a",
+                "url": "https://api.github.com/repos/rectorphp/rector/zipball/f1366d1f8c7490541c8f7af6e5c7cef7cca1b5a2",
+                "reference": "f1366d1f8c7490541c8f7af6e5c7cef7cca1b5a2",
                 "shasum": ""
             },
             "require": {
@@ -14545,7 +14545,7 @@
             ],
             "support": {
                 "issues": "https://github.com/rectorphp/rector/issues",
-                "source": "https://github.com/rectorphp/rector/tree/2.0.15"
+                "source": "https://github.com/rectorphp/rector/tree/2.0.16"
             },
             "funding": [
                 {
@@ -14553,7 +14553,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-05-05T10:00:41+00:00"
+            "time": "2025-05-12T16:37:16+00:00"
         },
         {
             "name": "sebastian/cli-parser",
