@@ -1,2 +1,157 @@
 parameters:
 	ignoreErrors:
+		-
+			message: '#^Offset 1 on array\{list\<string\>, list\<non\-empty\-string\>, list\<non\-empty\-string\>\} in isset\(\) always exists and is not nullable\.$#'
+			identifier: isset.offset
+			count: 1
+			path: app-modules/Documentation/src/Data/DocumentData.php
+
+		-
+			message: '#^Offset 2 on array\{list\<string\>, list\<non\-empty\-string\>, list\<non\-empty\-string\>\} in isset\(\) always exists and is not nullable\.$#'
+			identifier: isset.offset
+			count: 1
+			path: app-modules/Documentation/src/Data/DocumentData.php
+
+		-
+			message: '#^Result of \|\| is always false\.$#'
+			identifier: booleanOr.alwaysFalse
+			count: 1
+			path: app-modules/Documentation/src/Data/DocumentData.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between non\-empty\-string\|false and '''' will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 1
+			path: app-modules/Documentation/src/Data/DocumentData.php
+
+		-
+			message: '#^Match arm comparison between ''b'' and ''b'' is always true\.$#'
+			identifier: match.alwaysTrue
+			count: 1
+			path: app-modules/OnboardSeed/src/Support/BaseModelSeeder.php
+
+		-
+			message: '#^Instanceof between App\\Models\\User and Illuminate\\Contracts\\Auth\\MustVerifyEmail will always evaluate to true\.$#'
+			identifier: instanceof.alwaysTrue
+			count: 1
+			path: app/Actions/Fortify/UpdateUserProfileInformation.php
+
+		-
+			message: '#^Method App\\Enums\\CreationSource\:\:getLabel\(\) never returns null so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: app/Enums/CreationSource.php
+
+		-
+			message: '#^Method App\\Enums\\CustomFields\\Company\:\:getDescription\(\) never returns null so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: app/Enums/CustomFields/Company.php
+
+		-
+			message: '#^Match arm comparison between \$this\(App\\Enums\\CustomFields\\Opportunity\)&App\\Enums\\CustomFields\\Opportunity\:\:STAGE and App\\Enums\\CustomFields\\Opportunity\:\:STAGE is always true\.$#'
+			identifier: match.alwaysTrue
+			count: 1
+			path: app/Enums/CustomFields/Opportunity.php
+
+		-
+			message: '#^Method App\\Enums\\CustomFields\\Task\:\:getDescription\(\) never returns null so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: app/Enums/CustomFields/Task.php
+
+		-
+			message: '#^Method App\\Enums\\CustomFields\\Task\:\:getWidth\(\) never returns null so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: app/Enums/CustomFields/Task.php
+
+		-
+			message: '#^Method App\\Filament\\App\\Pages\\ApiTokens\:\:getNavigationSort\(\) never returns null so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: app/Filament/App/Pages/ApiTokens.php
+
+		-
+			message: '#^Method App\\Filament\\App\\Pages\\EditProfile\:\:getNavigationSort\(\) never returns null so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: app/Filament/App/Pages/EditProfile.php
+
+		-
+			message: '#^Method App\\Http\\Responses\\LoginResponse\:\:toResponse\(\) never returns Livewire\\Features\\SupportRedirects\\Redirector so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: app/Http/Responses/LoginResponse.php
+
+		-
+			message: '#^Method App\\Models\\Company\:\:getLogoAttribute\(\) never returns null so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: app/Models/Company.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Models/Company.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Models/Note.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Models/Opportunity.php
+
+		-
+			message: '#^Method App\\Models\\People\:\:getAvatarAttribute\(\) never returns null so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: app/Models/People.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Models/People.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Models/Task.php
+
+		-
+			message: '#^Method App\\Models\\Team\:\:getFilamentAvatarUrl\(\) never returns null so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: app/Models/Team.php
+
+		-
+			message: '#^Method App\\Models\\User\:\:getFilamentAvatarUrl\(\) never returns null so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Comparison operation "\>\=" between int\<2, max\> and 2 is always true\.$#'
+			identifier: greaterOrEqual.alwaysTrue
+			count: 1
+			path: app/Services/AvatarService.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between float and 0 will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 1
+			path: app/Services/AvatarService.php
+
+		-
+			message: '#^Unreachable statement \- code above always terminates\.$#'
+			identifier: deadCode.unreachable
+			count: 1
+			path: app/Services/AvatarService.php
