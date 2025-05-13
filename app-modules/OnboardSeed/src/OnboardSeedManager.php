@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\OnboardSeed;
 
+use App\Models\User;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Facades\Log;
 use Relaticle\OnboardSeed\Contracts\ModelSeederInterface;
@@ -43,6 +44,7 @@ final class OnboardSeedManager
      */
     public function generateFor(Authenticatable $user): bool
     {
+        /** @var User $user */
         $team = $user->currentTeam;
 
         if (! $team) {
@@ -65,8 +67,8 @@ final class OnboardSeedManager
             return true;
         } catch (\Throwable $e) {
             Log::error('Failed to generate demo data', [
-                'user_id' => $user->id,
-                'team_id' => $team->id,
+                'user_id' => $user->getKey(),
+                'team_id' => $team->getKey(),
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);

@@ -70,7 +70,7 @@ final class TaskSeeder extends BaseModelSeeder
             }
 
             try {
-                $task->people()->attach($person->id);
+                $task->people()->attach($person->getKey());
             } catch (\Exception $e) {
                 Log::error("Failed to assign person {$personKey} to task: ".$e->getMessage());
             }
@@ -105,6 +105,7 @@ final class TaskSeeder extends BaseModelSeeder
         // Process custom fields using utility method
         $processedFields = $this->processCustomFieldValues($customFields, $fieldMappings);
 
+        /** @var Task */
         return $this->registerEntityFromFixture($key, $attributes, $processedFields, $team, $user);
     }
 

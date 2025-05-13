@@ -79,6 +79,7 @@ final class PeopleSeeder extends BaseModelSeeder
 
         $customFields = $data['custom_fields'] ?? [];
 
+        /** @var People */
         return $this->registerEntityFromFixture($key, $attributes, $customFields, $company->team, $user);
     }
 }

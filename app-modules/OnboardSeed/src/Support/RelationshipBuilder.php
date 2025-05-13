@@ -117,7 +117,7 @@ final class RelationshipBuilder
                 }
 
                 try {
-                    $source->{$targetType}()->attach($target->id);
+                    $source->{$targetType}()->attach($target->getKey());
                 } catch (\Exception $e) {
                     Log::error("Failed to build relationship {$sourceType}.{$sourceKey} -> {$targetType}.{$targetKey}: ".$e->getMessage());
                 }
@@ -152,7 +152,7 @@ final class RelationshipBuilder
             }
 
             try {
-                $source->update([$foreignKey => $target->id]);
+                $source->update([$foreignKey => $target->getKey()]);
             } catch (\Exception $e) {
                 Log::error("Failed to build relationship {$sourceType}.{$sourceKey} -> {$targetType}.{$targetKey}: ".$e->getMessage());
             }
@@ -193,7 +193,7 @@ final class RelationshipBuilder
 
                 try {
                     // For has-many, we update the child to point to the parent
-                    $target->update([$derivedForeignKey => $source->id]);
+                    $target->update([$derivedForeignKey => $source->getKey()]);
                 } catch (\Exception $e) {
                     Log::error("Failed to build relationship {$sourceType}.{$sourceKey} -> {$targetType}.{$targetKey}: ".$e->getMessage());
                 }
