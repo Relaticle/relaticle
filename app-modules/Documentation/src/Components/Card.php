@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Relaticle\Documentation\Components;
 
-use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 
