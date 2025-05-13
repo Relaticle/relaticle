@@ -267,7 +267,7 @@ abstract class BaseModelSeeder implements ModelSeederInterface
     {
         $attributes = array_merge($attributes, [
             'team_id' => $team->id,
-            'creator_id' => $user->id,
+            'creator_id' => $user->getAuthIdentifier(),
             ...$this->getGlobalAttributes(),
         ]);
 

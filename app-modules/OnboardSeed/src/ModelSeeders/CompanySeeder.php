@@ -52,11 +52,12 @@ final class CompanySeeder extends BaseModelSeeder
     {
         $attributes = [
             'name' => $data['name'],
-            'account_owner_id' => $user->id,
+            'account_owner_id' => $user->getAuthIdentifier(),
         ];
 
         $customFields = $data['custom_fields'] ?? [];
 
+        /** @var Company */
         return $this->registerEntityFromFixture($key, $attributes, $customFields, $team, $user);
     }
 }

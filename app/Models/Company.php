@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Enums\CreationSource;
 use App\Models\Concerns\HasCreator;
+use App\Models\Concerns\HasNotes;
 use App\Observers\CompanyObserver;
 use App\Services\AvatarService;
 use Database\Factories\CompanyFactory;
@@ -38,7 +39,7 @@ final class Company extends Model implements HasCustomFields, HasMedia
 
     /** @use HasFactory<CompanyFactory> */
     use HasFactory;
-
+    use HasNotes;
     use InteractsWithMedia;
     use SoftDeletes;
     use UsesCustomFields;
@@ -103,10 +104,5 @@ final class Company extends Model implements HasCustomFields, HasMedia
     public function tasks(): MorphToMany
     {
         return $this->morphToMany(Task::class, 'taskable');
-    }
-
-    public function notes(): MorphToMany
-    {
-        return $this->morphToMany(Note::class, 'noteable');
     }
 }

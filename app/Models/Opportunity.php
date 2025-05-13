@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Enums\CreationSource;
 use App\Models\Concerns\HasCreator;
+use App\Models\Concerns\HasNotes;
 use App\Observers\OpportunityObserver;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -27,6 +28,7 @@ final class Opportunity extends Model implements HasCustomFields
 {
     use HasCreator;
     use HasFactory;
+    use HasNotes;
     use SoftDeletes;
     use SortableTrait;
     use UsesCustomFields;
@@ -77,10 +79,5 @@ final class Opportunity extends Model implements HasCustomFields
     public function tasks(): MorphToMany
     {
         return $this->morphToMany(Task::class, 'taskable');
-    }
-
-    public function notes(): MorphToMany
-    {
-        return $this->morphToMany(Note::class, 'noteable');
     }
 }

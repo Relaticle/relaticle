@@ -7,6 +7,7 @@ namespace Relaticle\OnboardSeed\ModelSeeders;
 use App\Enums\CustomFields\Note as NoteCustomField;
 use App\Models\Note;
 use App\Models\Team;
+use App\Models\User;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
@@ -87,6 +88,11 @@ final class NoteSeeder extends BaseModelSeeder
 
     /**
      * Create a note from fixture data
+     *
+     * @param  Model  $noteable  The model to attach the note to
+     * @param  Authenticatable  $user  The user creating the note
+     * @param  string  $key  The fixture key
+     * @param  array<string, mixed>  $data  The fixture data
      */
     private function createNoteFromFixture(
         Model $noteable,
@@ -94,15 +100,17 @@ final class NoteSeeder extends BaseModelSeeder
         string $key,
         array $data
     ): Note {
-        $attributes = [
-            'title' => $data['title'],
-            'team_id' => $user->currentTeam->id,
-        ];
-
         $customFields = $data['custom_fields'] ?? [];
 
+        assert(method_exists($noteable, 'notes'));
+
+        /**
+         * @var User $user
+         * @var Note $note
+         */
         $note = $noteable->notes()->create([
-            ...$attributes,
+            'title' => $data['title'],
+            'team_id' => $user->currentTeam->getKey(),
             'creator_id' => $user->id,
             ...$this->getGlobalAttributes(),
         ]);
