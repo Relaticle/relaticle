@@ -1,30 +1,6 @@
 parameters:
 	ignoreErrors:
 		-
-			message: '#^Access to an undefined property App\\Models\\Company\:\:\$createdBy\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Filament/App/Resources/CompanyResource.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Note\:\:\$createdBy\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Filament/App/Resources/NoteResource.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Opportunity\:\:\$createdBy\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Filament/App/Resources/OpportunityResource.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\People\:\:\$createdBy\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Filament/App/Resources/PeopleResource.php
-
-		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$assignees\.$#'
 			identifier: property.notFound
 			count: 2

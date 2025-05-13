@@ -29,6 +29,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  * @property string $phone
  * @property Carbon|null $deleted_at
  * @property CreationSource $creation_source
+ * @property-read string $created_by
  */
 #[ObservedBy(CompanyObserver::class)]
 final class Company extends Model implements HasCustomFields, HasMedia

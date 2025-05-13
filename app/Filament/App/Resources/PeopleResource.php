@@ -77,7 +77,7 @@ final class PeopleResource extends Resource
                     ->searchable()
                     ->sortable()
                     ->toggleable()
-                    ->getStateUsing(fn (People $record): string => $record->createdBy)
+                    ->getStateUsing(fn (People $record): string => $record->created_by)
                     ->color(fn (People $record): string => $record->isSystemCreated() ? 'secondary' : 'primary'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
