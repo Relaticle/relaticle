@@ -4,30 +4,6 @@ parameters:
 			message: '#^Access to an undefined property Relaticle\\CustomFields\\Models\\CustomFieldOption\:\:\$custom_field_id\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Filament/App/Pages/OpportunitiesBoard.php
-
-		-
-			message: '#^Access to an undefined property Relaticle\\CustomFields\\Models\\CustomFieldOption\:\:\$name\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Filament/App/Pages/OpportunitiesBoard.php
-
-		-
-			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:opportunities\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Filament/App/Pages/OpportunitiesBoard.php
-
-		-
-			message: '#^Method App\\Filament\\App\\Pages\\OpportunitiesBoard\:\:stageCustomField\(\) should return Relaticle\\CustomFields\\Models\\CustomField but returns Illuminate\\Database\\Eloquent\\Model\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Filament/App/Pages/OpportunitiesBoard.php
-
-		-
-			message: '#^Access to an undefined property Relaticle\\CustomFields\\Models\\CustomFieldOption\:\:\$custom_field_id\.$#'
-			identifier: property.notFound
-			count: 1
 			path: app/Filament/App/Pages/TasksBoard.php
 
 		-
