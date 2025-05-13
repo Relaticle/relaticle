@@ -99,7 +99,7 @@ final class OpportunitiesBoard extends KanbanBoardPage
     {
         return $this->stageCustomField()->options->map(fn (CustomFieldOption $option): array => [
             'id' => $option->id,
-            'custom_field_id' => $option->customField->getKey(),
+            'custom_field_id' => $option->getAttribute('custom_field_id'),
             'name' => $option->getAttribute('name'),
         ]);
     }

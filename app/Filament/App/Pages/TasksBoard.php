@@ -8,8 +8,9 @@ use App\Enums\CustomFields\Task as TaskCustomField;
 use App\Filament\App\Adapters\TasksKanbanAdapter;
 use App\Filament\App\Resources\TaskResource\Forms\TaskForm;
 use App\Models\Task;
+use App\Models\Team;
 use Filament\Actions\Action;
-use Filament\Forms;
+use Filament\Forms\Form;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
@@ -52,16 +53,19 @@ final class TasksBoard extends KanbanBoardPage
             ->modalWidth('2xl')
             ->iconButton()
             ->icon('heroicon-o-plus')
-            ->form(fn (Forms\Form $form): \Filament\Forms\Form => TaskForm::get($form))
+            ->form(fn (Form $form): Form => TaskForm::get($form))
             ->action(function (Action $action, array $arguments): void {
-                $task = Auth::user()->currentTeam->tasks()->create($action->getFormData());
+                /** @var Team $currentTeam */
+                $currentTeam = Auth::user()->currentTeam;
+                /** @var Task $task */
+                $task = $currentTeam->tasks()->create($action->getFormData());
                 $task->saveCustomFieldValue($this->statusCustomField(), $arguments['column']);
             });
     }
 
     public function editAction(Action $action): Action
     {
-        return $action->form(fn (Forms\Form $form): \Filament\Forms\Form => TaskForm::get($form));
+        return $action->form(fn (Form $form): Form => TaskForm::get($form));
     }
 
     public function getAdapter(): KanbanAdapterInterface
@@ -71,6 +75,7 @@ final class TasksBoard extends KanbanBoardPage
 
     private function statusCustomField(): CustomField
     {
+        /** @var CustomField */
         return CustomField::query()
             ->forEntity(Task::class)
             ->where('code', TaskCustomField::STATUS)
@@ -81,8 +86,8 @@ final class TasksBoard extends KanbanBoardPage
     {
         return $this->statusCustomField()->options->map(fn ($option): array => [
             'id' => $option->id,
-            'custom_field_id' => $option->custom_field_id,
-            'name' => $option->name,
+            'custom_field_id' => $option->getAttribute('custom_field_id'),
+            'name' => $option->getAttribute('name'),
         ]);
     }
 }
