@@ -90,6 +90,7 @@ final class OpportunitySeeder extends BaseModelSeeder
         // Process custom fields using utility method
         $processedFields = $this->processCustomFieldValues($customFields, $fieldMappings);
 
+        /** @var Opportunity */
         return $this->registerEntityFromFixture($key, $attributes, $processedFields, $team, $user);
     }
 }
