@@ -7,7 +7,12 @@ parameters:
 
     paths:
         - app
+        - app-modules
         - config
         - bootstrap
         - database/factories
         - routes
+
+    configDirectories:
+        - config
+        - app-modules/Documentation/config
