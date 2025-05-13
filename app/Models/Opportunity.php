@@ -34,7 +34,7 @@ final class Opportunity extends Model implements HasCustomFields
     /**
      * The attributes that are mass assignable.
      *
-     * @var array<int, string>
+     * @var list<string>
      */
     protected $fillable = [
         'creation_source',

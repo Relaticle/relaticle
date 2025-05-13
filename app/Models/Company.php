@@ -44,7 +44,7 @@ final class Company extends Model implements HasCustomFields, HasMedia
     use UsesCustomFields;
 
     /**
-     * @var array<int, string>
+     * @var list<string>
      */
     protected $fillable = [
         'name',

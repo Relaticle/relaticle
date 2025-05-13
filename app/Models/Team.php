@@ -20,7 +20,7 @@ final class Team extends JetstreamTeam implements HasAvatar
     /**
      * The attributes that are mass assignable.
      *
-     * @var array<int, string>
+     * @var list<string>
      */
     protected $fillable = [
         'name',

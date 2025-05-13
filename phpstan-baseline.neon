@@ -1,36 +1,6 @@
 parameters:
 	ignoreErrors:
 		-
-			message: '#^PHPDoc type array\<int, string\> of property App\\Models\\Company\:\:\$fillable is not covariant with PHPDoc type list\<string\> of overridden property Illuminate\\Database\\Eloquent\\Model\:\:\$fillable\.$#'
-			identifier: property.phpDocType
-			count: 1
-			path: app/Models/Company.php
-
-		-
-			message: '#^PHPDoc type array\<int, string\> of property App\\Models\\Note\:\:\$fillable is not covariant with PHPDoc type list\<string\> of overridden property Illuminate\\Database\\Eloquent\\Model\:\:\$fillable\.$#'
-			identifier: property.phpDocType
-			count: 1
-			path: app/Models/Note.php
-
-		-
-			message: '#^PHPDoc type array\<int, string\> of property App\\Models\\Opportunity\:\:\$fillable is not covariant with PHPDoc type list\<string\> of overridden property Illuminate\\Database\\Eloquent\\Model\:\:\$fillable\.$#'
-			identifier: property.phpDocType
-			count: 1
-			path: app/Models/Opportunity.php
-
-		-
-			message: '#^PHPDoc type array\<int, string\> of property App\\Models\\People\:\:\$fillable is not covariant with PHPDoc type list\<string\> of overridden property Illuminate\\Database\\Eloquent\\Model\:\:\$fillable\.$#'
-			identifier: property.phpDocType
-			count: 1
-			path: app/Models/People.php
-
-		-
-			message: '#^PHPDoc type array\<int, string\> of property App\\Models\\Team\:\:\$fillable is not covariant with PHPDoc type list\<string\> of overridden property Illuminate\\Database\\Eloquent\\Model\:\:\$fillable\.$#'
-			identifier: property.phpDocType
-			count: 1
-			path: app/Models/Team.php
-
-		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$email\.$#'
 			identifier: property.notFound
 			count: 1
