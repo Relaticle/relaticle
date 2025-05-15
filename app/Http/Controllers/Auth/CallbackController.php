@@ -37,7 +37,7 @@ final readonly class CallbackController
             // Log in the user and redirect to the dashboard
             auth()->login($account->user);
 
-            return redirect()->route('dashboard');
+            return redirect(url()->getAppUrl());
         }
 
         // Attempt to find the user by email if available
@@ -68,6 +68,6 @@ final readonly class CallbackController
         // Log in the user and redirect to the dashboard
         auth()->login($user);
 
-        return redirect()->route('dashboard');
+        return redirect(url()->getAppUrl());
     }
 }
