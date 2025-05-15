@@ -41,9 +41,7 @@ Route::middleware('guest')->group(function () {
 
 Route::get('/', HomeController::class);
 
-Route::get('/dashboard', function () {
-    return redirect()->away(url()->getAppUrl());
-})->name('dashboard');
+Route::redirect('/dashboard', url()->getAppUrl())->name('dashboard');
 
 Route::get('/team-invitations/{invitation}', [TeamInvitationController::class, 'accept'])
     ->middleware(['signed', 'verified', 'auth', AuthenticateSession::class])
