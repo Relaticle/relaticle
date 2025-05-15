@@ -9,13 +9,16 @@ use App\Models\User;
 use App\Models\UserSocialAccount;
 use Illuminate\Http\RedirectResponse;
 use Laravel\Socialite\Facades\Socialite;
+use Laravel\Socialite\Two\AbstractProvider;
 
 final readonly class CallbackController
 {
     public function __invoke(string $provider, CreatesNewSocialUsers $creator): RedirectResponse
     {
         try {
-            $socialUser = Socialite::driver($provider)->user();
+            /** @var AbstractProvider $driver */
+            $driver = Socialite::driver($provider);
+            $socialUser = $driver->stateless()->user();
         } catch (\Throwable $e) {
             report($e);
 
