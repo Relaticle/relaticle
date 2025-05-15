@@ -6,7 +6,6 @@ namespace Relaticle\OnboardSeed;
 
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Auth;
 
 final class OnboardSeeder extends Seeder
 {
@@ -20,7 +19,6 @@ final class OnboardSeeder extends Seeder
      */
     public function run(Authenticatable $user): void
     {
-        Auth::setUser($user);
         $this->manager->generateFor($user);
     }
 }
