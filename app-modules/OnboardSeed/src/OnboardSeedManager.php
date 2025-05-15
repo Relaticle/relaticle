@@ -45,11 +45,7 @@ final class OnboardSeedManager
     public function generateFor(Authenticatable $user): bool
     {
         /** @var User $user */
-        $team = $user->currentTeam;
-
-        if (! $team) {
-            return false;
-        }
+        $team = $user->personalTeam();
 
         try {
             $this->initializeSeeders();

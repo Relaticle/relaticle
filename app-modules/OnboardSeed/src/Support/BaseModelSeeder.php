@@ -38,7 +38,7 @@ abstract class BaseModelSeeder implements ModelSeederInterface
     protected array $fieldCodes = [];
 
     /**
-     * Current team ID
+     * Personal team ID
      */
     protected ?int $teamId = null;
 

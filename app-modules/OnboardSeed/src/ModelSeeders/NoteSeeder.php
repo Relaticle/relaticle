@@ -110,7 +110,7 @@ final class NoteSeeder extends BaseModelSeeder
          */
         $note = $noteable->notes()->create([
             'title' => $data['title'],
-            'team_id' => $user->currentTeam->getKey(),
+            'team_id' => $user->personalTeam()->getKey(),
             'creator_id' => $user->id,
             ...$this->getGlobalAttributes(),
         ]);
