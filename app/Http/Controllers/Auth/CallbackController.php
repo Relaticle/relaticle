@@ -34,7 +34,6 @@ final readonly class CallbackController
             ->first();
 
         if ($account) {
-            // Log in the user and redirect to the dashboard
             auth()->login($account->user);
 
             return redirect(url()->getAppUrl());
@@ -65,7 +64,6 @@ final readonly class CallbackController
             ],
         );
 
-        // Log in the user and redirect to the dashboard
         auth()->login($user);
 
         return redirect(url()->getAppUrl());
