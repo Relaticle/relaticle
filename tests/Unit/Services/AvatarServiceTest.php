@@ -23,7 +23,6 @@ beforeEach(function () {
 it('handles edge cases in name analysis', function () {
     $reflection = new ReflectionClass($this->avatarService);
     $method = $reflection->getMethod('analyzeNameCharacteristics');
-    $method->setAccessible(true);
 
     // Test empty name
     $result = $method->invoke($this->avatarService, '');
@@ -42,7 +41,6 @@ it('handles edge cases in name analysis', function () {
 it('calculates appropriate characteristics for different name types', function () {
     $reflection = new ReflectionClass($this->avatarService);
     $method = $reflection->getMethod('analyzeNameCharacteristics');
-    $method->setAccessible(true);
 
     // Test vowel-heavy name
     $vowelHeavy = $method->invoke($this->avatarService, 'Aoi Ueo');
@@ -75,13 +73,37 @@ it('generates different background colors for different names', function () {
 it('correctly extracts initials from names', function () {
     $reflection = new ReflectionClass($this->avatarService);
     $method = $reflection->getMethod('getInitials');
-    $method->setAccessible(true);
 
     expect($method->invoke($this->avatarService, 'John Smith', 2))->toBe('JS');
     expect($method->invoke($this->avatarService, 'John Smith', 1))->toBe('J');
     expect($method->invoke($this->avatarService, 'John', 2))->toBe('JO');
     expect($method->invoke($this->avatarService, 'O\'Connor', 2))->toBe('OC');
     expect($method->invoke($this->avatarService, 'Jean-Claude', 2))->toBe('JC');
+});
+
+it('correctly handles names with special characters and symbols', function () {
+    $reflection = new ReflectionClass($this->avatarService);
+    $method = $reflection->getMethod('getInitials');
+
+    // Test names with periods
+    expect($method->invoke($this->avatarService, 'Jo.hn Smith', 2))->toBe('JS');
+    expect($method->invoke($this->avatarService, 'Dr. John Smith', 2))->toBe('DS'); // Dr is treated as the first name part
+
+    // Test names with underscores
+    expect($method->invoke($this->avatarService, 'John_Smith', 2))->toBe('JS');
+    expect($method->invoke($this->avatarService, 'John_Do_e', 2))->toBe('JE'); // First part "John", last part "e"
+
+    // Test names with mixed symbols
+    expect($method->invoke($this->avatarService, 'Jo.hn d_oe', 2))->toBe('JO'); // Split into ["Jo", "hn", "d", "oe"]
+    expect($method->invoke($this->avatarService, 'Jo.hn.d_oe', 2))->toBe('JO'); // Similar splitting behavior
+
+    // Test names with other common symbols (not split by default)
+    expect($method->invoke($this->avatarService, 'John+Smith', 2))->toBe('JO'); // Only splits by space, hyphen, underscore, period
+    expect($method->invoke($this->avatarService, 'John@Smith', 2))->toBe('JO'); // Only splits by space, hyphen, underscore, period
+
+    // Test more complex cases
+    expect($method->invoke($this->avatarService, 'J.o-h_n S.m-i_t.h', 2))->toBe('JI'); // Split into many parts
+    expect($method->invoke($this->avatarService, '...John...Smith...', 2))->toBe('JS'); // Multiple periods treated as delimiters
 });
 
 it('validates colors properly', function () {
