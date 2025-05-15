@@ -87,7 +87,7 @@ test('callback from socialite provider logs in existing user when social account
     $this->assertAuthenticatedAs($user);
 
     // Assert that the user is redirected to the app URL
-    $response->assertRedirect(route('dashboard'));
+    $response->assertRedirect(url()->getAppUrl());
 });
 
 test('callback from socialite provider links social account to existing user when email matches', function () {
