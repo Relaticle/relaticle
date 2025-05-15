@@ -2,8 +2,10 @@
 
 declare(strict_types=1);
 
+use App\Filament\App\Pages\Auth\Login;
 use App\Models\User;
-use Filament\Facades\Filament;
+
+use function Pest\Livewire\livewire;
 
 test('login screen can be rendered', function () {
     $response = $this->get(url()->getAppUrl('login'));
@@ -14,24 +16,27 @@ test('login screen can be rendered', function () {
 test('users can authenticate using the login screen', function () {
     $user = User::factory()->withPersonalTeam()->create();
 
-    $response = $this->post(url()->getAppUrl('login'), [
-        'email' => $user->email,
-        'password' => 'password',
-    ]);
-
-    Filament::setTenant($user->currentTeam);
+    livewire(Login::class)
+        ->fillForm([
+            'email' => $user->email,
+            'password' => 'password',
+        ])
+        ->call('authenticate')
+        ->assertRedirect(url()->getAppUrl('1/companies'));
 
     $this->assertAuthenticated();
-    // $response->assertRedirect(CompanyResource::getUrl('index'));
 });
 
 test('users cannot authenticate with invalid password', function () {
     $user = User::factory()->create();
 
-    $this->post(url()->getAppUrl('login'), [
-        'email' => $user->email,
-        'password' => 'wrong-password',
-    ]);
+    livewire(Login::class)
+        ->fillForm([
+            'email' => $user->email,
+            'password' => 'wrong-password',
+        ])
+        ->call('authenticate')
+        ->assertHasFormErrors(['email']);
 
     $this->assertGuest();
 });
