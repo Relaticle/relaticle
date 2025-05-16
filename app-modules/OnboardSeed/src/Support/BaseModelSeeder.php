@@ -198,7 +198,6 @@ abstract class BaseModelSeeder implements ModelSeederInterface
                 'm' => now()->addMonths($value),
                 'y' => now()->addYears($value),
                 'b' => now()->addWeekdays($value),
-                default => $template
             };
         }
 
