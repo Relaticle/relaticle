@@ -1,30 +1,6 @@
 parameters:
 	ignoreErrors:
 		-
-			message: '#^Offset 1 on array\{list\<string\>, list\<non\-empty\-string\>, list\<non\-empty\-string\>\} in isset\(\) always exists and is not nullable\.$#'
-			identifier: isset.offset
-			count: 1
-			path: app-modules/Documentation/src/Data/DocumentData.php
-
-		-
-			message: '#^Offset 2 on array\{list\<string\>, list\<non\-empty\-string\>, list\<non\-empty\-string\>\} in isset\(\) always exists and is not nullable\.$#'
-			identifier: isset.offset
-			count: 1
-			path: app-modules/Documentation/src/Data/DocumentData.php
-
-		-
-			message: '#^Result of \|\| is always false\.$#'
-			identifier: booleanOr.alwaysFalse
-			count: 1
-			path: app-modules/Documentation/src/Data/DocumentData.php
-
-		-
-			message: '#^Strict comparison using \=\=\= between non\-empty\-string\|false and '''' will always evaluate to false\.$#'
-			identifier: identical.alwaysFalse
-			count: 1
-			path: app-modules/Documentation/src/Data/DocumentData.php
-
-		-
 			message: '#^Match arm comparison between ''b'' and ''b'' is always true\.$#'
 			identifier: match.alwaysTrue
 			count: 1

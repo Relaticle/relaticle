@@ -25,7 +25,7 @@ final class DocumentationService
         return Cache::remember(
             "documentation.{$type}",
             config('documentation.cache.ttl', 3600),
-            fn (): \Relaticle\Documentation\Data\DocumentData => DocumentData::fromType($type)
+            fn (): DocumentData => DocumentData::fromType($type)
         );
     }
 

@@ -48,7 +48,7 @@ final class DocumentData extends Data
         $realPath = realpath($path);
         $resourcePath = realpath(config('documentation.markdown.base_path'));
 
-        if ($realPath === '' || $realPath === '0' || $realPath === false || ! str_starts_with($realPath, $resourcePath)) {
+        if (empty($realPath) || ! str_starts_with($realPath, $resourcePath)) {
             abort(404, 'Document not found');
         }
 
@@ -79,7 +79,7 @@ final class DocumentData extends Data
 
         preg_match_all('/<h2.*><a.*id="([^"]+)".*>#<\/a>([^<]+)/', $contents, $matches);
 
-        if (! isset($matches[1]) || ! isset($matches[2])) {
+        if (empty($matches[1]) || empty($matches[2])) {
             return [];
         }
 
@@ -94,3 +94,4 @@ final class DocumentData extends Data
         return config('documentation.markdown.base_path').'/'.$file;
     }
 }
+
