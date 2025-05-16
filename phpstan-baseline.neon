@@ -1,12 +1,6 @@
 parameters:
 	ignoreErrors:
 		-
-			message: '#^Instanceof between App\\Models\\User and Illuminate\\Contracts\\Auth\\MustVerifyEmail will always evaluate to true\.$#'
-			identifier: instanceof.alwaysTrue
-			count: 1
-			path: app/Actions/Fortify/UpdateUserProfileInformation.php
-
-		-
 			message: '#^Method App\\Enums\\CreationSource\:\:getLabel\(\) never returns null so it can be removed from the return type\.$#'
 			identifier: return.unusedType
 			count: 1
