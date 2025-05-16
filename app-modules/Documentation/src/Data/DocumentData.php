@@ -48,7 +48,7 @@ final class DocumentData extends Data
         $realPath = realpath($path);
         $resourcePath = realpath(config('documentation.markdown.base_path'));
 
-        if (empty($realPath) || ! str_starts_with($realPath, $resourcePath)) {
+        if ($realPath === '0' || $realPath === false || ! str_starts_with($realPath, $resourcePath)) {
             abort(404, 'Document not found');
         }
 
@@ -94,4 +94,3 @@ final class DocumentData extends Data
         return config('documentation.markdown.base_path').'/'.$file;
     }
 }
-
