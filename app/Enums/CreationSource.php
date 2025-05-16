@@ -35,7 +35,7 @@ enum CreationSource: string implements HasLabel
     /**
      * Get the human-readable label for Filament UI components.
      */
-    public function getLabel(): ?string
+    public function getLabel(): string
     {
         return match ($this) {
             self::WEB => 'Web Interface',

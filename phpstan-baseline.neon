@@ -1,12 +1,6 @@
 parameters:
 	ignoreErrors:
 		-
-			message: '#^Method App\\Enums\\CreationSource\:\:getLabel\(\) never returns null so it can be removed from the return type\.$#'
-			identifier: return.unusedType
-			count: 1
-			path: app/Enums/CreationSource.php
-
-		-
 			message: '#^Method App\\Enums\\CustomFields\\Company\:\:getDescription\(\) never returns null so it can be removed from the return type\.$#'
 			identifier: return.unusedType
 			count: 1
