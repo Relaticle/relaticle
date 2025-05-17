@@ -60,7 +60,7 @@ enum Company: string
         };
     }
 
-    public function getDescription(): ?string
+    public function getDescription(): string
     {
         return match ($this) {
             self::ICP => 'Indicates whether this company is an Ideal Customer Profile',

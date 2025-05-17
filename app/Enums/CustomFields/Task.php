@@ -91,9 +91,9 @@ enum Task: string
     /**
      * Get the field width
      *
-     * @return CustomFieldWidth|null The width of the field or null for default width
+     * @return CustomFieldWidth The width of the field or null for default width
      */
-    public function getWidth(): ?CustomFieldWidth
+    public function getWidth(): CustomFieldWidth
     {
         return match ($this) {
             self::STATUS, self::PRIORITY => CustomFieldWidth::_50,
@@ -126,9 +126,9 @@ enum Task: string
     /**
      * Get field description (tooltip)
      *
-     * @return string|null The field description
+     * @return string The field description
      */
-    public function getDescription(): ?string
+    public function getDescription(): string
     {
         return match ($this) {
             self::STATUS => 'Current status of the task',

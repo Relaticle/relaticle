@@ -36,9 +36,9 @@ trait HasCreator
     public function createdBy(): Attribute
     {
         return Attribute::make(
-            get: fn () => $this->creation_source === CreationSource::SYSTEM ?
+            get: fn (): string => $this->creation_source === CreationSource::SYSTEM ?
                 '⊙ System' :
-                $this->creator?->name ?? 'Unknown',
+                $this->creator->name ?? 'Unknown',
         );
     }
 }
