@@ -17,21 +17,3 @@ parameters:
 			identifier: return.unusedType
 			count: 1
 			path: app/Http/Responses/LoginResponse.php
-
-		-
-			message: '#^Comparison operation "\>\=" between int\<2, max\> and 2 is always true\.$#'
-			identifier: greaterOrEqual.alwaysTrue
-			count: 1
-			path: app/Services/AvatarService.php
-
-		-
-			message: '#^Strict comparison using \=\=\= between float and 0 will always evaluate to false\.$#'
-			identifier: identical.alwaysFalse
-			count: 1
-			path: app/Services/AvatarService.php
-
-		-
-			message: '#^Unreachable statement \- code above always terminates\.$#'
-			identifier: deadCode.unreachable
-			count: 1
-			path: app/Services/AvatarService.php
