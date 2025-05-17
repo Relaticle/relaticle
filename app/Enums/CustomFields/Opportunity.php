@@ -55,9 +55,6 @@ enum Opportunity: string
 
     public function isListToggleableHidden(): bool
     {
-        return match ($this) {
-            self::AMOUNT, self::CLOSE_DATE, self::STAGE => false,
-            default => true,
-        };
+        return false;
     }
 }

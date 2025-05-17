@@ -75,7 +75,7 @@ final class Company extends Model implements HasCustomFields, HasMedia
         ];
     }
 
-    public function getLogoAttribute(): ?string
+    public function getLogoAttribute(): string
     {
         $logo = $this->getFirstMediaUrl('logo');
 
