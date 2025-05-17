@@ -109,12 +109,12 @@ final class User extends Authenticatable implements FilamentUser, HasAvatar, Has
         return $this->belongsToTeam($tenant);
     }
 
-    public function getAvatarAttribute(): ?string
+    public function getAvatarAttribute(): string
     {
         return $this->getFilamentAvatarUrl();
     }
 
-    public function getFilamentAvatarUrl(): ?string
+    public function getFilamentAvatarUrl(): string
     {
         return app(AvatarService::class)->generate($this->name);
     }
