@@ -188,41 +188,8 @@ final readonly class AvatarService
                 }
             }
 
-            // Default: first two characters for single names (prioritized for names like "John")
-            if ($nameLength >= 2) {
-                return Str::upper(substr($singleName, 0, 2));
-            }
-
-            // For unusual or unique single names, use first and last character if they differ
-            if ($nameLength >= 4) {
-                $firstChar = substr($singleName, 0, 1);
-                $lastChar = substr($singleName, -1);
-
-                if (strcasecmp($firstChar, $lastChar) !== 0) {
-                    return Str::upper($firstChar.$lastChar);
-                }
-            }
-
-            // For names with clear syllables (often indicated by vowels), try to capture the essence
-            if ($nameLength >= 3) {
-                $vowels = ['a', 'e', 'i', 'o', 'u'];
-                $chars = str_split(strtolower($singleName));
-                $consonantVowelPairs = [];
-
-                for ($i = 0; $i < count($chars) - 1; $i++) {
-                    if (! in_array($chars[$i], $vowels) && in_array($chars[$i + 1], $vowels)) {
-                        $consonantVowelPairs[] = $i;
-                    }
-                }
-
-                // If we found clear consonant-vowel pairs and have at least 2, use first and second syllable starts
-                if (count($consonantVowelPairs) >= 2 && $consonantVowelPairs[1] < $nameLength - 1) {
-                    return Str::upper(substr($singleName, $consonantVowelPairs[0], 1).
-                                     substr($singleName, $consonantVowelPairs[1], 1));
-                }
-            }
-
-            return Str::upper(substr($singleName, 0, 1));
+            // Default: For single names with at least 2 characters, return first two
+            return Str::upper(substr($singleName, 0, 2));
         }
 
         // Handle multi-part names
@@ -234,7 +201,7 @@ final readonly class AvatarService
             $possibleCompound = array_filter(explode('-', $name));
             if (count($possibleCompound) >= 2) {
                 return Str::upper(substr($nameParts[0], 0, 1).
-                                 substr(end($possibleCompound), 0, 1));
+                    substr(end($possibleCompound), 0, 1));
             }
         }
 
@@ -339,7 +306,7 @@ final readonly class AvatarService
         $s /= 100;
         $l /= 100;
 
-        if ($s === 0) {
+        if (abs($s) < 0.001) {  // Fixed: Changed strict equality to approximate comparison for float
             $r = $g = $b = $l;
         } else {
             $q = $l < 0.5 ? $l * (1 + $s) : $l + $s - $l * $s;
@@ -517,8 +484,8 @@ final readonly class AvatarService
 
         // Calculate overall adjustment (-10 to +10 range)
         $adjustment = (($lengthFactor - 0.5) * 10) +  // Length factor
-                      ((0.5 - $vowelRatio) * 10) +    // Vowel ratio (fewer vowels = higher adjustment)
-                      ($uniqueness - 5);              // Uniqueness factor normalized to -5 to +5 range
+            ((0.5 - $vowelRatio) * 10) +    // Vowel ratio (fewer vowels = higher adjustment)
+            ($uniqueness - 5);              // Uniqueness factor normalized to -5 to +5 range
 
         // Ensure the adjustment stays within reasonable bounds
         $adjustment = max(-10, min(10, $adjustment));
