@@ -51,7 +51,7 @@ final class PeopleSeeder extends BaseModelSeeder
 
             $company = FixtureRegistry::get('companies', $companyKey);
 
-            if (! $company instanceof \Illuminate\Database\Eloquent\Model) {
+            if (! $company instanceof Company) {
                 Log::warning("Company not found for person: {$key}, company key: {$companyKey}");
 
                 continue;
@@ -79,7 +79,10 @@ final class PeopleSeeder extends BaseModelSeeder
 
         $customFields = $data['custom_fields'] ?? [];
 
+        /** @var Team $team */
+        $team = $company->team;
+
         /** @var People */
-        return $this->registerEntityFromFixture($key, $attributes, $customFields, $company->team, $user);
+        return $this->registerEntityFromFixture($key, $attributes, $customFields, $team, $user);
     }
 }

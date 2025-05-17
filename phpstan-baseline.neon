@@ -1,2 +1,43 @@
 parameters:
 	ignoreErrors:
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<int,Illuminate\\Database\\Eloquent\\Model\>\:\:each\(\) expects callable\(Illuminate\\Database\\Eloquent\\Model, int\)\: mixed, Closure\(App\\Models\\Team\)\: void given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Actions/Jetstream/DeleteUser.php
+
+		-
+			message: '#^Parameter \#1 \$invitation of class Laravel\\Jetstream\\Mail\\TeamInvitation constructor expects Laravel\\Jetstream\\TeamInvitation, Illuminate\\Database\\Eloquent\\Model given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Actions/Jetstream/InviteTeamMember.php
+
+		-
+			message: '#^Parameter \#1 \$attributes of method Relaticle\\Flowforge\\Filament\\Pages\\KanbanBoardPage\:\:cardAttributes\(\) expects array\<string, string\>, array\<string, null\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Filament/App/Pages/OpportunitiesBoard.php
+
+		-
+			message: '#^Parameter \#1 \$column of method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:orderBy\(\) expects Closure\|Illuminate\\Contracts\\Database\\Query\\Expression\|Illuminate\\Database\\Eloquent\\Builder\<\*\>\|Illuminate\\Database\\Query\\Builder\|string, Illuminate\\Database\\Eloquent\\Relations\\HasMany\<Relaticle\\CustomFields\\Models\\CustomFieldValue\> given\.$#'
+			identifier: argument.type
+			count: 2
+			path: app/Filament/App/Resources/TaskResource.php
+
+		-
+			message: '#^Parameter \#1 \$key of method Illuminate\\Support\\Collection\<int,Relaticle\\CustomFields\\Models\\CustomField\>\:\:get\(\) expects int, string given\.$#'
+			identifier: argument.type
+			count: 4
+			path: app/Filament/App/Resources/TaskResource.php
+
+		-
+			message: '#^Parameter \#1 \$user of method Illuminate\\Auth\\SessionGuard\:\:login\(\) expects Illuminate\\Contracts\\Auth\\Authenticatable, Illuminate\\Database\\Eloquent\\Model\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/Auth/CallbackController.php
+
+		-
+			message: '#^Parameter \#1 \$state of method Illuminate\\Database\\Eloquent\\Factories\\Factory\<App\\Models\\Team\>\:\:state\(\) expects array\<string, mixed\>\|\(callable\(array\<string, mixed\>, App\\Models\\Team\|null\)\: array\<string, mixed\>\), Closure\(array, App\\Models\\User\)\: array\{name\: non\-falsy\-string, user_id\: int, personal_team\: true\} given\.$#'
+			identifier: argument.type
+			count: 1
+			path: database/factories/UserFactory.php
