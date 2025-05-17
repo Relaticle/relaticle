@@ -14,14 +14,12 @@ final class EditProfile extends Page
 
     protected static ?string $navigationLabel = 'Profile';
 
-    #[\Override]
     public static function shouldRegisterNavigation(): bool
     {
         return false;
     }
 
-    #[\Override]
-    public static function getNavigationSort(): ?int
+    public static function getNavigationSort(): int
     {
         return 1;
     }
