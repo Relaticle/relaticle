@@ -14,6 +14,7 @@ use App\Models\Note;
 use App\Models\Opportunity;
 use App\Models\People;
 use App\Models\Task;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Laravel\Jetstream\Events\TeamCreated;
 use Laravel\Jetstream\Features;
 use Relaticle\CustomFields\Contracts\CustomsFieldsMigrators;
@@ -71,7 +72,9 @@ final readonly class CreateTeamCustomFields
         }
 
         if ($team->isPersonalTeam()) {
-            $this->onboardSeeder->run($team->owner);
+            /** @var Authenticatable $owner */
+            $owner = $team->owner;
+            $this->onboardSeeder->run($owner);
         }
     }
 

@@ -49,7 +49,7 @@ final class OpportunitySeeder extends BaseModelSeeder
 
             $company = FixtureRegistry::get('companies', $companyKey);
 
-            if (! $company instanceof \Illuminate\Database\Eloquent\Model) {
+            if (! $company instanceof Company) {
                 Log::warning("Company not found for opportunity: {$key}, company key: {$companyKey}");
 
                 continue;
