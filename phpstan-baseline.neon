@@ -19,18 +19,6 @@ parameters:
 			path: app/Http/Responses/LoginResponse.php
 
 		-
-			message: '#^Method App\\Models\\Team\:\:getFilamentAvatarUrl\(\) never returns null so it can be removed from the return type\.$#'
-			identifier: return.unusedType
-			count: 1
-			path: app/Models/Team.php
-
-		-
-			message: '#^Method App\\Models\\User\:\:getFilamentAvatarUrl\(\) never returns null so it can be removed from the return type\.$#'
-			identifier: return.unusedType
-			count: 1
-			path: app/Models/User.php
-
-		-
 			message: '#^Comparison operation "\>\=" between int\<2, max\> and 2 is always true\.$#'
 			identifier: greaterOrEqual.alwaysTrue
 			count: 1
