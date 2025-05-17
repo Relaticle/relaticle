@@ -20,8 +20,7 @@ final class ApiTokens extends Page
         return false;
     }
 
-    #[\Override]
-    public static function getNavigationSort(): ?int
+    public static function getNavigationSort(): int
     {
         return 1;
     }

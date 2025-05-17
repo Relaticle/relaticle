@@ -1,19 +1,2 @@
 parameters:
 	ignoreErrors:
-		-
-			message: '#^Method App\\Filament\\App\\Pages\\ApiTokens\:\:getNavigationSort\(\) never returns null so it can be removed from the return type\.$#'
-			identifier: return.unusedType
-			count: 1
-			path: app/Filament/App/Pages/ApiTokens.php
-
-		-
-			message: '#^Method App\\Filament\\App\\Pages\\EditProfile\:\:getNavigationSort\(\) never returns null so it can be removed from the return type\.$#'
-			identifier: return.unusedType
-			count: 1
-			path: app/Filament/App/Pages/EditProfile.php
-
-		-
-			message: '#^Method App\\Http\\Responses\\LoginResponse\:\:toResponse\(\) never returns Livewire\\Features\\SupportRedirects\\Redirector so it can be removed from the return type\.$#'
-			identifier: return.unusedType
-			count: 1
-			path: app/Http/Responses/LoginResponse.php
