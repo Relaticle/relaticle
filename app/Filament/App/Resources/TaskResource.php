@@ -201,10 +201,10 @@ final class TaskResource extends Resource
 
                             return $record;
                         }),
+                    RestoreAction::make(),
                     Tables\Actions\DeleteAction::make(),
+                    ForceDeleteAction::make(),
                 ]),
-                ForceDeleteAction::make(),
-                RestoreAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

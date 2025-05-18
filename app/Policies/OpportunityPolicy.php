@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
+use Filament\Facades\Filament;
 use Illuminate\Auth\Access\HandlesAuthorization;
+use Illuminate\Support\Facades\Auth;
 
 final readonly class OpportunityPolicy
 {
@@ -42,6 +44,6 @@ final readonly class OpportunityPolicy
 
     public function forceDelete(): bool
     {
-        return true;
+        return Auth::user()->hasTeamRole(Filament::getTenant(), 'admin');
     }
 }

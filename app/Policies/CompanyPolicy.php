@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
+use App\Models\User;
 use Filament\Facades\Filament;
 use Illuminate\Auth\Access\HandlesAuthorization;
-use Illuminate\Support\Facades\Auth;
 
-final readonly class TaskPolicy
+final readonly class CompanyPolicy
 {
     use HandlesAuthorization;
 
@@ -42,8 +42,8 @@ final readonly class TaskPolicy
         return true;
     }
 
-    public function forceDelete(): bool
+    public function forceDelete(User $user): bool
     {
-        return Auth::user()->hasTeamRole(Filament::getTenant(), 'admin');
+        return $user->hasTeamRole(Filament::getTenant(), 'admin');
     }
 }

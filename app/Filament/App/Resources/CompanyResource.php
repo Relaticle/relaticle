@@ -111,9 +111,9 @@ final class CompanyResource extends Resource
                 ActionGroup::make([
                     ViewAction::make(),
                     EditAction::make(),
+                    RestoreAction::make(),
                     DeleteAction::make(),
                     ForceDeleteAction::make(),
-                    RestoreAction::make(),
                 ]),
             ])
             ->bulkActions([

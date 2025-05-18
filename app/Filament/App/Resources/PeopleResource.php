@@ -16,9 +16,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Actions\ExportBulkAction;
-use Filament\Tables\Actions\ForceDeleteAction;
 use Filament\Tables\Actions\ForceDeleteBulkAction;
-use Filament\Tables\Actions\RestoreAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
@@ -102,8 +100,13 @@ final class PeopleResource extends Resource
                 TrashedFilter::make(),
             ])
             ->actions([
-                ForceDeleteAction::make(),
-                RestoreAction::make(),
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\ViewAction::make(),
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\RestoreAction::make(),
+                    Tables\Actions\DeleteAction::make(),
+                    Tables\Actions\ForceDeleteAction::make(),
+                ]),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
