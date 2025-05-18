@@ -33,6 +33,7 @@ use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Laravel\Fortify\Fortify;
 use Laravel\Jetstream\Features;
@@ -134,7 +135,7 @@ final class AppPanelProvider extends PanelProvider
                 isPersistent: true
             )
             ->plugins([
-                CustomFieldsPlugin::make(),
+                CustomFieldsPlugin::make()->authorize(fn () => Gate::check('update', Filament::getTenant())),
             ])
             ->renderHook(
                 PanelsRenderHook::AUTH_LOGIN_FORM_BEFORE,
