@@ -1,2 +1,709 @@
 parameters:
 	ignoreErrors:
+		-
+			message: '#^Method Relaticle\\Documentation\\Data\\DocumentData\:\:__construct\(\) has parameter \$sections with generic class Illuminate\\Support\\Collection but does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: app-modules/Documentation/src/Data/DocumentData.php
+
+		-
+			message: '#^Method Relaticle\\Documentation\\Data\\DocumentData\:\:__construct\(\) has parameter \$tableOfContents with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app-modules/Documentation/src/Data/DocumentData.php
+
+		-
+			message: '#^Method Relaticle\\Documentation\\Data\\DocumentData\:\:extractTableOfContents\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app-modules/Documentation/src/Data/DocumentData.php
+
+		-
+			message: '#^Method Relaticle\\Documentation\\Data\\DocumentSearchRequest\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app-modules/Documentation/src/Data/DocumentSearchRequest.php
+
+		-
+			message: '#^Method Relaticle\\Documentation\\Data\\DocumentSearchResultData\:\:__construct\(\) has parameter \$matches with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app-modules/Documentation/src/Data/DocumentSearchResultData.php
+
+		-
+			message: '#^Method Relaticle\\Documentation\\Http\\Controllers\\DocumentationController\:\:index\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app-modules/Documentation/src/Http/Controllers/DocumentationController.php
+
+		-
+			message: '#^Method Relaticle\\Documentation\\Http\\Controllers\\DocumentationController\:\:search\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app-modules/Documentation/src/Http/Controllers/DocumentationController.php
+
+		-
+			message: '#^Method Relaticle\\Documentation\\Http\\Controllers\\DocumentationController\:\:show\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app-modules/Documentation/src/Http/Controllers/DocumentationController.php
+
+		-
+			message: '#^Method Relaticle\\Documentation\\Services\\DocumentationService\:\:findMatches\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app-modules/Documentation/src/Services/DocumentationService.php
+
+		-
+			message: '#^Method Relaticle\\Documentation\\Services\\DocumentationService\:\:getAllDocumentTypes\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app-modules/Documentation/src/Services/DocumentationService.php
+
+		-
+			message: '#^Method Relaticle\\Documentation\\Services\\DocumentationService\:\:search\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: app-modules/Documentation/src/Services/DocumentationService.php
+
+		-
+			message: '#^Method Relaticle\\OnboardSeed\\ModelSeeders\\CompanySeeder\:\:createCompanyFromFixture\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app-modules/OnboardSeed/src/ModelSeeders/CompanySeeder.php
+
+		-
+			message: '#^Property Relaticle\\OnboardSeed\\ModelSeeders\\NoteSeeder\:\:\$entityTypeMap type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app-modules/OnboardSeed/src/ModelSeeders/NoteSeeder.php
+
+		-
+			message: '#^Method Relaticle\\OnboardSeed\\ModelSeeders\\OpportunitySeeder\:\:createOpportunityFromFixture\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app-modules/OnboardSeed/src/ModelSeeders/OpportunitySeeder.php
+
+		-
+			message: '#^Method Relaticle\\OnboardSeed\\ModelSeeders\\PeopleSeeder\:\:createPersonFromFixture\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app-modules/OnboardSeed/src/ModelSeeders/PeopleSeeder.php
+
+		-
+			message: '#^Method Relaticle\\OnboardSeed\\ModelSeeders\\TaskSeeder\:\:assignPeopleToTask\(\) has parameter \$peopleKeys with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app-modules/OnboardSeed/src/ModelSeeders/TaskSeeder.php
+
+		-
+			message: '#^Method Relaticle\\OnboardSeed\\ModelSeeders\\TaskSeeder\:\:createTaskFromFixture\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app-modules/OnboardSeed/src/ModelSeeders/TaskSeeder.php
+
+		-
+			message: '#^Method Relaticle\\OnboardSeed\\Support\\BaseModelSeeder\:\:loadEntityFixtures\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app-modules/OnboardSeed/src/Support/BaseModelSeeder.php
+
+		-
+			message: '#^Method Relaticle\\OnboardSeed\\Support\\BaseModelSeeder\:\:processCustomFieldValues\(\) has parameter \$customFields with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app-modules/OnboardSeed/src/Support/BaseModelSeeder.php
+
+		-
+			message: '#^Method Relaticle\\OnboardSeed\\Support\\BaseModelSeeder\:\:processCustomFieldValues\(\) has parameter \$fieldMappings with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app-modules/OnboardSeed/src/Support/BaseModelSeeder.php
+
+		-
+			message: '#^Method Relaticle\\OnboardSeed\\Support\\BaseModelSeeder\:\:processCustomFieldValues\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app-modules/OnboardSeed/src/Support/BaseModelSeeder.php
+
+		-
+			message: '#^Method Relaticle\\OnboardSeed\\Support\\BaseModelSeeder\:\:registerEntityFromFixture\(\) has parameter \$attributes with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app-modules/OnboardSeed/src/Support/BaseModelSeeder.php
+
+		-
+			message: '#^Method Relaticle\\OnboardSeed\\Support\\BaseModelSeeder\:\:registerEntityFromFixture\(\) has parameter \$customFields with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app-modules/OnboardSeed/src/Support/BaseModelSeeder.php
+
+		-
+			message: '#^Property Relaticle\\OnboardSeed\\Support\\BaseModelSeeder\:\:\$customFieldDefinitions with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: app-modules/OnboardSeed/src/Support/BaseModelSeeder.php
+
+		-
+			message: '#^Method Relaticle\\OnboardSeed\\Support\\FixtureLoader\:\:load\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app-modules/OnboardSeed/src/Support/FixtureLoader.php
+
+		-
+			message: '#^Method Relaticle\\OnboardSeed\\Support\\FixtureLoader\:\:loadOne\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app-modules/OnboardSeed/src/Support/FixtureLoader.php
+
+		-
+			message: '#^Method Relaticle\\OnboardSeed\\Support\\RelationshipBuilder\:\:addRelationship\(\) has parameter \$relationships with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app-modules/OnboardSeed/src/Support/RelationshipBuilder.php
+
+		-
+			message: '#^Method Relaticle\\OnboardSeed\\Support\\RelationshipBuilder\:\:belongsTo\(\) has parameter \$relationships with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app-modules/OnboardSeed/src/Support/RelationshipBuilder.php
+
+		-
+			message: '#^Method Relaticle\\OnboardSeed\\Support\\RelationshipBuilder\:\:belongsToMany\(\) has parameter \$relationships with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app-modules/OnboardSeed/src/Support/RelationshipBuilder.php
+
+		-
+			message: '#^Method Relaticle\\OnboardSeed\\Support\\RelationshipBuilder\:\:hasMany\(\) has parameter \$relationships with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app-modules/OnboardSeed/src/Support/RelationshipBuilder.php
+
+		-
+			message: '#^Property Relaticle\\OnboardSeed\\Support\\RelationshipBuilder\:\:\$relationshipDefinitions type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app-modules/OnboardSeed/src/Support/RelationshipBuilder.php
+
+		-
+			message: '#^Method App\\Actions\\Jetstream\\AddTeamMember\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Actions/Jetstream/AddTeamMember.php
+
+		-
+			message: '#^Method App\\Actions\\Jetstream\\InviteTeamMember\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Actions/Jetstream/InviteTeamMember.php
+
+		-
+			message: '#^Method App\\Contracts\\User\\CreatesNewSocialUsers\:\:create\(\) has parameter \$input with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Contracts/User/CreatesNewSocialUsers.php
+
+		-
+			message: '#^Method App\\Enums\\CreationSource\:\:values\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Enums/CreationSource.php
+
+		-
+			message: '#^Method App\\Enums\\CustomFields\\Company\:\:values\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Enums/CustomFields/Company.php
+
+		-
+			message: '#^Method App\\Enums\\CustomFields\\Note\:\:values\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Enums/CustomFields/Note.php
+
+		-
+			message: '#^Method App\\Enums\\CustomFields\\Opportunity\:\:getOptions\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Enums/CustomFields/Opportunity.php
+
+		-
+			message: '#^Method App\\Enums\\CustomFields\\Opportunity\:\:values\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Enums/CustomFields/Opportunity.php
+
+		-
+			message: '#^Method App\\Enums\\CustomFields\\People\:\:values\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Enums/CustomFields/People.php
+
+		-
+			message: '#^Method App\\Enums\\CustomFields\\Task\:\:values\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Enums/CustomFields/Task.php
+
+		-
+			message: '#^Method App\\Filament\\App\\Adapters\\OpportunitiesKanbanAdapter\:\:getItemsForColumn\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Filament/App/Adapters/OpportunitiesKanbanAdapter.php
+
+		-
+			message: '#^Method App\\Filament\\App\\Adapters\\TasksKanbanAdapter\:\:getItemsForColumn\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Filament/App/Adapters/TasksKanbanAdapter.php
+
+		-
+			message: '#^Method App\\Filament\\App\\Exports\\CompanyExporter\:\:modifyQuery\(\) has parameter \$query with generic class Illuminate\\Database\\Eloquent\\Builder but does not specify its types\: TModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Filament/App/Exports/CompanyExporter.php
+
+		-
+			message: '#^Method App\\Filament\\App\\Exports\\CompanyExporter\:\:modifyQuery\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Filament/App/Exports/CompanyExporter.php
+
+		-
+			message: '#^Method App\\Filament\\App\\Exports\\OpportunityExporter\:\:modifyQuery\(\) has parameter \$query with generic class Illuminate\\Database\\Eloquent\\Builder but does not specify its types\: TModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Filament/App/Exports/OpportunityExporter.php
+
+		-
+			message: '#^Method App\\Filament\\App\\Exports\\OpportunityExporter\:\:modifyQuery\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Filament/App/Exports/OpportunityExporter.php
+
+		-
+			message: '#^Method App\\Filament\\App\\Exports\\PeopleExporter\:\:modifyQuery\(\) has parameter \$query with generic class Illuminate\\Database\\Eloquent\\Builder but does not specify its types\: TModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Filament/App/Exports/PeopleExporter.php
+
+		-
+			message: '#^Method App\\Filament\\App\\Exports\\PeopleExporter\:\:modifyQuery\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Filament/App/Exports/PeopleExporter.php
+
+		-
+			message: '#^Method App\\Filament\\App\\Pages\\OpportunitiesBoard\:\:getSubject\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Filament/App/Pages/OpportunitiesBoard.php
+
+		-
+			message: '#^Method App\\Filament\\App\\Pages\\OpportunitiesBoard\:\:stages\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Filament/App/Pages/OpportunitiesBoard.php
+
+		-
+			message: '#^Method App\\Filament\\App\\Pages\\TasksBoard\:\:getSubject\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Filament/App/Pages/TasksBoard.php
+
+		-
+			message: '#^Method App\\Filament\\App\\Pages\\TasksBoard\:\:statuses\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Filament/App/Pages/TasksBoard.php
+
+		-
+			message: '#^Method App\\Filament\\App\\Resources\\CompanyResource\:\:getEloquentQuery\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Filament/App/Resources/CompanyResource.php
+
+		-
+			message: '#^Method App\\Filament\\App\\Resources\\NoteResource\:\:getEloquentQuery\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Filament/App/Resources/NoteResource.php
+
+		-
+			message: '#^Method App\\Filament\\App\\Resources\\NoteResource\\Forms\\NoteForm\:\:get\(\) has parameter \$excludeFields with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Filament/App/Resources/NoteResource/Forms/NoteForm.php
+
+		-
+			message: '#^Method App\\Filament\\App\\Resources\\OpportunityResource\:\:getEloquentQuery\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Filament/App/Resources/OpportunityResource.php
+
+		-
+			message: '#^Method App\\Filament\\App\\Resources\\PeopleResource\:\:getEloquentQuery\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Filament/App/Resources/PeopleResource.php
+
+		-
+			message: '#^Method App\\Filament\\App\\Resources\\TaskResource\:\:getEloquentQuery\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Filament/App/Resources/TaskResource.php
+
+		-
+			message: '#^PHPDoc tag @var for variable \$orderByQuery contains generic class Illuminate\\Database\\Eloquent\\Builder but does not specify its types\: TModel$#'
+			identifier: missingType.generics
+			count: 2
+			path: app/Filament/App/Resources/TaskResource.php
+
+		-
+			message: '#^Method App\\Filament\\App\\Resources\\TaskResource\\Forms\\TaskForm\:\:get\(\) has parameter \$excludeFields with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Filament/App/Resources/TaskResource/Forms/TaskForm.php
+
+		-
+			message: '#^Method App\\Filament\\Components\\Infolists\\AvatarName\:\:getState\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Filament/Components/Infolists/AvatarName.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\HomeController\:\:__invoke\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Http/Controllers/HomeController.php
+
+		-
+			message: '#^Method App\\Models\\Company\:\:accountOwner\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Company.php
+
+		-
+			message: '#^Method App\\Models\\Company\:\:createdBy\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Company.php
+
+		-
+			message: '#^Method App\\Models\\Company\:\:creator\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Company.php
+
+		-
+			message: '#^Method App\\Models\\Company\:\:notes\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\MorphToMany does not specify its types\: TRelatedModel, TDeclaringModel, TPivotModel, TAccessor \(2\-4 required\)$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Company.php
+
+		-
+			message: '#^Method App\\Models\\Company\:\:opportunities\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Company.php
+
+		-
+			message: '#^Method App\\Models\\Company\:\:people\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Company.php
+
+		-
+			message: '#^Method App\\Models\\Company\:\:tasks\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\MorphToMany does not specify its types\: TRelatedModel, TDeclaringModel, TPivotModel, TAccessor \(2\-4 required\)$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Company.php
+
+		-
+			message: '#^Method App\\Models\\Company\:\:team\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Company.php
+
+		-
+			message: '#^Method App\\Models\\Note\:\:companies\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\MorphToMany does not specify its types\: TRelatedModel, TDeclaringModel, TPivotModel, TAccessor \(2\-4 required\)$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Note.php
+
+		-
+			message: '#^Method App\\Models\\Note\:\:createdBy\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Note.php
+
+		-
+			message: '#^Method App\\Models\\Note\:\:creator\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Note.php
+
+		-
+			message: '#^Method App\\Models\\Note\:\:people\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\MorphToMany does not specify its types\: TRelatedModel, TDeclaringModel, TPivotModel, TAccessor \(2\-4 required\)$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Note.php
+
+		-
+			message: '#^Method App\\Models\\Note\:\:team\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Note.php
+
+		-
+			message: '#^Class App\\Models\\Opportunity uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Opportunity.php
+
+		-
+			message: '#^Method App\\Models\\Opportunity\:\:company\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Opportunity.php
+
+		-
+			message: '#^Method App\\Models\\Opportunity\:\:contact\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Opportunity.php
+
+		-
+			message: '#^Method App\\Models\\Opportunity\:\:createdBy\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Opportunity.php
+
+		-
+			message: '#^Method App\\Models\\Opportunity\:\:creator\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Opportunity.php
+
+		-
+			message: '#^Method App\\Models\\Opportunity\:\:notes\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\MorphToMany does not specify its types\: TRelatedModel, TDeclaringModel, TPivotModel, TAccessor \(2\-4 required\)$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Opportunity.php
+
+		-
+			message: '#^Method App\\Models\\Opportunity\:\:tasks\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\MorphToMany does not specify its types\: TRelatedModel, TDeclaringModel, TPivotModel, TAccessor \(2\-4 required\)$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Opportunity.php
+
+		-
+			message: '#^Method App\\Models\\Opportunity\:\:team\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Opportunity.php
+
+		-
+			message: '#^Method App\\Models\\People\:\:company\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/People.php
+
+		-
+			message: '#^Method App\\Models\\People\:\:createdBy\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/People.php
+
+		-
+			message: '#^Method App\\Models\\People\:\:creator\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/People.php
+
+		-
+			message: '#^Method App\\Models\\People\:\:notes\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\MorphToMany does not specify its types\: TRelatedModel, TDeclaringModel, TPivotModel, TAccessor \(2\-4 required\)$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/People.php
+
+		-
+			message: '#^Method App\\Models\\People\:\:tasks\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\MorphToMany does not specify its types\: TRelatedModel, TDeclaringModel, TPivotModel, TAccessor \(2\-4 required\)$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/People.php
+
+		-
+			message: '#^Method App\\Models\\People\:\:team\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/People.php
+
+		-
+			message: '#^Method App\\Models\\Scopes\\TeamScope\:\:apply\(\) has parameter \$builder with generic class Illuminate\\Database\\Eloquent\\Builder but does not specify its types\: TModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Scopes/TeamScope.php
+
+		-
+			message: '#^Method App\\Models\\Task\:\:assignees\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany does not specify its types\: TRelatedModel, TDeclaringModel, TPivotModel, TAccessor \(2\-4 required\)$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Task.php
+
+		-
+			message: '#^Method App\\Models\\Task\:\:companies\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\MorphToMany does not specify its types\: TRelatedModel, TDeclaringModel, TPivotModel, TAccessor \(2\-4 required\)$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Task.php
+
+		-
+			message: '#^Method App\\Models\\Task\:\:createdBy\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Task.php
+
+		-
+			message: '#^Method App\\Models\\Task\:\:creator\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Task.php
+
+		-
+			message: '#^Method App\\Models\\Task\:\:opportunities\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\MorphToMany does not specify its types\: TRelatedModel, TDeclaringModel, TPivotModel, TAccessor \(2\-4 required\)$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Task.php
+
+		-
+			message: '#^Method App\\Models\\Task\:\:people\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\MorphToMany does not specify its types\: TRelatedModel, TDeclaringModel, TPivotModel, TAccessor \(2\-4 required\)$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Task.php
+
+		-
+			message: '#^Method App\\Models\\Task\:\:team\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Task.php
+
+		-
+			message: '#^Property App\\Models\\Task\:\:\$sortable type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Models/Task.php
+
+		-
+			message: '#^Class App\\Models\\Team uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Team.php
+
+		-
+			message: '#^Method App\\Models\\Team\:\:companies\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Team.php
+
+		-
+			message: '#^Method App\\Models\\Team\:\:notes\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Team.php
+
+		-
+			message: '#^Method App\\Models\\Team\:\:opportunities\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Team.php
+
+		-
+			message: '#^Method App\\Models\\Team\:\:people\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Team.php
+
+		-
+			message: '#^Method App\\Models\\Team\:\:tasks\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Team.php
+
+		-
+			message: '#^Method App\\Models\\TeamInvitation\:\:team\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/TeamInvitation.php
+
+		-
+			message: '#^Unable to resolve the template type TRelatedModel in call to method Illuminate\\Database\\Eloquent\\Model\:\:belongsTo\(\)$#'
+			identifier: argument.templateType
+			count: 1
+			path: app/Models/TeamInvitation.php
+
+		-
+			message: '#^Class App\\Models\\User uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Method App\\Models\\User\:\:getTenants\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Method App\\Models\\User\:\:socialAccounts\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Method App\\Models\\User\:\:tasks\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany does not specify its types\: TRelatedModel, TDeclaringModel, TPivotModel, TAccessor \(2\-4 required\)$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Class App\\Models\\UserSocialAccount uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/UserSocialAccount.php
+
+		-
+			message: '#^Method App\\Models\\UserSocialAccount\:\:user\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/UserSocialAccount.php
+
+		-
+			message: '#^Method App\\Services\\AvatarService\:\:__construct\(\) has parameter \$backgroundColors with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/AvatarService.php
+
+		-
+			message: '#^Method App\\Services\\AvatarService\:\:analyzeNameCharacteristics\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/AvatarService.php
+
+		-
+			message: '#^Method App\\Services\\AvatarService\:\:hexToHsl\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/AvatarService.php
+
+		-
+			message: '#^Class Database\\Factories\\OpportunityFactory extends generic class Illuminate\\Database\\Eloquent\\Factories\\Factory but does not specify its types\: TModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: database/factories/OpportunityFactory.php
+
+		-
+			message: '#^Class Database\\Factories\\TaskFactory extends generic class Illuminate\\Database\\Eloquent\\Factories\\Factory but does not specify its types\: TModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: database/factories/TaskFactory.php
