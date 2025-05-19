@@ -45,8 +45,8 @@ final class OpportunitiesBoard extends KanbanBoardPage
             ->columnColors()
             ->cardLabel('Opportunity')
             ->cardAttributes([
-                'company.name' => null,
-                'contact.name' => null,
+                'company.name' => '',
+                'contact.name' => '',
             ])
             ->cardAttributeColors([
                 'company.name' => 'white',

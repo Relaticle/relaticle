@@ -1,19 +1,2 @@
 parameters:
 	ignoreErrors:
-		-
-			message: '#^Parameter \#1 \$attributes of method Relaticle\\Flowforge\\Filament\\Pages\\KanbanBoardPage\:\:cardAttributes\(\) expects array\<string, string\>, array\<string, null\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Filament/App/Pages/OpportunitiesBoard.php
-
-		-
-			message: '#^Parameter \#1 \$user of method Illuminate\\Auth\\SessionGuard\:\:login\(\) expects Illuminate\\Contracts\\Auth\\Authenticatable, Illuminate\\Database\\Eloquent\\Model\|null given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Http/Controllers/Auth/CallbackController.php
-
-		-
-			message: '#^Parameter \#1 \$state of method Illuminate\\Database\\Eloquent\\Factories\\Factory\<App\\Models\\Team\>\:\:state\(\) expects array\<string, mixed\>\|\(callable\(array\<string, mixed\>, App\\Models\\Team\|null\)\: array\<string, mixed\>\), Closure\(array, App\\Models\\User\)\: array\{name\: non\-falsy\-string, user_id\: int, personal_team\: true\} given\.$#'
-			identifier: argument.type
-			count: 1
-			path: database/factories/UserFactory.php
