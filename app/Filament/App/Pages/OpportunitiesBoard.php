@@ -86,9 +86,9 @@ final class OpportunitiesBoard extends KanbanBoardPage
         return new OpportunitiesKanbanAdapter(Opportunity::query(), $this->config);
     }
 
-    private function stageCustomField(): CustomField
+    private function stageCustomField(): ?CustomField
     {
-        /** @var CustomField */
+        /** @var CustomField|null */
         return CustomField::query()
             ->forEntity(Opportunity::class)
             ->where('code', 'stage')
@@ -102,5 +102,10 @@ final class OpportunitiesBoard extends KanbanBoardPage
             'custom_field_id' => $option->getAttribute('custom_field_id'),
             'name' => $option->getAttribute('name'),
         ]);
+    }
+
+    public static function canAccess(): bool
+    {
+        return (new self)->stageCustomField() instanceof CustomField;
     }
 }

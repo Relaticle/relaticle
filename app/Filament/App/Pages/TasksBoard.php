@@ -73,9 +73,9 @@ final class TasksBoard extends KanbanBoardPage
         return new TasksKanbanAdapter(Task::query(), $this->config);
     }
 
-    private function statusCustomField(): CustomField
+    private function statusCustomField(): ?CustomField
     {
-        /** @var CustomField */
+        /** @var CustomField|null */
         return CustomField::query()
             ->forEntity(Task::class)
             ->where('code', TaskCustomField::STATUS)
@@ -89,5 +89,10 @@ final class TasksBoard extends KanbanBoardPage
             'custom_field_id' => $option->getAttribute('custom_field_id'),
             'name' => $option->getAttribute('name'),
         ]);
+    }
+
+    public static function canAccess(): bool
+    {
+        return (new self)->statusCustomField() instanceof CustomField;
     }
 }
