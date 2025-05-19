@@ -117,13 +117,13 @@ final class TaskResource extends Resource
                         $table = $query->getModel()->getTable();
                         $key = $query->getModel()->getKeyName();
 
-                        return $query->orderBy(
-                            $customFields->get('status')->values()
-                                ->select($customFields->get('status')->getValueColumn())
-                                ->whereColumn('custom_field_values.entity_id', "$table.$key")
-                                ->limit(1),
-                            $direction
-                        );
+                        /** @var Builder $orderByQuery */
+                        $orderByQuery = $customFields->get('status')->values()
+                            ->select($customFields->get('status')->getValueColumn())
+                            ->whereColumn('custom_field_values.entity_id', "$table.$key")
+                            ->limit(1);
+
+                        return $query->orderBy($orderByQuery, $direction);
                     })
                     ->getTitleFromRecordUsing(function (Task $record) use ($valueResolver, $customFields): ?string {
                         if (! isset($customFields['status'])) {
@@ -137,13 +137,13 @@ final class TaskResource extends Resource
                         $table = $query->getModel()->getTable();
                         $key = $query->getModel()->getKeyName();
 
-                        return $query->orderBy(
-                            $customFields->get('priority')->values()
-                                ->select($customFields->get('priority')->getValueColumn())
-                                ->whereColumn('custom_field_values.entity_id', "$table.$key")
-                                ->limit(1),
-                            $direction
-                        );
+                        /** @var Builder $orderByQuery */
+                        $orderByQuery = $customFields->get('priority')->values()
+                            ->select($customFields->get('priority')->getValueColumn())
+                            ->whereColumn('custom_field_values.entity_id', "$table.$key")
+                            ->limit(1);
+
+                        return $query->orderBy($orderByQuery, $direction);
                     })
                     ->getTitleFromRecordUsing(function (Task $record) use ($valueResolver, $customFields): ?string {
                         if (! isset($customFields['priority'])) {
