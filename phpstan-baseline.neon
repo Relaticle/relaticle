@@ -7,12 +7,6 @@ parameters:
 			path: app/Filament/App/Pages/OpportunitiesBoard.php
 
 		-
-			message: '#^Parameter \#1 \$key of method Illuminate\\Support\\Collection\<int,Relaticle\\CustomFields\\Models\\CustomField\>\:\:get\(\) expects int, string given\.$#'
-			identifier: argument.type
-			count: 4
-			path: app/Filament/App/Resources/TaskResource.php
-
-		-
 			message: '#^Parameter \#1 \$user of method Illuminate\\Auth\\SessionGuard\:\:login\(\) expects Illuminate\\Contracts\\Auth\\Authenticatable, Illuminate\\Database\\Eloquent\\Model\|null given\.$#'
 			identifier: argument.type
 			count: 1
