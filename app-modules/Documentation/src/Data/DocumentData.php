@@ -21,8 +21,10 @@ final class DocumentData extends Data
         #[StringType]
         public string $content,
 
+        /** @var array<string, string> $tableOfContents */
         public array $tableOfContents,
 
+        /** @var Collection<int, mixed>|Lazy|null $sections */
         public Collection|Lazy|null $sections = null,
 
         public ?string $description = null,
@@ -72,6 +74,8 @@ final class DocumentData extends Data
 
     /**
      * Extract table of contents from the rendered HTML
+     *
+     * @return array<string, string>
      */
     private static function extractTableOfContents(string $contents): array
     {
