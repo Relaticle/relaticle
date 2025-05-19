@@ -50,7 +50,7 @@ final class TaskResource extends Resource
 
     public static function table(Table $table): Table
     {
-        /** @var Collection<int, CustomField> $customFields */
+        /** @var Collection<string, CustomField> $customFields */
         $customFields = CustomField::query()->whereIn('code', ['status', 'priority'])->get()->keyBy('code');
         /** @var ValueResolvers $valueResolver */
         $valueResolver = app(ValueResolvers::class);
@@ -118,7 +118,8 @@ final class TaskResource extends Resource
                         $key = $query->getModel()->getKeyName();
 
                         /** @var Builder $orderByQuery */
-                        $orderByQuery = $customFields->get('status')->values()
+                        $orderByQuery = $customFields->get('status')
+                            ->values()
                             ->select($customFields->get('status')->getValueColumn())
                             ->whereColumn('custom_field_values.entity_id', "$table.$key")
                             ->limit(1);
