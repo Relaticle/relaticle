@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Auth;
 use App\Contracts\User\CreatesNewSocialUsers;
 use App\Models\User;
 use App\Models\UserSocialAccount;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\RedirectResponse;
 use Laravel\Socialite\Facades\Socialite;
 use Laravel\Socialite\Two\AbstractProvider;
@@ -33,7 +34,7 @@ final readonly class CallbackController
             ->where('provider_id', $socialUser->getId())
             ->first();
 
-        if ($account) {
+        if ($account?->exists() && $account->user instanceof Authenticatable) {
             auth()->login($account->user);
 
             return redirect(url()->getAppUrl());

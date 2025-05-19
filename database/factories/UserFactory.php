@@ -61,15 +61,19 @@ final class UserFactory extends Factory
             return $this->state([]);
         }
 
-        return $this->has(
-            Team::factory()
-                ->state(fn (array $attributes, User $user): array => [
-                    'name' => $user->name.'\'s Team',
-                    'user_id' => $user->id,
-                    'personal_team' => true,
-                ])
-                ->when(is_callable($callback), $callback),
-            'ownedTeams'
-        );
+        return $this->afterCreating(function (User $user) use ($callback): void {
+            $team = Team::factory()->create([
+                'name' => $user->name.'\'s Team',
+                'user_id' => $user->id,
+                'personal_team' => true,
+            ]);
+
+            if (is_callable($callback)) {
+                $callback($team, $user);
+            }
+
+            // Update the relationship
+            $user->ownedTeams()->save($team);
+        });
     }
 }
