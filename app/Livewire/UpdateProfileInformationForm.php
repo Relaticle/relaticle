@@ -23,7 +23,7 @@ final class UpdateProfileInformationForm extends Component
     /**
      * The new avatar for the user.
      */
-    public mixed $photo;
+    public mixed $photo = null;
 
     /**
      * Determine if the verification email was sent.
