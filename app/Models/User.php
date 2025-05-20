@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Storage;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Jetstream\HasTeams;
@@ -116,6 +117,8 @@ final class User extends Authenticatable implements FilamentUser, HasAvatar, Has
 
     public function getFilamentAvatarUrl(): string
     {
-        return app(AvatarService::class)->generate($this->name);
+        return $this->profile_photo_path
+            ? Storage::disk($this->profilePhotoDisk())->url($this->profile_photo_path)
+            : app(AvatarService::class)->generate($this->name);
     }
 }
