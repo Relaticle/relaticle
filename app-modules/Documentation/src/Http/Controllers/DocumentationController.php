@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Relaticle\Documentation\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 use Relaticle\Documentation\Data\DocumentSearchRequest;
 use Relaticle\Documentation\Services\DocumentationService;
 
@@ -17,7 +18,7 @@ final readonly class DocumentationController
     /**
      * Display the documentation index page
      */
-    public function index()
+    public function index(): View
     {
         return view('documentation::index', [
             'documentTypes' => $this->documentationService->getAllDocumentTypes(),
@@ -27,7 +28,7 @@ final readonly class DocumentationController
     /**
      * Display a specific documentation page
      */
-    public function show(string $type = 'business')
+    public function show(string $type = 'business'): View
     {
         $document = $this->documentationService->getDocument($type);
 
@@ -44,7 +45,7 @@ final readonly class DocumentationController
     /**
      * Search documentation
      */
-    public function search(Request $request)
+    public function search(Request $request): View
     {
         $searchRequest = DocumentSearchRequest::from($request);
         $results = $this->documentationService->search($searchRequest);
