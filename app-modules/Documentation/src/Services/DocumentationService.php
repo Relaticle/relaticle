@@ -31,6 +31,8 @@ final class DocumentationService
 
     /**
      * Get all document types
+     *
+     * @return array<string, array<string, string>>
      */
     public function getAllDocumentTypes(): array
     {
@@ -39,6 +41,8 @@ final class DocumentationService
 
     /**
      * Search for documents matching the query
+     *
+     * @return Collection<int, DocumentSearchResultData>
      */
     public function search(DocumentSearchRequest $searchRequest): Collection
     {
@@ -79,7 +83,6 @@ final class DocumentationService
                     title: $document['title'],
                     excerpt: $this->generateExcerpt($content, $query),
                     url: DocumentSearchResultData::generateUrl($docType),
-                    matches: $this->findMatches($content, $query),
                     relevance: $this->calculateRelevance($content, $query),
                 )
             );
@@ -122,42 +125,6 @@ final class DocumentationService
         }
 
         return $excerpt;
-    }
-
-    /**
-     * Find all occurrences of the query in the content
-     */
-    private function findMatches(string $content, string $query): array
-    {
-        $matches = [];
-        $pattern = '/'.preg_quote($query, '/').'/i';
-        preg_match_all($pattern, $content, $matches, PREG_OFFSET_CAPTURE);
-
-        if (! isset($matches[0]) || empty($matches[0])) {
-            return [];
-        }
-
-        return array_map(function ($match) use ($content): array {
-            [$text, $position] = $match;
-            // Get a small snippet around the match
-            $start = max(0, $position - 20);
-            $length = strlen($text) + 40;
-            $snippet = substr($content, $start, $length);
-
-            if ($start > 0) {
-                $snippet = '...'.$snippet;
-            }
-
-            if ($start + $length < strlen($content)) {
-                $snippet .= '...';
-            }
-
-            return [
-                'text' => $text,
-                'position' => $position,
-                'snippet' => $snippet,
-            ];
-        }, $matches[0]);
     }
 
     /**
