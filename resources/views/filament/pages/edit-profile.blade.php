@@ -1,6 +1,6 @@
 <x-filament-panels::page>
     @if (Laravel\Fortify\Features::canUpdateProfileInformation())
-        @livewire(Laravel\Jetstream\Http\Livewire\UpdateProfileInformationForm::class)
+        @livewire(App\Livewire\UpdateProfileInformationForm::class)
 
         <x-section-border/>
     @endif
