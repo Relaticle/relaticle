@@ -10,8 +10,11 @@ use App\Filament\App\Resources\PeopleResource\Pages\ListPeople;
 use App\Filament\App\Resources\PeopleResource\Pages\ViewPeople;
 use App\Filament\App\Resources\PeopleResource\RelationManagers\NotesRelationManager;
 use App\Filament\App\Resources\PeopleResource\RelationManagers\TasksRelationManager;
+use App\Models\Company;
 use App\Models\People;
 use Filament\Forms;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -43,15 +46,37 @@ final class PeopleResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('name')
-                    ->required()
-                    ->maxLength(255)
-                    ->columnSpanFull(),
-                Forms\Components\Select::make('company_id')
-                    ->relationship('company', 'name')
-                    ->searchable()
-                    ->preload()
-                    ->required(),
+                Forms\Components\Grid::make()->schema([
+                    Forms\Components\TextInput::make('name')
+                        ->required()
+                        ->maxLength(255)
+                        ->columnSpan(7),
+                    Forms\Components\Select::make('company_id')
+                        ->relationship('company', 'name')
+                        ->suffixAction(
+                            Forms\Components\Actions\Action::make('Create Company')
+                                ->form([
+                                    TextInput::make('name')
+                                        ->required(),
+                                    Select::make('account_owner_id')
+                                        ->relationship('accountOwner', 'name')
+                                        ->label('Account Owner')
+                                        ->preload()
+                                        ->searchable(),
+                                    CustomFieldsComponent::make()->columns(1),
+                                ])
+                                ->icon('heroicon-o-plus')
+                                ->action(function (array $data, Forms\Set $set): void {
+                                    $company = Company::create($data);
+                                    $set('company_id', $company->id);
+                                })
+                        )
+                        ->searchable()
+                        ->preload()
+                        ->required()
+                        ->columnSpan(5),
+                ])
+                    ->columns(12),
                 CustomFieldsComponent::make()
                     ->columnSpanFull()
                     ->columns(),
