@@ -1,24 +1,6 @@
 parameters:
 	ignoreErrors:
 		-
-			message: '#^Method Relaticle\\Documentation\\Services\\DocumentationService\:\:findMatches\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app-modules/Documentation/src/Services/DocumentationService.php
-
-		-
-			message: '#^Method Relaticle\\Documentation\\Services\\DocumentationService\:\:getAllDocumentTypes\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app-modules/Documentation/src/Services/DocumentationService.php
-
-		-
-			message: '#^Method Relaticle\\Documentation\\Services\\DocumentationService\:\:search\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app-modules/Documentation/src/Services/DocumentationService.php
-
-		-
 			message: '#^Method Relaticle\\OnboardSeed\\ModelSeeders\\CompanySeeder\:\:createCompanyFromFixture\(\) has parameter \$data with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
