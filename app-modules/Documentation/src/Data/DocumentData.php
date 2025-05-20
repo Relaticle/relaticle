@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace Relaticle\Documentation\Data;
 
-use Illuminate\Support\Collection;
 use Spatie\LaravelData\Attributes\Validation\StringType;
 use Spatie\LaravelData\Data;
-use Spatie\LaravelData\Lazy;
 
 final class DocumentData extends Data
 {
@@ -23,9 +21,6 @@ final class DocumentData extends Data
 
         /** @var array<string, string> $tableOfContents */
         public array $tableOfContents,
-
-        /** @var Collection<int, mixed>|Lazy|null $sections */
-        public Collection|Lazy|null $sections = null,
 
         public ?string $description = null,
     ) {}
