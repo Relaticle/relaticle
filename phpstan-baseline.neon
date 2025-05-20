@@ -1,36 +1,6 @@
 parameters:
 	ignoreErrors:
 		-
-			message: '#^Method Relaticle\\Documentation\\Data\\DocumentSearchRequest\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app-modules/Documentation/src/Data/DocumentSearchRequest.php
-
-		-
-			message: '#^Method Relaticle\\Documentation\\Data\\DocumentSearchResultData\:\:__construct\(\) has parameter \$matches with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app-modules/Documentation/src/Data/DocumentSearchResultData.php
-
-		-
-			message: '#^Method Relaticle\\Documentation\\Http\\Controllers\\DocumentationController\:\:index\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app-modules/Documentation/src/Http/Controllers/DocumentationController.php
-
-		-
-			message: '#^Method Relaticle\\Documentation\\Http\\Controllers\\DocumentationController\:\:search\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app-modules/Documentation/src/Http/Controllers/DocumentationController.php
-
-		-
-			message: '#^Method Relaticle\\Documentation\\Http\\Controllers\\DocumentationController\:\:show\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app-modules/Documentation/src/Http/Controllers/DocumentationController.php
-
-		-
 			message: '#^Method Relaticle\\Documentation\\Services\\DocumentationService\:\:findMatches\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1

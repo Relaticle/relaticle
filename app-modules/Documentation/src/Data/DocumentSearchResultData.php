@@ -25,6 +25,9 @@ final class DocumentSearchResultData extends Data
         #[Url]
         public string $url,
 
+        /**
+         * @var array<string, array<int, array<string, string>>>
+         */
         #[WithoutValidation]
         public array $matches = [],
 
