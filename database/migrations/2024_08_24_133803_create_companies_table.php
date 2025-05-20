@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('creator_id')->nullable()->constrained('users')->onDelete('set null');
 
             // Account Owner For Companies: Your team member responsible for managing the company account
-            $table->foreignId('account_owner_id')->nullable()->constrained('users');
+            $table->foreignId('account_owner_id')->nullable()->constrained('users')->onDelete('set null');
 
             $table->string('name');
 
