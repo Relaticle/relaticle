@@ -47,6 +47,8 @@ final class CompanySeeder extends BaseModelSeeder
 
     /**
      * Create a company from fixture data
+     *
+     * @param  array<string, mixed>  $data
      */
     private function createCompanyFromFixture(Team $team, Authenticatable $user, string $key, array $data): Company
     {

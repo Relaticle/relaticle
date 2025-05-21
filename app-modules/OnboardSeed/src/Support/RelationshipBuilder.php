@@ -11,6 +11,8 @@ final class RelationshipBuilder
 {
     /**
      * Relationship definitions
+     *
+     * @var array<int, array{type: string, sourceType: string, targetType: string, relationships: array<string, string|array<string>>, foreignKey?: string|null}>
      */
     private array $relationshipDefinitions = [];
 
@@ -20,7 +22,7 @@ final class RelationshipBuilder
      * @param  string  $type  The relationship type (belongsToMany, belongsTo, hasMany)
      * @param  string  $sourceType  Source entity type
      * @param  string  $targetType  Target entity type
-     * @param  array  $relationships  Map of source keys to target keys
+     * @param  array<string, string|array<string>>  $relationships  Map of source keys to target keys
      * @param  string|null  $foreignKey  Optional foreign key name for belongsTo relationships
      */
     public function addRelationship(
@@ -44,6 +46,9 @@ final class RelationshipBuilder
     /**
      * Build all registered relationships
      */
+    /**
+     * Build all registered relationships
+     */
     public function buildAll(): void
     {
         foreach ($this->relationshipDefinitions as $definition) {
@@ -64,6 +69,8 @@ final class RelationshipBuilder
 
     /**
      * Add and build a many-to-many relationship
+     *
+     * @param  array<string, string|array<string>>  $relationships
      */
     public function belongsToMany(string $sourceType, string $targetType, array $relationships): self
     {
@@ -72,6 +79,8 @@ final class RelationshipBuilder
 
     /**
      * Add and build a belongs-to relationship
+     *
+     * @param  array<string, string|array<string>>  $relationships
      */
     public function belongsTo(string $sourceType, string $targetType, array $relationships, ?string $foreignKey = null): self
     {
@@ -80,6 +89,8 @@ final class RelationshipBuilder
 
     /**
      * Add and build a has-many relationship
+     *
+     * @param  array<string, string|array<string>>  $relationships
      */
     public function hasMany(string $sourceType, string $targetType, array $relationships): self
     {

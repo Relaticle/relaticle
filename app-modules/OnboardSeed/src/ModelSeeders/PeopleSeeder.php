@@ -68,6 +68,8 @@ final class PeopleSeeder extends BaseModelSeeder
 
     /**
      * Create a person from fixture data
+     *
+     * @param  array<string, mixed>  $data
      */
     private function createPersonFromFixture(Company $company, Authenticatable $user, string $key, array $data): People
     {

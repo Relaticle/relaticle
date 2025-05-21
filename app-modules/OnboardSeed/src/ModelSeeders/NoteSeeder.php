@@ -24,6 +24,9 @@ final class NoteSeeder extends BaseModelSeeder
     /**
      * Map of singular entity types to their plural registry keys
      */
+    /**
+     * @var array<string, string>
+     */
     private array $entityTypeMap = [
         'company' => 'companies',
         'person' => 'people',
