@@ -66,25 +66,4 @@ final class FixtureLoader
 
         return $fixtures;
     }
-
-    /**
-     * Load a specific fixture by type and key
-     *
-     * @param  string  $type  The entity type (e.g., 'companies', 'people')
-     * @param  string  $key  The fixture key
-     * @return array<string, mixed>|null The fixture data or null if not found
-     */
-    public static function loadOne(string $type, string $key): ?array
-    {
-        $path = self::getBasePath().'/'.$type.'/'.$key.'.yaml';
-
-        if (! File::exists($path)) {
-            $path = self::getBasePath().'/'.$type.'/'.$key.'.yml';
-            if (! File::exists($path)) {
-                return null;
-            }
-        }
-
-        return Yaml::parse(File::get($path));
-    }
 }
