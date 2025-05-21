@@ -17,6 +17,8 @@ abstract class BaseModelSeeder implements ModelSeederInterface
 {
     /**
      * The custom fields collection
+     *
+     * @var \Illuminate\Support\Collection<string, mixed>
      */
     protected Collection $customFieldDefinitions;
 
@@ -164,7 +166,7 @@ abstract class BaseModelSeeder implements ModelSeederInterface
     /**
      * Load fixtures for this entity type
      *
-     * @return array<string, array> The loaded fixtures
+     * @return array<string, array<string, mixed>> The loaded fixtures
      */
     protected function loadEntityFixtures(): array
     {
@@ -219,9 +221,9 @@ abstract class BaseModelSeeder implements ModelSeederInterface
      * Process custom field values for use with the model
      * Handles expressions, option lookups, and other transformations
      *
-     * @param  array  $customFields  Custom field data from fixture
-     * @param  array  $fieldMappings  Optional mappings of field codes to processors
-     * @return array Processed custom field data
+     * @param  array<string, mixed>  $customFields  Custom field data from fixture
+     * @param  array<string, callable|string>  $fieldMappings  Optional mappings of field codes to processors
+     * @return array<string, mixed> Processed custom field data
      */
     protected function processCustomFieldValues(array $customFields, array $fieldMappings = []): array
     {
@@ -256,8 +258,8 @@ abstract class BaseModelSeeder implements ModelSeederInterface
      * Create and register an entity from fixture data
      *
      * @param  string  $key  The entity key
-     * @param  array  $attributes  The entity attributes
-     * @param  array  $customFields  The custom field values
+     * @param  array<string, mixed>  $attributes  The entity attributes
+     * @param  array<string, mixed>  $customFields  The custom field values
      * @param  Team  $team  The team to create the entity for
      * @param  Authenticatable  $user  The user creating the entity
      * @return Model The created entity

@@ -66,6 +66,8 @@ final class OpportunitySeeder extends BaseModelSeeder
 
     /**
      * Create an opportunity from fixture data
+     *
+     * @param  array<string, mixed>  $data
      */
     private function createOpportunityFromFixture(
         Team $team,

@@ -57,6 +57,8 @@ final class TaskSeeder extends BaseModelSeeder
 
     /**
      * Assign people to a task based on people keys
+     *
+     * @param  array<int, string>  $peopleKeys
      */
     private function assignPeopleToTask(Task $task, array $peopleKeys): void
     {
@@ -79,6 +81,8 @@ final class TaskSeeder extends BaseModelSeeder
 
     /**
      * Create a task from fixture data
+     *
+     * @param  array<string, mixed>  $data
      */
     private function createTaskFromFixture(
         Team $team,

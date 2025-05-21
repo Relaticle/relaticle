@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\OnboardSeed\Support;
 
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Facades\File;
 use Symfony\Component\Yaml\Yaml;
 
@@ -38,7 +39,9 @@ final class FixtureLoader
      * Load fixtures for a specific entity type
      *
      * @param  string  $type  The entity type (e.g., 'companies', 'people')
-     * @return array<string, array> The loaded fixtures
+     * @return array<string, array<string, mixed>> The loaded fixtures
+     *
+     * @throws FileNotFoundException
      */
     public static function load(string $type): array
     {
@@ -69,7 +72,7 @@ final class FixtureLoader
      *
      * @param  string  $type  The entity type (e.g., 'companies', 'people')
      * @param  string  $key  The fixture key
-     * @return array|null The fixture data or null if not found
+     * @return array<string, mixed>|null The fixture data or null if not found
      */
     public static function loadOne(string $type, string $key): ?array
     {
