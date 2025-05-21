@@ -9,6 +9,7 @@ use App\Models\Task;
 use App\Models\Team;
 use App\Models\User;
 use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
 use Relaticle\OnboardSeed\Support\BaseModelSeeder;
 use Relaticle\OnboardSeed\Support\FixtureRegistry;
@@ -65,7 +66,7 @@ final class TaskSeeder extends BaseModelSeeder
         foreach ($peopleKeys as $personKey) {
             $person = FixtureRegistry::get('people', $personKey);
 
-            if (! $person instanceof \Illuminate\Database\Eloquent\Model) {
+            if (! $person instanceof Model) {
                 Log::warning("Person not found for task assignment: {$personKey}");
 
                 continue;
@@ -74,7 +75,7 @@ final class TaskSeeder extends BaseModelSeeder
             try {
                 $task->people()->attach($person->getKey());
             } catch (\Exception $e) {
-                Log::error("Failed to assign person {$personKey} to task: ".$e->getMessage());
+                report($e);
             }
         }
     }
