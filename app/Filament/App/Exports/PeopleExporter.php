@@ -39,6 +39,9 @@ final class PeopleExporter extends Exporter
 
     /**
      * Make exports tenant-aware by scoping to the current team
+     *
+     * @param  Builder<People>  $query
+     * @return Builder<People>
      */
     public static function modifyQuery(Builder $query): Builder
     {

@@ -39,6 +39,9 @@ final class OpportunityExporter extends Exporter
 
     /**
      * Make exports tenant-aware by scoping to the current team
+     *
+     * @param  Builder<Opportunity>  $query
+     * @return Builder<Opportunity>
      */
     public static function modifyQuery(Builder $query): Builder
     {
