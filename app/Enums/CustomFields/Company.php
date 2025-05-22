@@ -4,13 +4,11 @@ declare(strict_types=1);
 
 namespace App\Enums\CustomFields;
 
-use App\Enums\EnumValues;
 use Relaticle\CustomFields\Enums\CustomFieldType;
 
 enum Company: string
 {
     use CustomFieldTrait;
-    use EnumValues;
 
     /**
      * Ideal Customer Profile: Indicates whether the company is the most suitable customer for you

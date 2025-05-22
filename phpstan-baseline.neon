@@ -19,48 +19,6 @@ parameters:
 			path: app/Contracts/User/CreatesNewSocialUsers.php
 
 		-
-			message: '#^Method App\\Enums\\CreationSource\:\:values\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Enums/CreationSource.php
-
-		-
-			message: '#^Method App\\Enums\\CustomFields\\Company\:\:values\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Enums/CustomFields/Company.php
-
-		-
-			message: '#^Method App\\Enums\\CustomFields\\Note\:\:values\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Enums/CustomFields/Note.php
-
-		-
-			message: '#^Method App\\Enums\\CustomFields\\Opportunity\:\:getOptions\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Enums/CustomFields/Opportunity.php
-
-		-
-			message: '#^Method App\\Enums\\CustomFields\\Opportunity\:\:values\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Enums/CustomFields/Opportunity.php
-
-		-
-			message: '#^Method App\\Enums\\CustomFields\\People\:\:values\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Enums/CustomFields/People.php
-
-		-
-			message: '#^Method App\\Enums\\CustomFields\\Task\:\:values\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Enums/CustomFields/Task.php
-
-		-
 			message: '#^Method App\\Filament\\App\\Adapters\\OpportunitiesKanbanAdapter\:\:getItemsForColumn\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
 			identifier: missingType.generics
 			count: 1

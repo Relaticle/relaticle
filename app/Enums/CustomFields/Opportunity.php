@@ -4,18 +4,19 @@ declare(strict_types=1);
 
 namespace App\Enums\CustomFields;
 
-use App\Enums\EnumValues;
 use Relaticle\CustomFields\Enums\CustomFieldType;
 
 enum Opportunity: string
 {
     use CustomFieldTrait;
-    use EnumValues;
 
     case AMOUNT = 'amount';
     case CLOSE_DATE = 'close_date';
     case STAGE = 'stage';
 
+    /**
+     * @return string[]|null
+     */
     public function getOptions(): ?array
     {
         return match ($this) {

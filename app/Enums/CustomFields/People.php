@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Enums\CustomFields;
 
-use App\Enums\EnumValues;
 use Relaticle\CustomFields\Enums\CustomFieldType;
 
 /**
@@ -13,7 +12,6 @@ use Relaticle\CustomFields\Enums\CustomFieldType;
 enum People: string
 {
     use CustomFieldTrait;
-    use EnumValues;
 
     case EMAILS = 'emails';
     case PHONE_NUMBER = 'phone_number';
