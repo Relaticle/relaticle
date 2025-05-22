@@ -31,42 +31,6 @@ parameters:
 			path: app/Filament/App/Adapters/TasksKanbanAdapter.php
 
 		-
-			message: '#^Method App\\Filament\\App\\Exports\\CompanyExporter\:\:modifyQuery\(\) has parameter \$query with generic class Illuminate\\Database\\Eloquent\\Builder but does not specify its types\: TModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Filament/App/Exports/CompanyExporter.php
-
-		-
-			message: '#^Method App\\Filament\\App\\Exports\\CompanyExporter\:\:modifyQuery\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Filament/App/Exports/CompanyExporter.php
-
-		-
-			message: '#^Method App\\Filament\\App\\Exports\\OpportunityExporter\:\:modifyQuery\(\) has parameter \$query with generic class Illuminate\\Database\\Eloquent\\Builder but does not specify its types\: TModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Filament/App/Exports/OpportunityExporter.php
-
-		-
-			message: '#^Method App\\Filament\\App\\Exports\\OpportunityExporter\:\:modifyQuery\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Filament/App/Exports/OpportunityExporter.php
-
-		-
-			message: '#^Method App\\Filament\\App\\Exports\\PeopleExporter\:\:modifyQuery\(\) has parameter \$query with generic class Illuminate\\Database\\Eloquent\\Builder but does not specify its types\: TModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Filament/App/Exports/PeopleExporter.php
-
-		-
-			message: '#^Method App\\Filament\\App\\Exports\\PeopleExporter\:\:modifyQuery\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Filament/App/Exports/PeopleExporter.php
-
-		-
 			message: '#^Method App\\Filament\\App\\Pages\\OpportunitiesBoard\:\:getSubject\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
 			identifier: missingType.generics
 			count: 1

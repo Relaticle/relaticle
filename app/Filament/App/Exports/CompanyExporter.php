@@ -39,6 +39,9 @@ final class CompanyExporter extends Exporter
 
     /**
      * Make exports tenant-aware by scoping to the current team
+     *
+     * @param  Builder<Company>  $query
+     * @return Builder<Company>
      */
     public static function modifyQuery(Builder $query): Builder
     {
