@@ -8,8 +8,6 @@ use Filament\Support\Contracts\HasLabel;
 
 enum CreationSource: string implements HasLabel
 {
-    use EnumValues;
-
     /**
      * Created through the web application interface by a user.
      * This includes records created through forms, dashboards, and
