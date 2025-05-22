@@ -16,6 +16,11 @@ final class FetchFaviconForCompany implements ShouldBeUnique, ShouldQueue
     use Dispatchable, Queueable;
 
     /**
+     * Delete the job if its models no longer exist.
+     */
+    public bool $deleteWhenMissingModels = true;
+
+    /**
      * Create a new job instance.
      */
     public function __construct(public readonly Company $company)
