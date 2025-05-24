@@ -30,6 +30,9 @@ final class OpportunitiesBoard extends KanbanBoardPage
 
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
 
+    /**
+     * @return Builder<Opportunity>
+     */
     public function getSubject(): Builder
     {
         return Opportunity::query();
@@ -95,6 +98,9 @@ final class OpportunitiesBoard extends KanbanBoardPage
             ->firstOrFail();
     }
 
+    /**
+     * @return Collection<int, array{id: int, custom_field_id: mixed, name: mixed}>
+     */
     private function stages(): Collection
     {
         return $this->stageCustomField()->options->map(fn (CustomFieldOption $option): array => [
