@@ -9,6 +9,7 @@
         "@tailwindcss/forms": "^0.5.10",
         "@tailwindcss/typography": "^0.5.16",
         "autoprefixer": "^10.4.21",
+        "chokidar": "^4.0.3",
         "laravel-vite-plugin": "^1.2",
         "postcss": "^8.5.3",
         "postcss-nesting": "^13.0.1",

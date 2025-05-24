@@ -49,7 +49,8 @@
         "pestphp/pest-plugin-laravel": "^3.0",
         "pestphp/pest-plugin-livewire": "^3.0",
         "pestphp/pest-plugin-type-coverage": "^3.3",
-        "rector/rector": "^2.0"
+        "rector/rector": "^2.0",
+        "spatie/laravel-horizon-watcher": "^1.1"
     },
     "autoload": {
         "psr-4": {
