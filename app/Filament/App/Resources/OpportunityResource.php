@@ -108,6 +108,9 @@ final class OpportunityResource extends Resource
         ];
     }
 
+    /**
+     * @return Builder<Opportunity>
+     */
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()

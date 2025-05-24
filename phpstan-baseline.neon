@@ -13,28 +13,10 @@ parameters:
 			path: app/Actions/Jetstream/InviteTeamMember.php
 
 		-
-			message: '#^Method App\\Filament\\App\\Adapters\\OpportunitiesKanbanAdapter\:\:getItemsForColumn\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Filament/App/Adapters/OpportunitiesKanbanAdapter.php
-
-		-
 			message: '#^Method App\\Filament\\App\\Adapters\\TasksKanbanAdapter\:\:getItemsForColumn\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
 			identifier: missingType.generics
 			count: 1
 			path: app/Filament/App/Adapters/TasksKanbanAdapter.php
-
-		-
-			message: '#^Method App\\Filament\\App\\Pages\\OpportunitiesBoard\:\:getSubject\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Filament/App/Pages/OpportunitiesBoard.php
-
-		-
-			message: '#^Method App\\Filament\\App\\Pages\\OpportunitiesBoard\:\:stages\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Filament/App/Pages/OpportunitiesBoard.php
 
 		-
 			message: '#^Method App\\Filament\\App\\Pages\\TasksBoard\:\:getSubject\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
@@ -65,12 +47,6 @@ parameters:
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Filament/App/Resources/NoteResource/Forms/NoteForm.php
-
-		-
-			message: '#^Method App\\Filament\\App\\Resources\\OpportunityResource\:\:getEloquentQuery\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Filament/App/Resources/OpportunityResource.php
 
 		-
 			message: '#^Method App\\Filament\\App\\Resources\\PeopleResource\:\:getEloquentQuery\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
