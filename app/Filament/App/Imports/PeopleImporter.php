@@ -8,6 +8,7 @@ use App\Models\People;
 use Filament\Actions\Imports\ImportColumn;
 use Filament\Actions\Imports\Importer;
 use Filament\Actions\Imports\Models\Import;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Relaticle\CustomFields\Filament\Imports\CustomFieldsImporter;
 
@@ -71,18 +72,19 @@ final class PeopleImporter extends Importer
                 : (array) $originalData['custom_fields_emails'];
 
             $emails = array_map('trim', $emails);
-            $emails = array_filter($emails, fn ($email) => filter_var($email, FILTER_VALIDATE_EMAIL));
+            $emails = array_filter($emails, fn (string $email): bool => filter_var($email, FILTER_VALIDATE_EMAIL) !== false);
 
             if ($emails !== []) {
                 $existingPerson = People::query()
-                    ->when($teamId, fn ($q) => $q->where('team_id', $teamId))
-                    ->whereHas('customFieldValues', function ($q) use ($emails): void {
-                        $q->where('custom_field_id', function ($subQuery): void {
-                            $subQuery->select('id')
-                                ->from('custom_fields')
-                                ->where('code', 'emails');
-                        })
-                            ->where(function ($emailQuery) use ($emails): void {
+                    ->when($teamId, fn (Builder $q): Builder => $q->where('team_id', $teamId))
+                    ->whereHas('customFieldValues', function (Builder $q) use ($emails): void {
+                        $q
+                            ->where('custom_field_id', function (Builder $subQuery): void {
+                                $subQuery->select('id')
+                                    ->from('custom_fields')
+                                    ->where('code', 'emails');
+                            })
+                            ->where(function (Builder $emailQuery) use ($emails): void {
                                 foreach ($emails as $email) {
                                     $emailQuery->orWhereJsonContains('value_json', $email);
                                 }
