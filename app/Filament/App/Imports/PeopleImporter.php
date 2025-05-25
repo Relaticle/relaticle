@@ -11,6 +11,7 @@ use Filament\Actions\Imports\ImportColumn;
 use Filament\Actions\Imports\Importer;
 use Filament\Actions\Imports\Models\Import;
 use Filament\Facades\Filament;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Relaticle\CustomFields\Filament\Imports\CustomFieldsImporter;
 
@@ -19,192 +20,164 @@ final class PeopleImporter extends Importer
     protected static ?string $model = People::class;
 
     /**
-     * Get the team ID for this import
+     * @param  array<string, mixed>  $columnMap
+     * @param  array<string, mixed>  $options
      */
-    private function getTeamId(): ?int
+    public function __construct(Import $import, array $columnMap, array $options)
     {
-        return $this->import->team_id;
+        parent::__construct($import, $columnMap, $options);
+
+        // Store team ID on import for consistency
+        $import->team_id = Auth::user()->currentTeam?->getKey();
     }
 
     /**
-     * @param  array<string, string>  $columnMap
-     * @param  array<string, mixed>  $options
+     * @return array<int, ImportColumn>
      */
-    public function __construct(
-        Import $import,
-        array $columnMap,
-        array $options,
-    ) {
-        parent::__construct($import, $columnMap, $options);
-
-        $import->team_id = Auth::user()->currentTeam?->getKey() ?? null;
-    }
-
     public static function getColumns(): array
     {
         return [
             ImportColumn::make('name')
                 ->requiredMapping()
+                ->guess(['name', 'full_name', 'person_name'])
                 ->rules(['required', 'string', 'max:255'])
                 ->example('John Doe'),
 
             ImportColumn::make('company_name')
                 ->label('Company Name')
+                ->guess(['company_name', 'Company'])
                 ->rules(['nullable', 'string', 'max:255'])
                 ->example('Acme Corporation'),
 
-            // Add all custom fields automatically
             ...app(CustomFieldsImporter::class)->getColumns(self::getModel()),
         ];
     }
 
     public function resolveRecord(): People
     {
-        $teamId = $this->getTeamId();
+        // Try to find by exact name match first
+        $person = $this->findByName($this->data['name']);
 
-        // Get original data to access custom fields
-        $originalData = $this->getOriginalData();
-
-        // Try to find existing person by name within the same team
-        $query = People::query()->where('name', $this->data['name']);
-
-        if ($teamId) {
-            $query->where('team_id', $teamId);
+        // If not found, try to find by email
+        if (! $person) {
+            $person = $this->findByEmail();
         }
 
-        // First, try to find by exact name match
-        $existingPerson = $query->first();
-
-        // If no exact match found, try to find by email if provided
-        if (! $existingPerson && ! empty($originalData['custom_fields_emails'])) {
-            $emails = is_string($originalData['custom_fields_emails'])
-                ? explode(',', $originalData['custom_fields_emails'])
-                : (array) $originalData['custom_fields_emails'];
-
-            $emails = array_map('trim', $emails);
-            $emails = array_filter($emails, fn ($email) => filter_var($email, FILTER_VALIDATE_EMAIL));
-
-            if (! empty($emails)) {
-                $existingPerson = People::query()
-                    ->when($teamId, function ($q) use ($teamId) {
-                        return $q->where('team_id', $teamId);
-                    })
-                    ->whereHas('customFieldValues', function ($q) use ($emails) {
-                        $q->where('custom_field_id', function ($subQuery) {
-                            $subQuery->select('id')
-                                ->from('custom_fields')
-                                ->where('code', 'emails');
-                        })
-                            ->where(function ($emailQuery) use ($emails) {
-                                foreach ($emails as $email) {
-                                    $emailQuery->orWhereJsonContains('value_json', $email);
-                                }
-                            });
-                    })
-                    ->first();
-            }
-        }
-
-        return $existingPerson ?? new People;
+        return $person ?? new People;
     }
 
-    // Before filling model with data, remove custom fields
     protected function beforeFill(): void
     {
         try {
-            // Filter custom fields using the CustomFieldsImporter
+            // Use the custom fields importer to filter out custom fields
             $this->data = app(CustomFieldsImporter::class)->filterCustomFieldsFromData($this->data);
-
-            // Exclude custom fields and company fields from the data that goes to the model
-            $this->data = array_filter($this->data, function ($key) {
-                // Exclude custom fields, company_name, and Company from the data
-                return ! str_starts_with($key, 'custom_fields_')
-                    && $key !== 'company_name'
-                    && $key !== 'Company';
-            }, ARRAY_FILTER_USE_KEY);
-
         } catch (\Exception $e) {
-            // Fallback: just remove custom fields manually
+            // Fallback: manually filter custom fields
             $this->data = array_filter($this->data ?? [], function ($key) {
-                return ! str_starts_with($key, 'custom_fields_')
-                    && $key !== 'company_name'
-                    && $key !== 'Company';
+                return ! str_starts_with($key, 'custom_fields_');
             }, ARRAY_FILTER_USE_KEY);
         }
+
+        // Remove company-related fields that aren't part of the People model
+        unset($this->data['company_name']);
+        unset($this->data['Company']);
     }
 
     protected function beforeSave(): void
     {
-        // Set team_id from import
-        $teamId = $this->getTeamId();
-        if ($teamId) {
-            $this->record->setAttribute('team_id', $teamId);
-        }
+        $this->record->fill([
+            'team_id' => $this->import->team_id,
+            'creation_source' => CreationSource::IMPORT,
+        ]);
 
-        // Set creator if this is a new record and user is authenticated
+        // Set creator only for new records
         if (! $this->record->exists) {
-            $this->record->setAttribute('creator_id', $this->import->user_id);
+            $this->record->creator_id = $this->import->user_id;
         }
-
-        // Set creation source
-        $this->record->setAttribute('creation_source', CreationSource::IMPORT);
 
         // Handle company assignment
-        $originalData = $this->getOriginalData();
-
-        // Check for company name in multiple possible field names
-        $companyName = null;
-        if (! empty($originalData['company_name'])) {
-            $companyName = $originalData['company_name'];
-        } elseif (! empty($originalData['Company'])) {
-            $companyName = $originalData['Company'];
-        }
-
-        if ($companyName) {
-            $this->assignCompany($companyName);
-        }
-
-        // Remove company fields from data to avoid conflicts
-        unset($this->data['company_name']);
-        unset($this->data['Company']);
+        $this->handleCompanyAssignment();
     }
 
     protected function afterSave(): void
     {
         try {
-            // Get the tenant if using multi-tenancy
-            $tenant = Filament::getTenant();
-            $originalData = $this->getOriginalData();
-
             app(CustomFieldsImporter::class)->saveCustomFieldValues(
-                $this->record,      // The model instance
-                $originalData,      // Original data with custom fields
-                $tenant            // Optional: tenant for multi-tenancy
+                $this->record,
+                $this->getOriginalData(),
+                Filament::getTenant()
             );
-
         } catch (\Exception $e) {
             report($e);
         }
     }
 
-    /**
-     * Assign company to the person, creating it if necessary
-     */
-    private function assignCompany(string $companyName): void
+    private function findByName(string $name): ?People
     {
-        $teamId = $this->getTeamId();
+        return People::query()
+            ->where('name', $name)
+            ->when($this->import->team_id, fn (Builder $query) => $query->where('team_id', $this->import->team_id))
+            ->first();
+    }
 
-        if (! $teamId) {
-            report('No team ID available for company assignment.');
+    private function findByEmail(): ?People
+    {
+        $emails = $this->extractEmails();
 
+        if (empty($emails)) {
+            return null;
+        }
+
+        return People::query()
+            ->when($this->import->team_id, fn (Builder $query) => $query->where('team_id', $this->import->team_id))
+            ->whereHas('customFieldValues', function (Builder $query) use ($emails) {
+                $query->whereRelation('customField', 'code', 'emails')
+                    ->where(function (Builder $query) use ($emails) {
+                        foreach ($emails as $email) {
+                            $query->orWhereJsonContains('value_json', $email);
+                        }
+                    });
+            })
+            ->first();
+    }
+
+    /**
+     * Extract and validate emails from original data
+     *
+     * @return array<int, string>
+     */
+    private function extractEmails(): array
+    {
+        $emailsField = $this->getOriginalData()['custom_fields_emails'] ?? null;
+
+        if (empty($emailsField)) {
+            return [];
+        }
+
+        $emails = is_string($emailsField)
+            ? explode(',', $emailsField)
+            : (array) $emailsField;
+
+        return collect($emails)
+            ->map(fn ($email) => trim((string) $email))
+            ->filter(fn ($email) => filter_var($email, FILTER_VALIDATE_EMAIL) !== false)
+            ->values()
+            ->toArray();
+    }
+
+    private function handleCompanyAssignment(): void
+    {
+        $companyName = $this->getCompanyName();
+
+        if (! $companyName || ! $this->import->team_id) {
             return;
         }
 
         try {
-            $company = Company::query()->firstOrCreate(
+            $company = Company::firstOrCreate(
                 [
-                    'name' => trim($companyName),
-                    'team_id' => $teamId,
+                    'name' => $companyName,
+                    'team_id' => $this->import->team_id,
                 ],
                 [
                     'creator_id' => $this->import->user_id,
@@ -212,13 +185,24 @@ final class PeopleImporter extends Importer
                 ]
             );
 
-            $this->record->setAttribute('company_id', $company->getKey());
-
+            $this->record->company_id = $company->getKey();
         } catch (\Exception $e) {
             report($e);
         }
     }
 
+    private function getCompanyName(): ?string
+    {
+        $originalData = $this->getOriginalData();
+
+        $companyName = $originalData['company_name'] ?? $originalData['Company'] ?? null;
+
+        return $companyName ? trim((string) $companyName) : null;
+    }
+
+    /**
+     * @return array<string, string>
+     */
     public function getValidationMessages(): array
     {
         return [
@@ -230,10 +214,12 @@ final class PeopleImporter extends Importer
 
     public static function getCompletedNotificationBody(Import $import): string
     {
-        $body = 'Your people import has completed and '.number_format($import->successful_rows).' '.str('row')->plural($import->successful_rows).' imported.';
+        $successCount = number_format($import->successful_rows);
+        $body = "Your people import has completed and {$successCount} ".str('row')->plural($import->successful_rows).' imported.';
 
-        if ($failedRowsCount = $import->getFailedRowsCount()) {
-            $body .= ' '.number_format($failedRowsCount).' '.str('row')->plural($failedRowsCount).' failed to import.';
+        if ($failedCount = $import->getFailedRowsCount()) {
+            $failedFormatted = number_format($failedCount);
+            $body .= " {$failedFormatted} ".str('row')->plural($failedCount).' failed to import.';
         }
 
         return $body;
