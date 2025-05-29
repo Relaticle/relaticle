@@ -253,12 +253,6 @@ parameters:
 			path: app/Models/People.php
 
 		-
-			message: '#^Method App\\Models\\Scopes\\TeamScope\:\:apply\(\) has parameter \$builder with generic class Illuminate\\Database\\Eloquent\\Builder but does not specify its types\: TModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Scopes/TeamScope.php
-
-		-
 			message: '#^Method App\\Models\\Task\:\:assignees\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany does not specify its types\: TRelatedModel, TDeclaringModel, TPivotModel, TAccessor \(2\-4 required\)$#'
 			identifier: missingType.generics
 			count: 1
