@@ -19,18 +19,6 @@ parameters:
 			path: app/Filament/App/Adapters/TasksKanbanAdapter.php
 
 		-
-			message: '#^Method App\\Filament\\App\\Pages\\TasksBoard\:\:getSubject\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Filament/App/Pages/TasksBoard.php
-
-		-
-			message: '#^Method App\\Filament\\App\\Pages\\TasksBoard\:\:statuses\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Filament/App/Pages/TasksBoard.php
-
-		-
 			message: '#^Method App\\Filament\\App\\Resources\\CompanyResource\:\:getEloquentQuery\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
 			identifier: missingType.generics
 			count: 1

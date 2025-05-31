@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Relaticle\CustomFields\Models\CustomField;
+use Relaticle\CustomFields\Models\CustomFieldOption;
 use Relaticle\Flowforge\Contracts\KanbanAdapterInterface;
 use Relaticle\Flowforge\Filament\Pages\KanbanBoardPage;
 
@@ -30,6 +31,11 @@ final class TasksBoard extends KanbanBoardPage
 
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
 
+    /**
+     * The configuration for the Kanban board.
+     *
+     * @return Builder<Task>
+     */
     public function getSubject(): Builder
     {
         return Task::query();
@@ -82,10 +88,13 @@ final class TasksBoard extends KanbanBoardPage
             ->first();
     }
 
+    /**
+     * @return Collection<int, array{id: mixed, custom_field_id: mixed, name: mixed}>
+     */
     private function statuses(): Collection
     {
-        return $this->statusCustomField()->options->map(fn ($option): array => [
-            'id' => $option->id,
+        return $this->statusCustomField()->options->map(fn (CustomFieldOption $option): array => [
+            'id' => $option->getKey(),
             'custom_field_id' => $option->getAttribute('custom_field_id'),
             'name' => $option->getAttribute('name'),
         ]);
