@@ -29,11 +29,11 @@ use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 final class People extends Model implements HasCustomFields
 {
     use HasCreator;
+
     /** @use HasFactory<PeopleFactory> */
     use HasFactory;
 
     use HasNotes;
-
     use HasTeam;
     use SoftDeletes;
     use UsesCustomFields;
