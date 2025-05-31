@@ -29,11 +29,11 @@ use Spatie\EloquentSortable\SortableTrait;
 final class Opportunity extends Model implements HasCustomFields
 {
     use HasCreator;
+
     /** @use HasFactory<OpportunityFactory> */
     use HasFactory;
 
     use HasNotes;
-
     use HasTeam;
     use SoftDeletes;
     use SortableTrait;
