@@ -9,6 +9,9 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 trait HasNotes
 {
+    /**
+     * @return MorphToMany<Note, $this>
+     */
     public function notes(): MorphToMany
     {
         return $this->morphToMany(Note::class, 'noteable');

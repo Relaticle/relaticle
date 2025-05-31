@@ -8,6 +8,7 @@ use App\Enums\CreationSource;
 use App\Models\Concerns\HasCreator;
 use App\Models\Concerns\HasNotes;
 use App\Observers\OpportunityObserver;
+use Database\Factories\OpportunityFactory;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -27,7 +28,10 @@ use Spatie\EloquentSortable\SortableTrait;
 final class Opportunity extends Model implements HasCustomFields
 {
     use HasCreator;
+
+    /** @use HasFactory<OpportunityFactory> */
     use HasFactory;
+
     use HasNotes;
     use SoftDeletes;
     use SortableTrait;
@@ -61,21 +65,33 @@ final class Opportunity extends Model implements HasCustomFields
         ];
     }
 
+    /**
+     * @return BelongsTo<Team, $this>
+     */
     public function team(): BelongsTo
     {
         return $this->belongsTo(Team::class);
     }
 
+    /**
+     * @return BelongsTo<Company, $this>
+     */
     public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class);
     }
 
+    /**
+     * @return BelongsTo<People, $this>
+     */
     public function contact(): BelongsTo
     {
         return $this->belongsTo(People::class);
     }
 
+    /**
+     * @return MorphToMany<Task, $this>
+     */
     public function tasks(): MorphToMany
     {
         return $this->morphToMany(Task::class, 'taskable');
