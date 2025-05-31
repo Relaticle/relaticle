@@ -6,12 +6,12 @@ namespace App\Models;
 
 use App\Enums\CreationSource;
 use App\Models\Concerns\HasCreator;
+use App\Models\Concerns\HasTeam;
 use App\Observers\NoteObserver;
 use Database\Factories\NoteFactory;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
@@ -26,9 +26,10 @@ use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 final class Note extends Model implements HasCustomFields
 {
     use HasCreator;
-
     /** @use HasFactory<NoteFactory> */
     use HasFactory;
+
+    use HasTeam;
 
     use SoftDeletes;
     use UsesCustomFields;
@@ -59,11 +60,6 @@ final class Note extends Model implements HasCustomFields
         return [
             'creation_source' => CreationSource::class,
         ];
-    }
-
-    public function team(): BelongsTo
-    {
-        return $this->belongsTo(Team::class);
     }
 
     public function companies(): MorphToMany

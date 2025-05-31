@@ -6,12 +6,12 @@ namespace App\Models;
 
 use App\Enums\CreationSource;
 use App\Models\Concerns\HasCreator;
+use App\Models\Concerns\HasTeam;
 use App\Observers\TaskObserver;
 use Database\Factories\TaskFactory;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -32,6 +32,7 @@ final class Task extends Model implements HasCustomFields
     /** @use HasFactory<TaskFactory> */
     use HasFactory;
 
+    use HasTeam;
     use SoftDeletes;
     use SortableTrait;
     use UsesCustomFields;
@@ -68,11 +69,6 @@ final class Task extends Model implements HasCustomFields
         'order_column_name' => 'order_column',
         'sort_when_creating' => true,
     ];
-
-    public function team(): BelongsTo
-    {
-        return $this->belongsTo(Team::class);
-    }
 
     public function assignees(): BelongsToMany
     {
