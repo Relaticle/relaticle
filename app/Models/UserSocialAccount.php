@@ -4,16 +4,18 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Database\Factories\UserSocialAccountFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 final class UserSocialAccount extends Model
 {
+    /** @use HasFactory<UserSocialAccountFactory> */
     use HasFactory;
 
     /**
-     * The attributes that are mass assignable.
+     * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
     {

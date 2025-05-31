@@ -103,12 +103,6 @@ parameters:
 			path: app/Models/Company.php
 
 		-
-			message: '#^Method App\\Models\\Company\:\:team\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Company.php
-
-		-
 			message: '#^Method App\\Models\\Note\:\:companies\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\MorphToMany does not specify its types\: TRelatedModel, TDeclaringModel, TPivotModel, TAccessor \(2\-4 required\)$#'
 			identifier: missingType.generics
 			count: 1
@@ -121,12 +115,6 @@ parameters:
 			path: app/Models/Note.php
 
 		-
-			message: '#^Method App\\Models\\Note\:\:team\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Note.php
-
-		-
 			message: '#^Method App\\Models\\People\:\:company\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
 			identifier: missingType.generics
 			count: 1
@@ -134,12 +122,6 @@ parameters:
 
 		-
 			message: '#^Method App\\Models\\People\:\:tasks\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\MorphToMany does not specify its types\: TRelatedModel, TDeclaringModel, TPivotModel, TAccessor \(2\-4 required\)$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/People.php
-
-		-
-			message: '#^Method App\\Models\\People\:\:team\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
 			identifier: missingType.generics
 			count: 1
 			path: app/Models/People.php
@@ -164,12 +146,6 @@ parameters:
 
 		-
 			message: '#^Method App\\Models\\Task\:\:people\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\MorphToMany does not specify its types\: TRelatedModel, TDeclaringModel, TPivotModel, TAccessor \(2\-4 required\)$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Task.php
-
-		-
-			message: '#^Method App\\Models\\Task\:\:team\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
 			identifier: missingType.generics
 			count: 1
 			path: app/Models/Task.php
@@ -245,18 +221,6 @@ parameters:
 			identifier: missingType.generics
 			count: 1
 			path: app/Models/User.php
-
-		-
-			message: '#^Class App\\Models\\UserSocialAccount uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/UserSocialAccount.php
-
-		-
-			message: '#^Method App\\Models\\UserSocialAccount\:\:user\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/UserSocialAccount.php
 
 		-
 			message: '#^Method App\\Services\\AvatarService\:\:__construct\(\) has parameter \$backgroundColors with no value type specified in iterable type array\.$#'

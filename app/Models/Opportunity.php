@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Enums\CreationSource;
 use App\Models\Concerns\HasCreator;
 use App\Models\Concerns\HasNotes;
+use App\Models\Concerns\HasTeam;
 use App\Observers\OpportunityObserver;
 use Database\Factories\OpportunityFactory;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
@@ -28,11 +29,12 @@ use Spatie\EloquentSortable\SortableTrait;
 final class Opportunity extends Model implements HasCustomFields
 {
     use HasCreator;
-
     /** @use HasFactory<OpportunityFactory> */
     use HasFactory;
 
     use HasNotes;
+
+    use HasTeam;
     use SoftDeletes;
     use SortableTrait;
     use UsesCustomFields;
@@ -63,14 +65,6 @@ final class Opportunity extends Model implements HasCustomFields
         return [
             'creation_source' => CreationSource::class,
         ];
-    }
-
-    /**
-     * @return BelongsTo<Team, $this>
-     */
-    public function team(): BelongsTo
-    {
-        return $this->belongsTo(Team::class);
     }
 
     /**

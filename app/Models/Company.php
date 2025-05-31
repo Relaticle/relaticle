@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Enums\CreationSource;
 use App\Models\Concerns\HasCreator;
 use App\Models\Concerns\HasNotes;
+use App\Models\Concerns\HasTeam;
 use App\Observers\CompanyObserver;
 use App\Services\AvatarService;
 use Database\Factories\CompanyFactory;
@@ -41,6 +42,7 @@ final class Company extends Model implements HasCustomFields, HasMedia
     use HasFactory;
 
     use HasNotes;
+    use HasTeam;
     use InteractsWithMedia;
     use SoftDeletes;
     use UsesCustomFields;
@@ -80,11 +82,6 @@ final class Company extends Model implements HasCustomFields, HasMedia
         $logo = $this->getFirstMediaUrl('logo');
 
         return $logo === '' || $logo === '0' ? app(AvatarService::class)->generateAuto(name: $this->name) : $logo;
-    }
-
-    public function team(): BelongsTo
-    {
-        return $this->belongsTo(Team::class);
     }
 
     public function accountOwner(): BelongsTo

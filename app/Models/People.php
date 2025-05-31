@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Enums\CreationSource;
 use App\Models\Concerns\HasCreator;
 use App\Models\Concerns\HasNotes;
+use App\Models\Concerns\HasTeam;
 use App\Observers\PeopleObserver;
 use App\Services\AvatarService;
 use Database\Factories\PeopleFactory;
@@ -28,11 +29,12 @@ use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 final class People extends Model implements HasCustomFields
 {
     use HasCreator;
-
     /** @use HasFactory<PeopleFactory> */
     use HasFactory;
 
     use HasNotes;
+
+    use HasTeam;
     use SoftDeletes;
     use UsesCustomFields;
 
@@ -68,11 +70,6 @@ final class People extends Model implements HasCustomFields
     public function getAvatarAttribute(): string
     {
         return app(AvatarService::class)->generateAuto(name: $this->name, initialCount: 1);
-    }
-
-    public function team(): BelongsTo
-    {
-        return $this->belongsTo(Team::class);
     }
 
     public function company(): BelongsTo
