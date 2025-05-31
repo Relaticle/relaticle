@@ -10,58 +10,62 @@ use App\Models\Task;
 use App\Models\Team;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Relaticle\CustomFields\Models\Concerns\UsesCustomFields;
+use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
 uses(RefreshDatabase::class);
 
 test('company belongs to team', function () {
     $team = Team::factory()->create();
     $company = Company::factory()->create([
-        'team_id' => $team->id,
+        'team_id' => $team->getKey(),
     ]);
 
     expect($company->team)->toBeInstanceOf(Team::class)
-        ->and($company->team->id)->toBe($team->id);
+        ->and($company->team->getKey())->toBe($team->getKey());
 });
 
 test('company belongs to creator', function () {
     $user = User::factory()->create();
     $company = Company::factory()->create([
-        'creator_id' => $user->id,
+        'creator_id' => $user->getKey(),
     ]);
 
     expect($company->creator)->toBeInstanceOf(User::class)
-        ->and($company->creator->id)->toBe($user->id);
-})->todo();
+        ->and($company->creator->getKey())->toBe($user->getKey());
+});
 
 test('company belongs to account owner', function () {
     $user = User::factory()->create();
     $company = Company::factory()->create([
-        'account_owner_id' => $user->id,
+        'account_owner_id' => $user->getKey(),
     ]);
 
     expect($company->accountOwner)->toBeInstanceOf(User::class)
-        ->and($company->accountOwner->id)->toBe($user->id);
+        ->and($company->accountOwner->getKey())->toBe($user->getKey());
 })->todo();
 
 test('company has many people', function () {
     $company = Company::factory()->create();
     $people = People::factory()->create([
-        'company_id' => $company->id,
+        'company_id' => $company->getKey(),
     ]);
 
     expect($company->people->first())->toBeInstanceOf(People::class)
-        ->and($company->people->first()->id)->toBe($people->id);
-})->todo();
+        ->and($company->people->first()->getKey())->toBe($people->getKey());
+});
 
 test('company has many opportunities', function () {
     $company = Company::factory()->create();
     $opportunity = Opportunity::factory()->create([
-        'company_id' => $company->id,
+        'company_id' => $company->getKey(),
     ]);
 
     expect($company->opportunities->first())->toBeInstanceOf(Opportunity::class)
-        ->and($company->opportunities->first()->id)->toBe($opportunity->id);
-})->todo();
+        ->and($company->opportunities->first()->getKey())->toBe($opportunity->getKey());
+});
 
 test('company morph to many tasks', function () {
     $company = Company::factory()->create();
@@ -70,8 +74,8 @@ test('company morph to many tasks', function () {
     $company->tasks()->attach($task);
 
     expect($company->tasks->first())->toBeInstanceOf(Task::class)
-        ->and($company->tasks->first()->id)->toBe($task->id);
-})->todo();
+        ->and($company->tasks->first()->getKey())->toBe($task->getKey());
+});
 
 test('company morph to many notes', function () {
     $company = Company::factory()->create();
@@ -80,8 +84,8 @@ test('company morph to many notes', function () {
     $company->notes()->attach($note);
 
     expect($company->notes->first())->toBeInstanceOf(Note::class)
-        ->and($company->notes->first()->id)->toBe($note->id);
-})->todo();
+        ->and($company->notes->first()->getKey())->toBe($note->getKey());
+});
 
 test('company has logo attribute', function () {
     $company = Company::factory()->create([
@@ -89,18 +93,18 @@ test('company has logo attribute', function () {
     ]);
 
     expect($company->logo)->not->toBeNull();
-})->todo();
+});
 
 test('company uses media library', function () {
     $company = Company::factory()->create();
 
-    expect(class_implements($company))->toContain(\Spatie\MediaLibrary\HasMedia::class)
-        ->and(class_uses_recursive($company))->toContain(\Spatie\MediaLibrary\InteractsWithMedia::class);
-})->todo();
+    expect(class_implements($company))->toContain(HasMedia::class)
+        ->and(class_uses_recursive($company))->toContain(InteractsWithMedia::class);
+});
 
 test('company uses custom fields', function () {
     $company = Company::factory()->create();
 
-    expect(class_implements($company))->toContain(\Relaticle\CustomFields\Models\Contracts\HasCustomFields::class)
-        ->and(class_uses_recursive($company))->toContain(\Relaticle\CustomFields\Models\Concerns\UsesCustomFields::class);
-})->todo();
+    expect(class_implements($company))->toContain(HasCustomFields::class)
+        ->and(class_uses_recursive($company))->toContain(UsesCustomFields::class);
+});
