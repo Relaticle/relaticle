@@ -80,6 +80,9 @@ final class Team extends JetstreamTeam implements HasAvatar
         return $this->hasMany(Opportunity::class);
     }
 
+    /**
+     * @return HasMany<Note, $this>
+     */
     public function notes(): HasMany
     {
         return $this->hasMany(Note::class);

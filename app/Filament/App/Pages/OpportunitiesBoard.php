@@ -99,12 +99,12 @@ final class OpportunitiesBoard extends KanbanBoardPage
     }
 
     /**
-     * @return Collection<int, array{id: int, custom_field_id: mixed, name: mixed}>
+     * @return Collection<int, array{id: mixed, custom_field_id: mixed, name: mixed}>
      */
     private function stages(): Collection
     {
         return $this->stageCustomField()->options->map(fn (CustomFieldOption $option): array => [
-            'id' => $option->id,
+            'id' => $option->getKey(),
             'custom_field_id' => $option->getAttribute('custom_field_id'),
             'name' => $option->getAttribute('name'),
         ]);

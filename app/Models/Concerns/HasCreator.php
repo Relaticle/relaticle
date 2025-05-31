@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 trait HasCreator
 {
     /**
-     * Get the user who created this record.
+     * @return BelongsTo<User, $this>
      */
     public function creator(): BelongsTo
     {
@@ -23,7 +23,7 @@ trait HasCreator
     }
 
     /**
-     * Determine if the record was created by the system.
+     * Determine if the system created the record.
      */
     public function isSystemCreated(): bool
     {
@@ -31,7 +31,7 @@ trait HasCreator
     }
 
     /**
-     * Get the formatted name of who created this record.
+     * @return Attribute<string, never>
      */
     public function createdBy(): Attribute
     {
