@@ -82,11 +82,17 @@ final class User extends Authenticatable implements FilamentUser, HasAvatar, Has
         ];
     }
 
+    /**
+     * @return HasMany<UserSocialAccount, $this>
+     */
     public function socialAccounts(): HasMany
     {
         return $this->hasMany(UserSocialAccount::class);
     }
 
+    /**
+     * @return BelongsToMany<Task, $this>
+     */
     public function tasks(): BelongsToMany
     {
         return $this->belongsToMany(Task::class);
@@ -104,6 +110,9 @@ final class User extends Authenticatable implements FilamentUser, HasAvatar, Has
         return true;
     }
 
+    /**
+     * @return Collection<int, Team>
+     */
     public function getTenants(Panel $panel): Collection
     {
         return $this->allTeams();
