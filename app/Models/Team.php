@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Services\AvatarService;
+use Database\Factories\TeamFactory;
 use Filament\Models\Contracts\HasAvatar;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -15,6 +16,7 @@ use Laravel\Jetstream\Team as JetstreamTeam;
 
 final class Team extends JetstreamTeam implements HasAvatar
 {
+    /** @use HasFactory<TeamFactory> */
     use HasFactory;
 
     /**

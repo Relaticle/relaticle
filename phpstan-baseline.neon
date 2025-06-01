@@ -79,12 +79,6 @@ parameters:
 			path: app/Models/Task.php
 
 		-
-			message: '#^Class App\\Models\\Team uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Team.php
-
-		-
 			message: '#^Method App\\Models\\Team\:\:companies\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
 			identifier: missingType.generics
 			count: 1
@@ -119,12 +113,6 @@ parameters:
 			identifier: argument.templateType
 			count: 1
 			path: app/Models/TeamInvitation.php
-
-		-
-			message: '#^Class App\\Models\\User uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/User.php
 
 		-
 			message: '#^Method App\\Models\\User\:\:getTenants\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
