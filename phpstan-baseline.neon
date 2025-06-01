@@ -161,15 +161,3 @@ parameters:
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Services/AvatarService.php
-
-		-
-			message: '#^Class Database\\Factories\\OpportunityFactory extends generic class Illuminate\\Database\\Eloquent\\Factories\\Factory but does not specify its types\: TModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: database/factories/OpportunityFactory.php
-
-		-
-			message: '#^Class Database\\Factories\\TaskFactory extends generic class Illuminate\\Database\\Eloquent\\Factories\\Factory but does not specify its types\: TModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: database/factories/TaskFactory.php

@@ -10,6 +10,9 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Carbon;
 
+/**
+ * @extends Factory<Task>
+ */
 final class TaskFactory extends Factory
 {
     protected $model = Task::class;
