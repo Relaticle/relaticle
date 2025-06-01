@@ -12,6 +12,9 @@ use Relaticle\Flowforge\Adapters\DefaultKanbanAdapter;
 
 final class TasksKanbanAdapter extends DefaultKanbanAdapter
 {
+    /**
+     * @return Collection<int, mixed>
+     */
     public function getItemsForColumn(string|int $columnId, int $limit = 50): Collection
     {
         $orderField = $this->config->getOrderField();

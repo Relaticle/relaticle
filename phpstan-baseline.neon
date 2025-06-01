@@ -1,13 +1,2 @@
 parameters:
 	ignoreErrors:
-		-
-			message: '#^Method App\\Filament\\App\\Adapters\\TasksKanbanAdapter\:\:getItemsForColumn\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Filament/App/Adapters/TasksKanbanAdapter.php
-
-		-
-			message: '#^Property App\\Livewire\\UpdateProfileInformationForm\:\:\$state type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/UpdateProfileInformationForm.php
