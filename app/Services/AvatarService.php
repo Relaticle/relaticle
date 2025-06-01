@@ -324,7 +324,6 @@ final readonly class AvatarService
     }
 
     /**
-     * @param string $hexColor
      * @return int[]
      */
     private function hexToHsl(string $hexColor): array
@@ -450,7 +449,6 @@ final readonly class AvatarService
     }
 
     /**
-     * @param string $name
      * @return array<string, float|int>
      */
     private function analyzeNameCharacteristics(string $name): array
