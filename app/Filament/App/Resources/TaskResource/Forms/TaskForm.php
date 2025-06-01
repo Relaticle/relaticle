@@ -9,6 +9,9 @@ use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent;
 
 final class TaskForm
 {
+    /**
+     * @param  array<string>  $excludeFields
+     */
     public static function get(Forms\Form $form, array $excludeFields = []): Forms\Form
     {
         $schema = [

@@ -117,7 +117,7 @@ final class TaskResource extends Resource
                         $table = $query->getModel()->getTable();
                         $key = $query->getModel()->getKeyName();
 
-                        /** @var Builder $orderByQuery */
+                        /** @var Builder<Task> $orderByQuery */
                         $orderByQuery = $customFields->get('status')
                             ->values()
                             ->select($customFields->get('status')->getValueColumn())
@@ -138,7 +138,7 @@ final class TaskResource extends Resource
                         $table = $query->getModel()->getTable();
                         $key = $query->getModel()->getKeyName();
 
-                        /** @var Builder $orderByQuery */
+                        /** @var Builder<Task> $orderByQuery */
                         $orderByQuery = $customFields->get('priority')->values()
                             ->select($customFields->get('priority')->getValueColumn())
                             ->whereColumn('custom_field_values.entity_id', "$table.$key")
@@ -163,12 +163,12 @@ final class TaskResource extends Resource
 
                                 $record->update($data);
 
+                                /** @var Collection<int, User> $assignees */
+                                $assignees = $record->assignees;
+
                                 // TODO: Improve the logic to check if the task is already assigned to the user
                                 // Send notifications to assignees if they haven't been notified about this task yet
-                                if ($record->assignees->isNotEmpty()) {
-                                    /** @var Collection<int, User> $assignees */
-                                    $assignees = $record->assignees;
-
+                                if ($assignees->isNotEmpty()) {
                                     $assignees->each(function (User $recipient) use ($record): void {
                                         // Check if a notification for this task already exists for this user
                                         $notificationExists = $recipient->notifications()
@@ -223,6 +223,9 @@ final class TaskResource extends Resource
         ];
     }
 
+    /**
+     * @return Builder<Task>
+     */
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
