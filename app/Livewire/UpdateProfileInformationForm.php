@@ -16,7 +16,9 @@ final class UpdateProfileInformationForm extends Component
     use WithFileUploads;
 
     /**
-     * The component's state.
+     * The state of the form.
+     *
+     * @var array<string, mixed>
      */
     public array $state = [];
 
