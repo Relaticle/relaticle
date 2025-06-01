@@ -65,26 +65,41 @@ final class Task extends Model implements HasCustomFields
         ];
     }
 
+    /**
+     * @var array{order_column_name: 'order_column', sort_when_creating: true}
+     */
     public array $sortable = [
         'order_column_name' => 'order_column',
         'sort_when_creating' => true,
     ];
 
+    /**
+     * @return BelongsToMany<User, $this>
+     */
     public function assignees(): BelongsToMany
     {
         return $this->belongsToMany(User::class);
     }
 
+    /**
+     * @return MorphToMany<Company, $this>
+     */
     public function companies(): MorphToMany
     {
         return $this->morphedByMany(Company::class, 'taskable');
     }
 
+    /**
+     * @return MorphToMany<Opportunity, $this>
+     */
     public function opportunities(): MorphToMany
     {
         return $this->morphedByMany(Opportunity::class, 'taskable');
     }
 
+    /**
+     * @return MorphToMany<People, $this>
+     */
     public function people(): MorphToMany
     {
         return $this->morphedByMany(People::class, 'taskable');
