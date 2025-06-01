@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Services\AvatarService;
+use Database\Factories\UserFactory;
 use Exception;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasAvatar;
@@ -27,7 +28,10 @@ use Laravel\Sanctum\HasApiTokens;
 final class User extends Authenticatable implements FilamentUser, HasAvatar, HasTenants, MustVerifyEmail
 {
     use HasApiTokens;
+
+    /** @use HasFactory<UserFactory> */
     use HasFactory;
+
     use HasProfilePhoto;
     use HasTeams;
     use Notifiable;
