@@ -62,21 +62,33 @@ final class Team extends JetstreamTeam implements HasAvatar
         return app(AvatarService::class)->generate(name: $this->name, bgColor: '#000000', textColor: '#ffffff');
     }
 
+    /**
+     * @return HasMany<People, $this>
+     */
     public function people(): HasMany
     {
         return $this->hasMany(People::class);
     }
 
+    /**
+     * @return HasMany<Company, $this>
+     */
     public function companies(): HasMany
     {
         return $this->hasMany(Company::class);
     }
 
+    /**
+     * @return HasMany<Task, $this>
+     */
     public function tasks(): HasMany
     {
         return $this->hasMany(Task::class);
     }
 
+    /**
+     * @return HasMany<Opportunity, $this>
+     */
     public function opportunities(): HasMany
     {
         return $this->hasMany(Opportunity::class);
