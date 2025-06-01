@@ -84,21 +84,35 @@ final class Company extends Model implements HasCustomFields, HasMedia
         return $logo === '' || $logo === '0' ? app(AvatarService::class)->generateAuto(name: $this->name) : $logo;
     }
 
+    /**
+     * Team member responsible for managing the company account
+     *
+     * @return BelongsTo<User, $this>
+     */
     public function accountOwner(): BelongsTo
     {
         return $this->belongsTo(User::class, 'account_owner_id');
     }
 
+    /**
+     * @return HasMany<People, $this>
+     */
     public function people(): HasMany
     {
         return $this->hasMany(People::class);
     }
 
+    /**
+     * @return HasMany<Opportunity, $this>
+     */
     public function opportunities(): HasMany
     {
         return $this->hasMany(Opportunity::class);
     }
 
+    /**
+     * @return MorphToMany<Task, $this>
+     */
     public function tasks(): MorphToMany
     {
         return $this->morphToMany(Task::class, 'taskable');

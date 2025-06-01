@@ -19,12 +19,6 @@ parameters:
 			path: app/Filament/App/Adapters/TasksKanbanAdapter.php
 
 		-
-			message: '#^Method App\\Filament\\App\\Resources\\CompanyResource\:\:getEloquentQuery\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Filament/App/Resources/CompanyResource.php
-
-		-
 			message: '#^Method App\\Filament\\App\\Resources\\PeopleResource\:\:getEloquentQuery\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
 			identifier: missingType.generics
 			count: 1
@@ -65,30 +59,6 @@ parameters:
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Livewire/UpdateProfileInformationForm.php
-
-		-
-			message: '#^Method App\\Models\\Company\:\:accountOwner\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Company.php
-
-		-
-			message: '#^Method App\\Models\\Company\:\:opportunities\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Company.php
-
-		-
-			message: '#^Method App\\Models\\Company\:\:people\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Company.php
-
-		-
-			message: '#^Method App\\Models\\Company\:\:tasks\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\MorphToMany does not specify its types\: TRelatedModel, TDeclaringModel, TPivotModel, TAccessor \(2\-4 required\)$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Company.php
 
 		-
 			message: '#^Method App\\Models\\People\:\:company\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
