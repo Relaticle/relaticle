@@ -62,11 +62,17 @@ final class Note extends Model implements HasCustomFields
         ];
     }
 
+    /**
+     * @return MorphToMany<Company, $this>
+     */
     public function companies(): MorphToMany
     {
         return $this->morphedByMany(Company::class, 'noteable');
     }
 
+    /**
+     * @return MorphToMany<People, $this>
+     */
     public function people(): MorphToMany
     {
         return $this->morphedByMany(People::class, 'noteable');

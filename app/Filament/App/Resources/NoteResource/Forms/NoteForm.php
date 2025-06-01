@@ -11,6 +11,11 @@ use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent;
 
 final class NoteForm
 {
+    /**
+     * @param  Forms\Form  $form  The form instance to modify.
+     * @param  array<string>  $excludeFields  Fields to exclude from the form.
+     * @return Forms\Form The modified form instance with the schema applied.
+     */
     public static function get(Forms\Form $form, array $excludeFields = []): Forms\Form
     {
         $schema = [

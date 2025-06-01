@@ -25,18 +25,6 @@ parameters:
 			path: app/Filament/App/Resources/CompanyResource.php
 
 		-
-			message: '#^Method App\\Filament\\App\\Resources\\NoteResource\:\:getEloquentQuery\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Filament/App/Resources/NoteResource.php
-
-		-
-			message: '#^Method App\\Filament\\App\\Resources\\NoteResource\\Forms\\NoteForm\:\:get\(\) has parameter \$excludeFields with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Filament/App/Resources/NoteResource/Forms/NoteForm.php
-
-		-
 			message: '#^Method App\\Filament\\App\\Resources\\PeopleResource\:\:getEloquentQuery\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
 			identifier: missingType.generics
 			count: 1
@@ -101,18 +89,6 @@ parameters:
 			identifier: missingType.generics
 			count: 1
 			path: app/Models/Company.php
-
-		-
-			message: '#^Method App\\Models\\Note\:\:companies\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\MorphToMany does not specify its types\: TRelatedModel, TDeclaringModel, TPivotModel, TAccessor \(2\-4 required\)$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Note.php
-
-		-
-			message: '#^Method App\\Models\\Note\:\:people\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\MorphToMany does not specify its types\: TRelatedModel, TDeclaringModel, TPivotModel, TAccessor \(2\-4 required\)$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Note.php
 
 		-
 			message: '#^Method App\\Models\\People\:\:company\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
