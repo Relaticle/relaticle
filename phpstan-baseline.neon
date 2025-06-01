@@ -7,31 +7,7 @@ parameters:
 			path: app/Filament/App/Adapters/TasksKanbanAdapter.php
 
 		-
-			message: '#^Method App\\Filament\\Components\\Infolists\\AvatarName\:\:getState\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Filament/Components/Infolists/AvatarName.php
-
-		-
 			message: '#^Property App\\Livewire\\UpdateProfileInformationForm\:\:\$state type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Livewire/UpdateProfileInformationForm.php
-
-		-
-			message: '#^Method App\\Services\\AvatarService\:\:__construct\(\) has parameter \$backgroundColors with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Services/AvatarService.php
-
-		-
-			message: '#^Method App\\Services\\AvatarService\:\:analyzeNameCharacteristics\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Services/AvatarService.php
-
-		-
-			message: '#^Method App\\Services\\AvatarService\:\:hexToHsl\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Services/AvatarService.php

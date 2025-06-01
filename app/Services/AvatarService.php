@@ -15,7 +15,7 @@ final readonly class AvatarService
     private const float MINIMUM_CONTRAST_RATIO = 4.5;
 
     /**
-     * Create a new avatar service instance.
+     * @param  array<int, string>  $backgroundColors
      */
     public function __construct(
         private Cache $cache,
@@ -324,7 +324,8 @@ final readonly class AvatarService
     }
 
     /**
-     * Convert hex color to HSL.
+     * @param string $hexColor
+     * @return int[]
      */
     private function hexToHsl(string $hexColor): array
     {
@@ -449,10 +450,8 @@ final readonly class AvatarService
     }
 
     /**
-     * Analyze name characteristics for color adjustments.
-     *
-     * @param  string  $name  The name to analyze
-     * @return array Characteristics including length factor, vowel ratio, uniqueness, and overall adjustment value
+     * @param string $name
+     * @return array<string, float|int>
      */
     private function analyzeNameCharacteristics(string $name): array
     {
