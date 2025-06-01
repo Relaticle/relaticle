@@ -160,6 +160,9 @@ final class PeopleResource extends Resource
         ];
     }
 
+    /**
+     * @return Builder<People>
+     */
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()

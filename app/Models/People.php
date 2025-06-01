@@ -72,11 +72,17 @@ final class People extends Model implements HasCustomFields
         return app(AvatarService::class)->generateAuto(name: $this->name, initialCount: 1);
     }
 
+    /**
+     * @return BelongsTo<Company, $this>
+     */
     public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class);
     }
 
+    /**
+     * @return MorphToMany<Task, $this>
+     */
     public function tasks(): MorphToMany
     {
         return $this->morphToMany(Task::class, 'taskable');

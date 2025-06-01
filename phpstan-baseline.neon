@@ -19,12 +19,6 @@ parameters:
 			path: app/Filament/App/Adapters/TasksKanbanAdapter.php
 
 		-
-			message: '#^Method App\\Filament\\App\\Resources\\PeopleResource\:\:getEloquentQuery\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Filament/App/Resources/PeopleResource.php
-
-		-
 			message: '#^Method App\\Filament\\App\\Resources\\TaskResource\:\:getEloquentQuery\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
 			identifier: missingType.generics
 			count: 1
@@ -49,28 +43,10 @@ parameters:
 			path: app/Filament/Components/Infolists/AvatarName.php
 
 		-
-			message: '#^Method App\\Http\\Controllers\\HomeController\:\:__invoke\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Http/Controllers/HomeController.php
-
-		-
 			message: '#^Property App\\Livewire\\UpdateProfileInformationForm\:\:\$state type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Livewire/UpdateProfileInformationForm.php
-
-		-
-			message: '#^Method App\\Models\\People\:\:company\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/People.php
-
-		-
-			message: '#^Method App\\Models\\People\:\:tasks\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\MorphToMany does not specify its types\: TRelatedModel, TDeclaringModel, TPivotModel, TAccessor \(2\-4 required\)$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/People.php
 
 		-
 			message: '#^Method App\\Models\\Task\:\:assignees\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany does not specify its types\: TRelatedModel, TDeclaringModel, TPivotModel, TAccessor \(2\-4 required\)$#'
