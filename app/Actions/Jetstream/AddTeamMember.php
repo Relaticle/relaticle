@@ -7,6 +7,7 @@ namespace App\Actions\Jetstream;
 use App\Models\Team;
 use App\Models\User;
 use Closure;
+use Illuminate\Contracts\Validation\Rule;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Jetstream\Contracts\AddsTeamMembers;
@@ -55,16 +56,14 @@ final readonly class AddTeamMember implements AddsTeamMembers
     /**
      * Get the validation rules for adding a team member.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\Rule|array|string>
+     * @return array<string, array<int, string|Rule>>
      */
     private function rules(): array
     {
-        return array_filter([
+        return [
             'email' => ['required', 'email', 'exists:users'],
-            'role' => Jetstream::hasRoles()
-                ? ['required', 'string', new Role]
-                : null,
-        ]);
+            'role' => ['required', 'string', new Role],
+        ];
     }
 
     /**
