@@ -6,6 +6,7 @@ namespace Relaticle\Documentation\Data;
 
 use Spatie\LaravelData\Attributes\Validation\StringType;
 use Spatie\LaravelData\Data;
+use Spatie\LaravelMarkdown\MarkdownRenderer;
 
 final class DocumentData extends Data
 {
@@ -45,16 +46,17 @@ final class DocumentData extends Data
         $realPath = realpath($path);
         $resourcePath = realpath(config('documentation.markdown.base_path'));
 
-        if ($realPath === '0' || $realPath === false || ! str_starts_with($realPath, $resourcePath)) {
+        abort_if($resourcePath === false, 500, 'Unable to determine resource path');
+
+        if ($realPath === '0' || $realPath === false || ! str_starts_with($realPath, $resourcePath) || ! file_exists($realPath)) {
             abort(404, 'Document not found');
         }
 
-        $content = file_exists($realPath)
-            ? file_get_contents($realPath)
-            : '# Document Not Found';
+        $content = file_get_contents($realPath);
 
-        $renderedContent = app(\Spatie\LaravelMarkdown\MarkdownRenderer::class)
-            ->toHtml($content);
+        abort_if($content === false, 500, 'Unable to read document content');
+
+        $renderedContent = app(MarkdownRenderer::class)->toHtml($content);
 
         $tableOfContents = self::extractTableOfContents($renderedContent);
 
@@ -86,7 +88,7 @@ final class DocumentData extends Data
     }
 
     /**
-     * Get the path to the markdown file
+     * Get the path to the Markdown file
      */
     private static function getMarkdownPath(string $file): string
     {

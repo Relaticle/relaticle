@@ -1,2 +1,157 @@
 parameters:
 	ignoreErrors:
+		-
+			message: '#^Cannot access offset ''host'' on array\{scheme\?\: string, host\?\: string, port\?\: int\<0, 65535\>, user\?\: string, pass\?\: string, path\?\: string, query\?\: string, fragment\?\: string\}\|false\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: app-modules/Admin/src/AdminPanelProvider.php
+
+		-
+			message: '#^Parameter \#1 \$content of method Relaticle\\Documentation\\Services\\DocumentationService\:\:calculateRelevance\(\) expects string, string\|false given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app-modules/Documentation/src/Services/DocumentationService.php
+
+		-
+			message: '#^Parameter \#1 \$content of method Relaticle\\Documentation\\Services\\DocumentationService\:\:generateExcerpt\(\) expects string, string\|false given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app-modules/Documentation/src/Services/DocumentationService.php
+
+		-
+			message: '#^Parameter \#1 \$haystack of function stripos expects string, string\|false given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app-modules/Documentation/src/Services/DocumentationService.php
+
+		-
+			message: '#^Call to an undefined method object\:\:saveCustomFieldValue\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app-modules/OnboardSeed/src/Support/BaseModelSeeder.php
+
+		-
+			message: '#^Access to an undefined property object\:\:\$value\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Listeners/CreateTeamCustomFields.php
+
+		-
+			message: '#^Call to an undefined method object\:\:getDisplayName\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Listeners/CreateTeamCustomFields.php
+
+		-
+			message: '#^Call to an undefined method object\:\:getFieldType\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Listeners/CreateTeamCustomFields.php
+
+		-
+			message: '#^Call to an undefined method object\:\:getOptions\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Listeners/CreateTeamCustomFields.php
+
+		-
+			message: '#^Call to an undefined method object\:\:getWidth\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Listeners/CreateTeamCustomFields.php
+
+		-
+			message: '#^Call to an undefined method object\:\:isListToggleableHidden\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Listeners/CreateTeamCustomFields.php
+
+		-
+			message: '#^Call to an undefined method object\:\:isSystemDefined\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Listeners/CreateTeamCustomFields.php
+
+		-
+			message: '#^Call to an undefined method Filament\\Models\\Contracts\\HasTenants\|Illuminate\\Contracts\\Auth\\Authenticatable\|Illuminate\\Database\\Eloquent\\Model\:\:switchTeam\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Listeners/SwitchTeam.php
+
+		-
+			message: '#^Property App\\Models\\Company\:\:\$creator_id \(int\|null\) does not accept int\|string\|null\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: app/Observers/CompanyObserver.php
+
+		-
+			message: '#^Property App\\Models\\Note\:\:\$creator_id \(int\|null\) does not accept int\|string\|null\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: app/Observers/NoteObserver.php
+
+		-
+			message: '#^Property App\\Models\\Opportunity\:\:\$creator_id \(int\|null\) does not accept int\|string\|null\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: app/Observers/OpportunityObserver.php
+
+		-
+			message: '#^Property App\\Models\\People\:\:\$creator_id \(int\|null\) does not accept int\|string\|null\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: app/Observers/PeopleObserver.php
+
+		-
+			message: '#^Property App\\Models\\Task\:\:\$creator_id \(int\|null\) does not accept int\|string\|null\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: app/Observers/TaskObserver.php
+
+		-
+			message: '#^Cannot access offset ''host'' on array\{scheme\?\: string, host\?\: string, port\?\: int\<0, 65535\>, user\?\: string, pass\?\: string, path\?\: string, query\?\: string, fragment\?\: string\}\|false\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: app/Providers/Filament/AppPanelProvider.php
+
+		-
+			message: '#^Cannot access offset ''host'' on array\{scheme\?\: string, host\?\: string, port\?\: int\<0, 65535\>, user\?\: string, pass\?\: string, path\?\: string, query\?\: string, fragment\?\: string\}\|false\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: app/Providers/MacroServiceProvider.php
+
+		-
+			message: '#^Parameter \#1 \$array of function array_filter expects array, list\<string\>\|false given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Services/AvatarService.php
+
+		-
+			message: '#^Method App\\Services\\GitHubService\:\:getFormattedStarsCount\(\) should return string but returns bool\|string\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Services/GitHubService.php
+
+		-
+			message: '#^Parameter \#1 \$title of static method Illuminate\\Support\\Str\:\:slug\(\) expects string, bool\|string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: config/cache.php
+
+		-
+			message: '#^Parameter \#1 \$title of static method Illuminate\\Support\\Str\:\:slug\(\) expects string, bool\|string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: config/database.php
+
+		-
+			message: '#^Parameter \#1 \$title of static method Illuminate\\Support\\Str\:\:slug\(\) expects string, bool\|string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: config/horizon.php
+
+		-
+			message: '#^Parameter \#1 \$title of static method Illuminate\\Support\\Str\:\:slug\(\) expects string, bool\|string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: config/session.php
