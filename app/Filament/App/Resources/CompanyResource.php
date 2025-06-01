@@ -140,6 +140,9 @@ final class CompanyResource extends Resource
         return ['name'];
     }
 
+    /**
+     * @return Builder<Company>
+     */
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
