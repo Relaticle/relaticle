@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Components\Infolists;
 
 use Filament\Infolists\Components\Entry;
+use Illuminate\Database\Eloquent\Model;
 
 final class AvatarName extends Entry
 {
@@ -62,11 +63,14 @@ final class AvatarName extends Entry
         return $this;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getState(): array
     {
         $record = $this->getRecord();
 
-        if (! $record instanceof \Illuminate\Database\Eloquent\Model) {
+        if (! $record instanceof Model) {
             return [
                 'avatar' => null,
                 'name' => null,
