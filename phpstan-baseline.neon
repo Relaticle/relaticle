@@ -79,42 +79,6 @@ parameters:
 			path: app/Models/Task.php
 
 		-
-			message: '#^Method App\\Models\\Team\:\:companies\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Team.php
-
-		-
-			message: '#^Method App\\Models\\Team\:\:opportunities\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Team.php
-
-		-
-			message: '#^Method App\\Models\\Team\:\:people\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Team.php
-
-		-
-			message: '#^Method App\\Models\\Team\:\:tasks\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Team.php
-
-		-
-			message: '#^Method App\\Models\\TeamInvitation\:\:team\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/TeamInvitation.php
-
-		-
-			message: '#^Unable to resolve the template type TRelatedModel in call to method Illuminate\\Database\\Eloquent\\Model\:\:belongsTo\(\)$#'
-			identifier: argument.templateType
-			count: 1
-			path: app/Models/TeamInvitation.php
-
-		-
 			message: '#^Method App\\Services\\AvatarService\:\:__construct\(\) has parameter \$backgroundColors with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
