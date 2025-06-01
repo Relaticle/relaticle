@@ -115,24 +115,6 @@ parameters:
 			path: app/Models/TeamInvitation.php
 
 		-
-			message: '#^Method App\\Models\\User\:\:getTenants\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/User.php
-
-		-
-			message: '#^Method App\\Models\\User\:\:socialAccounts\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/User.php
-
-		-
-			message: '#^Method App\\Models\\User\:\:tasks\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany does not specify its types\: TRelatedModel, TDeclaringModel, TPivotModel, TAccessor \(2\-4 required\)$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/User.php
-
-		-
 			message: '#^Method App\\Services\\AvatarService\:\:__construct\(\) has parameter \$backgroundColors with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
