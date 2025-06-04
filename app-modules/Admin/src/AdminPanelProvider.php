@@ -30,9 +30,13 @@ final class AdminPanelProvider extends PanelProvider
      */
     public function panel(Panel $panel): Panel
     {
+        $appUrl = (string) config('app.url');
+        $urlParts = parse_url($appUrl);
+        $host = $urlParts['host'] ?? 'localhost';
+
         return $panel
             ->id('admin')
-            ->domain('admin.'.parse_url((string) config('app.url'))['host'])
+            ->domain('admin.'.$host)
             ->login()
             ->spa()
             ->colors([
