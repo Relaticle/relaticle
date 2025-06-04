@@ -1,12 +1,6 @@
 parameters:
 	ignoreErrors:
 		-
-			message: '#^Cannot access offset ''host'' on array\{scheme\?\: string, host\?\: string, port\?\: int\<0, 65535\>, user\?\: string, pass\?\: string, path\?\: string, query\?\: string, fragment\?\: string\}\|false\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: app-modules/Admin/src/AdminPanelProvider.php
-
-		-
 			message: '#^Parameter \#1 \$content of method Relaticle\\Documentation\\Services\\DocumentationService\:\:calculateRelevance\(\) expects string, string\|false given\.$#'
 			identifier: argument.type
 			count: 1
