@@ -7,6 +7,7 @@ namespace App\Filament\App\Resources\OpportunityResource\Pages;
 use App\Filament\App\Resources\CompanyResource;
 use App\Filament\App\Resources\OpportunityResource;
 use App\Filament\App\Resources\PeopleResource;
+use App\Models\Opportunity;
 use Filament\Actions;
 use Filament\Infolists;
 use Filament\Infolists\Components;
@@ -39,12 +40,12 @@ final class ViewOpportunity extends ViewRecord
                         Infolists\Components\TextEntry::make('company.name')
                             ->label('Company')
                             ->color('primary')
-                            ->url(fn ($record): ?string => $record->company ? CompanyResource::getUrl('view', [$record->company]) : null)
+                            ->url(fn (Opportunity $record): ?string => $record->company ? CompanyResource::getUrl('view', [$record->company]) : null)
                             ->grow(false),
                         Infolists\Components\TextEntry::make('contact.name')
                             ->label('Point of Contact')
                             ->color('primary')
-                            ->url(fn ($record): ?string => $record->contact ? PeopleResource::getUrl('view', [$record->contact]) : null)
+                            ->url(fn (Opportunity $record): ?string => $record->contact ? PeopleResource::getUrl('view', [$record->contact]) : null)
                             ->grow(false),
                     ]),
                     CustomFieldsInfolists::make()->columnSpanFull(),

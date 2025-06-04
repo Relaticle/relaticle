@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\App\Resources\PeopleResource\Pages;
 
 use App\Filament\App\Resources\PeopleResource;
+use App\Models\People;
 use Filament\Actions;
 use Filament\Infolists\Components;
 use Filament\Infolists\Components\Split;
@@ -43,7 +44,7 @@ final class ViewPeople extends ViewRecord
                     Components\TextEntry::make('company.name')
                         ->label('Company')
                         ->color('primary')
-                        ->url(fn ($record): ?string => $record->company ? CompanyResource::getUrl('view', [$record->company]) : null),
+                        ->url(fn (People $record): ?string => $record->company ? CompanyResource::getUrl('view', [$record->company]) : null),
                 ]),
                 CustomFieldsInfolists::make()->columnSpanFull(),
             ]),
