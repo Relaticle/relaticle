@@ -73,6 +73,10 @@ final class DocumentationService
 
             $content = file_get_contents($path);
 
+            if ($content === false) {
+                continue;
+            }
+
             if (stripos($content, $query) === false) {
                 continue;
             }
