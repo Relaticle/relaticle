@@ -55,18 +55,6 @@ parameters:
 			path: app/Listeners/SwitchTeam.php
 
 		-
-			message: '#^Property App\\Models\\Company\:\:\$creator_id \(int\|null\) does not accept int\|string\|null\.$#'
-			identifier: assign.propertyType
-			count: 1
-			path: app/Observers/CompanyObserver.php
-
-		-
-			message: '#^Property App\\Models\\Note\:\:\$creator_id \(int\|null\) does not accept int\|string\|null\.$#'
-			identifier: assign.propertyType
-			count: 1
-			path: app/Observers/NoteObserver.php
-
-		-
 			message: '#^Property App\\Models\\Opportunity\:\:\$creator_id \(int\|null\) does not accept int\|string\|null\.$#'
 			identifier: assign.propertyType
 			count: 1
