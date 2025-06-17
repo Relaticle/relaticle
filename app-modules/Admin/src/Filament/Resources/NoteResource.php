@@ -4,10 +4,21 @@ declare(strict_types=1);
 
 namespace Relaticle\Admin\Filament\Resources;
 
+use Override;
+use Filament\Schemas\Schema;
+use Filament\Forms\Components\Select;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Actions\ViewAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Relaticle\Admin\Filament\Resources\NoteResource\Pages\ListNotes;
+use Relaticle\Admin\Filament\Resources\NoteResource\Pages\CreateNote;
+use Relaticle\Admin\Filament\Resources\NoteResource\Pages\ViewNote;
+use Relaticle\Admin\Filament\Resources\NoteResource\Pages\EditNote;
 use App\Enums\CreationSource;
 use App\Models\Note;
 use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Filters\SelectFilter;
@@ -18,9 +29,9 @@ final class NoteResource extends Resource
 {
     protected static ?string $model = Note::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-document-text';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-document-text';
 
-    protected static ?string $navigationGroup = 'Content';
+    protected static string | \UnitEnum | null $navigationGroup = 'Content';
 
     protected static ?int $navigationSort = 1;
 
@@ -30,29 +41,29 @@ final class NoteResource extends Resource
 
     protected static ?string $slug = 'notes';
 
-    #[\Override]
-    public static function form(Form $form): Form
+    #[Override]
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
-                Forms\Components\Select::make('team_id')
+        return $schema
+            ->components([
+                Select::make('team_id')
                     ->relationship('team', 'name')
                     ->required(),
-                Forms\Components\Select::make('creation_source')
+                Select::make('creation_source')
                     ->options(CreationSource::class)
                     ->default(CreationSource::WEB),
             ]);
     }
 
-    #[\Override]
+    #[Override]
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('team.name')
+                TextColumn::make('team.name')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('creation_source')
+                TextColumn::make('creation_source')
                     ->badge()
                     ->color(fn (CreationSource $state): string => match ($state) {
                         CreationSource::WEB => 'info',
@@ -61,11 +72,11 @@ final class NoteResource extends Resource
                     })
                     ->label('Source')
                     ->toggleable(),
-                Tables\Columns\TextColumn::make('created_at')
+                TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
+                TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -76,18 +87,18 @@ final class NoteResource extends Resource
                     ->options(CreationSource::class)
                     ->multiple(),
             ])
-            ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
+            ->recordActions([
+                ViewAction::make(),
+                EditAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }
 
-    #[\Override]
+    #[Override]
     public static function getRelations(): array
     {
         return [
@@ -95,14 +106,14 @@ final class NoteResource extends Resource
         ];
     }
 
-    #[\Override]
+    #[Override]
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListNotes::route('/'),
-            'create' => Pages\CreateNote::route('/create'),
-            'view' => Pages\ViewNote::route('/{record}'),
-            'edit' => Pages\EditNote::route('/{record}/edit'),
+            'index' => ListNotes::route('/'),
+            'create' => CreateNote::route('/create'),
+            'view' => ViewNote::route('/{record}'),
+            'edit' => EditNote::route('/{record}/edit'),
         ];
     }
 }

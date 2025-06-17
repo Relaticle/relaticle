@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\Admin\Filament\Resources\PeopleResource\Pages;
 
+use Filament\Actions\EditAction;
 use Filament\Actions;
 use Filament\Resources\Pages\ViewRecord;
 use Relaticle\Admin\Filament\Resources\PeopleResource;
@@ -15,7 +16,7 @@ final class ViewPeople extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\EditAction::make(),
+            EditAction::make(),
         ];
     }
 }

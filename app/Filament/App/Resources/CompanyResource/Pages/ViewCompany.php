@@ -4,14 +4,20 @@ declare(strict_types=1);
 
 namespace App\Filament\App\Resources\CompanyResource\Pages;
 
+use Filament\Actions\ActionGroup;
+use Filament\Actions\EditAction;
+use Filament\Actions\DeleteAction;
+use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Flex;
+use Filament\Schemas\Components\Section;
+use App\Filament\App\Resources\CompanyResource\RelationManagers\PeopleRelationManager;
+use App\Filament\App\Resources\CompanyResource\RelationManagers\TasksRelationManager;
+use App\Filament\App\Resources\CompanyResource\RelationManagers\NotesRelationManager;
 use App\Filament\App\Resources\CompanyResource;
 use App\Filament\App\Resources\CompanyResource\RelationManagers;
 use App\Filament\Components\Infolists\AvatarName;
 use Filament\Actions;
-use Filament\Infolists\Components\Section;
-use Filament\Infolists\Components\Split;
 use Filament\Infolists\Components\TextEntry;
-use Filament\Infolists\Infolist;
 use Filament\Resources\Pages\ViewRecord;
 use Relaticle\CustomFields\Filament\Infolists\CustomFieldsInfolists;
 
@@ -22,21 +28,21 @@ final class ViewCompany extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\ActionGroup::make([
-                Actions\EditAction::make(),
-                Actions\DeleteAction::make(),
+            ActionGroup::make([
+                EditAction::make(),
+                DeleteAction::make(),
             ]),
         ];
     }
 
-    public function infolist(Infolist $infolist): Infolist
+    public function infolist(Schema $schema): Schema
     {
         return $infolist
             ->schema([
 
-                Split::make([
+                Flex::make([
                     Section::make([
-                        Split::make([
+                        Flex::make([
                             AvatarName::make('logo')
                                 ->avatar('logo')
                                 ->name('name')
@@ -78,9 +84,9 @@ final class ViewCompany extends ViewRecord
     public function getRelationManagers(): array
     {
         return [
-            RelationManagers\PeopleRelationManager::class,
-            RelationManagers\TasksRelationManager::class,
-            RelationManagers\NotesRelationManager::class,
+            PeopleRelationManager::class,
+            TasksRelationManager::class,
+            NotesRelationManager::class,
         ];
     }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\App\Resources\CompanyResource\Pages;
 
+use Override;
 use App\Filament\App\Resources\CompanyResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
@@ -19,7 +20,7 @@ final class ListCompanies extends ListRecords
     /**
      * Get the actions available on the resource index header.
      */
-    #[\Override]
+    #[Override]
     protected function getHeaderActions(): array
     {
         return [

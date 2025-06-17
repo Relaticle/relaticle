@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Providers\Filament;
 
+use Exception;
 use App\Filament\App\Pages\ApiTokens;
 use App\Filament\App\Pages\Auth\Login;
 use App\Filament\App\Pages\Auth\Register;
@@ -57,7 +58,7 @@ final class AppPanelProvider extends PanelProvider
     /**
      * Configure the Filament admin panel.
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function panel(Panel $panel): Panel
     {

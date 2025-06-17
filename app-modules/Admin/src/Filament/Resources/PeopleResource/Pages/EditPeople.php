@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Relaticle\Admin\Filament\Resources\PeopleResource\Pages;
 
+use Override;
+use Filament\Actions\ViewAction;
+use Filament\Actions\DeleteAction;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 use Relaticle\Admin\Filament\Resources\PeopleResource;
@@ -12,12 +15,12 @@ final class EditPeople extends EditRecord
 {
     protected static string $resource = PeopleResource::class;
 
-    #[\Override]
+    #[Override]
     protected function getHeaderActions(): array
     {
         return [
-            Actions\ViewAction::make(),
-            Actions\DeleteAction::make(),
+            ViewAction::make(),
+            DeleteAction::make(),
         ];
     }
 }

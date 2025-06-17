@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace App\Filament\App\Pages;
 
+use BackedEnum;
+use Filament\Schemas\Schema;
 use App\Enums\CustomFields\Task as TaskCustomField;
 use App\Filament\App\Adapters\TasksKanbanAdapter;
 use App\Filament\App\Resources\TaskResource\Forms\TaskForm;
 use App\Models\Task;
 use App\Models\Team;
 use Filament\Actions\Action;
-use Filament\Forms\Form;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
@@ -18,6 +19,7 @@ use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldOption;
 use Relaticle\Flowforge\Contracts\KanbanAdapterInterface;
 use Relaticle\Flowforge\Filament\Pages\KanbanBoardPage;
+use UnitEnum;
 
 final class TasksBoard extends KanbanBoardPage
 {
@@ -27,9 +29,9 @@ final class TasksBoard extends KanbanBoardPage
 
     protected static ?string $navigationParentItem = 'Tasks';
 
-    protected static ?string $navigationGroup = 'Workspace';
+    protected static string|null|UnitEnum $navigationGroup = 'Workspace';
 
-    protected static ?string $navigationIcon = 'heroicon-o-document-text';
+    protected static string|null|BackedEnum $navigationIcon = 'heroicon-o-document-text';
 
     /**
      * The configuration for the Kanban board.
@@ -59,7 +61,7 @@ final class TasksBoard extends KanbanBoardPage
             ->modalWidth('2xl')
             ->iconButton()
             ->icon('heroicon-o-plus')
-            ->form(fn (Form $form): Form => TaskForm::get($form))
+            ->schema(fn (Schema $schema): Schema => TaskForm::get($schema))
             ->action(function (Action $action, array $arguments): void {
                 /** @var Team $currentTeam */
                 $currentTeam = Auth::user()->currentTeam;
@@ -71,7 +73,7 @@ final class TasksBoard extends KanbanBoardPage
 
     public function editAction(Action $action): Action
     {
-        return $action->form(fn (Form $form): Form => TaskForm::get($form));
+        return $action->schema(fn (Schema $schema): Schema => TaskForm::get($schema));
     }
 
     public function getAdapter(): KanbanAdapterInterface

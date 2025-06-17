@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Filament\App\Resources\NoteResource\Pages;
 
+use Override;
+use Filament\Actions\CreateAction;
 use App\Filament\App\Resources\NoteResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ManageRecords;
@@ -15,11 +17,11 @@ final class ManageNotes extends ManageRecords
 
     protected static string $resource = NoteResource::class;
 
-    #[\Override]
+    #[Override]
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            CreateAction::make(),
         ];
     }
 }

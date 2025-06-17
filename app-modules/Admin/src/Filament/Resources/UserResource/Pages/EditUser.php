@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Relaticle\Admin\Filament\Resources\UserResource\Pages;
 
+use Filament\Actions\ViewAction;
+use Filament\Actions\DeleteAction;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 use Relaticle\Admin\Filament\Resources\UserResource;
@@ -15,8 +17,8 @@ final class EditUser extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\ViewAction::make(),
-            Actions\DeleteAction::make(),
+            ViewAction::make(),
+            DeleteAction::make(),
         ];
     }
 
