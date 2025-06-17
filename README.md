@@ -56,9 +56,9 @@ Relaticle is open-source, but includes one premium component that powers its fle
 
 This component is paid to fund ongoing development of the open-source platform and provide dedicated support. With thousands of development hours invested, it delivers enterprise-grade data modeling that would otherwise require significant custom development.
 
-**[Get Custom Fields →](https://custom-fields.relaticle.com/introduction)**
-
 **Open-Source Discount:** Use code `OPENSOURCE` for 50% off.
+
+**[Get Custom Fields →](https://custom-fields.relaticle.com/introduction)**
 
 ## License
 
