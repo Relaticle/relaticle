@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\App\Resources\TaskResource\Pages;
 
+use Filament\Actions\CreateAction;
 use App\Filament\App\Resources\TaskResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ManageRecords;
@@ -18,7 +19,7 @@ final class ManageTasks extends ManageRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make()->slideOver(),
+            CreateAction::make()->slideOver(),
         ];
     }
 }

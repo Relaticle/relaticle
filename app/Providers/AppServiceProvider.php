@@ -14,8 +14,6 @@ use App\Models\Team;
 use App\Models\User;
 use App\Services\GitHubService;
 use Filament\Actions\Action;
-use Filament\Http\Responses\Auth\Contracts\LoginResponse as LoginResponseContract;
-use Filament\Tables\Actions\Action as TableAction;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades;
@@ -29,7 +27,7 @@ final class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->bind(LoginResponseContract::class, LoginResponse::class);
+        $this->app->bind(\Filament\Auth\Http\Responses\Contracts\LoginResponse::class, LoginResponse::class);
     }
 
     /**
@@ -76,7 +74,7 @@ final class AppServiceProvider extends ServiceProvider
             return $action;
         });
 
-        TableAction::configureUsing(function (TableAction $action) use ($slideOverActions): TableAction {
+        Action::configureUsing(function (Action $action) use ($slideOverActions): Action {
             if (in_array($action->getName(), $slideOverActions)) {
                 return $action->slideOver();
             }

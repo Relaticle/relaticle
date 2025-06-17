@@ -66,7 +66,7 @@ final class NoteSeeder extends BaseModelSeeder
             $registryKey = $this->getPluralEntityType($noteableType);
             $noteable = FixtureRegistry::get($registryKey, $noteableKey);
 
-            if (! $noteable instanceof \Illuminate\Database\Eloquent\Model) {
+            if (! $noteable instanceof Model) {
                 Log::warning("Noteable entity not found for note: {$key}, entity type: {$noteableType} (registry key: {$registryKey}), key: {$noteableKey}");
 
                 continue;

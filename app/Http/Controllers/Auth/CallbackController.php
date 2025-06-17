@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Auth;
 
+use Throwable;
 use App\Contracts\User\CreatesNewSocialUsers;
 use App\Models\User;
 use App\Models\UserSocialAccount;
@@ -20,7 +21,7 @@ final readonly class CallbackController
             /** @var AbstractProvider $driver */
             $driver = Socialite::driver($provider);
             $socialUser = $driver->stateless()->user();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             report($e);
 
             return redirect()

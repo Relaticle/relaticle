@@ -4,10 +4,19 @@ declare(strict_types=1);
 
 namespace App\Filament\App\Resources;
 
+use Override;
+use Filament\Schemas\Schema;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\Textarea;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Actions\EditAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
 use App\Filament\App\Resources\UserResource\Pages\ManageUsers;
 use App\Models\User;
 use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -16,7 +25,7 @@ final class UserResource extends Resource
 {
     protected static ?string $model = User::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-users';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-users';
 
     protected static ?string $tenantOwnershipRelationshipName = 'teams';
 
@@ -24,59 +33,59 @@ final class UserResource extends Resource
 
     protected static bool $shouldRegisterNavigation = false;
 
-    #[\Override]
-    public static function form(Form $form): Form
+    #[Override]
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
-                Forms\Components\TextInput::make('name')
+        return $schema
+            ->components([
+                TextInput::make('name')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('email')
+                TextInput::make('email')
                     ->email()
                     ->required()
                     ->maxLength(255),
-                Forms\Components\DateTimePicker::make('email_verified_at'),
-                Forms\Components\TextInput::make('password')
+                DateTimePicker::make('email_verified_at'),
+                TextInput::make('password')
                     ->password()
                     ->maxLength(255),
-                Forms\Components\Textarea::make('two_factor_secret')
+                Textarea::make('two_factor_secret')
                     ->columnSpanFull(),
-                Forms\Components\Textarea::make('two_factor_recovery_codes')
+                Textarea::make('two_factor_recovery_codes')
                     ->columnSpanFull(),
-                Forms\Components\DateTimePicker::make('two_factor_confirmed_at'),
-                Forms\Components\TextInput::make('current_team_id')
+                DateTimePicker::make('two_factor_confirmed_at'),
+                TextInput::make('current_team_id')
                     ->numeric(),
-                Forms\Components\TextInput::make('profile_photo_path')
+                TextInput::make('profile_photo_path')
                     ->maxLength(2048),
             ]);
     }
 
-    #[\Override]
+    #[Override]
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('name')
+                TextColumn::make('name')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('email')
+                TextColumn::make('email')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('email_verified_at')
+                TextColumn::make('email_verified_at')
                     ->dateTime()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('two_factor_confirmed_at')
+                TextColumn::make('two_factor_confirmed_at')
                     ->dateTime()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('current_team_id')
+                TextColumn::make('current_team_id')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('profile_photo_path')
+                TextColumn::make('profile_photo_path')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('created_at')
+                TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
+                TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -84,18 +93,18 @@ final class UserResource extends Resource
             ->filters([
                 //
             ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+            ->recordActions([
+                EditAction::make(),
+                DeleteAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }
 
-    #[\Override]
+    #[Override]
     public static function getPages(): array
     {
         return [
@@ -103,7 +112,7 @@ final class UserResource extends Resource
         ];
     }
 
-    #[\Override]
+    #[Override]
     public static function canAccess(): bool
     {
         return auth()->user()->email === 'manuk.minasyan1@gmail.com';

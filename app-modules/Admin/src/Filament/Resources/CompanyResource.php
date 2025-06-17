@@ -4,10 +4,22 @@ declare(strict_types=1);
 
 namespace Relaticle\Admin\Filament\Resources;
 
+use Filament\Schemas\Schema;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Actions\ViewAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Override;
+use Relaticle\Admin\Filament\Resources\CompanyResource\Pages\ListCompanies;
+use Relaticle\Admin\Filament\Resources\CompanyResource\Pages\CreateCompany;
+use Relaticle\Admin\Filament\Resources\CompanyResource\Pages\ViewCompany;
+use Relaticle\Admin\Filament\Resources\CompanyResource\Pages\EditCompany;
 use App\Enums\CreationSource;
 use App\Models\Company;
 use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Filters\SelectFilter;
@@ -18,9 +30,9 @@ final class CompanyResource extends Resource
 {
     protected static ?string $model = Company::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-building-office';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-building-office';
 
-    protected static ?string $navigationGroup = 'CRM';
+    protected static string | \UnitEnum | null $navigationGroup = 'CRM';
 
     protected static ?int $navigationSort = 1;
 
@@ -35,26 +47,26 @@ final class CompanyResource extends Resource
 
     protected static ?string $slug = 'companies';
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
-                Forms\Components\Select::make('team_id')
+        return $schema
+            ->components([
+                Select::make('team_id')
                     ->relationship('team', 'name')
                     ->required(),
-                Forms\Components\TextInput::make('account_owner_id')
+                TextInput::make('account_owner_id')
                     ->numeric(),
-                Forms\Components\TextInput::make('name')
+                TextInput::make('name')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('address')
+                TextInput::make('address')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('phone')
+                TextInput::make('phone')
                     ->tel()
                     ->required()
                     ->maxLength(255),
-                Forms\Components\Select::make('creation_source')
+                Select::make('creation_source')
                     ->options(CreationSource::class)
                     ->default(CreationSource::WEB),
             ]);
@@ -64,19 +76,19 @@ final class CompanyResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('team.name')
+                TextColumn::make('team.name')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('account_owner_id')
+                TextColumn::make('account_owner_id')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('name')
+                TextColumn::make('name')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('address')
+                TextColumn::make('address')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('phone')
+                TextColumn::make('phone')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('creation_source')
+                TextColumn::make('creation_source')
                     ->badge()
                     ->color(fn (CreationSource $state): string => match ($state) {
                         CreationSource::WEB => 'info',
@@ -85,15 +97,15 @@ final class CompanyResource extends Resource
                     })
                     ->label('Source')
                     ->toggleable(),
-                Tables\Columns\TextColumn::make('deleted_at')
+                TextColumn::make('deleted_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('created_at')
+                TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
+                TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -104,18 +116,18 @@ final class CompanyResource extends Resource
                     ->options(CreationSource::class)
                     ->multiple(),
             ])
-            ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
+            ->recordActions([
+                ViewAction::make(),
+                EditAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }
 
-    #[\Override]
+    #[Override]
     public static function getRelations(): array
     {
         return [
@@ -123,14 +135,14 @@ final class CompanyResource extends Resource
         ];
     }
 
-    #[\Override]
+    #[Override]
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListCompanies::route('/'),
-            'create' => Pages\CreateCompany::route('/create'),
-            'view' => Pages\ViewCompany::route('/{record}'),
-            'edit' => Pages\EditCompany::route('/{record}/edit'),
+            'index' => ListCompanies::route('/'),
+            'create' => CreateCompany::route('/create'),
+            'view' => ViewCompany::route('/{record}'),
+            'edit' => EditCompany::route('/{record}/edit'),
         ];
     }
 }

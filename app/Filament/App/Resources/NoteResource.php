@@ -4,11 +4,22 @@ declare(strict_types=1);
 
 namespace App\Filament\App\Resources;
 
+use Filament\Schemas\Schema;
+use Filament\Tables\Filters\TrashedFilter;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\EditAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\ForceDeleteAction;
+use Filament\Actions\RestoreAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\ForceDeleteBulkAction;
+use Filament\Actions\RestoreBulkAction;
+use Override;
 use App\Enums\CreationSource;
 use App\Filament\App\Resources\NoteResource\Forms\NoteForm;
 use App\Filament\App\Resources\NoteResource\Pages\ManageNotes;
 use App\Models\Note;
-use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
@@ -21,28 +32,28 @@ final class NoteResource extends Resource
 {
     protected static ?string $model = Note::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-document-text';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-document-text';
 
     protected static ?int $navigationSort = 5;
 
-    protected static ?string $navigationGroup = 'Workspace';
+    protected static string | \UnitEnum | null $navigationGroup = 'Workspace';
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return NoteForm::get($form);
+        return NoteForm::get($schema);
     }
 
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('title')
+                TextColumn::make('title')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('companies.name')
+                TextColumn::make('companies.name')
                     ->label('Companies')
                     ->sortable()
                     ->toggleable(),
-                Tables\Columns\TextColumn::make('people.name')
+                TextColumn::make('people.name')
                     ->label('People')
                     ->sortable()
                     ->toggleable(),
@@ -53,17 +64,17 @@ final class NoteResource extends Resource
                     ->toggleable()
                     ->getStateUsing(fn (Note $record): string => $record->created_by)
                     ->color(fn (Note $record): string => $record->isSystemCreated() ? 'secondary' : 'primary'),
-                Tables\Columns\TextColumn::make('deleted_at')
+                TextColumn::make('deleted_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable()
                     ->toggledHiddenByDefault(),
-                Tables\Columns\TextColumn::make('created_at')
+                TextColumn::make('created_at')
                     ->label('Created At')
                     ->dateTime('Y-m-d H:i:s')
                     ->sortable()
                     ->toggleable(),
-                Tables\Columns\TextColumn::make('updated_at')
+                TextColumn::make('updated_at')
                     ->label('Updated At')
                     ->dateTime('Y-m-d H:i:s')
                     ->sortable()
@@ -76,26 +87,26 @@ final class NoteResource extends Resource
                     ->label('Creation Source')
                     ->options(CreationSource::class)
                     ->multiple(),
-                Tables\Filters\TrashedFilter::make(),
+                TrashedFilter::make(),
             ])
-            ->actions([
-                Tables\Actions\ActionGroup::make([
-                    Tables\Actions\EditAction::make(),
-                    Tables\Actions\DeleteAction::make(),
-                    Tables\Actions\ForceDeleteAction::make(),
-                    Tables\Actions\RestoreAction::make(),
+            ->recordActions([
+                ActionGroup::make([
+                    EditAction::make(),
+                    DeleteAction::make(),
+                    ForceDeleteAction::make(),
+                    RestoreAction::make(),
                 ]),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                    Tables\Actions\ForceDeleteBulkAction::make(),
-                    Tables\Actions\RestoreBulkAction::make(),
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
+                    ForceDeleteBulkAction::make(),
+                    RestoreBulkAction::make(),
                 ]),
             ]);
     }
 
-    #[\Override]
+    #[Override]
     public static function getPages(): array
     {
         return [

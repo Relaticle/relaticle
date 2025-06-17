@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Listeners;
 
+use Filament\Auth\Events\Registered;
 use App\Models\Team;
 use App\Models\User;
-use Filament\Events\Auth\Registered;
 
 final readonly class CreatePersonalTeamListener
 {

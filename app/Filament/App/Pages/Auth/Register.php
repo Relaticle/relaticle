@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace App\Filament\App\Pages\Auth;
 
-use Filament\Forms\Components\Component;
+use Filament\Schemas\Components\Component;
 use Filament\Forms\Components\TextInput;
-use Filament\Pages\Auth\Register as BaseRegister;
 
-final class Register extends BaseRegister
+final class Register extends \Filament\Auth\Pages\Register
 {
     protected function getEmailFormComponent(): Component
     {

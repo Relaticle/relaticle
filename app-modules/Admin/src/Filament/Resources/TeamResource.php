@@ -4,9 +4,19 @@ declare(strict_types=1);
 
 namespace Relaticle\Admin\Filament\Resources;
 
+use Filament\Schemas\Schema;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Actions\EditAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Relaticle\Admin\Filament\Resources\TeamResource\Pages\ListTeams;
+use Relaticle\Admin\Filament\Resources\TeamResource\Pages\CreateTeam;
+use Relaticle\Admin\Filament\Resources\TeamResource\Pages\EditTeam;
 use App\Models\Team;
 use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -16,21 +26,21 @@ final class TeamResource extends Resource
 {
     protected static ?string $model = Team::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-users';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-users';
 
-    protected static ?string $navigationGroup = 'User Management';
+    protected static string | \UnitEnum | null $navigationGroup = 'User Management';
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
-                Forms\Components\TextInput::make('user_id')
+        return $schema
+            ->components([
+                TextInput::make('user_id')
                     ->required()
                     ->numeric(),
-                Forms\Components\TextInput::make('name')
+                TextInput::make('name')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\Toggle::make('personal_team')
+                Toggle::make('personal_team')
                     ->required(),
             ]);
     }
@@ -39,18 +49,18 @@ final class TeamResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('user_id')
+                TextColumn::make('user_id')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('name')
+                TextColumn::make('name')
                     ->searchable(),
-                Tables\Columns\IconColumn::make('personal_team')
+                IconColumn::make('personal_team')
                     ->boolean(),
-                Tables\Columns\TextColumn::make('created_at')
+                TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
+                TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -58,12 +68,12 @@ final class TeamResource extends Resource
             ->filters([
                 //
             ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
+            ->recordActions([
+                EditAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }
@@ -78,9 +88,9 @@ final class TeamResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListTeams::route('/'),
-            'create' => Pages\CreateTeam::route('/create'),
-            'edit' => Pages\EditTeam::route('/{record}/edit'),
+            'index' => ListTeams::route('/'),
+            'create' => CreateTeam::route('/create'),
+            'edit' => EditTeam::route('/{record}/edit'),
         ];
     }
 }

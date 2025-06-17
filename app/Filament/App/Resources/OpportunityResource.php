@@ -4,16 +4,32 @@ declare(strict_types=1);
 
 namespace App\Filament\App\Resources;
 
+use Filament\Schemas\Schema;
+use Filament\Tables\Filters\TrashedFilter;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\ViewAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\RestoreAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\ForceDeleteAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\ExportBulkAction;
+use Filament\Actions\RestoreBulkAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\ForceDeleteBulkAction;
+use App\Filament\App\Resources\OpportunityResource\RelationManagers\TasksRelationManager;
+use App\Filament\App\Resources\OpportunityResource\RelationManagers\NotesRelationManager;
+use Override;
+use App\Filament\App\Resources\OpportunityResource\Pages\ListOpportunities;
+use App\Filament\App\Resources\OpportunityResource\Pages\ViewOpportunity;
 use App\Enums\CreationSource;
 use App\Filament\App\Exports\OpportunityExporter;
 use App\Filament\App\Resources\OpportunityResource\Forms\OpportunityForm;
 use App\Filament\App\Resources\OpportunityResource\Pages;
 use App\Filament\App\Resources\OpportunityResource\RelationManagers;
 use App\Models\Opportunity;
-use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
-use Filament\Tables\Actions\ExportBulkAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -26,22 +42,22 @@ final class OpportunityResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name';
 
-    protected static ?string $navigationIcon = 'heroicon-o-trophy';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-trophy';
 
     protected static ?int $navigationSort = 3;
 
-    protected static ?string $navigationGroup = 'Workspace';
+    protected static string | \UnitEnum | null $navigationGroup = 'Workspace';
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return OpportunityForm::get($form);
+        return OpportunityForm::get($schema);
     }
 
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('name')
+                TextColumn::make('name')
                     ->searchable(),
                 TextColumn::make('creator.name')
                     ->label('Created By')
@@ -50,15 +66,15 @@ final class OpportunityResource extends Resource
                     ->toggleable()
                     ->getStateUsing(fn (Opportunity $record): string => $record->created_by)
                     ->color(fn (Opportunity $record): string => $record->isSystemCreated() ? 'secondary' : 'primary'),
-                Tables\Columns\TextColumn::make('deleted_at')
+                TextColumn::make('deleted_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('created_at')
+                TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
+                TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -69,24 +85,24 @@ final class OpportunityResource extends Resource
                     ->label('Creation Source')
                     ->options(CreationSource::class)
                     ->multiple(),
-                Tables\Filters\TrashedFilter::make(),
+                TrashedFilter::make(),
             ])
-            ->actions([
-                Tables\Actions\ActionGroup::make([
-                    Tables\Actions\ViewAction::make(),
-                    Tables\Actions\EditAction::make(),
-                    Tables\Actions\RestoreAction::make(),
-                    Tables\Actions\DeleteAction::make(),
-                    Tables\Actions\ForceDeleteAction::make(),
+            ->recordActions([
+                ActionGroup::make([
+                    ViewAction::make(),
+                    EditAction::make(),
+                    RestoreAction::make(),
+                    DeleteAction::make(),
+                    ForceDeleteAction::make(),
                 ]),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
+            ->toolbarActions([
+                BulkActionGroup::make([
                     ExportBulkAction::make()
                         ->exporter(OpportunityExporter::class),
-                    Tables\Actions\RestoreBulkAction::make(),
-                    Tables\Actions\DeleteBulkAction::make(),
-                    Tables\Actions\ForceDeleteBulkAction::make(),
+                    RestoreBulkAction::make(),
+                    DeleteBulkAction::make(),
+                    ForceDeleteBulkAction::make(),
                 ]),
             ]);
     }
@@ -94,17 +110,17 @@ final class OpportunityResource extends Resource
     public static function getRelations(): array
     {
         return [
-            RelationManagers\TasksRelationManager::class,
-            RelationManagers\NotesRelationManager::class,
+            TasksRelationManager::class,
+            NotesRelationManager::class,
         ];
     }
 
-    #[\Override]
+    #[Override]
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListOpportunities::route('/'),
-            'view' => Pages\ViewOpportunity::route('/{record}'),
+            'index' => ListOpportunities::route('/'),
+            'view' => ViewOpportunity::route('/{record}'),
         ];
     }
 

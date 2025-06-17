@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\OnboardSeed;
 
+use Throwable;
 use App\Models\User;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Relaticle\OnboardSeed\Contracts\ModelSeederInterface;
@@ -60,7 +61,7 @@ final class OnboardSeedManager
             }
 
             return true;
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             report($e);
 
             return false;

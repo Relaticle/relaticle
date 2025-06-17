@@ -4,20 +4,28 @@ declare(strict_types=1);
 
 namespace App\Filament\App\Resources;
 
+use Filament\Schemas\Schema;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Grouping\Group;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\EditAction;
+use Filament\Actions\Action;
+use Throwable;
+use Filament\Actions\RestoreAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\ForceDeleteAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\ForceDeleteBulkAction;
+use Filament\Actions\RestoreBulkAction;
 use App\Enums\CreationSource;
 use App\Filament\App\Resources\TaskResource\Forms\TaskForm;
 use App\Filament\App\Resources\TaskResource\Pages\ManageTasks;
 use App\Models\Task;
 use App\Models\User;
-use Filament\Forms\Form;
-use Filament\Notifications\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
-use Filament\Tables\Actions\ForceDeleteAction;
-use Filament\Tables\Actions\ForceDeleteBulkAction;
-use Filament\Tables\Actions\RestoreAction;
-use Filament\Tables\Actions\RestoreBulkAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
@@ -35,17 +43,17 @@ final class TaskResource extends Resource
 
     protected static ?string $navigationLabel = 'Tasks';
 
-    protected static ?string $navigationIcon = 'heroicon-o-check-circle';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-check-circle';
 
     protected static ?string $recordTitleAttribute = 'title';
 
     protected static ?int $navigationSort = 3;
 
-    protected static ?string $navigationGroup = 'Workspace';
+    protected static string | \UnitEnum | null $navigationGroup = 'Workspace';
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return TaskForm::get($form);
+        return TaskForm::get($schema);
     }
 
     public static function table(Table $table): Table
@@ -57,12 +65,12 @@ final class TaskResource extends Resource
 
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('title')
+                TextColumn::make('title')
                     ->searchable()
                     ->wrap()
                     ->limit(50)
                     ->weight('medium'),
-                Tables\Columns\TextColumn::make('assignees.name')
+                TextColumn::make('assignees.name')
                     ->label('Assignee')
                     ->badge()
                     ->color('primary')
@@ -76,15 +84,15 @@ final class TaskResource extends Resource
                     ->toggleable()
                     ->getStateUsing(fn (Task $record): string => $record->createdBy)
                     ->color(fn (Task $record): string => $record->isSystemCreated() ? 'secondary' : 'primary'),
-                Tables\Columns\TextColumn::make('created_at')
+                TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
+                TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('deleted_at')
+                TextColumn::make('deleted_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable()
@@ -94,13 +102,13 @@ final class TaskResource extends Resource
             ->searchable()
             ->paginated([10, 25, 50])
             ->filters([
-                Tables\Filters\Filter::make('assigned_to_me')
+                Filter::make('assigned_to_me')
                     ->label('Assigned to me')
                     ->query(fn (Builder $query): Builder => $query->whereHas('assignees', function (Builder $query): void {
                         $query->where('users.id', auth()->id());
                     }))
                     ->toggle(),
-                Tables\Filters\SelectFilter::make('assignees')
+                SelectFilter::make('assignees')
                     ->multiple()
                     ->relationship('assignees', 'name')
                     ->searchable()
@@ -112,7 +120,7 @@ final class TaskResource extends Resource
                 TrashedFilter::make(),
             ])
             ->groups([
-                Tables\Grouping\Group::make('status')
+                Group::make('status')
                     ->orderQueryUsing(function (Builder $query, string $direction) use ($customFields) {
                         $table = $query->getModel()->getTable();
                         $key = $query->getModel()->getKeyName();
@@ -133,7 +141,7 @@ final class TaskResource extends Resource
 
                         return $valueResolver->resolve($record, $customFields['status']);
                     }),
-                Tables\Grouping\Group::make('priority')
+                Group::make('priority')
                     ->orderQueryUsing(function (Builder $query, string $direction) use ($customFields) {
                         $table = $query->getModel()->getTable();
                         $key = $query->getModel()->getKeyName();
@@ -154,9 +162,9 @@ final class TaskResource extends Resource
                         return $valueResolver->resolve($record, $customFields['priority']);
                     }),
             ])
-            ->actions([
-                Tables\Actions\ActionGroup::make([
-                    Tables\Actions\EditAction::make()
+            ->recordActions([
+                ActionGroup::make([
+                    EditAction::make()
                         ->using(function (Task $record, array $data): Task {
                             try {
                                 DB::beginTransaction();
@@ -195,7 +203,7 @@ final class TaskResource extends Resource
                                 }
 
                                 DB::commit();
-                            } catch (\Throwable $e) {
+                            } catch (Throwable $e) {
                                 DB::rollBack();
                                 throw $e;
                             }
@@ -203,13 +211,13 @@ final class TaskResource extends Resource
                             return $record;
                         }),
                     RestoreAction::make(),
-                    Tables\Actions\DeleteAction::make(),
+                    DeleteAction::make(),
                     ForceDeleteAction::make(),
                 ]),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                     ForceDeleteBulkAction::make(),
                     RestoreBulkAction::make(),
                 ]),

@@ -4,25 +4,27 @@ declare(strict_types=1);
 
 namespace App\Filament\App\Resources;
 
+use Filament\Schemas\Schema;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\ViewAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\RestoreAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\ForceDeleteAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\ExportBulkAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\ForceDeleteBulkAction;
+use Filament\Actions\RestoreBulkAction;
+use App\Filament\App\Resources\CompanyResource\Pages\ListCompanies;
+use App\Filament\App\Resources\CompanyResource\Pages\ViewCompany;
 use App\Enums\CreationSource;
 use App\Filament\App\Exports\CompanyExporter;
 use App\Filament\App\Resources\CompanyResource\Pages;
 use App\Models\Company;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
 use Filament\Resources\Resource;
-use Filament\Tables\Actions\ActionGroup;
-use Filament\Tables\Actions\BulkActionGroup;
-use Filament\Tables\Actions\DeleteAction;
-use Filament\Tables\Actions\DeleteBulkAction;
-use Filament\Tables\Actions\EditAction;
-use Filament\Tables\Actions\ExportBulkAction;
-use Filament\Tables\Actions\ForceDeleteAction;
-use Filament\Tables\Actions\ForceDeleteBulkAction;
-use Filament\Tables\Actions\RestoreAction;
-use Filament\Tables\Actions\RestoreBulkAction;
-use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -38,16 +40,16 @@ final class CompanyResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name';
 
-    protected static ?string $navigationIcon = 'heroicon-o-home-modern';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-home-modern';
 
     protected static ?int $navigationSort = 2;
 
-    protected static ?string $navigationGroup = 'Workspace';
+    protected static string | \UnitEnum | null $navigationGroup = 'Workspace';
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 TextInput::make('name')
                     ->required(),
                 Select::make('account_owner_id')
@@ -107,7 +109,7 @@ final class CompanyResource extends Resource
                     ->multiple(),
                 TrashedFilter::make(),
             ])
-            ->actions([
+            ->recordActions([
                 ActionGroup::make([
                     ViewAction::make(),
                     EditAction::make(),
@@ -116,7 +118,7 @@ final class CompanyResource extends Resource
                     ForceDeleteAction::make(),
                 ]),
             ])
-            ->bulkActions([
+            ->toolbarActions([
                 BulkActionGroup::make([
                     ExportBulkAction::make()
                         ->exporter(CompanyExporter::class),
@@ -130,8 +132,8 @@ final class CompanyResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListCompanies::route('/'),
-            'view' => Pages\ViewCompany::route('/{record}'),
+            'index' => ListCompanies::route('/'),
+            'view' => ViewCompany::route('/{record}'),
         ];
     }
 

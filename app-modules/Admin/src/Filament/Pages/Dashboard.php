@@ -9,7 +9,7 @@ use Filament\Pages\Dashboard as BaseDashboard;
 
 final class Dashboard extends BaseDashboard
 {
-    protected static ?string $navigationIcon = 'heroicon-o-home';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-home';
 
     protected ?string $heading = 'Dashboard';
 
