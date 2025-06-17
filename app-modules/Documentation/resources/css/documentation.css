@@ -1,6 +1,6 @@
 @import 'tailwindcss';
 
-@plugin '@tailwindcss/typography';
+@import "~/css/theme.css";
 
 #documentation-content {
     .heading-permalink {
