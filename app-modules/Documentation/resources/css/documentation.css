@@ -1,21 +1,9 @@
-/*
-Documentation
-*/
+@import 'tailwindcss';
 
-/*
-* Basic typography enhancement for content - can be added inline later if needed
-* but keeping this to ensure content is properly formatted
-*/
+@plugin '@tailwindcss/typography';
+
 #documentation-content {
-    /* All styles are now handled by Tailwind classes in the template */
-
-    /* Permalink for headings - minimal styling that's hard to do with Tailwind */
     .heading-permalink {
-        @apply mr-2 text-gray-700/10 dark:text-gray-600 hover:text-primary dark:hover:text-primary-400 transition-colors;
+        @apply mr-2 text-gray-700/10 dark:text-gray-600 hover:text-[var(--color-primary)] dark:hover:text-[var(--color-primary-400)] transition-colors;
     }
-}
-
-/* Minimal responsive adjustments */
-@media (max-width: 768px) {
-    /* All responsive styles now handled by Tailwind's responsive classes */
 }
