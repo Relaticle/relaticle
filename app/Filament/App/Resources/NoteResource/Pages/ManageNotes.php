@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace App\Filament\App\Resources\NoteResource\Pages;
 
 use App\Filament\App\Resources\NoteResource;
-use Filament\Actions;
+use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ManageRecords;
+use Override;
 use Relaticle\CustomFields\Filament\Tables\Concerns\InteractsWithCustomFields;
 
 final class ManageNotes extends ManageRecords
@@ -15,11 +16,11 @@ final class ManageNotes extends ManageRecords
 
     protected static string $resource = NoteResource::class;
 
-    #[\Override]
+    #[Override]
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            CreateAction::make(),
         ];
     }
 }

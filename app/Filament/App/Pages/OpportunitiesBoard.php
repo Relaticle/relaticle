@@ -8,8 +8,9 @@ use App\Filament\App\Adapters\OpportunitiesKanbanAdapter;
 use App\Filament\App\Resources\OpportunityResource\Forms\OpportunityForm;
 use App\Models\Opportunity;
 use App\Models\Team;
+use BackedEnum;
 use Filament\Actions\Action;
-use Filament\Forms;
+use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
@@ -17,6 +18,7 @@ use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldOption;
 use Relaticle\Flowforge\Contracts\KanbanAdapterInterface;
 use Relaticle\Flowforge\Filament\Pages\KanbanBoardPage;
+use UnitEnum;
 
 final class OpportunitiesBoard extends KanbanBoardPage
 {
@@ -26,9 +28,9 @@ final class OpportunitiesBoard extends KanbanBoardPage
 
     protected static ?string $navigationParentItem = 'Opportunities';
 
-    protected static ?string $navigationGroup = 'Workspace';
+    protected static string|null|UnitEnum $navigationGroup = 'Workspace';
 
-    protected static ?string $navigationIcon = 'heroicon-o-document-text';
+    protected static string|null|BackedEnum $navigationIcon = 'heroicon-o-document-text';
 
     /**
      * @return Builder<Opportunity>
@@ -69,7 +71,7 @@ final class OpportunitiesBoard extends KanbanBoardPage
             ->slideOver(false)
             ->label('Create Opportunity')
             ->modalWidth('2xl')
-            ->form(fn (Forms\Form $form): \Filament\Forms\Form => OpportunityForm::get($form))
+            ->schema(fn (Schema $schema): Schema => OpportunityForm::get($schema))
             ->action(function (Action $action, array $arguments): void {
                 /** @var Team $currentTeam */
                 $currentTeam = Auth::user()->currentTeam;
@@ -81,7 +83,7 @@ final class OpportunitiesBoard extends KanbanBoardPage
 
     public function editAction(Action $action): Action
     {
-        return $action->form(fn (Forms\Form $form): \Filament\Forms\Form => OpportunityForm::get($form));
+        return $action->schema(fn (Schema $schema): Schema => OpportunityForm::get($schema));
     }
 
     public function getAdapter(): KanbanAdapterInterface

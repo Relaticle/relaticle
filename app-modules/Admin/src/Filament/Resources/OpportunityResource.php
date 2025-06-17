@@ -6,21 +6,29 @@ namespace Relaticle\Admin\Filament\Resources;
 
 use App\Enums\CreationSource;
 use App\Models\Opportunity;
-use Filament\Forms;
-use Filament\Forms\Form;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
+use Filament\Forms\Components\Select;
 use Filament\Resources\Resource;
-use Filament\Tables;
+use Filament\Schemas\Schema;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
-use Relaticle\Admin\Filament\Resources\OpportunityResource\Pages;
+use Override;
+use Relaticle\Admin\Filament\Resources\OpportunityResource\Pages\CreateOpportunity;
+use Relaticle\Admin\Filament\Resources\OpportunityResource\Pages\EditOpportunity;
+use Relaticle\Admin\Filament\Resources\OpportunityResource\Pages\ListOpportunities;
+use Relaticle\Admin\Filament\Resources\OpportunityResource\Pages\ViewOpportunity;
 
 final class OpportunityResource extends Resource
 {
     protected static ?string $model = Opportunity::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-currency-dollar';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-currency-dollar';
 
-    protected static ?string $navigationGroup = 'CRM';
+    protected static string|\UnitEnum|null $navigationGroup = 'CRM';
 
     protected static ?int $navigationSort = 3;
 
@@ -35,29 +43,29 @@ final class OpportunityResource extends Resource
 
     protected static ?string $slug = 'opportunities';
 
-    #[\Override]
-    public static function form(Form $form): Form
+    #[Override]
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
-                Forms\Components\Select::make('team_id')
+        return $schema
+            ->components([
+                Select::make('team_id')
                     ->relationship('team', 'name')
                     ->required(),
-                Forms\Components\Select::make('creation_source')
+                Select::make('creation_source')
                     ->options(CreationSource::class)
                     ->default(CreationSource::WEB),
             ]);
     }
 
-    #[\Override]
+    #[Override]
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('team.name')
+                TextColumn::make('team.name')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('creation_source')
+                TextColumn::make('creation_source')
                     ->badge()
                     ->color(fn (CreationSource $state): string => match ($state) {
                         CreationSource::WEB => 'info',
@@ -66,15 +74,15 @@ final class OpportunityResource extends Resource
                     })
                     ->label('Source')
                     ->toggleable(),
-                Tables\Columns\TextColumn::make('deleted_at')
+                TextColumn::make('deleted_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('created_at')
+                TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
+                TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -85,18 +93,18 @@ final class OpportunityResource extends Resource
                     ->options(CreationSource::class)
                     ->multiple(),
             ])
-            ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
+            ->recordActions([
+                ViewAction::make(),
+                EditAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }
 
-    #[\Override]
+    #[Override]
     public static function getRelations(): array
     {
         return [
@@ -104,14 +112,14 @@ final class OpportunityResource extends Resource
         ];
     }
 
-    #[\Override]
+    #[Override]
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListOpportunities::route('/'),
-            'create' => Pages\CreateOpportunity::route('/create'),
-            'view' => Pages\ViewOpportunity::route('/{record}'),
-            'edit' => Pages\EditOpportunity::route('/{record}/edit'),
+            'index' => ListOpportunities::route('/'),
+            'create' => CreateOpportunity::route('/create'),
+            'view' => ViewOpportunity::route('/{record}'),
+            'edit' => EditOpportunity::route('/{record}/edit'),
         ];
     }
 }

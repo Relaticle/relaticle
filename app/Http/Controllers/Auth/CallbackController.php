@@ -11,6 +11,7 @@ use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\RedirectResponse;
 use Laravel\Socialite\Facades\Socialite;
 use Laravel\Socialite\Two\AbstractProvider;
+use Throwable;
 
 final readonly class CallbackController
 {
@@ -20,7 +21,7 @@ final readonly class CallbackController
             /** @var AbstractProvider $driver */
             $driver = Socialite::driver($provider);
             $socialUser = $driver->stateless()->user();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             report($e);
 
             return redirect()

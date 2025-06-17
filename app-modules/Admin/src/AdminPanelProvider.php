@@ -6,6 +6,7 @@ namespace Relaticle\Admin;
 
 use Awcodes\Overlook\OverlookPlugin;
 use Awcodes\Overlook\Widgets\OverlookWidget;
+use Exception;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -13,7 +14,7 @@ use Filament\Navigation\NavigationGroup;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
-use Filament\Widgets;
+use Filament\Widgets\AccountWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -26,7 +27,7 @@ use Relaticle\Admin\Filament\Pages\Dashboard;
 final class AdminPanelProvider extends PanelProvider
 {
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function panel(Panel $panel): Panel
     {
@@ -64,21 +65,21 @@ final class AdminPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: base_path('app-modules/Admin/src/Filament/Widgets'), for: 'Relaticle\\Admin\\Filament\\Widgets')
             ->widgets([
-                Widgets\AccountWidget::class,
-                OverlookWidget::class,
+                AccountWidget::class,
+                //                OverlookWidget::class,
             ])
             ->databaseNotifications()
             ->plugins([
-                OverlookPlugin::make()
-                    ->sort(2)
-                    ->columns([
-                        'default' => 1,
-                        'sm' => 2,
-                        'md' => 3,
-                        'lg' => 4,
-                        'xl' => 5,
-                        '2xl' => null,
-                    ]),
+                //                OverlookPlugin::make()
+                //                    ->sort(2)
+                //                    ->columns([
+                //                        'default' => 1,
+                //                        'sm' => 2,
+                //                        'md' => 3,
+                //                        'lg' => 4,
+                //                        'xl' => 5,
+                //                        '2xl' => null,
+                //                    ]),
             ])
             ->middleware([
                 EncryptCookies::class,

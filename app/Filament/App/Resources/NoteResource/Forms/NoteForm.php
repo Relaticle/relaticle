@@ -4,19 +4,19 @@ declare(strict_types=1);
 
 namespace App\Filament\App\Resources\NoteResource\Forms;
 
-use Filament\Forms;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Schema;
 use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent;
 
 final class NoteForm
 {
     /**
-     * @param  Forms\Form  $form  The form instance to modify.
+     * @param  Schema  $form  The form instance to modify.
      * @param  array<string>  $excludeFields  Fields to exclude from the form.
-     * @return Forms\Form The modified form instance with the schema applied.
+     * @return Schema The modified form instance with the schema applied.
      */
-    public static function get(Forms\Form $form, array $excludeFields = []): Forms\Form
+    public static function get(Schema $form, array $excludeFields = []): Schema
     {
         $schema = [
             TextInput::make('title')
@@ -46,7 +46,7 @@ final class NoteForm
             ->columns();
 
         return $form
-            ->schema($schema)
+            ->components($schema)
             ->columns(2);
     }
 }
