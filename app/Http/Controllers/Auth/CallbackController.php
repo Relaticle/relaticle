@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Auth;
 
-use Throwable;
 use App\Contracts\User\CreatesNewSocialUsers;
 use App\Models\User;
 use App\Models\UserSocialAccount;
@@ -12,6 +11,7 @@ use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\RedirectResponse;
 use Laravel\Socialite\Facades\Socialite;
 use Laravel\Socialite\Two\AbstractProvider;
+use Throwable;
 
 final readonly class CallbackController
 {

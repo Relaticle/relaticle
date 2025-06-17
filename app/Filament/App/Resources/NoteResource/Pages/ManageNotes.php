@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace App\Filament\App\Resources\NoteResource\Pages;
 
-use Override;
-use Filament\Actions\CreateAction;
 use App\Filament\App\Resources\NoteResource;
-use Filament\Actions;
+use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ManageRecords;
+use Override;
 use Relaticle\CustomFields\Filament\Tables\Concerns\InteractsWithCustomFields;
 
 final class ManageNotes extends ManageRecords

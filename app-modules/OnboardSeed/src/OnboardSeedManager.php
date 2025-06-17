@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Relaticle\OnboardSeed;
 
-use Throwable;
 use App\Models\User;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Relaticle\OnboardSeed\Contracts\ModelSeederInterface;
@@ -13,6 +12,7 @@ use Relaticle\OnboardSeed\ModelSeeders\NoteSeeder;
 use Relaticle\OnboardSeed\ModelSeeders\OpportunitySeeder;
 use Relaticle\OnboardSeed\ModelSeeders\PeopleSeeder;
 use Relaticle\OnboardSeed\ModelSeeders\TaskSeeder;
+use Throwable;
 
 final class OnboardSeedManager
 {

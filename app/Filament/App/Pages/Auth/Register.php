@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Filament\App\Pages\Auth;
 
-use Filament\Schemas\Components\Component;
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Component;
 
 final class Register extends \Filament\Auth\Pages\Register
 {

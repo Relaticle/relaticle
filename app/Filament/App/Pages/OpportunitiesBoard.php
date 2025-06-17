@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace App\Filament\App\Pages;
 
-use BackedEnum;
-use Filament\Schemas\Schema;
 use App\Filament\App\Adapters\OpportunitiesKanbanAdapter;
 use App\Filament\App\Resources\OpportunityResource\Forms\OpportunityForm;
 use App\Models\Opportunity;
 use App\Models\Team;
+use BackedEnum;
 use Filament\Actions\Action;
-use Filament\Forms;
+use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;

@@ -4,37 +4,34 @@ declare(strict_types=1);
 
 namespace App\Filament\App\Resources;
 
-use Filament\Schemas\Schema;
-use Filament\Tables\Filters\TrashedFilter;
-use Filament\Actions\ActionGroup;
-use Filament\Actions\ViewAction;
-use Filament\Actions\EditAction;
-use Filament\Actions\RestoreAction;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\ForceDeleteAction;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\ExportBulkAction;
-use Filament\Actions\RestoreBulkAction;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\ForceDeleteBulkAction;
-use App\Filament\App\Resources\OpportunityResource\RelationManagers\TasksRelationManager;
-use App\Filament\App\Resources\OpportunityResource\RelationManagers\NotesRelationManager;
-use Override;
-use App\Filament\App\Resources\OpportunityResource\Pages\ListOpportunities;
-use App\Filament\App\Resources\OpportunityResource\Pages\ViewOpportunity;
 use App\Enums\CreationSource;
 use App\Filament\App\Exports\OpportunityExporter;
 use App\Filament\App\Resources\OpportunityResource\Forms\OpportunityForm;
-use App\Filament\App\Resources\OpportunityResource\Pages;
-use App\Filament\App\Resources\OpportunityResource\RelationManagers;
+use App\Filament\App\Resources\OpportunityResource\Pages\ListOpportunities;
+use App\Filament\App\Resources\OpportunityResource\Pages\ViewOpportunity;
+use App\Filament\App\Resources\OpportunityResource\RelationManagers\NotesRelationManager;
+use App\Filament\App\Resources\OpportunityResource\RelationManagers\TasksRelationManager;
 use App\Models\Opportunity;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ExportBulkAction;
+use Filament\Actions\ForceDeleteAction;
+use Filament\Actions\ForceDeleteBulkAction;
+use Filament\Actions\RestoreAction;
+use Filament\Actions\RestoreBulkAction;
+use Filament\Actions\ViewAction;
 use Filament\Resources\Resource;
-use Filament\Tables;
+use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Override;
 
 final class OpportunityResource extends Resource
 {
@@ -42,11 +39,11 @@ final class OpportunityResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name';
 
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-trophy';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-trophy';
 
     protected static ?int $navigationSort = 3;
 
-    protected static string | \UnitEnum | null $navigationGroup = 'Workspace';
+    protected static string|\UnitEnum|null $navigationGroup = 'Workspace';
 
     public static function form(Schema $schema): Schema
     {

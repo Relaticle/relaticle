@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Filament\App\Pages;
 
-use Override;
 use Filament\Pages\Page;
+use Override;
 
 final class ApiTokens extends Page
 {
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-key';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-key';
 
     protected string $view = 'filament.pages.api-tokens';
 

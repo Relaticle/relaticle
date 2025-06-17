@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace App\Filament\App\Pages;
 
-use BackedEnum;
-use Filament\Schemas\Schema;
 use App\Enums\CustomFields\Task as TaskCustomField;
 use App\Filament\App\Adapters\TasksKanbanAdapter;
 use App\Filament\App\Resources\TaskResource\Forms\TaskForm;
 use App\Models\Task;
 use App\Models\Team;
+use BackedEnum;
 use Filament\Actions\Action;
+use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;

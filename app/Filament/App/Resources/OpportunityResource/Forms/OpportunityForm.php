@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace App\Filament\App\Resources\OpportunityResource\Forms;
 
-use Filament\Schemas\Schema;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Select;
-use Filament\Forms;
+use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Schema;
 use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent;
 
 final class OpportunityForm

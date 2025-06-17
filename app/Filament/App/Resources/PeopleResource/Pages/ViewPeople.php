@@ -4,20 +4,18 @@ declare(strict_types=1);
 
 namespace App\Filament\App\Resources\PeopleResource\Pages;
 
-use Filament\Actions\ActionGroup;
-use Filament\Actions\EditAction;
-use Filament\Actions\DeleteAction;
-use Filament\Schemas\Schema;
-use Filament\Schemas\Components\Section;
-use Filament\Schemas\Components\Flex;
-use Filament\Infolists\Components\ImageEntry;
-use Filament\Infolists\Components\TextEntry;
-use Filament\Support\Enums\TextSize;
 use App\Filament\App\Resources\PeopleResource;
 use App\Models\People;
-use Filament\Actions;
-use Filament\Infolists\Components;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\EditAction;
+use Filament\Infolists\Components\ImageEntry;
+use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Pages\ViewRecord;
+use Filament\Schemas\Components\Flex;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
+use Filament\Support\Enums\TextSize;
 use Relaticle\Admin\Filament\Resources\CompanyResource;
 use Relaticle\CustomFields\Filament\Infolists\CustomFieldsInfolists;
 

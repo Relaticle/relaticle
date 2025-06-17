@@ -4,22 +4,6 @@ declare(strict_types=1);
 
 namespace App\Filament\App\Resources;
 
-use Filament\Schemas\Schema;
-use Filament\Schemas\Components\Grid;
-use Filament\Actions\Action;
-use Filament\Schemas\Components\Utilities\Set;
-use Filament\Tables\Columns\ImageColumn;
-use Filament\Actions\ActionGroup;
-use Filament\Actions\ViewAction;
-use Filament\Actions\EditAction;
-use Filament\Actions\RestoreAction;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\ForceDeleteAction;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\ExportBulkAction;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\ForceDeleteBulkAction;
-use Filament\Actions\RestoreBulkAction;
 use App\Enums\CreationSource;
 use App\Filament\App\Exports\PeopleExporter;
 use App\Filament\App\Resources\PeopleResource\Pages\ListPeople;
@@ -28,11 +12,25 @@ use App\Filament\App\Resources\PeopleResource\RelationManagers\NotesRelationMana
 use App\Filament\App\Resources\PeopleResource\RelationManagers\TasksRelationManager;
 use App\Models\Company;
 use App\Models\People;
-use Filament\Forms;
+use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ExportBulkAction;
+use Filament\Actions\ForceDeleteAction;
+use Filament\Actions\ForceDeleteBulkAction;
+use Filament\Actions\RestoreAction;
+use Filament\Actions\RestoreBulkAction;
+use Filament\Actions\ViewAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
-use Filament\Tables;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Schema;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
@@ -49,11 +47,11 @@ final class PeopleResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name';
 
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-user';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-user';
 
     protected static ?int $navigationSort = 1;
 
-    protected static string | \UnitEnum | null $navigationGroup = 'Workspace';
+    protected static string|\UnitEnum|null $navigationGroup = 'Workspace';
 
     public static function form(Schema $schema): Schema
     {

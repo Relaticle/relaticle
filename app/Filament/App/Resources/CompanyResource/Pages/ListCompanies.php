@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Filament\App\Resources\CompanyResource\Pages;
 
-use Override;
 use App\Filament\App\Resources\CompanyResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
+use Override;
 use Relaticle\CustomFields\Filament\Tables\Concerns\InteractsWithCustomFields;
 
 final class ListCompanies extends ListRecords

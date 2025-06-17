@@ -4,21 +4,18 @@ declare(strict_types=1);
 
 namespace App\Filament\App\Resources\OpportunityResource\Pages;
 
-use Filament\Actions\ActionGroup;
-use Filament\Actions\EditAction;
-use Filament\Actions\DeleteAction;
-use Filament\Schemas\Schema;
-use Filament\Schemas\Components\Section;
-use Filament\Schemas\Components\Flex;
-use Filament\Infolists\Components\TextEntry;
 use App\Filament\App\Resources\CompanyResource;
 use App\Filament\App\Resources\OpportunityResource;
 use App\Filament\App\Resources\PeopleResource;
 use App\Models\Opportunity;
-use Filament\Actions;
-use Filament\Infolists;
-use Filament\Infolists\Components;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\EditAction;
+use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Pages\ViewRecord;
+use Filament\Schemas\Components\Flex;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
 use Relaticle\CustomFields\Filament\Infolists\CustomFieldsInfolists;
 
 final class ViewOpportunity extends ViewRecord

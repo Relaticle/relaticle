@@ -4,31 +4,29 @@ declare(strict_types=1);
 
 namespace App\Filament\App\Resources;
 
-use Filament\Schemas\Schema;
-use Filament\Tables\Filters\Filter;
-use Filament\Tables\Grouping\Group;
-use Filament\Actions\ActionGroup;
-use Filament\Actions\EditAction;
-use Filament\Actions\Action;
-use Throwable;
-use Filament\Actions\RestoreAction;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\ForceDeleteAction;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\ForceDeleteBulkAction;
-use Filament\Actions\RestoreBulkAction;
 use App\Enums\CreationSource;
 use App\Filament\App\Resources\TaskResource\Forms\TaskForm;
 use App\Filament\App\Resources\TaskResource\Pages\ManageTasks;
 use App\Models\Task;
 use App\Models\User;
+use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ForceDeleteAction;
+use Filament\Actions\ForceDeleteBulkAction;
+use Filament\Actions\RestoreAction;
+use Filament\Actions\RestoreBulkAction;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
-use Filament\Tables;
+use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
+use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -36,6 +34,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\DB;
 use Relaticle\CustomFields\Contracts\ValueResolvers;
 use Relaticle\CustomFields\Models\CustomField;
+use Throwable;
 
 final class TaskResource extends Resource
 {
@@ -43,13 +42,13 @@ final class TaskResource extends Resource
 
     protected static ?string $navigationLabel = 'Tasks';
 
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-check-circle';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-check-circle';
 
     protected static ?string $recordTitleAttribute = 'title';
 
     protected static ?int $navigationSort = 3;
 
-    protected static string | \UnitEnum | null $navigationGroup = 'Workspace';
+    protected static string|\UnitEnum|null $navigationGroup = 'Workspace';
 
     public static function form(Schema $schema): Schema
     {

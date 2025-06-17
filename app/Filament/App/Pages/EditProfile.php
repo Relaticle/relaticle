@@ -8,7 +8,7 @@ use Filament\Pages\Page;
 
 final class EditProfile extends Page
 {
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-user-circle';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-user-circle';
 
     protected string $view = 'filament.pages.edit-profile';
 
