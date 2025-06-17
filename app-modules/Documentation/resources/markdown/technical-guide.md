@@ -185,7 +185,7 @@ composer test:unit
 # Run test architecture checks
 composer test:arch
 
-# Run type coverage checks (must be 99.6%+)
+# Run type coverage checks (must be 99.9%+)
 composer test:type-coverage
 
 # Run all quality checks
@@ -213,7 +213,7 @@ All code contributions should include:
 - Unit tests for new functionality
 - Feature tests for user interactions
 - Passing static analysis checks
-- Minimum 99.6% type coverage
+- Minimum 99.9% type coverage
 
 ## Customization and Extension
 

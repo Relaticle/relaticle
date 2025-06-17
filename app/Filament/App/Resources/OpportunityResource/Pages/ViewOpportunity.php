@@ -34,24 +34,23 @@ final class ViewOpportunity extends ViewRecord
 
     public function infolist(Schema $schema): Schema
     {
-        return $infolist
-            ->schema([
-                Section::make()->schema([
-                    Flex::make([
-                        TextEntry::make('name')->grow(true),
-                        TextEntry::make('company.name')
-                            ->label('Company')
-                            ->color('primary')
-                            ->url(fn (Opportunity $record): ?string => $record->company ? CompanyResource::getUrl('view', [$record->company]) : null)
-                            ->grow(false),
-                        TextEntry::make('contact.name')
-                            ->label('Point of Contact')
-                            ->color('primary')
-                            ->url(fn (Opportunity $record): ?string => $record->contact ? PeopleResource::getUrl('view', [$record->contact]) : null)
-                            ->grow(false),
-                    ]),
-                    CustomFieldsInfolists::make()->columnSpanFull(),
+        return $schema->schema([
+            Section::make()->schema([
+                Flex::make([
+                    TextEntry::make('name')->grow(true),
+                    TextEntry::make('company.name')
+                        ->label('Company')
+                        ->color('primary')
+                        ->url(fn (Opportunity $record): ?string => $record->company ? CompanyResource::getUrl('view', [$record->company]) : null)
+                        ->grow(false),
+                    TextEntry::make('contact.name')
+                        ->label('Point of Contact')
+                        ->color('primary')
+                        ->url(fn (Opportunity $record): ?string => $record->contact ? PeopleResource::getUrl('view', [$record->contact]) : null)
+                        ->grow(false),
                 ]),
-            ]);
+                CustomFieldsInfolists::make()->columnSpanFull(),
+            ]),
+        ]);
     }
 }

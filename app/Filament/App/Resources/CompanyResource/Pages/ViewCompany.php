@@ -35,9 +35,8 @@ final class ViewCompany extends ViewRecord
 
     public function infolist(Schema $schema): Schema
     {
-        return $infolist
+        return $schema
             ->schema([
-
                 Flex::make([
                     Section::make([
                         Flex::make([

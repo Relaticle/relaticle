@@ -90,7 +90,7 @@
         "test:refactor": "rector --dry-run",
         "test:types": "phpstan analyse",
         "test:arch": "pest --filter=arch",
-        "test:type-coverage": "pest --type-coverage --min=99.6",
+        "test:type-coverage": "pest --type-coverage --min=99.9",
         "test:unit": "pest --parallel",
         "test": [
             "@test:lint",
