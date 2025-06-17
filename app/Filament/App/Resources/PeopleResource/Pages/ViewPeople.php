@@ -35,7 +35,7 @@ final class ViewPeople extends ViewRecord
 
     public function infolist(Schema $schema): Schema
     {
-        return $infolist->schema([
+        return $schema->schema([
             Section::make()->schema([
                 Flex::make([
                     ImageEntry::make('avatar')
