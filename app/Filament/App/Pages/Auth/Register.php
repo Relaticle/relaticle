@@ -6,13 +6,14 @@ namespace App\Filament\App\Pages\Auth;
 
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Component;
+use Filament\Auth\Pages\Register as BaseRegister;
 
-final class Register extends \Filament\Auth\Pages\Register
+final class Register extends BaseRegister
 {
     protected function getEmailFormComponent(): Component
     {
         return TextInput::make('email')
-            ->label(__('filament-panels::pages/auth/register.form.email.label'))
+            ->label(__('filament-panels::auth/pages/register.form.email.label'))
             ->email()
             ->rules(['email:rfc,dns'])
             ->required()
