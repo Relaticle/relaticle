@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Filament\App\Pages;
 
-use Override;
 use Filament\Facades\Filament;
 use Filament\Pages\Tenancy\EditTenantProfile;
+use Override;
 
 final class EditTeam extends EditTenantProfile
 {

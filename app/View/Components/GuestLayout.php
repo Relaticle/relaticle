@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\View\Components;
 
-use Override;
 use Illuminate\View\Component;
 use Illuminate\View\View;
+use Override;
 
 final class GuestLayout extends Component
 {

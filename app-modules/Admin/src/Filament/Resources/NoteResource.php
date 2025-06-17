@@ -4,34 +4,31 @@ declare(strict_types=1);
 
 namespace Relaticle\Admin\Filament\Resources;
 
-use Override;
-use Filament\Schemas\Schema;
-use Filament\Forms\Components\Select;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Actions\ViewAction;
-use Filament\Actions\EditAction;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use Relaticle\Admin\Filament\Resources\NoteResource\Pages\ListNotes;
-use Relaticle\Admin\Filament\Resources\NoteResource\Pages\CreateNote;
-use Relaticle\Admin\Filament\Resources\NoteResource\Pages\ViewNote;
-use Relaticle\Admin\Filament\Resources\NoteResource\Pages\EditNote;
 use App\Enums\CreationSource;
 use App\Models\Note;
-use Filament\Forms;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
+use Filament\Forms\Components\Select;
 use Filament\Resources\Resource;
-use Filament\Tables;
+use Filament\Schemas\Schema;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
-use Relaticle\Admin\Filament\Resources\NoteResource\Pages;
+use Override;
+use Relaticle\Admin\Filament\Resources\NoteResource\Pages\CreateNote;
+use Relaticle\Admin\Filament\Resources\NoteResource\Pages\EditNote;
+use Relaticle\Admin\Filament\Resources\NoteResource\Pages\ListNotes;
+use Relaticle\Admin\Filament\Resources\NoteResource\Pages\ViewNote;
 
 final class NoteResource extends Resource
 {
     protected static ?string $model = Note::class;
 
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-document-text';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-document-text';
 
-    protected static string | \UnitEnum | null $navigationGroup = 'Content';
+    protected static string|\UnitEnum|null $navigationGroup = 'Content';
 
     protected static ?int $navigationSort = 1;
 

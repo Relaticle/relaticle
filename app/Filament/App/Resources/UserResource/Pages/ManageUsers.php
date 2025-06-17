@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace App\Filament\App\Resources\UserResource\Pages;
 
-use Override;
-use Filament\Actions\CreateAction;
 use App\Filament\App\Resources\UserResource;
-use Filament\Actions;
+use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ManageRecords;
+use Override;
 
 final class ManageUsers extends ManageRecords
 {

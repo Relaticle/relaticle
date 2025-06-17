@@ -4,35 +4,32 @@ declare(strict_types=1);
 
 namespace Relaticle\Admin\Filament\Resources;
 
-use Override;
-use Filament\Schemas\Schema;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Actions\ViewAction;
-use Filament\Actions\EditAction;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use Relaticle\Admin\Filament\Resources\PeopleResource\Pages\ListPeople;
-use Relaticle\Admin\Filament\Resources\PeopleResource\Pages\CreatePeople;
-use Relaticle\Admin\Filament\Resources\PeopleResource\Pages\ViewPeople;
-use Relaticle\Admin\Filament\Resources\PeopleResource\Pages\EditPeople;
 use App\Enums\CreationSource;
 use App\Models\People;
-use Filament\Forms;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
-use Filament\Tables;
+use Filament\Schemas\Schema;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
-use Relaticle\Admin\Filament\Resources\PeopleResource\Pages;
+use Override;
+use Relaticle\Admin\Filament\Resources\PeopleResource\Pages\CreatePeople;
+use Relaticle\Admin\Filament\Resources\PeopleResource\Pages\EditPeople;
+use Relaticle\Admin\Filament\Resources\PeopleResource\Pages\ListPeople;
+use Relaticle\Admin\Filament\Resources\PeopleResource\Pages\ViewPeople;
 
 final class PeopleResource extends Resource
 {
     protected static ?string $model = People::class;
 
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-users';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-users';
 
-    protected static string | \UnitEnum | null $navigationGroup = 'CRM';
+    protected static string|\UnitEnum|null $navigationGroup = 'CRM';
 
     protected static ?int $navigationSort = 2;
 

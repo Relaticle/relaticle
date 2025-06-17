@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Relaticle\OnboardSeed\ModelSeeders;
 
-use Exception;
-use Illuminate\Support\Carbon;
 use App\Enums\CustomFields\Task as TaskCustomField;
 use App\Models\Task;
 use App\Models\Team;
 use App\Models\User;
+use Exception;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Relaticle\OnboardSeed\Support\BaseModelSeeder;
 use Relaticle\OnboardSeed\Support\FixtureRegistry;

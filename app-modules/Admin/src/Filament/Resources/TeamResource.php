@@ -4,31 +4,28 @@ declare(strict_types=1);
 
 namespace Relaticle\Admin\Filament\Resources;
 
-use Filament\Schemas\Schema;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\IconColumn;
-use Filament\Actions\EditAction;
+use App\Models\Team;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
-use Relaticle\Admin\Filament\Resources\TeamResource\Pages\ListTeams;
+use Filament\Actions\EditAction;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
+use Filament\Resources\Resource;
+use Filament\Schemas\Schema;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
 use Relaticle\Admin\Filament\Resources\TeamResource\Pages\CreateTeam;
 use Relaticle\Admin\Filament\Resources\TeamResource\Pages\EditTeam;
-use App\Models\Team;
-use Filament\Forms;
-use Filament\Resources\Resource;
-use Filament\Tables;
-use Filament\Tables\Table;
-use Relaticle\Admin\Filament\Resources\TeamResource\Pages;
+use Relaticle\Admin\Filament\Resources\TeamResource\Pages\ListTeams;
 
 final class TeamResource extends Resource
 {
     protected static ?string $model = Team::class;
 
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-users';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-users';
 
-    protected static string | \UnitEnum | null $navigationGroup = 'User Management';
+    protected static string|\UnitEnum|null $navigationGroup = 'User Management';
 
     public static function form(Schema $schema): Schema
     {

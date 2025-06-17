@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Filament\App\Pages;
 
-use Override;
-use Filament\Schemas\Schema;
 use Filament\Forms\Components\TextInput;
 use Filament\Pages\Tenancy\RegisterTenant;
+use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Model;
+use Override;
 
 final class CreateTeam extends RegisterTenant
 {

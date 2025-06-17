@@ -4,34 +4,31 @@ declare(strict_types=1);
 
 namespace Relaticle\Admin\Filament\Resources;
 
-use Filament\Schemas\Schema;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Actions\ViewAction;
-use Filament\Actions\EditAction;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use Relaticle\Admin\Filament\Resources\TaskResource\Pages\ListTasks;
-use Relaticle\Admin\Filament\Resources\TaskResource\Pages\CreateTask;
-use Relaticle\Admin\Filament\Resources\TaskResource\Pages\ViewTask;
-use Relaticle\Admin\Filament\Resources\TaskResource\Pages\EditTask;
 use App\Enums\CreationSource;
 use App\Models\Task;
-use Filament\Forms;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
-use Filament\Tables;
+use Filament\Schemas\Schema;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
-use Relaticle\Admin\Filament\Resources\TaskResource\Pages;
+use Relaticle\Admin\Filament\Resources\TaskResource\Pages\CreateTask;
+use Relaticle\Admin\Filament\Resources\TaskResource\Pages\EditTask;
+use Relaticle\Admin\Filament\Resources\TaskResource\Pages\ListTasks;
+use Relaticle\Admin\Filament\Resources\TaskResource\Pages\ViewTask;
 
 final class TaskResource extends Resource
 {
     protected static ?string $model = Task::class;
 
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-clipboard-document-check';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-clipboard-document-check';
 
-    protected static string | \UnitEnum | null $navigationGroup = 'Task Management';
+    protected static string|\UnitEnum|null $navigationGroup = 'Task Management';
 
     protected static ?int $navigationSort = 1;
 

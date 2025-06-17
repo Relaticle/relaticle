@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace Relaticle\Admin\Filament\Resources\NoteResource\Pages;
 
-use Override;
 use Filament\Actions\CreateAction;
-use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
+use Override;
 use Relaticle\Admin\Filament\Resources\NoteResource;
 
 final class ListNotes extends ListRecords

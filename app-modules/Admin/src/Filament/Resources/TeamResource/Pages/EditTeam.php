@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Relaticle\Admin\Filament\Resources\TeamResource\Pages;
 
 use Filament\Actions\DeleteAction;
-use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 use Relaticle\Admin\Filament\Resources\TeamResource;
 

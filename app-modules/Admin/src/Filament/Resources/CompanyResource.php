@@ -4,35 +4,32 @@ declare(strict_types=1);
 
 namespace Relaticle\Admin\Filament\Resources;
 
-use Filament\Schemas\Schema;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Actions\ViewAction;
-use Filament\Actions\EditAction;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use Override;
-use Relaticle\Admin\Filament\Resources\CompanyResource\Pages\ListCompanies;
-use Relaticle\Admin\Filament\Resources\CompanyResource\Pages\CreateCompany;
-use Relaticle\Admin\Filament\Resources\CompanyResource\Pages\ViewCompany;
-use Relaticle\Admin\Filament\Resources\CompanyResource\Pages\EditCompany;
 use App\Enums\CreationSource;
 use App\Models\Company;
-use Filament\Forms;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
-use Filament\Tables;
+use Filament\Schemas\Schema;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
-use Relaticle\Admin\Filament\Resources\CompanyResource\Pages;
+use Override;
+use Relaticle\Admin\Filament\Resources\CompanyResource\Pages\CreateCompany;
+use Relaticle\Admin\Filament\Resources\CompanyResource\Pages\EditCompany;
+use Relaticle\Admin\Filament\Resources\CompanyResource\Pages\ListCompanies;
+use Relaticle\Admin\Filament\Resources\CompanyResource\Pages\ViewCompany;
 
 final class CompanyResource extends Resource
 {
     protected static ?string $model = Company::class;
 
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-building-office';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-building-office';
 
-    protected static string | \UnitEnum | null $navigationGroup = 'CRM';
+    protected static string|\UnitEnum|null $navigationGroup = 'CRM';
 
     protected static ?int $navigationSort = 1;
 

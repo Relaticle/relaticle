@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Providers\Filament;
 
-use Exception;
 use App\Filament\App\Pages\ApiTokens;
 use App\Filament\App\Pages\Auth\Login;
 use App\Filament\App\Pages\Auth\Register;
@@ -15,6 +14,7 @@ use App\Filament\App\Resources\CompanyResource;
 use App\Http\Middleware\ApplyTenantScopes;
 use App\Listeners\SwitchTeam;
 use App\Models\Team;
+use Exception;
 use Filament\Events\TenantSet;
 use Filament\Facades\Filament;
 use Filament\Http\Middleware\Authenticate;
@@ -24,7 +24,6 @@ use Filament\Navigation\MenuItem;
 use Filament\Navigation\NavigationGroup;
 use Filament\Panel;
 use Filament\PanelProvider;
-use Filament\Support\Colors\Color;
 use Filament\View\PanelsRenderHook;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;

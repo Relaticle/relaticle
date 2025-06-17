@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Actions\Fortify;
 
-use Filament\Auth\Events\Registered;
-use Throwable;
 use App\Contracts\User\CreatesNewSocialUsers;
 use App\Models\User;
+use Filament\Auth\Events\Registered;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Throwable;
 
 final readonly class CreateNewSocialUser implements CreatesNewSocialUsers
 {
