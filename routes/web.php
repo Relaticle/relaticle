@@ -5,6 +5,8 @@ declare(strict_types=1);
 use App\Http\Controllers\Auth\CallbackController;
 use App\Http\Controllers\Auth\RedirectController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\PrivacyPolicyController;
+use App\Http\Controllers\TermsOfServiceController;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Support\Facades\Route;
 use Laravel\Jetstream\Http\Controllers\TeamInvitationController;
@@ -40,6 +42,9 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::get('/', HomeController::class);
+
+Route::get('/terms-of-service', TermsOfServiceController::class)->name('terms.show');
+Route::get('/privacy-policy', PrivacyPolicyController::class)->name('policy.show');
 
 Route::redirect('/dashboard', url()->getAppUrl())->name('dashboard');
 
