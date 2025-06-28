@@ -51,3 +51,8 @@ Route::redirect('/dashboard', url()->getAppUrl())->name('dashboard');
 Route::get('/team-invitations/{invitation}', [TeamInvitationController::class, 'accept'])
     ->middleware(['signed', 'verified', 'auth', AuthenticateSession::class])
     ->name('team-invitations.accept');
+
+// Community redirects
+Route::get('/discord', function () {
+    return redirect()->away(config('services.discord.invite_url'));
+})->name('discord');

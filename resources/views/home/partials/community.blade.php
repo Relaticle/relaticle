@@ -58,7 +58,7 @@
                         <p class="text-gray-600 dark:text-gray-300 mb-6 text-sm">Chat with developers, get help, and
                             share ideas. Join our growing community and connect with other Relaticle users.</p>
                         <div class="mt-auto">
-                            <a href="https://discord.gg/b9WxzUce4Q" target="_blank"
+                            <a href="{{ route('discord') }}" target="_blank"
                                class="inline-flex items-center text-primary dark:text-primary-400 hover:text-primary-600 dark:hover:text-primary-300 font-medium text-sm transition-colors">
                                 Join Discord
                                 <svg xmlns="http://www.w3.org/2000/svg" class="ml-1.5 h-4 w-4" fill="none"
