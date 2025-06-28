@@ -45,6 +45,13 @@
                         @endif
                         <x-heroicon-o-arrow-up-right class="h-3 w-3 text-gray-400"/>
                     </a>
+                    <a href="{{ route('discord') }}" target="_blank"
+                       class="text-gray-700 dark:text-white hover:text-primary dark:hover:text-primary-400 text-sm font-medium transition-all duration-200 flex items-center gap-1.5 relative after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:w-0 after:bg-primary dark:after:bg-primary after:transition-all hover:after:w-full"
+                       aria-label="Join Discord Community">
+                        <x-icon-discord class="w-4 h-4"/>
+                        Discord
+                        <x-heroicon-o-arrow-up-right class="h-3 w-3 text-gray-400"/>
+                    </a>
                 </nav>
             </div>
 
@@ -142,6 +149,14 @@
                     @endif
                     <x-heroicon-o-arrow-top-right-on-square class="ml-auto h-4 w-4 text-gray-400"/>
                 </a>
+
+                <a href="{{ route('discord') }}" target="_blank"
+                   class="menu-item opacity-0 transform translate-x-4 flex items-center px-3 py-3 text-gray-700 dark:text-gray-200 hover:text-primary dark:hover:text-primary-400 text-base transition-all duration-200 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/70"
+                   style="transition-delay: 250ms;">
+                    <x-icon-discord class="mr-3 h-5 w-5"/>
+                    <span class="font-medium">Discord</span>
+                    <x-heroicon-o-arrow-top-right-on-square class="ml-auto h-4 w-4 text-gray-400"/>
+                </a>
             </nav>
 
             <!-- Account Section Label -->
@@ -154,7 +169,7 @@
             <div class="space-y-1 mb-8">
                 <a href="{{ route('login') }}"
                    class="menu-item opacity-0 transform translate-x-4 flex items-center px-3 py-3 text-gray-700 dark:text-gray-200 hover:text-primary dark:hover:text-primary-400 text-base transition-all duration-200 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/70 {{ Route::is('login') ? 'bg-primary/5 dark:bg-primary/10 text-primary dark:text-primary-400' : '' }}"
-                   style="transition-delay: 250ms;">
+                   style="transition-delay: 300ms;">
                     <x-heroicon-o-arrow-right-on-rectangle
                         class="mr-3 h-5 w-5 {{ Route::is('login') ? 'text-primary dark:text-primary-400' : '' }}"/>
                     <span class="font-medium">Sign In</span>
@@ -166,7 +181,7 @@
 
                 <a href="{{ route('register') }}"
                    class="menu-item opacity-0 transform translate-x-4 mt-2 flex items-center justify-center text-center py-3 px-3 bg-primary hover:bg-primary-600 text-white text-base rounded-lg font-medium transition-all duration-200 shadow-sm active:scale-[0.98] {{ Route::is('register') ? 'bg-primary-600' : '' }}"
-                   style="transition-delay: 300ms;">
+                   style="transition-delay: 350ms;">
                     <x-heroicon-o-user-plus class="mr-3 h-5 w-5"/>
                     Get Started
                 </a>
@@ -175,7 +190,7 @@
             <!-- Theme Toggle in Mobile Menu -->
             <div
                 class="menu-item opacity-0 transform translate-x-4 mt-auto pt-6 border-t border-gray-100 dark:border-gray-800"
-                style="transition-delay: 350ms;">
+                style="transition-delay: 400ms;">
                 <button
                     class="mobile-theme-toggle w-full flex items-center justify-between px-3 py-3 text-gray-700 dark:text-gray-200 hover:text-primary dark:hover:text-primary-400 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/70"
                     aria-label="Toggle dark mode">
@@ -194,7 +209,7 @@
 
             <!-- Version Info -->
             <div class="menu-item opacity-0 text-center mt-8 text-xs text-gray-400"
-                 style="transition-delay: 400ms;">
+                 style="transition-delay: 450ms;">
                 <p>Relaticle v1.0.0</p>
             </div>
         </div>
