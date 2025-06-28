@@ -35,7 +35,7 @@ final class Register extends BaseRegister
                         $this->getPasswordFormComponent(),
                         $this->getPasswordConfirmationFormComponent(),
                         Placeholder::make('terms')
-                            ->label(new HtmlString('By registering, you agree to our <a href="'.URL::getPublicUrl('terms-of-service').'" target="_blank" class="text-primary-600 hover:text-primary-500">Terms of Service</a>.')),
+                            ->label(new HtmlString('By signing up you agree to the <a href="'.URL::getPublicUrl('terms-of-service').'" target="_blank" class="text-primary-600 hover:text-primary-500">Terms of Service</a> & <a href="'.URL::getPublicUrl('privacy-policy').'" target="_blank" class="text-primary-600 hover:text-primary-500">Privacy Policy</a>.')),
                     ])
                     ->statePath('data'),
             ),
