@@ -84,7 +84,7 @@
 
                 <a href="{{ route('register') }}"
                    class="mobile-menu-link group relative overflow-hidden flex items-center justify-center px-5 py-4 bg-primary hover:bg-primary-600 text-white rounded-2xl font-semibold transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-primary/30">
-                    <span class="relative z-10">Get Started</span>
+                    <span class="relative z-10">Start for free</span>
                     <div class="absolute inset-0 bg-gradient-to-r from-primary-600 to-primary-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 </a>
             </div>

@@ -74,7 +74,7 @@
                     <a href="{{ route('register') }}"
                        class="group bg-primary hover:bg-primary-600 text-white px-5 py-2.5 text-sm rounded-md transition-all duration-300 font-medium relative overflow-hidden shadow-sm hover:shadow hover:scale-[1.02] active:scale-[0.98]"
                        aria-label="Create a new account">
-                        <span class="relative z-10">Get Started</span>
+                        <span class="relative z-10">Start for free</span>
                         <span
                             class="absolute inset-0 bg-gradient-to-r from-primary-600 to-primary-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
                     </a>
@@ -141,16 +141,16 @@
             // Show elements
             mobileMenu.classList.remove('hidden');
             mobileMenuBackdrop.classList.remove('hidden');
-            
+
             // Prevent body scroll
             document.body.classList.add('overflow-hidden');
-            
+
             // Trigger animations
             setTimeout(() => {
                 mobileMenu.classList.remove('translate-x-full');
                 mobileMenuBackdrop.classList.remove('opacity-0');
             }, 10);
-            
+
             mobileMenuButton.setAttribute('aria-expanded', 'true');
         }
 
@@ -158,16 +158,16 @@
             // Hide with animations
             mobileMenu.classList.add('translate-x-full');
             mobileMenuBackdrop.classList.add('opacity-0');
-            
+
             // Re-enable body scroll
             document.body.classList.remove('overflow-hidden');
-            
+
             // Hide elements after animation
             setTimeout(() => {
                 mobileMenu.classList.add('hidden');
                 mobileMenuBackdrop.classList.add('hidden');
             }, 300);
-            
+
             mobileMenuButton.setAttribute('aria-expanded', 'false');
         }
 
