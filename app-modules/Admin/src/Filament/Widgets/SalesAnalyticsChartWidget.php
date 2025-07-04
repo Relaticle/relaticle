@@ -5,12 +5,11 @@ declare(strict_types=1);
 namespace Relaticle\Admin\Filament\Widgets;
 
 use Filament\Widgets\ChartWidget;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Facades\DB;
 
 final class SalesAnalyticsChartWidget extends ChartWidget
 {
-    protected static ?string $heading = '📈 Sales Pipeline Trends';
-
     protected static ?string $description = '6-month pipeline value and opportunity volume analysis';
 
     protected static ?int $sort = 2;
@@ -24,6 +23,11 @@ final class SalesAnalyticsChartWidget extends ChartWidget
     ];
 
     protected static ?string $maxHeight = '300px';
+
+    public function getHeading(): string|Htmlable|null
+    {
+        return "📈 Sales Pipeline Trends";
+    }
 
     protected function getData(): array
     {
