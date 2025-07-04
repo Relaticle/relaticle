@@ -48,18 +48,6 @@ For comprehensive documentation, please refer to our official website:
 - [Quick Start Guide](https://relaticle.com/documentation/quickstart) - Step-by-step getting started guide
 - [API Documentation](https://relaticle.com/documentation/api) - Integration with the Relaticle API
 
-## Paid Dependencies
-
-Relaticle is open-source, but includes one premium component that powers its flexibility:
-
-**Custom Fields** - This Filament plugin enables unlimited custom data fields without coding. It's the core of what makes Relaticle adaptable to any business workflow.
-
-This component is paid to fund ongoing development of the open-source platform and provide dedicated support. With thousands of development hours invested, it delivers enterprise-grade data modeling that would otherwise require significant custom development.
-
-**Open-Source Discount:** Use code `OPENSOURCE` for 50% off.
-
-**[Get Custom Fields →](https://custom-fields.relaticle.com/introduction)**
-
 ## License
 
 Relaticle is open-source software licensed under the [AGPL-3.0 license](LICENSE).
