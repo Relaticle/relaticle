@@ -9,6 +9,7 @@ use App\Models\Opportunity;
 use App\Models\Task;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Relaticle\Admin\Filament\Widgets\Concerns\HasCustomFieldQueries;
 
@@ -86,16 +87,14 @@ final class BusinessOverviewWidget extends BaseWidget
         ];
     }
 
-    private function getOpportunitiesWithAmounts()
+    private function getOpportunitiesWithAmounts(): Collection
     {
         return DB::table('opportunities')
-            ->leftJoin('custom_field_values as cfv_amount', fn($join) => 
-                $join->on('opportunities.id', '=', 'cfv_amount.entity_id')
-                    ->where('cfv_amount.entity_type', 'opportunity')
+            ->leftJoin('custom_field_values as cfv_amount', fn ($join) => $join->on('opportunities.id', '=', 'cfv_amount.entity_id')
+                ->where('cfv_amount.entity_type', 'opportunity')
             )
-            ->leftJoin('custom_fields as cf_amount', fn($join) => 
-                $join->on('cfv_amount.custom_field_id', '=', 'cf_amount.id')
-                    ->where('cf_amount.code', 'amount')
+            ->leftJoin('custom_fields as cf_amount', fn ($join) => $join->on('cfv_amount.custom_field_id', '=', 'cf_amount.id')
+                ->where('cf_amount.code', 'amount')
             )
             ->whereNull('opportunities.deleted_at')
             ->select('cfv_amount.float_value as amount', 'opportunities.created_at')
@@ -119,26 +118,26 @@ final class BusinessOverviewWidget extends BaseWidget
         return [$opportunitiesGrowth, $companiesGrowth];
     }
 
-    private function calculateGrowthRate(int $current, int $previous): int
+    private function calculateGrowthRate(int $current, int $previous): float
     {
         if ($previous === 0) {
             return $current > 0 ? 100 : 0;
         }
-        
+
         return round((($current - $previous) / $previous) * 100);
     }
 
-    private function generatePipelineTrend($opportunities): array
+    private function generatePipelineTrend(\Illuminate\Support\Collection $opportunities): array
     {
         return collect(range(6, 0))
-            ->map(fn($daysAgo) => [
+            ->map(fn ($daysAgo): array => [
                 'date' => now()->subDays($daysAgo),
                 'value' => $opportunities
                     ->whereBetween('created_at', [
                         now()->subDays($daysAgo)->startOfDay(),
-                        now()->subDays($daysAgo)->endOfDay()
+                        now()->subDays($daysAgo)->endOfDay(),
                     ])
-                    ->sum('amount') ?? 0
+                    ->sum('amount') ?? 0,
             ])
             ->pluck('value')
             ->toArray();
@@ -147,9 +146,9 @@ final class BusinessOverviewWidget extends BaseWidget
     private function formatCurrency(float $amount): string
     {
         return match (true) {
-            $amount >= 1000000 => '$' . number_format($amount / 1000000, 1) . 'M',
-            $amount >= 1000 => '$' . number_format($amount / 1000, 1) . 'K',
-            default => '$' . number_format($amount, 0)
+            $amount >= 1000000 => '$'.number_format($amount / 1000000, 1).'M',
+            $amount >= 1000 => '$'.number_format($amount / 1000, 1).'K',
+            default => '$'.number_format($amount, 0)
         };
     }
 
