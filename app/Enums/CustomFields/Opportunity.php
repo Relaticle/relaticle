@@ -39,7 +39,7 @@ enum Opportunity: string
     public function getFieldType(): CustomFieldType
     {
         return match ($this) {
-            self::AMOUNT => CustomFieldType::NUMBER,
+            self::AMOUNT => CustomFieldType::CURRENCY,
             self::CLOSE_DATE => CustomFieldType::DATE,
             self::STAGE => CustomFieldType::SELECT,
         };

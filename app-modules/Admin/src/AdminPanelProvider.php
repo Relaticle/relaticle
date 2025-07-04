@@ -70,14 +70,14 @@ final class AdminPanelProvider extends PanelProvider
             ->databaseNotifications()
             ->plugins([
                 OverlookPlugin::make()
-                    ->sort(2)
+                    ->sort(5)
                     ->columns([
-                        'default' => 1,
-                        'sm' => 2,
-                        'md' => 3,
-                        'lg' => 4,
-                        'xl' => 5,
-                        '2xl' => null,
+                        'default' => 2,
+                        'sm' => 3,
+                        'md' => 4,
+                        'lg' => 5,
+                        'xl' => 6,
+                        '2xl' => 6,
                     ]),
             ])
             ->middleware([
