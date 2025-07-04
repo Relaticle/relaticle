@@ -35,7 +35,7 @@ Relaticle is a powerful, adaptable CRM platform built with modern technologies t
 - **Multi-Team Support** - Securely manage multiple business units with isolated workspaces
 - **Modern Technology** - Built on Laravel 12, PHP 8.3, and Filament 3
 - **Privacy-Focused** - Self-host with complete data ownership
-- **Open Source** - Transparent development with GPL-3.0 license
+- **Open Source** - Transparent development with AGPL-3.0 license
 
 Visit our [website](https://relaticle.com) to learn more about Relaticle's capabilities.
 
@@ -62,7 +62,7 @@ This component is paid to fund ongoing development of the open-source platform a
 
 ## License
 
-Relaticle is open-source software licensed under the [GPL-3.0 license](LICENSE).
+Relaticle is open-source software licensed under the [AGPL-3.0 license](LICENSE).
 
 
 ## Star History
