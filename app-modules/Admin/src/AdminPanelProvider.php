@@ -40,7 +40,7 @@ final class AdminPanelProvider extends PanelProvider
             ->login()
             ->spa()
             ->colors([
-                'primary' => Color::Amber,
+                'primary' => Color::Indigo,
             ])
             ->brandName('Relaticle Admin')
             ->discoverResources(in: base_path('app-modules/Admin/src/Filament/Resources'), for: 'Relaticle\\Admin\\Filament\\Resources')
@@ -64,7 +64,6 @@ final class AdminPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: base_path('app-modules/Admin/src/Filament/Widgets'), for: 'Relaticle\\Admin\\Filament\\Widgets')
             ->widgets([
-                Widgets\AccountWidget::class,
                 OverlookWidget::class,
             ])
             ->databaseNotifications()
