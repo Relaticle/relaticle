@@ -32,7 +32,7 @@ trait HasCustomFieldQueries
         ];
 
         $optionIds = $this->getOptionIdsByPatterns($entityType, $fieldCode, $completionPatterns);
-        
+
         return $optionIds ?: $this->getFallbackOptionIds($entityType, $fieldCode);
     }
 
@@ -46,7 +46,7 @@ trait HasCustomFieldQueries
         ];
 
         $optionIds = $this->getOptionIdsByPatterns($entityType, $fieldCode, $highPriorityPatterns);
-        
+
         return $optionIds ?: $this->getFallbackOptionIds($entityType, $fieldCode);
     }
 
@@ -74,11 +74,11 @@ trait HasCustomFieldQueries
         string $optionName
     ) {
         return DB::table($tableName)
-            ->leftJoin('custom_field_values as cfv', function ($join) use ($entityType, $tableName) {
+            ->leftJoin('custom_field_values as cfv', function ($join) use ($entityType, $tableName): void {
                 $join->on("{$tableName}.id", '=', 'cfv.entity_id')
                     ->where('cfv.entity_type', $entityType);
             })
-            ->leftJoin('custom_fields as cf', function ($join) use ($fieldCode) {
+            ->leftJoin('custom_fields as cf', function ($join) use ($fieldCode): void {
                 $join->on('cfv.custom_field_id', '=', 'cf.id')
                     ->where('cf.code', $fieldCode);
             })
@@ -110,7 +110,7 @@ trait HasCustomFieldQueries
     ): int {
         $completionOptionIds = $this->getCompletionStatusOptionIds($entityType, $fieldCode);
 
-        return $completionOptionIds 
+        return $completionOptionIds
             ? $this->countEntitiesWithOptionIds($tableName, $entityType, $fieldCode, $completionOptionIds)
             : 0;
     }
@@ -125,7 +125,7 @@ trait HasCustomFieldQueries
     ): int {
         $highPriorityOptionIds = $this->getHighPriorityOptionIds($entityType, $fieldCode);
 
-        return $highPriorityOptionIds 
+        return $highPriorityOptionIds
             ? $this->countEntitiesWithOptionIds($tableName, $entityType, $fieldCode, $highPriorityOptionIds)
             : 0;
     }
@@ -136,10 +136,8 @@ trait HasCustomFieldQueries
             ->join('custom_fields as cf', 'cfo.custom_field_id', '=', 'cf.id')
             ->where('cf.entity_type', $entityType)
             ->where('cf.code', $fieldCode)
-            ->where(fn($query) => 
-                collect($patterns)->each(fn($pattern) => 
-                    $query->orWhereRaw('LOWER(cfo.name) = ?', [strtolower($pattern)])
-                )
+            ->where(fn ($query) => collect($patterns)->each(fn ($pattern) => $query->orWhereRaw('LOWER(cfo.name) = ?', [strtolower((string) $pattern)])
+            )
             )
             ->pluck('cfo.id')
             ->toArray();
@@ -151,14 +149,13 @@ trait HasCustomFieldQueries
             ->join('custom_fields as cf', 'cfo.custom_field_id', '=', 'cf.id')
             ->where('cf.entity_type', $entityType)
             ->where('cf.code', $fieldCode)
-            ->whereIn('cfo.id', fn($query) => 
-                $query->select(DB::raw('MAX(cfo2.id)'))
-                    ->from('custom_field_options as cfo2')
-                    ->join('custom_fields as cf2', 'cfo2.custom_field_id', '=', 'cf2.id')
-                    ->whereRaw('cf2.entity_type = cf.entity_type')
-                    ->whereRaw('cf2.code = cf.code')
-                    ->whereRaw('cf2.tenant_id = cf.tenant_id')
-                    ->groupBy('cf2.tenant_id')
+            ->whereIn('cfo.id', fn ($query) => $query->select(DB::raw('MAX(cfo2.id)'))
+                ->from('custom_field_options as cfo2')
+                ->join('custom_fields as cf2', 'cfo2.custom_field_id', '=', 'cf2.id')
+                ->whereRaw('cf2.entity_type = cf.entity_type')
+                ->whereRaw('cf2.code = cf.code')
+                ->whereRaw('cf2.tenant_id = cf.tenant_id')
+                ->groupBy('cf2.tenant_id')
             )
             ->pluck('cfo.id')
             ->toArray();
@@ -167,13 +164,11 @@ trait HasCustomFieldQueries
     private function countEntitiesWithOptionIds(string $tableName, string $entityType, string $fieldCode, array $optionIds): int
     {
         return DB::table($tableName)
-            ->leftJoin('custom_field_values as cfv', fn($join) => 
-                $join->on("{$tableName}.id", '=', 'cfv.entity_id')
-                    ->where('cfv.entity_type', $entityType)
+            ->leftJoin('custom_field_values as cfv', fn ($join) => $join->on("{$tableName}.id", '=', 'cfv.entity_id')
+                ->where('cfv.entity_type', $entityType)
             )
-            ->leftJoin('custom_fields as cf', fn($join) => 
-                $join->on('cfv.custom_field_id', '=', 'cf.id')
-                    ->where('cf.code', $fieldCode)
+            ->leftJoin('custom_fields as cf', fn ($join) => $join->on('cfv.custom_field_id', '=', 'cf.id')
+                ->where('cf.code', $fieldCode)
             )
             ->whereIn('cfv.integer_value', $optionIds)
             ->whereNull("{$tableName}.deleted_at")

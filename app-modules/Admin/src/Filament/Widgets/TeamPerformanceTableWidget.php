@@ -18,7 +18,7 @@ final class TeamPerformanceTableWidget extends BaseWidget
 
     protected static ?string $heading = '👥 Team Performance Analytics';
 
-    protected static ?string $description = 'Individual user productivity and activity metrics across all tenants';
+    private static ?string $description = 'Individual user productivity and activity metrics across all tenants';
 
     protected static ?int $sort = 4;
 
@@ -30,7 +30,7 @@ final class TeamPerformanceTableWidget extends BaseWidget
         '2xl' => 2,
     ];
 
-    protected static string $color = 'primary';
+    private static string $color = 'primary';
 
     public function table(Table $table): Table
     {
@@ -62,15 +62,15 @@ final class TeamPerformanceTableWidget extends BaseWidget
 
                 Tables\Columns\TextColumn::make('completion_rate')
                     ->label('📊 Success Rate')
-                    ->formatStateUsing(fn ($state) => $state.'%')
+                    ->formatStateUsing(fn ($state): string => $state.'%')
                     ->badge()
-                    ->color(fn ($state) => match (true) {
+                    ->color(fn ($state): string => match (true) {
                         $state >= 80 => 'success',
                         $state >= 60 => 'info',
                         $state >= 40 => 'warning',
                         default => 'danger'
                     })
-                    ->icon(fn ($state) => match (true) {
+                    ->icon(fn ($state): string => match (true) {
                         $state >= 80 => 'heroicon-o-trophy',
                         $state >= 60 => 'heroicon-o-check-circle',
                         $state >= 40 => 'heroicon-o-clock',
