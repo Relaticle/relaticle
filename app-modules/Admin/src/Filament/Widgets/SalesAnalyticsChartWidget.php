@@ -6,32 +6,37 @@ namespace Relaticle\Admin\Filament\Widgets;
 
 use App\Enums\CreationSource;
 use Filament\Widgets\ChartWidget;
-use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Facades\DB;
 
 final class SalesAnalyticsChartWidget extends ChartWidget
 {
     protected static ?int $sort = 2;
 
-    protected int|string|array $columnSpan = [
-        'default' => 'full',
-        'md' => 2,
-        'lg' => 3,
-        'xl' => 3,
-        '2xl' => 3,
-    ];
+    /**
+     * @return array<string, mixed>
+     */
+    public function getColumnSpan(): array
+    {
+        return [
+            'default' => 'full',
+            'md' => 2,
+            'lg' => 3,
+            'xl' => 3,
+            '2xl' => 3,
+        ];
+    }
 
-    public function getHeading(): string|Htmlable|null
+    public function getHeading(): string
     {
         return '📈 Sales Pipeline Trends';
     }
 
-    public function getDescription(): string|Htmlable|null
+    public function getDescription(): string
     {
         return 'Track your sales pipeline value and opportunities count over the last 6 months.';
     }
 
-    public function getMaxHeight(): ?string
+    public function getMaxHeight(): string
     {
         return '300px';
     }
@@ -81,6 +86,9 @@ final class SalesAnalyticsChartWidget extends ChartWidget
         return 'line';
     }
 
+    /**
+     * @return array{months: array<int, string>, monthly_values: array<int, float>, monthly_counts: array<int, int>}
+     */
     private function getSalesData(): array
     {
         $monthlyData = collect(range(5, 0))
@@ -94,6 +102,9 @@ final class SalesAnalyticsChartWidget extends ChartWidget
         ];
     }
 
+    /**
+     * @return array{month: string, value: float, count: int}
+     */
     private function getMonthData(int $monthsAgo): array
     {
         $month = now()->subMonths($monthsAgo);

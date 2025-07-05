@@ -26,6 +26,9 @@ trait HasCustomFieldQueries
      * Get all completion status option IDs across all tenants using flexible pattern matching
      * Looks for common completion terms like: Done, Completed, Complete, Finished, Closed, etc.
      */
+    /**
+     * @return array<int, int>
+     */
     protected function getCompletionStatusOptionIds(string $entityType, string $fieldCode): array
     {
         $completionPatterns = [
@@ -39,6 +42,9 @@ trait HasCustomFieldQueries
 
     /**
      * Get all high priority option IDs across all tenants using flexible pattern matching
+     */
+    /**
+     * @return array<int, int>
      */
     protected function getHighPriorityOptionIds(string $entityType, string $fieldCode): array
     {
@@ -54,6 +60,9 @@ trait HasCustomFieldQueries
     /**
      * Get multiple custom field option IDs by entity type and field code
      */
+    /**
+     * @return array<int, string>
+     */
     protected function getCustomFieldOptions(string $entityType, string $fieldCode): array
     {
         return DB::table('custom_field_options as cfo')
@@ -67,6 +76,9 @@ trait HasCustomFieldQueries
 
     /**
      * Build a query to join entity with custom field values by option name
+     */
+    /**
+     * @return \Illuminate\Database\Query\Builder
      */
     protected function queryEntitiesByCustomFieldOption(
         string $tableName,
@@ -132,19 +144,26 @@ trait HasCustomFieldQueries
             : 0;
     }
 
+    /**
+     * @param  array<int, string>  $patterns
+     * @return array<int, int>
+     */
     private function getOptionIdsByPatterns(string $entityType, string $fieldCode, array $patterns): array
     {
         return DB::table('custom_field_options as cfo')
             ->join('custom_fields as cf', 'cfo.custom_field_id', '=', 'cf.id')
             ->where('cf.entity_type', $entityType)
             ->where('cf.code', $fieldCode)
-            ->where(fn ($query) => collect($patterns)->each(fn ($pattern) => $query->orWhereRaw('LOWER(cfo.name) = ?', [strtolower((string) $pattern)])
+            ->where(fn ($query) => collect($patterns)->each(fn ($pattern) => $query->orWhereRaw('LOWER(cfo.name) = ?', [strtolower($pattern)])
             )
             )
             ->pluck('cfo.id')
             ->toArray();
     }
 
+    /**
+     * @return array<int, int>
+     */
     private function getFallbackOptionIds(string $entityType, string $fieldCode): array
     {
         return DB::table('custom_field_options as cfo')
@@ -163,6 +182,9 @@ trait HasCustomFieldQueries
             ->toArray();
     }
 
+    /**
+     * @param  array<int, int>  $optionIds
+     */
     private function countEntitiesWithOptionIds(string $tableName, string $entityType, string $fieldCode, array $optionIds): int
     {
         return DB::table($tableName)

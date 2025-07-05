@@ -18,19 +18,21 @@ final class TeamPerformanceTableWidget extends BaseWidget
 
     protected static ?string $heading = '👥 Team Performance Analytics';
 
-    private static ?string $description = 'Individual user productivity and activity metrics across all tenants';
-
     protected static ?int $sort = 4;
 
-    protected int|string|array $columnSpan = [
-        'default' => 'full',
-        'md' => 'full',
-        'lg' => 2,
-        'xl' => 2,
-        '2xl' => 2,
-    ];
-
-    private static string $color = 'primary';
+    /**
+     * @return array<string, mixed>
+     */
+    public function getColumnSpan(): array
+    {
+        return [
+            'default' => 'full',
+            'md' => 'full',
+            'lg' => 2,
+            'xl' => 2,
+            '2xl' => 2,
+        ];
+    }
 
     public function table(Table $table): Table
     {
@@ -111,6 +113,9 @@ final class TeamPerformanceTableWidget extends BaseWidget
             ->emptyStateIcon('heroicon-o-users');
     }
 
+    /**
+     * @return Builder<User>
+     */
     protected function getTableQuery(): Builder
     {
         $completionOptionIds = $this->getCompletionStatusOptionIds('task', 'status');
@@ -123,33 +128,33 @@ final class TeamPerformanceTableWidget extends BaseWidget
                 'users.created_at',
                 DB::raw('(SELECT COUNT(*) FROM tasks WHERE tasks.creator_id = users.id AND tasks.deleted_at IS NULL AND tasks.creation_source != "system") as tasks_created'),
                 DB::raw("(
-                    SELECT COUNT(*) 
-                    FROM tasks 
+                    SELECT COUNT(*)
+                    FROM tasks
                     LEFT JOIN custom_field_values cfv ON tasks.id = cfv.entity_id AND cfv.entity_type = 'task'
                     LEFT JOIN custom_fields cf ON cfv.custom_field_id = cf.id AND cf.code = 'status'
-                    WHERE tasks.creator_id = users.id 
-                    AND tasks.deleted_at IS NULL 
+                    WHERE tasks.creator_id = users.id
+                    AND tasks.deleted_at IS NULL
                     AND tasks.creation_source != 'system'
                     AND cfv.integer_value IN ({$completionOptionIdsStr})
                 ) as tasks_completed"),
                 DB::raw("(
-                    CASE 
-                        WHEN (SELECT COUNT(*) FROM tasks WHERE tasks.creator_id = users.id AND tasks.deleted_at IS NULL AND tasks.creation_source != 'system') > 0 
+                    CASE
+                        WHEN (SELECT COUNT(*) FROM tasks WHERE tasks.creator_id = users.id AND tasks.deleted_at IS NULL AND tasks.creation_source != 'system') > 0
                         THEN ROUND(
                             (
-                                (SELECT COUNT(*) 
-                                FROM tasks 
+                                (SELECT COUNT(*)
+                                FROM tasks
                                 LEFT JOIN custom_field_values cfv ON tasks.id = cfv.entity_id AND cfv.entity_type = 'task'
                                 LEFT JOIN custom_fields cf ON cfv.custom_field_id = cf.id AND cf.code = 'status'
-                                WHERE tasks.creator_id = users.id 
-                                AND tasks.deleted_at IS NULL 
+                                WHERE tasks.creator_id = users.id
+                                AND tasks.deleted_at IS NULL
                                 AND tasks.creation_source != 'system'
-                                AND cfv.integer_value IN ({$completionOptionIdsStr})) 
-                                / 
+                                AND cfv.integer_value IN ({$completionOptionIdsStr}))
+                                /
                                 (SELECT COUNT(*) FROM tasks WHERE tasks.creator_id = users.id AND tasks.deleted_at IS NULL AND tasks.creation_source != 'system')
                             ) * 100
                         )
-                        ELSE 0 
+                        ELSE 0
                     END
                 ) as completion_rate"),
                 DB::raw('(SELECT COUNT(*) FROM opportunities WHERE opportunities.creator_id = users.id AND opportunities.deleted_at IS NULL AND opportunities.creation_source != "system") as opportunities_created'),
