@@ -62,6 +62,9 @@ final class BusinessOverviewWidget extends BaseWidget
         ];
     }
 
+    /**
+     * @return array{pipeline_value: float, total_opportunities: int, completion_rate: float, total_companies: int, opportunities_growth: float, companies_growth: float, pipeline_trend: array<int, float>}
+     */
     private function getBusinessData(): array
     {
         $opportunities = $this->getOpportunitiesWithAmounts();
@@ -88,6 +91,9 @@ final class BusinessOverviewWidget extends BaseWidget
         ];
     }
 
+    /**
+     * @return Collection<int, \stdClass>
+     */
     private function getOpportunitiesWithAmounts(): Collection
     {
         return DB::table('opportunities')
@@ -103,6 +109,9 @@ final class BusinessOverviewWidget extends BaseWidget
             ->get();
     }
 
+    /**
+     * @return array{0: float, 1: float}
+     */
     private function calculateMonthlyGrowth(): array
     {
         $currentMonth = now()->startOfMonth();
@@ -137,6 +146,10 @@ final class BusinessOverviewWidget extends BaseWidget
         return round((($current - $previous) / $previous) * 100);
     }
 
+    /**
+     * @param  Collection<int, \stdClass>  $opportunities
+     * @return array<int, float>
+     */
     private function generatePipelineTrend(\Illuminate\Support\Collection $opportunities): array
     {
         return collect(range(6, 0))
@@ -198,7 +211,7 @@ final class BusinessOverviewWidget extends BaseWidget
         return match (true) {
             $growth > 20 => 'success',
             $growth > 0 => 'info',
-            $growth === 0 => 'warning',
+            $growth === 0.0 => 'warning',
             default => 'danger'
         };
     }
