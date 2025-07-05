@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\App\Exports;
 
+use App\Enums\CreationSource;
 use App\Models\People;
 use App\Models\Team;
 use Carbon\Carbon;
@@ -82,7 +83,7 @@ final class PeopleExporter extends Exporter
                 ->formatStateUsing(fn (Carbon $state): string => $state->format('Y-m-d H:i:s')),
             ExportColumn::make('creation_source')
                 ->label('Creation Source')
-                ->formatStateUsing(fn ($state): string => $state->value ?? (string) $state),
+                ->formatStateUsing(fn (CreationSource $state): string => $state->getLabel()),
 
             // Add all custom fields automatically
             ...CustomFieldsExporter::getColumns(self::getModel()),
