@@ -2,7 +2,7 @@
 <section id="features" class="py-24 md:py-32 bg-gray-50 dark:bg-gray-950 relative overflow-hidden">
     <!-- Subtle gradient background element -->
     <div class="absolute -bottom-64 left-0 w-96 h-96 bg-primary/5 dark:bg-primary/10 rounded-full blur-3xl"></div>
-    
+
     <div class="container max-w-6xl mx-auto px-6 lg:px-8 relative">
         <!-- Section Header -->
         <div class="max-w-3xl mx-auto text-center mb-16 md:mb-20">
@@ -80,7 +80,7 @@
                 <h3 class="text-xl font-semibold text-black dark:text-white mb-4">Ready to transform your customer relationships?</h3>
                 <p class="text-gray-600 dark:text-gray-300 mb-6 text-base">Experience the power of Relaticle CRM today with a free account.</p>
                 <a href="{{ route('register') }}" class="group inline-flex items-center justify-center gap-2 bg-primary hover:bg-primary-600 text-white px-8 py-3.5 rounded-md font-medium text-base transition-all duration-300">
-                    <span>Get Started Free</span>
+                    <span>Start for free</span>
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
                     </svg>

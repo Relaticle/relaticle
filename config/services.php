@@ -52,4 +52,8 @@ return [
     'fathom' => [
         'site_id' => env('FATHOM_ANALYTICS_SITE_ID'),
     ],
+
+    'discord' => [
+        'invite_url' => env('DISCORD_INVITE_URL'),
+    ],
 ];

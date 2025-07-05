@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Relaticle\Admin;
 
-use Awcodes\Overlook\OverlookPlugin;
 use Awcodes\Overlook\Widgets\OverlookWidget;
 use Exception;
 use Filament\Http\Middleware\Authenticate;
@@ -14,7 +13,6 @@ use Filament\Navigation\NavigationGroup;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
-use Filament\Widgets\AccountWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -41,7 +39,7 @@ final class AdminPanelProvider extends PanelProvider
             ->login()
             ->spa()
             ->colors([
-                'primary' => Color::Amber,
+                'primary' => Color::Indigo,
             ])
             ->brandName('Relaticle Admin')
             ->discoverResources(in: base_path('app-modules/Admin/src/Filament/Resources'), for: 'Relaticle\\Admin\\Filament\\Resources')
@@ -65,22 +63,9 @@ final class AdminPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: base_path('app-modules/Admin/src/Filament/Widgets'), for: 'Relaticle\\Admin\\Filament\\Widgets')
             ->widgets([
-                AccountWidget::class,
-                //                OverlookWidget::class,
+                OverlookWidget::class,
             ])
             ->databaseNotifications()
-            ->plugins([
-                //                OverlookPlugin::make()
-                //                    ->sort(2)
-                //                    ->columns([
-                //                        'default' => 1,
-                //                        'sm' => 2,
-                //                        'md' => 3,
-                //                        'lg' => 4,
-                //                        'xl' => 5,
-                //                        '2xl' => null,
-                //                    ]),
-            ])
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
