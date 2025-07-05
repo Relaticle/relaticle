@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace Relaticle\Admin\Filament\Widgets;
 
+use App\Enums\CreationSource;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Facades\DB;
 
 final class SalesAnalyticsChartWidget extends ChartWidget
 {
-    protected static ?string $description = '6-month pipeline value and opportunity volume analysis';
-
     protected static ?int $sort = 2;
 
     protected int|string|array $columnSpan = [
@@ -22,11 +21,19 @@ final class SalesAnalyticsChartWidget extends ChartWidget
         '2xl' => 3,
     ];
 
-    protected static ?string $maxHeight = '300px';
-
     public function getHeading(): string|Htmlable|null
     {
-        return "📈 Sales Pipeline Trends";
+        return '📈 Sales Pipeline Trends';
+    }
+
+    public function getDescription(): string|Htmlable|null
+    {
+        return 'Track your sales pipeline value and opportunities count over the last 6 months.';
+    }
+
+    public function getMaxHeight(): ?string
+    {
+        return '300px';
     }
 
     protected function getData(): array
@@ -101,6 +108,7 @@ final class SalesAnalyticsChartWidget extends ChartWidget
                 ->where('cf_amount.code', 'amount')
             )
             ->whereNull('opportunities.deleted_at')
+            ->where('opportunities.creation_source', '!=', CreationSource::SYSTEM->value)
             ->whereBetween('opportunities.created_at', [$monthStart, $monthEnd])
             ->select('cfv_amount.float_value as amount')
             ->get();

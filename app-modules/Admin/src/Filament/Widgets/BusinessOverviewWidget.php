@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\Admin\Filament\Widgets;
 
+use App\Enums\CreationSource;
 use App\Models\Company;
 use App\Models\Opportunity;
 use App\Models\Task;
@@ -67,11 +68,11 @@ final class BusinessOverviewWidget extends BaseWidget
         $pipelineValue = $opportunities->sum('amount') ?? 0;
         $totalOpportunities = $opportunities->count();
 
-        $totalTasks = Task::count();
+        $totalTasks = Task::where('creation_source', '!=', CreationSource::SYSTEM)->count();
         $completedTasks = $this->countCompletedEntities('tasks', 'task', 'status');
         $completionRate = $totalTasks > 0 ? round(($completedTasks / $totalTasks) * 100) : 0;
 
-        $totalCompanies = Company::count();
+        $totalCompanies = Company::where('creation_source', '!=', CreationSource::SYSTEM)->count();
 
         [$opportunitiesGrowth, $companiesGrowth] = $this->calculateMonthlyGrowth();
         $pipelineTrend = $this->generatePipelineTrend($opportunities);
@@ -97,6 +98,7 @@ final class BusinessOverviewWidget extends BaseWidget
                 ->where('cf_amount.code', 'amount')
             )
             ->whereNull('opportunities.deleted_at')
+            ->where('opportunities.creation_source', '!=', CreationSource::SYSTEM->value)
             ->select('cfv_amount.float_value as amount', 'opportunities.created_at')
             ->get();
     }
@@ -106,11 +108,19 @@ final class BusinessOverviewWidget extends BaseWidget
         $currentMonth = now()->startOfMonth();
         $lastMonth = now()->subMonth()->startOfMonth();
 
-        $opportunitiesThisMonth = Opportunity::where('created_at', '>=', $currentMonth)->count();
-        $opportunitiesLastMonth = Opportunity::whereBetween('created_at', [$lastMonth, $currentMonth])->count();
+        $opportunitiesThisMonth = Opportunity::where('created_at', '>=', $currentMonth)
+            ->where('creation_source', '!=', CreationSource::SYSTEM)
+            ->count();
+        $opportunitiesLastMonth = Opportunity::whereBetween('created_at', [$lastMonth, $currentMonth])
+            ->where('creation_source', '!=', CreationSource::SYSTEM)
+            ->count();
 
-        $companiesThisMonth = Company::where('created_at', '>=', $currentMonth)->count();
-        $companiesLastMonth = Company::whereBetween('created_at', [$lastMonth, $currentMonth])->count();
+        $companiesThisMonth = Company::where('created_at', '>=', $currentMonth)
+            ->where('creation_source', '!=', CreationSource::SYSTEM)
+            ->count();
+        $companiesLastMonth = Company::whereBetween('created_at', [$lastMonth, $currentMonth])
+            ->where('creation_source', '!=', CreationSource::SYSTEM)
+            ->count();
 
         $opportunitiesGrowth = $this->calculateGrowthRate($opportunitiesThisMonth, $opportunitiesLastMonth);
         $companiesGrowth = $this->calculateGrowthRate($companiesThisMonth, $companiesLastMonth);
