@@ -121,7 +121,7 @@ final class TeamPerformanceTableWidget extends BaseWidget
                 'users.id',
                 'users.name',
                 'users.created_at',
-                DB::raw('(SELECT COUNT(*) FROM tasks WHERE tasks.creator_id = users.id AND tasks.deleted_at IS NULL) as tasks_created'),
+                DB::raw('(SELECT COUNT(*) FROM tasks WHERE tasks.creator_id = users.id AND tasks.deleted_at IS NULL AND tasks.creation_source != "system") as tasks_created'),
                 DB::raw("(
                     SELECT COUNT(*) 
                     FROM tasks 
@@ -129,11 +129,12 @@ final class TeamPerformanceTableWidget extends BaseWidget
                     LEFT JOIN custom_fields cf ON cfv.custom_field_id = cf.id AND cf.code = 'status'
                     WHERE tasks.creator_id = users.id 
                     AND tasks.deleted_at IS NULL 
+                    AND tasks.creation_source != 'system'
                     AND cfv.integer_value IN ({$completionOptionIdsStr})
                 ) as tasks_completed"),
                 DB::raw("(
                     CASE 
-                        WHEN (SELECT COUNT(*) FROM tasks WHERE tasks.creator_id = users.id AND tasks.deleted_at IS NULL) > 0 
+                        WHEN (SELECT COUNT(*) FROM tasks WHERE tasks.creator_id = users.id AND tasks.deleted_at IS NULL AND tasks.creation_source != 'system') > 0 
                         THEN ROUND(
                             (
                                 (SELECT COUNT(*) 
@@ -142,21 +143,22 @@ final class TeamPerformanceTableWidget extends BaseWidget
                                 LEFT JOIN custom_fields cf ON cfv.custom_field_id = cf.id AND cf.code = 'status'
                                 WHERE tasks.creator_id = users.id 
                                 AND tasks.deleted_at IS NULL 
+                                AND tasks.creation_source != 'system'
                                 AND cfv.integer_value IN ({$completionOptionIdsStr})) 
                                 / 
-                                (SELECT COUNT(*) FROM tasks WHERE tasks.creator_id = users.id AND tasks.deleted_at IS NULL)
+                                (SELECT COUNT(*) FROM tasks WHERE tasks.creator_id = users.id AND tasks.deleted_at IS NULL AND tasks.creation_source != 'system')
                             ) * 100
                         )
                         ELSE 0 
                     END
                 ) as completion_rate"),
-                DB::raw('(SELECT COUNT(*) FROM opportunities WHERE opportunities.creator_id = users.id AND opportunities.deleted_at IS NULL) as opportunities_created'),
-                DB::raw('(SELECT COUNT(*) FROM companies WHERE companies.creator_id = users.id AND companies.deleted_at IS NULL) as companies_created'),
+                DB::raw('(SELECT COUNT(*) FROM opportunities WHERE opportunities.creator_id = users.id AND opportunities.deleted_at IS NULL AND opportunities.creation_source != "system") as opportunities_created'),
+                DB::raw('(SELECT COUNT(*) FROM companies WHERE companies.creator_id = users.id AND companies.deleted_at IS NULL AND companies.creation_source != "system") as companies_created'),
                 DB::raw('GREATEST(
-                    COALESCE((SELECT MAX(created_at) FROM tasks WHERE creator_id = users.id), "1970-01-01"),
-                    COALESCE((SELECT MAX(created_at) FROM opportunities WHERE creator_id = users.id), "1970-01-01"),
-                    COALESCE((SELECT MAX(created_at) FROM companies WHERE creator_id = users.id), "1970-01-01"),
-                    COALESCE((SELECT MAX(created_at) FROM notes WHERE creator_id = users.id), "1970-01-01")
+                    COALESCE((SELECT MAX(created_at) FROM tasks WHERE creator_id = users.id AND creation_source != "system"), "1970-01-01"),
+                    COALESCE((SELECT MAX(created_at) FROM opportunities WHERE creator_id = users.id AND creation_source != "system"), "1970-01-01"),
+                    COALESCE((SELECT MAX(created_at) FROM companies WHERE creator_id = users.id AND creation_source != "system"), "1970-01-01"),
+                    COALESCE((SELECT MAX(created_at) FROM notes WHERE creator_id = users.id AND creation_source != "system"), "1970-01-01")
                 ) as last_activity'),
             ])
             ->havingRaw('tasks_created > 0 OR opportunities_created > 0 OR companies_created > 0');

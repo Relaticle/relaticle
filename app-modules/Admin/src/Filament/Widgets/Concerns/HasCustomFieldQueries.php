@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\Admin\Filament\Widgets\Concerns;
 
+use App\Enums\CreationSource;
 use Illuminate\Support\Facades\DB;
 
 trait HasCustomFieldQueries
@@ -84,7 +85,8 @@ trait HasCustomFieldQueries
             })
             ->leftJoin('custom_field_options as cfo', 'cfv.integer_value', '=', 'cfo.id')
             ->where('cfo.name', $optionName)
-            ->whereNull("{$tableName}.deleted_at");
+            ->whereNull("{$tableName}.deleted_at")
+            ->where("{$tableName}.creation_source", '!=', CreationSource::SYSTEM->value);
     }
 
     /**
@@ -172,6 +174,7 @@ trait HasCustomFieldQueries
             )
             ->whereIn('cfv.integer_value', $optionIds)
             ->whereNull("{$tableName}.deleted_at")
+            ->where("{$tableName}.creation_source", '!=', CreationSource::SYSTEM->value)
             ->count();
     }
 }
