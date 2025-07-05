@@ -13,7 +13,6 @@ use Filament\Navigation\NavigationGroup;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
-use Filament\Widgets;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -40,7 +39,7 @@ final class AdminPanelProvider extends PanelProvider
             ->login()
             ->spa()
             ->colors([
-                'primary' => Color::Amber,
+                'primary' => Color::Indigo,
             ])
             ->brandName('Relaticle Admin')
             ->discoverResources(in: base_path('app-modules/Admin/src/Filament/Resources'), for: 'Relaticle\\Admin\\Filament\\Resources')
@@ -64,20 +63,19 @@ final class AdminPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: base_path('app-modules/Admin/src/Filament/Widgets'), for: 'Relaticle\\Admin\\Filament\\Widgets')
             ->widgets([
-                Widgets\AccountWidget::class,
                 OverlookWidget::class,
             ])
             ->databaseNotifications()
             ->plugins([
                 OverlookPlugin::make()
-                    ->sort(2)
+                    ->sort(5)
                     ->columns([
-                        'default' => 1,
-                        'sm' => 2,
-                        'md' => 3,
-                        'lg' => 4,
-                        'xl' => 5,
-                        '2xl' => null,
+                        'default' => 2,
+                        'sm' => 3,
+                        'md' => 4,
+                        'lg' => 5,
+                        'xl' => 6,
+                        '2xl' => 6,
                     ]),
             ])
             ->middleware([
