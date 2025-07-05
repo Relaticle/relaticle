@@ -7,4 +7,5 @@
     @include('home.partials.hero')
     @include('home.partials.features')
     @include('home.partials.community')
+    @include('home.partials.start-building')
 </x-guest-layout>

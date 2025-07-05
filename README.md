@@ -11,7 +11,7 @@
   <a href="https://github.com/Relaticle/relaticle/actions"><img src="https://img.shields.io/github/actions/workflow/status/Relaticle/relaticle/tests.yml?branch=main&style=for-the-badge&label=tests" alt="Tests"></a>
   <a href="https://laravel.com/docs/12.x"><img src="https://img.shields.io/badge/Laravel-12.x-FF2D20?style=for-the-badge&logo=laravel" alt="Laravel 12"></a>
   <a href="https://php.net"><img src="https://img.shields.io/badge/PHP-8.3-777BB4?style=for-the-badge&logo=php" alt="PHP 8.3"></a>
-  <a href="https://github.com/Relaticle/relaticle/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-GPL--3.0-blue.svg?style=for-the-badge" alt="License"></a>
+  <a href="https://github.com/Relaticle/relaticle/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-AGPL--3.0-blue.svg?style=for-the-badge" alt="License"></a>
 </p>
 
 <p align="center">
@@ -35,7 +35,7 @@ Relaticle is a powerful, adaptable CRM platform built with modern technologies t
 - **Multi-Team Support** - Securely manage multiple business units with isolated workspaces
 - **Modern Technology** - Built on Laravel 12, PHP 8.3, and Filament 3
 - **Privacy-Focused** - Self-host with complete data ownership
-- **Open Source** - Transparent development with GPL-3.0 license
+- **Open Source** - Transparent development with AGPL-3.0 license
 
 Visit our [website](https://relaticle.com) to learn more about Relaticle's capabilities.
 
@@ -48,21 +48,9 @@ For comprehensive documentation, please refer to our official website:
 - [Quick Start Guide](https://relaticle.com/documentation/quickstart) - Step-by-step getting started guide
 - [API Documentation](https://relaticle.com/documentation/api) - Integration with the Relaticle API
 
-## Paid Dependencies
-
-Relaticle is open-source, but includes one premium component that powers its flexibility:
-
-**Custom Fields** - This Filament plugin enables unlimited custom data fields without coding. It's the core of what makes Relaticle adaptable to any business workflow.
-
-This component is paid to fund ongoing development of the open-source platform and provide dedicated support. With thousands of development hours invested, it delivers enterprise-grade data modeling that would otherwise require significant custom development.
-
-**[Get Custom Fields →](https://custom-fields.relaticle.com/introduction)**
-
-**Open-Source Discount:** Use code `OPENSOURCE` for 50% off.
-
 ## License
 
-Relaticle is open-source software licensed under the [GPL-3.0 license](LICENSE).
+Relaticle is open-source software licensed under the [AGPL-3.0 license](LICENSE).
 
 
 ## Star History
