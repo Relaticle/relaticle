@@ -7,7 +7,7 @@ namespace App\Filament\App\Resources\PeopleResource\Pages;
 use App\Filament\App\Resources\PeopleResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
-use Relaticle\CustomFields\Filament\Tables\Concerns\InteractsWithCustomFields;
+use Relaticle\CustomFields\Filament\Integration\Tables\InteractsWithCustomFields;
 
 final class ListPeople extends ListRecords
 {
