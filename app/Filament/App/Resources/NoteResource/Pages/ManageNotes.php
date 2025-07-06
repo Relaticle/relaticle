@@ -8,7 +8,7 @@ use App\Filament\App\Resources\NoteResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ManageRecords;
 use Override;
-use Relaticle\CustomFields\Filament\Tables\Concerns\InteractsWithCustomFields;
+use Relaticle\CustomFields\Filament\Integration\Tables\InteractsWithCustomFields;
 
 final class ManageNotes extends ManageRecords
 {

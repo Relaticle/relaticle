@@ -8,7 +8,7 @@ use App\Filament\App\Resources\CompanyResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 use Override;
-use Relaticle\CustomFields\Filament\Tables\Concerns\InteractsWithCustomFields;
+use Relaticle\CustomFields\Filament\Integration\Tables\InteractsWithCustomFields;
 
 final class ListCompanies extends ListRecords
 {
