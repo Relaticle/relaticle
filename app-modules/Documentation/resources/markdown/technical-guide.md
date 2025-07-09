@@ -25,7 +25,6 @@ Relaticle includes one premium component in its technology stack:
 **Custom Fields** - A powerful Filament plugin developed by Relaticle that enables unlimited custom data fields without coding. It's the core of what makes Relaticle adaptable to any business workflow.
 
 - **Documentation**: [custom-fields.relaticle.com/introduction](https://custom-fields.relaticle.com/introduction)
-- **Open-Source Discount**: Use code `OPENSOURCE` for 50% off
 
 #### Why Custom Fields is a Paid Component
 
