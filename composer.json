@@ -115,11 +115,5 @@
         }
     },
     "minimum-stability": "dev",
-    "prefer-stable": true,
-    "repositories": [
-        {
-            "type": "composer",
-            "url": "https://satis.relaticle.com"
-        }
-    ]
+    "prefer-stable": true
 }
