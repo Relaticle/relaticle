@@ -12,17 +12,17 @@ use Illuminate\Support\Number;
 final readonly class GitHubService
 {
     /**
-     * Get the stargazers count for a GitHub repository
+     * Get the stargazers to count for a GitHub repository
      *
      * @param  string  $owner  The repository owner
      * @param  string  $repo  The repository name
      * @param  int  $cacheMinutes  Minutes to cache the result (default: 60)
      */
-    public function getStarsCount(string $owner = 'Relaticle', string $repo = 'relaticle', int $cacheMinutes = 60): ?int
+    public function getStarsCount(string $owner = 'Relaticle', string $repo = 'relaticle', int $cacheMinutes = 60): int
     {
         $cacheKey = "github_stars_{$owner}_{$repo}";
 
-        $cachedValue = Cache::remember($cacheKey, now()->addMinutes($cacheMinutes), function () use ($owner, $repo) {
+        $cachedValue = Cache::remember($cacheKey, now()->addMinutes($cacheMinutes), function () use ($owner, $repo): int {
             try {
                 $response = Http::withHeaders([
                     'Accept' => 'application/vnd.github.v3+json',
@@ -42,11 +42,11 @@ final readonly class GitHubService
             }
         });
 
-        return is_null($cachedValue) ? null : (int) $cachedValue;
+        return is_null($cachedValue) ? 0 : (int) $cachedValue;
     }
 
     /**
-     * Get the formatted stargazers count for a GitHub repository
+     * Get the formatted stargazers to count for a GitHub repository
      *
      * @param  string  $owner  The repository owner
      * @param  string  $repo  The repository name
