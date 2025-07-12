@@ -5,16 +5,17 @@ declare(strict_types=1);
 namespace App\Filament\App\Pages;
 
 use Filament\Pages\Page;
+use Override;
 
 final class ApiTokens extends Page
 {
-    protected static ?string $navigationIcon = 'heroicon-o-key';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-key';
 
-    protected static string $view = 'filament.pages.api-tokens';
+    protected string $view = 'filament.pages.api-tokens';
 
     protected static ?string $navigationLabel = 'API Tokens';
 
-    #[\Override]
+    #[Override]
     public static function shouldRegisterNavigation(): bool
     {
         return false;

@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Filament\App\Resources\TaskResource\Pages;
 
 use App\Filament\App\Resources\TaskResource;
-use Filament\Actions;
+use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ManageRecords;
-use Relaticle\CustomFields\Filament\Tables\Concerns\InteractsWithCustomFields;
+use Relaticle\CustomFields\Concerns\InteractsWithCustomFields;
 
 final class ManageTasks extends ManageRecords
 {
@@ -18,7 +18,7 @@ final class ManageTasks extends ManageRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make()->slideOver(),
+            CreateAction::make()->slideOver(),
         ];
     }
 }

@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace App\Filament\App\Resources\OpportunityResource\Pages;
 
 use App\Filament\App\Resources\OpportunityResource;
-use Filament\Actions;
+use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
-use Relaticle\CustomFields\Filament\Tables\Concerns\InteractsWithCustomFields;
+use Override;
+use Relaticle\CustomFields\Concerns\InteractsWithCustomFields;
 
 final class ListOpportunities extends ListRecords
 {
@@ -15,11 +16,11 @@ final class ListOpportunities extends ListRecords
 
     protected static string $resource = OpportunityResource::class;
 
-    #[\Override]
+    #[Override]
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            CreateAction::make(),
         ];
     }
 }

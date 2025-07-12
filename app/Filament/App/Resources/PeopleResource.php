@@ -12,21 +12,32 @@ use App\Filament\App\Resources\PeopleResource\RelationManagers\NotesRelationMana
 use App\Filament\App\Resources\PeopleResource\RelationManagers\TasksRelationManager;
 use App\Models\Company;
 use App\Models\People;
-use Filament\Forms;
+use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ExportBulkAction;
+use Filament\Actions\ForceDeleteAction;
+use Filament\Actions\ForceDeleteBulkAction;
+use Filament\Actions\RestoreAction;
+use Filament\Actions\RestoreBulkAction;
+use Filament\Actions\ViewAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
 use Filament\Resources\Resource;
-use Filament\Tables;
-use Filament\Tables\Actions\ExportBulkAction;
-use Filament\Tables\Actions\ForceDeleteBulkAction;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Schema;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent;
+use Relaticle\CustomFields\Facades\CustomFields;
 
 final class PeopleResource extends Resource
 {
@@ -36,26 +47,26 @@ final class PeopleResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name';
 
-    protected static ?string $navigationIcon = 'heroicon-o-user';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-user';
 
     protected static ?int $navigationSort = 1;
 
-    protected static ?string $navigationGroup = 'Workspace';
+    protected static string|\UnitEnum|null $navigationGroup = 'Workspace';
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
-                Forms\Components\Grid::make()->schema([
-                    Forms\Components\TextInput::make('name')
+        return $schema
+            ->components([
+                Grid::make()->schema([
+                    TextInput::make('name')
                         ->required()
                         ->maxLength(255)
                         ->columnSpan(7),
-                    Forms\Components\Select::make('company_id')
+                    Select::make('company_id')
                         ->relationship('company', 'name')
                         ->suffixAction(
-                            Forms\Components\Actions\Action::make('Create Company')
-                                ->form([
+                            Action::make('Create Company')
+                                ->schema([
                                     TextInput::make('name')
                                         ->required(),
                                     Select::make('account_owner_id')
@@ -63,10 +74,10 @@ final class PeopleResource extends Resource
                                         ->label('Account Owner')
                                         ->preload()
                                         ->searchable(),
-                                    CustomFieldsComponent::make()->columns(1),
+                                    CustomFields::form()->forModel($schema->getRecord())->build()->columns(1),
                                 ])
                                 ->icon('heroicon-o-plus')
-                                ->action(function (array $data, Forms\Set $set): void {
+                                ->action(function (array $data, Set $set): void {
                                     $company = Company::create($data);
                                     $set('company_id', $company->id);
                                 })
@@ -77,9 +88,7 @@ final class PeopleResource extends Resource
                         ->columnSpan(5),
                 ])
                     ->columns(12),
-                CustomFieldsComponent::make()
-                    ->columnSpanFull()
-                    ->columns(),
+                CustomFields::form()->build()->columnSpanFull(),
             ]);
     }
 
@@ -87,10 +96,10 @@ final class PeopleResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\ImageColumn::make('avatar')->label('')->size(24)->circular(),
-                Tables\Columns\TextColumn::make('name')
+                ImageColumn::make('avatar')->label('')->size(24)->circular(),
+                TextColumn::make('name')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('company.name')
+                TextColumn::make('company.name')
                     ->label('Company')
                     ->url(fn (People $record): string => CompanyResource::getUrl('view', [$record->company_id]))
                     ->searchable()
@@ -102,11 +111,11 @@ final class PeopleResource extends Resource
                     ->toggleable()
                     ->getStateUsing(fn (People $record): string => $record->created_by)
                     ->color(fn (People $record): string => $record->isSystemCreated() ? 'secondary' : 'primary'),
-                Tables\Columns\TextColumn::make('created_at')
+                TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
+                TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -124,22 +133,22 @@ final class PeopleResource extends Resource
                     ->multiple(),
                 TrashedFilter::make(),
             ])
-            ->actions([
-                Tables\Actions\ActionGroup::make([
-                    Tables\Actions\ViewAction::make(),
-                    Tables\Actions\EditAction::make(),
-                    Tables\Actions\RestoreAction::make(),
-                    Tables\Actions\DeleteAction::make(),
-                    Tables\Actions\ForceDeleteAction::make(),
+            ->recordActions([
+                ActionGroup::make([
+                    ViewAction::make(),
+                    EditAction::make(),
+                    RestoreAction::make(),
+                    DeleteAction::make(),
+                    ForceDeleteAction::make(),
                 ]),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
+            ->toolbarActions([
+                BulkActionGroup::make([
                     ExportBulkAction::make()
                         ->exporter(PeopleExporter::class),
-                    Tables\Actions\DeleteBulkAction::make(),
+                    DeleteBulkAction::make(),
                     ForceDeleteBulkAction::make(),
-                    Tables\Actions\RestoreBulkAction::make(),
+                    RestoreBulkAction::make(),
                 ]),
             ]);
     }

@@ -10,10 +10,10 @@
     "require": {
         "php": "^8.3",
         "ashallendesign/favicon-fetcher": "^3.8",
-        "awcodes/overlook": "^2.2",
+        "awcodes/overlook": "^v3.0.0-beta.1",
         "blade-ui-kit/blade-heroicons": "^2.6",
         "blade-ui-kit/blade-icons": "^1.8",
-        "filament/filament": "^3.2",
+        "filament/filament": "^4.0",
         "laravel/framework": "^12.0",
         "laravel/horizon": "^5.29",
         "laravel/jetstream": "^5.2",
@@ -21,8 +21,7 @@
         "laravel/socialite": "^5.16",
         "laravel/tinker": "^2.9",
         "livewire/livewire": "^3.0",
-        "relaticle/custom-fields": "^1.5.13-beta",
-        "relaticle/flowforge": "^0.1",
+        "relaticle/custom-fields": "2.*",
         "sentry/sentry-laravel": "^4.13",
         "spatie/eloquent-sortable": "^4.4",
         "spatie/laravel-data": "^4.15",
@@ -31,6 +30,7 @@
         "spatie/laravel-markdown": "^2.7",
         "spatie/laravel-medialibrary": "^11.12",
         "spatie/laravel-prefixed-ids": "^1.4",
+        "relaticle/flowforge": "^1.0-beta",
         "spatie/laravel-settings": "^3.3",
         "spatie/laravel-sitemap": "^7.3",
         "symfony/http-client": "^7.2",
@@ -90,7 +90,7 @@
         "test:refactor": "rector --dry-run",
         "test:types": "phpstan analyse",
         "test:arch": "pest --filter=arch",
-        "test:type-coverage": "pest --type-coverage --min=99.6",
+        "test:type-coverage": "pest --type-coverage --min=99.9",
         "test:unit": "pest --parallel",
         "test": [
             "@test:lint",
@@ -114,6 +114,6 @@
             "php-http/discovery": true
         }
     },
-    "minimum-stability": "dev",
+    "minimum-stability": "beta",
     "prefer-stable": true
 }

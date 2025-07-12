@@ -6,7 +6,7 @@ namespace App\Listeners;
 
 use App\Models\Team;
 use App\Models\User;
-use Filament\Events\Auth\Registered;
+use Filament\Auth\Events\Registered;
 
 final readonly class CreatePersonalTeamListener
 {

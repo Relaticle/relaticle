@@ -5,9 +5,18 @@ declare(strict_types=1);
 namespace App\Filament\App\Resources\OpportunityResource\RelationManagers;
 
 use App\Filament\App\Resources\TaskResource\Forms\TaskForm;
-use Filament\Forms\Form;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\AttachAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\CreateAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\DetachAction;
+use Filament\Actions\DetachBulkAction;
+use Filament\Actions\EditAction;
 use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Tables;
+use Filament\Schemas\Schema;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Relaticle\CustomFields\Filament\Tables\Columns\CustomFieldsColumn;
 
@@ -15,11 +24,11 @@ final class TasksRelationManager extends RelationManager
 {
     protected static string $relationship = 'tasks';
 
-    protected static ?string $icon = 'heroicon-o-check-circle';
+    protected static string|\BackedEnum|null $icon = 'heroicon-o-check-circle';
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return TaskForm::get($form, ['opportunities']);
+        return TaskForm::get($schema, ['opportunities']);
     }
 
     public function table(Table $table): Table
@@ -27,27 +36,27 @@ final class TasksRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('title')
             ->columns([
-                Tables\Columns\TextColumn::make('title'),
+                TextColumn::make('title'),
             ])
             ->pushColumns(CustomFieldsColumn::forRelationManager($this))
             ->filters([
                 //
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make(),
-                Tables\Actions\AttachAction::make(),
+                CreateAction::make(),
+                AttachAction::make(),
             ])
-            ->actions([
-                Tables\Actions\ActionGroup::make([
-                    Tables\Actions\EditAction::make(),
-                    Tables\Actions\DetachAction::make(),
-                    Tables\Actions\DeleteAction::make(),
+            ->recordActions([
+                ActionGroup::make([
+                    EditAction::make(),
+                    DetachAction::make(),
+                    DeleteAction::make(),
                 ]),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DetachBulkAction::make(),
-                    Tables\Actions\DeleteBulkAction::make(),
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DetachBulkAction::make(),
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }

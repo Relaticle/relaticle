@@ -6,22 +6,23 @@ namespace App\Filament\App\Pages;
 
 use Filament\Facades\Filament;
 use Filament\Pages\Tenancy\EditTenantProfile;
+use Override;
 
 final class EditTeam extends EditTenantProfile
 {
-    protected static string $view = 'filament.pages.edit-team';
+    protected string $view = 'filament.pages.edit-team';
 
     protected static ?string $slug = 'team';
 
     protected static ?int $navigationSort = 2;
 
-    #[\Override]
+    #[Override]
     public static function getLabel(): string
     {
         return 'Team Settings';
     }
 
-    #[\Override]
+    #[Override]
     protected function getViewData(): array
     {
         return [
