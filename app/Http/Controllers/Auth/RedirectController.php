@@ -16,6 +16,6 @@ final readonly class RedirectController
         /** @var AbstractProvider $driver */
         $driver = Socialite::driver($provider->value);
 
-        return $driver->stateless()->redirect();
+        return $driver->redirect();
     }
 }
