@@ -37,7 +37,7 @@ use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent;
+use Relaticle\CustomFields\Facades\CustomFields;
 
 final class PeopleResource extends Resource
 {
@@ -74,7 +74,7 @@ final class PeopleResource extends Resource
                                         ->label('Account Owner')
                                         ->preload()
                                         ->searchable(),
-                                    CustomFieldsComponent::make()->columns(1),
+                                    CustomFields::form()->forModel($schema->getRecord())->build()->columns(1),
                                 ])
                                 ->icon('heroicon-o-plus')
                                 ->action(function (array $data, Set $set): void {
@@ -88,9 +88,7 @@ final class PeopleResource extends Resource
                         ->columnSpan(5),
                 ])
                     ->columns(12),
-                CustomFieldsComponent::make()
-                    ->columnSpanFull()
-                    ->columns(),
+                CustomFields::form()->build()->columnSpanFull(),
             ]);
     }
 

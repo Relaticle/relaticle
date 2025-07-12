@@ -16,7 +16,7 @@ use Filament\Resources\Pages\ViewRecord;
 use Filament\Schemas\Components\Flex;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
-use Relaticle\CustomFields\Filament\Infolists\CustomFieldsInfolists;
+use Relaticle\CustomFields\Facades\CustomFields;;
 
 final class ViewOpportunity extends ViewRecord
 {
@@ -49,7 +49,7 @@ final class ViewOpportunity extends ViewRecord
                         ->url(fn (Opportunity $record): ?string => $record->contact ? PeopleResource::getUrl('view', [$record->contact]) : null)
                         ->grow(false),
                 ]),
-                CustomFieldsInfolists::make()->columnSpanFull(),
+                CustomFields::infolist()->build()->columnSpanFull(),
             ]),
         ]);
     }
