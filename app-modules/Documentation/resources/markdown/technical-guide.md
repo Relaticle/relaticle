@@ -18,7 +18,7 @@ Livewire and Tailwind CSS to create a responsive and interactive user experience
 - **Authentication**: Laravel Jetstream, Laravel Fortify
 - **Error Tracking**: Sentry integration
 
-### Paid Dependencies
+### Premium Component
 
 Relaticle includes one premium component:
 
