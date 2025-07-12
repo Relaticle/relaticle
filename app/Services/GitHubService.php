@@ -29,7 +29,7 @@ final readonly class GitHubService
                 ])->get("https://api.github.com/repos/{$owner}/{$repo}");
 
                 if ($response->successful()) {
-                    return $response->json('stargazers_count', 0);
+                    return (int) $response->json('stargazers_count', 0);
                 }
 
                 Log::warning('Failed to fetch GitHub stars: '.$response->status());
