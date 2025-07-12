@@ -18,27 +18,16 @@ Livewire and Tailwind CSS to create a responsive and interactive user experience
 - **Authentication**: Laravel Jetstream, Laravel Fortify
 - **Error Tracking**: Sentry integration
 
-### Paid Dependencies
+### Premium Component
 
-Relaticle includes one premium component in its technology stack:
+Relaticle includes one premium component:
 
-**Custom Fields** - A powerful Filament plugin developed by Relaticle that enables unlimited custom data fields without coding. It's the core of what makes Relaticle adaptable to any business workflow.
+**Custom Fields** - A FilamentPHP plugin that enables unlimited custom fields on any Laravel model without database migrations.
 
-- **Documentation**: [custom-fields.relaticle.com/introduction](https://custom-fields.relaticle.com/introduction)
-- **Open-Source Discount**: Use code `OPENSOURCE` for 50% off
+- **License**: AGPL-3.0 (free for open source) or Commercial license (required for proprietary projects)
+- **Documentation**: [custom-fields.relaticle.com](https://custom-fields.relaticle.com)
 
-#### Why Custom Fields is a Paid Component
-
-This component is paid to fund ongoing development of the open-source platform and provide dedicated support. With thousands of development hours invested, it delivers enterprise-grade data modeling that would otherwise require significant custom development.
-
-Key justifications for the commercial model:
-1. Funds continuous improvements to the open-source core
-2. Ensures regular updates and compatibility with the Filament ecosystem
-3. Enables dedicated technical support and documentation
-4. Delivers enterprise-grade performance optimizations for complex data structures
-5. Powers rapid feature development based on real-world feedback
-
-This is the **only** paid component in Relaticle. Our commitment to open source remains strong, with this single commercial element supporting the sustainability of the entire ecosystem.
+This is the only paid component in Relaticle, helping sustain the open-source project.
 
 ## Core Components
 

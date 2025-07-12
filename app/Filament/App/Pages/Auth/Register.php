@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Filament\App\Pages\Auth;
 
+use Filament\Auth\Pages\Register as BaseRegister;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Component;
-use Filament\Auth\Pages\Register as BaseRegister;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\HtmlString;
 

@@ -23,15 +23,14 @@ test('callback from socialite provider creates new user when user does not exist
     $socialiteUser->shouldReceive('getEmail')->andReturn('test@example.com');
 
     $provider = Mockery::mock(AbstractProvider::class);
-    $provider->shouldReceive('stateless')->andReturnSelf();
     $provider->shouldReceive('user')->andReturn($socialiteUser);
 
     Socialite::shouldReceive('driver')
         ->with(SocialiteProvider::GOOGLE->value)
         ->andReturn($provider);
 
-    // Make the request to the callback route
-    $response = $this->get(route('auth.socialite.callback', ['provider' => SocialiteProvider::GOOGLE->value]));
+    // Make the request to the callback route with required code parameter
+    $response = $this->get(route('auth.socialite.callback', ['provider' => SocialiteProvider::GOOGLE->value, 'code' => 'test-code']));
 
     // Assert that a new user was created
     $this->assertDatabaseHas('users', [
@@ -72,15 +71,14 @@ test('callback from socialite provider logs in existing user when social account
     $socialiteUser->shouldReceive('getEmail')->andReturn('existing@example.com');
 
     $provider = Mockery::mock(AbstractProvider::class);
-    $provider->shouldReceive('stateless')->andReturnSelf();
     $provider->shouldReceive('user')->andReturn($socialiteUser);
 
     Socialite::shouldReceive('driver')
         ->with(SocialiteProvider::GOOGLE->value)
         ->andReturn($provider);
 
-    // Make the request to the callback route
-    $response = $this->get(route('auth.socialite.callback', ['provider' => SocialiteProvider::GOOGLE->value]));
+    // Make the request to the callback route with required code parameter
+    $response = $this->get(route('auth.socialite.callback', ['provider' => SocialiteProvider::GOOGLE->value, 'code' => 'test-code']));
 
     // Assert that the user is authenticated
     $this->assertAuthenticated();
@@ -104,15 +102,14 @@ test('callback from socialite provider links social account to existing user whe
     $socialiteUser->shouldReceive('getEmail')->andReturn('existing@example.com');
 
     $provider = Mockery::mock(AbstractProvider::class);
-    $provider->shouldReceive('stateless')->andReturnSelf();
     $provider->shouldReceive('user')->andReturn($socialiteUser);
 
     Socialite::shouldReceive('driver')
         ->with(SocialiteProvider::GOOGLE->value)
         ->andReturn($provider);
 
-    // Make the request to the callback route
-    $response = $this->get(route('auth.socialite.callback', ['provider' => SocialiteProvider::GOOGLE->value]));
+    // Make the request to the callback route with required code parameter
+    $response = $this->get(route('auth.socialite.callback', ['provider' => SocialiteProvider::GOOGLE->value, 'code' => 'test-code']));
 
     // Check if the response is a redirect to the dashboard
     $response->assertRedirect();
@@ -125,17 +122,29 @@ test('callback from socialite provider links social account to existing user whe
 test('callback from socialite provider handles error gracefully', function () {
     // Mock the Socialite facade to throw an exception
     $provider = Mockery::mock(AbstractProvider::class);
-    $provider->shouldReceive('stateless')->andReturnSelf();
     $provider->shouldReceive('user')->andThrow(new \Exception('Socialite error'));
 
     Socialite::shouldReceive('driver')
         ->with(SocialiteProvider::GOOGLE->value)
         ->andReturn($provider);
 
-    // Make the request to the callback route
+    // Make the request to the callback route with required code parameter
+    $response = $this->get(route('auth.socialite.callback', ['provider' => SocialiteProvider::GOOGLE->value, 'code' => 'test-code']));
+
+    // Assert that the user is redirected to the login page with an error
+    $response->assertRedirect(route('login'));
+    $response->assertSessionHasErrors(['login']);
+});
+
+test('callback from socialite provider handles missing code parameter', function () {
+    // Make the request to the callback route without a code parameter
     $response = $this->get(route('auth.socialite.callback', ['provider' => SocialiteProvider::GOOGLE->value]));
 
     // Assert that the user is redirected to the login page with an error
     $response->assertRedirect(route('login'));
     $response->assertSessionHasErrors(['login']);
+    $response->assertSessionHas('errors');
+
+    $errors = session('errors')->getBag('default');
+    expect($errors->first('login'))->toBe('Authorization was cancelled or failed. Please try again.');
 });

@@ -24,9 +24,11 @@ use Laravel\Jetstream\Http\Controllers\TeamInvitationController;
 
 Route::middleware('guest')->group(function () {
     Route::get('/auth/redirect/{provider}', RedirectController::class)
-        ->name('auth.socialite.redirect');
+        ->name('auth.socialite.redirect')
+        ->middleware('throttle:10,1');
     Route::get('/auth/callback/{provider}', CallbackController::class)
-        ->name('auth.socialite.callback');
+        ->name('auth.socialite.callback')
+        ->middleware('throttle:10,1');
 
     Route::get('/login', function () {
         return redirect()->away(url()->getAppUrl('login'));

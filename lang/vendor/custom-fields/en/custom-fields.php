@@ -2,8 +2,8 @@
 
 return [
     'nav' => [
-        'label' => 'Data Model',
-        'group' => 'Data Model',
+        'label' => 'Custom Fields',
+        'group' => 'Custom Fields',
         'icon' => 'heroicon-o-circle-stack',
     ],
 

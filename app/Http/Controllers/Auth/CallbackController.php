@@ -7,67 +7,149 @@ namespace App\Http\Controllers\Auth;
 use App\Contracts\User\CreatesNewSocialUsers;
 use App\Models\User;
 use App\Models\UserSocialAccount;
-use Illuminate\Contracts\Auth\Authenticatable;
+use Filament\Notifications\Notification;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Laravel\Socialite\Contracts\User as SocialiteUser;
 use Laravel\Socialite\Facades\Socialite;
-use Laravel\Socialite\Two\AbstractProvider;
+use Laravel\Socialite\Two\InvalidStateException;
 use Throwable;
 
 final readonly class CallbackController
 {
-    public function __invoke(string $provider, CreatesNewSocialUsers $creator): RedirectResponse
-    {
+    public function __invoke(
+        Request $request,
+        string $provider,
+        CreatesNewSocialUsers $creator
+    ): RedirectResponse {
+        if (! $request->has('code')) {
+            return $this->handleError('Authorization was cancelled or failed. Please try again.');
+        }
+
         try {
-            /** @var AbstractProvider $driver */
-            $driver = Socialite::driver($provider);
-            $socialUser = $driver->stateless()->user();
+            $socialUser = $this->retrieveSocialUser($provider);
+            $user = $this->resolveUser($provider, $socialUser, $creator);
+
+            return $this->loginAndRedirect($user);
+        } catch (InvalidStateException) {
+            return $this->handleError('Authentication state mismatch. Please try again.');
         } catch (Throwable $e) {
             report($e);
 
-            return redirect()
-                ->route('login')
-                ->withErrors(['login' => 'Failed to authenticate with '.ucfirst($provider).'.']);
+            return $this->handleError($this->parseProviderError($e->getMessage(), $provider));
         }
+    }
 
-        // Attempt to find the user via the social account
-        $account = UserSocialAccount::with('user')
-            ->where('provider_name', $provider)
-            ->where('provider_id', $socialUser->getId())
-            ->first();
+    /**
+     * @throws InvalidStateException
+     * @throws Throwable
+     */
+    private function retrieveSocialUser(string $provider): SocialiteUser
+    {
+        return Socialite::driver($provider)->user();
+    }
 
-        if ($account?->exists() && $account->user instanceof Authenticatable) {
-            auth()->login($account->user);
+    private function resolveUser(
+        string $provider,
+        SocialiteUser $socialUser,
+        CreatesNewSocialUsers $creator
+    ): User {
+        return DB::transaction(function () use ($provider, $socialUser, $creator): User {
+            $existingAccount = UserSocialAccount::query()
+                ->with('user')
+                ->where('provider_name', $provider)
+                ->where('provider_id', $socialUser->getId())
+                ->first();
 
-            return redirect(url()->getAppUrl());
-        }
+            if ($existingAccount?->user) {
+                return $existingAccount->user;
+            }
 
-        // Attempt to find the user by email if available
-        $user = null;
-        $email = $socialUser->getEmail();
+            $email = $socialUser->getEmail();
+            $user = $email ? User::where('email', $email)->first() : null;
 
-        if ($email) {
-            $user = User::where('email', $email)->first();
-        }
+            if (! $user) {
+                $user = $this->createUser($socialUser, $creator, $provider);
+            }
 
-        // Create a new user if one doesn't exist
-        if (! $user) {
-            $user = $creator->create([
-                'name' => $socialUser->getName() ?? $socialUser->getNickname() ?? 'Unknown User',
-                'email' => $email ?? sprintf('%s_%s@noemail.app', $provider, $socialUser->getId()),
-                'terms' => 'on',
-            ]);
-        }
+            $this->linkSocialAccount($user, $provider, $socialUser->getId());
 
-        // Link the social account to the user
+            return $user;
+        });
+    }
+
+    private function createUser(
+        SocialiteUser $socialUser,
+        CreatesNewSocialUsers $creator,
+        string $provider
+    ): User {
+        return $creator->create([
+            'name' => $this->extractName($socialUser),
+            'email' => $this->extractEmail($socialUser, $provider),
+            'terms' => 'on',
+        ]);
+    }
+
+    private function linkSocialAccount(User $user, string $provider, string $providerId): void
+    {
         $user->socialAccounts()->updateOrCreate(
             [
                 'provider_name' => $provider,
-                'provider_id' => $socialUser->getId(),
-            ],
+                'provider_id' => $providerId,
+            ]
         );
+    }
 
-        auth()->login($user);
+    private function extractName(SocialiteUser $socialUser): string
+    {
+        return $socialUser->getName()
+            ?? $socialUser->getNickname()
+            ?? 'Unknown User';
+    }
 
-        return redirect(url()->getAppUrl());
+    private function extractEmail(SocialiteUser $socialUser, string $provider): string
+    {
+        return $socialUser->getEmail()
+            ?? sprintf('%s_%s@noemail.app', $provider, $socialUser->getId());
+    }
+
+    private function parseProviderError(string $exceptionMessage, string $provider): string
+    {
+        $errorPatterns = [
+            'invalid_request' => 'Invalid authentication request. Please try again.',
+            'access_denied' => 'Access was denied. Please authorize the application to continue.',
+        ];
+
+        foreach ($errorPatterns as $pattern => $message) {
+            if (str_contains($exceptionMessage, $pattern)) {
+                return $message;
+            }
+        }
+
+        return sprintf('Failed to authenticate with %s.', ucfirst($provider));
+    }
+
+    private function handleError(string $message): RedirectResponse
+    {
+        Notification::make()
+            ->title('Authentication Failed')
+            ->body($message)
+            ->danger()
+            ->persistent()
+            ->send();
+
+        return redirect()
+            ->route('login')
+            ->withErrors(['login' => $message])
+            ->with('error', $message);
+    }
+
+    private function loginAndRedirect(User $user): RedirectResponse
+    {
+        Auth::login($user, remember: true);
+
+        return redirect()->intended(url()->getAppUrl());
     }
 }
