@@ -56,7 +56,7 @@ final class CompanyResource extends Resource
                     ->label('Account Owner')
                     ->preload()
                     ->searchable(),
-                CustomFieldsComponent::make()->columns(1),
+                CustomFields::form()->forModel($schema->getRecord())->build()->columns(1),
             ])
             ->columns(1)
             ->inlineLabel();

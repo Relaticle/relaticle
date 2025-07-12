@@ -17,7 +17,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\TextSize;
 use Relaticle\Admin\Filament\Resources\CompanyResource;
-use Relaticle\CustomFields\Filament\Infolists\CustomFieldsInfolists;
+use Relaticle\CustomFields\Facades\CustomFields;
 
 final class ViewPeople extends ViewRecord
 {
@@ -51,7 +51,7 @@ final class ViewPeople extends ViewRecord
                         ->color('primary')
                         ->url(fn (People $record): ?string => $record->company ? CompanyResource::getUrl('view', [$record->company]) : null),
                 ]),
-                CustomFieldsInfolists::make()->columnSpanFull(),
+                CustomFields::infolist()->forModel($schema->getRecord())->build()->columnSpanFull(),
             ]),
         ]);
     }

@@ -17,7 +17,7 @@ use Filament\Resources\Pages\ViewRecord;
 use Filament\Schemas\Components\Flex;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
-use Relaticle\CustomFields\Filament\Infolists\CustomFieldsInfolists;
+use Relaticle\CustomFields\Facades\CustomFields;;
 
 final class ViewCompany extends ViewRecord
 {
@@ -62,7 +62,7 @@ final class ViewCompany extends ViewRecord
                                 ->circular()
                                 ->label('Account Owner'),
                         ]),
-                        CustomFieldsInfolists::make(),
+                        CustomFields::infolist()->build(),
                     ]),
                     Section::make([
                         TextEntry::make('created_at')

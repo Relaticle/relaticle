@@ -7,7 +7,7 @@ namespace App\Filament\App\Resources\TaskResource\Pages;
 use App\Filament\App\Resources\TaskResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ManageRecords;
-use Relaticle\CustomFields\Filament\Integration\Tables\InteractsWithCustomFields;
+use Relaticle\CustomFields\Concerns\InteractsWithCustomFields;
 
 final class ManageTasks extends ManageRecords
 {

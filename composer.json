@@ -21,7 +21,7 @@
         "laravel/socialite": "^5.16",
         "laravel/tinker": "^2.9",
         "livewire/livewire": "^3.0",
-        "relaticle/custom-fields": "dev-2.x-next",
+        "relaticle/custom-fields": "2.*",
         "sentry/sentry-laravel": "^4.13",
         "spatie/eloquent-sortable": "^4.4",
         "spatie/laravel-data": "^4.15",
@@ -115,11 +115,5 @@
         }
     },
     "minimum-stability": "beta",
-    "prefer-stable": true,
-    "repositories": [
-        {
-            "type": "path",
-            "url": "../custom-fields"
-        }
-    ]
+    "prefer-stable": true
 }
