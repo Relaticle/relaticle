@@ -92,12 +92,12 @@ final readonly class CallbackController
         ]);
     }
 
-    private function linkSocialAccount(User $user, string $provider, string $providerId): void
+    private function linkSocialAccount(User $user, string $provider, string|int $providerId): void
     {
         $user->socialAccounts()->updateOrCreate(
             [
                 'provider_name' => $provider,
-                'provider_id' => $providerId,
+                'provider_id' => (string) $providerId,
             ]
         );
     }
