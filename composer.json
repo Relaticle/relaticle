@@ -97,6 +97,12 @@
             "@test:lint",
             "@test:refactor",
             "@test:types",
+            "@test:unit"
+        ],
+        "test:all": [
+            "@test:lint",
+            "@test:refactor",
+            "@test:types",
             "@test:type-coverage",
             "@test:unit"
         ]
