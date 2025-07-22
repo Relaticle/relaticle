@@ -24,6 +24,8 @@ use Filament\Navigation\MenuItem;
 use Filament\Navigation\NavigationGroup;
 use Filament\Panel;
 use Filament\PanelProvider;
+use Filament\Schemas\Components\Section;
+use Filament\Tables\Table;
 use Filament\View\PanelsRenderHook;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
@@ -53,6 +55,9 @@ final class AppPanelProvider extends PanelProvider
             TenantSet::class,
             SwitchTeam::class,
         );
+
+        Section::configureUsing(fn (Section $section) => $section->compact());
+        Table::configureUsing(fn (Table $table) => $table);
     }
 
     /**
