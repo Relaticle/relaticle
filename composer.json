@@ -6,7 +6,7 @@
         "laravel",
         "framework"
     ],
-    "license": "MIT",
+    "license": "AGPL-3.0",
     "require": {
         "php": "^8.3",
         "ashallendesign/favicon-fetcher": "^3.8",
@@ -21,7 +21,7 @@
         "laravel/socialite": "^5.16",
         "laravel/tinker": "^2.9",
         "livewire/livewire": "^3.0",
-        "relaticle/custom-fields": "2.*",
+        "relaticle/custom-fields": "@dev",
         "sentry/sentry-laravel": "^4.13",
         "spatie/eloquent-sortable": "^4.4",
         "spatie/laravel-data": "^4.15",
@@ -115,5 +115,11 @@
         }
     },
     "minimum-stability": "beta",
-    "prefer-stable": true
+    "prefer-stable": true,
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../custom-fields"
+        }
+    ]
 }

@@ -2,3 +2,6 @@
 
 @source '../../../../app/Filament';
 @source '../../../../resources/views/filament';
+
+/* Custom Fields */
+@source '../../../../vendor/relaticle/custom-fields/resources';
