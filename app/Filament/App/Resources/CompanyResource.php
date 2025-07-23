@@ -54,6 +54,7 @@ final class CompanyResource extends Resource
                 Select::make('account_owner_id')
                     ->relationship('accountOwner', 'name')
                     ->label('Account Owner')
+                    ->nullable()
                     ->preload()
                     ->searchable(),
                 CustomFields::form()->forModel($schema->getRecord())->build()->columns(1),
