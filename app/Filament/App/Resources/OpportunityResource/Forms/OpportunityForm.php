@@ -7,6 +7,7 @@ namespace App\Filament\App\Resources\OpportunityResource\Forms;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
+use Relaticle\CustomFields\Facades\CustomFields;
 
 final class OpportunityForm
 {
@@ -29,7 +30,7 @@ final class OpportunityForm
                     ->searchable()
                     ->preload()
                     ->columnSpan(2),
-                CustomFields::form()->forModel($schema->getRecord())->build()->columnSpanFull(),
+                CustomFields::form()->forModel($schema->getModel())->build()->columnSpanFull(),
             ])
             ->columns(4);
     }
