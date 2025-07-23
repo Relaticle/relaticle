@@ -1,11 +1,11 @@
 <x-filament-panels::page>
-    @livewire(Laravel\Jetstream\Http\Livewire\UpdateTeamNameForm::class, compact('team'))
+    @livewire(Laravel\Jetstream\Http\Livewire\UpdateTeamNameForm::class, ['team' =>$this->tenant])
 
-    @livewire(Laravel\Jetstream\Http\Livewire\TeamMemberManager::class, compact('team'))
+    @livewire(Laravel\Jetstream\Http\Livewire\TeamMemberManager::class, ['team' =>$this->tenant])
 
-    @if (Gate::check('delete', $team) && ! $team->personal_team)
+    @if (Gate::check('delete', $this->tenant) && ! $this->tenant->personal_team)
         <x-section-border/>
 
-        @livewire(Laravel\Jetstream\Http\Livewire\DeleteTeamForm::class, compact('team'))
+        @livewire(Laravel\Jetstream\Http\Livewire\DeleteTeamForm::class, ['team' =>$this->tenant])
     @endif
 </x-filament-panels::page>

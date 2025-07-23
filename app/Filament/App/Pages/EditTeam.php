@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\App\Pages;
 
-use Filament\Facades\Filament;
+use App\Models\User;
 use Filament\Pages\Tenancy\EditTenantProfile;
 use Override;
 
@@ -16,17 +16,18 @@ final class EditTeam extends EditTenantProfile
 
     protected static ?int $navigationSort = 2;
 
-    #[Override]
     public static function getLabel(): string
     {
         return 'Team Settings';
     }
 
-    #[Override]
-    protected function getViewData(): array
+    public function mount(): void
     {
-        return [
-            'team' => Filament::getTenant(),
-        ];
+        parent::mount();
+
+        // Load owner without global scopes since team owner should always be accessible
+        if ($this->tenant && $this->tenant->user_id) {
+            $this->tenant->setRelation('owner', User::withoutGlobalScopes()->find($this->tenant->user_id));
+        }
     }
 }
