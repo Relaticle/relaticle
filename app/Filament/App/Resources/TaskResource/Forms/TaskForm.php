@@ -7,22 +7,24 @@ namespace App\Filament\App\Resources\TaskResource\Forms;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
+use Relaticle\CustomFields\Facades\CustomFields;
 
 final class TaskForm
 {
     /**
-     * @param  array<string>  $excludeFields
+     * @param array<string> $excludeFields
+     * @throws \Exception
      */
-    public static function get(Schema $form, array $excludeFields = []): Schema
+    public static function get(Schema $schema, array $excludeFields = []): Schema
     {
-        $schema = [
+        $components = [
             TextInput::make('title')
                 ->required()
                 ->columnSpanFull(),
         ];
 
         if (! in_array('companies', $excludeFields)) {
-            $schema[] = Select::make('companies')
+            $components[] = Select::make('companies')
                 ->label('Companies')
                 ->multiple()
                 ->relationship('companies', 'name')
@@ -30,23 +32,23 @@ final class TaskForm
         }
 
         if (! in_array('people', $excludeFields)) {
-            $schema[] = Select::make('people')
+            $components[] = Select::make('people')
                 ->label('People')
                 ->multiple()
                 ->relationship('people', 'name')
                 ->nullable();
         }
 
-        $schema[] = Select::make('assignees')
+        $components[] = Select::make('assignees')
             ->label('Assignees')
             ->multiple()
             ->relationship('assignees', 'name')
             ->nullable();
 
-        $schema[] = CustomFields::form()->forModel($schema->getRecord())->build()->columnSpanFull();
+        $components[] = CustomFields::form()->forModel($schema->getModel())->build()->columnSpanFull();
 
-        return $form
-            ->components($schema)
+        return $schema
+            ->components($components)
             ->columns(2);
     }
 }

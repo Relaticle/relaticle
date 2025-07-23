@@ -37,8 +37,9 @@ final class TasksRelationManager extends RelationManager
             ->recordTitleAttribute('title')
             ->columns([
                 TextColumn::make('title'),
+
+                ...CustomFields::table()->forModel($table->getModel())->columns(),
             ])
-            ->pushColumns(CustomFields::table()->forModel($table->getModel())->columns())
             ->filters([
                 //
             ])

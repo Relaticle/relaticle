@@ -7717,7 +7717,7 @@
             "dist": {
                 "type": "path",
                 "url": "../custom-fields",
-                "reference": "a2bae9ef5bc17320d4944669ec60ea9a3dff4577"
+                "reference": "7e1fe2afed2aec870e309050f1949391ed5694db"
             },
             "require": {
                 "filament/filament": "^4.0",
