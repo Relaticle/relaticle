@@ -24,6 +24,8 @@ final class LocalSeeder extends Seeder
                 'name' => 'Manuk Minasyan',
                 'email' => 'manuk.minasyan1@gmail.com',
             ]);
+
+        $teamId = $user->personalTeam()->id;
 //
 //        User::factory()
 //            ->withPersonalTeam()
@@ -33,7 +35,15 @@ final class LocalSeeder extends Seeder
 //            ]);
 //
 //        // Create 10 Test Users
-//        User::factory()->withPersonalTeam()->count(10)->create();
+        User::factory()->withPersonalTeam()
+            ->count(10)
+            ->create()
+            ->after(function (User $user)  use ($teamId): void {
+                // Assign the user to the personal team.
+                $user->teams()->attach($teamId, [
+                    'role' => 'member',
+                ]);
+            });
 //
 //        // Set the current user and tenant.
 //        Auth::setUser($user);

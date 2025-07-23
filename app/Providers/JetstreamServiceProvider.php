@@ -30,7 +30,14 @@ final class JetstreamServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configurePermissions();
+        $this->configureActions();
+    }
 
+    /**
+     * Configure the actions that are available within the application.
+     */
+    private function configureActions(): void
+    {
         Jetstream::createTeamsUsing(CreateTeam::class);
         Jetstream::updateTeamNamesUsing(UpdateTeamName::class);
         Jetstream::addTeamMembersUsing(AddTeamMember::class);
