@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Enums\CustomFields;
 
-use Relaticle\CustomFields\Enums\CustomFieldType;
+use App\Enums\CustomFieldType;
 
 /**
  * Note custom field codes
@@ -15,10 +15,10 @@ enum Note: string
 
     case BODY = 'body';
 
-    public function getFieldType(): CustomFieldType
+    public function getFieldType(): string
     {
         return match ($this) {
-            self::BODY => CustomFieldType::RICH_EDITOR,
+            self::BODY => CustomFieldType::RICH_EDITOR->value,
         };
     }
 

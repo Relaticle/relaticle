@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Enums\CustomFields;
 
-use Relaticle\CustomFields\Enums\CustomFieldType;
+use App\Enums\CustomFieldType;
 
 enum Company: string
 {
@@ -34,11 +34,11 @@ enum Company: string
         };
     }
 
-    public function getFieldType(): CustomFieldType
+    public function getFieldType(): string
     {
         return match ($this) {
-            self::ICP => CustomFieldType::TOGGLE,
-            self::DOMAIN_NAME, self::LINKEDIN => CustomFieldType::LINK,
+            self::ICP => CustomFieldType::TOGGLE->value,
+            self::DOMAIN_NAME, self::LINKEDIN => CustomFieldType::LINK->value,
         };
     }
 

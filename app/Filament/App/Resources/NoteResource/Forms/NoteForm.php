@@ -12,8 +12,7 @@ use Relaticle\CustomFields\Facades\CustomFields;
 final class NoteForm
 {
     /**
-     * @param Schema $schema
-     * @param array<string> $excludeFields Fields to exclude from the form.
+     * @param  array<string>  $excludeFields  Fields to exclude from the form.
      * @return Schema The modified form instance with the schema applied.
      *
      * @throws \Exception
