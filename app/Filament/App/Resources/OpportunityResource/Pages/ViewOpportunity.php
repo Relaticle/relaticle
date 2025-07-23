@@ -49,8 +49,9 @@ final class ViewOpportunity extends ViewRecord
                         ->url(fn (Opportunity $record): ?string => $record->contact ? PeopleResource::getUrl('view', [$record->contact]) : null)
                         ->grow(false),
                 ]),
-                CustomFields::infolist()->build()->columnSpanFull(),
-            ]),
+                CustomFields::infolist()->forModel($schema->getRecord())->build()->columnSpanFull(),
+            ])
+            ->columnSpanFull(),
         ]);
     }
 }
