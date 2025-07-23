@@ -1,7 +1,7 @@
 @import '../../../../vendor/filament/filament/resources/css/theme.css';
 
 @source '../../../../app/Filament';
-@source '../../../../resources/views/filament';
+@source '../../../../resources/views';
 
 /* Custom Fields */
 @source '../../../../vendor/relaticle/custom-fields/resources';
