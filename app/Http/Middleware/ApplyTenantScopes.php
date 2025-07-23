@@ -22,18 +22,17 @@ final readonly class ApplyTenantScopes
     {
         $tenantId = Filament::getTenant()->getKey();
 
-//        User::addGlobalScope(
-//            fn (Builder $query) => $query
-//                ->where('users.id', auth()->id())
-//                ->orWhereHas('teams', fn (Builder $query) => $query->where('teams.id', $tenantId))
-//                ->orWhereHas('ownedTeams', fn (Builder $query) => $query->where('teams.id', $tenantId))
-//        );
+        User::addGlobalScope(
+            fn (Builder $query) => $query
+                ->whereHas('teams', fn (Builder $query) => $query->where('teams.id', $tenantId))
+                ->orWhereHas('ownedTeams', fn (Builder $query) => $query->where('teams.id', $tenantId))
+        );
 
-//        Company::addGlobalScope(new TeamScope);
-//        People::addGlobalScope(new TeamScope);
-//        Opportunity::addGlobalScope(new TeamScope);
-//        Task::addGlobalScope(new TeamScope);
-//        Note::addGlobalScope(new TeamScope);
+        Company::addGlobalScope(new TeamScope);
+        People::addGlobalScope(new TeamScope);
+        Opportunity::addGlobalScope(new TeamScope);
+        Task::addGlobalScope(new TeamScope);
+        Note::addGlobalScope(new TeamScope);
 
         return $next($request);
     }
