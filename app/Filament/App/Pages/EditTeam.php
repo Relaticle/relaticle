@@ -6,7 +6,6 @@ namespace App\Filament\App\Pages;
 
 use App\Models\User;
 use Filament\Pages\Tenancy\EditTenantProfile;
-use Override;
 
 final class EditTeam extends EditTenantProfile
 {
@@ -25,7 +24,7 @@ final class EditTeam extends EditTenantProfile
     {
         parent::mount();
 
-        // Load owner without global scopes since team owner should always be accessible
+        // Load owner without global scopes since a team owner should always be accessible
         if ($this->tenant && $this->tenant->user_id) {
             $this->tenant->setRelation('owner', User::withoutGlobalScopes()->find($this->tenant->user_id));
         }

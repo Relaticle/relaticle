@@ -51,7 +51,7 @@ final class ViewOpportunity extends ViewRecord
                 ]),
                 CustomFields::infolist()->forModel($schema->getRecord())->build()->columnSpanFull(),
             ])
-            ->columnSpanFull(),
+                ->columnSpanFull(),
         ]);
     }
 }

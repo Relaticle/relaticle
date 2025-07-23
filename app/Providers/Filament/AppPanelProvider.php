@@ -56,8 +56,8 @@ final class AppPanelProvider extends PanelProvider
             SwitchTeam::class,
         );
 
-        Section::configureUsing(fn (Section $section) => $section->compact());
-        Table::configureUsing(fn (Table $table) => $table);
+        Section::configureUsing(fn (Section $section): \Filament\Schemas\Components\Section => $section->compact());
+        Table::configureUsing(fn (Table $table): \Filament\Tables\Table => $table);
     }
 
     /**
