@@ -7,7 +7,6 @@ namespace App\Filament\App\Resources\TaskResource\Forms;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
-use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent;
 
 final class TaskForm
 {
