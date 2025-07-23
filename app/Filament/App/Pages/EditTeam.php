@@ -4,12 +4,16 @@ declare(strict_types=1);
 
 namespace App\Filament\App\Pages;
 
-use App\Models\User;
+use Filament\Actions\Action;
 use Filament\Pages\Tenancy\EditTenantProfile;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
+use Filament\Forms\Components\TextInput;
+use Filament\Support\Enums\Alignment;
 
 final class EditTeam extends EditTenantProfile
 {
-    protected string $view = 'filament.pages.edit-team';
+//    protected string $view = 'filament.pages.edit-team';
 
     protected static ?string $slug = 'team';
 
@@ -20,13 +24,48 @@ final class EditTeam extends EditTenantProfile
         return 'Team Settings';
     }
 
-    public function mount(): void
+    public function form(Schema $schema): Schema
     {
-        parent::mount();
+        return $schema
+            ->components([
+                Section::make(__('Team Owner'))
+                    ->description(__('The team\'s name and owner information.'))
+                    ->aside()
+                    ->schema([
+                        TextInput::make('name'),
+                    ])
+                    ->footerActionsAlignment(Alignment::End)
+                    ->footerActions([
+                        Action::make('save')
+                            ->label(__('Save'))
+                            ->color('primary')
+                            ->action(fn() => $this->save()) // Define the save method in your class
+                    ]),
 
-        // Load owner without global scopes since a team owner should always be accessible
-        if ($this->tenant && $this->tenant->user_id) {
-            $this->tenant->setRelation('owner', User::withoutGlobalScopes()->find($this->tenant->user_id));
-        }
+                Section::make(__('Add Team Member'))
+                    ->description(__('Add a new team member to your team, allowing them to collaborate with you.'))
+                    ->aside()
+                    ->schema([
+                        TextInput::make('email')
+                            ->label(__('Email'))
+                            ->required()
+                            ->email()
+                            ->maxLength(255)
+                            ->placeholder(__('Enter the email address of the new team member')),
+                    ])
+                    ->footerActions([
+                        Action::make('add_member')
+                            ->label(__('Add Member'))
+                            ->color('primary')
+                            ->icon('heroicon-o-user-plus')
+                            ->requiresConfirmation()
+                            ->action(fn() => $this->addMember()), // Define the addMember method in your class
+                    ])
+            ]);
+    }
+
+    protected function getFormActions(): array
+    {
+        return [];
     }
 }
