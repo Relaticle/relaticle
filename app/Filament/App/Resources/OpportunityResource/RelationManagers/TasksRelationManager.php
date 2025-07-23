@@ -18,7 +18,7 @@ use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Relaticle\CustomFields\Filament\Tables\Columns\CustomFieldsColumn;
+use Relaticle\CustomFields\Facades\CustomFields;
 
 final class TasksRelationManager extends RelationManager
 {
@@ -38,7 +38,7 @@ final class TasksRelationManager extends RelationManager
             ->columns([
                 TextColumn::make('title'),
             ])
-            ->pushColumns(CustomFieldsColumn::forRelationManager($this))
+            ->pushColumns(CustomFields::table()->forModel($table->getModel())->columns())
             ->filters([
                 //
             ])
