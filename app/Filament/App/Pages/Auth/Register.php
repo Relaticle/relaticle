@@ -23,7 +23,7 @@ final class Register extends BaseRegister
             ->unique($this->getUserModel());
     }
 
-    protected function getForms(): array
+    private function getForms(): array
     {
         return [
             'form' => $this->form(

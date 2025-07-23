@@ -12,7 +12,8 @@ use Relaticle\CustomFields\Facades\CustomFields;
 final class TaskForm
 {
     /**
-     * @param array<string> $excludeFields
+     * @param  array<string>  $excludeFields
+     *
      * @throws \Exception
      */
     public static function get(Schema $schema, array $excludeFields = []): Schema
