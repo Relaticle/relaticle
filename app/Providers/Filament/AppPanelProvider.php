@@ -56,8 +56,8 @@ final class AppPanelProvider extends PanelProvider
             SwitchTeam::class,
         );
 
-        Section::configureUsing(fn (Section $section): \Filament\Schemas\Components\Section => $section->compact());
-        Table::configureUsing(fn (Table $table): \Filament\Tables\Table => $table);
+        Section::configureUsing(fn (Section $section): Section => $section->compact());
+        Table::configureUsing(fn (Table $table): Table => $table);
     }
 
     /**
@@ -170,7 +170,7 @@ final class AppPanelProvider extends PanelProvider
 
         if (Features::hasTeamFeatures()) {
             $panel
-                ->tenant(Team::class)
+                ->tenant(Team::class, ownershipRelationship: 'owner')
                 ->tenantRegistration(CreateTeam::class)
                 ->tenantProfile(EditTeam::class);
         }
