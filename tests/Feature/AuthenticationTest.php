@@ -2,9 +2,8 @@
 
 declare(strict_types=1);
 
-use App\Filament\App\Pages\Auth\Login;
+use App\Filament\Pages\Auth\Login;
 use App\Models\User;
-
 use function Pest\Livewire\livewire;
 
 test('login screen can be rendered', function () {
