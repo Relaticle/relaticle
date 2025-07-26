@@ -60,7 +60,7 @@ final class LocalSeeder extends Seeder
             ->state(new Sequence(
                 fn (Sequence $sequence): array => ['company_id' => $user->personalTeam()->companies->random()->id]
             ))
-            ->count(500)->create();
+            ->count(5000)->create();
 
         // Create opportunities.
         Opportunity::factory()->for($user->personalTeam(), 'team')
