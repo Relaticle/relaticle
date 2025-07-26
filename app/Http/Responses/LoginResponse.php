@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Responses;
 
-use App\Filament\App\Resources\CompanyResource;
+use App\Filament\Resources\CompanyResource;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Redirector;
 
