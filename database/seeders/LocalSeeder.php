@@ -35,7 +35,7 @@ final class LocalSeeder extends Seeder
         //            ]);
         //
         //        // Create 10 Test Users
-        User::factory()->withPersonalTeam()
+        User::factory()
             ->count(10)
             ->create()
             ->after(function (User $user) use ($teamId): void {

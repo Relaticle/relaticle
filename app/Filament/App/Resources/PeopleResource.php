@@ -74,7 +74,7 @@ final class PeopleResource extends Resource
                                         ->label('Account Owner')
                                         ->preload()
                                         ->searchable(),
-                                    CustomFields::form()->forModel($schema->getRecord())->build()->columns(1),
+                                    CustomFields::form()->forModel($schema->getModel())->build()->columns(1),
                                 ])
                                 ->icon('heroicon-o-plus')
                                 ->action(function (array $data, Set $set): void {
