@@ -206,11 +206,11 @@
             const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
 
             if (scrollTop > 20) {
-                header.classList.add('py-3', 'shadow-sm');
+                header.classList.add('py-2', 'shadow-sm');
                 header.classList.remove('py-4');
             } else {
                 header.classList.add('py-4');
-                header.classList.remove('py-3', 'shadow-sm');
+                header.classList.remove('py-2', 'shadow-sm');
             }
         });
 
