@@ -38,6 +38,7 @@
         "symfony/yaml": "^7.2"
     },
     "require-dev": {
+        "cweagans/composer-patches": "*",
         "fakerphp/faker": "^1.23",
         "itsgoingd/clockwork": "^5.3",
         "larastan/larastan": "^3.0",
@@ -96,6 +97,12 @@
             "@test:lint",
             "@test:refactor",
             "@test:types",
+            "@test:unit"
+        ],
+        "test:all": [
+            "@test:lint",
+            "@test:refactor",
+            "@test:types",
             "@test:type-coverage",
             "@test:unit"
         ]
@@ -111,7 +118,8 @@
         "sort-packages": true,
         "allow-plugins": {
             "pestphp/pest-plugin": true,
-            "php-http/discovery": true
+            "php-http/discovery": true,
+            "cweagans/composer-patches": true
         }
     },
     "minimum-stability": "beta",

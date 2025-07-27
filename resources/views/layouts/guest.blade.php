@@ -1,6 +1,6 @@
 @props(['title', 'description' => 'Relaticle - The Next-Generation Open-Source CRM Platform for modern businesses', 'ogTitle' => null, 'ogDescription' => null, 'ogImage' => null])
 
-    <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
@@ -8,17 +8,27 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <meta name="description" content="{{ $description }}">
+
+    <!-- Open Graph Meta Tags -->
     <meta property="og:title" content="{{ $ogTitle ?? $title ?? config('app.name', 'Relaticle') }}"/>
     <meta property="og:description" content="{{ $ogDescription ?? $description }}"/>
     <meta property="og:image" content="{{ $ogImage ?? url('/images/og-image.jpg') }}"/>
     <meta property="og:url" content="{{ request()->getUri() }}"/>
     <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="{{ config('app.name', 'Relaticle') }}" />
+    <meta property="og:locale" content="{{ str_replace('_', '-', app()->getLocale()) }}" />
+
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="{{ $ogTitle ?? $title ?? config('app.name', 'Relaticle') }}" />
+    <meta name="twitter:description" content="{{ $ogDescription ?? $description }}" />
+    <meta name="twitter:image" content="{{ $ogImage ?? url('/images/og-image.jpg') }}" />
 
     <title>{{ $title ?? config('app.name', 'Relaticle - The Next-Generation Open-Source CRM Platform') }}</title>
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet"/>
-    
+
     <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="shortcut icon" href="/favicon.ico" />

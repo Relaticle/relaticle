@@ -17,9 +17,9 @@ final readonly class GitHubService
      *
      * @param  string  $owner  The repository owner
      * @param  string  $repo  The repository name
-     * @param  int  $cacheMinutes  Minutes to cache the result (default: 60)
+     * @param  int  $cacheMinutes  Minutes to cache the result (default: 15)
      */
-    public function getStarsCount(string $owner = 'Relaticle', string $repo = 'relaticle', int $cacheMinutes = 60): int
+    public function getStarsCount(string $owner = 'Relaticle', string $repo = 'relaticle', int $cacheMinutes = 15): int
     {
         $cacheKey = "github_stars_{$owner}_{$repo}";
 
@@ -51,9 +51,9 @@ final readonly class GitHubService
      *
      * @param  string  $owner  The repository owner
      * @param  string  $repo  The repository name
-     * @param  int  $cacheMinutes  Minutes to cache the result (default: 60)
+     * @param  int  $cacheMinutes  Minutes to cache the result (default: 15)
      */
-    public function getFormattedStarsCount(string $owner = 'Relaticle', string $repo = 'relaticle', int $cacheMinutes = 60): string
+    public function getFormattedStarsCount(string $owner = 'Relaticle', string $repo = 'relaticle', int $cacheMinutes = 15): string
     {
         $starsCount = $this->getStarsCount($owner, $repo, $cacheMinutes);
 
