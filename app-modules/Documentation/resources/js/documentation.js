@@ -101,9 +101,13 @@ document.addEventListener('DOMContentLoaded', function() {
             const targetElement = document.getElementById(targetId);
 
             if (targetElement) {
+                // Calculate the element's position relative to the document
+                const elementPosition = targetElement.getBoundingClientRect().top + window.scrollY;
+                const offsetPosition = elementPosition - 80;
+
                 // Scroll with offset for fixed header
                 window.scrollTo({
-                    top: targetElement.offsetTop + 80, // Adjust for fixed header height
+                    top: offsetPosition,
                     behavior: 'smooth'
                 });
 
