@@ -72,6 +72,11 @@ final class PeopleImporter extends BaseImporter
         ];
     }
 
+    protected function afterSave(): void
+    {
+        CustomFields::importer()->forModel($this->record)->saveValues();
+    }
+
     public function resolveRecord(): People
     {
         $person = $this->findByEmail();
