@@ -15,12 +15,12 @@ use App\Http\Middleware\ApplyTenantScopes;
 use App\Listeners\SwitchTeam;
 use App\Models\Team;
 use Exception;
+use Filament\Actions\Action;
 use Filament\Events\TenantSet;
 use Filament\Facades\Filament;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
-use Filament\Navigation\MenuItem;
 use Filament\Navigation\NavigationGroup;
 use Filament\Panel;
 use Filament\PanelProvider;
@@ -100,7 +100,7 @@ final class AppPanelProvider extends PanelProvider
             ->viteTheme('resources/css/filament/app/theme.css')
             ->font('Satoshi')
             ->userMenuItems([
-                MenuItem::make()
+                Action::make('profile')
                     ->label('Profile')
                     ->icon('heroicon-m-user-circle')
                     ->url(fn () => $this->shouldRegisterMenuItem()
@@ -132,6 +132,8 @@ final class AppPanelProvider extends PanelProvider
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
             ])
+            ->authGuard('web')
+            ->authPasswordBroker('users')
             ->authMiddleware([
                 Authenticate::class,
             ])
@@ -142,7 +144,8 @@ final class AppPanelProvider extends PanelProvider
                 isPersistent: true
             )
             ->plugins([
-                CustomFieldsPlugin::make()->authorize(fn () => Gate::check('update', Filament::getTenant())),
+                CustomFieldsPlugin::make()
+                    ->authorize(fn () => Gate::check('update', Filament::getTenant())),
             ])
             ->renderHook(
                 PanelsRenderHook::AUTH_LOGIN_FORM_BEFORE,
@@ -159,7 +162,7 @@ final class AppPanelProvider extends PanelProvider
 
         if (Features::hasApiFeatures()) {
             $panel->userMenuItems([
-                MenuItem::make()
+                Action::make('api_tokens')
                     ->label('API Tokens')
                     ->icon('heroicon-o-key')
                     ->url(fn () => $this->shouldRegisterMenuItem()
