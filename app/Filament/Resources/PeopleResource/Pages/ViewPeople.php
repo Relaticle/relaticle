@@ -51,7 +51,7 @@ final class ViewPeople extends ViewRecord
                         ->color('primary')
                         ->url(fn (People $record): ?string => $record->company ? CompanyResource::getUrl('view', [$record->company]) : null),
                 ]),
-                CustomFields::infolist()->forModel($schema->getRecord())->build()->columnSpanFull(),
+                CustomFields::infolist()->forModel($schema->getModel())->build()->columnSpanFull(),
             ])->columnSpanFull(),
         ]);
     }
