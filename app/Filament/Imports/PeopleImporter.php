@@ -12,6 +12,7 @@ use Filament\Actions\Imports\Importer;
 use Filament\Actions\Imports\Models\Import;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Number;
+use Relaticle\CustomFields\Facades\CustomFields;
 
 final class PeopleImporter extends BaseImporter
 {
@@ -66,6 +67,8 @@ final class PeopleImporter extends BaseImporter
                         throw $e; // Re-throw to fail the import for this row
                     }
                 }),
+
+            ...CustomFields::importer()->forModel(self::getModel())->columns(),
         ];
     }
 
@@ -74,6 +77,15 @@ final class PeopleImporter extends BaseImporter
         $person = $this->findByEmail();
 
         return $person ?? new People;
+    }
+
+    /**
+     * Save custom fields after the record is saved.
+     * The ImportDataStorage automatically captures the custom field values.
+     */
+    protected function afterSave(): void
+    {
+        CustomFields::importer()->forModel($this->record)->saveValues();
     }
 
     private function findByEmail(): ?People
