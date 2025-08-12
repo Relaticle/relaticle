@@ -6,6 +6,7 @@ namespace App\Filament\Resources;
 
 use App\Enums\CreationSource;
 use App\Filament\Exports\PeopleExporter;
+use App\Filament\Imports\PeopleImporter;
 use App\Filament\Resources\PeopleResource\Pages\ListPeople;
 use App\Filament\Resources\PeopleResource\Pages\ViewPeople;
 use App\Filament\Resources\PeopleResource\RelationManagers\NotesRelationManager;
@@ -21,6 +22,7 @@ use Filament\Actions\EditAction;
 use Filament\Actions\ExportBulkAction;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\ForceDeleteBulkAction;
+use Filament\Actions\ImportAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
@@ -57,38 +59,43 @@ final class PeopleResource extends Resource
     {
         return $schema
             ->components([
-                Grid::make()->schema([
-                    TextInput::make('name')
-                        ->required()
-                        ->maxLength(255)
-                        ->columnSpan(7),
-                    Select::make('company_id')
-                        ->relationship('company', 'name')
-                        ->suffixAction(
-                            Action::make('Create Company')
-                                ->schema([
-                                    TextInput::make('name')
-                                        ->required(),
-                                    Select::make('account_owner_id')
-                                        ->relationship('accountOwner', 'name')
-                                        ->label('Account Owner')
-                                        ->preload()
-                                        ->searchable(),
-                                    CustomFields::form()->forModel($schema->getModel())->build()->columns(1),
-                                ])
-                                ->icon('heroicon-o-plus')
-                                ->action(function (array $data, Set $set): void {
-                                    $company = Company::create($data);
-                                    $set('company_id', $company->id);
-                                })
-                        )
-                        ->searchable()
-                        ->preload()
-                        ->required()
-                        ->columnSpan(5),
-                ])
+                Grid::make()
+                    ->columnSpanFull()
+                    ->schema([
+                        TextInput::make('name')
+                            ->required()
+                            ->maxLength(255)
+                            ->columnSpan(7),
+                        Select::make('company_id')
+                            ->relationship('company', 'name')
+                            ->suffixAction(
+                                Action::make('Create Company')
+                                    ->schema([
+                                        TextInput::make('name')
+                                            ->required(),
+                                        Select::make('account_owner_id')
+                                            ->relationship('accountOwner', 'name')
+                                            ->label('Account Owner')
+                                            ->preload()
+                                            ->searchable(),
+                                        CustomFields::form()->forModel($schema->getModel())->build()->columns(1),
+                                    ])
+                                    ->icon('heroicon-o-plus')
+                                    ->action(function (array $data, Set $set): void {
+                                        $company = Company::create($data);
+                                        $set('company_id', $company->id);
+                                    })
+                            )
+                            ->searchable()
+                            ->preload()
+                            ->required()
+                            ->columnSpan(5),
+                    ])
                     ->columns(12),
-                CustomFields::form()->forModel($schema->getModel())->build()->columnSpanFull(),
+                CustomFields::form()->forModel($schema->getModel())
+                    ->build()
+                    ->columnSpanFull()
+                    ->columns(2),
             ]);
     }
 
@@ -101,7 +108,7 @@ final class PeopleResource extends Resource
                     ->searchable(),
                 TextColumn::make('company.name')
                     ->label('Company')
-                    ->url(fn (People $record): string => CompanyResource::getUrl('view', [$record->company_id]))
+                    ->url(fn (People $record): ?string => $record->company_id ? CompanyResource::getUrl('view', [$record->company_id]) : null)
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('creator.name')
@@ -132,6 +139,10 @@ final class PeopleResource extends Resource
                     ->options(CreationSource::class)
                     ->multiple(),
                 TrashedFilter::make(),
+            ])
+            ->headerActions([
+                ImportAction::make()
+                    ->importer(PeopleImporter::class),
             ])
             ->recordActions([
                 ActionGroup::make([
