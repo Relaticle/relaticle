@@ -23,6 +23,7 @@ final readonly class ApplyTenantScopes
         $tenantId = Filament::getTenant()->getKey();
 
         User::addGlobalScope(
+            filament()->getTenancyScopeName(),
             fn (Builder $query) => $query
                 ->whereHas('teams', fn (Builder $query) => $query->where('teams.id', $tenantId))
                 ->orWhereHas('ownedTeams', fn (Builder $query) => $query->where('teams.id', $tenantId))
