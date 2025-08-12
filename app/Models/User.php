@@ -9,6 +9,7 @@ use Database\Factories\UserFactory;
 use Exception;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasAvatar;
+use Filament\Models\Contracts\HasDefaultTenant;
 use Filament\Models\Contracts\HasTenants;
 use Filament\Panel;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -36,7 +37,7 @@ use Laravel\Sanctum\HasApiTokens;
  * @property string|null $two_factor_recovery_codes
  * @property string|null $two_factor_secret
  */
-final class User extends Authenticatable implements FilamentUser, HasAvatar, HasTenants, MustVerifyEmail
+final class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaultTenant, HasTenants, MustVerifyEmail
 {
     use HasApiTokens;
 
@@ -107,6 +108,11 @@ final class User extends Authenticatable implements FilamentUser, HasAvatar, Has
     public function tasks(): BelongsToMany
     {
         return $this->belongsToMany(Task::class);
+    }
+
+    public function getDefaultTenant(Panel $panel): ?Model
+    {
+        return $this->currentTeam;
     }
 
     /**

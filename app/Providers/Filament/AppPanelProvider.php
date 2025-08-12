@@ -173,7 +173,7 @@ final class AppPanelProvider extends PanelProvider
 
         if (Features::hasTeamFeatures()) {
             $panel
-                ->tenant(Team::class)
+                ->tenant(Team::class, ownershipRelationship: 'team')
                 ->tenantRegistration(CreateTeam::class)
                 ->tenantProfile(EditTeam::class);
         }

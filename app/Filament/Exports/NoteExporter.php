@@ -8,6 +8,7 @@ use App\Models\Note;
 use Filament\Actions\Exports\ExportColumn;
 use Filament\Actions\Exports\Models\Export;
 use Illuminate\Support\Number;
+use Relaticle\CustomFields\Facades\CustomFields;
 
 final class NoteExporter extends BaseExporter
 {
@@ -20,11 +21,14 @@ final class NoteExporter extends BaseExporter
                 ->label('ID'),
             ExportColumn::make('team.name'),
             ExportColumn::make('creator.name'),
-            ExportColumn::make('creation_source'),
+            ExportColumn::make('creation_source')
+                ->formatStateUsing(fn ($state): string => $state->value ?? (string) $state),
             ExportColumn::make('title'),
             ExportColumn::make('created_at'),
             ExportColumn::make('updated_at'),
             ExportColumn::make('deleted_at'),
+
+            ...CustomFields::exporter()->forModel(self::getModel())->columns(),
         ];
     }
 
