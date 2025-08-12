@@ -5,55 +5,14 @@ declare(strict_types=1);
 namespace App\Filament\Exports;
 
 use App\Models\Company;
-use App\Models\Team;
 use Carbon\Carbon;
 use Filament\Actions\Exports\ExportColumn;
-use Filament\Actions\Exports\Exporter;
 use Filament\Actions\Exports\Models\Export;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Auth;
-use Relaticle\CustomFields\Filament\Exports\CustomFieldsExporter;
+use Relaticle\CustomFields\Facades\CustomFields;
 
-final class CompanyExporter extends Exporter
+final class CompanyExporter extends BaseExporter
 {
     protected static ?string $model = Company::class;
-
-    /**
-     * @param  array<string, string>  $columnMap
-     * @param  array<string, mixed>  $options
-     */
-    public function __construct(
-        Export $export,
-        array $columnMap,
-        array $options,
-    ) {
-        parent::__construct($export, $columnMap, $options);
-
-        // Set the team_id on the export record
-        if (Auth::check() && Auth::user()->currentTeam) {
-            /** @var Team $currentTeam */
-            $currentTeam = Auth::user()->currentTeam;
-            $export->team_id = $currentTeam->getKey();
-        }
-    }
-
-    /**
-     * Make exports tenant-aware by scoping to the current team
-     *
-     * @param  Builder<Company>  $query
-     * @return Builder<Company>
-     */
-    public static function modifyQuery(Builder $query): Builder
-    {
-        if (Auth::check() && Auth::user()->currentTeam) {
-            /** @var Team $currentTeam */
-            $currentTeam = Auth::user()->currentTeam;
-
-            return $query->where('team_id', $currentTeam->getKey());
-        }
-
-        return $query;
-    }
 
     public static function getColumns(): array
     {
@@ -85,7 +44,7 @@ final class CompanyExporter extends Exporter
                 ->formatStateUsing(fn ($state): string => $state->value ?? (string) $state),
 
             // Add all custom fields automatically
-            ...CustomFieldsExporter::getColumns(self::getModel()),
+            ...CustomFields::exporter()->forModel(self::getModel())->columns(),
         ];
     }
 

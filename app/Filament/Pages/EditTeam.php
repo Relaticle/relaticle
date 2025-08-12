@@ -13,7 +13,7 @@ use Filament\Support\Enums\Alignment;
 
 final class EditTeam extends EditTenantProfile
 {
-//    protected string $view = 'filament.pages.edit-team';
+    //    protected string $view = 'filament.pages.edit-team';
 
     protected static ?string $slug = 'team';
 
@@ -39,7 +39,7 @@ final class EditTeam extends EditTenantProfile
                         Action::make('save')
                             ->label(__('Save'))
                             ->color('primary')
-                            ->action(fn() => $this->save()) // Define the save method in your class
+                            ->action(fn () => $this->save()), // Define the save method in your class
                     ]),
 
                 Section::make(__('Add Team Member'))
@@ -59,8 +59,8 @@ final class EditTeam extends EditTenantProfile
                             ->color('primary')
                             ->icon('heroicon-o-user-plus')
                             ->requiresConfirmation()
-                            ->action(fn() => $this->addMember()), // Define the addMember method in your class
-                    ])
+                            ->action(fn () => $this->addMember()), // Define the addMember method in your class
+                    ]),
             ]);
     }
 
