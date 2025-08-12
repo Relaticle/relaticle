@@ -102,7 +102,7 @@ final class PeopleImporter extends BaseImporter
                 $query->whereRelation('customField', 'code', 'emails')
                     ->where(function (Builder $query) use ($emails) {
                         foreach ($emails as $email) {
-                            $query->orWhereJsonContains('value_json', $email);
+                            $query->orWhereJsonContains('json_value', $email);
                         }
                     });
             })
