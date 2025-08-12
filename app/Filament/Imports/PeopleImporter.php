@@ -79,28 +79,19 @@ final class PeopleImporter extends BaseImporter
         return $person ?? new People;
     }
 
-    /**
-     * Save custom fields after the record is saved.
-     * The ImportDataStorage automatically captures the custom field values.
-     */
-    protected function afterSave(): void
-    {
-        CustomFields::importer()->forModel($this->record)->saveValues();
-    }
-
     private function findByEmail(): ?People
     {
         $emails = $this->extractEmails();
 
-        if (empty($emails)) {
+        if ($emails === []) {
             return null;
         }
 
         return People::query()
             ->when($this->import->team_id, fn (Builder $query) => $query->where('team_id', $this->import->team_id))
-            ->whereHas('customFieldValues', function (Builder $query) use ($emails) {
+            ->whereHas('customFieldValues', function (Builder $query) use ($emails): void {
                 $query->whereRelation('customField', 'code', 'emails')
-                    ->where(function (Builder $query) use ($emails) {
+                    ->where(function (Builder $query) use ($emails): void {
                         foreach ($emails as $email) {
                             $query->orWhereJsonContains('json_value', $email);
                         }
@@ -127,8 +118,8 @@ final class PeopleImporter extends BaseImporter
             : (array) $emailsField;
 
         return collect($emails)
-            ->map(fn ($email) => trim((string) $email))
-            ->filter(fn ($email) => filter_var($email, FILTER_VALIDATE_EMAIL) !== false)
+            ->map(fn ($email): string => trim((string) $email))
+            ->filter(fn ($email): bool => filter_var($email, FILTER_VALIDATE_EMAIL) !== false)
             ->values()
             ->toArray();
     }
