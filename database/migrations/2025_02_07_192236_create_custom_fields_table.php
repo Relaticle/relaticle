@@ -96,6 +96,7 @@ return new class extends Migration
 
             $table->string('name')->nullable();
             $table->unsignedBigInteger('sort_order')->nullable();
+            $table->json('settings')->nullable();
 
             $table->timestamps();
 
