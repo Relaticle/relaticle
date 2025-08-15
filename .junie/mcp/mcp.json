@@ -1,0 +1,20 @@
+{
+    "mcpServers": {
+        "laravel-boost": {
+            "command": "/Users/manuk/Library/Application Support/Herd/bin/php83",
+            "args": [
+                "/Users/manuk/Herd/relaticle/artisan",
+                "boost:mcp"
+            ]
+        },
+        "herd": {
+            "command": "/Users/manuk/Library/Application Support/Herd/bin/php83",
+            "args": [
+                "/Applications/Herd.app/Contents/Resources/herd-mcp.phar"
+            ],
+            "env": {
+                "SITE_PATH": "/Users/manuk/Herd/relaticle"
+            }
+        }
+    }
+}
