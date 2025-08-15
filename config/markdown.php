@@ -45,7 +45,7 @@ return [
             'max_heading_level' => 6,
             'title' => 'Permalink',
             'symbol' => '#',
-            'aria_hidden' => true,
+            'aria_hidden' => false,
         ],
     ],
 
