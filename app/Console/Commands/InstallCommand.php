@@ -11,9 +11,7 @@ use Illuminate\Support\Facades\Process;
 use Throwable;
 
 use function Laravel\Prompts\confirm;
-use function Laravel\Prompts\info;
 use function Laravel\Prompts\multiselect;
-use function Laravel\Prompts\note;
 use function Laravel\Prompts\select;
 use function Laravel\Prompts\spin;
 use function Laravel\Prompts\text;
@@ -26,8 +24,9 @@ final class InstallCommand extends Command
                             {--quick : Use default settings for rapid setup}
                             {--dev : Enable development mode with demo data}';
 
-    protected $description = 'Install and configure Relaticle with professional DX';
+    protected $description = 'Install and configure Relaticle';
 
+    /** @var array<string, callable(): bool> */
     private array $installationSteps = [];
 
     public function handle(): int
@@ -75,9 +74,10 @@ final class InstallCommand extends Command
                File::exists(public_path('storage'));
     }
 
+    /** @return array<string, mixed> */
     private function gatherConfiguration(): array
     {
-        info('Let\'s configure your Relaticle installation...');
+        $this->info('Let\'s configure your Relaticle installation...');
 
         if ($this->option('quick')) {
             return $this->getQuickConfiguration();
@@ -86,9 +86,10 @@ final class InstallCommand extends Command
         return $this->getInteractiveConfiguration();
     }
 
+    /** @return array<string, mixed> */
     private function getQuickConfiguration(): array
     {
-        note('⚡ Using quick setup with smart defaults...');
+        $this->info('⚡ Using quick setup with smart defaults...');
 
         return [
             'database' => 'sqlite',
@@ -98,6 +99,7 @@ final class InstallCommand extends Command
         ];
     }
 
+    /** @return array<string, mixed> */
     private function getInteractiveConfiguration(): array
     {
         $database = select(
@@ -130,26 +132,27 @@ final class InstallCommand extends Command
         ];
     }
 
+    /** @param array<string, mixed> $config */
     private function runInstallation(array $config): int
     {
         $this->installationSteps = [
-            'System Requirements' => fn () => $this->checkSystemRequirements(),
-            'Environment Setup' => fn () => $this->setupEnvironment($config),
-            'Dependencies' => fn () => $this->installDependencies(),
-            'Database' => fn () => $this->setupDatabase($config),
-            'Assets' => fn () => $this->buildAssets(),
-            'Storage' => fn () => $this->setupStorage(),
-            'Demo Data' => fn () => $config['demo_data'] ? $this->seedDemoData() : true,
-            'Optimization' => fn () => $config['optimize'] ? $this->optimizeInstallation() : true,
-            'Admin User' => fn () => $config['admin_user'] ?? false ? $this->createAdminUser() : true,
+            'System Requirements' => fn (): bool => $this->checkSystemRequirements(),
+            'Environment Setup' => fn (): bool => $this->setupEnvironment($config),
+            'Dependencies' => fn (): bool => $this->installDependencies(),
+            'Database' => fn (): bool => $this->setupDatabase(),
+            'Assets' => fn (): bool => $this->buildAssets(),
+            'Storage' => fn (): bool => $this->setupStorage(),
+            'Demo Data' => fn (): bool => $config['demo_data'] ? $this->seedDemoData() : true,
+            'Optimization' => fn (): bool => $config['optimize'] ? $this->optimizeInstallation() : true,
+            'Admin User' => fn (): bool => $config['admin_user'] ?? false ? $this->createAdminUser() : true,
         ];
 
-        info('🚀 Starting installation process...');
+        $this->info('🚀 Starting installation process...');
 
         foreach ($this->installationSteps as $stepName => $stepFunction) {
             $success = spin(
-                message: "Installing {$stepName}...",
-                callback: $stepFunction
+                callback: $stepFunction,
+                message: "Installing {$stepName}..."
             );
 
             if (! $success) {
@@ -171,7 +174,6 @@ final class InstallCommand extends Command
         return self::SUCCESS;
     }
 
-
     private function checkSystemRequirements(): bool
     {
         $requirements = [
@@ -190,9 +192,9 @@ final class InstallCommand extends Command
             $requirements["PHP {$extension}"] = extension_loaded($extension);
         }
 
-        $failed = array_filter($requirements, fn ($passed) => ! $passed);
+        $failed = array_filter($requirements, fn (bool $passed): bool => ! $passed);
 
-        if (! empty($failed)) {
+        if ($failed !== []) {
             $this->newLine();
             $this->error('✗ Missing system requirements:');
             foreach (array_keys($failed) as $requirement) {
@@ -212,6 +214,7 @@ final class InstallCommand extends Command
         return Process::run("which {$command} 2>/dev/null")->successful();
     }
 
+    /** @param array<string, mixed> $config */
     private function setupEnvironment(array $config): bool
     {
         // Create .env file
@@ -260,7 +263,7 @@ final class InstallCommand extends Command
 
         foreach ($config as $line) {
             [$key, $value] = explode('=', $line, 2);
-            $envContent = preg_replace("/^{$key}=.*/m", $line, $envContent);
+            $envContent = preg_replace("/^{$key}=.*/m", $line, (string) $envContent);
         }
 
         File::put(base_path('.env'), $envContent);
@@ -274,6 +277,7 @@ final class InstallCommand extends Command
         if (! $composerResult->successful()) {
             $this->error('Composer install failed:');
             $this->line($composerResult->errorOutput());
+
             return false;
         }
 
@@ -281,13 +285,14 @@ final class InstallCommand extends Command
         if (! $npmResult->successful()) {
             $this->error('NPM install failed:');
             $this->line($npmResult->errorOutput());
+
             return false;
         }
 
         return true;
     }
 
-    private function setupDatabase(array $config): bool
+    private function setupDatabase(): bool
     {
         try {
             Artisan::call('migrate', ['--force' => true]);
@@ -296,6 +301,7 @@ final class InstallCommand extends Command
         } catch (Throwable $e) {
             $this->error('Database migration failed:');
             $this->line($e->getMessage());
+
             return false;
         }
     }
@@ -307,6 +313,7 @@ final class InstallCommand extends Command
         if (! $result->successful()) {
             $this->error('Asset compilation failed:');
             $this->line($result->errorOutput());
+
             return false;
         }
 
@@ -322,6 +329,7 @@ final class InstallCommand extends Command
         } catch (Throwable $e) {
             $this->error('Storage link failed:');
             $this->line($e->getMessage());
+
             return false;
         }
     }
@@ -335,6 +343,7 @@ final class InstallCommand extends Command
         } catch (Throwable $e) {
             $this->error('Demo data seeding failed:');
             $this->line($e->getMessage());
+
             return false;
         }
     }
@@ -359,6 +368,7 @@ final class InstallCommand extends Command
         } catch (Throwable $e) {
             $this->error('Optimization failed:');
             $this->line($e->getMessage());
+
             return false;
         }
     }
@@ -376,7 +386,7 @@ final class InstallCommand extends Command
                 label: 'Admin email address',
                 default: 'admin@relaticle.local',
                 required: true,
-                validate: fn ($value) => filter_var($value, FILTER_VALIDATE_EMAIL) ? null : 'Please enter a valid email address'
+                validate: fn ($value): ?string => filter_var($value, FILTER_VALIDATE_EMAIL) ? null : 'Please enter a valid email address'
             );
 
             $password = text(
@@ -395,15 +405,17 @@ final class InstallCommand extends Command
         } catch (Throwable $e) {
             $this->error('Admin user creation failed:');
             $this->line($e->getMessage());
+
             return false;
         }
     }
 
+    /** @param array<string, mixed> $config */
     private function displaySuccessMessage(array $config): void
     {
         $this->newLine();
 
-        note('🎉 Relaticle installed successfully!');
+        $this->info('🎉 Relaticle installed successfully!');
 
         $this->newLine();
         $this->line('  <options=bold>Start all development services:</>');
@@ -437,6 +449,6 @@ final class InstallCommand extends Command
         $this->line('  Documentation: https://relaticle.com/documentation');
         $this->newLine();
 
-        info('Happy CRM-ing! 🚀');
+        $this->info('Happy CRM-ing! 🚀');
     }
 }
