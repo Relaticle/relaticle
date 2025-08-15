@@ -6,90 +6,65 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Process;
 use Throwable;
 
+use function Laravel\Prompts\confirm;
+use function Laravel\Prompts\multiselect;
+use function Laravel\Prompts\select;
+use function Laravel\Prompts\spin;
+use function Laravel\Prompts\text;
+use function Laravel\Prompts\warning;
+
 final class InstallCommand extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
     protected $signature = 'relaticle:install
                             {--force : Force installation even if already configured}
-                            {--no-demo : Skip demo data seeding}
-                            {--quick : Use default SQLite settings for quick setup}';
+                            {--quick : Use default settings for rapid setup}
+                            {--dev : Enable development mode with demo data}';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Install and configure Relaticle with a single command';
+    protected $description = 'Install and configure Relaticle';
 
-    /**
-     * Execute the console command.
-     */
+    /** @var array<string, callable(): bool> */
+    private array $installationSteps = [];
+
     public function handle(): int
     {
-        $this->info('🚀 Welcome to Relaticle Installation');
-        $this->newLine();
+        $this->displayWelcome();
 
-        // Check if already installed
+        if (! $this->shouldProceed()) {
+            return self::SUCCESS;
+        }
+
+        $config = $this->gatherConfiguration();
+
+        return $this->runInstallation($config);
+    }
+
+    private function displayWelcome(): void
+    {
+        $this->output->write(PHP_EOL.'  <fg=cyan>
+ ____      _       _   _      _
+|  _ \ ___| | __ _| |_(_) ___| | ___
+| |_) / _ \ |/ _` | __| |/ __| |/ _ \
+|  _ <  __/ | (_| | |_| | (__| |  __/
+|_| \_\___|_|\__,_|\__|_|\___|_|\___|</>'.PHP_EOL.PHP_EOL);
+    }
+
+    private function shouldProceed(): bool
+    {
         if (! $this->option('force') && $this->isAlreadyInstalled()) {
-            $this->warn('Relaticle appears to be already installed.');
+            warning('Relaticle appears to be already installed.');
 
-            if (! $this->confirm('Do you want to continue anyway?')) {
-                $this->info('Installation cancelled.');
-
-                return self::SUCCESS;
-            }
+            return confirm(
+                label: 'Do you want to continue anyway?',
+                default: false,
+                hint: 'This may overwrite existing configuration'
+            );
         }
 
-        // System requirements check
-        if (! $this->checkSystemRequirements()) {
-            return self::FAILURE;
-        }
-
-        $this->info('✅ System requirements check passed');
-        $this->newLine();
-
-        // Environment setup
-        if (! $this->setupEnvironment()) {
-            return self::FAILURE;
-        }
-
-        // Install dependencies
-        if (! $this->installDependencies()) {
-            return self::FAILURE;
-        }
-
-        // Database setup
-        if (! $this->setupDatabase()) {
-            return self::FAILURE;
-        }
-
-        // Asset compilation
-        if (! $this->buildAssets()) {
-            return self::FAILURE;
-        }
-
-        // Storage setup
-        if (! $this->setupStorage()) {
-            return self::FAILURE;
-        }
-
-        // Optional demo data
-        if (! $this->option('no-demo') && $this->confirm('Would you like to install demo data?', true)) {
-            $this->seedDemoData();
-        }
-
-        $this->displaySuccessMessage();
-
-        return self::SUCCESS;
+        return true;
     }
 
     private function isAlreadyInstalled(): bool
@@ -99,10 +74,108 @@ final class InstallCommand extends Command
                File::exists(public_path('storage'));
     }
 
+    /** @return array<string, mixed> */
+    private function gatherConfiguration(): array
+    {
+        $this->info('Let\'s configure your Relaticle installation...');
+
+        if ($this->option('quick')) {
+            return $this->getQuickConfiguration();
+        }
+
+        return $this->getInteractiveConfiguration();
+    }
+
+    /** @return array<string, mixed> */
+    private function getQuickConfiguration(): array
+    {
+        $this->info('⚡ Using quick setup with smart defaults...');
+
+        return [
+            'database' => 'sqlite',
+            'demo_data' => $this->option('dev'),
+            'install_demo' => $this->option('dev'),
+            'optimize' => ! $this->option('dev'),
+        ];
+    }
+
+    /** @return array<string, mixed> */
+    private function getInteractiveConfiguration(): array
+    {
+        $database = select(
+            label: 'Which database would you like to use?',
+            options: [
+                'sqlite' => 'SQLite (Recommended for development)',
+                'pgsql' => 'PostgreSQL (Recommended for production)',
+                'mysql' => 'MySQL/MariaDB',
+            ],
+            default: 'sqlite',
+            hint: 'SQLite requires no additional setup'
+        );
+
+        $features = multiselect(
+            label: 'Select additional features to install:',
+            options: [
+                'demo_data' => 'Demo data (Sample companies, contacts, etc.)',
+                'optimize' => 'Production optimizations (Caching, etc.)',
+                'admin_user' => 'Create admin user account',
+            ],
+            default: $this->option('dev') ? ['demo_data', 'admin_user'] : ['optimize'],
+            hint: 'You can change these later'
+        );
+
+        return [
+            'database' => $database,
+            'demo_data' => in_array('demo_data', $features),
+            'optimize' => in_array('optimize', $features),
+            'admin_user' => in_array('admin_user', $features),
+        ];
+    }
+
+    /** @param array<string, mixed> $config */
+    private function runInstallation(array $config): int
+    {
+        $this->installationSteps = [
+            'System Requirements' => fn (): bool => $this->checkSystemRequirements(),
+            'Environment Setup' => fn (): bool => $this->setupEnvironment($config),
+            'Dependencies' => fn (): bool => $this->installDependencies(),
+            'Database' => fn (): bool => $this->setupDatabase(),
+            'Assets' => fn (): bool => $this->buildAssets(),
+            'Storage' => fn (): bool => $this->setupStorage(),
+            'Demo Data' => fn (): bool => $config['demo_data'] ? $this->seedDemoData() : true,
+            'Optimization' => fn (): bool => $config['optimize'] ? $this->optimizeInstallation() : true,
+            'Admin User' => fn (): bool => $config['admin_user'] ?? false ? $this->createAdminUser() : true,
+        ];
+
+        $this->info('🚀 Starting installation process...');
+
+        foreach ($this->installationSteps as $stepName => $stepFunction) {
+            $success = spin(
+                callback: fn (): mixed => $stepFunction(),
+                message: "Installing {$stepName}..."
+            );
+
+            if (! $success) {
+                $this->newLine();
+                $this->error("❌ Installation failed during: {$stepName}");
+                $this->newLine();
+                $this->line('<comment>Check the error messages above for more details.</comment>');
+                $this->line('<comment>You can re-run the installer with --force to retry.</comment>');
+
+                return self::FAILURE;
+            }
+
+            $this->line("   ✅ {$stepName} completed");
+        }
+
+        $this->newLine();
+        $this->displaySuccessMessage($config);
+
+        return self::SUCCESS;
+    }
+
     private function checkSystemRequirements(): bool
     {
-        $this->info('🔍 Checking system requirements...');
-
         $requirements = [
             'PHP 8.3+' => version_compare(PHP_VERSION, '8.3.0', '>='),
             'Composer' => $this->commandExists('composer'),
@@ -110,27 +183,25 @@ final class InstallCommand extends Command
             'NPM' => $this->commandExists('npm'),
         ];
 
-        $requiredExtensions = [
+        $extensions = [
             'pdo_sqlite', 'gd', 'bcmath', 'ctype', 'fileinfo',
             'json', 'mbstring', 'openssl', 'tokenizer', 'xml',
         ];
 
-        foreach ($requiredExtensions as $extension) {
-            $requirements["PHP {$extension} extension"] = extension_loaded($extension);
+        foreach ($extensions as $extension) {
+            $requirements["PHP {$extension}"] = extension_loaded($extension);
         }
 
-        $allPassed = true;
-        foreach ($requirements as $requirement => $passed) {
-            if ($passed) {
-                $this->line("  ✅ {$requirement}");
-            } else {
-                $this->line("  ❌ {$requirement}");
-                $allPassed = false;
+        $failed = array_filter($requirements, fn (bool $passed): bool => ! $passed);
+
+        if ($failed !== []) {
+            $this->newLine();
+            $this->error('✗ Missing system requirements:');
+            foreach (array_keys($failed) as $requirement) {
+                $this->line("  • {$requirement}");
             }
-        }
-
-        if (! $allPassed) {
-            $this->error('Some system requirements are not met. Please install the missing components.');
+            $this->newLine();
+            $this->line('<comment>Please install the missing requirements and try again.</comment>');
 
             return false;
         }
@@ -140,197 +211,96 @@ final class InstallCommand extends Command
 
     private function commandExists(string $command): bool
     {
-        $result = Process::run("which {$command}");
-
-        return $result->successful();
+        return Process::run("which {$command} 2>/dev/null")->successful();
     }
 
-    private function setupEnvironment(): bool
+    /** @param array<string, mixed> $config */
+    private function setupEnvironment(array $config): bool
     {
-        $this->info('⚙️  Setting up environment...');
-
-        // Copy .env.example if .env doesn't exist
+        // Create .env file
         if (! File::exists(base_path('.env'))) {
             if (! File::exists(base_path('.env.example'))) {
-                $this->error('.env.example file not found!');
-
                 return false;
             }
-
             File::copy(base_path('.env.example'), base_path('.env'));
-            $this->line('  ✅ Created .env file from .env.example');
         }
 
-        // Generate application key if not set
+        // Generate app key
         if (! config('app.key')) {
             Artisan::call('key:generate', ['--force' => true]);
-            $this->line('  ✅ Generated application key');
         }
 
-        // Configure database if using quick setup
-        if ($this->option('quick')) {
-            $this->configureQuickDatabase();
-        } else {
-            $this->configureDatabaseInteractively();
-        }
-
-        return true;
+        // Configure database
+        return $this->configureDatabaseConnection($config['database']);
     }
 
-    private function configureQuickDatabase(): void
+    private function configureDatabaseConnection(string $type): bool
     {
-        $this->info('🗄️  Using quick SQLite setup...');
-
         $envContent = File::get(base_path('.env'));
 
-        // Ensure database directory exists
-        if (! File::exists(database_path())) {
-            File::makeDirectory(database_path(), 0755, true);
-        }
-
-        // Create SQLite database file if it doesn't exist
-        $dbPath = database_path('database.sqlite');
-        if (! File::exists($dbPath)) {
-            File::put($dbPath, '');
-        }
-
-        $dbConfig = [
-            'DB_CONNECTION=sqlite',
-            'DB_HOST=127.0.0.1',
-            'DB_PORT=5432',
-            "DB_DATABASE={$dbPath}",
-            'DB_USERNAME=root',
-            'DB_PASSWORD=',
-        ];
-
-        foreach ($dbConfig as $config) {
-            [$key, $value] = explode('=', $config, 2);
-            $envContent = preg_replace("/^{$key}=.*/m", $config, (string) $envContent);
-        }
-
-        File::put(base_path('.env'), $envContent);
-        $this->line('  ✅ SQLite database configuration updated');
-    }
-
-    private function configureDatabaseInteractively(): void
-    {
-        $this->info('🗄️  Database Configuration');
-        $this->line('Configure your database connection:');
-        $this->newLine();
-
-        $connection = $this->choice('Database type', ['sqlite', 'pgsql', 'mysql'], 'sqlite');
-
-        if ($connection === 'sqlite') {
-            // Ensure database directory exists
+        if ($type === 'sqlite') {
             if (! File::exists(database_path())) {
                 File::makeDirectory(database_path(), 0755, true);
             }
 
-            // Create SQLite database file if it doesn't exist
             $dbPath = database_path('database.sqlite');
             if (! File::exists($dbPath)) {
                 File::put($dbPath, '');
             }
 
-            $host = '127.0.0.1';
-            $port = '5432';
-            $database = $dbPath;
-            $username = 'root';
-            $password = '';
+            $config = [
+                'DB_CONNECTION=sqlite',
+                "DB_DATABASE={$dbPath}",
+                'DB_HOST=',
+                'DB_PORT=',
+                'DB_USERNAME=',
+                'DB_PASSWORD=',
+            ];
         } else {
-            $host = $this->ask('Database host', '127.0.0.1');
-            $port = $this->ask('Database port', $connection === 'pgsql' ? '5432' : '3306');
-            $database = $this->ask('Database name', 'relaticle');
-            $username = $this->ask('Database username', $connection === 'pgsql' ? 'postgres' : 'root');
-            $password = $this->secret('Database password (leave empty if none)');
+            // For non-SQLite, we'll use the existing .env values or prompt if needed
+            return true;
         }
 
-        // Update .env file
-        $envContent = File::get(base_path('.env'));
-
-        $dbConfig = [
-            "DB_CONNECTION={$connection}",
-            "DB_HOST={$host}",
-            "DB_PORT={$port}",
-            "DB_DATABASE={$database}",
-            "DB_USERNAME={$username}",
-            "DB_PASSWORD={$password}",
-        ];
-
-        foreach ($dbConfig as $config) {
-            [$key, $value] = explode('=', $config, 2);
-            $envContent = preg_replace("/^{$key}=.*/m", $config, (string) $envContent);
+        foreach ($config as $line) {
+            [$key, $value] = explode('=', $line, 2);
+            $envContent = preg_replace("/^{$key}=.*/m", $line, (string) $envContent);
         }
 
         File::put(base_path('.env'), $envContent);
 
-        // Test database connection
-        if (! $this->testDatabaseConnection()) {
-            $this->warn('Database connection test failed. Please check your configuration.');
-            if (! $this->confirm('Continue anyway?')) {
-                exit(1);
-            }
-        } else {
-            $this->line('  ✅ Database connection successful');
-        }
-    }
-
-    private function testDatabaseConnection(): bool
-    {
-        try {
-            // Reload config to pick up new database settings
-            config(['database.default' => config('database.default')]);
-            DB::purge();
-            DB::connection()->getPdo();
-
-            return true;
-        } catch (Throwable) {
-            return false;
-        }
+        return true;
     }
 
     private function installDependencies(): bool
     {
-        $this->info('📦 Installing dependencies...');
-
-        // Composer install
-        $this->line('  Installing PHP dependencies...');
-        $result = Process::run('composer install --no-interaction --prefer-dist --optimize-autoloader');
-
-        if (! $result->successful()) {
+        $composerResult = Process::run('composer install --no-interaction --prefer-dist --optimize-autoloader');
+        if (! $composerResult->successful()) {
             $this->error('Composer install failed:');
-            $this->line($result->errorOutput());
+            $this->line($composerResult->errorOutput());
 
             return false;
         }
 
-        // NPM install
-        $this->line('  Installing Node.js dependencies...');
-        $result = Process::run('npm ci');
-
-        if (! $result->successful()) {
+        $npmResult = Process::run('npm ci --silent');
+        if (! $npmResult->successful()) {
             $this->error('NPM install failed:');
-            $this->line($result->errorOutput());
+            $this->line($npmResult->errorOutput());
 
             return false;
         }
-
-        $this->line('  ✅ Dependencies installed successfully');
 
         return true;
     }
 
     private function setupDatabase(): bool
     {
-        $this->info('🗄️  Setting up database...');
-
         try {
             Artisan::call('migrate', ['--force' => true]);
-            $this->line('  ✅ Database migrations completed');
 
             return true;
         } catch (Throwable $e) {
-            $this->error('Database setup failed: '.$e->getMessage());
+            $this->error('Database migration failed:');
+            $this->line($e->getMessage());
 
             return false;
         }
@@ -338,8 +308,6 @@ final class InstallCommand extends Command
 
     private function buildAssets(): bool
     {
-        $this->info('🎨 Building frontend assets...');
-
         $result = Process::run('npm run build');
 
         if (! $result->successful()) {
@@ -349,48 +317,136 @@ final class InstallCommand extends Command
             return false;
         }
 
-        $this->line('  ✅ Assets compiled successfully');
-
         return true;
     }
 
     private function setupStorage(): bool
     {
-        $this->info('💾 Setting up storage...');
-
         try {
-            Artisan::call('storage:link');
-            $this->line('  ✅ Storage symlink created');
+            Artisan::call('storage:link', ['--force' => true]);
 
             return true;
         } catch (Throwable $e) {
-            $this->error('Storage setup failed: '.$e->getMessage());
+            $this->error('Storage link failed:');
+            $this->line($e->getMessage());
 
             return false;
         }
     }
 
-    private function seedDemoData(): void
+    private function seedDemoData(): bool
     {
-        $this->info('🌱 Seeding demo data...');
-
         try {
-            Artisan::call('db:seed');
-            $this->line('  ✅ Demo data seeded successfully');
+            Artisan::call('db:seed', ['--force' => true]);
+
+            return true;
         } catch (Throwable $e) {
-            $this->warn('Demo data seeding failed: '.$e->getMessage());
+            $this->error('Demo data seeding failed:');
+            $this->line($e->getMessage());
+
+            return false;
         }
     }
 
-    private function displaySuccessMessage(): void
+    private function optimizeInstallation(): bool
+    {
+        try {
+            // Clear any existing caches first
+            Artisan::call('optimize:clear');
+
+            // Only cache config and routes for production optimization
+            // Skip view:cache as it can fail with missing components during installation
+            Artisan::call('config:cache');
+            Artisan::call('route:cache');
+
+            // Only cache views if we're in production environment
+            if (app()->environment('production')) {
+                Artisan::call('view:cache');
+            }
+
+            return true;
+        } catch (Throwable $e) {
+            $this->error('Optimization failed:');
+            $this->line($e->getMessage());
+
+            return false;
+        }
+    }
+
+    private function createAdminUser(): bool
+    {
+        try {
+            $name = text(
+                label: 'Admin user name',
+                default: 'Admin User',
+                required: true
+            );
+
+            $email = text(
+                label: 'Admin email address',
+                default: 'admin@relaticle.local',
+                required: true,
+                validate: fn ($value): ?string => filter_var($value, FILTER_VALIDATE_EMAIL) ? null : 'Please enter a valid email address'
+            );
+
+            $password = text(
+                label: 'Admin password',
+                default: 'password',
+                required: true
+            );
+
+            Artisan::call('make:filament-user', [
+                '--name' => $name,
+                '--email' => $email,
+                '--password' => $password,
+            ]);
+
+            return true;
+        } catch (Throwable $e) {
+            $this->error('Admin user creation failed:');
+            $this->line($e->getMessage());
+
+            return false;
+        }
+    }
+
+    /** @param array<string, mixed> $config */
+    private function displaySuccessMessage(array $config): void
     {
         $this->newLine();
-        $this->info('🎉 Relaticle installation completed successfully!');
+
+        $this->info('🎉 Relaticle installed successfully!');
+
+        $this->newLine();
+        $this->line('  <options=bold>Start all development services:</>');
+        $this->line('  composer run dev');
         $this->newLine();
 
-        $this->line('Next steps:');
-        $this->line('  1. Start all development services: composer run dev');
-        $this->line('  2. Visit http://localhost:8000 to access Relaticle');
+        $this->line('  <options=bold>Your application:</>');
+        $this->line('  http://localhost:8000');
+
+        if ($config['admin_user'] ?? false) {
+            $this->line('  <options=bold>Admin panel:</>');
+            $this->line('  http://localhost:8000/admin');
+        }
+
+        if ($config['demo_data']) {
+            $this->newLine();
+            $this->line('  <options=bold>Demo data included:</>');
+            $this->line('  • Sample companies and contacts');
+            $this->line('  • Example opportunities and tasks');
+            $this->line('  • Pre-configured custom fields');
+        }
+
+        $this->newLine();
+        $this->line('  <options=bold>Development services:</>');
+        $this->line('  • Laravel development server');
+        $this->line('  • Vite asset watcher with HMR');
+        $this->line('  • Queue worker (Horizon)');
+        $this->line('  • Real-time logs (Pail)');
+
+        $this->newLine();
+        $this->line('  Documentation: https://relaticle.com/documentation');
         $this->newLine();
 
         $this->info('Happy CRM-ing! 🚀');
