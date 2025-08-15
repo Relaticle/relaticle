@@ -97,4 +97,4 @@ jobs:
           php artisan key:generate
 
       - name: Tests
-        run: vendor/bin/phpunit --configuration phpunit.ci.xml
+        run: composer test:ci
