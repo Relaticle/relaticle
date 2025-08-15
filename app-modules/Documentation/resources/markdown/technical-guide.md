@@ -72,7 +72,7 @@ To develop Relaticle locally, you'll need:
     - tokenizer
     - xml
 - **Database**: SQLite (included with PHP) or PostgreSQL 13+/MySQL 8.0+
-- **Node.js 16+** with npm
+- **Node.js 20+** with npm
 - **Composer 2+**
 
 ### Quick Installation (Recommended)
@@ -80,54 +80,17 @@ To develop Relaticle locally, you'll need:
 For a streamlined setup experience, use the single installation command:
 
 ```bash
-# Clone the repository
 git clone https://github.com/Relaticle/relaticle.git
-cd relaticle
-
-# Single command installation
-php artisan relaticle:install
+cd relaticle && composer app-install
 ```
 
-**Alternative ways to run the installer:**
+After installation, start all development services:
 
 ```bash
-# Using composer script
-composer app-install
-
-# Quick setup with default SQLite settings
-php artisan relaticle:install --quick
-
-# Skip demo data
-php artisan relaticle:install --no-demo
-
-# Force reinstallation
-php artisan relaticle:install --force
+composer run dev
 ```
 
-The installer will:
-- ✅ Check system requirements (PHP 8.3+, extensions, Node.js, npm)
-- ⚙️ Set up environment file (.env) and generate app key
-- 🗄️ Configure database connection (SQLite by default, or interactive mode)
-- 📦 Install PHP and Node.js dependencies
-- 🗄️ Run database migrations
-- 🎨 Compile frontend assets
-- 💾 Set up storage symlinks
-- 🌱 Optionally seed demo data
-
-After installation, start the development services:
-
-```bash
-# Terminal 1: Asset compilation with hot reload
-npm run dev
-
-# Terminal 2: Queue worker
-php artisan queue:work
-
-# Terminal 3: Development server
-php artisan serve
-```
-
-Visit `http://localhost:8000` in your browser to access the application.
+This will start the development server, queue worker, real-time logs, and asset watcher in parallel. Visit `http://localhost:8000` in your browser to access the application.
 
 ### Manual Installation Steps
 
@@ -192,20 +155,11 @@ npm run build
 
 7. **Start development services**
 
-In separate terminal windows, run:
-
 ```bash
-# Terminal 1: Asset compilation with hot reload
-npm run dev
-
-# Terminal 2: Queue worker
-php artisan queue:work
-
-# Terminal 3: Development server
-php artisan serve
+composer run dev
 ```
 
-Visit `http://localhost:8000` in your browser to access the application.
+This starts all development services (server, queue, logs, assets) in parallel. Visit `http://localhost:8000` in your browser to access the application.
 
 > **Note:** By default, emails are sent to the `log` driver. You can change this in the `.env` file to something like
 > `mailtrap` for development.
