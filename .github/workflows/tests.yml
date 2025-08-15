@@ -56,7 +56,7 @@ jobs:
           extensions: json, dom, curl, libxml, mbstring, zip
           tools: composer:v2
           coverage: xdebug
-          
+
       - name: Set up Node & NPM
         uses: actions/setup-node@v2
         with:
@@ -97,4 +97,4 @@ jobs:
           php artisan key:generate
 
       - name: Tests
-        run: composer test
+        run: composer test:ci

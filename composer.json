@@ -102,12 +102,20 @@
         "test:arch": "pest --filter=arch",
         "test:type-coverage": "pest --type-coverage --min=99.9",
         "test:unit": "pest --parallel",
+        "test:unit:ci": "pest --parallel --configuration phpunit.ci.xml",
         "test": [
             "@test:lint",
             "@test:refactor",
             "@test:type-coverage",
             "@test:types",
             "@test:unit"
+        ],
+        "test:ci": [
+            "@test:lint",
+            "@test:refactor",
+            "@test:type-coverage",
+            "@test:types",
+            "@test:unit:ci"
         ]
     },
     "extra": {
