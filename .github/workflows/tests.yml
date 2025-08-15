@@ -94,8 +94,7 @@ jobs:
       - name: Prepare Laravel
         run: |
           cp .env.ci .env
-          cp .env.ci .env.testing
           php artisan key:generate
 
       - name: Tests
-        run: composer test
+        run: vendor/bin/phpunit --configuration phpunit.ci.xml
