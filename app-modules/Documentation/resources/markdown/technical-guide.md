@@ -61,7 +61,7 @@ Relaticle's data structure revolves around these key models:
 To develop Relaticle locally, you'll need:
 
 - **PHP 8.3+** with the following extensions:
-    - pdo_pgsql (or pdo_mysql)
+    - pdo_sqlite (recommended for development) or pdo_pgsql/pdo_mysql
     - gd
     - bcmath
     - ctype
@@ -71,11 +71,30 @@ To develop Relaticle locally, you'll need:
     - openssl
     - tokenizer
     - xml
-- **PostgreSQL 13+** (recommended) or MySQL 8.0+
-- **Node.js 16+** with npm
+- **Database**: SQLite (included with PHP) or PostgreSQL 13+/MySQL 8.0+
+- **Node.js 20+** with npm
 - **Composer 2+**
 
-### Installation Steps
+### Quick Installation (Recommended)
+
+For a streamlined setup experience, use the single installation command:
+
+```bash
+git clone https://github.com/Relaticle/relaticle.git
+cd relaticle && composer app-install
+```
+
+After installation, start all development services:
+
+```bash
+composer run dev
+```
+
+This will start the development server, queue worker, real-time logs, and asset watcher in parallel. Visit `http://localhost:8000` in your browser to access the application.
+
+### Manual Installation Steps
+
+If you prefer manual installation or need more control, follow these detailed steps:
 
 1. **Clone the repository**
 
@@ -98,7 +117,14 @@ cp .env.example .env
 php artisan key:generate
 ```
 
-Open the `.env` file and configure your database connection:
+Open the `.env` file and configure your database connection. For SQLite (recommended for development):
+
+```
+DB_CONNECTION=sqlite
+DB_DATABASE=/absolute/path/to/database/database.sqlite
+```
+
+Or for PostgreSQL:
 
 ```
 DB_CONNECTION=pgsql
@@ -121,22 +147,19 @@ php artisan migrate
 php artisan storage:link
 ```
 
-6. **Start development services**
-
-In separate terminal windows, run:
+6. **Build assets**
 
 ```bash
-# Terminal 1: Asset compilation with hot reload
-npm run dev
-
-# Terminal 2: Queue worker
-php artisan queue:work
-
-# Terminal 3: Development server
-php artisan serve
+npm run build
 ```
 
-Visit `http://localhost:8000` in your browser to access the application.
+7. **Start development services**
+
+```bash
+composer run dev
+```
+
+This starts all development services (server, queue, logs, assets) in parallel. Visit `http://localhost:8000` in your browser to access the application.
 
 > **Note:** By default, emails are sent to the `log` driver. You can change this in the `.env` file to something like
 > `mailtrap` for development.
