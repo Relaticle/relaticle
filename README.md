@@ -47,14 +47,6 @@ git clone https://github.com/Relaticle/relaticle.git
 cd relaticle && composer app-install
 ```
 
-After installation, start all development services:
-
-```bash
-composer run dev
-```
-
-This will start the development server, queue worker, real-time logs, and asset watcher in parallel. Visit `http://localhost:8000` in your browser to access the application.
-
 # Documentation
 
 For comprehensive documentation, please refer to our official website:
