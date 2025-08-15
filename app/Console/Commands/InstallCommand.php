@@ -1,8 +1,5 @@
 <?php
 
-// ABOUTME: Interactive installation command that sets up Relaticle with a single command
-// ABOUTME: Handles environment configuration, dependencies, database setup, and asset compilation
-
 declare(strict_types=1);
 
 namespace App\Console\Commands;
@@ -222,7 +219,7 @@ final class InstallCommand extends Command
         $this->newLine();
 
         $connection = $this->choice('Database type', ['sqlite', 'pgsql', 'mysql'], 'sqlite');
-        
+
         if ($connection === 'sqlite') {
             // Ensure database directory exists
             if (! File::exists(database_path())) {
@@ -392,10 +389,8 @@ final class InstallCommand extends Command
         $this->newLine();
 
         $this->line('Next steps:');
-        $this->line('  1. Start the development server: php artisan serve');
-        $this->line('  2. Start the asset watcher: npm run dev');
-        $this->line('  3. Start the queue worker: php artisan queue:work');
-        $this->line('  4. Visit http://localhost:8000 to access Relaticle');
+        $this->line('  1. Start all development services: composer run dev');
+        $this->line('  2. Visit http://localhost:8000 to access Relaticle');
         $this->newLine();
 
         $this->info('Happy CRM-ing! 🚀');
