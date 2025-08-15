@@ -205,7 +205,7 @@ final class InstallCommand extends Command
 
         foreach ($dbConfig as $config) {
             [$key, $value] = explode('=', $config, 2);
-            $envContent = preg_replace("/^{$key}=.*/m", $config, $envContent);
+            $envContent = preg_replace("/^{$key}=.*/m", $config, (string) $envContent);
         }
 
         File::put(base_path('.env'), $envContent);
@@ -259,7 +259,7 @@ final class InstallCommand extends Command
 
         foreach ($dbConfig as $config) {
             [$key, $value] = explode('=', $config, 2);
-            $envContent = preg_replace("/^{$key}=.*/m", $config, $envContent);
+            $envContent = preg_replace("/^{$key}=.*/m", $config, (string) $envContent);
         }
 
         File::put(base_path('.env'), $envContent);
