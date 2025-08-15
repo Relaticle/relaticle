@@ -40,9 +40,10 @@
     "require-dev": {
         "cweagans/composer-patches": "*",
         "fakerphp/faker": "^1.23",
-        "laravel/pail": "^1.2.2",
         "itsgoingd/clockwork": "^5.3",
         "larastan/larastan": "^3.0",
+        "laravel/boost": "^1.0",
+        "laravel/pail": "^1.2.2",
         "laravel/pint": "^1.21",
         "laravel/sail": "^1.26",
         "mockery/mockery": "^1.6",
