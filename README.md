@@ -26,7 +26,7 @@
 
 ---
 
-## Introduction
+# About the Project
 
 Relaticle is a powerful, adaptable CRM platform built with modern technologies to help businesses effectively manage client relationships, streamline sales processes, and enhance team collaboration. Unlike traditional CRM solutions, Relaticle adapts to your team's workflows through customizable data models and workspace segmentation.
 
@@ -39,7 +39,24 @@ Relaticle is a powerful, adaptable CRM platform built with modern technologies t
 
 Visit our [website](https://relaticle.com) to learn more about Relaticle's capabilities.
 
-## Documentation
+# Installation
+
+For a streamlined setup experience, use the single installation command:
+
+```bash
+git clone https://github.com/Relaticle/relaticle.git
+cd relaticle && composer app-install
+```
+
+After installation, start all development services:
+
+```bash
+composer run dev
+```
+
+This will start the development server, queue worker, real-time logs, and asset watcher in parallel. Visit `http://localhost:8000` in your browser to access the application.
+
+# Documentation
 
 For comprehensive documentation, please refer to our official website:
 
@@ -48,11 +65,11 @@ For comprehensive documentation, please refer to our official website:
 - [Quick Start Guide](https://relaticle.com/documentation/quickstart) - Step-by-step getting started guide
 - [API Documentation](https://relaticle.com/documentation/api) - Integration with the Relaticle API
 
-## License
+# License
 
 Relaticle is open-source software licensed under the [AGPL-3.0 license](LICENSE).
 
 
-## Star History
+# Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=Relaticle/relaticle&type=Date)](https://www.star-history.com/#Relaticle/relaticle&Date)
