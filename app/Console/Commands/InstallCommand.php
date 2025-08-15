@@ -151,7 +151,7 @@ final class InstallCommand extends Command
 
         foreach ($this->installationSteps as $stepName => $stepFunction) {
             $success = spin(
-                callback: $stepFunction,
+                callback: fn (): mixed => $stepFunction(),
                 message: "Installing {$stepName}..."
             );
 
