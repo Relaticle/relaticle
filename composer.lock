@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8a465feeef904295ecd7865bff1337ac",
+    "content-hash": "ecd25f181febba2bcd48033e0cd96ae4",
     "packages": [
         {
             "name": "amphp/amp",
@@ -7668,7 +7668,7 @@
             "dist": {
                 "type": "path",
                 "url": "../custom-fields",
-                "reference": "96d7ad81aaf7c79bf99eb650afe62aa064f9dadb"
+                "reference": "846a0947e5f5995f7b7ca9547d335d2587b222e9"
             },
             "require": {
                 "filament/filament": "^4.0",
@@ -7798,17 +7798,11 @@
         },
         {
             "name": "relaticle/flowforge",
-            "version": "1.0.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Relaticle/flowforge.git",
-                "reference": "5085116d58c5f4b9e1c1643121db2043479646d0"
-            },
+            "version": "dev-next",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Relaticle/flowforge/zipball/5085116d58c5f4b9e1c1643121db2043479646d0",
-                "reference": "5085116d58c5f4b9e1c1643121db2043479646d0",
-                "shasum": ""
+                "type": "path",
+                "url": "../flowforge",
+                "reference": "85f00c41c2970f185e43d12c962b5a06c0c43209"
             },
             "require": {
                 "filament/filament": "^4.0",
@@ -7832,12 +7826,12 @@
             "type": "library",
             "extra": {
                 "laravel": {
-                    "aliases": {
-                        "Flowforge": "Relaticle\\Flowforge\\Facades\\Flowforge"
-                    },
                     "providers": [
                         "Relaticle\\Flowforge\\FlowforgeServiceProvider"
-                    ]
+                    ],
+                    "aliases": {
+                        "Flowforge": "Relaticle\\Flowforge\\Facades\\Flowforge"
+                    }
                 }
             },
             "autoload": {
@@ -7846,7 +7840,28 @@
                     "Relaticle\\Flowforge\\Database\\Factories\\": "database/factories/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "autoload-dev": {
+                "psr-4": {
+                    "Relaticle\\Flowforge\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "post-autoload-dump": [
+                    "@php ./vendor/bin/testbench package:discover --ansi"
+                ],
+                "analyse": [
+                    "vendor/bin/phpstan analyse"
+                ],
+                "test": [
+                    "vendor/bin/pest"
+                ],
+                "test-coverage": [
+                    "vendor/bin/pest --coverage"
+                ],
+                "format": [
+                    "vendor/bin/pint"
+                ]
+            },
             "license": [
                 "MIT"
             ],
@@ -7868,13 +7883,9 @@
                 "issues": "https://github.com/relaticle/flowforge/issues",
                 "source": "https://github.com/relaticle/flowforge"
             },
-            "funding": [
-                {
-                    "url": "https://github.com/Relaticle",
-                    "type": "github"
-                }
-            ],
-            "time": "2025-06-18T16:37:29+00:00"
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "revolt/event-loop",
@@ -13740,16 +13751,16 @@
         },
         {
             "name": "laravel/boost",
-            "version": "v1.0.17",
+            "version": "v1.0.18",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/boost.git",
-                "reference": "3d1121561f793d027b76cb02b4ef9e654f8870fb"
+                "reference": "df2a62b5864759ea8cce8a4b7575b657e9c7d4ab"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/boost/zipball/3d1121561f793d027b76cb02b4ef9e654f8870fb",
-                "reference": "3d1121561f793d027b76cb02b4ef9e654f8870fb",
+                "url": "https://api.github.com/repos/laravel/boost/zipball/df2a62b5864759ea8cce8a4b7575b657e9c7d4ab",
+                "reference": "df2a62b5864759ea8cce8a4b7575b657e9c7d4ab",
                 "shasum": ""
             },
             "require": {
@@ -13801,20 +13812,20 @@
                 "issues": "https://github.com/laravel/boost/issues",
                 "source": "https://github.com/laravel/boost"
             },
-            "time": "2025-08-14T17:31:57+00:00"
+            "time": "2025-08-16T09:10:03+00:00"
         },
         {
             "name": "laravel/mcp",
-            "version": "v0.1.0",
+            "version": "v0.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/mcp.git",
-                "reference": "417890c0d8032af9a46a86d16651bbe13946cddf"
+                "reference": "6d6284a491f07c74d34f48dfd999ed52c567c713"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/mcp/zipball/417890c0d8032af9a46a86d16651bbe13946cddf",
-                "reference": "417890c0d8032af9a46a86d16651bbe13946cddf",
+                "url": "https://api.github.com/repos/laravel/mcp/zipball/6d6284a491f07c74d34f48dfd999ed52c567c713",
+                "reference": "6d6284a491f07c74d34f48dfd999ed52c567c713",
                 "shasum": ""
             },
             "require": {
@@ -13865,7 +13876,7 @@
                 "issues": "https://github.com/laravel/mcp/issues",
                 "source": "https://github.com/laravel/mcp"
             },
-            "time": "2025-08-12T07:09:39+00:00"
+            "time": "2025-08-16T09:50:43+00:00"
         },
         {
             "name": "laravel/pail",
@@ -16913,7 +16924,7 @@
     "stability-flags": {
         "awcodes/overlook": 10,
         "relaticle/custom-fields": 20,
-        "relaticle/flowforge": 10
+        "relaticle/flowforge": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
