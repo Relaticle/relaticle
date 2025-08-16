@@ -140,6 +140,10 @@
         {
             "type": "path",
             "url": "../custom-fields"
+        },
+        {
+            "type": "path",
+            "url": "../flowforge"
         }
     ]
 }
