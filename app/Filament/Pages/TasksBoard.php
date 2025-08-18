@@ -5,23 +5,26 @@ declare(strict_types=1);
 namespace App\Filament\Pages;
 
 use App\Enums\CustomFields\Task as TaskCustomField;
-use App\Filament\Adapters\TasksKanbanAdapter;
 use App\Filament\Resources\TaskResource\Forms\TaskForm;
 use App\Models\Task;
 use App\Models\Team;
 use BackedEnum;
-use Filament\Actions\Action;
+use Filament\Actions\CreateAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\DeleteAction;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldOption;
-use Relaticle\Flowforge\Contracts\KanbanAdapterInterface;
-use Relaticle\Flowforge\Filament\Pages\KanbanBoardPage;
+use Relaticle\Flowforge\BoardPage;
+use Relaticle\Flowforge\Board;
+use Relaticle\Flowforge\Column;
+use Relaticle\Flowforge\Property;
 use UnitEnum;
 
-final class TasksBoard extends KanbanBoardPage
+final class TasksBoard extends BoardPage
 {
     protected static ?string $navigationLabel = 'Board';
 
@@ -34,51 +37,83 @@ final class TasksBoard extends KanbanBoardPage
     protected static string|null|BackedEnum $navigationIcon = 'heroicon-o-document-text';
 
     /**
-     * The configuration for the Kanban board.
+     * Get the Eloquent query for the board.
      *
      * @return Builder<Task>
      */
-    public function getSubject(): Builder
+    public function getEloquentQuery(): Builder
     {
         return Task::query();
     }
 
-    public function mount(): void
+    /**
+     * Configure the board using the new Filament V4 architecture.
+     */
+    public function board(Board $board): Board
     {
-        $this->titleField('title')
-            ->columnField('status')
-            ->descriptionField('description')
-            ->orderField('order_column')
-            ->columns($this->statuses()->pluck('name', 'id')->toArray())
-            ->columnColors()
-            ->cardLabel('Task');
+        return $board
+            ->query($this->getEloquentQuery())
+            ->cardTitle('title')
+            ->columnIdentifier('status') // This will need to be mapped to custom field
+            ->description('description')
+            ->defaultSort('order_column')
+            ->columns($this->getColumns())
+            ->cardProperties($this->getCardProperties())
+            ->columnActions([
+                CreateAction::make()
+                    ->slideOver(false)
+                    ->modalWidth('2xl')
+                    ->iconButton()
+                    ->icon('heroicon-o-plus')
+                    ->model(Task::class)
+                    ->schema(fn (Schema $schema): Schema => TaskForm::get($schema))
+                    ->action(function (CreateAction $action, array $arguments): void {
+                        /** @var Team $currentTeam */
+                        $currentTeam = Auth::user()->currentTeam;
+                        /** @var Task $task */
+                        $task = $currentTeam->tasks()->create($action->getFormData());
+                        $task->saveCustomFieldValue($this->statusCustomField(), $arguments['column']);
+                    }),
+            ])
+            ->cardActions([
+                // Temporarily disabled to focus on column actions first
+                // EditAction::make()
+                //     ->model(Task::class)
+                //     ->schema(fn (Schema $schema): Schema => TaskForm::get($schema)),
+                // DeleteAction::make()
+                //     ->model(Task::class),
+            ]);
     }
 
-    public function createAction(Action $action): Action
+    /**
+     * Get columns for the board.
+     *
+     * @return array<Column>
+     */
+    private function getColumns(): array
     {
-        return $action
-            ->slideOver(false)
-            ->modalWidth('2xl')
-            ->iconButton()
-            ->icon('heroicon-o-plus')
-            ->schema(fn (Schema $schema): Schema => TaskForm::get($schema))
-            ->action(function (Action $action, array $arguments): void {
-                /** @var Team $currentTeam */
-                $currentTeam = Auth::user()->currentTeam;
-                /** @var Task $task */
-                $task = $currentTeam->tasks()->create($action->getFormData());
-                $task->saveCustomFieldValue($this->statusCustomField(), $arguments['column']);
-            });
+        $columns = [];
+        foreach ($this->statuses() as $status) {
+            $columns[] = Column::make((string) $status['id'])
+                ->label($status['name']);
+        }
+        return $columns;
     }
 
-    public function editAction(Action $action): Action
+    /**
+     * Get card properties for the board.
+     *
+     * @return array<Property>
+     */
+    private function getCardProperties(): array
     {
-        return $action->schema(fn (Schema $schema): Schema => TaskForm::get($schema));
-    }
-
-    public function getAdapter(): KanbanAdapterInterface
-    {
-        return new TasksKanbanAdapter(Task::query(), $this->config);
+        return [
+            Property::make('title')
+                ->label('Task Title'),
+            Property::make('description')
+                ->label('Description'),
+            // Add more properties as needed
+        ];
     }
 
     private function statusCustomField(): ?CustomField
