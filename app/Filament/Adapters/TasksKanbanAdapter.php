@@ -18,38 +18,59 @@ final class TasksKanbanAdapter extends DefaultKanbanAdapter
     public function getItemsForColumn(string|int $columnId, int $limit = 50): Collection
     {
         $orderField = $this->config->getOrderField();
+        $statusField = $this->statusCustomField();
+
+        // If no status field exists, return empty collection
+        if (!$statusField) {
+            return collect();
+        }
 
         $query = $this->newQuery()
-            ->whereHas('customFieldValues', function (Builder $builder) use ($columnId): void {
-                $builder->where('custom_field_values.custom_field_id', $this->statusCustomField()->id)
-                    ->where('custom_field_values.'.$this->statusCustomField()->getValueColumn(), $columnId);
+            ->whereHas('customFieldValues', function (Builder $builder) use ($columnId, $statusField): void {
+                $builder->where('custom_field_values.custom_field_id', $statusField->id)
+                    ->where('custom_field_values.integer_value', $columnId);
             });
 
         if ($orderField !== null) {
             $query->orderBy($orderField);
         }
 
-        $models = $query->limit(50)->get();
+        $models = $query->limit($limit)->get();
 
         return $this->formatCardsForDisplay($models);
     }
 
     public function getColumnItemsCount(string|int $columnId): int
     {
+        $statusField = $this->statusCustomField();
+
+        // If no status field exists, return 0
+        if (!$statusField) {
+            return 0;
+        }
+
         return $this->newQuery()
-            ->whereHas('customFieldValues', function (Builder $builder) use ($columnId): void {
-                $builder->where('custom_field_values.custom_field_id', $this->statusCustomField()->id)
-                    ->where('custom_field_values.'.$this->statusCustomField()->getValueColumn(), $columnId);
+            ->whereHas('customFieldValues', function (Builder $builder) use ($columnId, $statusField): void {
+                $builder->where('custom_field_values.custom_field_id', $statusField->id)
+                    ->where('custom_field_values.integer_value', $columnId);
             })
             ->count();
     }
 
     public function updateRecordsOrderAndColumn(string|int $columnId, array $recordIds): bool
     {
+        $statusField = $this->statusCustomField();
+
+        // If no status field exists, just update order
+        if (!$statusField) {
+            Task::setNewOrder($recordIds);
+            return true;
+        }
+
         Task::query()
             ->whereIn('id', $recordIds)
-            ->each(function (Task $model) use ($columnId): void {
-                $model->saveCustomFieldValue($this->statusCustomField(), $columnId);
+            ->each(function (Task $model) use ($columnId, $statusField): void {
+                $model->saveCustomFieldValue($statusField, $columnId);
             });
 
         Task::setNewOrder($recordIds);
@@ -57,12 +78,12 @@ final class TasksKanbanAdapter extends DefaultKanbanAdapter
         return true;
     }
 
-    private function statusCustomField(): CustomField
+    private function statusCustomField(): ?CustomField
     {
-        /** @var CustomField */
+        /** @var CustomField|null */
         return CustomField::query()
-            ->forEntity(Task::class)
+            ->where('entity_type', 'task')
             ->where('code', 'status')
-            ->firstOrFail();
+            ->first();
     }
 }

@@ -5,13 +5,12 @@ declare(strict_types=1);
 namespace App\Filament\Pages;
 
 use App\Enums\CustomFields\Task as TaskCustomField;
+use App\Filament\Adapters\TasksKanbanAdapter;
 use App\Filament\Resources\TaskResource\Forms\TaskForm;
 use App\Models\Task;
 use App\Models\Team;
 use BackedEnum;
 use Filament\Actions\CreateAction;
-use Filament\Actions\EditAction;
-use Filament\Actions\DeleteAction;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
@@ -21,6 +20,7 @@ use Relaticle\CustomFields\Models\CustomFieldOption;
 use Relaticle\Flowforge\BoardPage;
 use Relaticle\Flowforge\Board;
 use Relaticle\Flowforge\Column;
+use Relaticle\Flowforge\Contracts\KanbanAdapterInterface;
 use Relaticle\Flowforge\Property;
 use UnitEnum;
 
@@ -54,7 +54,6 @@ final class TasksBoard extends BoardPage
         return $board
             ->query($this->getEloquentQuery())
             ->cardTitle('title')
-            ->columnIdentifier('status') // This will need to be mapped to custom field
             ->description('description')
             ->defaultSort('order_column')
             ->columns($this->getColumns())
@@ -140,5 +139,16 @@ final class TasksBoard extends BoardPage
     public static function canAccess(): bool
     {
         return (new self)->statusCustomField() instanceof CustomField;
+    }
+
+    /**
+     * Override the adapter creation to use our custom TasksKanbanAdapter.
+     */
+    protected function createAdapter(): KanbanAdapterInterface
+    {
+        $query = $this->getTableQuery();
+        $config = $this->createKanbanConfig();
+
+        return new TasksKanbanAdapter($query, $config);
     }
 }
