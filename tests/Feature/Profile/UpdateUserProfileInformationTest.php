@@ -3,11 +3,13 @@
 declare(strict_types=1);
 
 use App\Actions\Fortify\UpdateUserProfileInformation;
+use App\Livewire\App\Profile\UpdateProfileInformation as UpdateProfileInformationComponent;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
+use Livewire\Livewire;
 
 beforeEach(function () {
     $this->action = new UpdateUserProfileInformation;
@@ -16,6 +18,42 @@ beforeEach(function () {
         'email' => 'john@example.com',
         'email_verified_at' => now(),
     ]);
+});
+
+describe('profile component functionality', function () {
+    test('profile information component renders correctly', function () {
+        $user = User::factory()->withPersonalTeam()->create([
+            'name' => 'Test User',
+            'email' => 'test@example.com',
+        ]);
+        $this->actingAs($user);
+
+        Livewire::test(UpdateProfileInformationComponent::class)
+            ->assertSuccessful()
+            ->assertSee('Profile Information')
+            ->assertFormSet([
+                'name' => 'Test User',
+                'email' => 'test@example.com',
+            ]);
+    });
+
+    test('can update profile through livewire component', function () {
+        $user = User::factory()->withPersonalTeam()->create();
+        $this->actingAs($user);
+
+        Livewire::test(UpdateProfileInformationComponent::class)
+            ->fillForm([
+                'name' => 'Updated Name',
+                'email' => 'updated@example.com',
+            ])
+            ->call('updateProfile')
+            ->assertHasNoFormErrors()
+            ->assertNotified();
+
+        expect($user->fresh())
+            ->name->toBe('Updated Name')
+            ->email->toBe('updated@example.com');
+    });
 });
 
 describe('basic profile updates', function () {
@@ -96,15 +134,18 @@ describe('photo upload', function () {
 
     test('can upload valid photo', function ($format) {
         $photo = UploadedFile::fake()->image("avatar.{$format}", 300, 300);
+        
+        // Store the file first (simulating what Filament does)
+        $photoPath = $photo->storePublicly('profile-photos', ['disk' => 'public']);
 
         $this->action->update($this->user, [
             'name' => $this->user->name,
             'email' => $this->user->email,
-            'photo' => $photo,
+            'profile_photo_path' => $photoPath,
         ]);
 
         $user = $this->user->fresh();
-        expect($user->profile_photo_path)->not->toBeNull()
+        expect($user->profile_photo_path)->toBe($photoPath)
             ->and(Storage::disk('public')->exists($user->profile_photo_path))->toBeTrue();
     })->with(['jpg', 'jpeg', 'png']);
 
@@ -125,6 +166,52 @@ describe('photo upload', function () {
             ->profile_photo_path->not->toBeNull();
 
         Notification::assertSentTo($this->user, \Illuminate\Auth\Notifications\VerifyEmail::class);
+    });
+
+    test('can delete profile photo', function () {
+        Storage::fake('public');
+
+        // First set a photo
+        $photo = UploadedFile::fake()->image('avatar.png', 300, 300);
+        $this->action->update($this->user, [
+            'name' => $this->user->name,
+            'email' => $this->user->email,
+            'photo' => $photo,
+        ]);
+
+        expect($this->user->fresh()->profile_photo_path)->not->toBeNull();
+
+        // Then delete it
+        $this->action->update($this->user, [
+            'name' => $this->user->name,
+            'email' => $this->user->email,
+            'photo' => null,
+        ]);
+
+        expect($this->user->fresh()->profile_photo_path)->toBeNull();
+    });
+
+    test('can update profile through livewire component with photo', function () {
+        Storage::fake('public');
+        $user = User::factory()->withPersonalTeam()->create();
+        $this->actingAs($user);
+
+        $photo = UploadedFile::fake()->image('avatar.jpg', 200, 200);
+
+        Livewire::test(UpdateProfileInformationComponent::class)
+            ->fillForm([
+                'name' => 'Updated Name',
+                'email' => 'updated@example.com',
+                'profile_photo_path' => $photo,
+            ])
+            ->call('updateProfile')
+            ->assertHasNoFormErrors()
+            ->assertNotified();
+
+        expect($user->fresh())
+            ->name->toBe('Updated Name')
+            ->email->toBe('updated@example.com')
+            ->profile_photo_path->not->toBeNull();
     });
 });
 

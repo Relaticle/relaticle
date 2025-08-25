@@ -49,7 +49,7 @@ final class OpportunitiesBoard extends BoardPage
         return $board
             ->query(
                 Opportunity::query()
-                    ->leftJoin('custom_field_values as cfv', function ($join) {
+                    ->leftJoin('custom_field_values as cfv', function ($join): void {
                         $join->on('opportunities.id', '=', 'cfv.entity_id')
                             ->where('cfv.custom_field_id', '=', $this->stageCustomField()->getKey());
                     })
@@ -61,24 +61,22 @@ final class OpportunitiesBoard extends BoardPage
             ->positionIdentifier('order_column')
             ->searchable(['name'])
             ->columns($this->getColumns())
-            ->cardSchema(function (Schema $schema) {
-                return $schema->components([
-                    CustomFields::infolist()
-                        ->forSchema($schema)
-                        ->only(['description'])
-                        ->hiddenLabels()
-                        ->visibleWhenFilled()
-                        ->withoutSections()
-                        ->values()
-                        ->first()
-                        ?->columnSpanFull()
-                        ->visible(fn ($state) => filled($state))
-                        ->formatStateUsing(fn (string $state): string => str($state)->stripTags()->limit()->toString()),
-                    CardFlex::make([
+            ->cardSchema(fn(Schema $schema): \Filament\Schemas\Schema => $schema->components([
+                CustomFields::infolist()
+                    ->forSchema($schema)
+                    ->only(['description'])
+                    ->hiddenLabels()
+                    ->visibleWhenFilled()
+                    ->withoutSections()
+                    ->values()
+                    ->first()
+                    ?->columnSpanFull()
+                    ->visible(fn ($state) => filled($state))
+                    ->formatStateUsing(fn (string $state): string => str($state)->stripTags()->limit()->toString()),
+                CardFlex::make([
 
-                    ]),
-                ]);
-            })
+                ]),
+            ]))
             ->columnActions([
                 CreateAction::make()
                     ->label('Add Opportunity')
@@ -87,7 +85,7 @@ final class OpportunitiesBoard extends BoardPage
                     ->modalWidth(Width::Large)
                     ->slideOver(false)
                     ->model(Opportunity::class)
-                    ->schema(fn (Schema $schema) => OpportunityForm::get($schema))
+                    ->schema(fn (Schema $schema): \Filament\Schemas\Schema => OpportunityForm::get($schema))
                     ->using(function (array $data, array $arguments): Opportunity {
                         /** @var Team $currentTeam */
                         $currentTeam = Auth::user()->currentTeam;
@@ -108,7 +106,7 @@ final class OpportunitiesBoard extends BoardPage
                     ->slideOver()
                     ->modalWidth(Width::ExtraLarge)
                     ->icon('heroicon-o-pencil-square')
-                    ->schema(fn (Schema $schema) => OpportunityForm::get($schema))
+                    ->schema(fn (Schema $schema): \Filament\Schemas\Schema => OpportunityForm::get($schema))
                     ->fillForm(fn (Opportunity $record): array => [
                         'name' => $record->name,
                         'company_id' => $record->company_id,
@@ -153,7 +151,7 @@ final class OpportunitiesBoard extends BoardPage
         $board = $this->getBoard();
         $query = $board->getQuery();
 
-        if (! $query) {
+        if (!$query instanceof \Illuminate\Database\Eloquent\Builder) {
             throw new InvalidArgumentException('Board query not available');
         }
 
@@ -166,7 +164,7 @@ final class OpportunitiesBoard extends BoardPage
         $newPosition = $this->calculatePositionBetweenCards($afterCardId, $beforeCardId, $targetColumnId);
 
         // Use transaction for data consistency
-        DB::transaction(function () use ($card, $board, $targetColumnId, $newPosition) {
+        DB::transaction(function () use ($card, $board, $targetColumnId, $newPosition): void {
             $columnIdentifier = $board->getColumnIdentifierAttribute();
             $columnValue = $this->resolveStatusValue($card, $columnIdentifier, $targetColumnId);
             $positionIdentifier = $board->getPositionIdentifierAttribute();
@@ -194,7 +192,7 @@ final class OpportunitiesBoard extends BoardPage
      */
     private function getColumns(): array
     {
-        return $this->stages()->map(fn (array $stage) => Column::make((string) $stage['id'])
+        return $this->stages()->map(fn (array $stage): \Relaticle\Flowforge\Column => Column::make((string) $stage['id'])
             ->color($stage['color'])
             ->label($stage['name'])
         )->toArray();
@@ -215,7 +213,7 @@ final class OpportunitiesBoard extends BoardPage
     private function stages(): Collection
     {
         $field = $this->stageCustomField();
-        if (! $field) {
+        if (!$field instanceof \Relaticle\CustomFields\Models\CustomField) {
             return collect();
         }
 
