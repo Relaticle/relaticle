@@ -12,7 +12,7 @@ use Relaticle\CustomFields\Facades\CustomFields;
 final class TaskForm
 {
     /**
-     * @param  array<string>  $excludeFields
+     * @param array<string> $excludeFields
      *
      * @throws \Exception
      */
@@ -24,7 +24,7 @@ final class TaskForm
                 ->columnSpanFull(),
         ];
 
-        if (! in_array('companies', $excludeFields)) {
+        if (!in_array('companies', $excludeFields)) {
             $components[] = Select::make('companies')
                 ->label('Companies')
                 ->multiple()
@@ -32,7 +32,7 @@ final class TaskForm
                 ->columnSpanFull();
         }
 
-        if (! in_array('people', $excludeFields)) {
+        if (!in_array('people', $excludeFields)) {
             $components[] = Select::make('people')
                 ->label('People')
                 ->multiple()

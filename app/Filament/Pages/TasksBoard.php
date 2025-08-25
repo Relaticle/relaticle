@@ -17,6 +17,8 @@ use Filament\Support\Enums\Width;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use League\CommonMark\Exception\InvalidArgumentException;
 use Relaticle\CustomFields\Facades\CustomFields;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldOption;
@@ -24,6 +26,7 @@ use Relaticle\Flowforge\Board;
 use Relaticle\Flowforge\BoardPage;
 use Relaticle\Flowforge\Column;
 use Relaticle\Flowforge\Components\CardFlex;
+use Throwable;
 use UnitEnum;
 
 final class TasksBoard extends BoardPage
@@ -46,23 +49,32 @@ final class TasksBoard extends BoardPage
         return $board
             ->query(
                 Task::query()
-                    ->join('custom_field_values as cfv', function ($join) {
+                    ->leftJoin('custom_field_values as cfv', function ($join) {
                         $join->on('tasks.id', '=', 'cfv.entity_id')
                             ->where('cfv.custom_field_id', '=', $this->statusCustomField()->getKey());
                     })
+                    ->select('tasks.*', 'cfv.integer_value')
             )
             ->recordTitleAttribute('title')
             ->columnIdentifier('cfv.integer_value')
             ->positionIdentifier('order_column')
+            ->searchable(['title'])
             ->columns($this->getColumns())
             ->cardSchema(function (Schema $schema) {
                 return $schema->components([
+                    CustomFields::infolist()
+                        ->forSchema($schema)
+                        ->only(['description'])
+                        ->hiddenLabels()
+                        ->visibleWhenFilled()
+                        ->withoutSections()
+                        ->values()
+                        ->first()
+                        ->columnSpanFull()
+                        ->visible(fn ($state) => filled($state))
+                        ->formatStateUsing(fn (string $state): string => str($state)->stripTags()->limit()->toString()),
                     CardFlex::make([
-                        CustomFields::infolist()
-                            ->forSchema($schema)
-                            ->except(['status'])
-                            ->build()
-                            ->columnSpanFull(),
+
                     ]),
                 ]);
             })
@@ -84,6 +96,7 @@ final class TasksBoard extends BoardPage
 
                         $statusField = $this->statusCustomField();
                         $task->saveCustomFieldValue($statusField, $arguments['column']);
+                        $task->order_column = $this->getBoardPositionInColumn((string) $arguments['column']);
 
                         return $task;
                     }),
@@ -122,7 +135,50 @@ final class TasksBoard extends BoardPage
             ->filtersFormWidth(Width::Medium);
     }
 
-    public function moveCard(string $cardId, string $targetColumnId, ?string $afterCardId = null, ?string $beforeCardId = null): void {}
+    /**
+     * Move card to new position using Rank-based positioning.
+     *
+     * @throws Throwable
+     */
+    public function moveCard(
+        string $cardId,
+        string $targetColumnId,
+        ?string $afterCardId = null,
+        ?string $beforeCardId = null
+    ): void {
+        $board = $this->getBoard();
+        $query = $board->getQuery();
+
+        if (! $query) {
+            throw new InvalidArgumentException('Board query not available');
+        }
+
+        $card = (clone $query)->find($cardId);
+        if (! $card) {
+            throw new InvalidArgumentException("Card not found: {$cardId}");
+        }
+
+        // Calculate new position using Rank service
+        $newPosition = $this->calculatePositionBetweenCards($afterCardId, $beforeCardId, $targetColumnId);
+
+        // Use transaction for data consistency
+        DB::transaction(function () use ($card, $board, $targetColumnId, $newPosition) {
+            $columnIdentifier = $board->getColumnIdentifierAttribute();
+            $columnValue = $this->resolveStatusValue($card, $columnIdentifier, $targetColumnId);
+            $positionIdentifier = $board->getPositionIdentifierAttribute();
+
+            $card->update([$positionIdentifier => $newPosition]);
+
+            $card->saveCustomFieldValue($this->statusCustomField(), $columnValue);
+        });
+
+        // Emit success event after successful transaction
+        $this->dispatch('kanban-card-moved', [
+            'cardId' => $cardId,
+            'columnId' => $targetColumnId,
+            'position' => $newPosition,
+        ]);
+    }
 
     /**
      * Get columns for the board.
