@@ -21,11 +21,11 @@ final readonly class UpdateUserProfileInformation implements UpdatesUserProfileI
         Validator::make($input, [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
-            'photo' => ['nullable', 'mimes:jpg,jpeg,png', 'max:1024'],
+            'profile_photo_path' => ['nullable', 'string', 'max:255'],
         ])->validateWithBag('updateProfileInformation');
 
-        if (isset($input['photo'])) {
-            $user->updateProfilePhoto($input['photo']);
+        if (isset($input['profile_photo_path'])) {
+            $user->updateProfilePhoto($input['profile_photo_path']);
         }
 
         if ($input['email'] !== $user->email) {

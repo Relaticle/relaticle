@@ -16,11 +16,11 @@ return new class extends Migration
     public function up(): void
     {
         // Update tasks table
-        Schema::table('tasks', function (Blueprint $table) {
+        Schema::table('tasks', function (Blueprint $table): void {
             $table->dropColumn('order_column');
         });
 
-        Schema::table('tasks', function (Blueprint $table) {
+        Schema::table('tasks', function (Blueprint $table): void {
             $table->flowforgePositionColumn('order_column');
         });
 
@@ -28,11 +28,11 @@ return new class extends Migration
         $this->setTaskOrderColumns();
 
         // Update opportunities table
-        Schema::table('opportunities', function (Blueprint $table) {
+        Schema::table('opportunities', function (Blueprint $table): void {
             $table->dropColumn('order_column');
         });
 
-        Schema::table('opportunities', function (Blueprint $table) {
+        Schema::table('opportunities', function (Blueprint $table): void {
             $table->flowforgePositionColumn('order_column');
         });
 
@@ -122,7 +122,7 @@ return new class extends Migration
      */
     private function setPositionsForGroup(array $records, string $table): void
     {
-        if (empty($records)) {
+        if ($records === []) {
             return;
         }
 
@@ -168,20 +168,20 @@ return new class extends Migration
     public function down(): void
     {
         // Revert tasks table
-        Schema::table('tasks', function (Blueprint $table) {
+        Schema::table('tasks', function (Blueprint $table): void {
             $table->dropColumn('order_column');
         });
 
-        Schema::table('tasks', function (Blueprint $table) {
+        Schema::table('tasks', function (Blueprint $table): void {
             $table->integer('order_column')->nullable();
         });
 
         // Revert opportunities table
-        Schema::table('opportunities', function (Blueprint $table) {
+        Schema::table('opportunities', function (Blueprint $table): void {
             $table->dropColumn('order_column');
         });
 
-        Schema::table('opportunities', function (Blueprint $table) {
+        Schema::table('opportunities', function (Blueprint $table): void {
             $table->integer('order_column')->nullable();
         });
     }

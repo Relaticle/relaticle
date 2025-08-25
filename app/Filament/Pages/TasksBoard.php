@@ -49,7 +49,7 @@ final class TasksBoard extends BoardPage
         return $board
             ->query(
                 Task::query()
-                    ->leftJoin('custom_field_values as cfv', function ($join) {
+                    ->leftJoin('custom_field_values as cfv', function ($join): void {
                         $join->on('tasks.id', '=', 'cfv.entity_id')
                             ->where('cfv.custom_field_id', '=', $this->statusCustomField()->getKey());
                     })
@@ -60,7 +60,7 @@ final class TasksBoard extends BoardPage
             ->positionIdentifier('order_column')
             ->searchable(['title'])
             ->columns($this->getColumns())
-            ->cardSchema(function (Schema $schema) {
+            ->cardSchema(function (Schema $schema): \Filament\Schemas\Schema {
                 $descriptionCustomField = CustomFields::infolist()
                     ->forSchema($schema)
                     ->only(['description'])
@@ -88,7 +88,7 @@ final class TasksBoard extends BoardPage
                     ->modalWidth(Width::Large)
                     ->slideOver(false)
                     ->model(Task::class)
-                    ->schema(fn (Schema $schema) => TaskForm::get($schema, ['status']))
+                    ->schema(fn (Schema $schema): \Filament\Schemas\Schema => TaskForm::get($schema, ['status']))
                     ->using(function (array $data, array $arguments): Task {
                         /** @var Team $currentTeam */
                         $currentTeam = Auth::user()->currentTeam;
@@ -109,7 +109,7 @@ final class TasksBoard extends BoardPage
                     ->slideOver()
                     ->modalWidth(Width::ExtraLarge)
                     ->icon('heroicon-o-pencil-square')
-                    ->schema(fn (Schema $schema) => TaskForm::get($schema, ['status']))
+                    ->schema(fn (Schema $schema): \Filament\Schemas\Schema => TaskForm::get($schema, ['status']))
                     ->fillForm(fn (Task $record): array => [
                         'title' => $record->title,
                         'description' => $record->description,
@@ -151,7 +151,7 @@ final class TasksBoard extends BoardPage
         $board = $this->getBoard();
         $query = $board->getQuery();
 
-        if (! $query) {
+        if (!$query instanceof \Illuminate\Database\Eloquent\Builder) {
             throw new InvalidArgumentException('Board query not available');
         }
 
@@ -164,7 +164,7 @@ final class TasksBoard extends BoardPage
         $newPosition = $this->calculatePositionBetweenCards($afterCardId, $beforeCardId, $targetColumnId);
 
         // Use transaction for data consistency
-        DB::transaction(function () use ($card, $board, $targetColumnId, $newPosition) {
+        DB::transaction(function () use ($card, $board, $targetColumnId, $newPosition): void {
             $columnIdentifier = $board->getColumnIdentifierAttribute();
             $columnValue = $this->resolveStatusValue($card, $columnIdentifier, $targetColumnId);
             $positionIdentifier = $board->getPositionIdentifierAttribute();
@@ -191,7 +191,7 @@ final class TasksBoard extends BoardPage
      */
     private function getColumns(): array
     {
-        return $this->statuses()->map(fn (array $status) => Column::make((string) $status['id'])
+        return $this->statuses()->map(fn (array $status): \Relaticle\Flowforge\Column => Column::make((string) $status['id'])
             ->color($status['color'])
             ->label($status['name'])
         )->toArray();

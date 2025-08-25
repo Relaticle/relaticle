@@ -2,13 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App\Livewire\App;
+namespace App\Livewire\App\Teams;
 
+use App\Actions\Jetstream\UpdateTeamName as UpdateTeamNameAction;
+use App\Livewire\BaseLivewireComponent;
+use App\Models\Team;
 use DanHarrin\LivewireRateLimiting\Exceptions\TooManyRequestsException;
 use Filament\Actions\Action;
 use Filament\Forms\Components\TextInput;
-use Filament\Jetstream\Livewire\BaseLivewireComponent;
-use Filament\Jetstream\Models\Team;
 use Filament\Schemas\Components\Actions;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -30,18 +31,18 @@ final class UpdateTeamName extends BaseLivewireComponent
     {
         return $schema
             ->schema([
-                Section::make(__('filament-jetstream::default.update_team_name.section.title'))
+                Section::make(__('teams.sections.update_team_name.title'))
                     ->aside()
-                    ->description(__('filament-jetstream::default.update_team_name.section.description'))
+                    ->description(__('teams.sections.update_team_name.description'))
                     ->schema([
                         TextInput::make('name')
-                            ->label(__('filament-jetstream::default.form.team_name.label'))
+                            ->label(__('teams.form.team_name.label'))
                             ->string()
                             ->maxLength(255)
                             ->required(),
                         Actions::make([
                             Action::make('save')
-                                ->label(__('filament-jetstream::default.action.save.label'))
+                                ->label(__('teams.actions.save'))
                                 ->action(fn () => $this->updateTeamName($this->team)),
                         ])->alignEnd(),
                     ]),
@@ -61,15 +62,13 @@ final class UpdateTeamName extends BaseLivewireComponent
 
         $data = $this->form->getState();
 
-        $team->forceFill([
-            'name' => $data['name'],
-        ])->save();
+        app(UpdateTeamNameAction::class)->update($this->authUser(), $team, $data);
 
         $this->sendNotification();
     }
 
     public function render()
     {
-        return view('filament-jetstream::livewire.teams.update-team-name');
+        return view('livewire.app.teams.update-team-name');
     }
 }
