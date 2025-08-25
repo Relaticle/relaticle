@@ -61,7 +61,7 @@ final class OpportunitiesBoard extends BoardPage
             ->positionIdentifier('order_column')
             ->searchable(['name'])
             ->columns($this->getColumns())
-            ->cardSchema(fn(Schema $schema): \Filament\Schemas\Schema => $schema->components([
+            ->cardSchema(fn (Schema $schema): \Filament\Schemas\Schema => $schema->components([
                 CustomFields::infolist()
                     ->forSchema($schema)
                     ->only(['description'])
@@ -151,7 +151,7 @@ final class OpportunitiesBoard extends BoardPage
         $board = $this->getBoard();
         $query = $board->getQuery();
 
-        if (!$query instanceof \Illuminate\Database\Eloquent\Builder) {
+        if (! $query instanceof \Illuminate\Database\Eloquent\Builder) {
             throw new InvalidArgumentException('Board query not available');
         }
 
@@ -213,7 +213,7 @@ final class OpportunitiesBoard extends BoardPage
     private function stages(): Collection
     {
         $field = $this->stageCustomField();
-        if (!$field instanceof \Relaticle\CustomFields\Models\CustomField) {
+        if (! $field instanceof \Relaticle\CustomFields\Models\CustomField) {
             return collect();
         }
 

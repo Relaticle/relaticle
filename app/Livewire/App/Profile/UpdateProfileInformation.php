@@ -39,10 +39,10 @@ final class UpdateProfileInformation extends BaseLivewireComponent
                             ->avatar()
                             ->image()
                             ->imageEditor()
-                            ->visibility('public')
+                            ->disk(config('jetstream.profile_photo_disk'))
                             ->directory('profile-photos')
-                            ->formatStateUsing(fn () => filament()->auth()->user()?->profile_photo_path)
-                            ->disk(config('jetstream.profile_photo_disk')),
+                            ->visibility('public')
+                            ->formatStateUsing(fn() => filament()->auth()->user()?->profile_photo_path),
                         TextInput::make('name')
                             ->label(__('profile.form.name.label'))
                             ->string()

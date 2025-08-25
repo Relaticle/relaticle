@@ -8,7 +8,6 @@ use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Validation\ValidationException;
 use Livewire\Livewire;
 
 beforeEach(function () {
@@ -56,14 +55,12 @@ describe('profile component functionality', function () {
     });
 });
 
-
-
 describe('photo upload', function () {
     beforeEach(fn () => Storage::fake('public'));
 
     test('can upload valid photo', function ($format) {
         $photo = UploadedFile::fake()->image("avatar.{$format}", 300, 300);
-        
+
         // Store the file first (simulating what Filament does)
         $photoPath = $photo->storePublicly('profile-photos', ['disk' => 'public']);
 
@@ -81,7 +78,7 @@ describe('photo upload', function () {
     test('handles photo with email change', function () {
         Notification::fake();
         $photo = UploadedFile::fake()->image('avatar.png', 400, 400);
-        
+
         // Store the file first (simulating what Filament does)
         $photoPath = $photo->storePublicly('profile-photos', ['disk' => 'public']);
 
@@ -106,7 +103,7 @@ describe('photo upload', function () {
         // First set a photo
         $photo = UploadedFile::fake()->image('avatar.png', 300, 300);
         $photoPath = $photo->storePublicly('profile-photos', ['disk' => 'public']);
-        
+
         $this->action->update($this->user, [
             'name' => $this->user->name,
             'email' => $this->user->email,
