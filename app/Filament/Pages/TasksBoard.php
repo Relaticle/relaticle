@@ -5,23 +5,25 @@ declare(strict_types=1);
 namespace App\Filament\Pages;
 
 use App\Enums\CustomFields\Task as TaskCustomField;
-use App\Filament\Adapters\TasksKanbanAdapter;
 use App\Filament\Resources\TaskResource\Forms\TaskForm;
 use App\Models\Task;
 use App\Models\Team;
 use BackedEnum;
+use Exception;
+use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
 use Filament\Schemas\Schema;
-use Illuminate\Database\Eloquent\Builder;
+use Filament\Support\Enums\Width;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Relaticle\CustomFields\Facades\CustomFields;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldOption;
-use Relaticle\Flowforge\BoardPage;
 use Relaticle\Flowforge\Board;
+use Relaticle\Flowforge\BoardPage;
 use Relaticle\Flowforge\Column;
-use Relaticle\Flowforge\Contracts\KanbanAdapterInterface;
-use Relaticle\Flowforge\Property;
+use Relaticle\Flowforge\Components\CardFlex;
 use UnitEnum;
 
 final class TasksBoard extends BoardPage
@@ -37,82 +39,104 @@ final class TasksBoard extends BoardPage
     protected static string|null|BackedEnum $navigationIcon = 'heroicon-o-document-text';
 
     /**
-     * Get the Eloquent query for the board.
-     *
-     * @return Builder<Task>
-     */
-    public function getEloquentQuery(): Builder
-    {
-        return Task::query();
-    }
-
-    /**
      * Configure the board using the new Filament V4 architecture.
      */
     public function board(Board $board): Board
     {
         return $board
-            ->query($this->getEloquentQuery())
-            ->cardTitle('title')
-            ->description('description')
-            ->defaultSort('order_column')
+            ->query(
+                Task::query()
+                    ->join('custom_field_values as cfv', function ($join) {
+                        $join->on('tasks.id', '=', 'cfv.entity_id')
+                            ->where('cfv.custom_field_id', '=', $this->statusCustomField()->getKey());
+                    })
+            )
+            ->recordTitleAttribute('title')
+            ->columnIdentifier('cfv.integer_value')
+            ->positionIdentifier('order_column')
             ->columns($this->getColumns())
-            ->cardProperties($this->getCardProperties())
+            ->cardSchema(function (Schema $schema) {
+                return $schema->components([
+                    CardFlex::make([
+                        CustomFields::infolist()
+                            ->forSchema($schema)
+                            ->except(['status'])
+                            ->build()
+                            ->columnSpanFull(),
+                    ]),
+                ]);
+            })
             ->columnActions([
                 CreateAction::make()
-                    ->slideOver(false)
-                    ->modalWidth('2xl')
-                    ->iconButton()
+                    ->label('Add Task')
                     ->icon('heroicon-o-plus')
+                    ->iconButton()
+                    ->modalWidth(Width::Large)
+                    ->slideOver(false)
                     ->model(Task::class)
-                    ->schema(fn (Schema $schema): Schema => TaskForm::get($schema))
-                    ->action(function (CreateAction $action, array $arguments): void {
+                    ->schema(fn (Schema $schema) => TaskForm::get($schema, ['status']))
+                    ->using(function (array $data, array $arguments): Task {
                         /** @var Team $currentTeam */
                         $currentTeam = Auth::user()->currentTeam;
+
                         /** @var Task $task */
-                        $task = $currentTeam->tasks()->create($action->getFormData());
-                        $task->saveCustomFieldValue($this->statusCustomField(), $arguments['column']);
+                        $task = $currentTeam->tasks()->create($data);
+
+                        $statusField = $this->statusCustomField();
+                        $task->saveCustomFieldValue($statusField, $arguments['column']);
+
+                        return $task;
                     }),
             ])
             ->cardActions([
-                // Temporarily disabled to focus on column actions first
-                // EditAction::make()
-                //     ->model(Task::class)
-                //     ->schema(fn (Schema $schema): Schema => TaskForm::get($schema)),
-                // DeleteAction::make()
-                //     ->model(Task::class),
-            ]);
+                Action::make('edit')
+                    ->label('Edit')
+                    ->slideOver()
+                    ->modalWidth(Width::ExtraLarge)
+                    ->icon('heroicon-o-pencil-square')
+                    ->schema(fn (Schema $schema) => TaskForm::get($schema, ['status']))
+                    ->fillForm(fn (Task $record): array => [
+                        'title' => $record->title,
+                        'description' => $record->description,
+                        'priority' => $record->priority,
+                        'assigned_to' => $record->assigned_to,
+                    ])
+                    ->action(function (Task $record, array $data): void {
+                        $record->update($data);
+                    }),
+                Action::make('delete')
+                    ->label('Delete')
+                    ->icon('heroicon-o-trash')
+                    ->color('danger')
+                    ->requiresConfirmation()
+                    ->action(function (Task $record): void {
+                        $record->delete();
+                    }),
+            ])
+            ->filters([
+                SelectFilter::make('assignees')
+                    ->label('Assignee')
+                    ->relationship('assignees', 'name')
+                    ->multiple(),
+            ])
+            ->filtersFormWidth(Width::Medium);
     }
+
+    public function moveCard(string $cardId, string $targetColumnId, ?string $afterCardId = null, ?string $beforeCardId = null): void {}
 
     /**
      * Get columns for the board.
      *
      * @return array<Column>
+     *
+     * @throws Exception
      */
     private function getColumns(): array
     {
-        $columns = [];
-        foreach ($this->statuses() as $status) {
-            $columns[] = Column::make((string) $status['id'])
-                ->label($status['name']);
-        }
-        return $columns;
-    }
-
-    /**
-     * Get card properties for the board.
-     *
-     * @return array<Property>
-     */
-    private function getCardProperties(): array
-    {
-        return [
-            Property::make('title')
-                ->label('Task Title'),
-            Property::make('description')
-                ->label('Description'),
-            // Add more properties as needed
-        ];
+        return $this->statuses()->map(fn (array $status) => Column::make((string) $status['id'])
+            ->color($status['color'])
+            ->label($status['name'])
+        )->toArray();
     }
 
     private function statusCustomField(): ?CustomField
@@ -133,22 +157,7 @@ final class TasksBoard extends BoardPage
             'id' => $option->getKey(),
             'custom_field_id' => $option->getAttribute('custom_field_id'),
             'name' => $option->getAttribute('name'),
+            'color' => $option->settings->color,
         ]);
-    }
-
-    public static function canAccess(): bool
-    {
-        return (new self)->statusCustomField() instanceof CustomField;
-    }
-
-    /**
-     * Override the adapter creation to use our custom TasksKanbanAdapter.
-     */
-    protected function createAdapter(): KanbanAdapterInterface
-    {
-        $query = $this->getTableQuery();
-        $config = $this->createKanbanConfig();
-
-        return new TasksKanbanAdapter($query, $config);
     }
 }
