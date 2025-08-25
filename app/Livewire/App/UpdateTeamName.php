@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\App;
 
 use DanHarrin\LivewireRateLimiting\Exceptions\TooManyRequestsException;
@@ -11,7 +13,7 @@ use Filament\Schemas\Components\Actions;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
-class UpdateTeamName extends BaseLivewireComponent
+final class UpdateTeamName extends BaseLivewireComponent
 {
     public ?array $data = [];
 
