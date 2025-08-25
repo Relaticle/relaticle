@@ -61,18 +61,20 @@ final class TasksBoard extends BoardPage
             ->searchable(['title'])
             ->columns($this->getColumns())
             ->cardSchema(function (Schema $schema) {
+                $descriptionCustomField = CustomFields::infolist()
+                    ->forSchema($schema)
+                    ->only(['description'])
+                    ->hiddenLabels()
+                    ->visibleWhenFilled()
+                    ->withoutSections()
+                    ->values()
+                    ->first()
+                    ?->columnSpanFull()
+                    ->visible(fn ($state) => filled($state))
+                    ->formatStateUsing(fn (string $state): string => str($state)->stripTags()->limit()->toString());
+
                 return $schema->components([
-                    CustomFields::infolist()
-                        ->forSchema($schema)
-                        ->only(['description'])
-                        ->hiddenLabels()
-                        ->visibleWhenFilled()
-                        ->withoutSections()
-                        ->values()
-                        ->first()
-                        ->columnSpanFull()
-                        ->visible(fn ($state) => filled($state))
-                        ->formatStateUsing(fn (string $state): string => str($state)->stripTags()->limit()->toString()),
+                    $descriptionCustomField,
                     CardFlex::make([
 
                     ]),

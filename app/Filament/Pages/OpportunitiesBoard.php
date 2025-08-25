@@ -4,21 +4,29 @@ declare(strict_types=1);
 
 namespace App\Filament\Pages;
 
-use App\Filament\Adapters\OpportunitiesKanbanAdapter;
+use App\Enums\CustomFields\Opportunity as OpportunityCustomField;
 use App\Filament\Resources\OpportunityResource\Forms\OpportunityForm;
 use App\Models\Opportunity;
 use App\Models\Team;
 use BackedEnum;
+use Exception;
 use Filament\Actions\Action;
+use Filament\Actions\CreateAction;
 use Filament\Schemas\Schema;
-use Illuminate\Database\Eloquent\Builder;
+use Filament\Support\Enums\Width;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use League\CommonMark\Exception\InvalidArgumentException;
+use Relaticle\CustomFields\Facades\CustomFields;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldOption;
 use Relaticle\Flowforge\Board;
 use Relaticle\Flowforge\BoardPage;
-use Relaticle\Flowforge\Contracts\KanbanAdapterInterface;
+use Relaticle\Flowforge\Column;
+use Relaticle\Flowforge\Components\CardFlex;
+use Throwable;
 use UnitEnum;
 
 final class OpportunitiesBoard extends BoardPage
@@ -34,62 +42,162 @@ final class OpportunitiesBoard extends BoardPage
     protected static string|null|BackedEnum $navigationIcon = 'heroicon-o-document-text';
 
     /**
-     * @return Builder<Opportunity>
+     * Configure the board using the new Filament V4 architecture.
      */
-    public function getEloquentQuery(): Builder
-    {
-        return Opportunity::query();
-    }
-
     public function board(Board $board): Board
     {
-        return $board->titleField('name')
-            ->columnField('stage')
-            ->descriptionField('description')
-            ->orderField('order_column')
-            ->columns($this->stages()->pluck('name', 'id')->toArray())
-            ->columnColors()
-            ->cardLabel('Opportunity')
-            ->cardAttributes([
-                'company.name' => '',
-                'contact.name' => '',
+        return $board
+            ->query(
+                Opportunity::query()
+                    ->leftJoin('custom_field_values as cfv', function ($join) {
+                        $join->on('opportunities.id', '=', 'cfv.entity_id')
+                            ->where('cfv.custom_field_id', '=', $this->stageCustomField()->getKey());
+                    })
+                    ->select('opportunities.*', 'cfv.integer_value')
+                    ->with(['company', 'contact'])
+            )
+            ->recordTitleAttribute('name')
+            ->columnIdentifier('cfv.integer_value')
+            ->positionIdentifier('order_column')
+            ->searchable(['name'])
+            ->columns($this->getColumns())
+            ->cardSchema(function (Schema $schema) {
+                return $schema->components([
+                    CustomFields::infolist()
+                        ->forSchema($schema)
+                        ->only(['description'])
+                        ->hiddenLabels()
+                        ->visibleWhenFilled()
+                        ->withoutSections()
+                        ->values()
+                        ->first()
+                        ?->columnSpanFull()
+                        ->visible(fn ($state) => filled($state))
+                        ->formatStateUsing(fn (string $state): string => str($state)->stripTags()->limit()->toString()),
+                    CardFlex::make([
+
+                    ]),
+                ]);
+            })
+            ->columnActions([
+                CreateAction::make()
+                    ->label('Add Opportunity')
+                    ->icon('heroicon-o-plus')
+                    ->iconButton()
+                    ->modalWidth(Width::Large)
+                    ->slideOver(false)
+                    ->model(Opportunity::class)
+                    ->schema(fn (Schema $schema) => OpportunityForm::get($schema))
+                    ->using(function (array $data, array $arguments): Opportunity {
+                        /** @var Team $currentTeam */
+                        $currentTeam = Auth::user()->currentTeam;
+
+                        /** @var Opportunity $opportunity */
+                        $opportunity = $currentTeam->opportunities()->create($data);
+
+                        $stageField = $this->stageCustomField();
+                        $opportunity->saveCustomFieldValue($stageField, $arguments['column']);
+                        $opportunity->order_column = $this->getBoardPositionInColumn((string) $arguments['column']);
+
+                        return $opportunity;
+                    }),
             ])
-            ->cardAttributeColors([
-                'company.name' => 'white',
-                'contact.name' => 'white',
+            ->cardActions([
+                Action::make('edit')
+                    ->label('Edit')
+                    ->slideOver()
+                    ->modalWidth(Width::ExtraLarge)
+                    ->icon('heroicon-o-pencil-square')
+                    ->schema(fn (Schema $schema) => OpportunityForm::get($schema))
+                    ->fillForm(fn (Opportunity $record): array => [
+                        'name' => $record->name,
+                        'company_id' => $record->company_id,
+                        'contact_id' => $record->contact_id,
+                    ])
+                    ->action(function (Opportunity $record, array $data): void {
+                        $record->update($data);
+                    }),
+                Action::make('delete')
+                    ->label('Delete')
+                    ->icon('heroicon-o-trash')
+                    ->color('danger')
+                    ->requiresConfirmation()
+                    ->action(function (Opportunity $record): void {
+                        $record->delete();
+                    }),
             ])
-            ->cardAttributeIcons([
-                'contact.name' => 'heroicon-o-user',
-                'company.name' => 'heroicon-o-building-office',
-            ]);
+            ->filters([
+                SelectFilter::make('companies')
+                    ->label('Company')
+                    ->relationship('company', 'name')
+                    ->multiple(),
+                SelectFilter::make('contacts')
+                    ->label('Contact')
+                    ->relationship('contact', 'name')
+                    ->multiple(),
+            ])
+            ->filtersFormWidth(Width::Medium);
     }
 
-    public function createAction(Action $action): Action
-    {
-        return $action
-            ->iconButton()
-            ->icon('heroicon-o-plus')
-            ->slideOver(false)
-            ->label('Create Opportunity')
-            ->modalWidth('2xl')
-            ->schema(fn (Schema $schema): Schema => OpportunityForm::get($schema))
-            ->action(function (Action $action, array $arguments): void {
-                /** @var Team $currentTeam */
-                $currentTeam = Auth::user()->currentTeam;
-                /** @var Opportunity $opportunity */
-                $opportunity = $currentTeam->opportunities()->create($action->getFormData());
-                $opportunity->saveCustomFieldValue($this->stageCustomField(), $arguments['column']);
-            });
+    /**
+     * Move card to new position using Rank-based positioning.
+     *
+     * @throws Throwable
+     */
+    public function moveCard(
+        string $cardId,
+        string $targetColumnId,
+        ?string $afterCardId = null,
+        ?string $beforeCardId = null
+    ): void {
+        $board = $this->getBoard();
+        $query = $board->getQuery();
+
+        if (! $query) {
+            throw new InvalidArgumentException('Board query not available');
+        }
+
+        $card = (clone $query)->find($cardId);
+        if (! $card) {
+            throw new InvalidArgumentException("Card not found: {$cardId}");
+        }
+
+        // Calculate new position using Rank service
+        $newPosition = $this->calculatePositionBetweenCards($afterCardId, $beforeCardId, $targetColumnId);
+
+        // Use transaction for data consistency
+        DB::transaction(function () use ($card, $board, $targetColumnId, $newPosition) {
+            $columnIdentifier = $board->getColumnIdentifierAttribute();
+            $columnValue = $this->resolveStatusValue($card, $columnIdentifier, $targetColumnId);
+            $positionIdentifier = $board->getPositionIdentifierAttribute();
+
+            $card->update([$positionIdentifier => $newPosition]);
+
+            /** @var Opportunity $card */
+            $card->saveCustomFieldValue($this->stageCustomField(), $columnValue);
+        });
+
+        // Emit success event after successful transaction
+        $this->dispatch('kanban-card-moved', [
+            'cardId' => $cardId,
+            'columnId' => $targetColumnId,
+            'position' => $newPosition,
+        ]);
     }
 
-    public function editAction(Action $action): Action
+    /**
+     * Get columns for the board.
+     *
+     * @return array<Column>
+     *
+     * @throws Exception
+     */
+    private function getColumns(): array
     {
-        return $action->schema(fn (Schema $schema): Schema => OpportunityForm::get($schema));
-    }
-
-    public function getAdapter(): KanbanAdapterInterface
-    {
-        return new OpportunitiesKanbanAdapter(Opportunity::query(), $this->config);
+        return $this->stages()->map(fn (array $stage) => Column::make((string) $stage['id'])
+            ->color($stage['color'])
+            ->label($stage['name'])
+        )->toArray();
     }
 
     private function stageCustomField(): ?CustomField
@@ -97,19 +205,25 @@ final class OpportunitiesBoard extends BoardPage
         /** @var CustomField|null */
         return CustomField::query()
             ->forEntity(Opportunity::class)
-            ->where('code', 'stage')
-            ->firstOrFail();
+            ->where('code', OpportunityCustomField::STAGE)
+            ->first();
     }
 
     /**
-     * @return Collection<int, array{id: mixed, custom_field_id: mixed, name: mixed}>
+     * @return Collection<int, array{id: mixed, custom_field_id: mixed, name: mixed, color: string}>
      */
     private function stages(): Collection
     {
-        return $this->stageCustomField()->options->map(fn (CustomFieldOption $option): array => [
+        $field = $this->stageCustomField();
+        if (! $field) {
+            return collect();
+        }
+
+        return $field->options->map(fn (CustomFieldOption $option): array => [
             'id' => $option->getKey(),
             'custom_field_id' => $option->getAttribute('custom_field_id'),
             'name' => $option->getAttribute('name'),
+            'color' => $option->settings->color ?? 'gray',
         ]);
     }
 
