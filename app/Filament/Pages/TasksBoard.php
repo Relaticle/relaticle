@@ -151,7 +151,7 @@ final class TasksBoard extends BoardPage
         $board = $this->getBoard();
         $query = $board->getQuery();
 
-        if (!$query instanceof \Illuminate\Database\Eloquent\Builder) {
+        if (! $query instanceof \Illuminate\Database\Eloquent\Builder) {
             throw new InvalidArgumentException('Board query not available');
         }
 

@@ -45,7 +45,7 @@ trait HasProfilePhoto
      */
     public function profilePhotoUrl(): Attribute
     {
-        return Attribute::get(fn(): string => $this->profile_photo_path
+        return Attribute::get(fn (): string => $this->profile_photo_path
             ? Storage::disk($this->profilePhotoDisk())->url($this->profile_photo_path)
             : $this->defaultProfilePhotoUrl());
     }
@@ -56,7 +56,7 @@ trait HasProfilePhoto
     protected function defaultProfilePhotoUrl(): string
     {
         $name = trim(
-            collect(explode(' ', $this->name))->map(fn($segment): string => mb_substr((string) $segment, 0, 1))->join(' ')
+            collect(explode(' ', $this->name))->map(fn ($segment): string => mb_substr($segment, 0, 1))->join(' ')
         );
 
         return 'https://ui-avatars.com/api/?name='.urlencode($name).'&color=7F9CF5&background=EBF4FF';
