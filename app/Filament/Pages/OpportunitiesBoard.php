@@ -16,11 +16,12 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldOption;
+use Relaticle\Flowforge\Board;
+use Relaticle\Flowforge\BoardPage;
 use Relaticle\Flowforge\Contracts\KanbanAdapterInterface;
-use Relaticle\Flowforge\Filament\Pages\KanbanBoardPage;
 use UnitEnum;
 
-final class OpportunitiesBoard extends KanbanBoardPage
+final class OpportunitiesBoard extends BoardPage
 {
     protected static ?string $navigationLabel = 'Board';
 
@@ -35,14 +36,14 @@ final class OpportunitiesBoard extends KanbanBoardPage
     /**
      * @return Builder<Opportunity>
      */
-    public function getSubject(): Builder
+    public function getEloquentQuery(): Builder
     {
         return Opportunity::query();
     }
 
-    public function mount(): void
+    public function board(Board $board): Board
     {
-        $this->titleField('name')
+        return $board->titleField('name')
             ->columnField('stage')
             ->descriptionField('description')
             ->orderField('order_column')

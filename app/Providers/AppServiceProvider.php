@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\View\View;
+use Livewire\Livewire;
 
 final class AppServiceProvider extends ServiceProvider
 {
@@ -38,6 +39,15 @@ final class AppServiceProvider extends ServiceProvider
         $this->configureModels();
         $this->configureFilament();
         $this->configureGitHubStars();
+        $this->configureLivewire();
+    }
+
+    /**
+     * Configure custom Livewire components.
+     */
+    private function configureLivewire(): void
+    {
+        Livewire::component('tasks-kanban-board', \App\Livewire\TasksKanbanBoard::class);
     }
 
     /**
