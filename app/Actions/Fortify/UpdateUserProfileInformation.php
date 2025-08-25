@@ -24,8 +24,12 @@ final readonly class UpdateUserProfileInformation implements UpdatesUserProfileI
             'profile_photo_path' => ['nullable', 'string', 'max:255'],
         ])->validateWithBag('updateProfileInformation');
 
-        if (isset($input['profile_photo_path'])) {
-            $user->updateProfilePhoto($input['profile_photo_path']);
+        if (array_key_exists('profile_photo_path', $input)) {
+            if ($input['profile_photo_path']) {
+                $user->updateProfilePhoto($input['profile_photo_path']);
+            } else {
+                $user->deleteProfilePhoto();
+            }
         }
 
         if ($input['email'] !== $user->email) {
