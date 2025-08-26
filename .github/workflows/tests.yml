@@ -3,14 +3,51 @@ name: Tests
 on: [push]
 
 jobs:
-  ci:
+  lint-and-static-analysis:
+    runs-on: ubuntu-latest
+    name: Code Quality Checks
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cache Dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache/files
+          key: dependencies-php-composer-${{ hashFiles('composer.lock') }}
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.3
+          extensions: json, dom, curl, libxml, mbstring, zip
+          tools: composer:v2
+
+      - name: Install PHP dependencies
+        run: composer install --no-interaction --no-progress --ansi
+
+      - name: Run Lint
+        run: composer test:lint
+
+      - name: Run Refactor Check
+        run: composer test:refactor
+
+      - name: Run Type Coverage
+        run: composer test:type-coverage
+
+      - name: Run Static Analysis
+        run: composer test:types
+
+  tests:
     runs-on: ubuntu-latest
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         php: [8.3]
+        shard: [1, 2, 3, 4]
 
-    name: Tests
+    name: Tests (Shard ${{ matrix.shard }}/4)
 
     # Service containers to run with `runner-job`
     services:
@@ -97,4 +134,6 @@ jobs:
           php artisan key:generate
 
       - name: Tests
-        run: composer test:ci
+        run: composer test:unit:ci:shard
+        env:
+          SHARD: ${{ matrix.shard }}/4
