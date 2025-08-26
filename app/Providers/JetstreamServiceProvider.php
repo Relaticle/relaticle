@@ -11,6 +11,8 @@ use App\Actions\Jetstream\DeleteUser;
 use App\Actions\Jetstream\InviteTeamMember;
 use App\Actions\Jetstream\RemoveTeamMember;
 use App\Actions\Jetstream\UpdateTeamName;
+use App\Models\Team;
+use App\Models\User;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Jetstream\Jetstream;
 
@@ -29,8 +31,25 @@ final class JetstreamServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        $this->configureModels();
         $this->configurePermissions();
+        $this->configureActions();
+    }
 
+    /**
+     * Configure the models that Jetstream uses.
+     */
+    private function configureModels(): void
+    {
+        Jetstream::useUserModel(User::class);
+        Jetstream::useTeamModel(Team::class);
+    }
+
+    /**
+     * Configure the actions that are available within the application.
+     */
+    private function configureActions(): void
+    {
         Jetstream::createTeamsUsing(CreateTeam::class);
         Jetstream::updateTeamNamesUsing(UpdateTeamName::class);
         Jetstream::addTeamMembersUsing(AddTeamMember::class);

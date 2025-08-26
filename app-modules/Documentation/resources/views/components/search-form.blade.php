@@ -10,7 +10,7 @@
             type="text"
             name="query"
             value="{{ $query }}"
-            class="block w-full pl-10 pr-12 py-3 border border-gray-200 dark:border-gray-800 rounded-md shadow-sm focus:ring-primary focus:border-primary dark:bg-gray-900 dark:text-white transition-colors duration-200"
+            class="block w-full pl-10 pr-12 py-3 border border-gray-200 dark:border-gray-800 rounded-md shadow-sm focus:outline-none focus:border-primary dark:bg-gray-900 dark:text-white transition-colors duration-200"
             placeholder="Search documentation..."
         >
         <button type="submit"

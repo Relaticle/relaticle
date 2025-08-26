@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Relaticle\Admin;
 
-use Awcodes\Overlook\OverlookPlugin;
 use Awcodes\Overlook\Widgets\OverlookWidget;
+use Exception;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -25,7 +25,7 @@ use Relaticle\Admin\Filament\Pages\Dashboard;
 final class AdminPanelProvider extends PanelProvider
 {
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function panel(Panel $panel): Panel
     {
@@ -66,18 +66,6 @@ final class AdminPanelProvider extends PanelProvider
                 OverlookWidget::class,
             ])
             ->databaseNotifications()
-            ->plugins([
-                OverlookPlugin::make()
-                    ->sort(5)
-                    ->columns([
-                        'default' => 2,
-                        'sm' => 3,
-                        'md' => 4,
-                        'lg' => 5,
-                        'xl' => 6,
-                        '2xl' => 6,
-                    ]),
-            ])
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,

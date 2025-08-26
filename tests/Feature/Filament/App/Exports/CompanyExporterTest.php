@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Tests\Feature\Filament\App\Exports;
 
 use App\Enums\CustomFields\Company as CompanyCustomField;
-use App\Filament\App\Exports\CompanyExporter;
-use App\Filament\App\Resources\CompanyResource\Pages\ListCompanies;
+use App\Filament\Exports\CompanyExporter;
+use App\Filament\Resources\CompanyResource\Pages\ListCompanies;
 use App\Models\Company;
 use App\Models\Team;
 use App\Models\User;

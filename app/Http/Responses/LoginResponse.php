@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace App\Http\Responses;
 
-use App\Filament\App\Resources\CompanyResource;
-use Filament\Http\Responses\Auth\Contracts\LoginResponse as Responsable;
+use App\Filament\Resources\CompanyResource;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Redirector;
 
-final readonly class LoginResponse implements Responsable
+final readonly class LoginResponse implements \Filament\Auth\Http\Responses\Contracts\LoginResponse
 {
     /** @phpstan-ignore return.unusedType */
     public function toResponse($request): RedirectResponse|Redirector // @pest-ignore-type

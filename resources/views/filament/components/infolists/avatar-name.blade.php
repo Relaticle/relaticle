@@ -2,13 +2,16 @@
     $state = $getState();
     $hasAvatar = !empty($state['avatar']);
 
-    // Get the label from the component
-    $label = $getLabel();
+    // Get the label from the component - handle potential initialization issues
+    try {
+        $label = $getLabel();
+    } catch (\Throwable $e) {
+        $label = null;
+    }
 
     // Map text size to Tailwind class
     $textSizeClass = match ($state['textSize'] ?? 'sm') {
         'xs' => 'text-xs',
-        'sm' => 'text-sm',
         'base' => 'text-base',
         'lg' => 'text-lg',
         'xl' => 'text-xl',

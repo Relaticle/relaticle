@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Enums\CustomFields;
 
-use Relaticle\CustomFields\Enums\CustomFieldType;
+use App\Enums\CustomFieldType;
 use Relaticle\CustomFields\Enums\CustomFieldWidth;
 
 enum Task: string
@@ -49,14 +49,14 @@ enum Task: string
     /**
      * Get the field type
      *
-     * @return CustomFieldType The type of form control to use
+     * @return string The type of form control to use
      */
-    public function getFieldType(): CustomFieldType
+    public function getFieldType(): string
     {
         return match ($this) {
-            self::STATUS, self::PRIORITY => CustomFieldType::SELECT,
-            self::DESCRIPTION => CustomFieldType::RICH_EDITOR,
-            self::DUE_DATE => CustomFieldType::DATE_TIME,
+            self::STATUS, self::PRIORITY => CustomFieldType::SELECT->value,
+            self::DESCRIPTION => CustomFieldType::RICH_EDITOR->value,
+            self::DUE_DATE => CustomFieldType::DATE_TIME->value,
         };
     }
 
