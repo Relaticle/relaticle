@@ -93,7 +93,7 @@ test('exports include company custom fields', function () {
     $fieldData = new CustomFieldData(
         name: 'Test Custom Field',
         code: 'test_field',
-        type: CustomFieldType::TEXT,
+        type: CustomFieldType::TEXT->value,
         section: new CustomFieldSectionData(
             name: 'General',
             code: 'general',

@@ -49,7 +49,7 @@ final class OpportunitiesBoard extends BoardPage
         return $board
             ->query(
                 Opportunity::query()
-                    ->leftJoin('custom_field_values as cfv', function ($join): void {
+                    ->leftJoin('custom_field_values as cfv', function (\Illuminate\Database\Query\JoinClause $join): void {
                         $join->on('opportunities.id', '=', 'cfv.entity_id')
                             ->where('cfv.custom_field_id', '=', $this->stageCustomField()->getKey());
                     })
@@ -71,7 +71,7 @@ final class OpportunitiesBoard extends BoardPage
                     ->values()
                     ->first()
                     ?->columnSpanFull()
-                    ->visible(fn ($state) => filled($state))
+                    ->visible(fn (mixed $state): bool => filled($state))
                     ->formatStateUsing(fn (string $state): string => str($state)->stripTags()->limit()->toString()),
                 CardFlex::make([
 

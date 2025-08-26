@@ -80,6 +80,8 @@ final class LogoutOtherBrowserSessions extends BaseLivewireComponent
 
     /**
      * Get the current sessions.
+     *
+     * @return Collection<int, object>
      */
     public function browserSessions(): Collection
     {
@@ -90,8 +92,8 @@ final class LogoutOtherBrowserSessions extends BaseLivewireComponent
         return DB::connection(config('session.connection'))->table(config('session.table', 'sessions'))
             ->where('user_id', filament()->auth()->user()->getAuthIdentifier())
             ->orderBy('last_activity', 'desc')
-            ->get()->map(function ($session) {
-                $agent = tap(new Agent, function ($agent) use ($session): void {
+            ->get()->map(function (\stdClass $session): object {
+                $agent = tap(new Agent, function (Agent $agent) use ($session): void {
                     $agent->setUserAgent($session->user_agent ?? '');
                 });
 

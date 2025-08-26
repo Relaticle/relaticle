@@ -49,7 +49,7 @@ final class TasksBoard extends BoardPage
         return $board
             ->query(
                 Task::query()
-                    ->leftJoin('custom_field_values as cfv', function ($join): void {
+                    ->leftJoin('custom_field_values as cfv', function (\Illuminate\Database\Query\JoinClause $join): void {
                         $join->on('tasks.id', '=', 'cfv.entity_id')
                             ->where('cfv.custom_field_id', '=', $this->statusCustomField()->getKey());
                     })
@@ -70,7 +70,7 @@ final class TasksBoard extends BoardPage
                     ->values()
                     ->first()
                     ?->columnSpanFull()
-                    ->visible(fn ($state) => filled($state))
+                    ->visible(fn (mixed $state): bool => filled($state))
                     ->formatStateUsing(fn (string $state): string => str($state)->stripTags()->limit()->toString());
 
                 return $schema->components([
@@ -112,9 +112,6 @@ final class TasksBoard extends BoardPage
                     ->schema(fn (Schema $schema): \Filament\Schemas\Schema => TaskForm::get($schema, ['status']))
                     ->fillForm(fn (Task $record): array => [
                         'title' => $record->title,
-                        'description' => $record->description,
-                        'priority' => $record->priority,
-                        'assigned_to' => $record->assigned_to,
                     ])
                     ->action(function (Task $record, array $data): void {
                         $record->update($data);
@@ -207,7 +204,7 @@ final class TasksBoard extends BoardPage
     }
 
     /**
-     * @return Collection<int, array{id: mixed, custom_field_id: mixed, name: mixed}>
+     * @return Collection<int, array{id: mixed, custom_field_id: mixed, name: mixed, color: string|null}>
      */
     private function statuses(): Collection
     {

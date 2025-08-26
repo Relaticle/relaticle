@@ -22,6 +22,7 @@ use Laravel\Jetstream\Jetstream;
 
 final class AddTeamMember extends BaseLivewireComponent
 {
+    /** @var array<string, mixed>|null */
     public ?array $data = [];
 
     public Team $team;
@@ -45,7 +46,7 @@ final class AddTeamMember extends BaseLivewireComponent
                     ->schema([
                         TextEntry::make('addTeamMemberNotice')
                             ->hiddenLabel()
-                            ->state(fn () => __('teams.sections.add_team_member.notice')),
+                            ->state(fn (): string => __('teams.sections.add_team_member.notice')),
                         TextInput::make('email')
                             ->label(__('teams.form.email.label'))
                             ->email()
@@ -99,7 +100,7 @@ final class AddTeamMember extends BaseLivewireComponent
         $this->redirect(Filament::getTenantProfileUrl());
     }
 
-    public function render()
+    public function render(): \Illuminate\Contracts\View\View
     {
         return view('livewire.app.teams.add-team-member');
     }
