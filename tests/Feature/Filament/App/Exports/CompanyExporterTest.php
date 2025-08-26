@@ -38,11 +38,11 @@ test('exports company records with basic functionality', function () {
 
     $livewireTest = Livewire::test(ListCompanies::class);
     $livewireTest->assertSuccessful();
-    $livewireTest->assertTableBulkActionExists('export');
+    $livewireTest->assertActionExists('export');
 
     // Test export
-    $livewireTest->callTableBulkAction('export', $companies)
-        ->assertHasNoTableBulkActionErrors();
+    $livewireTest->callAction('export', $companies)
+        ->assertHasNoFormErrors();
 
     $exportModel = Export::latest()->first();
     expect($exportModel)->not->toBeNull()
@@ -70,8 +70,8 @@ test('exports respect team scoping', function () {
 
     // Test export with team1
     Livewire::test(ListCompanies::class)
-        ->callTableBulkAction('export', $team1Companies)
-        ->assertHasNoTableBulkActionErrors();
+        ->callAction('export', $team1Companies)
+        ->assertHasNoFormErrors();
 
     $exportModel = Export::latest()->first();
     expect($exportModel->team_id)->toBe($team1->id);
