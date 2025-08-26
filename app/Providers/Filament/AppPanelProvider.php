@@ -77,6 +77,7 @@ final class AppPanelProvider extends PanelProvider
             ->registration(Register::class)
             ->passwordReset()
             ->emailVerification()
+            ->strictAuthorization()
             ->databaseNotifications()
             ->brandLogoHeight('2.6rem')
             ->brandLogo(fn () => view('filament.app.logo'))

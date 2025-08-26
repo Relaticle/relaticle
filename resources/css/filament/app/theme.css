@@ -4,4 +4,5 @@
 @source '../../../../resources/views';
 
 /* Custom Fields */
+@source '../../../../vendor/relaticle/flowforge/resources/views/**/*.blade.php';
 @source '../../../../vendor/relaticle/custom-fields/resources';

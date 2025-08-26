@@ -9,16 +9,20 @@ use App\Models\Company;
 use App\Models\Note;
 use App\Models\Opportunity;
 use App\Models\People;
+use App\Models\SystemAdministrator;
 use App\Models\Task;
 use App\Models\Team;
 use App\Models\User;
 use App\Services\GitHubService;
 use Filament\Actions\Action;
+use Filament\Facades\Filament;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\View\View;
+use Livewire\Livewire;
 
 final class AppServiceProvider extends ServiceProvider
 {
@@ -35,9 +39,72 @@ final class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        $this->configurePolicies();
         $this->configureModels();
         $this->configureFilament();
         $this->configureGitHubStars();
+        $this->configureLivewire();
+    }
+
+    private function configurePolicies(): void
+    {
+        Gate::guessPolicyNamesUsing(function (string $modelClass): ?string {
+            try {
+                $currentPanelId = Filament::getCurrentPanel()?->getId();
+
+                if ($currentPanelId === 'sysadmin') {
+                    $modelName = class_basename($modelClass);
+                    $systemAdminPolicy = "Relaticle\\SystemAdmin\\Policies\\{$modelName}Policy";
+
+                    // Return SystemAdmin policy if it exists
+                    if (class_exists($systemAdminPolicy)) {
+                        return $systemAdminPolicy;
+                    }
+                }
+            } catch (\Exception) {
+                // Fallback for non-Filament contexts
+            }
+
+            // Use Laravel's default policy discovery logic
+            return $this->getDefaultLaravelPolicyName($modelClass);
+        });
+    }
+
+    private function getDefaultLaravelPolicyName(string $modelClass): ?string
+    {
+        // Replicate Laravel's default policy discovery logic from Gate.php:723-736
+        $classDirname = str_replace('/', '\\', dirname(str_replace('\\', '/', $modelClass)));
+        $classDirnameSegments = explode('\\', $classDirname);
+
+        $candidates = collect();
+        // Generate all possible policy paths
+        $counter = count($classDirnameSegments);
+
+        // Generate all possible policy paths
+        for ($index = 0; $index < $counter; $index++) {
+            $classDirname = implode('\\', array_slice($classDirnameSegments, 0, $index));
+            $candidates->push($classDirname.'\\Policies\\'.class_basename($modelClass).'Policy');
+        }
+
+        // Add Models-specific paths if the model is in a Models directory
+        if (str_contains($classDirname, '\\Models\\')) {
+            $candidates = $candidates
+                ->concat([str_replace('\\Models\\', '\\Policies\\', $classDirname).'\\'.class_basename($modelClass).'Policy'])
+                ->concat([str_replace('\\Models\\', '\\Models\\Policies\\', $classDirname).'\\'.class_basename($modelClass).'Policy']);
+        }
+
+        // Return the first existing class, or fallback
+        $existingPolicy = $candidates->reverse()->first(fn ($policyClass): bool => class_exists($policyClass));
+
+        return $existingPolicy ?: $classDirname.'\\Policies\\'.class_basename($modelClass).'Policy';
+    }
+
+    /**
+     * Configure custom Livewire components.
+     */
+    private function configureLivewire(): void
+    {
+        // Custom Livewire components can be registered here
     }
 
     /**
@@ -56,6 +123,7 @@ final class AppServiceProvider extends ServiceProvider
             'opportunity' => Opportunity::class,
             'task' => Task::class,
             'note' => Note::class,
+            'system_administrator' => SystemAdministrator::class,
         ]);
     }
 

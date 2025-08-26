@@ -72,11 +72,6 @@ final class PeopleImporter extends BaseImporter
         ];
     }
 
-    protected function afterSave(): void
-    {
-        CustomFields::importer()->forModel($this->record)->saveValues();
-    }
-
     public function resolveRecord(): People
     {
         $person = $this->findByEmail();
@@ -123,8 +118,8 @@ final class PeopleImporter extends BaseImporter
             : (array) $emailsField;
 
         return collect($emails)
-            ->map(fn ($email): string => trim((string) $email))
-            ->filter(fn ($email): bool => filter_var($email, FILTER_VALIDATE_EMAIL) !== false)
+            ->map(fn (mixed $email): string => trim((string) $email))
+            ->filter(fn (string $email): bool => filter_var($email, FILTER_VALIDATE_EMAIL) !== false)
             ->values()
             ->toArray();
     }

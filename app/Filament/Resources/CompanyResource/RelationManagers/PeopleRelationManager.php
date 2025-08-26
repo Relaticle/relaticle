@@ -33,7 +33,7 @@ final class PeopleRelationManager extends RelationManager
                     ->required()
                     ->maxLength(255)
                     ->columnSpanFull(),
-                CustomFields::form()->forModel($schema->getRecord())->build()
+                CustomFields::form()->forSchema($schema)->build()
                     ->columnSpanFull()
                     ->columns(),
             ]);
