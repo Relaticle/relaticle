@@ -103,7 +103,9 @@
         "test:arch": "pest --filter=arch",
         "test:type-coverage": "pest --type-coverage --min=99.9",
         "test:unit": "pest --parallel",
+        "test:unit:shard": "pest --parallel --shard=${SHARD}",
         "test:unit:ci": "pest --parallel --configuration phpunit.ci.xml",
+        "test:unit:ci:shard": "pest --parallel --configuration phpunit.ci.xml --shard=${SHARD}",
         "test": [
             "@test:lint",
             "@test:refactor",
