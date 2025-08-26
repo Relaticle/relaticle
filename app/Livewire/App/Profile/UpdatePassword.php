@@ -19,6 +19,7 @@ use Illuminate\Validation\Rules\Password;
 
 final class UpdatePassword extends BaseLivewireComponent
 {
+    /** @var array<string, mixed>|null */
     public ?array $data = [];
 
     public function mount(): void
@@ -48,7 +49,7 @@ final class UpdatePassword extends BaseLivewireComponent
                             ->revealable(filament()->arePasswordsRevealable())
                             ->rule(Password::default())
                             ->autocomplete('new-password')
-                            ->dehydrated(fn ($state): bool => filled($state))
+                            ->dehydrated(fn (?string $state): bool => filled($state))
                             ->live(debounce: 500)
                             ->same('passwordConfirmation'),
                         TextInput::make('passwordConfirmation')
@@ -102,7 +103,7 @@ final class UpdatePassword extends BaseLivewireComponent
         $this->sendNotification();
     }
 
-    public function render()
+    public function render(): \Illuminate\Contracts\View\View
     {
         return view('livewire.app.profile.update-password');
     }

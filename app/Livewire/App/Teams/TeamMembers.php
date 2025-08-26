@@ -38,12 +38,12 @@ final class TeamMembers extends BaseLivewireComponent implements Tables\Contract
         $teamForeignKeyColumn = 'team_id';
 
         return $table
-            ->query(fn () => $model::with('user')->where($teamForeignKeyColumn, $this->team->id))
+            ->query(fn (): \Illuminate\Database\Eloquent\Builder => $model::with('user')->where($teamForeignKeyColumn, $this->team->id))
             ->columns([
                 Tables\Columns\Layout\Split::make([
                     Tables\Columns\ImageColumn::make('profile_photo_url')
                         ->disk(config('jetstream.profile_photo_disk'))
-                        ->defaultImageUrl(fn ($record): string => Filament::getUserAvatarUrl($record->user))
+                        ->defaultImageUrl(fn (Model $record): string => Filament::getUserAvatarUrl($record->user))
                         ->circular()
                         ->imageSize(25)
                         ->grow(false),
@@ -53,8 +53,8 @@ final class TeamMembers extends BaseLivewireComponent implements Tables\Contract
             ->paginated(false)
             ->recordActions([
                 Action::make('updateTeamRole')
-                    ->visible(fn ($record): bool => Gate::check('updateTeamMember', $this->team))
-                    ->label(fn ($record): string => $record->role)
+                    ->visible(fn (Model $record): bool => Gate::check('updateTeamMember', $this->team))
+                    ->label(fn (Model $record): string => $record->role)
                     ->modalWidth('lg')
                     ->modalHeading(__('teams.actions.update_team_role'))
                     ->modalSubmitActionLabel(__('teams.actions.save'))
@@ -73,14 +73,14 @@ final class TeamMembers extends BaseLivewireComponent implements Tables\Contract
                                         ->in($roles->pluck('key'))
                                         ->options($roles->pluck('name', 'key'))
                                         ->descriptions($roles->pluck('description', 'key'))
-                                        ->default(fn ($record) => $record->role),
+                                        ->default(fn (Model $record): string => $record->role),
                                 ];
                             }),
                     ])
-                    ->action(fn ($record, array $data) => $this->updateTeamRole($this->team, $record, $data)),
+                    ->action(fn (Model $record, array $data): void => $this->updateTeamRole($this->team, $record, $data)),
                 Action::make('removeTeamMember')
                     ->visible(
-                        fn ($record): bool => $this->authUser()->id !== $record->id && Gate::check(
+                        fn (Model $record): bool => $this->authUser()->id !== $record->user_id && Gate::check(
                             'removeTeamMember',
                             $this->team
                         )
@@ -88,15 +88,15 @@ final class TeamMembers extends BaseLivewireComponent implements Tables\Contract
                     ->label(__('teams.actions.remove_team_member'))
                     ->color('danger')
                     ->requiresConfirmation()
-                    ->action(fn ($record) => $this->removeTeamMember($this->team, $record)),
+                    ->action(fn (Model $record): void => $this->removeTeamMember($this->team, $record)),
                 Action::make('leaveTeam')
-                    ->visible(fn ($record): bool => $this->authUser()->id === $record->id)
+                    ->visible(fn (Model $record): bool => $this->authUser()->id === $record->user_id)
                     ->icon('heroicon-o-arrow-right-start-on-rectangle')
                     ->color('danger')
                     ->label(__('teams.actions.leave_team'))
                     ->modalDescription(__('teams.modals.leave_team.notice'))
                     ->requiresConfirmation()
-                    ->action(fn ($record) => $this->leaveTeam($record)),
+                    ->action(fn (Model $record): void => $this->leaveTeam($this->team)),
             ]);
     }
 
@@ -164,7 +164,7 @@ final class TeamMembers extends BaseLivewireComponent implements Tables\Contract
         }
     }
 
-    public function render()
+    public function render(): \Illuminate\Contracts\View\View
     {
         return view('livewire.app.teams.team-members');
     }

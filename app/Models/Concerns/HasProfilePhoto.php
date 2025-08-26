@@ -42,6 +42,8 @@ trait HasProfilePhoto
 
     /**
      * Get the URL to the user's profile photo.
+     *
+     * @return Attribute<string, never>
      */
     public function profilePhotoUrl(): Attribute
     {

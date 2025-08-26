@@ -41,13 +41,13 @@ final class PendingTeamInvitations extends BaseLivewireComponent implements Tabl
                     ->color('primary')
                     ->requiresConfirmation()
                     ->visible(fn () => Gate::check('updateTeamMember', $this->team))
-                    ->action(fn ($record) => $this->resendTeamInvitation($record)),
+                    ->action(fn (Model $record) => $this->resendTeamInvitation($record)),
                 Action::make('cancelTeamInvitation')
                     ->label(__('teams.actions.cancel_team_invitation'))
                     ->color('danger')
                     ->visible(fn () => Gate::check('removeTeamMember', $this->team))
                     ->requiresConfirmation()
-                    ->action(fn ($record) => $this->cancelTeamInvitation($this->team, $record)),
+                    ->action(fn (Model $record) => $this->cancelTeamInvitation($this->team, $record)),
             ]);
     }
 
@@ -67,7 +67,7 @@ final class PendingTeamInvitations extends BaseLivewireComponent implements Tabl
         $this->sendNotification(__('teams.notifications.team_invitation_cancelled.success'));
     }
 
-    public function render()
+    public function render(): \Illuminate\Contracts\View\View
     {
         return view('livewire.app.teams.pending-team-invitations');
     }

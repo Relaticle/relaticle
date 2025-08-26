@@ -47,7 +47,7 @@ final class AppServiceProvider extends ServiceProvider
      */
     private function configureLivewire(): void
     {
-        Livewire::component('tasks-kanban-board', \App\Livewire\TasksKanbanBoard::class);
+        // Custom Livewire components can be registered here
     }
 
     /**

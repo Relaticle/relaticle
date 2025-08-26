@@ -16,6 +16,7 @@ use Filament\Schemas\Schema;
 
 final class UpdateTeamName extends BaseLivewireComponent
 {
+    /** @var array<string, mixed>|null */
     public ?array $data = [];
 
     public Team $team;
@@ -67,7 +68,7 @@ final class UpdateTeamName extends BaseLivewireComponent
         $this->sendNotification();
     }
 
-    public function render()
+    public function render(): \Illuminate\Contracts\View\View
     {
         return view('livewire.app.teams.update-team-name');
     }
