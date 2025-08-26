@@ -213,7 +213,8 @@ final class OpportunitiesBoard extends BoardPage
     private function stages(): Collection
     {
         $field = $this->stageCustomField();
-        if (! $field instanceof \Relaticle\CustomFields\Models\CustomField) {
+
+        if (! $field instanceof CustomField) {
             return collect();
         }
 
