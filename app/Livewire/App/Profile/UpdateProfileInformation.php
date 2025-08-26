@@ -17,6 +17,7 @@ use Filament\Schemas\Schema;
 
 final class UpdateProfileInformation extends BaseLivewireComponent
 {
+    /** @var array<string, mixed>|null */
     public ?array $data = [];
 
     public function mount(): void

@@ -81,7 +81,7 @@ final class LogoutOtherBrowserSessions extends BaseLivewireComponent
     /**
      * Get the current sessions.
      *
-     * @return Collection<int, object>
+     * @return Collection<int, object{agent: \Laravel\Jetstream\Agent, ip_address: mixed, is_current_device: bool, last_active: string}>
      */
     public function browserSessions(): Collection
     {
@@ -89,6 +89,7 @@ final class LogoutOtherBrowserSessions extends BaseLivewireComponent
             return collect();
         }
 
+        // @phpstan-ignore-next-line Collection type covariance issue
         return DB::connection(config('session.connection'))->table(config('session.table', 'sessions'))
             ->where('user_id', filament()->auth()->user()->getAuthIdentifier())
             ->orderBy('last_activity', 'desc')

@@ -10,7 +10,7 @@
     "require": {
         "php": "^8.3",
         "ashallendesign/favicon-fetcher": "^3.8",
-        "awcodes/overlook": "^v3.0.0-beta.1",
+        "awcodes/overlook": "^v3.0",
         "blade-ui-kit/blade-heroicons": "^2.6",
         "blade-ui-kit/blade-icons": "^1.8",
         "filament/filament": "^4.0",
@@ -48,10 +48,10 @@
         "laravel/sail": "^1.26",
         "mockery/mockery": "^1.6",
         "nunomaduro/collision": "^8.0",
-        "pestphp/pest": "^3.0",
-        "pestphp/pest-plugin-laravel": "^3.0",
-        "pestphp/pest-plugin-livewire": "^3.0",
-        "pestphp/pest-plugin-type-coverage": "^3.3",
+        "pestphp/pest": "^4.0",
+        "pestphp/pest-plugin-laravel": "^4.0",
+        "pestphp/pest-plugin-livewire": "^4.0",
+        "pestphp/pest-plugin-type-coverage": "^4.0",
         "rector/rector": "^2.0",
         "spatie/laravel-horizon-watcher": "^1.1"
     },

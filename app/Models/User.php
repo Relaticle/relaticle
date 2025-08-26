@@ -30,6 +30,7 @@ use Laravel\Sanctum\HasApiTokens;
  * @property string $email
  * @property string|null $password
  * @property string|null $profile_photo_path
+ * @property-read string $profile_photo_url
  * @property Carbon|null $email_verified_at
  * @property string|null $remember_token
  * @property string|null $two_factor_recovery_codes
@@ -76,7 +77,7 @@ final class User extends Authenticatable implements FilamentUser, HasAvatar, Has
      * @var list<string>
      */
     protected $appends = [
-        'profile_photo_url',
+        'profile_photo_url', // @phpstan-ignore rules.modelAppends
     ];
 
     /**

@@ -81,7 +81,7 @@ final readonly class CreateTeamCustomFields
     /**
      * Create a custom field using the provided enum configuration
      *
-     * @param  string  $model  The model class name
+     * @param  class-string  $model  The model class name
      * @param  object  $enum  The custom field enum instance
      */
     private function createCustomField(string $model, object $enum): void

@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Mail;
 use Laravel\Jetstream\Mail\TeamInvitation;
+use Laravel\Jetstream\TeamInvitation as TeamInvitationModel;
 
 final class PendingTeamInvitations extends BaseLivewireComponent implements Tables\Contracts\HasTable
 {
@@ -53,6 +54,7 @@ final class PendingTeamInvitations extends BaseLivewireComponent implements Tabl
 
     public function resendTeamInvitation(Model $invitation): void
     {
+        /** @var TeamInvitationModel $invitation */
         Mail::to($invitation->email)->send(new TeamInvitation($invitation));
 
         $this->sendNotification(__('teams.notifications.team_invitation_sent.success'));

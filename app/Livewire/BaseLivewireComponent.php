@@ -4,34 +4,31 @@ declare(strict_types=1);
 
 namespace App\Livewire;
 
+use App\Models\User;
 use DanHarrin\LivewireRateLimiting\Exceptions\TooManyRequestsException;
 use DanHarrin\LivewireRateLimiting\WithRateLimiting;
-use Exception;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
 use Filament\Facades\Filament;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Models\Contracts\FilamentUser;
 use Filament\Notifications\Notification;
-use Illuminate\Contracts\Auth\Authenticatable;
-use Illuminate\Database\Eloquent\Model;
+use Filament\Schemas\Schema;
 use Livewire\Component;
 
+/**
+ * @property Schema $form
+ */
 abstract class BaseLivewireComponent extends Component implements HasActions, HasForms
 {
     use InteractsWithActions;
     use InteractsWithForms;
     use WithRateLimiting;
 
-    public function authUser(): FilamentUser|Model|Authenticatable
+    public function authUser(): User
     {
-        /** @var FilamentUser $user */
+        /** @var User $user */
         $user = Filament::auth()->user();
-
-        if (! $user instanceof FilamentUser) {
-            throw new Exception('The authenticated user object must be a filament auth model!');
-        }
 
         return $user;
     }

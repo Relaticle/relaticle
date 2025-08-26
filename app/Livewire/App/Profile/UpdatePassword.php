@@ -92,7 +92,7 @@ final class UpdatePassword extends BaseLivewireComponent
 
         app(UpdateUserPasswordAction::class)->update($this->authUser(), $input);
 
-        if (request()->hasSession() && array_key_exists('password', $input)) {
+        if (request()->hasSession() && isset($input['password'])) {
             request()->session()->put(['password_hash_'.Filament::getAuthGuard() => Hash::make($input['password'])]);
         }
 
