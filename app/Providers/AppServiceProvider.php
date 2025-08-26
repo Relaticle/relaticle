@@ -9,6 +9,7 @@ use App\Models\Company;
 use App\Models\Note;
 use App\Models\Opportunity;
 use App\Models\People;
+use App\Models\SystemAdministrator;
 use App\Models\Task;
 use App\Models\Team;
 use App\Models\User;
@@ -66,6 +67,7 @@ final class AppServiceProvider extends ServiceProvider
             'opportunity' => Opportunity::class,
             'task' => Task::class,
             'note' => Note::class,
+            'system_administrator' => SystemAdministrator::class,
         ]);
     }
 
