@@ -10,12 +10,12 @@ use Relaticle\SystemAdmin\Enums\SystemAdministratorRole;
 
 final class SystemAdministratorPolicy
 {
-    public function viewAny(SystemAdministrator $admin): bool
+    public function viewAny(): bool
     {
         return true;
     }
 
-    public function view(SystemAdministrator $admin, SystemAdministrator $systemAdmin): bool
+    public function view(): bool
     {
         return true;
     }
@@ -58,7 +58,7 @@ final class SystemAdministratorPolicy
         return $admin->role === SystemAdministratorRole::SuperAdministrator;
     }
 
-    public function restore(SystemAdministrator $admin, SystemAdministrator $systemAdmin): bool
+    public function restore(SystemAdministrator $admin): bool
     {
         return $admin->role === SystemAdministratorRole::SuperAdministrator;
     }

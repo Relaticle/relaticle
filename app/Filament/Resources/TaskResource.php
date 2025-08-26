@@ -133,9 +133,7 @@ final class TaskResource extends Resource
 
                         return $query->orderBy($orderByQuery, $direction);
                     })
-                    ->getTitleFromRecordUsing(function (Task $record) use ($valueResolver, $customFields): ?string {
-                        return $valueResolver->resolve($record, $customFields['status']);
-                    }) : null,
+                    ->getTitleFromRecordUsing(fn (Task $record): ?string => $valueResolver->resolve($record, $customFields['status'])) : null,
                 $customFields->has('priority') ? Group::make('priority')
                     ->orderQueryUsing(function (Builder $query, string $direction) use ($customFields) {
                         $table = $query->getModel()->getTable();
@@ -149,9 +147,7 @@ final class TaskResource extends Resource
 
                         return $query->orderBy($orderByQuery, $direction);
                     })
-                    ->getTitleFromRecordUsing(function (Task $record) use ($valueResolver, $customFields): ?string {
-                        return $valueResolver->resolve($record, $customFields['priority']);
-                    }) : null,
+                    ->getTitleFromRecordUsing(fn (Task $record): ?string => $valueResolver->resolve($record, $customFields['priority'])) : null,
             ]))
             ->recordActions([
                 ActionGroup::make([

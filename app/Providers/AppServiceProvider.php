@@ -48,7 +48,7 @@ final class AppServiceProvider extends ServiceProvider
 
     private function configurePolicies(): void
     {
-        Gate::guessPolicyNamesUsing(function (string $modelClass) {
+        Gate::guessPolicyNamesUsing(function (string $modelClass): ?string {
             try {
                 $currentPanelId = Filament::getCurrentPanel()?->getId();
 
@@ -61,7 +61,7 @@ final class AppServiceProvider extends ServiceProvider
                         return $systemAdminPolicy;
                     }
                 }
-            } catch (\Exception $e) {
+            } catch (\Exception) {
                 // Fallback for non-Filament contexts
             }
 
@@ -77,9 +77,11 @@ final class AppServiceProvider extends ServiceProvider
         $classDirnameSegments = explode('\\', $classDirname);
 
         $candidates = collect();
+        // Generate all possible policy paths
+        $counter = count($classDirnameSegments);
 
         // Generate all possible policy paths
-        for ($index = 0; $index < count($classDirnameSegments); $index++) {
+        for ($index = 0; $index < $counter; $index++) {
             $classDirname = implode('\\', array_slice($classDirnameSegments, 0, $index));
             $candidates->push($classDirname.'\\Policies\\'.class_basename($modelClass).'Policy');
         }
@@ -92,8 +94,8 @@ final class AppServiceProvider extends ServiceProvider
         }
 
         // Return the first existing class, or fallback
-        $existingPolicy = $candidates->reverse()->first(fn ($policyClass) => class_exists($policyClass));
-        
+        $existingPolicy = $candidates->reverse()->first(fn ($policyClass): bool => class_exists($policyClass));
+
         return $existingPolicy ?: $classDirname.'\\Policies\\'.class_basename($modelClass).'Policy';
     }
 

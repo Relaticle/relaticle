@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Relaticle\SystemAdmin\Filament\Resources\SystemAdministrators\Schemas;
 
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Schema;
 
-class SystemAdministratorInfolist
+final class SystemAdministratorInfolist
 {
     public static function configure(Schema $schema): Schema
     {

@@ -10,14 +10,16 @@ use Relaticle\SystemAdmin\Enums\SystemAdministratorRole;
 
 final class UserPolicy
 {
-    public function viewAny(SystemAdministrator $admin): bool
+    public function viewAny(): bool
     {
-        return true; // System admins can view all users across all tenants
+        return true;
+        // System admins can view all users across all tenants
     }
 
-    public function view(SystemAdministrator $admin, User $user): bool
+    public function view(): bool
     {
-        return true; // System admins can view any user
+        return true;
+        // System admins can view any user
     }
 
     public function create(SystemAdministrator $admin): bool
@@ -25,12 +27,12 @@ final class UserPolicy
         return $admin->role === SystemAdministratorRole::SuperAdministrator;
     }
 
-    public function update(SystemAdministrator $admin, User $user): bool
+    public function update(SystemAdministrator $admin): bool
     {
         return $admin->role === SystemAdministratorRole::SuperAdministrator;
     }
 
-    public function delete(SystemAdministrator $admin, User $user): bool
+    public function delete(SystemAdministrator $admin): bool
     {
         return $admin->role === SystemAdministratorRole::SuperAdministrator;
     }
@@ -40,12 +42,12 @@ final class UserPolicy
         return $admin->role === SystemAdministratorRole::SuperAdministrator;
     }
 
-    public function restore(SystemAdministrator $admin, User $user): bool
+    public function restore(SystemAdministrator $admin): bool
     {
         return $admin->role === SystemAdministratorRole::SuperAdministrator;
     }
 
-    public function forceDelete(SystemAdministrator $admin, User $user): bool
+    public function forceDelete(SystemAdministrator $admin): bool
     {
         return $admin->role === SystemAdministratorRole::SuperAdministrator;
     }

@@ -5,39 +5,23 @@ declare(strict_types=1);
 return [
     /*
     |--------------------------------------------------------------------------
-    | Custom Fields Resource Configuration
+    | Features
     |--------------------------------------------------------------------------
     |
-    | This section controls the Custom Fields resource.
-    | This allows you to customize the behavior of the resource.
+    | This section controls the features of the Custom Fields package.
+    | You can enable or disable features as needed.
     |
     */
-    'custom_fields_resource' => [
-        'should_register_navigation' => true,
-        'slug' => 'custom-fields',
-        'navigation_sort' => -1,
-        'navigation_badge' => false,
-        'navigation_group' => true,
-        'is_globally_searchable' => false,
-        'is_scoped_to_tenant' => true,
-        'cluster' => null,
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Entity Resources Configuration
-    |--------------------------------------------------------------------------
-    |
-    | This section controls which Filament resources are allowed or disallowed
-    | to have custom fields. You can specify allowed resources, disallowed
-    | resources, or leave them empty to use default behavior.
-    |
-    */
-    'allowed_entity_resources' => [
-        App\Filament\Resources\PeopleResource::class,
-    ],
-
-    'disallowed_entity_resources' => [
+    'features' => [
+        'conditional_visibility' => [
+            'enabled' => true,
+        ],
+        'encryption' => [
+            'enabled' => true,
+        ],
+        'select_option_colors' => [
+            'enabled' => true,
+        ],
     ],
 
     /*
@@ -51,30 +35,134 @@ return [
     */
     'resource' => [
         'table' => [
+            'columns' => [
+                'enabled' => true,
+            ],
             'columns_toggleable' => [
                 'enabled' => true,
-                'user_control' => false,
+                'user_control' => true,
                 'hidden_by_default' => true,
+            ],
+            'filters' => [
+                'enabled' => true,
             ],
         ],
     ],
 
     /*
     |--------------------------------------------------------------------------
-    | Lookup Resources Configuration
+    | Field Types Availability
     |--------------------------------------------------------------------------
     |
-    | Define which Filament resources can be used as lookups. You can specify
-    | allowed resources, disallowed resources, or leave them empty to use
-    | default behavior.
+    | Configure which field types are available in the application.
+    | Use 'enabled' to allow only specific types, or 'disabled' to exclude types.
+    | Empty arrays mean no restrictions apply.
     |
     */
-    'allowed_lookup_resources' => [
-        //
+    'field_types' => [
+        'enabled' => [
+            // Empty array = all field types enabled (default)
+        ],
+        'disabled' => [
+            // Specify field type keys to disable:
+        ],
     ],
 
-    'disallowed_lookup_resources' => [
-        //
+    /*
+    |--------------------------------------------------------------------------
+    | Custom Field Types Configuration
+    |--------------------------------------------------------------------------
+    |
+    | This section controls the Custom Field Types.
+    | This allows you to customize the behavior of the field types.
+    |
+    */
+    'field_types_configuration' => [
+        'date' => [
+            'native' => false,
+            'format' => 'Y-m-d',
+            'display_format' => null,
+        ],
+        'date_time' => [
+            'native' => false,
+            'format' => 'Y-m-d H:i:s',
+            'display_format' => null,
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Custom Fields Resource Configuration
+    |--------------------------------------------------------------------------
+    |
+    | This section controls the Custom Fields resource.
+    | This allows you to customize the behavior of the resource.
+    |
+    */
+    'custom_fields_management' => [
+        'should_register_navigation' => true,
+        'slug' => 'custom-fields',
+        'navigation_sort' => -1,
+        'navigation_group' => true,
+        'cluster' => null,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Entity Management Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Configure how entities (models that can have custom fields) are
+    | discovered, registered, and managed throughout the system.
+    |
+    */
+    'entity_management' => [
+        /*
+        | Enable automatic discovery of entities from configured paths
+        | and Filament Resources. When disabled, only manually registered
+        | entities will be available.
+        */
+        'auto_discover_entities' => env('CUSTOM_FIELDS_AUTO_DISCOVER_ENTITIES', true),
+
+        /*
+        | Directories to scan for models implementing HasCustomFields.
+        | All models in these directories will be automatically discovered.
+        */
+        'entity_discovery_paths' => [
+            app_path('Models'),
+        ],
+
+        /*
+        | Namespaces to scan for entity models.
+        | Used when discovery paths are not sufficient.
+        */
+        'entity_discovery_namespaces' => [
+            'App\\Models',
+        ],
+
+        /*
+        | Enable caching of discovered entities for better performance.
+        | Disable during development for immediate updates.
+        */
+        'cache_entities' => env('CUSTOM_FIELDS_CACHE_ENTITIES', true),
+
+        /*
+        | Models to exclude from automatic discovery.
+        | These models will not be available as entities even if they
+        | implement HasCustomFields.
+        */
+        'excluded_models' => [
+            // App\Models\User::class,
+        ],
+
+        /*
+        | Manually registered entities.
+        | Use this to register entities without Resources or to override
+        | auto-discovered configuration.
+        */
+        'entities' => [
+            //
+        ],
     ],
 
     /*

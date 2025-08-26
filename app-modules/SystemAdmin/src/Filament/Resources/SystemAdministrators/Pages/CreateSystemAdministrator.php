@@ -20,7 +20,7 @@ final class CreateSystemAdministrator extends CreateRecord
         ];
     }
 
-    protected function getCancelAction(): Action
+    private function getCancelAction(): Action
     {
         return Action::make('cancel')
             ->label('Cancel')
