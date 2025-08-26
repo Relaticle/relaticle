@@ -15,7 +15,6 @@ use Filament\Schemas\Components\Grid;
 use Filament\Support\Enums\Alignment;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Gate;
 use Laravel\Jetstream\Events\TeamMemberUpdated;
 use Laravel\Jetstream\Jetstream;
@@ -43,7 +42,7 @@ final class TeamMembers extends BaseLivewireComponent implements Tables\Contract
                 Tables\Columns\Layout\Split::make([
                     Tables\Columns\ImageColumn::make('profile_photo_url')
                         ->disk(config('jetstream.profile_photo_disk'))
-                        ->defaultImageUrl(fn (Model $record): string => Filament::getUserAvatarUrl($record->user))
+                        ->defaultImageUrl(fn (Membership $record): string => Filament::getUserAvatarUrl($record->user))
                         ->circular()
                         ->imageSize(25)
                         ->grow(false),
@@ -53,8 +52,8 @@ final class TeamMembers extends BaseLivewireComponent implements Tables\Contract
             ->paginated(false)
             ->recordActions([
                 Action::make('updateTeamRole')
-                    ->visible(fn (Model $record): bool => Gate::check('updateTeamMember', $this->team))
-                    ->label(fn (Model $record): string => $record->role)
+                    ->visible(fn (Membership $record): bool => Gate::check('updateTeamMember', $this->team))
+                    ->label(fn (Membership $record): string => $record->role)
                     ->modalWidth('lg')
                     ->modalHeading(__('teams.actions.update_team_role'))
                     ->modalSubmitActionLabel(__('teams.actions.save'))
@@ -73,14 +72,16 @@ final class TeamMembers extends BaseLivewireComponent implements Tables\Contract
                                         ->in($roles->pluck('key'))
                                         ->options($roles->pluck('name', 'key'))
                                         ->descriptions($roles->pluck('description', 'key'))
-                                        ->default(fn (Model $record): string => $record->role),
+                                        ->default(fn (Membership $record): string => $record->role),
                                 ];
                             }),
                     ])
-                    ->action(fn (Model $record, array $data): void => $this->updateTeamRole($this->team, $record, $data)),
+                    ->action(function (Membership $record, array $data): void {
+                        $this->updateTeamRole($this->team, $record, $data);
+                    }),
                 Action::make('removeTeamMember')
                     ->visible(
-                        fn (Model $record): bool => $this->authUser()->id !== $record->user_id && Gate::check(
+                        fn (Membership $record): bool => $this->authUser()->id !== $record->user_id && Gate::check(
                             'removeTeamMember',
                             $this->team
                         )
@@ -88,19 +89,26 @@ final class TeamMembers extends BaseLivewireComponent implements Tables\Contract
                     ->label(__('teams.actions.remove_team_member'))
                     ->color('danger')
                     ->requiresConfirmation()
-                    ->action(fn (Model $record): void => $this->removeTeamMember($this->team, $record)),
+                    ->action(function (Membership $record): void {
+                        $this->removeTeamMember($this->team, $record);
+                    }),
                 Action::make('leaveTeam')
-                    ->visible(fn (Model $record): bool => $this->authUser()->id === $record->user_id)
+                    ->visible(fn (Membership $record): bool => $this->authUser()->id === $record->user_id)
                     ->icon('heroicon-o-arrow-right-start-on-rectangle')
                     ->color('danger')
                     ->label(__('teams.actions.leave_team'))
                     ->modalDescription(__('teams.modals.leave_team.notice'))
                     ->requiresConfirmation()
-                    ->action(fn (Model $record): void => $this->leaveTeam($this->team)),
+                    ->action(function (Membership $record): void {
+                        $this->leaveTeam($this->team);
+                    }),
             ]);
     }
 
-    public function updateTeamRole(Model $team, Model $teamMember, array $data): void
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    public function updateTeamRole(Team $team, Membership $teamMember, array $data): void
     {
         if (! Gate::check('updateTeamMember', $team)) {
             $this->sendNotification(
@@ -120,7 +128,7 @@ final class TeamMembers extends BaseLivewireComponent implements Tables\Contract
         $team->fresh();
     }
 
-    public function removeTeamMember(Team $team, Model $teamMember): void
+    public function removeTeamMember(Team $team, Membership $teamMember): void
     {
         try {
             app(RemoveTeamMemberAction::class)->remove($this->authUser(), $team, $teamMember->user);

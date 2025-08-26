@@ -66,7 +66,9 @@ final class DeleteAccount extends BaseLivewireComponent
             if (config('jetstream.features.teams', false)) {
                 $user->teams()->detach();
 
-                $user->ownedTeams->each(function (Team $team): void {
+                /** @var \Illuminate\Database\Eloquent\Collection<int, Team> $ownedTeams */
+                $ownedTeams = $user->ownedTeams;
+                $ownedTeams->each(function (Team $team): void {
                     app(DeleteTeam::class)->delete($team);
                 });
             }
@@ -78,7 +80,7 @@ final class DeleteAccount extends BaseLivewireComponent
 
             // Delete API tokens if they exist
             if (method_exists($user, 'tokens')) {
-                $user->tokens?->each->delete();
+                $user->tokens->each->delete();
             }
 
             $user->delete();

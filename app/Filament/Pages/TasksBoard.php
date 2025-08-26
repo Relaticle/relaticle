@@ -152,6 +152,7 @@ final class TasksBoard extends BoardPage
             throw new InvalidArgumentException('Board query not available');
         }
 
+        /** @var Task|null $card */
         $card = (clone $query)->find($cardId);
         if (! $card) {
             throw new InvalidArgumentException("Card not found: {$cardId}");
@@ -208,6 +209,7 @@ final class TasksBoard extends BoardPage
      */
     private function statuses(): Collection
     {
+        // @phpstan-ignore-next-line Collection type covariance issue
         return $this->statusCustomField()->options->map(fn (CustomFieldOption $option): array => [
             'id' => $option->getKey(),
             'custom_field_id' => $option->getAttribute('custom_field_id'),
