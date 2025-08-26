@@ -189,7 +189,7 @@ final class TasksBoard extends BoardPage
      */
     private function getColumns(): array
     {
-        return $this->statuses()->map(fn (array $status): \Relaticle\Flowforge\Column => Column::make((string) $status['id'])
+        return $this->statuses()->map(fn (array $status): Column => Column::make((string) $status['id'])
             ->color($status['color'])
             ->label($status['name'])
         )->toArray();
@@ -209,12 +209,22 @@ final class TasksBoard extends BoardPage
      */
     private function statuses(): Collection
     {
-        // @phpstan-ignore-next-line Collection type covariance issue
-        return $this->statusCustomField()->options->map(fn (CustomFieldOption $option): array => [
+        $field = $this->statusCustomField();
+
+        if (! $field instanceof CustomField) {
+            return collect();
+        }
+
+        return $field->options->map(fn (CustomFieldOption $option): array => [
             'id' => $option->getKey(),
             'custom_field_id' => $option->getAttribute('custom_field_id'),
             'name' => $option->getAttribute('name'),
             'color' => $option->settings->color,
         ]);
+    }
+
+    public static function canAccess(): bool
+    {
+        return (new self)->statusCustomField() instanceof CustomField;
     }
 }
