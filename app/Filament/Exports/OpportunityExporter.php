@@ -42,7 +42,7 @@ final class OpportunityExporter extends Exporter
                 ->formatStateUsing(fn (Carbon $state): string => $state->format('Y-m-d H:i:s')),
             ExportColumn::make('creation_source')
                 ->label('Creation Source')
-                ->formatStateUsing(fn ($state): string => $state->value ?? (string) $state),
+                ->formatStateUsing(fn (mixed $state): string => $state->value ?? (string) $state),
 
             // Add all custom fields automatically
             ...CustomFields::exporter()->forModel(self::getModel())->columns(),

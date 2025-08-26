@@ -8,12 +8,18 @@ use App\Models\Company;
 use Filament\Actions\Exports\ExportColumn;
 use Filament\Actions\Exports\Exporter;
 use Filament\Actions\Exports\Models\Export;
-use Relaticle\CustomFields\Filament\Exports\CustomFieldsExporter;
+use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Contracts\Container\CircularDependencyException;
+use Relaticle\CustomFields\Facades\CustomFields;
 
 final class CompanyExporter extends Exporter
 {
     protected static ?string $model = Company::class;
 
+    /**
+     * @throws CircularDependencyException
+     * @throws BindingResolutionException
+     */
     public static function getColumns(): array
     {
         return [
@@ -29,7 +35,7 @@ final class CompanyExporter extends Exporter
             ExportColumn::make('creation_source'),
 
             // Add all custom fields automatically
-            ...CustomFieldsExporter::getColumns(self::getModel()),
+            ...CustomFields::exporter()->forModel(self::getModel())->columns(),
         ];
     }
 
