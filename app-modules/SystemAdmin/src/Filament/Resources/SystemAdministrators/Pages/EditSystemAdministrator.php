@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Relaticle\SystemAdmin\Filament\Resources\SystemAdministrators\Pages;
 
-use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ViewAction;
 use Filament\Resources\Pages\EditRecord;

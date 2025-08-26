@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
-use Relaticle\SystemAdmin\Enums\SystemAdministratorRole;
 use App\Models\SystemAdministrator;
 use Illuminate\Database\Seeder;
+use Relaticle\SystemAdmin\Enums\SystemAdministratorRole;
 
 final class SystemAdministratorSeeder extends Seeder
 {

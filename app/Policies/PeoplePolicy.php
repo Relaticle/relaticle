@@ -13,44 +13,44 @@ final readonly class PeoplePolicy
 {
     use HandlesAuthorization;
 
-    public function viewAny(): bool
+    public function viewAny(User $user): bool
     {
-        return true;
+        return $user->hasVerifiedEmail() && $user->currentTeam !== null;
     }
 
-    public function view(): bool
+    public function view(User $user, People $people): bool
     {
-        return true;
+        return $user->belongsToTeam($people->team);
     }
 
-    public function create(): bool
+    public function create(User $user): bool
     {
-        return true;
+        return $user->hasVerifiedEmail() && $user->currentTeam !== null;
     }
 
-    public function update(): bool
+    public function update(User $user, People $people): bool
     {
-        return true;
+        return $user->belongsToTeam($people->team);
     }
 
-    public function delete(): bool
+    public function delete(User $user, People $people): bool
     {
-        return true;
+        return $user->belongsToTeam($people->team);
     }
 
-    public function deleteAny(): bool
+    public function deleteAny(User $user): bool
     {
-        return true;
+        return $user->hasVerifiedEmail() && $user->currentTeam !== null;
     }
 
-    public function restore(): bool
+    public function restore(User $user, People $people): bool
     {
-        return true;
+        return $user->belongsToTeam($people->team);
     }
 
-    public function restoreAny(): bool
+    public function restoreAny(User $user): bool
     {
-        return true;
+        return $user->hasVerifiedEmail() && $user->currentTeam !== null;
     }
 
     public function forceDelete(User $user, People $people): bool

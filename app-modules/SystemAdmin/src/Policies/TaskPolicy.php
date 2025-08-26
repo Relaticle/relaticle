@@ -10,14 +10,16 @@ use Relaticle\SystemAdmin\Enums\SystemAdministratorRole;
 
 final class TaskPolicy
 {
-    public function viewAny(SystemAdministrator $admin): bool
+    public function viewAny(): bool
     {
-        return true; // System admins can view all tasks across all tenants
+        return true;
+        // System admins can view all tasks across all tenants
     }
 
-    public function view(SystemAdministrator $admin, Task $task): bool
+    public function view(): bool
     {
-        return true; // System admins can view any specific task
+        return true;
+        // System admins can view any specific task
     }
 
     public function create(SystemAdministrator $admin): bool
@@ -25,12 +27,12 @@ final class TaskPolicy
         return $admin->role === SystemAdministratorRole::SuperAdministrator;
     }
 
-    public function update(SystemAdministrator $admin, Task $task): bool
+    public function update(SystemAdministrator $admin): bool
     {
         return $admin->role === SystemAdministratorRole::SuperAdministrator;
     }
 
-    public function delete(SystemAdministrator $admin, Task $task): bool
+    public function delete(SystemAdministrator $admin): bool
     {
         return $admin->role === SystemAdministratorRole::SuperAdministrator;
     }
@@ -40,12 +42,12 @@ final class TaskPolicy
         return $admin->role === SystemAdministratorRole::SuperAdministrator;
     }
 
-    public function restore(SystemAdministrator $admin, Task $task): bool
+    public function restore(SystemAdministrator $admin): bool
     {
         return $admin->role === SystemAdministratorRole::SuperAdministrator;
     }
 
-    public function forceDelete(SystemAdministrator $admin, Task $task): bool
+    public function forceDelete(SystemAdministrator $admin): bool
     {
         return $admin->role === SystemAdministratorRole::SuperAdministrator;
     }

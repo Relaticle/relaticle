@@ -18,7 +18,7 @@ describe('SystemAdmin Security', function () {
 
         // System admin cannot access app panel
         expect($admin->canAccessPanel(Filament::getPanel('app')))->toBeFalse();
-        
+
         // Regular user cannot access sysadmin panel
         expect($user->canAccessPanel(Filament::getPanel('sysadmin')))->toBeFalse();
 
@@ -32,7 +32,7 @@ describe('SystemAdmin Security', function () {
         $superAdmin = SystemAdministrator::factory()->create([
             'role' => SystemAdministratorRole::SuperAdministrator,
         ]);
-        
+
         $otherAdmin = SystemAdministrator::factory()->create([
             'role' => SystemAdministratorRole::SuperAdministrator,
         ]);
@@ -42,7 +42,7 @@ describe('SystemAdmin Security', function () {
         // Can perform administrative actions
         expect(auth('sysadmin')->user()->can('create', SystemAdministrator::class))->toBeTrue();
         expect(auth('sysadmin')->user()->can('viewAny', SystemAdministrator::class))->toBeTrue();
-        
+
         // Can manage others but not delete self
         expect(auth('sysadmin')->user()->can('update', $otherAdmin))->toBeTrue();
         expect(auth('sysadmin')->user()->can('delete', $otherAdmin))->toBeTrue();
@@ -58,9 +58,9 @@ describe('SystemAdmin Security', function () {
     it('protects routes with authentication', function () {
         $this->get('/sysadmin/system-administrators')
             ->assertRedirect('/sysadmin/login');
-        
+
         $admin = SystemAdministrator::factory()->create();
-        
+
         $this->actingAs($admin, 'sysadmin')
             ->get('/sysadmin/system-administrators')
             ->assertOk();

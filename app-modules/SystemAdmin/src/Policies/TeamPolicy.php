@@ -10,14 +10,16 @@ use Relaticle\SystemAdmin\Enums\SystemAdministratorRole;
 
 final class TeamPolicy
 {
-    public function viewAny(SystemAdministrator $admin): bool
+    public function viewAny(): bool
     {
-        return true; // System admins can view all teams
+        return true;
+        // System admins can view all teams
     }
 
-    public function view(SystemAdministrator $admin, Team $team): bool
+    public function view(): bool
     {
-        return true; // System admins can view any team
+        return true;
+        // System admins can view any team
     }
 
     public function create(SystemAdministrator $admin): bool
@@ -25,12 +27,12 @@ final class TeamPolicy
         return $admin->role === SystemAdministratorRole::SuperAdministrator;
     }
 
-    public function update(SystemAdministrator $admin, Team $team): bool
+    public function update(SystemAdministrator $admin): bool
     {
         return $admin->role === SystemAdministratorRole::SuperAdministrator;
     }
 
-    public function delete(SystemAdministrator $admin, Team $team): bool
+    public function delete(SystemAdministrator $admin): bool
     {
         return $admin->role === SystemAdministratorRole::SuperAdministrator;
     }
@@ -40,12 +42,12 @@ final class TeamPolicy
         return $admin->role === SystemAdministratorRole::SuperAdministrator;
     }
 
-    public function restore(SystemAdministrator $admin, Team $team): bool
+    public function restore(SystemAdministrator $admin): bool
     {
         return $admin->role === SystemAdministratorRole::SuperAdministrator;
     }
 
-    public function forceDelete(SystemAdministrator $admin, Team $team): bool
+    public function forceDelete(SystemAdministrator $admin): bool
     {
         return $admin->role === SystemAdministratorRole::SuperAdministrator;
     }

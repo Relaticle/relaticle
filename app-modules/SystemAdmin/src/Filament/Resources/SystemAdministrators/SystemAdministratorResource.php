@@ -11,7 +11,6 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use UnitEnum;
 use Relaticle\SystemAdmin\Filament\Resources\SystemAdministrators\Pages\CreateSystemAdministrator;
 use Relaticle\SystemAdmin\Filament\Resources\SystemAdministrators\Pages\EditSystemAdministrator;
 use Relaticle\SystemAdmin\Filament\Resources\SystemAdministrators\Pages\ListSystemAdministrators;
@@ -19,6 +18,7 @@ use Relaticle\SystemAdmin\Filament\Resources\SystemAdministrators\Pages\ViewSyst
 use Relaticle\SystemAdmin\Filament\Resources\SystemAdministrators\Schemas\SystemAdministratorForm;
 use Relaticle\SystemAdmin\Filament\Resources\SystemAdministrators\Schemas\SystemAdministratorInfolist;
 use Relaticle\SystemAdmin\Filament\Resources\SystemAdministrators\Tables\SystemAdministratorsTable;
+use UnitEnum;
 
 final class SystemAdministratorResource extends Resource
 {

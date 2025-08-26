@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Relaticle\SystemAdmin\Filament\Resources\SystemAdministrators\Tables;
 
-use Relaticle\SystemAdmin\Enums\SystemAdministratorRole;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -14,6 +13,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
+use Relaticle\SystemAdmin\Enums\SystemAdministratorRole;
 
 final class SystemAdministratorsTable
 {

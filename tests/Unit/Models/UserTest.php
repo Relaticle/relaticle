@@ -30,7 +30,6 @@ test('user belongs to many tasks', function () {
         ->and($user->tasks->first()->id)->toBe($task->id);
 });
 
-
 test('user can access tenants', function () {
     $user = User::factory()->create();
     $team = Team::factory()->create(['user_id' => $user->id]);

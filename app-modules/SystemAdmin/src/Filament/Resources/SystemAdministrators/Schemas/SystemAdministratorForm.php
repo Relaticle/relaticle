@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Relaticle\SystemAdmin\Filament\Resources\SystemAdministrators\Schemas;
 
-use Relaticle\SystemAdmin\Enums\SystemAdministratorRole;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -12,6 +11,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Hash;
+use Relaticle\SystemAdmin\Enums\SystemAdministratorRole;
 
 final class SystemAdministratorForm
 {
@@ -49,9 +49,9 @@ final class SystemAdministratorForm
 
                         TextInput::make('password')
                             ->password()
-                            ->dehydrateStateUsing(fn (?string $state): ?string => $state ? Hash::make($state) : null)
+                            ->dehydrateStateUsing(fn (?string $state): ?string => $state !== null && $state !== '' && $state !== '0' ? Hash::make($state) : null)
                             ->dehydrated(fn (?string $state): bool => filled($state))
-                            ->required(fn (Get $get): bool => !$get('id'))
+                            ->required(fn (Get $get): bool => ! $get('id'))
                             ->maxLength(255)
                             ->confirmed()
                             ->helperText(fn (Get $get): ?string => $get('id') ? 'Leave blank to keep current password' : null),
@@ -59,7 +59,7 @@ final class SystemAdministratorForm
                         TextInput::make('password_confirmation')
                             ->password()
                             ->dehydrated(false)
-                            ->required(fn (Get $get): bool => !$get('id') && filled($get('password')))
+                            ->required(fn (Get $get): bool => ! $get('id') && filled($get('password')))
                             ->maxLength(255),
                     ])
                     ->columns(2),
