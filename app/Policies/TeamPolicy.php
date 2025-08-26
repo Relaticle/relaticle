@@ -75,4 +75,29 @@ final readonly class TeamPolicy
     {
         return $user->ownsTeam($team);
     }
+
+    public function deleteAny(User $user): bool
+    {
+        return false;
+    }
+
+    public function restore(User $user, Team $team): bool
+    {
+        return $user->ownsTeam($team);
+    }
+
+    public function restoreAny(User $user): bool
+    {
+        return false;
+    }
+
+    public function forceDelete(User $user, Team $team): bool
+    {
+        return $user->ownsTeam($team);
+    }
+
+    public function forceDeleteAny(User $user): bool
+    {
+        return false;
+    }
 }

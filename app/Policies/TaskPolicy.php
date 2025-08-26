@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
+use App\Models\Task;
+use App\Models\User;
 use Filament\Facades\Filament;
 use Illuminate\Auth\Access\HandlesAuthorization;
 use Illuminate\Support\Facades\Auth;
@@ -37,13 +39,28 @@ final readonly class TaskPolicy
         return true;
     }
 
+    public function deleteAny(): bool
+    {
+        return true;
+    }
+
     public function restore(): bool
     {
         return true;
     }
 
-    public function forceDelete(): bool
+    public function restoreAny(): bool
     {
-        return Auth::user()->hasTeamRole(Filament::getTenant(), 'admin');
+        return true;
+    }
+
+    public function forceDelete(User $user, Task $task): bool
+    {
+        return $user->hasTeamRole($task->team, 'admin');
+    }
+
+    public function forceDeleteAny(User $user): bool
+    {
+        return $user->hasTeamRole(Filament::getTenant(), 'admin');
     }
 }

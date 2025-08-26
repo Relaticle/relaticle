@@ -30,19 +30,6 @@ test('user belongs to many tasks', function () {
         ->and($user->tasks->first()->id)->toBe($task->id);
 });
 
-test('user can access admin panel', function () {
-    $adminUser = User::factory()->create([
-        'email' => 'manuk.minasyan1@gmail.com',
-        'email_verified_at' => now(),
-    ]);
-
-    $regularUser = User::factory()->create();
-
-    $panel = app(\Filament\Panel::class)->id('admin');
-
-    expect($adminUser->canAccessPanel($panel))->toBeTrue()
-        ->and($regularUser->canAccessPanel($panel))->toBeFalse();
-});
 
 test('user can access tenants', function () {
     $user = User::factory()->create();

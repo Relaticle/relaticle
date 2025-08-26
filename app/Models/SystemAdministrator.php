@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use Relaticle\SystemAdmin\Enums\SystemAdministratorRole;
 use Database\Factories\SystemAdministratorFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasAvatar;
@@ -15,6 +14,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
 use Laravel\Sanctum\HasApiTokens;
+use Relaticle\SystemAdmin\Enums\SystemAdministratorRole;
 
 /**
  * @property int $id
