@@ -6,13 +6,9 @@ namespace App\Policies;
 
 use App\Models\User;
 use Filament\Facades\Filament;
-use Illuminate\Auth\Access\HandlesAuthorization;
-use Illuminate\Support\Facades\Auth;
 
-final readonly class OpportunityPolicy
+final class NotePolicy
 {
-    use HandlesAuthorization;
-
     public function viewAny(): bool
     {
         return true;

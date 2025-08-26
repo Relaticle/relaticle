@@ -37,12 +37,27 @@ final readonly class CompanyPolicy
         return true;
     }
 
+    public function deleteAny(): bool
+    {
+        return true;
+    }
+
     public function restore(): bool
     {
         return true;
     }
 
+    public function restoreAny(): bool
+    {
+        return true;
+    }
+
     public function forceDelete(User $user): bool
+    {
+        return $user->hasTeamRole(Filament::getTenant(), 'admin');
+    }
+
+    public function forceDeleteAny(User $user): bool
     {
         return $user->hasTeamRole(Filament::getTenant(), 'admin');
     }

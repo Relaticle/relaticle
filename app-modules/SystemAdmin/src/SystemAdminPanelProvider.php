@@ -45,6 +45,7 @@ final class SystemAdminPanelProvider extends PanelProvider
             ->emailVerification()
             ->authGuard('sysadmin')
             ->authPasswordBroker('system_administrators')
+            ->strictAuthorization()
             ->spa()
             ->colors([
                 'primary' => Color::Indigo,

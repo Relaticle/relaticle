@@ -34,10 +34,10 @@ return [
     |
     */
     'allowed_entity_resources' => [
+        App\Filament\Resources\PeopleResource::class,
     ],
 
     'disallowed_entity_resources' => [
-        \App\Filament\Resources\UserResource::class,
     ],
 
     /*
