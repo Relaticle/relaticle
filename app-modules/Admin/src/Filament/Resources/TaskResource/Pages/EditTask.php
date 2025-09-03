@@ -4,20 +4,22 @@ declare(strict_types=1);
 
 namespace Relaticle\Admin\Filament\Resources\TaskResource\Pages;
 
-use Filament\Actions;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\ViewAction;
 use Filament\Resources\Pages\EditRecord;
+use Override;
 use Relaticle\Admin\Filament\Resources\TaskResource;
 
 final class EditTask extends EditRecord
 {
     protected static string $resource = TaskResource::class;
 
-    #[\Override]
+    #[Override]
     protected function getHeaderActions(): array
     {
         return [
-            Actions\ViewAction::make(),
-            Actions\DeleteAction::make(),
+            ViewAction::make(),
+            DeleteAction::make(),
         ];
     }
 }

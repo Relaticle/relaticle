@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\Admin\Filament\Resources\TeamResource\Pages;
 
-use Filament\Actions;
+use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 use Relaticle\Admin\Filament\Resources\TeamResource;
 
@@ -15,7 +15,7 @@ final class ListTeams extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            CreateAction::make(),
         ];
     }
 }

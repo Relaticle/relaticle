@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Enums\CustomFields;
 
-use Relaticle\CustomFields\Enums\CustomFieldType;
+use App\Enums\CustomFieldType;
 
 /**
  * People custom field codes
@@ -18,12 +18,12 @@ enum People: string
     case JOB_TITLE = 'job_title';
     case LINKEDIN = 'linkedin';
 
-    public function getFieldType(): CustomFieldType
+    public function getFieldType(): string
     {
         return match ($this) {
-            self::EMAILS => CustomFieldType::TAGS_INPUT,
-            self::PHONE_NUMBER, self::JOB_TITLE => CustomFieldType::TEXT,
-            self::LINKEDIN => CustomFieldType::LINK,
+            self::EMAILS => CustomFieldType::TAGS_INPUT->value,
+            self::PHONE_NUMBER, self::JOB_TITLE => CustomFieldType::TEXT->value,
+            self::LINKEDIN => CustomFieldType::LINK->value,
         };
     }
 

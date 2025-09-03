@@ -12,6 +12,7 @@ use Relaticle\OnboardSeed\ModelSeeders\NoteSeeder;
 use Relaticle\OnboardSeed\ModelSeeders\OpportunitySeeder;
 use Relaticle\OnboardSeed\ModelSeeders\PeopleSeeder;
 use Relaticle\OnboardSeed\ModelSeeders\TaskSeeder;
+use Throwable;
 
 final class OnboardSeedManager
 {
@@ -60,7 +61,7 @@ final class OnboardSeedManager
             }
 
             return true;
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             report($e);
 
             return false;

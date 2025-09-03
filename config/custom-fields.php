@@ -37,7 +37,7 @@ return [
     ],
 
     'disallowed_entity_resources' => [
-        \App\Filament\App\Resources\UserResource::class,
+        \App\Filament\Resources\UserResource::class,
     ],
 
     /*
