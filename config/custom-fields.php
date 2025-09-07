@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Relaticle\CustomFields\Entities\Configuration\EntityConfiguration;
-use Relaticle\CustomFields\FieldSystem\SystemConfig;
+use Relaticle\CustomFields\EntitySystem\EntityConfigurator;
+use Relaticle\CustomFields\FieldTypeSystem\FieldTypeConfigurator;
 
 return [
     /*
@@ -15,7 +15,7 @@ return [
     | clean, type-safe fluent builder interface.
     |
     */
-    'entity_configuration' => EntityConfiguration::configure()
+    'entity_configuration' => EntityConfigurator::configure()
         ->discover(app_path('Models'))
         ->include([
             App\Models\People::class,
@@ -35,10 +35,10 @@ return [
     | This provides advanced control over validation, security, and behavior.
     |
     */
-    'field_type_configuration' => SystemConfig::configure()
+    'field_type_configuration' => FieldTypeConfigurator::configure()
         // Control which field types are available globally
         ->enabled([]) // Empty = all enabled, or specify: ['text', 'email', 'select']
-        ->disabled(['rich-editor']) // Disable specific field types
+        ->disabled(['rich-editor', 'file-upload']) // Disable specific field types
         ->discover(true)
         ->cache(enabled: true, ttl: 3600),
 
@@ -83,7 +83,7 @@ return [
     'management' => [
         'enabled' => true,
         'slug' => 'custom-fields',
-        'navigation_sort' => -1,
+        'navigation_sort' => 100,
         'navigation_group' => true,
         'cluster' => null,
     ],
@@ -96,7 +96,7 @@ return [
     | Enable multi-tenancy support with automatic tenant isolation.
     |
     */
-    'tenant_aware' => false,
+    'tenant_aware' => true,
 
     /*
     |--------------------------------------------------------------------------
