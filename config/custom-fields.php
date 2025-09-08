@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 use Relaticle\CustomFields\EntitySystem\EntityConfigurator;
 use Relaticle\CustomFields\FieldTypeSystem\FieldTypeConfigurator;
+use Relaticle\CustomFields\FeatureSystem\FeatureConfigurator;
+use Relaticle\CustomFields\Enums\CustomFieldsFeature;
 
 return [
     /*
@@ -38,7 +40,7 @@ return [
     'field_type_configuration' => FieldTypeConfigurator::configure()
         // Control which field types are available globally
         ->enabled([]) // Empty = all enabled, or specify: ['text', 'email', 'select']
-        ->disabled(['rich-editor', 'file-upload']) // Disable specific field types
+        ->disabled([]) // Disable specific field types
         ->discover(true)
         ->cache(enabled: true, ttl: 3600),
 
@@ -47,14 +49,22 @@ return [
     | Features Configuration
     |--------------------------------------------------------------------------
     |
-    | Enable or disable package features. All features are enabled by default.
+    | Configure package features using the type-safe enum-based configurator.
+    | This consolidates all feature settings into a single, organized system.
     |
     */
-    'features' => [
-        'conditional_visibility' => true,
-        'encryption' => true,
-        'select_option_colors' => true,
-    ],
+    'features' => FeatureConfigurator::configure()
+        ->enable(
+            CustomFieldsFeature::FIELD_CONDITIONAL_VISIBILITY,
+            CustomFieldsFeature::FIELD_ENCRYPTION,
+            CustomFieldsFeature::FIELD_OPTION_COLORS,
+            CustomFieldsFeature::UI_TABLE_COLUMNS,
+            CustomFieldsFeature::UI_TOGGLEABLE_COLUMNS,
+            CustomFieldsFeature::UI_TABLE_FILTERS,
+            CustomFieldsFeature::SYSTEM_MANAGEMENT_INTERFACE,
+            CustomFieldsFeature::SYSTEM_MULTI_TENANCY
+        ),
+
 
     /*
     |--------------------------------------------------------------------------
