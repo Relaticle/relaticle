@@ -2,133 +2,120 @@
 
 declare(strict_types=1);
 
+use Relaticle\CustomFields\EntitySystem\EntityConfigurator;
+use Relaticle\CustomFields\FieldTypeSystem\FieldTypeConfigurator;
+
 return [
     /*
     |--------------------------------------------------------------------------
-    | Custom Fields Resource Configuration
+    | Entity Configuration
     |--------------------------------------------------------------------------
     |
-    | This section controls the Custom Fields resource.
-    | This allows you to customize the behavior of the resource.
+    | Configure entities (models that can have custom fields) using the
+    | clean, type-safe fluent builder interface.
     |
     */
-    'custom_fields_resource' => [
-        'should_register_navigation' => true,
-        'slug' => 'custom-fields',
-        'navigation_sort' => -1,
-        'navigation_badge' => false,
-        'navigation_group' => true,
-        'is_globally_searchable' => false,
-        'is_scoped_to_tenant' => true,
-        'cluster' => null,
+    'entity_configuration' => EntityConfigurator::configure()
+        ->discover(app_path('Models'))
+        ->include([
+            App\Models\People::class,
+            App\Models\Company::class,
+            App\Models\Opportunity::class,
+            App\Models\Task::class,
+            App\Models\Note::class,
+        ])
+        ->cache(),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Advanced Field Type Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Configure field types using the powerful fluent builder API.
+    | This provides advanced control over validation, security, and behavior.
+    |
+    */
+    'field_type_configuration' => FieldTypeConfigurator::configure()
+        // Control which field types are available globally
+        ->enabled([]) // Empty = all enabled, or specify: ['text', 'email', 'select']
+        ->disabled(['rich-editor', 'file-upload']) // Disable specific field types
+        ->discover(true)
+        ->cache(enabled: true, ttl: 3600),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Features Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Enable or disable package features. All features are enabled by default.
+    |
+    */
+    'features' => [
+        'conditional_visibility' => true,
+        'encryption' => true,
+        'select_option_colors' => true,
     ],
 
     /*
     |--------------------------------------------------------------------------
-    | Entity Resources Configuration
+    | Resource Configuration
     |--------------------------------------------------------------------------
     |
-    | This section controls which Filament resources are allowed or disallowed
-    | to have custom fields. You can specify allowed resources, disallowed
-    | resources, or leave them empty to use default behavior.
-    |
-    */
-    'allowed_entity_resources' => [
-    ],
-
-    'disallowed_entity_resources' => [
-        \App\Filament\Resources\UserResource::class,
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Entity Resources Customization
-    |--------------------------------------------------------------------------
-    |
-    | This section allows you to customize the behavior of entity resources,
-    | such as enabling table column toggling and setting default visibility.
+    | Customize the behavior of entity resources in Filament.
     |
     */
     'resource' => [
         'table' => [
-            'columns_toggleable' => [
-                'enabled' => true,
-                'user_control' => false,
-                'hidden_by_default' => true,
-            ],
+            'columns' => true,
+            'columns_toggleable' => true,
+            'filters' => true,
         ],
     ],
 
     /*
     |--------------------------------------------------------------------------
-    | Lookup Resources Configuration
+    | Management Interface
     |--------------------------------------------------------------------------
     |
-    | Define which Filament resources can be used as lookups. You can specify
-    | allowed resources, disallowed resources, or leave them empty to use
-    | default behavior.
+    | Configure the Custom Fields management interface in Filament.
     |
     */
-    'allowed_lookup_resources' => [
-        //
-    ],
-
-    'disallowed_lookup_resources' => [
-        //
+    'management' => [
+        'enabled' => true,
+        'slug' => 'custom-fields',
+        'navigation_sort' => 100,
+        'navigation_group' => true,
+        'cluster' => null,
     ],
 
     /*
     |--------------------------------------------------------------------------
-    | Tenant Awareness Configuration
+    | Multi-Tenancy
     |--------------------------------------------------------------------------
     |
-    | When enabled, this feature implements multi-tenancy using the specified
-    | tenant foreign key. Enable this before running migrations to automatically
-    | register the tenant foreign key.
+    | Enable multi-tenancy support with automatic tenant isolation.
     |
     */
     'tenant_aware' => true,
 
     /*
     |--------------------------------------------------------------------------
-    | Database Migrations Paths
+    | Database Configuration
     |--------------------------------------------------------------------------
     |
-    | In these directories custom fields migrations will be stored and ran when migrating. A custom fields
-    | migration created via the make:custom-fields-migration command will be stored in the first path or
-    | a custom defined path when running the command.
+    | Configure database table names and migration paths.
     |
     */
-    'migrations_paths' => [
-        database_path('custom-fields'),
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Database Table Names
-    |--------------------------------------------------------------------------
-    |
-    | You can specify custom table names for the package's database tables here.
-    | These tables will be used to store custom fields, their values, and options.
-    |
-    */
-    'table_names' => [
-        'custom_field_sections' => 'custom_field_sections',
-        'custom_fields' => 'custom_fields',
-        'custom_field_values' => 'custom_field_values',
-        'custom_field_options' => 'custom_field_options',
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Column Names
-    |--------------------------------------------------------------------------
-    |
-    | Here you can customize the names of specific columns used by the package.
-    | For example, you can change the name of the tenant foreign key if needed.
-    |
-    */
-    'column_names' => [
-        'tenant_foreign_key' => 'tenant_id',
+    'database' => [
+        'migrations_path' => database_path('custom-fields'),
+        'table_names' => [
+            'custom_field_sections' => 'custom_field_sections',
+            'custom_fields' => 'custom_fields',
+            'custom_field_values' => 'custom_field_values',
+            'custom_field_options' => 'custom_field_options',
+        ],
+        'column_names' => [
+            'tenant_foreign_key' => 'tenant_id',
+        ],
     ],
 ];

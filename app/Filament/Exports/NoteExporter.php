@@ -22,7 +22,7 @@ final class NoteExporter extends BaseExporter
             ExportColumn::make('team.name'),
             ExportColumn::make('creator.name'),
             ExportColumn::make('creation_source')
-                ->formatStateUsing(fn ($state): string => $state->value ?? (string) $state),
+                ->formatStateUsing(fn (mixed $state): string => $state->value ?? (string) $state),
             ExportColumn::make('title'),
             ExportColumn::make('created_at'),
             ExportColumn::make('updated_at'),
