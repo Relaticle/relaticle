@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Relaticle\CustomFields\Models\Concerns\UsesCustomFields;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
+use Relaticle\CustomFields\Models\CustomField;
 use Spatie\EloquentSortable\SortableTrait;
 
 /**
@@ -25,6 +26,8 @@ use Spatie\EloquentSortable\SortableTrait;
  * @property Carbon|null $deleted_at
  * @property CreationSource $creation_source
  * @property string $createdBy
+ *
+ * @method void saveCustomFieldValue(CustomField $field, mixed $value)
  */
 #[ObservedBy(TaskObserver::class)]
 final class Task extends Model implements HasCustomFields

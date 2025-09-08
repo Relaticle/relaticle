@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Enums\CustomFields;
 
 use Illuminate\Support\Str;
-use Relaticle\CustomFields\Enums\CustomFieldType;
 use Relaticle\CustomFields\Enums\CustomFieldWidth;
 
 /**
@@ -29,9 +28,9 @@ trait CustomFieldTrait
     /**
      * Get the field type
      *
-     * @return CustomFieldType The type of form field to use
+     * @return string The type of form field to use
      */
-    abstract public function getFieldType(): CustomFieldType;
+    abstract public function getFieldType(): string;
 
     /**
      * Get whether this field is system defined
@@ -92,7 +91,7 @@ trait CustomFieldTrait
      *
      * @return array{
      *     name: string,
-     *     type: CustomFieldType,
+     *     type: string,
      *     systemDefined: bool,
      *     listToggleableHidden: bool,
      *     width: CustomFieldWidth|null,

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Enums\CustomFields;
 
-use Relaticle\CustomFields\Enums\CustomFieldType;
+use App\Enums\CustomFieldType;
 
 enum Opportunity: string
 {
@@ -36,12 +36,12 @@ enum Opportunity: string
         };
     }
 
-    public function getFieldType(): CustomFieldType
+    public function getFieldType(): string
     {
         return match ($this) {
-            self::AMOUNT => CustomFieldType::CURRENCY,
-            self::CLOSE_DATE => CustomFieldType::DATE,
-            self::STAGE => CustomFieldType::SELECT,
+            self::AMOUNT => CustomFieldType::CURRENCY->value,
+            self::CLOSE_DATE => CustomFieldType::DATE->value,
+            self::STAGE => CustomFieldType::SELECT->value,
         };
     }
 

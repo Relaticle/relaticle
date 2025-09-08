@@ -18,7 +18,7 @@ abstract class BaseModelSeeder implements ModelSeederInterface
     /**
      * The custom fields collection
      *
-     * @var \Illuminate\Support\Collection<string, mixed>
+     * @var Collection<string, mixed>
      */
     protected Collection $customFieldDefinitions;
 

@@ -386,7 +386,7 @@ final class InstallCommand extends Command
                 label: 'Admin email address',
                 default: 'admin@relaticle.local',
                 required: true,
-                validate: fn ($value): ?string => filter_var($value, FILTER_VALIDATE_EMAIL) ? null : 'Please enter a valid email address'
+                validate: fn (string $value): ?string => filter_var($value, FILTER_VALIDATE_EMAIL) ? null : 'Please enter a valid email address'
             );
 
             $password = text(

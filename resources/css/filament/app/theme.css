@@ -1,3 +1,8 @@
-@import '/vendor/filament/filament/resources/css/theme.css';
+@import '../../../../vendor/filament/filament/resources/css/theme.css';
 
-@config 'tailwind.config.js';
+@source '../../../../app/Filament';
+@source '../../../../resources/views';
+
+/* Custom Fields */
+@source '../../../../vendor/relaticle/flowforge/resources/views/**/*.blade.php';
+@source '../../../../vendor/relaticle/custom-fields/resources';

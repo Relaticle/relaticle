@@ -8,8 +8,10 @@ use App\Enums\CustomFields\Task as TaskCustomField;
 use App\Models\Task;
 use App\Models\Team;
 use App\Models\User;
+use Exception;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Relaticle\OnboardSeed\Support\BaseModelSeeder;
 use Relaticle\OnboardSeed\Support\FixtureRegistry;
@@ -74,7 +76,7 @@ final class TaskSeeder extends BaseModelSeeder
 
             try {
                 $task->people()->attach($person->getKey());
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 report($e);
             }
         }
@@ -122,7 +124,7 @@ final class TaskSeeder extends BaseModelSeeder
      */
     private function formatDate(mixed $dateValue): string
     {
-        if ($dateValue instanceof \Illuminate\Support\Carbon) {
+        if ($dateValue instanceof Carbon) {
             return $dateValue->format('Y-m-d H:i:s');
         }
 
