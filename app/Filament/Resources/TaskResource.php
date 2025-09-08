@@ -118,8 +118,8 @@ final class TaskResource extends Resource
                     ->multiple(),
                 TrashedFilter::make(),
             ])
-            ->groups([
-                Group::make('status')
+            ->groups(array_filter([
+                $customFields->has('status') ? Group::make('status')
                     ->orderQueryUsing(function (Builder $query, string $direction) use ($customFields) {
                         $table = $query->getModel()->getTable();
                         $key = $query->getModel()->getKeyName();
@@ -133,14 +133,8 @@ final class TaskResource extends Resource
 
                         return $query->orderBy($orderByQuery, $direction);
                     })
-                    ->getTitleFromRecordUsing(function (Task $record) use ($valueResolver, $customFields): ?string {
-                        if (! isset($customFields['status'])) {
-                            return null;
-                        }
-
-                        return $valueResolver->resolve($record, $customFields['status']);
-                    }),
-                Group::make('priority')
+                    ->getTitleFromRecordUsing(fn (Task $record): ?string => $valueResolver->resolve($record, $customFields['status'])) : null,
+                $customFields->has('priority') ? Group::make('priority')
                     ->orderQueryUsing(function (Builder $query, string $direction) use ($customFields) {
                         $table = $query->getModel()->getTable();
                         $key = $query->getModel()->getKeyName();
@@ -153,14 +147,8 @@ final class TaskResource extends Resource
 
                         return $query->orderBy($orderByQuery, $direction);
                     })
-                    ->getTitleFromRecordUsing(function (Task $record) use ($valueResolver, $customFields): ?string {
-                        if (! isset($customFields['priority'])) {
-                            return null;
-                        }
-
-                        return $valueResolver->resolve($record, $customFields['priority']);
-                    }),
-            ])
+                    ->getTitleFromRecordUsing(fn (Task $record): ?string => $valueResolver->resolve($record, $customFields['priority'])) : null,
+            ]))
             ->recordActions([
                 ActionGroup::make([
                     EditAction::make()

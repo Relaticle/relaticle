@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature\Filament\App\Exports;
 
 use App\Enums\CustomFields\Company as CompanyCustomField;
+use App\Enums\CustomFieldType;
 use App\Filament\Exports\CompanyExporter;
 use App\Filament\Resources\CompanyResource\Pages\ListCompanies;
 use App\Models\Company;
@@ -19,7 +20,6 @@ use Relaticle\CustomFields\Data\CustomFieldData;
 use Relaticle\CustomFields\Data\CustomFieldSectionData;
 use Relaticle\CustomFields\Data\CustomFieldSettingsData;
 use Relaticle\CustomFields\Enums\CustomFieldSectionType;
-use Relaticle\CustomFields\Enums\CustomFieldType;
 use Relaticle\CustomFields\Enums\CustomFieldWidth;
 
 uses(RefreshDatabase::class);
@@ -38,11 +38,11 @@ test('exports company records with basic functionality', function () {
 
     $livewireTest = Livewire::test(ListCompanies::class);
     $livewireTest->assertSuccessful();
-    $livewireTest->assertTableBulkActionExists('export');
+    $livewireTest->assertActionExists('export');
 
     // Test export
-    $livewireTest->callTableBulkAction('export', $companies)
-        ->assertHasNoTableBulkActionErrors();
+    $livewireTest->callAction('export', $companies)
+        ->assertHasNoFormErrors();
 
     $exportModel = Export::latest()->first();
     expect($exportModel)->not->toBeNull()
@@ -70,8 +70,8 @@ test('exports respect team scoping', function () {
 
     // Test export with team1
     Livewire::test(ListCompanies::class)
-        ->callTableBulkAction('export', $team1Companies)
-        ->assertHasNoTableBulkActionErrors();
+        ->callAction('export', $team1Companies)
+        ->assertHasNoFormErrors();
 
     $exportModel = Export::latest()->first();
     expect($exportModel->team_id)->toBe($team1->id);
@@ -93,7 +93,7 @@ test('exports include company custom fields', function () {
     $fieldData = new CustomFieldData(
         name: 'Test Custom Field',
         code: 'test_field',
-        type: CustomFieldType::TEXT,
+        type: CustomFieldType::TEXT->value,
         section: new CustomFieldSectionData(
             name: 'General',
             code: 'general',
