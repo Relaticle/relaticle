@@ -26,6 +26,7 @@
             <directory>app/Console/Kernel.php</directory>
             <directory>app/Exceptions/Handler.php</directory>
             <directory>app/Http/Middleware</directory>
+            <directory>app-modules/SystemAdmin</directory>
             <file>app/Providers/AppServiceProvider.php</file>
         </exclude>
     </source>

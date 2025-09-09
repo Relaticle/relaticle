@@ -30,7 +30,7 @@ final class DeleteAccount extends BaseLivewireComponent
                     ->schema([
                         TextEntry::make('deleteAccountNotice')
                             ->hiddenLabel()
-                            ->state(fn () => __('profile.sections.delete_account.notice')),
+                            ->state(fn (): string|array|null => __('profile.sections.delete_account.notice')),
                         Actions::make([
                             Action::make('deleteAccount')
                                 ->label(__('profile.actions.delete_account'))

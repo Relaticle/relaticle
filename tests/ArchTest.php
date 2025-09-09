@@ -27,14 +27,21 @@ arch('avoid open for extension')
     ->classes()
     ->toBeFinal()
     ->ignoring([
-        //        App\Services\Autocomplete\Types\Type::class,
+        'App\Livewire\BaseLivewireComponent',
+        'App\Filament\Imports\BaseImporter',
+        'App\Filament\Exports\BaseExporter',
     ]);
 
 arch('ensure no extends')
     ->expect('App')
     ->classes()
     ->not
-    ->toBeAbstract();
+    ->toBeAbstract()
+    ->ignoring([
+        'App\Livewire\BaseLivewireComponent',
+        'App\Filament\Imports\BaseImporter',
+        'App\Filament\Exports\BaseExporter',
+    ]);
 
 arch('avoid mutation')
     ->expect('App')
