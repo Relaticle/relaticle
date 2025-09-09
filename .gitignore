@@ -11,6 +11,8 @@
 .env.production
 .phpactor.json
 .phpunit.result.cache
+/coverage-html/
+coverage.xml
 Homestead.json
 Homestead.yaml
 auth.json
