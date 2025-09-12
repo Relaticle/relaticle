@@ -28,7 +28,7 @@ final class SalesAnalyticsChartWidget extends ChartWidget
 
     public function getHeading(): string
     {
-        return '📈 Sales Pipeline Trends';
+        return 'Sales Pipeline Trends';
     }
 
     public function getDescription(): string
