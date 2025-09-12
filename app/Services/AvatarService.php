@@ -526,7 +526,7 @@ final readonly class AvatarService
             }
 
             // Penalize for highly repetitive patterns
-            if ($freq > 2 && ctype_alpha($char)) {
+            if ($freq > 2 && ctype_alpha((string) $char)) {
                 $rarityScore -= ($freq - 2) * 0.5;
             }
         }
