@@ -112,7 +112,6 @@ return [
 
         'system_administrators' => [
             'provider' => 'system_administrators',
-            'table' => 'password_reset_tokens',
             'expire' => 60,
             'throttle' => 60,
         ],

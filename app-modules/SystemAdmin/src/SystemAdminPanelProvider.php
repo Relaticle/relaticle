@@ -41,7 +41,6 @@ final class SystemAdminPanelProvider extends PanelProvider
 
         return $panel
             ->login()
-            ->passwordReset()
             ->emailVerification()
             ->authGuard('sysadmin')
             ->authPasswordBroker('system_administrators')
