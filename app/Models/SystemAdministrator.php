@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Database\Factories\SystemAdministratorFactory;
+use Exception;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasAvatar;
 use Filament\Panel;
@@ -74,6 +75,9 @@ final class SystemAdministrator extends Authenticatable implements FilamentUser,
         ];
     }
 
+    /**
+     * @throws Exception
+     */
     public function canAccessPanel(Panel $panel): bool
     {
         return $panel->getId() === 'sysadmin' && $this->hasVerifiedEmail();
