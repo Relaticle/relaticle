@@ -30,7 +30,7 @@ final class DeleteAccount extends BaseLivewireComponent
                     ->schema([
                         TextEntry::make('deleteAccountNotice')
                             ->hiddenLabel()
-                            ->state(fn (): string|array|null => __('profile.sections.delete_account.notice')),
+                            ->state(fn (): string|array => __('profile.sections.delete_account.notice')),
                         Actions::make([
                             Action::make('deleteAccount')
                                 ->label(__('profile.actions.delete_account'))
@@ -40,7 +40,7 @@ final class DeleteAccount extends BaseLivewireComponent
                                 ->modalDescription(__('profile.modals.delete_account.notice'))
                                 ->modalSubmitActionLabel(__('profile.actions.delete_account'))
                                 ->modalCancelAction(false)
-                                ->form([
+                                ->schema([
                                     Forms\Components\TextInput::make('password')
                                         ->password()
                                         ->revealable()
@@ -59,7 +59,7 @@ final class DeleteAccount extends BaseLivewireComponent
      */
     public function deleteAccount(): Redirector|RedirectResponse
     {
-        $user = filament()->auth()->user();
+        $user = auth('web')->user();
 
         DB::transaction(function () use ($user): void {
             // Handle teams if teams feature is enabled

@@ -30,6 +30,6 @@ final class CreateTeam extends RegisterTenant
     #[Override]
     protected function handleRegistration(array $data): Model
     {
-        return app(\App\Actions\Jetstream\CreateTeam::class)->create(auth()->user(), $data);
+        return app(\App\Actions\Jetstream\CreateTeam::class)->create(auth('web')->user(), $data);
     }
 }

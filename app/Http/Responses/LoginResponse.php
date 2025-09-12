@@ -13,6 +13,6 @@ final readonly class LoginResponse implements \Filament\Auth\Http\Responses\Cont
     /** @phpstan-ignore return.unusedType */
     public function toResponse($request): RedirectResponse|Redirector // @pest-ignore-type
     {
-        return redirect()->intended(CompanyResource::getUrl('index', ['tenant' => $request->user()->currentTeam->getKey()]));
+        return redirect()->intended(CompanyResource::getUrl('index', ['tenant' => $request->user('web')->currentTeam->getKey()]));
     }
 }

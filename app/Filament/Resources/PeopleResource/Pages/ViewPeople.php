@@ -16,7 +16,7 @@ use Filament\Schemas\Components\Flex;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\TextSize;
-use Relaticle\Admin\Filament\Resources\CompanyResource;
+use App\Filament\Resources\CompanyResource;
 use Relaticle\CustomFields\Facades\CustomFields;
 
 final class ViewPeople extends ViewRecord
