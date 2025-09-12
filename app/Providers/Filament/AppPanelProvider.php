@@ -27,6 +27,8 @@ use Filament\PanelProvider;
 use Filament\Schemas\Components\Section;
 use Filament\Tables\Table;
 use Filament\View\PanelsRenderHook;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -82,7 +84,7 @@ final class AppPanelProvider extends PanelProvider
             ->strictAuthorization()
             ->databaseNotifications()
             ->brandLogoHeight('2.6rem')
-            ->brandLogo(fn (): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory => view('filament.app.logo'))
+            ->brandLogo(fn (): View|Factory => view('filament.app.logo'))
             ->viteTheme('resources/css/app.css')
             ->colors([
                 'primary' => [
@@ -156,11 +158,11 @@ final class AppPanelProvider extends PanelProvider
             )
             ->renderHook(
                 PanelsRenderHook::AUTH_LOGIN_FORM_BEFORE,
-                fn (): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory => view('filament.auth.social_login_buttons')
+                fn (): View|Factory => view('filament.auth.social_login_buttons')
             )
             ->renderHook(
                 PanelsRenderHook::AUTH_REGISTER_FORM_BEFORE,
-                fn (): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory => view('filament.auth.social_login_buttons')
+                fn (): View|Factory => view('filament.auth.social_login_buttons')
             );
 
         if (Features::hasApiFeatures()) {
