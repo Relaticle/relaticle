@@ -39,14 +39,11 @@ describe('SystemAdmin Security', function () {
 
         $this->actingAs($superAdmin, 'sysadmin');
 
-        // Can perform administrative actions
-        expect(auth('sysadmin')->user()->can('create', SystemAdministrator::class))->toBeTrue();
-        expect(auth('sysadmin')->user()->can('viewAny', SystemAdministrator::class))->toBeTrue();
-
-        // Can manage others but not delete self
-        expect(auth('sysadmin')->user()->can('update', $otherAdmin))->toBeTrue();
-        expect(auth('sysadmin')->user()->can('delete', $otherAdmin))->toBeTrue();
-        expect(auth('sysadmin')->user()->can('delete', $superAdmin))->toBeFalse();
+        expect(auth('sysadmin')->user()->can('create', SystemAdministrator::class))->toBeTrue()
+            ->and(auth('sysadmin')->user()->can('viewAny', SystemAdministrator::class))->toBeTrue()
+            ->and(auth('sysadmin')->user()->can('update', $otherAdmin))->toBeTrue()
+            ->and(auth('sysadmin')->user()->can('delete', $otherAdmin))->toBeTrue()
+            ->and(auth('sysadmin')->user()->can('delete', $superAdmin))->toBeFalse();
     });
 
     it('requires email verification for panel access', function () {
@@ -71,8 +68,8 @@ describe('SystemAdmin Security', function () {
             'role' => SystemAdministratorRole::SuperAdministrator,
         ]);
 
-        expect($admin->role)->toBeInstanceOf(SystemAdministratorRole::class);
-        expect($admin->role)->toBe(SystemAdministratorRole::SuperAdministrator);
-        expect($admin->hasVerifiedEmail())->toBeTrue();
+        expect($admin->role)->toBeInstanceOf(SystemAdministratorRole::class)
+            ->and($admin->role)->toBe(SystemAdministratorRole::SuperAdministrator)
+            ->and($admin->hasVerifiedEmail())->toBeTrue();
     });
 });
