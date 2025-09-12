@@ -9,7 +9,6 @@ use App\Models\Company;
 use App\Models\Note;
 use App\Models\Opportunity;
 use App\Models\People;
-use App\Models\SystemAdministrator;
 use App\Models\Task;
 use App\Models\Team;
 use App\Models\User;
@@ -22,7 +21,7 @@ use Illuminate\Support\Facades;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\View\View;
-use Livewire\Livewire;
+use Relaticle\SystemAdmin\Models\SystemAdministrator;
 
 final class AppServiceProvider extends ServiceProvider
 {

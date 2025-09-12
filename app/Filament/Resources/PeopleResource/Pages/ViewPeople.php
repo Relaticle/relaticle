@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\PeopleResource\Pages;
 
+use App\Filament\Resources\CompanyResource;
 use App\Filament\Resources\PeopleResource;
 use App\Models\People;
 use Filament\Actions\ActionGroup;
@@ -16,7 +17,6 @@ use Filament\Schemas\Components\Flex;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\TextSize;
-use App\Filament\Resources\CompanyResource;
 use Relaticle\CustomFields\Facades\CustomFields;
 
 final class ViewPeople extends ViewRecord

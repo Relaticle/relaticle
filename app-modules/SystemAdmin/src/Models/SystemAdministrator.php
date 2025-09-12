@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Models;
+namespace Relaticle\SystemAdmin\Models;
 
 use Database\Factories\SystemAdministratorFactory;
 use Exception;
@@ -86,5 +86,13 @@ final class SystemAdministrator extends Authenticatable implements FilamentUser,
     public function getFilamentAvatarUrl(): ?string
     {
         return null;
+    }
+
+    /**
+     * Create a new factory instance for the model.
+     */
+    protected static function newFactory(): SystemAdministratorFactory
+    {
+        return SystemAdministratorFactory::new();
     }
 }

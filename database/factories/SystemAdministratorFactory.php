@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
-use App\Models\SystemAdministrator;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Relaticle\SystemAdmin\Enums\SystemAdministratorRole;
+use Relaticle\SystemAdmin\Models\SystemAdministrator;
 
 /**
  * @extends Factory<SystemAdministrator>

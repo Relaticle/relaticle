@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace Relaticle\SystemAdmin\Policies;
 
-use App\Models\SystemAdministrator;
-use App\Models\Task;
 use Relaticle\SystemAdmin\Enums\SystemAdministratorRole;
+use Relaticle\SystemAdmin\Models\SystemAdministrator;
 
 final class TaskPolicy
 {
