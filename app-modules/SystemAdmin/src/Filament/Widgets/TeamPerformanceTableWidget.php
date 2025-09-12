@@ -129,21 +129,21 @@ final class TeamPerformanceTableWidget extends BaseWidget
                     COALESCE((SELECT MAX(created_at) FROM notes WHERE creator_id = users.id AND creation_source != '{$systemSource}'), '1970-01-01')
                 ) as last_activity"),
             ])
-            ->whereExists(function ($query) use ($systemSource): void {
+            ->whereExists(function (Builder $query) use ($systemSource): void {
                 $query->select(DB::raw(1))
                     ->from('tasks')
                     ->whereColumn('tasks.creator_id', 'users.id')
                     ->where('tasks.creation_source', '!=', $systemSource)
                     ->whereNull('tasks.deleted_at');
             })
-            ->orWhereExists(function ($query) use ($systemSource): void {
+            ->orWhereExists(function (Builder $query) use ($systemSource): void {
                 $query->select(DB::raw(1))
                     ->from('opportunities')
                     ->whereColumn('opportunities.creator_id', 'users.id')
                     ->where('opportunities.creation_source', '!=', $systemSource)
                     ->whereNull('opportunities.deleted_at');
             })
-            ->orWhereExists(function ($query) use ($systemSource): void {
+            ->orWhereExists(function (Builder $query) use ($systemSource): void {
                 $query->select(DB::raw(1))
                     ->from('companies')
                     ->whereColumn('companies.creator_id', 'users.id')

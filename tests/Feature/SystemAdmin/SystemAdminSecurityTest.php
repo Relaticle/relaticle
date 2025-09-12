@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-use App\Models\SystemAdministrator;
 use App\Models\User;
 use Filament\Facades\Filament;
 use Relaticle\SystemAdmin\Enums\SystemAdministratorRole;
+use Relaticle\SystemAdmin\Models\SystemAdministrator;
 
 describe('SystemAdmin Security', function () {
     beforeEach(function () {

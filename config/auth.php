@@ -74,7 +74,7 @@ return [
 
         'system_administrators' => [
             'driver' => 'eloquent',
-            'model' => App\Models\SystemAdministrator::class,
+            'model' => Relaticle\SystemAdmin\Models\SystemAdministrator::class,
         ],
 
         // 'users' => [

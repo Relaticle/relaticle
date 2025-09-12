@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Relaticle\SystemAdmin\Filament\Resources\SystemAdministrators;
 
-use App\Models\SystemAdministrator;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -18,6 +17,7 @@ use Relaticle\SystemAdmin\Filament\Resources\SystemAdministrators\Pages\ViewSyst
 use Relaticle\SystemAdmin\Filament\Resources\SystemAdministrators\Schemas\SystemAdministratorForm;
 use Relaticle\SystemAdmin\Filament\Resources\SystemAdministrators\Schemas\SystemAdministratorInfolist;
 use Relaticle\SystemAdmin\Filament\Resources\SystemAdministrators\Tables\SystemAdministratorsTable;
+use Relaticle\SystemAdmin\Models\SystemAdministrator;
 use UnitEnum;
 
 final class SystemAdministratorResource extends Resource

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Relaticle\SystemAdmin\Policies;
 
-use App\Models\SystemAdministrator;
 use Illuminate\Auth\Access\Response;
 use Relaticle\SystemAdmin\Enums\SystemAdministratorRole;
+use Relaticle\SystemAdmin\Models\SystemAdministrator;
 
 final class SystemAdministratorPolicy
 {
