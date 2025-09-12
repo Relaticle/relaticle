@@ -88,7 +88,7 @@ final class OpportunitiesBoard extends BoardPage
                     ->schema(fn (Schema $schema): Schema => OpportunityForm::get($schema))
                     ->using(function (array $data, array $arguments): Opportunity {
                         /** @var Team $currentTeam */
-                        $currentTeam = Auth::user()->currentTeam;
+                        $currentTeam = Auth::guard('web')->user()->currentTeam;
 
                         /** @var Opportunity $opportunity */
                         $opportunity = $currentTeam->opportunities()->create($data);

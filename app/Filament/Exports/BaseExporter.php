@@ -25,9 +25,9 @@ abstract class BaseExporter extends Exporter
         parent::__construct($export, $columnMap, $options);
 
         // Set the team_id on the export record
-        if (Auth::check() && Auth::user()->currentTeam) {
+        if (Auth::guard('web')->check() && Auth::guard('web')->user()->currentTeam) {
             /** @var Team $currentTeam */
-            $currentTeam = Auth::user()->currentTeam;
+            $currentTeam = Auth::guard('web')->user()->currentTeam;
             $export->team_id = $currentTeam->getKey();
         }
     }
@@ -40,9 +40,9 @@ abstract class BaseExporter extends Exporter
      */
     public static function modifyQuery(Builder $query): Builder
     {
-        if (Auth::check() && Auth::user()->currentTeam) {
+        if (Auth::guard('web')->check() && Auth::guard('web')->user()->currentTeam) {
             /** @var Team $currentTeam */
-            $currentTeam = Auth::user()->currentTeam;
+            $currentTeam = Auth::guard('web')->user()->currentTeam;
 
             return $query->where('team_id', $currentTeam->getKey());
         }

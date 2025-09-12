@@ -108,7 +108,7 @@ final class AppPanelProvider extends PanelProvider
                 Action::make('profile')
                     ->label('Profile')
                     ->icon('heroicon-m-user-circle')
-                    ->url(fn (): \Illuminate\Contracts\Routing\UrlGenerator|string => $this->shouldRegisterMenuItem()
+                    ->url(fn (): string => $this->shouldRegisterMenuItem()
                         ? url(EditProfile::getUrl())
                         : url($panel->getPath())),
             ])
@@ -170,7 +170,7 @@ final class AppPanelProvider extends PanelProvider
                 Action::make('api_tokens')
                     ->label('API Tokens')
                     ->icon('heroicon-o-key')
-                    ->url(fn (): \Illuminate\Contracts\Routing\UrlGenerator|string => $this->shouldRegisterMenuItem()
+                    ->url(fn (): string => $this->shouldRegisterMenuItem()
                         ? url(ApiTokens::getUrl())
                         : url($panel->getPath())),
             ]);

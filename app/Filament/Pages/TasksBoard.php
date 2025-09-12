@@ -98,7 +98,7 @@ final class TasksBoard extends BoardPage
                     ->schema(fn (Schema $schema): Schema => TaskForm::get($schema, ['status']))
                     ->using(function (array $data, array $arguments): Task {
                         /** @var Team $currentTeam */
-                        $currentTeam = Auth::user()->currentTeam;
+                        $currentTeam = Auth::guard('web')->user()->currentTeam;
 
                         /** @var Task $task */
                         $task = $currentTeam->tasks()->create($data);
@@ -210,7 +210,7 @@ final class TasksBoard extends BoardPage
     }
 
     /**
-     * @return Collection<int, array{id: mixed, custom_field_id: mixed, name: mixed, color: string|null}>
+     * @return Collection<int, array{id: mixed, custom_field_id: mixed, name: mixed, color: string}>
      */
     private function statuses(): Collection
     {
@@ -224,7 +224,7 @@ final class TasksBoard extends BoardPage
             'id' => $option->getKey(),
             'custom_field_id' => $option->getAttribute('custom_field_id'),
             'name' => $option->getAttribute('name'),
-            'color' => $option->settings->color,
+            'color' => $option->settings->color ?? 'gray',
         ]);
     }
 
