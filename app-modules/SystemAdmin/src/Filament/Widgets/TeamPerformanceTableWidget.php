@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\SystemAdmin\Filament\Widgets;
 
+use App\Enums\CreationSource;
 use App\Models\User;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -60,26 +61,17 @@ final class TeamPerformanceTableWidget extends BaseWidget
                     ->sortable()
                     ->alignCenter()
                     ->badge()
-                    ->color('success'),
+                    ->color('gray')
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->description('Feature temporarily disabled'),
 
                 Tables\Columns\TextColumn::make('completion_rate')
                     ->label('📊 Success Rate')
-                    ->formatStateUsing(fn (mixed $state): string => $state.'%')
+                    ->formatStateUsing(fn (mixed $state): string => 'N/A')
                     ->badge()
-                    ->color(fn (mixed $state): string => match (true) {
-                        $state >= 80 => 'success',
-                        $state >= 60 => 'info',
-                        $state >= 40 => 'warning',
-                        default => 'danger'
-                    })
-                    ->icon(fn (mixed $state): string => match (true) {
-                        $state >= 80 => 'heroicon-o-trophy',
-                        $state >= 60 => 'heroicon-o-check-circle',
-                        $state >= 40 => 'heroicon-o-clock',
-                        default => 'heroicon-o-exclamation-triangle'
-                    })
-                    ->sortable()
-                    ->alignCenter(),
+                    ->color('gray')
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->description('Feature temporarily disabled'),
 
                 Tables\Columns\TextColumn::make('opportunities_created')
                     ->label('💼 Opportunities')
@@ -104,7 +96,7 @@ final class TeamPerformanceTableWidget extends BaseWidget
                     ->sortable()
                     ->toggleable(),
             ])
-            ->defaultSort('completion_rate', 'desc')
+            ->defaultSort('tasks_created', 'desc')
             ->paginated([10, 25, 50])
             ->defaultPaginationPageOption(10)
             ->striped()
@@ -118,54 +110,45 @@ final class TeamPerformanceTableWidget extends BaseWidget
      */
     protected function getTableQuery(): Builder
     {
-        $completionOptionIds = $this->getCompletionStatusOptionIds('task', 'status');
-        $completionOptionIdsStr = implode(',', $completionOptionIds);
+        $systemSource = CreationSource::SYSTEM->value;
 
         return User::query()
-            ->select([
+            ->addSelect([
                 'users.id',
                 'users.name',
                 'users.created_at',
-                DB::raw('(SELECT COUNT(*) FROM tasks WHERE tasks.creator_id = users.id AND tasks.deleted_at IS NULL AND tasks.creation_source != "system") as tasks_created'),
-                DB::raw("(
-                    SELECT COUNT(*)
-                    FROM tasks
-                    LEFT JOIN custom_field_values cfv ON tasks.id = cfv.entity_id AND cfv.entity_type = 'task'
-                    LEFT JOIN custom_fields cf ON cfv.custom_field_id = cf.id AND cf.code = 'status'
-                    WHERE tasks.creator_id = users.id
-                    AND tasks.deleted_at IS NULL
-                    AND tasks.creation_source != 'system'
-                    AND cfv.integer_value IN ({$completionOptionIdsStr})
-                ) as tasks_completed"),
-                DB::raw("(
-                    CASE
-                        WHEN (SELECT COUNT(*) FROM tasks WHERE tasks.creator_id = users.id AND tasks.deleted_at IS NULL AND tasks.creation_source != 'system') > 0
-                        THEN ROUND(
-                            (
-                                (SELECT COUNT(*)
-                                FROM tasks
-                                LEFT JOIN custom_field_values cfv ON tasks.id = cfv.entity_id AND cfv.entity_type = 'task'
-                                LEFT JOIN custom_fields cf ON cfv.custom_field_id = cf.id AND cf.code = 'status'
-                                WHERE tasks.creator_id = users.id
-                                AND tasks.deleted_at IS NULL
-                                AND tasks.creation_source != 'system'
-                                AND cfv.integer_value IN ({$completionOptionIdsStr}))
-                                /
-                                (SELECT COUNT(*) FROM tasks WHERE tasks.creator_id = users.id AND tasks.deleted_at IS NULL AND tasks.creation_source != 'system')
-                            ) * 100
-                        )
-                        ELSE 0
-                    END
-                ) as completion_rate"),
-                DB::raw('(SELECT COUNT(*) FROM opportunities WHERE opportunities.creator_id = users.id AND opportunities.deleted_at IS NULL AND opportunities.creation_source != "system") as opportunities_created'),
-                DB::raw('(SELECT COUNT(*) FROM companies WHERE companies.creator_id = users.id AND companies.deleted_at IS NULL AND companies.creation_source != "system") as companies_created'),
-                DB::raw('GREATEST(
-                    COALESCE((SELECT MAX(created_at) FROM tasks WHERE creator_id = users.id AND creation_source != "system"), "1970-01-01"),
-                    COALESCE((SELECT MAX(created_at) FROM opportunities WHERE creator_id = users.id AND creation_source != "system"), "1970-01-01"),
-                    COALESCE((SELECT MAX(created_at) FROM companies WHERE creator_id = users.id AND creation_source != "system"), "1970-01-01"),
-                    COALESCE((SELECT MAX(created_at) FROM notes WHERE creator_id = users.id AND creation_source != "system"), "1970-01-01")
-                ) as last_activity'),
+                DB::raw("(SELECT COUNT(*) FROM tasks WHERE tasks.creator_id = users.id AND tasks.deleted_at IS NULL AND tasks.creation_source != '{$systemSource}') as tasks_created"),
+                DB::raw('0 as tasks_completed'),
+                DB::raw('0 as completion_rate'),
+                DB::raw("(SELECT COUNT(*) FROM opportunities WHERE opportunities.creator_id = users.id AND opportunities.deleted_at IS NULL AND opportunities.creation_source != '{$systemSource}') as opportunities_created"),
+                DB::raw("(SELECT COUNT(*) FROM companies WHERE companies.creator_id = users.id AND companies.deleted_at IS NULL AND companies.creation_source != '{$systemSource}') as companies_created"),
+                DB::raw("GREATEST(
+                    COALESCE((SELECT MAX(created_at) FROM tasks WHERE creator_id = users.id AND creation_source != '{$systemSource}'), '1970-01-01'),
+                    COALESCE((SELECT MAX(created_at) FROM opportunities WHERE creator_id = users.id AND creation_source != '{$systemSource}'), '1970-01-01'),
+                    COALESCE((SELECT MAX(created_at) FROM companies WHERE creator_id = users.id AND creation_source != '{$systemSource}'), '1970-01-01'),
+                    COALESCE((SELECT MAX(created_at) FROM notes WHERE creator_id = users.id AND creation_source != '{$systemSource}'), '1970-01-01')
+                ) as last_activity"),
             ])
-            ->havingRaw('tasks_created > 0 OR opportunities_created > 0 OR companies_created > 0');
+            ->whereExists(function ($query) use ($systemSource): void {
+                $query->select(DB::raw(1))
+                    ->from('tasks')
+                    ->whereColumn('tasks.creator_id', 'users.id')
+                    ->where('tasks.creation_source', '!=', $systemSource)
+                    ->whereNull('tasks.deleted_at');
+            })
+            ->orWhereExists(function ($query) use ($systemSource): void {
+                $query->select(DB::raw(1))
+                    ->from('opportunities')
+                    ->whereColumn('opportunities.creator_id', 'users.id')
+                    ->where('opportunities.creation_source', '!=', $systemSource)
+                    ->whereNull('opportunities.deleted_at');
+            })
+            ->orWhereExists(function ($query) use ($systemSource): void {
+                $query->select(DB::raw(1))
+                    ->from('companies')
+                    ->whereColumn('companies.creator_id', 'users.id')
+                    ->where('companies.creation_source', '!=', $systemSource)
+                    ->whereNull('companies.deleted_at');
+            });
     }
 }

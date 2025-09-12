@@ -20,7 +20,6 @@ final class LocalSeeder extends Seeder
     {
         $this->call(SystemAdministratorSeeder::class);
 
-
         $user = User::factory()
             ->withPersonalTeam()
             ->create([
