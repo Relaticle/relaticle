@@ -97,10 +97,10 @@ final class BusinessOverviewWidget extends BaseWidget
     private function getOpportunitiesWithAmounts(): Collection
     {
         return DB::table('opportunities')
-            ->leftJoin('custom_field_values as cfv_amount', fn ($join) => $join->on('opportunities.id', '=', 'cfv_amount.entity_id')
+            ->leftJoin('custom_field_values as cfv_amount', fn (mixed $join) => $join->on('opportunities.id', '=', 'cfv_amount.entity_id')
                 ->where('cfv_amount.entity_type', 'opportunity')
             )
-            ->leftJoin('custom_fields as cf_amount', fn ($join) => $join->on('cfv_amount.custom_field_id', '=', 'cf_amount.id')
+            ->leftJoin('custom_fields as cf_amount', fn (mixed $join) => $join->on('cfv_amount.custom_field_id', '=', 'cf_amount.id')
                 ->where('cf_amount.code', 'amount')
             )
             ->whereNull('opportunities.deleted_at')
@@ -153,7 +153,7 @@ final class BusinessOverviewWidget extends BaseWidget
     private function generatePipelineTrend(\Illuminate\Support\Collection $opportunities): array
     {
         return collect(range(6, 0))
-            ->map(fn ($daysAgo): array => [
+            ->map(fn (int $daysAgo): array => [
                 'date' => now()->subDays($daysAgo),
                 'value' => $opportunities
                     ->whereBetween('created_at', [

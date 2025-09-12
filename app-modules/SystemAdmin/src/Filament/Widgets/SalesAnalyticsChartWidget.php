@@ -92,7 +92,7 @@ final class SalesAnalyticsChartWidget extends ChartWidget
     private function getSalesData(): array
     {
         $monthlyData = collect(range(5, 0))
-            ->map(fn ($monthsAgo): array => $this->getMonthData($monthsAgo))
+            ->map(fn (int $monthsAgo): array => $this->getMonthData($monthsAgo))
             ->values();
 
         return [
@@ -112,10 +112,10 @@ final class SalesAnalyticsChartWidget extends ChartWidget
         $monthEnd = $month->copy()->endOfMonth();
 
         $monthData = DB::table('opportunities')
-            ->leftJoin('custom_field_values as cfv_amount', fn ($join) => $join->on('opportunities.id', '=', 'cfv_amount.entity_id')
+            ->leftJoin('custom_field_values as cfv_amount', fn (mixed $join) => $join->on('opportunities.id', '=', 'cfv_amount.entity_id')
                 ->where('cfv_amount.entity_type', 'opportunity')
             )
-            ->leftJoin('custom_fields as cf_amount', fn ($join) => $join->on('cfv_amount.custom_field_id', '=', 'cf_amount.id')
+            ->leftJoin('custom_fields as cf_amount', fn (mixed $join) => $join->on('cfv_amount.custom_field_id', '=', 'cf_amount.id')
                 ->where('cf_amount.code', 'amount')
             )
             ->whereNull('opportunities.deleted_at')

@@ -85,7 +85,7 @@ final class OpportunitySeeder extends BaseModelSeeder
 
         // Define field mappings for custom processing
         $fieldMappings = [
-            OpportunityCustomField::CLOSE_DATE->value => fn ($value) => is_string($value) ? $this->evaluateTemplateExpression($value) : $value,
+            OpportunityCustomField::CLOSE_DATE->value => fn (mixed $value): mixed => is_string($value) ? $this->evaluateTemplateExpression($value) : $value,
             OpportunityCustomField::STAGE->value => 'option',
         ];
 
