@@ -64,15 +64,15 @@ final class TeamPerformanceTableWidget extends BaseWidget
 
                 Tables\Columns\TextColumn::make('completion_rate')
                     ->label('📊 Success Rate')
-                    ->formatStateUsing(fn ($state): string => $state.'%')
+                    ->formatStateUsing(fn (mixed $state): string => $state.'%')
                     ->badge()
-                    ->color(fn ($state): string => match (true) {
+                    ->color(fn (mixed $state): string => match (true) {
                         $state >= 80 => 'success',
                         $state >= 60 => 'info',
                         $state >= 40 => 'warning',
                         default => 'danger'
                     })
-                    ->icon(fn ($state): string => match (true) {
+                    ->icon(fn (mixed $state): string => match (true) {
                         $state >= 80 => 'heroicon-o-trophy',
                         $state >= 60 => 'heroicon-o-check-circle',
                         $state >= 40 => 'heroicon-o-clock',

@@ -94,7 +94,7 @@ final class AppServiceProvider extends ServiceProvider
         }
 
         // Return the first existing class, or fallback
-        $existingPolicy = $candidates->reverse()->first(fn ($policyClass): bool => class_exists($policyClass));
+        $existingPolicy = $candidates->reverse()->first(fn (string $policyClass): bool => class_exists($policyClass));
 
         return $existingPolicy ?: $classDirname.'\\Policies\\'.class_basename($modelClass).'Policy';
     }
@@ -133,14 +133,6 @@ final class AppServiceProvider extends ServiceProvider
     private function configureFilament(): void
     {
         $slideOverActions = ['create', 'edit', 'view'];
-
-        Action::configureUsing(function (Action $action) use ($slideOverActions): Action {
-            if (in_array($action->getName(), $slideOverActions)) {
-                return $action->slideOver();
-            }
-
-            return $action;
-        });
 
         Action::configureUsing(function (Action $action) use ($slideOverActions): Action {
             if (in_array($action->getName(), $slideOverActions)) {

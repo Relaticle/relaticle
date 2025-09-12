@@ -102,7 +102,7 @@ final class TaskSeeder extends BaseModelSeeder
 
         // Define field mappings for custom processing
         $fieldMappings = [
-            TaskCustomField::DUE_DATE->value => fn ($value) => is_string($value)
+            TaskCustomField::DUE_DATE->value => fn (mixed $value): mixed => is_string($value)
                 ? $this->formatDate($this->evaluateTemplateExpression($value))
                 : $value,
             TaskCustomField::STATUS->value => 'option',

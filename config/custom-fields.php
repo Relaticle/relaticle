@@ -3,9 +3,9 @@
 declare(strict_types=1);
 
 use Relaticle\CustomFields\EntitySystem\EntityConfigurator;
-use Relaticle\CustomFields\FieldTypeSystem\FieldTypeConfigurator;
-use Relaticle\CustomFields\FeatureSystem\FeatureConfigurator;
 use Relaticle\CustomFields\Enums\CustomFieldsFeature;
+use Relaticle\CustomFields\FeatureSystem\FeatureConfigurator;
+use Relaticle\CustomFields\FieldTypeSystem\FieldTypeConfigurator;
 
 return [
     /*
@@ -64,7 +64,6 @@ return [
             CustomFieldsFeature::SYSTEM_MANAGEMENT_INTERFACE,
             CustomFieldsFeature::SYSTEM_MULTI_TENANCY
         ),
-
 
     /*
     |--------------------------------------------------------------------------
