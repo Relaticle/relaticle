@@ -61,7 +61,7 @@ final class OpportunitiesBoard extends BoardPage
             ->positionIdentifier('order_column')
             ->searchable(['name'])
             ->columns($this->getColumns())
-            ->cardSchema(fn (Schema $schema): \Filament\Schemas\Schema => $schema->components([
+            ->cardSchema(fn (Schema $schema): Schema => $schema->components([
                 CustomFields::infolist()
                     ->forSchema($schema)
                     ->only(['description'])
@@ -85,7 +85,7 @@ final class OpportunitiesBoard extends BoardPage
                     ->modalWidth(Width::Large)
                     ->slideOver(false)
                     ->model(Opportunity::class)
-                    ->schema(fn (Schema $schema): \Filament\Schemas\Schema => OpportunityForm::get($schema))
+                    ->schema(fn (Schema $schema): Schema => OpportunityForm::get($schema))
                     ->using(function (array $data, array $arguments): Opportunity {
                         /** @var Team $currentTeam */
                         $currentTeam = Auth::user()->currentTeam;
@@ -106,7 +106,7 @@ final class OpportunitiesBoard extends BoardPage
                     ->slideOver()
                     ->modalWidth(Width::ExtraLarge)
                     ->icon('heroicon-o-pencil-square')
-                    ->schema(fn (Schema $schema): \Filament\Schemas\Schema => OpportunityForm::get($schema))
+                    ->schema(fn (Schema $schema): Schema => OpportunityForm::get($schema))
                     ->fillForm(fn (Opportunity $record): array => [
                         'name' => $record->name,
                         'company_id' => $record->company_id,
