@@ -18,6 +18,9 @@ final class LocalSeeder extends Seeder
 {
     public function run(): void
     {
+        $this->call(SystemAdministratorSeeder::class);
+
+
         $user = User::factory()
             ->withPersonalTeam()
             ->create([
