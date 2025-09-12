@@ -75,6 +75,8 @@ final class AppPanelProvider extends PanelProvider
             ->brandName('Relaticle')
             ->login(Login::class)
             ->registration(Register::class)
+            ->authGuard('web')
+            ->authPasswordBroker('users')
             ->passwordReset()
             ->emailVerification()
             ->strictAuthorization()
