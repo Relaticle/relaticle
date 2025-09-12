@@ -12,6 +12,7 @@ use BackedEnum;
 use Exception;
 use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
+use Filament\Infolists\Components\ImageEntry;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\Width;
 use Filament\Tables\Filters\SelectFilter;
@@ -60,7 +61,7 @@ final class TasksBoard extends BoardPage
             ->positionIdentifier('order_column')
             ->searchable(['title'])
             ->columns($this->getColumns())
-            ->cardSchema(function (Schema $schema): \Filament\Schemas\Schema {
+            ->cardSchema(function (Schema $schema): Schema {
                 $descriptionCustomField = CustomFields::infolist()
                     ->forSchema($schema)
                     ->only(['description'])
@@ -74,10 +75,16 @@ final class TasksBoard extends BoardPage
                     ->formatStateUsing(fn (string $state): string => str($state)->stripTags()->limit()->toString());
 
                 return $schema->components([
-                    $descriptionCustomField,
                     CardFlex::make([
-
+                        $descriptionCustomField,
                     ]),
+                    ImageEntry::make('assignees.profile_photo_url')
+                        ->hiddenLabel()
+                        ->alignLeft()
+                        ->imageHeight(24)
+                        ->circular()
+                        ->visible(fn (mixed $state): bool => filled($state))
+                        ->stacked(),
                 ]);
             })
             ->columnActions([
@@ -88,7 +95,7 @@ final class TasksBoard extends BoardPage
                     ->modalWidth(Width::Large)
                     ->slideOver(false)
                     ->model(Task::class)
-                    ->schema(fn (Schema $schema): \Filament\Schemas\Schema => TaskForm::get($schema, ['status']))
+                    ->schema(fn (Schema $schema): Schema => TaskForm::get($schema, ['status']))
                     ->using(function (array $data, array $arguments): Task {
                         /** @var Team $currentTeam */
                         $currentTeam = Auth::user()->currentTeam;
@@ -109,10 +116,8 @@ final class TasksBoard extends BoardPage
                     ->slideOver()
                     ->modalWidth(Width::ExtraLarge)
                     ->icon('heroicon-o-pencil-square')
-                    ->schema(fn (Schema $schema): \Filament\Schemas\Schema => TaskForm::get($schema, ['status']))
-                    ->fillForm(fn (Task $record): array => [
-                        'title' => $record->title,
-                    ])
+                    ->schema(fn (Schema $schema): Schema => TaskForm::get($schema))
+                    ->fillForm(fn (Task $record): array => $record->toArray())
                     ->action(function (Task $record, array $data): void {
                         $record->update($data);
                     }),
