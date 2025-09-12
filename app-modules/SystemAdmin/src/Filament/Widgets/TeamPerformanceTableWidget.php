@@ -17,7 +17,7 @@ final class TeamPerformanceTableWidget extends BaseWidget
 {
     use HasCustomFieldQueries;
 
-    protected static ?string $heading = '👥 Team Performance Analytics';
+    protected static ?string $heading = 'Team Performance Analytics';
 
     protected static ?int $sort = 4;
 
@@ -41,14 +41,14 @@ final class TeamPerformanceTableWidget extends BaseWidget
             ->query($this->getTableQuery())
             ->columns([
                 Tables\Columns\TextColumn::make('name')
-                    ->label('👤 Team Member')
+                    ->label('Team Member')
                     ->searchable()
                     ->sortable()
                     ->weight('semibold')
                     ->icon('heroicon-o-user'),
 
                 Tables\Columns\TextColumn::make('tasks_created')
-                    ->label('📝 Tasks')
+                    ->label('Tasks')
                     ->numeric()
                     ->sortable()
                     ->alignCenter()
@@ -56,7 +56,7 @@ final class TeamPerformanceTableWidget extends BaseWidget
                     ->color('gray'),
 
                 Tables\Columns\TextColumn::make('tasks_completed')
-                    ->label('✅ Completed')
+                    ->label('Completed')
                     ->numeric()
                     ->sortable()
                     ->alignCenter()
@@ -66,7 +66,7 @@ final class TeamPerformanceTableWidget extends BaseWidget
                     ->description('Feature temporarily disabled'),
 
                 Tables\Columns\TextColumn::make('completion_rate')
-                    ->label('📊 Success Rate')
+                    ->label('Success Rate')
                     ->formatStateUsing(fn (mixed $state): string => 'N/A')
                     ->badge()
                     ->color('gray')
@@ -74,7 +74,7 @@ final class TeamPerformanceTableWidget extends BaseWidget
                     ->description('Feature temporarily disabled'),
 
                 Tables\Columns\TextColumn::make('opportunities_created')
-                    ->label('💼 Opportunities')
+                    ->label('Opportunities')
                     ->numeric()
                     ->sortable()
                     ->alignCenter()
@@ -82,7 +82,7 @@ final class TeamPerformanceTableWidget extends BaseWidget
                     ->color('info'),
 
                 Tables\Columns\TextColumn::make('companies_created')
-                    ->label('🏢 Companies')
+                    ->label('Companies')
                     ->numeric()
                     ->sortable()
                     ->alignCenter()
@@ -90,7 +90,7 @@ final class TeamPerformanceTableWidget extends BaseWidget
                     ->color('warning'),
 
                 Tables\Columns\TextColumn::make('last_activity')
-                    ->label('🕐 Last Activity')
+                    ->label('Last Activity')
                     ->dateTime('M j, Y g:i A')
                     ->since()
                     ->sortable()
