@@ -58,7 +58,7 @@ final class SystemAdministratorsTable
                 SelectFilter::make('role')
                     ->options(
                         collect(SystemAdministratorRole::cases())
-                            ->mapWithKeys(fn (SystemAdministratorRole $role) => [
+                            ->mapWithKeys(fn (SystemAdministratorRole $role): array => [
                                 $role->value => $role->getLabel(),
                             ])
                     ),

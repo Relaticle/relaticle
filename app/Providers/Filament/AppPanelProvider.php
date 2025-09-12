@@ -80,7 +80,7 @@ final class AppPanelProvider extends PanelProvider
             ->strictAuthorization()
             ->databaseNotifications()
             ->brandLogoHeight('2.6rem')
-            ->brandLogo(fn () => view('filament.app.logo'))
+            ->brandLogo(fn (): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory => view('filament.app.logo'))
             ->viteTheme('resources/css/app.css')
             ->colors([
                 'primary' => [
@@ -104,7 +104,7 @@ final class AppPanelProvider extends PanelProvider
                 Action::make('profile')
                     ->label('Profile')
                     ->icon('heroicon-m-user-circle')
-                    ->url(fn () => $this->shouldRegisterMenuItem()
+                    ->url(fn (): \Illuminate\Contracts\Routing\UrlGenerator|string => $this->shouldRegisterMenuItem()
                         ? url(EditProfile::getUrl())
                         : url($panel->getPath())),
             ])
@@ -154,11 +154,11 @@ final class AppPanelProvider extends PanelProvider
             )
             ->renderHook(
                 PanelsRenderHook::AUTH_LOGIN_FORM_BEFORE,
-                fn () => view('filament.auth.social_login_buttons')
+                fn (): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory => view('filament.auth.social_login_buttons')
             )
             ->renderHook(
                 PanelsRenderHook::AUTH_REGISTER_FORM_BEFORE,
-                fn () => view('filament.auth.social_login_buttons')
+                fn (): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory => view('filament.auth.social_login_buttons')
             );
 
         if (Features::hasApiFeatures()) {
@@ -166,7 +166,7 @@ final class AppPanelProvider extends PanelProvider
                 Action::make('api_tokens')
                     ->label('API Tokens')
                     ->icon('heroicon-o-key')
-                    ->url(fn () => $this->shouldRegisterMenuItem()
+                    ->url(fn (): \Illuminate\Contracts\Routing\UrlGenerator|string => $this->shouldRegisterMenuItem()
                         ? url(ApiTokens::getUrl())
                         : url($panel->getPath())),
             ]);
