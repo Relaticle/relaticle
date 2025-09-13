@@ -19,6 +19,7 @@ use Laravel\Jetstream\Events\TeamCreated;
 use Laravel\Jetstream\Features;
 use Relaticle\CustomFields\Contracts\CustomsFieldsMigrators;
 use Relaticle\CustomFields\Data\CustomFieldData;
+use Relaticle\CustomFields\Data\CustomFieldOptionSettingsData;
 use Relaticle\CustomFields\Data\CustomFieldSectionData;
 use Relaticle\CustomFields\Data\CustomFieldSettingsData;
 use Relaticle\CustomFields\Enums\CustomFieldSectionType;
@@ -99,7 +100,8 @@ final readonly class CreateTeamCustomFields
             systemDefined: $enum->isSystemDefined(),
             width: $enum->getWidth(),
             settings: new CustomFieldSettingsData(
-                list_toggleable_hidden: $enum->isListToggleableHidden()
+                list_toggleable_hidden: $enum->isListToggleableHidden(),
+                enable_option_colors: $enum->hasColorOptions()
             )
         );
 
@@ -116,6 +118,33 @@ final readonly class CreateTeamCustomFields
         }
 
         // Create the field in the database
-        $migrator->create();
+        $customField = $migrator->create();
+
+        // Apply colors to options if available
+        $this->applyColorsToOptions($customField, $enum);
+    }
+
+    /**
+     * Apply colors to field options based on enum configuration
+     *
+     * @param  mixed  $customField  The created custom field
+     * @param  object  $enum  The custom field enum instance
+     */
+    private function applyColorsToOptions(mixed $customField, object $enum): void
+    {
+        $colorMapping = $enum->getOptionColors();
+        if ($colorMapping === null) {
+            return;
+        }
+
+        // Get the created field options and apply colors
+        foreach ($customField->options as $option) {
+            $color = $colorMapping[$option->name] ?? null;
+            if ($color !== null) {
+                $option->update([
+                    'settings' => new CustomFieldOptionSettingsData(color: $color),
+                ]);
+            }
+        }
     }
 }

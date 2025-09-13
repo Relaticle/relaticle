@@ -122,6 +122,32 @@ enum Task: string
     }
 
     /**
+     * Get color mapping for select field options
+     *
+     * 2024 sophisticated color psychology system - completely unique colors designed for
+     * emotional resonance and semantic meaning. Based on latest color trends including
+     * Digital Lavender, Mocha Mousse sophistication, and retro-futuristic aesthetics.
+     *
+     * @return array<int|string, string>|null Array of option => color mappings or null if not applicable
+     */
+    public function getOptionColors(): ?array
+    {
+        return match ($this) {
+            self::STATUS => [
+                'To do' => '#c4b5fd',       // Soft Periwinkle - Digital Lavender inspired calm potential
+                'In progress' => '#0A80EA', // Professional Blue - Clear active progress state
+                'Done' => '#2A9764',        // Success Green - Confident completion achievement
+            ],
+            self::PRIORITY => [
+                'Low' => '#94a3b8',         // Sage Whisper - Natural earth tone, subtle presence
+                'Medium' => '#d4a574',      // Burnished Gold - Mocha Mousse warmth & confidence
+                'High' => '#dc2626',        // Crimson Velvet - Sophisticated urgent command
+            ],
+            default => null,
+        };
+    }
+
+    /**
      * Get field description (tooltip)
      *
      * @return string The field description
