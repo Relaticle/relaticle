@@ -220,11 +220,14 @@ final class TasksBoard extends BoardPage
             return collect();
         }
 
+        // Check if color options are enabled for this field
+        $colorsEnabled = $field->settings->enable_option_colors ?? false;
+
         return $field->options->map(fn (CustomFieldOption $option): array => [
             'id' => $option->getKey(),
             'custom_field_id' => $option->getAttribute('custom_field_id'),
             'name' => $option->getAttribute('name'),
-            'color' => $option->settings->color ?? 'gray',
+            'color' => $colorsEnabled ? ($option->settings->color ?? 'gray') : 'gray',
         ]);
     }
 

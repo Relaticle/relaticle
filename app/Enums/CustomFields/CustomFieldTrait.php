@@ -87,6 +87,26 @@ trait CustomFieldTrait
     }
 
     /**
+     * Get color mapping for select field options
+     *
+     * @return array<int|string, string>|null Array of option => color mappings or null if not applicable
+     */
+    public function getOptionColors(): ?array
+    {
+        return null;
+    }
+
+    /**
+     * Get whether this field should have color options enabled
+     *
+     * @return bool True if color options should be enabled
+     */
+    public function hasColorOptions(): bool
+    {
+        return $this->getOptionColors() !== null;
+    }
+
+    /**
      * Get complete field configuration
      *
      * @return array{
@@ -96,7 +116,9 @@ trait CustomFieldTrait
      *     listToggleableHidden: bool,
      *     width: CustomFieldWidth|null,
      *     options: array<int|string, string>|null,
-     *     description: string|null
+     *     description: string|null,
+     *     optionColors: array<int|string, string>|null,
+     *     hasColorOptions: bool
      * } The complete field configuration
      */
     public function getConfiguration(): array
@@ -109,6 +131,8 @@ trait CustomFieldTrait
             'width' => $this->getWidth(),
             'options' => $this->getOptions(),
             'description' => $this->getDescription(),
+            'optionColors' => $this->getOptionColors(),
+            'hasColorOptions' => $this->hasColorOptions(),
         ];
     }
 }
