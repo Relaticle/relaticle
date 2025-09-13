@@ -11,6 +11,7 @@ use Livewire\Features\SupportRedirects\Redirector;
 
 final readonly class LoginResponse implements \Filament\Auth\Http\Responses\Contracts\LoginResponse
 {
+    /** @phpstan-ignore-next-line return.unusedType */
     public function toResponse($request): RedirectResponse|Redirector // @pest-ignore-type
     {
         $panel = Filament::getCurrentPanel();
