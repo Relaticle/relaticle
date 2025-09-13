@@ -8,6 +8,7 @@ use App\Data\SubscriberData;
 use App\Enums\SubscriberTagEnum;
 use App\Jobs\Email\CreateSubscriberJob;
 use App\Jobs\Email\UpdateSubscriberJob;
+use App\Models\User;
 use Exception;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Contracts\Events\ShouldHandleEventsAfterCommit;
@@ -26,17 +27,16 @@ final class NewSubscriberListener implements ShouldHandleEventsAfterCommit, Shou
      */
     public function handle(Verified $event): void
     {
-        if ($event->user->hasVerifiedEmail()) {
-            $subscriber = retry(10, function () use ($event) {
-                return Mailcoach::findByEmail(config('mailcoach-sdk.subscribers_list_id'), $event->user->email);
-            }, function ($attempt) {
-                return $attempt * 100 * mt_rand(1, 15);
-            });
+        /** @var User $user */
+        $user = $event->user;
+
+        if ($user->hasVerifiedEmail()) {
+            $subscriber = retry(10, fn (): mixed => Mailcoach::findByEmail(config('mailcoach-sdk.subscribers_list_id'), $user->email), fn (int $attempt): int => $attempt * 100 * mt_rand(1, 15));
 
             if ($subscriber) {
                 UpdateSubscriberJob::dispatch(
                     SubscriberData::from([
-                        'email' => $event->user->email,
+                        'email' => $user->email,
                         'tags' => [SubscriberTagEnum::VERIFIED->value],
                     ])
                 );
@@ -44,9 +44,9 @@ final class NewSubscriberListener implements ShouldHandleEventsAfterCommit, Shou
 
             CreateSubscriberJob::dispatch(
                 SubscriberData::from([
-                    'email' => $event->user->email,
-                    'first_name' => $event->user->name,
-                    'last_name' => $event->user->name,
+                    'email' => $user->email,
+                    'first_name' => $user->name,
+                    'last_name' => $user->name,
                     'tags' => [SubscriberTagEnum::VERIFIED->value],
                     'skip_confirmation' => true,
                 ])
