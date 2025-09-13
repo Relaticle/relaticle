@@ -91,7 +91,7 @@ it('can bulk delete records', function (): void {
     livewire(App\Filament\Resources\NoteResource\Pages\ManageNotes::class)
         ->assertCanSeeTableRecords($records)
         ->selectTableRecords($records)
-        ->callAction(Filament\Actions\Testing\TestAction::make(Filament\Actions\DeleteBulkAction::class)->table()->bulk())
+        ->callAction([['name' => 'delete', 'context' => ['table' => true, 'bulk' => true]]])
         ->assertNotified()
         ->assertCanNotSeeTableRecords($records);
 

@@ -90,7 +90,7 @@ it('can bulk delete records', function (): void {
     livewire(App\Filament\Resources\TaskResource\Pages\ManageTasks::class)
         ->assertCanSeeTableRecords($records)
         ->selectTableRecords($records)
-        ->callAction(TestAction::make(DeleteBulkAction::class)->table()->bulk())
+        ->callAction([['name' => 'delete', 'context' => ['table' => true, 'bulk' => true]]])
         ->assertNotified()
         ->assertCanNotSeeTableRecords($records);
 
