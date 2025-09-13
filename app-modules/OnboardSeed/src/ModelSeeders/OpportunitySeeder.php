@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\OnboardSeed\ModelSeeders;
 
-use App\Enums\CustomFields\Opportunity as OpportunityCustomField;
+use App\Enums\CustomFields\OpportunityField as OpportunityCustomField;
 use App\Models\Company;
 use App\Models\Opportunity;
 use App\Models\Team;

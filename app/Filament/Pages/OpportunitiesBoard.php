@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Pages;
 
-use App\Enums\CustomFields\Opportunity as OpportunityCustomField;
+use App\Enums\CustomFields\OpportunityField as OpportunityCustomField;
 use App\Filament\Resources\OpportunityResource\Forms\OpportunityForm;
 use App\Models\Opportunity;
 use App\Models\Team;

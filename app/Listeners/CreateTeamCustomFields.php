@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Listeners;
 
-use App\Enums\CustomFields\Company as CompanyCustomField;
-use App\Enums\CustomFields\Note as NoteCustomField;
-use App\Enums\CustomFields\Opportunity as OpportunityCustomField;
-use App\Enums\CustomFields\People as PeopleCustomField;
-use App\Enums\CustomFields\Task as TaskCustomField;
+use App\Enums\CustomFields\CompanyField as CompanyCustomField;
+use App\Enums\CustomFields\NoteField as NoteCustomField;
+use App\Enums\CustomFields\OpportunityField as OpportunityCustomField;
+use App\Enums\CustomFields\PeopleField as PeopleCustomField;
+use App\Enums\CustomFields\TaskField as TaskCustomField;
 use App\Models\Company;
 use App\Models\Note;
 use App\Models\Opportunity;

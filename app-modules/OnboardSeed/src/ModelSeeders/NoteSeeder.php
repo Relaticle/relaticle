@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\OnboardSeed\ModelSeeders;
 
-use App\Enums\CustomFields\Note as NoteCustomField;
+use App\Enums\CustomFields\NoteField as NoteCustomField;
 use App\Models\Note;
 use App\Models\Team;
 use App\Models\User;

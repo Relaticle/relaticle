@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Pages;
 
-use App\Enums\CustomFields\Task as TaskCustomField;
+use App\Enums\CustomFields\TaskField as TaskCustomField;
 use App\Filament\Resources\TaskResource\Forms\TaskForm;
 use App\Models\Task;
 use App\Models\Team;

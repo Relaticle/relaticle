@@ -6,7 +6,7 @@ namespace App\Enums\CustomFields;
 
 use App\Enums\CustomFieldType;
 
-enum Opportunity: string
+enum OpportunityField: string
 {
     use CustomFieldTrait;
 

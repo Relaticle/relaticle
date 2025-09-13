@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\OnboardSeed\ModelSeeders;
 
-use App\Enums\CustomFields\People as PeopleCustomField;
+use App\Enums\CustomFields\PeopleField as PeopleCustomField;
 use App\Models\Company;
 use App\Models\People;
 use App\Models\Team;
