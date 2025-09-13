@@ -94,6 +94,8 @@ it('can bulk delete records', function (): void {
     livewire(App\Filament\Resources\OpportunityResource\Pages\ListOpportunities::class)
         ->assertCanSeeTableRecords($records)
         ->selectTableRecords($records)
+        // NOTE: Using direct action array instead of TestAction::make()->bulk()
+        // because TestAction triggers unnecessary form building during bulk actions
         ->callAction([['name' => 'delete', 'context' => ['table' => true, 'bulk' => true]]])
         ->assertNotified()
         ->assertCanNotSeeTableRecords($records);
