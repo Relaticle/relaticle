@@ -12,7 +12,6 @@ use function Pest\Livewire\livewire;
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
-    Event::fake(); // Disable demo record creation during tests
     $this->user = User::factory()->withPersonalTeam()->create();
     $this->actingAs($this->user);
     Filament::setTenant($this->user->personalTeam());
