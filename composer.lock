@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a93013756d8ea3b7101c452b2c6782b3",
+    "content-hash": "e5c214420e7397175498fe4a55791779",
     "packages": [
         {
             "name": "amphp/amp",
@@ -7800,7 +7800,7 @@
             "dist": {
                 "type": "path",
                 "url": "../flowforge",
-                "reference": "ff771847b71ad60b62954a86ac76ee5728f486ef"
+                "reference": "53c2c1071123c1e2c7826205916395bebcf3c772"
             },
             "require": {
                 "filament/filament": "^4.0",
@@ -8976,6 +8976,76 @@
             "time": "2025-04-08T07:33:25+00:00"
         },
         {
+            "name": "spatie/laravel-mailcoach-sdk",
+            "version": "1.4.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/spatie/laravel-mailcoach-sdk.git",
+                "reference": "3307feda22d50b7c96c9ab5b266aa9c3e890b0e9"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/spatie/laravel-mailcoach-sdk/zipball/3307feda22d50b7c96c9ab5b266aa9c3e890b0e9",
+                "reference": "3307feda22d50b7c96c9ab5b266aa9c3e890b0e9",
+                "shasum": ""
+            },
+            "require": {
+                "guzzlehttp/guzzle": "^6.0|^7.5",
+                "illuminate/contracts": "^9.0|^10.0|^11.0|^12.0",
+                "php": "^8.2",
+                "spatie/laravel-package-tools": "^1.13.0",
+                "spatie/mailcoach-sdk-php": "^1.0"
+            },
+            "require-dev": {
+                "laravel/pint": "^1.0",
+                "nunomaduro/collision": "^6.0|^7.0|^8.0",
+                "orchestra/testbench": "^7.0|^8.0|^9.0|^10.0",
+                "pestphp/pest": "^1.19|^2.0|^3.0",
+                "pestphp/pest-plugin-laravel": "^v1.4.0|^2.0|^3.0",
+                "spatie/laravel-ray": "^1.26"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "aliases": {
+                        "MailcoachSdk": "Spatie\\MailcoachSdk\\Facades\\MailcoachSdk"
+                    },
+                    "providers": [
+                        "Spatie\\MailcoachSdk\\MailcoachSdkServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Spatie\\MailcoachSdk\\": "src",
+                    "Spatie\\MailcoachSdk\\Database\\Factories\\": "database/factories"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Freek Van der Herten",
+                    "email": "freek@spatie.be",
+                    "role": "Developer"
+                }
+            ],
+            "description": "An SDK to easily work with the Mailcoach API in Laravel apps",
+            "homepage": "https://github.com/spatie/laravel-mailcoach-sdk",
+            "keywords": [
+                "laravel",
+                "laravel-mailcoach-sdk",
+                "spatie"
+            ],
+            "support": {
+                "issues": "https://github.com/spatie/laravel-mailcoach-sdk/issues",
+                "source": "https://github.com/spatie/laravel-mailcoach-sdk/tree/1.4.0"
+            },
+            "time": "2025-02-25T07:04:49+00:00"
+        },
+        {
             "name": "spatie/laravel-markdown",
             "version": "2.7.1",
             "source": {
@@ -9504,6 +9574,72 @@
                 }
             ],
             "time": "2024-12-09T15:05:12+00:00"
+        },
+        {
+            "name": "spatie/mailcoach-sdk-php",
+            "version": "1.9.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/spatie/mailcoach-sdk-php.git",
+                "reference": "8ee2807778040610c136ef1c7a45f35d6acb090d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/spatie/mailcoach-sdk-php/zipball/8ee2807778040610c136ef1c7a45f35d6acb090d",
+                "reference": "8ee2807778040610c136ef1c7a45f35d6acb090d",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^8.1"
+            },
+            "require-dev": {
+                "guzzlehttp/guzzle": "^7.0",
+                "laravel/pint": "^1.2",
+                "pestphp/pest": "^1.20",
+                "pestphp/pest-plugin-mock": "^1.0",
+                "phpstan/phpstan": "^1.9",
+                "spatie/invade": "^2.1",
+                "spatie/ray": "^1.28",
+                "tomb1n0/guzzle-mock-handler": "^1.7",
+                "vlucas/phpdotenv": "^5.5"
+            },
+            "suggest": {
+                "guzzlehttp/guzzle": "Make HTTP requests"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Spatie\\MailcoachSdk\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Freek Van der Herten",
+                    "email": "freek@spatie.be",
+                    "role": "Developer"
+                }
+            ],
+            "description": "An SDK for using the Mailcoach API in PHP",
+            "homepage": "https://github.com/spatie/mailcoach-sdk-php",
+            "keywords": [
+                "mailcoach-sdk-php",
+                "spatie"
+            ],
+            "support": {
+                "issues": "https://github.com/spatie/mailcoach-sdk-php/issues",
+                "source": "https://github.com/spatie/mailcoach-sdk-php/tree/1.9.2"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/spatie",
+                    "type": "github"
+                }
+            ],
+            "time": "2025-08-18T07:58:41+00:00"
         },
         {
             "name": "spatie/php-structure-discoverer",
