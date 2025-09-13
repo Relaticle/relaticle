@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use App\Models\User;
 use Filament\Facades\Filament;
-use Illuminate\Support\Facades\Event;
 
 use function Pest\Livewire\livewire;
 
@@ -95,7 +94,7 @@ it('can bulk delete records', function (): void {
     livewire(App\Filament\Resources\OpportunityResource\Pages\ListOpportunities::class)
         ->assertCanSeeTableRecords($records)
         ->selectTableRecords($records)
-        ->callAction(\Filament\Actions\Testing\TestAction::make(\Filament\Actions\DeleteBulkAction::class)->table()->bulk())
+        ->callAction([['name' => 'delete', 'context' => ['table' => true, 'bulk' => true]]])
         ->assertNotified()
         ->assertCanNotSeeTableRecords($records);
 
