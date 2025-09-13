@@ -2,10 +2,17 @@
 
 declare(strict_types=1);
 
+use App\Models\User;
+use Filament\Facades\Filament;
+use Illuminate\Support\Facades\Event;
+
 use function Pest\Livewire\livewire;
 
 beforeEach(function () {
-    //
+    Event::fake(); // Disable demo record creation during tests
+    $this->user = User::factory()->withPersonalTeam()->create();
+    $this->actingAs($this->user);
+    Filament::setTenant($this->user->personalTeam());
 });
 
 it('can render the index page', function (): void {
@@ -14,7 +21,7 @@ it('can render the index page', function (): void {
 });
 
 it('can render the view page', function (): void {
-    $record = App\Models\Company::factory()->create();
+    $record = App\Models\Company::factory()->for($this->user->personalTeam())->create();
 
     livewire(App\Filament\Resources\CompanyResource\Pages\ViewCompany::class, ['record' => $record->getKey()])
         ->assertOk();
@@ -41,7 +48,7 @@ it('shows `:dataset` column', function (string $column): void {
 })->with(['logo', 'name', 'accountOwner.name', 'creator.name', 'deleted_at', 'created_at', 'updated_at']);
 
 it('can sort `:dataset` column', function (string $column): void {
-    $records = App\Models\Company::factory(3)->create();
+    $records = App\Models\Company::factory(3)->for($this->user->personalTeam())->create();
 
     $sortingKey = data_get($records->first(), $column) instanceof BackedEnum
         ? fn (Illuminate\Database\Eloquent\Model $record) => data_get($record, $column)->value
@@ -55,7 +62,7 @@ it('can sort `:dataset` column', function (string $column): void {
 })->with(['name', 'accountOwner.name', 'creator.name', 'deleted_at', 'created_at', 'updated_at']);
 
 it('can search `:dataset` column', function (string $column): void {
-    $records = App\Models\Company::factory(3)->create();
+    $records = App\Models\Company::factory(3)->for($this->user->personalTeam())->create();
     $search = data_get($records->first(), $column);
 
     livewire(App\Filament\Resources\CompanyResource\Pages\ListCompanies::class)
@@ -65,7 +72,7 @@ it('can search `:dataset` column', function (string $column): void {
 })->with(['name', 'accountOwner.name', 'creator.name', 'created_at', 'updated_at']);
 
 it('cannot display trashed records by default', function (): void {
-    $records = App\Models\Company::factory()->count(4)->create();
+    $records = App\Models\Company::factory()->count(4)->for($this->user->personalTeam())->create();
     $trashedRecords = App\Models\Company::factory()->trashed()->count(6)->create();
 
     livewire(App\Filament\Resources\CompanyResource\Pages\ListCompanies::class)
@@ -75,7 +82,7 @@ it('cannot display trashed records by default', function (): void {
 });
 
 it('can paginate records', function (): void {
-    $records = App\Models\Company::factory(20)->create();
+    $records = App\Models\Company::factory(20)->for($this->user->personalTeam())->create();
 
     livewire(App\Filament\Resources\CompanyResource\Pages\ListCompanies::class)
         ->assertCanSeeTableRecords($records->take(10), inOrder: true)
@@ -84,7 +91,7 @@ it('can paginate records', function (): void {
 });
 
 it('can bulk delete records', function (): void {
-    $records = App\Models\Company::factory(5)->create();
+    $records = App\Models\Company::factory(5)->for($this->user->personalTeam())->create();
 
     livewire(App\Filament\Resources\CompanyResource\Pages\ListCompanies::class)
         ->assertCanSeeTableRecords($records)
