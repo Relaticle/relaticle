@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     /*
      *  You'll find both the API token and endpoint on Mailcoach'

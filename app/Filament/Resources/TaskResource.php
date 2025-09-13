@@ -120,7 +120,7 @@ final class TaskResource extends Resource
                 TrashedFilter::make(),
             ])
             ->groups(array_filter([
-                ...collect(['status', 'priority'])->map(fn ($fieldCode) => $customFields->has($fieldCode) ? self::makeCustomFieldGroup($fieldCode, $customFields, $valueResolver) : null
+                ...collect(['status', 'priority'])->map(fn (string $fieldCode): ?\Filament\Tables\Grouping\Group => $customFields->has($fieldCode) ? self::makeCustomFieldGroup($fieldCode, $customFields, $valueResolver) : null
                 )->filter()->toArray(),
             ]))
             ->recordActions([
@@ -202,19 +202,18 @@ final class TaskResource extends Resource
 
         return Group::make("{$fieldCode}_group")
             ->label($label)
-            ->orderQueryUsing(function (Builder $query, string $direction) use ($field): Builder {
-                return $query->orderBy(
-                    $field->values()
-                        ->select($field->getValueColumn())
-                        ->whereColumn('custom_field_values.entity_id', 'tasks.id')
-                        ->limit(1),
-                    $direction
-                );
-            })
+            ->orderQueryUsing(fn (Builder $query, string $direction): Builder => $query->orderBy(
+                $field->values()
+                    ->select($field->getValueColumn())
+                    ->whereColumn('custom_field_values.entity_id', 'tasks.id')
+                    ->limit(1)
+                    ->getQuery(),
+                $direction
+            ))
             ->getTitleFromRecordUsing(function (Task $record) use ($valueResolver, $field, $label): string {
                 $value = $valueResolver->resolve($record, $field);
 
-                return ! empty($value) ? $value : "No {$label}";
+                return empty($value) ? "No {$label}" : $value;
             })
             ->getKeyFromRecordUsing(function (Task $record) use ($field): string {
                 $fieldValue = $record->customFieldValues->firstWhere('custom_field_id', $field->id);
@@ -224,12 +223,12 @@ final class TaskResource extends Resource
             })
             ->scopeQueryByKeyUsing(function (Builder $query, string $key) use ($field): Builder {
                 if ($key === '0') {
-                    return $query->whereDoesntHave('customFieldValues', function (Builder $query) use ($field) {
+                    return $query->whereDoesntHave('customFieldValues', function (Builder $query) use ($field): void {
                         $query->where('custom_field_id', $field->id);
                     });
                 }
 
-                return $query->whereHas('customFieldValues', function (Builder $query) use ($field, $key) {
+                return $query->whereHas('customFieldValues', function (Builder $query) use ($field, $key): void {
                     $query->where('custom_field_id', $field->id)
                         ->where($field->getValueColumn(), $key);
                 });

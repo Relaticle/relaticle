@@ -12,6 +12,7 @@ final class SubscriberData extends Data
         public string $email,
         public ?string $first_name = '',
         public ?string $last_name = '',
+        /** @var array<string> */
         public ?array $tags = [],
         public bool $skip_confirmation = true,
     ) {}
