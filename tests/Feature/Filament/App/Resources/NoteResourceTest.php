@@ -2,10 +2,20 @@
 
 declare(strict_types=1);
 
+use App\Models\User;
+use Filament\Facades\Filament;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Event;
+
 use function Pest\Livewire\livewire;
 
+uses(RefreshDatabase::class);
+
 beforeEach(function () {
-    //
+    Event::fake(); // Disable demo record creation during tests
+    $this->user = User::factory()->withPersonalTeam()->create();
+    $this->actingAs($this->user);
+    Filament::setTenant($this->user->personalTeam());
 });
 
 it('can render the index page', function (): void {
@@ -34,7 +44,7 @@ it('shows `:dataset` column', function (string $column): void {
 })->with(['title', 'companies.name', 'people.name', 'creator.name', 'deleted_at', 'created_at', 'updated_at']);
 
 it('can sort `:dataset` column', function (string $column): void {
-    $records = App\Models\Note::factory(3)->create();
+    $records = App\Models\Note::factory(3)->for($this->user->personalTeam())->create();
 
     $sortingKey = data_get($records->first(), $column) instanceof BackedEnum
         ? fn (Illuminate\Database\Eloquent\Model $record) => data_get($record, $column)->value
@@ -48,7 +58,7 @@ it('can sort `:dataset` column', function (string $column): void {
 })->with(['companies.name', 'people.name', 'creator.name', 'deleted_at', 'created_at', 'updated_at']);
 
 it('can search `:dataset` column', function (string $column): void {
-    $records = App\Models\Note::factory(3)->create();
+    $records = App\Models\Note::factory(3)->for($this->user->personalTeam())->create();
     $search = data_get($records->first(), $column);
 
     livewire(App\Filament\Resources\NoteResource\Pages\ManageNotes::class)
@@ -58,8 +68,8 @@ it('can search `:dataset` column', function (string $column): void {
 })->with(['title', 'creator.name']);
 
 it('cannot display trashed records by default', function (): void {
-    $records = App\Models\Note::factory()->count(4)->create();
-    $trashedRecords = App\Models\Note::factory()->trashed()->count(6)->create();
+    $records = App\Models\Note::factory()->count(4)->for($this->user->personalTeam())->create();
+    $trashedRecords = App\Models\Note::factory()->trashed()->count(6)->for($this->user->personalTeam())->create();
 
     livewire(App\Filament\Resources\NoteResource\Pages\ManageNotes::class)
         ->assertCanSeeTableRecords($records)
@@ -68,7 +78,7 @@ it('cannot display trashed records by default', function (): void {
 });
 
 it('can paginate records', function (): void {
-    $records = App\Models\Note::factory(20)->create();
+    $records = App\Models\Note::factory(20)->for($this->user->personalTeam())->create();
 
     livewire(App\Filament\Resources\NoteResource\Pages\ManageNotes::class)
         ->assertCanSeeTableRecords($records->take(10), inOrder: true)
@@ -77,7 +87,7 @@ it('can paginate records', function (): void {
 });
 
 it('can bulk delete records', function (): void {
-    $records = App\Models\Note::factory(5)->create();
+    $records = App\Models\Note::factory(5)->for($this->user->personalTeam())->create();
 
     livewire(App\Filament\Resources\NoteResource\Pages\ManageNotes::class)
         ->assertCanSeeTableRecords($records)

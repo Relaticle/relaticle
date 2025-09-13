@@ -30,7 +30,7 @@ final class NewSubscriberListener implements ShouldHandleEventsAfterCommit, Shou
         /** @var User $user */
         $user = $event->user;
 
-        if ($user->hasVerifiedEmail()) {
+        if ($user->hasVerifiedEmail() && config('mailcoach-sdk.enabled_subscribers_sync', false)) {
             $subscriber = retry(10, fn (): mixed => Mailcoach::findByEmail(config('mailcoach-sdk.subscribers_list_id'), $user->email), fn (int $attempt): int => $attempt * 100 * mt_rand(1, 15));
 
             if ($subscriber) {

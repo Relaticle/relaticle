@@ -11,5 +11,7 @@ return [
 
     'endpoint' => env('MAILCOACH_API_ENDPOINT'),
 
+    'enabled_subscribers_sync' => env('MAILCOACH_ENABLED_SUBSCRIBERS_SYNC', false),
+
     'subscribers_list_id' => env('MAILCOACH_SUBSCRIBERS_LIST_ID', null),
 ];
