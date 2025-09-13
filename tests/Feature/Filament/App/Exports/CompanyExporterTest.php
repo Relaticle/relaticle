@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Filament\App\Exports;
 
-use App\Enums\CustomFields\Company as CompanyCustomField;
+use App\Enums\CustomFields\CompanyField as CompanyCustomField;
 use App\Enums\CustomFieldType;
 use App\Filament\Exports\CompanyExporter;
 use App\Filament\Resources\CompanyResource\Pages\ListCompanies;

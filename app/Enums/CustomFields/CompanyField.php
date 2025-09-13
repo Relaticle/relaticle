@@ -6,7 +6,7 @@ namespace App\Enums\CustomFields;
 
 use App\Enums\CustomFieldType;
 
-enum Company: string
+enum CompanyField: string
 {
     use CustomFieldTrait;
 

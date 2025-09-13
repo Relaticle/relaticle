@@ -7,7 +7,7 @@ namespace App\Enums\CustomFields;
 use App\Enums\CustomFieldType;
 use Relaticle\CustomFields\Enums\CustomFieldWidth;
 
-enum Task: string
+enum TaskField: string
 {
     use CustomFieldTrait;
 

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\OnboardSeed\ModelSeeders;
 
-use App\Enums\CustomFields\Task as TaskCustomField;
+use App\Enums\CustomFields\TaskField as TaskCustomField;
 use App\Models\Task;
 use App\Models\Team;
 use App\Models\User;

@@ -9,7 +9,7 @@ use App\Enums\CustomFieldType;
 /**
  * Note custom field codes
  */
-enum Note: string
+enum NoteField: string
 {
     use CustomFieldTrait;
 

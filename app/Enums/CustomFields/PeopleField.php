@@ -9,7 +9,7 @@ use App\Enums\CustomFieldType;
 /**
  * People custom field codes
  */
-enum People: string
+enum PeopleField: string
 {
     use CustomFieldTrait;
 

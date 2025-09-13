@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
-use App\Enums\CustomFields\Opportunity as OpportunityCustomField;
-use App\Enums\CustomFields\Task as TaskCustomField;
+use App\Enums\CustomFields\OpportunityField as OpportunityCustomField;
+use App\Enums\CustomFields\TaskField as TaskCustomField;
 use Illuminate\Console\Command;
 use Relaticle\CustomFields\Data\CustomFieldOptionSettingsData;
 use Relaticle\CustomFields\Data\CustomFieldSettingsData;
