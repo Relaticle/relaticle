@@ -13,8 +13,16 @@ declare(strict_types=1);
 |
 */
 
+use Illuminate\Support\Facades\Event;
+
 pest()->extend(Tests\TestCase::class)
-    ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)
+    ->use(
+        Illuminate\Foundation\Testing\RefreshDatabase::class,
+    )
+    ->beforeEach(function () {
+        // Globally disable events to prevent demo record creation during tests
+        Event::fake();
+    })
     ->in('Feature', 'Unit');
 
 /*

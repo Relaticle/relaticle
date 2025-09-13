@@ -15,7 +15,11 @@ use Filament\Schemas\Components\Grid;
 use Filament\Support\Enums\Alignment;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Validation\ValidationException;
 use Laravel\Jetstream\Events\TeamMemberUpdated;
 use Laravel\Jetstream\Jetstream;
 
@@ -37,7 +41,7 @@ final class TeamMembers extends BaseLivewireComponent implements Tables\Contract
         $teamForeignKeyColumn = 'team_id';
 
         return $table
-            ->query(fn (): \Illuminate\Database\Eloquent\Builder => $model::with('user')->where($teamForeignKeyColumn, $this->team->id))
+            ->query(fn (): Builder => $model::with('user')->where($teamForeignKeyColumn, $this->team->id))
             ->columns([
                 Tables\Columns\Layout\Split::make([
                     Tables\Columns\ImageColumn::make('profile_photo_url')
@@ -53,7 +57,7 @@ final class TeamMembers extends BaseLivewireComponent implements Tables\Contract
             ->recordActions([
                 Action::make('updateTeamRole')
                     ->visible(fn (Membership $record): bool => Gate::check('updateTeamMember', $this->team))
-                    ->label(fn (Membership $record): string => $record->role)
+                    ->label(fn (Membership $record): string => $record->roleName)
                     ->modalWidth('lg')
                     ->modalHeading(__('teams.actions.update_team_role'))
                     ->modalSubmitActionLabel(__('teams.actions.save'))
@@ -136,12 +140,12 @@ final class TeamMembers extends BaseLivewireComponent implements Tables\Contract
             $this->sendNotification(__('teams.notifications.team_member_removed.success'));
 
             $team->fresh();
-        } catch (\Illuminate\Auth\Access\AuthorizationException) {
+        } catch (AuthorizationException) {
             $this->sendNotification(
                 __('teams.notifications.permission_denied.cannot_remove_team_member'),
                 type: 'danger'
             );
-        } catch (\Illuminate\Validation\ValidationException $e) {
+        } catch (ValidationException $e) {
             $this->sendNotification(
                 $e->validator->errors()->first(),
                 type: 'danger'
@@ -159,12 +163,12 @@ final class TeamMembers extends BaseLivewireComponent implements Tables\Contract
             $this->sendNotification(__('teams.notifications.leave_team.success'));
 
             $this->redirect(Filament::getHomeUrl());
-        } catch (\Illuminate\Auth\Access\AuthorizationException) {
+        } catch (AuthorizationException) {
             $this->sendNotification(
                 title: __('teams.notifications.permission_denied.cannot_leave_team'),
                 type: 'danger'
             );
-        } catch (\Illuminate\Validation\ValidationException $e) {
+        } catch (ValidationException $e) {
             $this->sendNotification(
                 $e->validator->errors()->first(),
                 type: 'danger'
@@ -172,7 +176,7 @@ final class TeamMembers extends BaseLivewireComponent implements Tables\Contract
         }
     }
 
-    public function render(): \Illuminate\Contracts\View\View
+    public function render(): View
     {
         return view('livewire.app.teams.team-members');
     }

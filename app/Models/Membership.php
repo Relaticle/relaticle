@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Laravel\Jetstream\Jetstream;
 use Laravel\Jetstream\Membership as JetstreamMembership;
 
 final class Membership extends JetstreamMembership
@@ -30,5 +31,10 @@ final class Membership extends JetstreamMembership
     public function team(): BelongsTo
     {
         return $this->belongsTo(Team::class);
+    }
+
+    public function getRoleNameAttribute(): string
+    {
+        return Jetstream::findRole($this->role)?->name ?? 'Unknown';
     }
 }
