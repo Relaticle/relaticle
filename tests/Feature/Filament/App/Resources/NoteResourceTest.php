@@ -5,7 +5,6 @@ declare(strict_types=1);
 use App\Models\User;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Event;
 
 use function Pest\Livewire\livewire;
 
@@ -91,6 +90,8 @@ it('can bulk delete records', function (): void {
     livewire(App\Filament\Resources\NoteResource\Pages\ManageNotes::class)
         ->assertCanSeeTableRecords($records)
         ->selectTableRecords($records)
+        // NOTE: Using direct action array instead of TestAction::make()->bulk()
+        // because TestAction triggers unnecessary form building during bulk actions
         ->callAction([['name' => 'delete', 'context' => ['table' => true, 'bulk' => true]]])
         ->assertNotified()
         ->assertCanNotSeeTableRecords($records);
