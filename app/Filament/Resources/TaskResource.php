@@ -31,6 +31,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\Support\Facades\DB;
 use Relaticle\CustomFields\Contracts\ValueResolvers;
 use Relaticle\CustomFields\Models\CustomField;
@@ -119,35 +120,8 @@ final class TaskResource extends Resource
                 TrashedFilter::make(),
             ])
             ->groups(array_filter([
-                $customFields->has('status') ? Group::make('status')
-                    ->orderQueryUsing(function (Builder $query, string $direction) use ($customFields) {
-                        $table = $query->getModel()->getTable();
-                        $key = $query->getModel()->getKeyName();
-
-                        /** @var Builder<Task> $orderByQuery */
-                        $orderByQuery = $customFields->get('status')
-                            ->values()
-                            ->select($customFields->get('status')->getValueColumn())
-                            ->whereColumn('custom_field_values.entity_id', "$table.$key")
-                            ->limit(1);
-
-                        return $query->orderBy($orderByQuery, $direction);
-                    })
-                    ->getTitleFromRecordUsing(fn (Task $record): ?string => $valueResolver->resolve($record, $customFields['status'])) : null,
-                $customFields->has('priority') ? Group::make('priority')
-                    ->orderQueryUsing(function (Builder $query, string $direction) use ($customFields) {
-                        $table = $query->getModel()->getTable();
-                        $key = $query->getModel()->getKeyName();
-
-                        /** @var Builder<Task> $orderByQuery */
-                        $orderByQuery = $customFields->get('priority')->values()
-                            ->select($customFields->get('priority')->getValueColumn())
-                            ->whereColumn('custom_field_values.entity_id', "$table.$key")
-                            ->limit(1);
-
-                        return $query->orderBy($orderByQuery, $direction);
-                    })
-                    ->getTitleFromRecordUsing(fn (Task $record): ?string => $valueResolver->resolve($record, $customFields['priority'])) : null,
+                ...collect(['status', 'priority'])->map(fn ($fieldCode) => $customFields->has($fieldCode) ? self::makeCustomFieldGroup($fieldCode, $customFields, $valueResolver) : null
+                )->filter()->toArray(),
             ]))
             ->recordActions([
                 ActionGroup::make([
@@ -216,6 +190,50 @@ final class TaskResource extends Resource
         return [
             'index' => ManageTasks::route('/'),
         ];
+    }
+
+    /**
+     * @param  SupportCollection<string, CustomField>  $customFields
+     */
+    private static function makeCustomFieldGroup(string $fieldCode, SupportCollection $customFields, ValueResolvers $valueResolver): Group
+    {
+        $field = $customFields[$fieldCode];
+        $label = ucfirst($fieldCode);
+
+        return Group::make("{$fieldCode}_group")
+            ->label($label)
+            ->orderQueryUsing(function (Builder $query, string $direction) use ($field): Builder {
+                return $query->orderBy(
+                    $field->values()
+                        ->select($field->getValueColumn())
+                        ->whereColumn('custom_field_values.entity_id', 'tasks.id')
+                        ->limit(1),
+                    $direction
+                );
+            })
+            ->getTitleFromRecordUsing(function (Task $record) use ($valueResolver, $field, $label): string {
+                $value = $valueResolver->resolve($record, $field);
+
+                return ! empty($value) ? $value : "No {$label}";
+            })
+            ->getKeyFromRecordUsing(function (Task $record) use ($field): string {
+                $fieldValue = $record->customFieldValues->firstWhere('custom_field_id', $field->id);
+                $rawValue = $fieldValue?->getValue();
+
+                return $rawValue ? (string) $rawValue : '0';
+            })
+            ->scopeQueryByKeyUsing(function (Builder $query, string $key) use ($field): Builder {
+                if ($key === '0') {
+                    return $query->whereDoesntHave('customFieldValues', function (Builder $query) use ($field) {
+                        $query->where('custom_field_id', $field->id);
+                    });
+                }
+
+                return $query->whereHas('customFieldValues', function (Builder $query) use ($field, $key) {
+                    $query->where('custom_field_id', $field->id)
+                        ->where($field->getValueColumn(), $key);
+                });
+            });
     }
 
     /**
