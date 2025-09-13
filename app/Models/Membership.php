@@ -35,6 +35,7 @@ final class Membership extends JetstreamMembership
 
     public function getRoleNameAttribute(): string
     {
+        // @phpstan-ignore-next-line nullCoalesce.expr
         return Jetstream::findRole($this->role)?->name ?? 'Unknown';
     }
 }
