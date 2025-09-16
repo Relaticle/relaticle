@@ -1,4 +1,7 @@
 /* Import Tailwind CSS 4 */
 @import "tailwindcss";
 
+/* Tailwind Typography Plugin */
+@plugin "@tailwindcss/typography";
+
 @import "./theme.css";

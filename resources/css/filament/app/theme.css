@@ -6,3 +6,389 @@
 /* Custom Fields */
 @source '../../../../vendor/relaticle/flowforge/resources/views/**/*.blade.php';
 @source '../../../../vendor/relaticle/custom-fields/resources';
+
+/* ===================================
+   Relaticle Brand Theme Customization
+   Pure Tailwind CSS Classes Only
+   =================================== */
+
+.fi-body {
+    @apply bg-white dark:bg-gray-900;
+}
+
+/* Sidebar Enhancements */
+.fi-sidebar {
+    @apply bg-gray-50 border-r border-gray-200 dark:bg-gray-800 dark:border-gray-700;
+}
+
+.fi-sidebar-nav {
+    @apply space-y-1;
+}
+
+.fi-sidebar-item {
+    @apply transition-colors duration-200 ease-in-out;
+
+    .fi-sidebar-item-btn {
+        @apply dark:text-gray-300 hover:bg-gray-200/70 dark:hover:bg-gray-700;
+        padding-block: calc(var(--spacing) * 1.7);
+    }
+
+    .fi-sidebar-item-icon {
+        width: calc(var(--spacing) * 5);
+        height: calc(var(--spacing) * 5);
+    }
+}
+
+.fi-sidebar-item.fi-active {
+    > .fi-sidebar-item-btn {
+        @apply bg-gray-200/70 dark:bg-gray-700 font-semibold;
+    }
+}
+
+.fi-sidebar-group {
+    @apply rounded-xl;
+}
+
+.fi-sidebar-group-items {
+    @apply rounded-xl;
+}
+
+/* Top Navigation Bar */
+.fi-topbar {
+    /*@apply backdrop-blur-md bg-white/95 dark:bg-gray-900/95 border-b border-gray-200 dark:border-gray-800 shadow-sm;*/
+}
+
+.fi-topbar nav {
+    @apply px-4 lg:px-6;
+}
+
+/* Button Enhancements */
+.fi-btn {
+    @apply relative overflow-hidden transition-shadow duration-200 shadow-sm hover:shadow-md rounded-xl;
+}
+
+.fi-btn-color-primary {
+    @apply bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 shadow-primary-500/25;
+}
+
+/* Icon Buttons */
+.fi-icon-btn {
+    @apply rounded-xl;
+}
+
+/* Cards & Sections */
+.fi-section {
+    @apply relative overflow-hidden transition-shadow duration-300 shadow-sm hover:shadow-md rounded-2xl;
+}
+
+/* Form Components */
+.fi-fo-component-ctn {
+    @apply rounded-2xl;
+}
+
+/* Form Inputs */
+.fi-input-wrp input,
+.fi-input-wrp textarea,
+.fi-input-wrp select {
+    @apply rounded-xl;
+}
+
+.fi-input-wrp input:focus,
+.fi-input-wrp textarea:focus,
+.fi-input-wrp select:focus {
+    @apply ring-2 ring-primary-500/30 border-primary-500 outline-none;
+}
+
+.fi-input {
+    @apply rounded-xl;
+}
+
+.fi-input:focus {
+    @apply outline-none ring-2 ring-primary-500/30 border-primary-500;
+}
+
+/* Select & Dropdown Inputs */
+.fi-select-input {
+    @apply rounded-xl;
+}
+
+/* Tables */
+.fi-ta {
+    /*@apply rounded-2xl shadow-sm;*/
+}
+
+.fi-ta-ctn {
+    @apply rounded-2xl shadow-sm;
+}
+
+.fi-ta-content {
+    @apply rounded-2xl overflow-hidden;
+}
+
+.fi-ta-table {
+    /*@apply rounded-2xl overflow-hidden;*/
+}
+
+.fi-ta-table thead {
+    @apply bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900;
+}
+
+.fi-ta-table tbody tr {
+    @apply transition-colors duration-150 ease-in-out hover:bg-primary-50/20 dark:hover:bg-primary-900/10;
+}
+
+/* Table header actions */
+.fi-ta-header {
+    /*@apply rounded-t-2xl;*/
+}
+
+/* Table bulk actions */
+.fi-ta-bulk-actions {
+    @apply rounded-xl;
+}
+
+/* Pagination container */
+.fi-ta-pagination {
+    @apply rounded-b-2xl bg-white dark:bg-gray-900;
+}
+
+.fi-pagination {
+    @apply rounded-b-2xl;
+}
+
+/* Stats Widgets */
+.fi-wi-stats-overview-stat {
+    @apply relative overflow-hidden transition-shadow duration-300 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 hover:shadow-md rounded-2xl;
+}
+
+/* Widget Containers */
+.fi-wi-widget {
+    @apply rounded-2xl;
+}
+
+/* Badges */
+.fi-badge {
+    @apply rounded-full;
+}
+
+/* Pills & Tags */
+.fi-tag {
+    @apply rounded-full;
+}
+
+/* Notifications */
+.fi-no-notification {
+    @apply backdrop-blur-lg shadow-2xl rounded-2xl;
+}
+
+/* Modals */
+.fi-modal-window-ctn {
+    /*@apply pr-2 py-2 max-h-[90vh];*/
+}
+.fi-modal-window {
+    @apply backdrop-blur-sm rounded-2xl shadow-2xl max-h-[calc(100vh-2rem)] mt-2 mr-2;
+}
+
+.fi-modal-content {
+    @apply rounded-2xl;
+}
+
+/* Dropdowns */
+.fi-dropdown-panel {
+    @apply shadow-2xl border border-gray-100 dark:border-gray-700 rounded-xl;
+}
+
+.fi-dropdown-list-item {
+    @apply rounded-lg;
+}
+
+/* Panels */
+.fi-panel {
+    @apply rounded-2xl;
+}
+
+/* Infolists */
+.fi-in-component {
+    @apply rounded-2xl;
+}
+
+/* Action Modals */
+.fi-ac-modal {
+    @apply rounded-2xl;
+}
+
+/* Breadcrumbs */
+.fi-breadcrumbs {
+    @apply text-sm;
+}
+
+.fi-breadcrumbs-item a {
+    @apply transition-colors duration-200 hover:text-primary-600 dark:hover:text-primary-400;
+}
+
+/* Global Search */
+.fi-global-search-field {
+    @apply transition-all duration-200 focus-within:ring-2 focus-within:ring-primary-500/30;
+}
+
+/* Actions */
+.fi-ac-action:hover,
+.fi-ta-actions button:hover {
+    @apply transition-opacity duration-200 opacity-80;
+}
+
+/* Focus States */
+*:focus-visible {
+    @apply outline-none ring-2 ring-primary-500 ring-offset-2 ring-offset-white dark:ring-offset-gray-900;
+}
+
+/* Smooth Transitions */
+.fi-panel-content {
+    @apply transition-opacity duration-300 ease-out;
+}
+
+/* Custom Scrollbar Styling */
+.fi-sidebar {
+    scrollbar-width: thin;
+    scrollbar-color: theme('colors.gray.400') theme('colors.gray.100');
+}
+
+.fi-sidebar::-webkit-scrollbar {
+    @apply w-2;
+}
+
+.fi-sidebar::-webkit-scrollbar-track {
+    @apply bg-gray-100 dark:bg-gray-800;
+}
+
+.fi-sidebar::-webkit-scrollbar-thumb {
+    @apply bg-gray-400 dark:bg-gray-600 rounded-full hover:bg-gray-500 dark:hover:bg-gray-500;
+}
+
+/* Additional Component Polish */
+
+/* Avatar */
+.fi-avatar {
+    @apply rounded-full;
+}
+
+/* User Menu */
+.fi-user-menu-trigger {
+    @apply rounded-xl;
+}
+
+/* Tenant Menu */
+.fi-tenant-menu-trigger {
+    @apply rounded-xl;
+}
+
+/* Checkbox and Radio */
+.fi-checkbox-input {
+    @apply rounded-lg;
+}
+
+.fi-radio-input {
+    @apply rounded-full;
+}
+
+/* Toggle Switch */
+.fi-toggle {
+    @apply rounded-full;
+}
+
+/* Color Picker */
+.fi-color-picker {
+    @apply rounded-xl;
+}
+
+/* Date Picker */
+.fi-date-picker {
+    @apply rounded-xl;
+}
+
+/* File Upload */
+.fi-file-upload {
+    @apply rounded-2xl;
+}
+
+.fi-file-upload-button {
+    @apply rounded-xl;
+}
+
+/* Rich Editor */
+.fi-rich-editor {
+    @apply rounded-xl;
+}
+
+/* Tabs */
+.fi-tabs {
+    /*@apply rounded-2xl bg-gray-50 dark:bg-gray-800;*/
+
+    .fi-tabs-item {
+        @apply bg-white;
+        /*@apply hover:bg-white rounded-2xl dark:hover:bg-gray-900 transition-colors duration-200;*/
+        /*&.fi-active {*/
+        /*    @apply bg-white dark:bg-gray-900 shadow ;*/
+        /*}*/
+    }
+}
+
+.fi-tabs-tab {
+    @apply rounded-xl;
+}
+
+/* Wizard */
+.fi-wizard {
+    @apply rounded-2xl;
+}
+
+.fi-wizard-step {
+    @apply rounded-xl;
+}
+
+/* Account Widget */
+.fi-account-widget {
+    @apply rounded-2xl;
+}
+
+/* Simple Page */
+.fi-simple-main {
+    @apply rounded-2xl;
+}
+
+/* Layout Components */
+.fi-layout-component {
+    @apply rounded-2xl;
+}
+
+/* Grid and Split Layouts */
+.fi-fo-grid {
+    @apply rounded-xl;
+}
+
+.fi-fo-split {
+    @apply rounded-xl;
+}
+
+/* Fieldset */
+.fi-fo-fieldset {
+    @apply rounded-xl border border-gray-200 dark:border-gray-700;
+}
+
+/* Repeater */
+.fi-fo-repeater {
+    @apply rounded-xl;
+}
+
+.fi-fo-repeater-item {
+    @apply rounded-xl;
+}
+
+/* Builder */
+.fi-fo-builder {
+    @apply rounded-xl;
+}
+
+.fi-fo-builder-block {
+    @apply rounded-xl;
+}
