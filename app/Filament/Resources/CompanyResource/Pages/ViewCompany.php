@@ -62,7 +62,7 @@ final class ViewCompany extends ViewRecord
                                 ->circular()
                                 ->label('Account Owner'),
                         ]),
-                        CustomFields::infolist()->forModel($schema->getModel())->build(),
+                        CustomFields::infolist()->forSchema($schema)->build(),
                     ]),
                     Section::make([
                         TextEntry::make('created_at')
