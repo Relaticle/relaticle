@@ -3,8 +3,13 @@
     "type": "project",
     "description": "The Next-Generation Open-Source CRM Platform",
     "keywords": [
+        "crm",
         "laravel",
-        "framework"
+        "filament",
+        "saas",
+        "customer-relationship-management",
+        "sales-pipeline",
+        "team-collaboration"
     ],
     "license": "AGPL-3.0",
     "require": {
@@ -138,15 +143,5 @@
         }
     },
     "minimum-stability": "beta",
-    "prefer-stable": true,
-    "repositories": [
-        {
-            "type": "path",
-            "url": "../custom-fields"
-        },
-        {
-            "type": "path",
-            "url": "../flowforge"
-        }
-    ]
+    "prefer-stable": true
 }
