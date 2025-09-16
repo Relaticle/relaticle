@@ -57,6 +57,7 @@ arch('avoid mutation')
         'App\Filament',
         'App\Http\Requests',
         'App\Jobs',
+        'App\Listeners',
         'App\Livewire',
         'App\Mail',
         'App\Models',
