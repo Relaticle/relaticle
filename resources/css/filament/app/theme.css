@@ -15,6 +15,10 @@
 /* Sidebar Enhancements */
 .fi-sidebar {
     @apply bg-gray-50 border-r border-gray-200 dark:bg-gray-800 dark:border-gray-700;
+
+    .fi-dropdown-list-item-image {
+        @apply rounded-md;
+    }
 }
 
 .fi-sidebar-nav {
@@ -30,6 +34,11 @@
     }
 
     .fi-sidebar-item-icon {
+        width: calc(var(--spacing) * 5);
+        height: calc(var(--spacing) * 5);
+    }
+
+    .fi-sidebar-item-grouped-border {
         width: calc(var(--spacing) * 5);
         height: calc(var(--spacing) * 5);
     }
@@ -238,7 +247,12 @@
 
 /* Tenant Menu */
 .fi-tenant-menu-trigger {
-    @apply rounded-xl;
+    @apply rounded-lg;
+
+    .fi-tenant-avatar, .fi-dropdown-list-item-image {
+        @apply rounded-md w-7 h-7;
+    }
+
 }
 
 /* Checkbox and Radio */
