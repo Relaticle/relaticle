@@ -78,7 +78,7 @@ final class PeopleResource extends Resource
                                             ->label('Account Owner')
                                             ->preload()
                                             ->searchable(),
-                                        CustomFields::form()->forModel($schema->getModel())->build()->columns(1),
+                                        CustomFields::form()->forSchema($schema)->build()->columns(1),
                                     ])
                                     ->icon('heroicon-o-plus')
                                     ->action(function (array $data, Set $set): void {
@@ -92,7 +92,7 @@ final class PeopleResource extends Resource
                             ->columnSpan(5),
                     ])
                     ->columns(12),
-                CustomFields::form()->forModel($schema->getModel())
+                CustomFields::form()->forSchema($schema)
                     ->build()
                     ->columnSpanFull(),
             ]);

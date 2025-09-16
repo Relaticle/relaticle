@@ -58,7 +58,7 @@ final class CompanyResource extends Resource
                     ->preload()
                     ->searchable(),
 
-                CustomFields::form()->forModel($schema->getModel())->build()->columns(1),
+                CustomFields::form()->forSchema($schema)->build()->columns(1),
             ])
             ->columns(1)
             ->inlineLabel();
