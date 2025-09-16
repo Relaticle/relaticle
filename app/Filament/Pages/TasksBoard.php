@@ -40,7 +40,7 @@ final class TasksBoard extends BoardPage
 
     protected static string|null|UnitEnum $navigationGroup = 'Workspace';
 
-    protected static string|null|BackedEnum $navigationIcon = 'heroicon-o-document-text';
+    protected static string|null|BackedEnum $navigationIcon = 'heroicon-o-view-columns';
 
     /**
      * Configure the board using the new Filament V4 architecture.

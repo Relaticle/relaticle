@@ -121,6 +121,7 @@ final class AppPanelProvider extends PanelProvider
                 EditProfile::class,
                 ApiTokens::class,
             ])
+            ->spa()
             ->sidebarCollapsibleOnDesktop()
             ->navigationGroups([
                 NavigationGroup::make()
