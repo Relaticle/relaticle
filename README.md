@@ -51,9 +51,9 @@ Visit our [website](https://relaticle.com) to learn more about Relaticle's capab
 
 # Requirements
 
-- PHP 8.3+ with PostgreSQL, Redis extensions
-- PostgreSQL 15+ (MySQL supported, PostgreSQL required for tests)
-- Node.js 20+ and Composer 2
+- PHP 8.3+,
+- PostgreSQL 15+
+- Composer 2 and Node.js 20+
 - Redis for queues (optional for development)
 
 # Installation
