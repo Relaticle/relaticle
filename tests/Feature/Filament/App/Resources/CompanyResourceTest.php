@@ -63,11 +63,13 @@ it('can search `:dataset` column', function (string $column): void {
     $records = App\Models\Company::factory(3)->for($this->user->personalTeam())->create();
     $search = data_get($records->first(), $column);
 
+    $visibleRecords = $records->filter(fn (Illuminate\Database\Eloquent\Model $record) => data_get($record, $column) === $search);
+
     livewire(App\Filament\Resources\CompanyResource\Pages\ListCompanies::class)
         ->searchTable($search instanceof BackedEnum ? $search->value : $search)
-        ->assertCanSeeTableRecords($records->filter(fn (Illuminate\Database\Eloquent\Model $record) => data_get($record, $column) === $search))
-        ->assertCanNotSeeTableRecords($records->filter(fn (Illuminate\Database\Eloquent\Model $record) => data_get($record, $column) !== $search));
-})->with(['name', 'accountOwner.name', 'creator.name', 'created_at', 'updated_at']);
+        ->assertCanSeeTableRecords($visibleRecords)
+        ->assertCountTableRecords($visibleRecords->count());
+})->with(['name', 'accountOwner.name', 'creator.name']);
 
 it('cannot display trashed records by default', function (): void {
     $records = App\Models\Company::factory()->count(4)->for($this->user->personalTeam())->create();

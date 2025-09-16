@@ -11,7 +11,7 @@ use Relaticle\CustomFields\Data\CustomFieldOptionSettingsData;
 use Relaticle\CustomFields\Data\CustomFieldSettingsData;
 use Relaticle\CustomFields\Models\CustomField;
 
-final class BackfillCustomFieldColors extends Command
+final class BackfillCustomFieldColorsCommand extends Command
 {
     /**
      * The name and signature of the console command.
@@ -128,6 +128,9 @@ final class BackfillCustomFieldColors extends Command
 
     /**
      * Get color mapping for a field based on its configuration
+     */
+    /**
+     * @return array<int|string, string>|null
      */
     private function getColorMappingForField(CustomField $field): ?array
     {

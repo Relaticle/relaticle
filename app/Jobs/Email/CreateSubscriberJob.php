@@ -26,6 +26,6 @@ final class CreateSubscriberJob implements ShouldQueue
     {
         retry(10, function (): void {
             Mailcoach::createSubscriber(config('mailcoach-sdk.subscribers_list_id'), $this->data->toArray());
-        }, fn (int $attempt): int => $attempt * 100 * mt_rand(1, 15));
+        }, fn (int $attempt): int => $attempt * 100 * random_int(1, 15));
     }
 }

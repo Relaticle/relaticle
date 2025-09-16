@@ -83,9 +83,9 @@ final readonly class CreateTeamCustomFields
      * Create a custom field using the provided enum configuration
      *
      * @param  class-string  $model  The model class name
-     * @param  object  $enum  The custom field enum instance
+     * @param  CompanyCustomField|OpportunityCustomField|PeopleCustomField|TaskCustomField|NoteCustomField  $enum  The custom field enum instance
      */
-    private function createCustomField(string $model, object $enum): void
+    private function createCustomField(string $model, CompanyCustomField|OpportunityCustomField|PeopleCustomField|TaskCustomField|NoteCustomField $enum): void
     {
         // Extract field configuration from the enum
         $fieldData = new CustomFieldData(
@@ -128,9 +128,9 @@ final readonly class CreateTeamCustomFields
      * Apply colors to field options based on enum configuration
      *
      * @param  mixed  $customField  The created custom field
-     * @param  object  $enum  The custom field enum instance
+     * @param  CompanyCustomField|OpportunityCustomField|PeopleCustomField|TaskCustomField|NoteCustomField  $enum  The custom field enum instance
      */
-    private function applyColorsToOptions(mixed $customField, object $enum): void
+    private function applyColorsToOptions(mixed $customField, CompanyCustomField|OpportunityCustomField|PeopleCustomField|TaskCustomField|NoteCustomField $enum): void
     {
         $colorMapping = $enum->getOptionColors();
         if ($colorMapping === null) {
