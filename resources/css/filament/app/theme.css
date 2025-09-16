@@ -81,7 +81,7 @@
 
 /* Select & Dropdown Inputs */
 .fi-select-input {
-    @apply rounded-xl;
+    @apply rounded-lg;
 }
 
 /* Tables */
@@ -163,7 +163,7 @@
 
 /* Dropdowns */
 .fi-dropdown-panel {
-    @apply shadow-xl border border-gray-100 dark:border-gray-700 rounded-xl;
+    @apply rounded-xl;
 }
 
 .fi-dropdown-list-item {
@@ -247,6 +247,10 @@
 }
 
 .fi-radio-input {
+    @apply rounded-lg;
+}
+
+.fi-input-wrp {
     @apply rounded-lg;
 }
 
@@ -338,4 +342,9 @@
 
 .fi-fo-builder-block {
     @apply rounded-xl;
+}
+
+/* FlowForge Specific Customizations */
+.flowforge-column-header {
+    @apply bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 rounded-t-xl;
 }
