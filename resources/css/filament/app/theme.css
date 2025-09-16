@@ -76,7 +76,7 @@
 
 /* Form Components */
 .fi-fo-component-ctn {
-    @apply rounded-2xl;
+    @apply rounded-xl;
 }
 
 /* Select & Dropdown Inputs */
@@ -87,15 +87,15 @@
 /* Tables */
 
 .fi-ta-ctn {
-    @apply rounded-2xl shadow-sm;
+    @apply rounded-xl shadow-sm;
 }
 
 .fi-ta-content {
-    @apply rounded-2xl overflow-hidden;
+    @apply rounded-xl overflow-hidden;
 }
 
 .fi-ta-table {
-    /*@apply rounded-2xl overflow-hidden;*/
+    /*@apply rounded-xl overflow-hidden;*/
 }
 
 .fi-ta-table thead {
@@ -108,7 +108,7 @@
 
 /* Table header actions */
 .fi-ta-header {
-    /*@apply rounded-t-2xl;*/
+    /*@apply rounded-t-xl;*/
 }
 
 /* Table bulk actions */
@@ -118,21 +118,21 @@
 
 /* Pagination container */
 .fi-ta-pagination {
-    @apply rounded-b-2xl bg-white dark:bg-gray-900;
+    @apply rounded-b-xl bg-white dark:bg-gray-900;
 }
 
 .fi-pagination {
-    @apply rounded-b-2xl;
+    @apply rounded-b-xl;
 }
 
 /* Stats Widgets */
 .fi-wi-stats-overview-stat {
-    @apply relative overflow-hidden transition-shadow duration-300 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 hover:shadow-md rounded-2xl;
+    @apply relative overflow-hidden transition-shadow duration-300 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 hover:shadow-md rounded-xl;
 }
 
 /* Widget Containers */
 .fi-wi-widget {
-    @apply rounded-2xl;
+    @apply rounded-xl;
 }
 
 /* Badges */
@@ -147,24 +147,27 @@
 
 /* Notifications */
 .fi-no-notification {
-    @apply backdrop-blur-lg shadow-2xl rounded-2xl;
+    @apply backdrop-blur-lg shadow-xl rounded-xl;
 }
 
 /* Modals */
 .fi-modal-window-ctn {
     /*@apply pr-2 py-2 max-h-[90vh];*/
 }
-.fi-modal-window {
-    @apply backdrop-blur-sm rounded-2xl shadow-2xl max-h-[calc(100vh-2rem)] mt-2 mr-2;
+
+.fi-modal-slide-over {
+    .fi-modal-window {
+        @apply backdrop-blur-sm rounded-xl shadow-xl max-h-[calc(100vh-2rem)] mt-2 mr-2;
+    }
 }
 
 .fi-modal-content {
-    @apply rounded-2xl;
+    @apply rounded-xl;
 }
 
 /* Dropdowns */
 .fi-dropdown-panel {
-    @apply shadow-2xl border border-gray-100 dark:border-gray-700 rounded-xl;
+    @apply shadow-xl border border-gray-100 dark:border-gray-700 rounded-xl;
 }
 
 .fi-dropdown-list-item {
@@ -173,17 +176,17 @@
 
 /* Panels */
 .fi-panel {
-    @apply rounded-2xl;
+    @apply rounded-xl;
 }
 
 /* Infolists */
 .fi-in-component {
-    @apply rounded-2xl;
+    @apply rounded-xl;
 }
 
 /* Action Modals */
 .fi-ac-modal {
-    @apply rounded-2xl;
+    @apply rounded-xl;
 }
 
 /* Breadcrumbs */
@@ -268,7 +271,7 @@
 
 /* File Upload */
 .fi-file-upload {
-    @apply rounded-2xl;
+    @apply rounded-xl;
 }
 
 .fi-file-upload-button {
@@ -287,7 +290,7 @@
 
 /* Wizard */
 .fi-wizard {
-    @apply rounded-2xl;
+    @apply rounded-xl;
 }
 
 .fi-wizard-step {
@@ -296,17 +299,17 @@
 
 /* Account Widget */
 .fi-account-widget {
-    @apply rounded-2xl;
+    @apply rounded-xl;
 }
 
 /* Simple Page */
 .fi-simple-main {
-    @apply rounded-2xl;
+    @apply rounded-xl;
 }
 
 /* Layout Components */
 .fi-layout-component {
-    @apply rounded-2xl;
+    @apply rounded-xl;
 }
 
 /* Grid and Split Layouts */
