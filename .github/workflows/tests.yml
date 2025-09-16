@@ -9,7 +9,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Cache Dependencies
         uses: actions/cache@v4
@@ -20,7 +20,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: 8.3
+          php-version: 8.4
           extensions: json, dom, curl, libxml, mbstring, zip
           tools: composer:v2
 
@@ -44,7 +44,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php: [8.3]
+        php: [8.4]
         shard: [1, 2, 3, 4]
 
     name: Tests (Shard ${{ matrix.shard }}/4)
@@ -95,9 +95,9 @@ jobs:
           coverage: xdebug
 
       - name: Set up Node & NPM
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v5
         with:
-          node-version: '18.x'
+          node-version: '22.x'
 
       - name: Setup Problem Matches
         run: |

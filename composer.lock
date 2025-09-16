@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e5c214420e7397175498fe4a55791779",
+    "content-hash": "e265ed050a056da71b292cef07caaec6",
     "packages": [
         {
             "name": "amphp/amp",
@@ -7734,11 +7734,17 @@
         },
         {
             "name": "relaticle/custom-fields",
-            "version": "2.x-dev",
-            "dist": {
-                "type": "path",
-                "url": "../custom-fields",
+            "version": "2.0.0-beta5",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Relaticle/custom-fields.git",
                 "reference": "8e6f7ca047875d831a66ab4f5794d17813066357"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Relaticle/custom-fields/zipball/8e6f7ca047875d831a66ab4f5794d17813066357",
+                "reference": "8e6f7ca047875d831a66ab4f5794d17813066357",
+                "shasum": ""
             },
             "require": {
                 "filament/filament": "^4.0",
@@ -7768,12 +7774,12 @@
             "type": "library",
             "extra": {
                 "laravel": {
-                    "providers": [
-                        "Relaticle\\CustomFields\\CustomFieldsServiceProvider"
-                    ],
                     "aliases": {
                         "CustomFields": "Relaticle\\CustomFields\\Facades\\CustomFields"
-                    }
+                    },
+                    "providers": [
+                        "Relaticle\\CustomFields\\CustomFieldsServiceProvider"
+                    ]
                 }
             },
             "autoload": {
@@ -7782,47 +7788,7 @@
                     "Relaticle\\CustomFields\\Database\\Factories\\": "database/factories/"
                 }
             },
-            "autoload-dev": {
-                "psr-4": {
-                    "Relaticle\\CustomFields\\Tests\\": "tests/"
-                }
-            },
-            "scripts": {
-                "post-autoload-dump": [
-                    "@php ./vendor/bin/testbench package:discover --ansi"
-                ],
-                "lint": [
-                    "rector && pint --parallel"
-                ],
-                "test:lint": [
-                    "pint --test"
-                ],
-                "test:refactor": [
-                    "rector --dry-run"
-                ],
-                "test:types": [
-                    "phpstan analyse"
-                ],
-                "test:arch": [
-                    "pest --filter=arch"
-                ],
-                "test:type-coverage": [
-                    "pest --type-coverage --min=100.0"
-                ],
-                "test:pest": [
-                    "pest --parallel"
-                ],
-                "test": [
-                    "@test:lint",
-                    "@test:refactor",
-                    "@test:types",
-                    "@test:type-coverage",
-                    "@test:pest"
-                ],
-                "test-coverage": [
-                    "vendor/bin/pest --coverage"
-                ]
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "AGPL-3.0"
             ],
@@ -7836,6 +7802,8 @@
             "description": "User Defined Custom Fields for Laravel Filament",
             "homepage": "https://github.com/relaticle/custom-fields",
             "keywords": [
+                "Forms",
+                "Relaticle",
                 "admin-panel",
                 "conditional-fields",
                 "csv-export",
@@ -7849,30 +7817,32 @@
                 "filamentphp",
                 "form-builder",
                 "form-fields",
-                "forms",
                 "laravel",
                 "laravel-package",
                 "manukminasyan",
                 "multi-tenancy",
                 "no-migration",
-                "relaticle",
                 "validation"
             ],
             "support": {
                 "issues": "https://github.com/relaticle/custom-fields/issues",
                 "source": "https://github.com/relaticle/custom-fields"
             },
-            "transport-options": {
-                "relative": true
-            }
+            "time": "2025-09-09T09:47:52+00:00"
         },
         {
             "name": "relaticle/flowforge",
-            "version": "2.x-dev",
+            "version": "v2.0.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Relaticle/flowforge.git",
+                "reference": "baff3010c7279bd1294e44c3974950b100d05158"
+            },
             "dist": {
-                "type": "path",
-                "url": "../flowforge",
-                "reference": "10d2970a5a6e2709e26332904f7dee47065a3f94"
+                "type": "zip",
+                "url": "https://api.github.com/repos/Relaticle/flowforge/zipball/baff3010c7279bd1294e44c3974950b100d05158",
+                "reference": "baff3010c7279bd1294e44c3974950b100d05158",
+                "shasum": ""
             },
             "require": {
                 "filament/filament": "^4.0",
@@ -7896,12 +7866,12 @@
             "type": "library",
             "extra": {
                 "laravel": {
-                    "providers": [
-                        "Relaticle\\Flowforge\\FlowforgeServiceProvider"
-                    ],
                     "aliases": {
                         "Flowforge": "Relaticle\\Flowforge\\Facades\\Flowforge"
-                    }
+                    },
+                    "providers": [
+                        "Relaticle\\Flowforge\\FlowforgeServiceProvider"
+                    ]
                 }
             },
             "autoload": {
@@ -7910,33 +7880,7 @@
                     "Relaticle\\Flowforge\\Database\\Factories\\": "database/factories/"
                 }
             },
-            "autoload-dev": {
-                "psr-4": {
-                    "Relaticle\\Flowforge\\Tests\\": "tests/"
-                }
-            },
-            "scripts": {
-                "post-autoload-dump": [
-                    "@php ./vendor/bin/testbench package:discover --ansi"
-                ],
-                "analyse": [
-                    "vendor/bin/phpstan analyse"
-                ],
-                "pest": [
-                    "vendor/bin/pest"
-                ],
-                "test-coverage": [
-                    "vendor/bin/pest --coverage"
-                ],
-                "pint": [
-                    "vendor/bin/pint"
-                ],
-                "test": [
-                    "@pint",
-                    "@analyse",
-                    "@pest"
-                ]
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -7958,9 +7902,13 @@
                 "issues": "https://github.com/relaticle/flowforge/issues",
                 "source": "https://github.com/relaticle/flowforge"
             },
-            "transport-options": {
-                "relative": true
-            }
+            "funding": [
+                {
+                    "url": "https://github.com/Relaticle",
+                    "type": "github"
+                }
+            ],
+            "time": "2025-09-13T13:05:40+00:00"
         },
         {
             "name": "revolt/event-loop",
