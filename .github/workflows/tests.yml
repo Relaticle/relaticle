@@ -27,6 +27,9 @@ jobs:
       - name: Install PHP dependencies
         run: composer install --no-interaction --no-progress --ansi --prefer-dist --optimize-autoloader
 
+      - name: Discover packages
+        run: php artisan package:discover --ansi
+
       - name: Run Lint
         run: composer test:lint
 
