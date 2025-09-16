@@ -121,6 +121,7 @@ final class AppPanelProvider extends PanelProvider
                 EditProfile::class,
                 ApiTokens::class,
             ])
+            ->sidebarCollapsibleOnDesktop()
             ->navigationGroups([
                 NavigationGroup::make()
                     ->label('Tasks')

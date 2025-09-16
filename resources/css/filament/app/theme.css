@@ -12,24 +12,20 @@
    Pure Tailwind CSS Classes Only
    =================================== */
 
-.fi-body {
-    @apply bg-white dark:bg-gray-900;
-}
-
 /* Sidebar Enhancements */
 .fi-sidebar {
     @apply bg-gray-50 border-r border-gray-200 dark:bg-gray-800 dark:border-gray-700;
 }
 
 .fi-sidebar-nav {
-    @apply space-y-1;
+    @apply space-y-1 pt-2;
 }
 
 .fi-sidebar-item {
     @apply transition-colors duration-200 ease-in-out;
 
     .fi-sidebar-item-btn {
-        @apply dark:text-gray-300 hover:bg-gray-200/70 dark:hover:bg-gray-700;
+        @apply dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800;
         padding-block: calc(var(--spacing) * 1.7);
     }
 
@@ -41,7 +37,7 @@
 
 .fi-sidebar-item.fi-active {
     > .fi-sidebar-item-btn {
-        @apply bg-gray-200/70 dark:bg-gray-700 font-semibold;
+        @apply bg-gray-100 dark:bg-gray-800 font-semibold;
     }
 }
 
@@ -64,7 +60,7 @@
 
 /* Button Enhancements */
 .fi-btn {
-    @apply relative overflow-hidden transition-shadow duration-200 shadow-sm hover:shadow-md rounded-xl;
+    @apply relative overflow-hidden transition-shadow duration-200 rounded-xl;
 }
 
 .fi-btn-color-primary {
@@ -77,34 +73,10 @@
 }
 
 /* Cards & Sections */
-.fi-section {
-    @apply relative overflow-hidden transition-shadow duration-300 shadow-sm hover:shadow-md rounded-2xl;
-}
 
 /* Form Components */
 .fi-fo-component-ctn {
     @apply rounded-2xl;
-}
-
-/* Form Inputs */
-.fi-input-wrp input,
-.fi-input-wrp textarea,
-.fi-input-wrp select {
-    @apply rounded-xl;
-}
-
-.fi-input-wrp input:focus,
-.fi-input-wrp textarea:focus,
-.fi-input-wrp select:focus {
-    @apply ring-2 ring-primary-500/30 border-primary-500 outline-none;
-}
-
-.fi-input {
-    @apply rounded-xl;
-}
-
-.fi-input:focus {
-    @apply outline-none ring-2 ring-primary-500/30 border-primary-500;
 }
 
 /* Select & Dropdown Inputs */
@@ -113,9 +85,6 @@
 }
 
 /* Tables */
-.fi-ta {
-    /*@apply rounded-2xl shadow-sm;*/
-}
 
 .fi-ta-ctn {
     @apply rounded-2xl shadow-sm;
@@ -168,12 +137,12 @@
 
 /* Badges */
 .fi-badge {
-    @apply rounded-full;
+    @apply rounded-lg;
 }
 
 /* Pills & Tags */
 .fi-tag {
-    @apply rounded-full;
+    @apply rounded-lg;
 }
 
 /* Notifications */
@@ -226,20 +195,10 @@
     @apply transition-colors duration-200 hover:text-primary-600 dark:hover:text-primary-400;
 }
 
-/* Global Search */
-.fi-global-search-field {
-    @apply transition-all duration-200 focus-within:ring-2 focus-within:ring-primary-500/30;
-}
-
 /* Actions */
 .fi-ac-action:hover,
 .fi-ta-actions button:hover {
     @apply transition-opacity duration-200 opacity-80;
-}
-
-/* Focus States */
-*:focus-visible {
-    @apply outline-none ring-2 ring-primary-500 ring-offset-2 ring-offset-white dark:ring-offset-gray-900;
 }
 
 /* Smooth Transitions */
@@ -249,6 +208,7 @@
 
 /* Custom Scrollbar Styling */
 .fi-sidebar {
+    @apply h-full bg-white dark:bg-gray-900 overflow-y-auto;
     scrollbar-width: thin;
     scrollbar-color: theme('colors.gray.400') theme('colors.gray.100');
 }
@@ -284,11 +244,11 @@
 
 /* Checkbox and Radio */
 .fi-checkbox-input {
-    @apply rounded-lg;
+    @apply rounded-md;
 }
 
 .fi-radio-input {
-    @apply rounded-full;
+    @apply rounded-lg;
 }
 
 /* Toggle Switch */
@@ -321,18 +281,6 @@
 }
 
 /* Tabs */
-.fi-tabs {
-    /*@apply rounded-2xl bg-gray-50 dark:bg-gray-800;*/
-
-    .fi-tabs-item {
-        @apply bg-white;
-        /*@apply hover:bg-white rounded-2xl dark:hover:bg-gray-900 transition-colors duration-200;*/
-        /*&.fi-active {*/
-        /*    @apply bg-white dark:bg-gray-900 shadow ;*/
-        /*}*/
-    }
-}
-
 .fi-tabs-tab {
     @apply rounded-xl;
 }
