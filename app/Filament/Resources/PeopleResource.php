@@ -139,10 +139,6 @@ final class PeopleResource extends Resource
                     ->multiple(),
                 TrashedFilter::make(),
             ])
-            ->headerActions([
-                ImportAction::make()
-                    ->importer(PeopleImporter::class),
-            ])
             ->recordActions([
                 ActionGroup::make([
                     ViewAction::make(),

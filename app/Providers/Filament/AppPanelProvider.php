@@ -18,6 +18,7 @@ use Exception;
 use Filament\Actions\Action;
 use Filament\Events\TenantSet;
 use Filament\Facades\Filament;
+use Filament\FontProviders\GoogleFontProvider;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -103,7 +104,7 @@ final class AppPanelProvider extends PanelProvider
                 ],
             ])
             ->viteTheme('resources/css/filament/app/theme.css')
-            ->font('Satoshi')
+            ->font('Inter')
             ->userMenuItems([
                 Action::make('profile')
                     ->label('Profile')
@@ -122,6 +123,7 @@ final class AppPanelProvider extends PanelProvider
                 ApiTokens::class,
             ])
             ->spa()
+            ->breadcrumbs(false)
             ->sidebarCollapsibleOnDesktop()
             ->navigationGroups([
                 NavigationGroup::make()

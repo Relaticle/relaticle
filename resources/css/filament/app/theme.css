@@ -12,6 +12,10 @@
    Pure Tailwind CSS Classes Only
    =================================== */
 
+.fi-header-heading {
+    @apply text-2xl font-bold;
+}
+
 /* Sidebar Enhancements */
 .fi-sidebar {
     @apply bg-gray-50 border-r border-gray-200 dark:bg-gray-800 dark:border-gray-700;
@@ -152,11 +156,6 @@
 /* Pills & Tags */
 .fi-tag {
     @apply rounded-lg;
-}
-
-/* Notifications */
-.fi-no-notification {
-    @apply backdrop-blur-lg shadow-xl rounded-xl;
 }
 
 /* Modals */
