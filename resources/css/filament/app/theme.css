@@ -151,10 +151,6 @@
 }
 
 /* Modals */
-.fi-modal-window-ctn {
-    /*@apply pr-2 py-2 max-h-[90vh];*/
-}
-
 .fi-modal-slide-over {
     .fi-modal-window {
         @apply backdrop-blur-sm rounded-xl shadow-xl max-h-[calc(100vh-2rem)] mt-2 mr-2;
