@@ -16,6 +16,7 @@ use Filament\Actions\DetachBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
+use Filament\Support\Enums\Size;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Relaticle\CustomFields\Facades\CustomFields;
@@ -44,7 +45,7 @@ final class TasksRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                CreateAction::make(),
+                CreateAction::make()->icon('heroicon-o-plus')->size(Size::Small),
                 AttachAction::make(),
             ])
             ->recordActions([

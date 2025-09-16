@@ -13,6 +13,7 @@ use Filament\Actions\EditAction;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
+use Filament\Support\Enums\Size;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Relaticle\CustomFields\Facades\CustomFields;
@@ -52,7 +53,7 @@ final class PeopleRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                CreateAction::make(),
+                CreateAction::make()->icon('heroicon-o-plus')->size(Size::Small),
             ])
             ->recordActions([
                 ActionGroup::make([

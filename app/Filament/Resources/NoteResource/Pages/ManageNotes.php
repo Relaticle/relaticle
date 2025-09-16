@@ -7,6 +7,7 @@ namespace App\Filament\Resources\NoteResource\Pages;
 use App\Filament\Resources\NoteResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ManageRecords;
+use Filament\Support\Enums\Size;
 use Override;
 use Relaticle\CustomFields\Concerns\InteractsWithCustomFields;
 
@@ -20,7 +21,7 @@ final class ManageNotes extends ManageRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
+            CreateAction::make()->icon('heroicon-o-plus')->size(Size::Small),
         ];
     }
 }

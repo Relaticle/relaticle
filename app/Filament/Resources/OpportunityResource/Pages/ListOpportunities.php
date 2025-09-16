@@ -7,6 +7,7 @@ namespace App\Filament\Resources\OpportunityResource\Pages;
 use App\Filament\Resources\OpportunityResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
+use Filament\Support\Enums\Size;
 use Override;
 use Relaticle\CustomFields\Concerns\InteractsWithCustomFields;
 
@@ -20,7 +21,7 @@ final class ListOpportunities extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
+            CreateAction::make()->icon('heroicon-o-plus')->size(Size::Small),
         ];
     }
 }
