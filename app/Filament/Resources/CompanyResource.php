@@ -68,7 +68,7 @@ final class CompanyResource extends Resource
     {
         return $table
             ->columns([
-                ImageColumn::make('logo')->label('')->size(30)->square(),
+                ImageColumn::make('logo')->label('')->imageSize(28)->square(),
                 TextColumn::make('name')
                     ->searchable()
                     ->sortable(),

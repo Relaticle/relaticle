@@ -18,7 +18,7 @@
 
 /* Sidebar Enhancements */
 .fi-sidebar {
-    @apply bg-gray-50 border-r border-gray-200 dark:bg-gray-800 dark:border-gray-700;
+    @apply bg-gray-50 border-r border-gray-200 dark:bg-gray-800 dark:border-gray-800;
 
     .fi-dropdown-list-item-image {
         @apply rounded-md;
@@ -26,7 +26,7 @@
 }
 
 .fi-sidebar-nav {
-    @apply space-y-1 pt-2;
+    @apply space-y-1 pt-2.5;
 }
 
 .fi-sidebar-item {
@@ -76,10 +76,6 @@
     @apply relative overflow-hidden transition-shadow duration-200 rounded-xl;
 }
 
-.fi-btn-color-primary {
-    @apply bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 shadow-primary-500/25;
-}
-
 /* Icon Buttons */
 .fi-icon-btn {
     @apply rounded-xl;
@@ -113,10 +109,6 @@
 
 .fi-ta-table thead {
     @apply bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900;
-}
-
-.fi-ta-table tbody tr {
-    @apply transition-colors duration-150 ease-in-out hover:bg-primary-50/20 dark:hover:bg-primary-900/10;
 }
 
 /* Table header actions */

@@ -33,7 +33,7 @@ final class ListPeople extends ListRecords
                 ->button()
                 ->label('Import / Export')
                 ->size(Size::Small),
-            CreateAction::make()->icon('heroicon-o-plus')->size(Size::Small)
+            CreateAction::make()->icon('heroicon-o-plus')->size(Size::Small),
         ];
     }
 }
