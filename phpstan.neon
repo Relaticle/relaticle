@@ -13,6 +13,9 @@ parameters:
         - database/factories
         - routes
 
+    excludePaths:
+        - app-modules/SystemAdmin
+
     configDirectories:
         - config
         - app-modules/Documentation/config

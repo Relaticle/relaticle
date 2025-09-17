@@ -10,9 +10,9 @@ final readonly class TaskObserver
 {
     public function creating(Task $task): void
     {
-        if (auth()->check()) {
-            $task->creator_id = auth()->id();
-            $task->team_id = auth()->user()->currentTeam->getKey();
+        if (auth('web')->check()) {
+            $task->creator_id = auth('web')->id();
+            $task->team_id = auth('web')->user()->currentTeam->getKey();
         }
     }
 }

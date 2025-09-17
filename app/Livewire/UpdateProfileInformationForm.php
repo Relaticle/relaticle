@@ -37,7 +37,7 @@ final class UpdateProfileInformationForm extends Component
      */
     public function mount(): void
     {
-        $user = Auth::user();
+        $user = Auth::guard('web')->user();
 
         $this->state = array_merge([
             'email' => $user->email,
@@ -52,7 +52,7 @@ final class UpdateProfileInformationForm extends Component
         $this->resetErrorBag();
 
         $updater->update(
-            Auth::user(),
+            Auth::guard('web')->user(),
             $this->photo
                 ? array_merge($this->state, ['photo' => $this->photo])
                 : $this->state
@@ -68,7 +68,7 @@ final class UpdateProfileInformationForm extends Component
      */
     public function deleteProfilePhoto(): void
     {
-        Auth::user()->deleteProfilePhoto();
+        Auth::guard('web')->user()->deleteProfilePhoto();
 
         $this->dispatch('refresh-navigation-menu');
     }
@@ -78,7 +78,7 @@ final class UpdateProfileInformationForm extends Component
      */
     public function sendEmailVerification(): void
     {
-        Auth::user()->sendEmailVerificationNotification();
+        Auth::guard('web')->user()->sendEmailVerificationNotification();
 
         $this->verificationLinkSent = true;
     }
@@ -88,7 +88,7 @@ final class UpdateProfileInformationForm extends Component
      */
     public function getUserProperty(): Authenticatable
     {
-        return Auth::user();
+        return Auth::guard('web')->user();
     }
 
     /**

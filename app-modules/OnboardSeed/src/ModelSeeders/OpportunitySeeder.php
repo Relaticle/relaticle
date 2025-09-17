@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\OnboardSeed\ModelSeeders;
 
-use App\Enums\CustomFields\Opportunity as OpportunityCustomField;
+use App\Enums\CustomFields\OpportunityField as OpportunityCustomField;
 use App\Models\Company;
 use App\Models\Opportunity;
 use App\Models\Team;
@@ -85,7 +85,7 @@ final class OpportunitySeeder extends BaseModelSeeder
 
         // Define field mappings for custom processing
         $fieldMappings = [
-            OpportunityCustomField::CLOSE_DATE->value => fn ($value) => is_string($value) ? $this->evaluateTemplateExpression($value) : $value,
+            OpportunityCustomField::CLOSE_DATE->value => fn (mixed $value): mixed => is_string($value) ? $this->evaluateTemplateExpression($value) : $value,
             OpportunityCustomField::STAGE->value => 'option',
         ];
 

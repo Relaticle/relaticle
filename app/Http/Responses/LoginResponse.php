@@ -4,16 +4,29 @@ declare(strict_types=1);
 
 namespace App\Http\Responses;
 
-use App\Filament\App\Resources\CompanyResource;
-use Filament\Http\Responses\Auth\Contracts\LoginResponse as Responsable;
+use App\Filament\Resources\CompanyResource;
+use Filament\Facades\Filament;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Routing\Redirector;
+use Livewire\Features\SupportRedirects\Redirector;
 
-final readonly class LoginResponse implements Responsable
+final readonly class LoginResponse implements \Filament\Auth\Http\Responses\Contracts\LoginResponse
 {
-    /** @phpstan-ignore return.unusedType */
+    /** @phpstan-ignore-next-line return.unusedType */
     public function toResponse($request): RedirectResponse|Redirector // @pest-ignore-type
     {
-        return redirect()->intended(CompanyResource::getUrl('index', ['tenant' => $request->user()->currentTeam->getKey()]));
+        $panel = Filament::getCurrentPanel();
+
+        // For system admin panel, use default Filament behavior
+        if ($panel?->getId() === 'sysadmin') {
+            return redirect()->intended($panel->getUrl());
+        }
+
+        // For app panel, redirect to companies with tenant
+        $user = $request->user('web');
+        if ($user && $user->currentTeam) {
+            return redirect()->intended(CompanyResource::getUrl('index', ['tenant' => $user->currentTeam->getKey()]));
+        }
+
+        return redirect()->intended(Filament::getUrl());
     }
 }

@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Listeners;
 
-use App\Enums\CustomFields\Company as CompanyCustomField;
-use App\Enums\CustomFields\Note as NoteCustomField;
-use App\Enums\CustomFields\Opportunity as OpportunityCustomField;
-use App\Enums\CustomFields\People as PeopleCustomField;
-use App\Enums\CustomFields\Task as TaskCustomField;
+use App\Enums\CustomFields\CompanyField as CompanyCustomField;
+use App\Enums\CustomFields\NoteField as NoteCustomField;
+use App\Enums\CustomFields\OpportunityField as OpportunityCustomField;
+use App\Enums\CustomFields\PeopleField as PeopleCustomField;
+use App\Enums\CustomFields\TaskField as TaskCustomField;
 use App\Models\Company;
 use App\Models\Note;
 use App\Models\Opportunity;
@@ -19,6 +19,7 @@ use Laravel\Jetstream\Events\TeamCreated;
 use Laravel\Jetstream\Features;
 use Relaticle\CustomFields\Contracts\CustomsFieldsMigrators;
 use Relaticle\CustomFields\Data\CustomFieldData;
+use Relaticle\CustomFields\Data\CustomFieldOptionSettingsData;
 use Relaticle\CustomFields\Data\CustomFieldSectionData;
 use Relaticle\CustomFields\Data\CustomFieldSettingsData;
 use Relaticle\CustomFields\Enums\CustomFieldSectionType;
@@ -81,10 +82,10 @@ final readonly class CreateTeamCustomFields
     /**
      * Create a custom field using the provided enum configuration
      *
-     * @param  string  $model  The model class name
-     * @param  object  $enum  The custom field enum instance
+     * @param  class-string  $model  The model class name
+     * @param  CompanyCustomField|OpportunityCustomField|PeopleCustomField|TaskCustomField|NoteCustomField  $enum  The custom field enum instance
      */
-    private function createCustomField(string $model, object $enum): void
+    private function createCustomField(string $model, CompanyCustomField|OpportunityCustomField|PeopleCustomField|TaskCustomField|NoteCustomField $enum): void
     {
         // Extract field configuration from the enum
         $fieldData = new CustomFieldData(
@@ -99,7 +100,8 @@ final readonly class CreateTeamCustomFields
             systemDefined: $enum->isSystemDefined(),
             width: $enum->getWidth(),
             settings: new CustomFieldSettingsData(
-                list_toggleable_hidden: $enum->isListToggleableHidden()
+                list_toggleable_hidden: $enum->isListToggleableHidden(),
+                enable_option_colors: $enum->hasColorOptions()
             )
         );
 
@@ -116,6 +118,33 @@ final readonly class CreateTeamCustomFields
         }
 
         // Create the field in the database
-        $migrator->create();
+        $customField = $migrator->create();
+
+        // Apply colors to options if available
+        $this->applyColorsToOptions($customField, $enum);
+    }
+
+    /**
+     * Apply colors to field options based on enum configuration
+     *
+     * @param  mixed  $customField  The created custom field
+     * @param  CompanyCustomField|OpportunityCustomField|PeopleCustomField|TaskCustomField|NoteCustomField  $enum  The custom field enum instance
+     */
+    private function applyColorsToOptions(mixed $customField, CompanyCustomField|OpportunityCustomField|PeopleCustomField|TaskCustomField|NoteCustomField $enum): void
+    {
+        $colorMapping = $enum->getOptionColors();
+        if ($colorMapping === null) {
+            return;
+        }
+
+        // Get the created field options and apply colors
+        foreach ($customField->options as $option) {
+            $color = $colorMapping[$option->name] ?? null;
+            if ($color !== null) {
+                $option->update([
+                    'settings' => new CustomFieldOptionSettingsData(color: $color),
+                ]);
+            }
+        }
     }
 }
