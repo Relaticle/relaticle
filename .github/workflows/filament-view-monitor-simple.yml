@@ -1,0 +1,126 @@
+name: Monitor Filament View Updates (Simple)
+
+on:
+  schedule:
+    # Run daily at 9 AM UTC
+    - cron: '0 9 * * *'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  check-filament-updates:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          coverage: none
+
+      - name: Install dependencies
+        run: composer install --no-interaction --no-progress
+
+      - name: Check for Filament view changes
+        id: check
+        run: |
+          # Define the files we're monitoring
+          FILES=(
+            "vendor/filament/filament/resources/views/components/layout/index.blade.php"
+            "vendor/filament/filament/resources/views/livewire/topbar.blade.php"
+          )
+
+          # Calculate hash of current files
+          CURRENT_HASH=""
+          for FILE in "${FILES[@]}"; do
+            if [ -f "$FILE" ]; then
+              CURRENT_HASH="${CURRENT_HASH}$(sha256sum "$FILE" | cut -d' ' -f1)"
+            fi
+          done
+
+          # Hash the combined hashes
+          FINAL_HASH=$(echo -n "$CURRENT_HASH" | sha256sum | cut -d' ' -f1)
+
+          echo "Current hash: $FINAL_HASH"
+
+          # Compare with stored hash
+          HASH_FILE=".github/filament-views-hash.txt"
+
+          if [ -f "$HASH_FILE" ]; then
+            STORED_HASH=$(cat "$HASH_FILE")
+            echo "Stored hash: $STORED_HASH"
+
+            if [ "$FINAL_HASH" != "$STORED_HASH" ]; then
+              echo "changes_detected=true" >> $GITHUB_OUTPUT
+              echo "🔔 Filament views have changed!"
+
+              # Update the hash file
+              echo "$FINAL_HASH" > "$HASH_FILE"
+            else
+              echo "changes_detected=false" >> $GITHUB_OUTPUT
+              echo "✅ No changes detected"
+            fi
+          else
+            # First run - save the hash
+            echo "$FINAL_HASH" > "$HASH_FILE"
+            echo "changes_detected=false" >> $GITHUB_OUTPUT
+            echo "📝 Initial hash saved"
+          fi
+
+      - name: Get Filament version
+        id: version
+        if: steps.check.outputs.changes_detected == 'true'
+        run: |
+          VERSION=$(composer show filament/filament | grep "versions" | cut -d':' -f2 | xargs)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Create issue notification
+        if: steps.check.outputs.changes_detected == 'true'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const today = new Date().toISOString().split('T')[0];
+
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `🔔 Filament Views Updated - ${today}`,
+              body: `## Filament view files have been updated!
+
+            **Filament Version:** ${{ steps.version.outputs.version }}
+            **Date:** ${today}
+
+            The following Filament view files that you've published have been updated in the package:
+            - \`components/layout/index.blade.php\`
+            - \`livewire/topbar.blade.php\`
+
+            ### What to do:
+            1. Check the [Filament changelog](https://github.com/filamentphp/filament/releases)
+            2. Review what changed in the views
+            3. Decide if you need to update your published versions
+
+            ### How to review changes:
+            \`\`\`bash
+            # Compare your published views with the vendor versions
+            diff -u resources/views/vendor/filament-panels/components/layout/index.blade.php \\
+                    vendor/filament/filament/resources/views/components/layout/index.blade.php
+
+            diff -u resources/views/vendor/filament-panels/livewire/topbar.blade.php \\
+                    vendor/filament/filament/resources/views/livewire/topbar.blade.php
+            \`\`\``,
+              labels: ['filament-update', 'vendor-views']
+            });
+
+            console.log('✅ Issue created for Filament view updates');
+
+      - name: Commit hash update
+        if: steps.check.outputs.changes_detected == 'true'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add .github/filament-views-hash.txt
+          git diff --staged --quiet || git commit -m "Update Filament views hash [skip ci]"
+          git push
