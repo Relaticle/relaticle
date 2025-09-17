@@ -18,7 +18,6 @@ use Exception;
 use Filament\Actions\Action;
 use Filament\Events\TenantSet;
 use Filament\Facades\Filament;
-use Filament\FontProviders\GoogleFontProvider;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -26,6 +25,7 @@ use Filament\Navigation\NavigationGroup;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Schemas\Components\Section;
+use Filament\Support\Enums\Size;
 use Filament\Tables\Table;
 use Filament\View\PanelsRenderHook;
 use Illuminate\Contracts\View\Factory;
@@ -59,6 +59,7 @@ final class AppPanelProvider extends PanelProvider
             SwitchTeam::class,
         );
 
+        Action::configureUsing(fn (Action $action): Action => $action->size(Size::Small)->iconPosition('before'));
         Section::configureUsing(fn (Section $section): Section => $section->compact());
         Table::configureUsing(fn (Table $table): Table => $table);
     }
