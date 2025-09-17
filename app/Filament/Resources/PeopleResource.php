@@ -30,7 +30,6 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
-use Filament\Support\Enums\Size;
 use Filament\Support\Enums\Width;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -71,19 +70,17 @@ final class PeopleResource extends Resource
                             ->suffixAction(
                                 Action::make('Create Company')
                                     ->model(Company::class)
-                                    ->schema(function (Schema $schema) {
-                                        return $schema->components([
-                                            TextInput::make('name')
-                                                ->required(),
-                                            Select::make('account_owner_id')
-                                                ->model(Company::class)
-                                                ->relationship('accountOwner', 'name')
-                                                ->label('Account Owner')
-                                                ->preload()
-                                                ->searchable(),
-                                            CustomFields::form()->forSchema($schema)->build()->columns(1),
-                                        ]);
-                                    })
+                                    ->schema(fn (Schema $schema): \Filament\Schemas\Schema => $schema->components([
+                                        TextInput::make('name')
+                                            ->required(),
+                                        Select::make('account_owner_id')
+                                            ->model(Company::class)
+                                            ->relationship('accountOwner', 'name')
+                                            ->label('Account Owner')
+                                            ->preload()
+                                            ->searchable(),
+                                        CustomFields::form()->forSchema($schema)->build()->columns(1),
+                                    ]))
                                     ->modalWidth(Width::Large)
                                     ->slideOver()
                                     ->icon('heroicon-o-plus')
