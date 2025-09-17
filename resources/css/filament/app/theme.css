@@ -153,7 +153,7 @@
 /* Modals */
 .fi-modal-slide-over {
     .fi-modal-window {
-        @apply backdrop-blur-sm rounded-xl shadow-xl max-h-[calc(100vh-2rem)] mt-2 mr-2;
+        @apply backdrop-blur-sm rounded-xl shadow-xl max-h-[calc(100vh-2rem)] mt-2.5 mr-3;
     }
 }
 
