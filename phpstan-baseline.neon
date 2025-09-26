@@ -7,46 +7,10 @@ parameters:
 			path: app-modules/OnboardSeed/src/Support/BaseModelSeeder.php
 
 		-
-			message: '#^Access to an undefined property object\:\:\$value\.$#'
+			message: '#^Access to an undefined property Relaticle\\CustomFields\\Models\\CustomField\:\:\$tenant_id\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Listeners/CreateTeamCustomFields.php
-
-		-
-			message: '#^Call to an undefined method object\:\:getDisplayName\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Listeners/CreateTeamCustomFields.php
-
-		-
-			message: '#^Call to an undefined method object\:\:getFieldType\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Listeners/CreateTeamCustomFields.php
-
-		-
-			message: '#^Call to an undefined method object\:\:getOptions\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Listeners/CreateTeamCustomFields.php
-
-		-
-			message: '#^Call to an undefined method object\:\:getWidth\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Listeners/CreateTeamCustomFields.php
-
-		-
-			message: '#^Call to an undefined method object\:\:isListToggleableHidden\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Listeners/CreateTeamCustomFields.php
-
-		-
-			message: '#^Call to an undefined method object\:\:isSystemDefined\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Listeners/CreateTeamCustomFields.php
+			path: app/Console/Commands/BackfillCustomFieldColorsCommand.php
 
 		-
 			message: '#^Call to an undefined method Filament\\Models\\Contracts\\HasTenants\|Illuminate\\Contracts\\Auth\\Authenticatable\|Illuminate\\Database\\Eloquent\\Model\:\:switchTeam\(\)\.$#'
@@ -77,7 +41,6 @@ parameters:
 			identifier: offsetAccess.nonOffsetAccessible
 			count: 1
 			path: app/Providers/Filament/AppPanelProvider.php
-
 
 		-
 			message: '#^Parameter \#1 \$array of function array_filter expects array, list\<string\>\|false given\.$#'

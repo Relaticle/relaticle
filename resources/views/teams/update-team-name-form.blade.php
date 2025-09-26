@@ -27,16 +27,9 @@
         <div class="col-span-6 sm:col-span-4">
             <x-label for="name" value="{{ __('Team Name') }}"/>
 
-            {{--            <x-filament::input.wrapper>--}}
-
-            {{--                <x-filament::input type="text" wire:model="name"  />--}}
-
-            {{--            </x-filament::input.wrapper>--}}
-            <x-input id="name"
-                     type="text"
-                     class="mt-1 block w-full"
-                     wire:model="state.name"
-                     :disabled="! Gate::check('update', $team)"/>
+            <x-filament::input.wrapper>
+                <x-filament::input id="name" type="text" wire:model="state.name" :disabled="! Gate::check('update', $team)" />
+            </x-filament::input.wrapper>
 
             <x-input-error for="name" class="mt-2"/>
         </div>

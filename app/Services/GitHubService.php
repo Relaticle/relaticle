@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use Exception;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -35,7 +36,7 @@ final readonly class GitHubService
                 Log::warning('Failed to fetch GitHub stars: '.$response->status());
 
                 return 0;
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 Log::error('Error fetching GitHub stars: '.$e->getMessage());
 
                 return 0;

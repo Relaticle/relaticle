@@ -1,8 +1,7 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Import Tailwind CSS 4 */
+@import "tailwindcss";
 
-/* Scroll padding to account for fixed header when navigating to anchors */
-html {
-    scroll-padding-top: 80px; /* Default for desktop */
-}
+/* Tailwind Typography Plugin */
+@plugin "@tailwindcss/typography";
+
+@import "./theme.css";

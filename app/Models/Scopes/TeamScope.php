@@ -20,6 +20,6 @@ final class TeamScope implements Scope
      */
     public function apply(Builder $builder, Model $model): void
     {
-        $builder->whereBelongsTo(auth()->user()->currentTeam);
+        $builder->whereBelongsTo(auth('web')->user()->currentTeam);
     }
 }

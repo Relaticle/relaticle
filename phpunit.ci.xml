@@ -18,10 +18,23 @@
     <source>
         <include>
             <directory>app</directory>
+            <directory>app-modules</directory>
             <directory>config</directory>
             <directory>routes</directory>
         </include>
+        <exclude>
+            <directory>app/Console/Kernel.php</directory>
+            <directory>app/Exceptions/Handler.php</directory>
+            <directory>app/Http/Middleware</directory>
+            <file>app/Providers/AppServiceProvider.php</file>
+        </exclude>
     </source>
+    <coverage>
+        <report>
+            <html outputDirectory="coverage-html" lowUpperBound="50" highLowerBound="80"/>
+            <clover outputFile="coverage.xml"/>
+        </report>
+    </coverage>
     <php>
         <env name="APP_ENV" value="testing"/>
         <env name="APP_MAINTENANCE_DRIVER" value="file"/>

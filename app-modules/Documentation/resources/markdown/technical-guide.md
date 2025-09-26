@@ -2,13 +2,13 @@
 
 ## Architecture Overview
 
-Relaticle is built on the Laravel 12 framework with Filament 3 for the admin panel interface. The front-end uses
+Relaticle is built on the Laravel 12 framework with Filament 4 for the admin panel interface. The front-end uses
 Livewire and Tailwind CSS to create a responsive and interactive user experience.
 
 ### Tech Stack
 
 - **Backend**: PHP 8.3, Laravel 12
-- **Admin UI**: Filament 3
+- **Admin UI**: Filament 4
 - **Frontend**: Livewire, Tailwind CSS, Alpine.js
 - **Database**: PostgreSQL (recommended), MySQL (supported)
 - **Testing**: Pest
@@ -197,7 +197,7 @@ composer test:unit
 # Run test architecture checks
 composer test:arch
 
-# Run type coverage checks (must be 99.6%+)
+# Run type coverage checks (must be 99.9%+)
 composer test:type-coverage
 
 # Run all quality checks
@@ -225,7 +225,7 @@ All code contributions should include:
 - Unit tests for new functionality
 - Feature tests for user interactions
 - Passing static analysis checks
-- Minimum 99.6% type coverage
+- Minimum 99.9% type coverage
 
 ## Customization and Extension
 

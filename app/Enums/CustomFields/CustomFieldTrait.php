@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Enums\CustomFields;
 
 use Illuminate\Support\Str;
-use Relaticle\CustomFields\Enums\CustomFieldType;
 use Relaticle\CustomFields\Enums\CustomFieldWidth;
 
 /**
@@ -29,9 +28,9 @@ trait CustomFieldTrait
     /**
      * Get the field type
      *
-     * @return CustomFieldType The type of form field to use
+     * @return string The type of form field to use
      */
-    abstract public function getFieldType(): CustomFieldType;
+    abstract public function getFieldType(): string;
 
     /**
      * Get whether this field is system defined
@@ -88,16 +87,38 @@ trait CustomFieldTrait
     }
 
     /**
+     * Get color mapping for select field options
+     *
+     * @return array<int|string, string>|null Array of option => color mappings or null if not applicable
+     */
+    public function getOptionColors(): ?array
+    {
+        return null;
+    }
+
+    /**
+     * Get whether this field should have color options enabled
+     *
+     * @return bool True if color options should be enabled
+     */
+    public function hasColorOptions(): bool
+    {
+        return $this->getOptionColors() !== null;
+    }
+
+    /**
      * Get complete field configuration
      *
      * @return array{
      *     name: string,
-     *     type: CustomFieldType,
+     *     type: string,
      *     systemDefined: bool,
      *     listToggleableHidden: bool,
      *     width: CustomFieldWidth|null,
      *     options: array<int|string, string>|null,
-     *     description: string|null
+     *     description: string|null,
+     *     optionColors: array<int|string, string>|null,
+     *     hasColorOptions: bool
      * } The complete field configuration
      */
     public function getConfiguration(): array
@@ -110,6 +131,8 @@ trait CustomFieldTrait
             'width' => $this->getWidth(),
             'options' => $this->getOptions(),
             'description' => $this->getDescription(),
+            'optionColors' => $this->getOptionColors(),
+            'hasColorOptions' => $this->hasColorOptions(),
         ];
     }
 }
