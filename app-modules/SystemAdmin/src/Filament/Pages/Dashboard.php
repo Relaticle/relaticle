@@ -22,7 +22,7 @@ final class Dashboard extends BaseDashboard
         return [
             Action::make('view-site')
                 ->label('View Website')
-                ->url('/')
+                ->url(config('app.url'))
                 ->icon('heroicon-o-globe-alt')
                 ->color('gray')
                 ->openUrlInNewTab(),
