@@ -98,6 +98,7 @@ arch('main app must not depend on SystemAdmin module')
     ->toUse('Relaticle\SystemAdmin')
     ->ignoring([
         'App\Providers\AppServiceProvider',
+        'App\Console\Commands\InstallCommand',
     ]);
 
 arch('SystemAdmin module must not depend on main app namespace')
