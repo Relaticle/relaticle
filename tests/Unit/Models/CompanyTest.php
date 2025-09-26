@@ -45,7 +45,7 @@ test('company belongs to account owner', function () {
 
     expect($company->accountOwner)->toBeInstanceOf(User::class)
         ->and($company->accountOwner->getKey())->toBe($user->getKey());
-})->todo();
+});
 
 test('company has many people', function () {
     $company = Company::factory()->create();
