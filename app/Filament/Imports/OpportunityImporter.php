@@ -11,7 +11,6 @@ use App\Models\People;
 use Filament\Actions\Imports\ImportColumn;
 use Filament\Actions\Imports\Importer;
 use Filament\Actions\Imports\Models\Import;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Number;
 use Relaticle\CustomFields\Facades\CustomFields;
 
@@ -44,8 +43,9 @@ final class OpportunityImporter extends BaseImporter
                 ->rules(['nullable', 'string', 'max:255'])
                 ->example('Acme Corporation')
                 ->fillRecordUsing(function (Opportunity $record, ?string $state, Importer $importer): void {
-                    if (empty($state)) {
+                    if ($state === null || $state === '' || $state === '0') {
                         $record->company_id = null;
+
                         return;
                     }
 
@@ -78,8 +78,9 @@ final class OpportunityImporter extends BaseImporter
                 ->rules(['nullable', 'string', 'max:255'])
                 ->example('John Doe')
                 ->fillRecordUsing(function (Opportunity $record, ?string $state, Importer $importer): void {
-                    if (empty($state)) {
+                    if ($state === null || $state === '' || $state === '0') {
                         $record->contact_id = null;
+
                         return;
                     }
 
