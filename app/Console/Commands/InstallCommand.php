@@ -8,10 +8,11 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Process;
+use Relaticle\SystemAdmin\Enums\SystemAdministratorRole;
+use Relaticle\SystemAdmin\Models\SystemAdministrator;
 use Throwable;
 
 use function Laravel\Prompts\confirm;
-use function Laravel\Prompts\multiselect;
 use function Laravel\Prompts\select;
 use function Laravel\Prompts\spin;
 use function Laravel\Prompts\text;
@@ -20,14 +21,9 @@ use function Laravel\Prompts\warning;
 final class InstallCommand extends Command
 {
     protected $signature = 'relaticle:install
-                            {--force : Force installation even if already configured}
-                            {--quick : Use default settings for rapid setup}
-                            {--dev : Enable development mode with demo data}';
+                            {--force : Force installation even if already configured}';
 
     protected $description = 'Install and configure Relaticle';
-
-    /** @var array<string, callable(): bool> */
-    private array $installationSteps = [];
 
     public function handle(): int
     {
@@ -37,7 +33,7 @@ final class InstallCommand extends Command
             return self::SUCCESS;
         }
 
-        $config = $this->gatherConfiguration();
+        $config = $this->getConfiguration();
 
         return $this->runInstallation($config);
     }
@@ -75,37 +71,14 @@ final class InstallCommand extends Command
     }
 
     /** @return array<string, mixed> */
-    private function gatherConfiguration(): array
+    private function getConfiguration(): array
     {
         $this->info('Let\'s configure your Relaticle installation...');
 
-        if ($this->option('quick')) {
-            return $this->getQuickConfiguration();
-        }
-
-        return $this->getInteractiveConfiguration();
-    }
-
-    /** @return array<string, mixed> */
-    private function getQuickConfiguration(): array
-    {
-        $this->info('⚡ Using quick setup with smart defaults...');
-
-        return [
-            'database' => 'sqlite',
-            'demo_data' => $this->option('dev'),
-            'install_demo' => $this->option('dev'),
-            'optimize' => ! $this->option('dev'),
-        ];
-    }
-
-    /** @return array<string, mixed> */
-    private function getInteractiveConfiguration(): array
-    {
         $database = select(
             label: 'Which database would you like to use?',
             options: [
-                'sqlite' => 'SQLite (Recommended for development)',
+                'sqlite' => 'SQLite (Recommended for local development)',
                 'pgsql' => 'PostgreSQL (Recommended for production)',
                 'mysql' => 'MySQL/MariaDB',
             ],
@@ -113,29 +86,30 @@ final class InstallCommand extends Command
             hint: 'SQLite requires no additional setup'
         );
 
-        $features = multiselect(
-            label: 'Select additional features to install:',
-            options: [
-                'demo_data' => 'Demo data (Sample companies, contacts, etc.)',
-                'optimize' => 'Production optimizations (Caching, etc.)',
-                'admin_user' => 'Create admin user account',
-            ],
-            default: $this->option('dev') ? ['demo_data', 'admin_user'] : ['optimize'],
-            hint: 'You can change these later'
+        $installDemoData = confirm(
+            label: 'Install demo data?',
+            default: true,
+            hint: 'Includes sample companies, contacts, and more'
+        );
+
+        $createSysAdmin = confirm(
+            label: 'Create system administrator account?',
+            default: true,
+            hint: 'You can create one later using php artisan sysadmin:create'
         );
 
         return [
             'database' => $database,
-            'demo_data' => in_array('demo_data', $features),
-            'optimize' => in_array('optimize', $features),
-            'admin_user' => in_array('admin_user', $features),
+            'demo_data' => $installDemoData,
+            'sysadmin_user' => $createSysAdmin,
         ];
     }
 
     /** @param array<string, mixed> $config */
     private function runInstallation(array $config): int
     {
-        $this->installationSteps = [
+        /** @var array<string, callable(): bool> */
+        $installationSteps = [
             'System Requirements' => fn (): bool => $this->checkSystemRequirements(),
             'Environment Setup' => fn (): bool => $this->setupEnvironment($config),
             'Dependencies' => fn (): bool => $this->installDependencies(),
@@ -143,13 +117,12 @@ final class InstallCommand extends Command
             'Assets' => fn (): bool => $this->buildAssets(),
             'Storage' => fn (): bool => $this->setupStorage(),
             'Demo Data' => fn (): bool => $config['demo_data'] ? $this->seedDemoData() : true,
-            'Optimization' => fn (): bool => $config['optimize'] ? $this->optimizeInstallation() : true,
-            'Admin User' => fn (): bool => $config['admin_user'] ?? false ? $this->createAdminUser() : true,
         ];
 
         $this->info('🚀 Starting installation process...');
 
-        foreach ($this->installationSteps as $stepName => $stepFunction) {
+        // Process non-interactive steps with spinner
+        foreach ($installationSteps as $stepName => $stepFunction) {
             $success = spin(
                 callback: fn (): mixed => $stepFunction(),
                 message: "Installing {$stepName}..."
@@ -166,6 +139,23 @@ final class InstallCommand extends Command
             }
 
             $this->line("   ✅ {$stepName} completed");
+        }
+
+        // Handle System Administrator creation separately (requires user interaction)
+        if ($config['sysadmin_user']) {
+            $this->newLine();
+            $this->info('Creating System Administrator account...');
+
+            if (! $this->createSystemAdministrator()) {
+                $this->newLine();
+                $this->error('❌ Installation failed during: System Administrator creation');
+                $this->newLine();
+                $this->line('<comment>You can create a system administrator later using: php artisan sysadmin:create</comment>');
+
+                return self::FAILURE;
+            }
+
+            $this->line('   ✅ System Administrator created');
         }
 
         $this->newLine();
@@ -337,6 +327,12 @@ final class InstallCommand extends Command
     private function seedDemoData(): bool
     {
         try {
+            // When using --force, we might be re-running installation
+            // Use migrate:fresh to reset the database cleanly
+            if ($this->option('force')) {
+                Artisan::call('migrate:fresh', ['--force' => true]);
+            }
+
             Artisan::call('db:seed', ['--force' => true]);
 
             return true;
@@ -348,62 +344,66 @@ final class InstallCommand extends Command
         }
     }
 
-    private function optimizeInstallation(): bool
+    private function createSystemAdministrator(): bool
     {
         try {
-            // Clear any existing caches first
-            Artisan::call('optimize:clear');
+            // Check if system administrator already exists
+            if (SystemAdministrator::exists()) {
+                $this->warn('A System Administrator already exists.');
+                $overwrite = confirm(
+                    label: 'Do you want to create another one?',
+                    default: false,
+                    hint: 'You can have multiple system administrators'
+                );
 
-            // Only cache config and routes for production optimization
-            // Skip view:cache as it can fail with missing components during installation
-            Artisan::call('config:cache');
-            Artisan::call('route:cache');
-
-            // Only cache views if we're in production environment
-            if (app()->environment('production')) {
-                Artisan::call('view:cache');
+                if (! $overwrite) {
+                    return true;
+                }
             }
 
-            return true;
-        } catch (Throwable $e) {
-            $this->error('Optimization failed:');
-            $this->line($e->getMessage());
-
-            return false;
-        }
-    }
-
-    private function createAdminUser(): bool
-    {
-        try {
             $name = text(
-                label: 'Admin user name',
-                default: 'Admin User',
+                label: 'System Administrator name',
+                default: 'System Admin',
                 required: true
             );
 
             $email = text(
-                label: 'Admin email address',
-                default: 'admin@relaticle.local',
+                label: 'System Administrator email address',
+                default: 'sysadmin@relaticle.local',
                 required: true,
                 validate: fn (string $value): ?string => filter_var($value, FILTER_VALIDATE_EMAIL) ? null : 'Please enter a valid email address'
             );
 
+            // Check if email already exists
+            if (SystemAdministrator::where('email', $email)->exists()) {
+                $this->error("A System Administrator with email '{$email}' already exists.");
+
+                return false;
+            }
+
             $password = text(
-                label: 'Admin password',
-                default: 'password',
-                required: true
+                label: 'System Administrator password (min. 8 characters)',
+                default: 'password123',
+                required: true,
+                validate: fn (string $value): ?string => strlen($value) >= 8 ? null : 'Password must be at least 8 characters'
             );
 
-            Artisan::call('make:filament-user', [
-                '--name' => $name,
-                '--email' => $email,
-                '--password' => $password,
+            // Create the system administrator
+            SystemAdministrator::create([
+                'name' => $name,
+                'email' => $email,
+                'password' => bcrypt($password),
+                'email_verified_at' => now(),
+                'role' => SystemAdministratorRole::SuperAdministrator,
             ]);
+
+            $this->info('  System Administrator created successfully!');
+            $this->line("  Email: {$email}");
+            $this->line('  Access panel at: /sysadmin');
 
             return true;
         } catch (Throwable $e) {
-            $this->error('Admin user creation failed:');
+            $this->error('System Administrator creation failed:');
             $this->line($e->getMessage());
 
             return false;
@@ -425,9 +425,10 @@ final class InstallCommand extends Command
         $this->line('  <options=bold>Your application:</>');
         $this->line('  http://localhost:8000');
 
-        if ($config['admin_user'] ?? false) {
-            $this->line('  <options=bold>Admin panel:</>');
-            $this->line('  http://localhost:8000/admin');
+        if ($config['sysadmin_user'] ?? false) {
+            $this->newLine();
+            $this->line('  <options=bold>System Admin panel:</>');
+            $this->line('  http://localhost:8000/sysadmin');
         }
 
         if ($config['demo_data']) {
