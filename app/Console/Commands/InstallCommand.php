@@ -95,7 +95,7 @@ final class InstallCommand extends Command
         $createSysAdmin = confirm(
             label: 'Create system administrator account?',
             default: true,
-            hint: 'You can create one later using php artisan sysadmin:create'
+            hint: 'You can create one later using: php artisan sysadmin:create'
         );
 
         return [
