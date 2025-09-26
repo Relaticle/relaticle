@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace Relaticle\OnboardSeed\ModelSeeders;
 
-use App\Enums\CustomFields\Task as TaskCustomField;
+use App\Enums\CustomFields\TaskField as TaskCustomField;
 use App\Models\Task;
 use App\Models\Team;
 use App\Models\User;
+use Exception;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Relaticle\OnboardSeed\Support\BaseModelSeeder;
 use Relaticle\OnboardSeed\Support\FixtureRegistry;
@@ -74,7 +76,7 @@ final class TaskSeeder extends BaseModelSeeder
 
             try {
                 $task->people()->attach($person->getKey());
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 report($e);
             }
         }
@@ -100,7 +102,7 @@ final class TaskSeeder extends BaseModelSeeder
 
         // Define field mappings for custom processing
         $fieldMappings = [
-            TaskCustomField::DUE_DATE->value => fn ($value) => is_string($value)
+            TaskCustomField::DUE_DATE->value => fn (mixed $value): mixed => is_string($value)
                 ? $this->formatDate($this->evaluateTemplateExpression($value))
                 : $value,
             TaskCustomField::STATUS->value => 'option',
@@ -122,7 +124,7 @@ final class TaskSeeder extends BaseModelSeeder
      */
     private function formatDate(mixed $dateValue): string
     {
-        if ($dateValue instanceof \Illuminate\Support\Carbon) {
+        if ($dateValue instanceof Carbon) {
             return $dateValue->format('Y-m-d H:i:s');
         }
 

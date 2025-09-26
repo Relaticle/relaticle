@@ -58,6 +58,20 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | System Administrator Panel Configuration
+    |--------------------------------------------------------------------------
+    |
+    | These values configure how the system administrator panel is accessed.
+    | You can either use a subdomain (sysadmin_domain) or a path (sysadmin_path).
+    | If sysadmin_domain is set, it will be used; otherwise, sysadmin_path will be used.
+    |
+    */
+
+    'sysadmin_domain' => env('SYSADMIN_DOMAIN'),
+    'sysadmin_path' => env('SYSADMIN_PATH', 'sysadmin'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Timezone
     |--------------------------------------------------------------------------
     |

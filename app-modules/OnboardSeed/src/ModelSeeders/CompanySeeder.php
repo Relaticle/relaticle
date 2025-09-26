@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\OnboardSeed\ModelSeeders;
 
-use App\Enums\CustomFields\Company as CompanyCustomField;
+use App\Enums\CustomFields\CompanyField as CompanyCustomField;
 use App\Models\Company;
 use App\Models\Team;
 use Illuminate\Contracts\Auth\Authenticatable;

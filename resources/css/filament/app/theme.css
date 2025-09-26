@@ -1,3 +1,355 @@
-@import '/vendor/filament/filament/resources/css/theme.css';
+@import '../../../../vendor/filament/filament/resources/css/theme.css';
 
-@config 'tailwind.config.js';
+@source '../../../../app/Filament';
+@source '../../../../resources/views';
+
+/* Custom Fields */
+@source '../../../../vendor/relaticle/flowforge/resources/views/**/*.blade.php';
+@source '../../../../vendor/relaticle/custom-fields/resources';
+
+/* ===================================
+   Relaticle Brand Theme Customization
+   Pure Tailwind CSS Classes Only
+   =================================== */
+
+.fi-header-heading {
+    @apply text-2xl font-bold;
+}
+
+/* Sidebar Enhancements */
+.fi-sidebar {
+    @apply bg-gray-50 border-r border-gray-200 dark:bg-gray-800 dark:border-gray-800;
+
+    .fi-dropdown-list-item-image {
+        @apply rounded-md;
+    }
+}
+
+.fi-sidebar-nav {
+    @apply space-y-1 pt-2.5;
+}
+
+.fi-sidebar-item {
+    @apply transition-colors duration-200 ease-in-out;
+
+    .fi-sidebar-item-btn {
+        @apply dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800;
+        padding-block: calc(var(--spacing) * 1.7);
+    }
+
+    .fi-sidebar-item-icon {
+        width: calc(var(--spacing) * 5);
+        height: calc(var(--spacing) * 5);
+    }
+
+    .fi-sidebar-item-grouped-border {
+        width: calc(var(--spacing) * 5);
+        height: calc(var(--spacing) * 5);
+    }
+}
+
+.fi-sidebar-item.fi-active {
+    > .fi-sidebar-item-btn {
+        @apply bg-gray-100 dark:bg-gray-800 font-semibold;
+    }
+}
+
+.fi-sidebar-group {
+    @apply rounded-xl;
+}
+
+.fi-sidebar-group-items {
+    @apply rounded-xl;
+}
+
+/* Top Navigation Bar */
+.fi-topbar {
+    /*@apply backdrop-blur-md bg-white/95 dark:bg-gray-900/95 border-b border-gray-200 dark:border-gray-800 shadow-sm;*/
+}
+
+.fi-topbar nav {
+    @apply px-4 lg:px-6;
+}
+
+/* Button Enhancements */
+.fi-btn {
+    @apply relative overflow-hidden transition-shadow duration-200 rounded-xl;
+}
+
+/* Icon Buttons */
+.fi-icon-btn {
+    @apply rounded-xl;
+}
+
+/* Cards & Sections */
+
+/* Form Components */
+.fi-fo-component-ctn {
+    @apply rounded-xl;
+}
+
+/* Select & Dropdown Inputs */
+.fi-select-input {
+    @apply rounded-lg;
+}
+
+/* Tables */
+
+.fi-ta-ctn {
+    @apply rounded-xl shadow-sm;
+}
+
+.fi-ta-content {
+    @apply rounded-xl overflow-hidden;
+}
+
+.fi-ta-table {
+    /*@apply rounded-xl overflow-hidden;*/
+}
+
+.fi-ta-table thead {
+    @apply bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900;
+}
+
+/* Table header actions */
+.fi-ta-header {
+    /*@apply rounded-t-xl;*/
+}
+
+/* Table bulk actions */
+.fi-ta-bulk-actions {
+    @apply rounded-xl;
+}
+
+/* Pagination container */
+.fi-ta-pagination {
+    @apply rounded-b-xl bg-white dark:bg-gray-900;
+}
+
+.fi-pagination {
+    @apply rounded-b-xl;
+}
+
+/* Stats Widgets */
+.fi-wi-stats-overview-stat {
+    @apply relative overflow-hidden transition-shadow duration-300 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 hover:shadow-md rounded-xl;
+}
+
+/* Widget Containers */
+.fi-wi-widget {
+    @apply rounded-xl;
+}
+
+/* Badges */
+.fi-badge {
+    @apply rounded-lg;
+}
+
+/* Pills & Tags */
+.fi-tag {
+    @apply rounded-lg;
+}
+
+/* Modals */
+.fi-modal-slide-over {
+    .fi-modal-window {
+        @apply backdrop-blur-sm rounded-xl shadow-xl max-h-[calc(100vh-2rem)] mt-2.5 mr-3;
+    }
+}
+
+.fi-modal-content {
+    @apply rounded-xl;
+}
+
+/* Dropdowns */
+.fi-dropdown-panel {
+    @apply rounded-xl;
+}
+
+.fi-dropdown-list-item {
+    @apply rounded-lg;
+}
+
+/* Panels */
+.fi-panel {
+    @apply rounded-xl;
+}
+
+/* Infolists */
+.fi-in-component {
+    @apply rounded-xl;
+}
+
+/* Action Modals */
+.fi-ac-modal {
+    @apply rounded-xl;
+}
+
+/* Breadcrumbs */
+.fi-breadcrumbs {
+    @apply text-sm;
+}
+
+.fi-breadcrumbs-item a {
+    @apply transition-colors duration-200 hover:text-primary-600 dark:hover:text-primary-400;
+}
+
+/* Actions */
+.fi-ac-action:hover,
+.fi-ta-actions button:hover {
+    @apply transition-opacity duration-200 opacity-80;
+}
+
+/* Smooth Transitions */
+.fi-panel-content {
+    @apply transition-opacity duration-300 ease-out;
+}
+
+/* Custom Scrollbar Styling */
+.fi-sidebar {
+    @apply h-full bg-white dark:bg-gray-900 overflow-y-auto;
+    scrollbar-width: thin;
+    scrollbar-color: theme('colors.gray.400') theme('colors.gray.100');
+}
+
+.fi-sidebar::-webkit-scrollbar {
+    @apply w-2;
+}
+
+.fi-sidebar::-webkit-scrollbar-track {
+    @apply bg-gray-100 dark:bg-gray-800;
+}
+
+.fi-sidebar::-webkit-scrollbar-thumb {
+    @apply bg-gray-400 dark:bg-gray-600 rounded-full hover:bg-gray-500 dark:hover:bg-gray-500;
+}
+
+/* Additional Component Polish */
+
+/* Avatar */
+.fi-avatar {
+    @apply rounded-full;
+}
+
+/* User Menu */
+.fi-user-menu-trigger {
+    @apply rounded-xl;
+}
+
+/* Tenant Menu */
+.fi-tenant-menu-trigger {
+    @apply rounded-lg;
+
+    .fi-tenant-avatar, .fi-dropdown-list-item-image {
+        @apply rounded-md w-7 h-7;
+    }
+
+}
+
+/* Checkbox and Radio */
+.fi-checkbox-input {
+    @apply rounded-md;
+}
+
+.fi-radio-input {
+    @apply rounded-lg;
+}
+
+.fi-input-wrp {
+    @apply rounded-lg;
+}
+
+/* Toggle Switch */
+.fi-toggle {
+    @apply rounded-full;
+}
+
+/* Color Picker */
+.fi-color-picker {
+    @apply rounded-xl;
+}
+
+/* Date Picker */
+.fi-date-picker {
+    @apply rounded-xl;
+}
+
+/* File Upload */
+.fi-file-upload {
+    @apply rounded-xl;
+}
+
+.fi-file-upload-button {
+    @apply rounded-xl;
+}
+
+/* Rich Editor */
+.fi-rich-editor {
+    @apply rounded-xl;
+}
+
+/* Tabs */
+.fi-tabs-tab {
+    @apply rounded-xl;
+}
+
+/* Wizard */
+.fi-wizard {
+    @apply rounded-xl;
+}
+
+.fi-wizard-step {
+    @apply rounded-xl;
+}
+
+/* Account Widget */
+.fi-account-widget {
+    @apply rounded-xl;
+}
+
+/* Simple Page */
+.fi-simple-main {
+    @apply rounded-xl;
+}
+
+/* Layout Components */
+.fi-layout-component {
+    @apply rounded-xl;
+}
+
+/* Grid and Split Layouts */
+.fi-fo-grid {
+    @apply rounded-xl;
+}
+
+.fi-fo-split {
+    @apply rounded-xl;
+}
+
+/* Fieldset */
+.fi-fo-fieldset {
+    @apply rounded-xl border border-gray-200 dark:border-gray-700;
+}
+
+/* Repeater */
+.fi-fo-repeater {
+    @apply rounded-xl;
+}
+
+.fi-fo-repeater-item {
+    @apply rounded-xl;
+}
+
+/* Builder */
+.fi-fo-builder {
+    @apply rounded-xl;
+}
+
+.fi-fo-builder-block {
+    @apply rounded-xl;
+}
+
+/* FlowForge Specific Customizations */
+.flowforge-column-header {
+    @apply bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 rounded-t-xl;
+}

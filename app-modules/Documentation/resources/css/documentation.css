@@ -1,70 +1,9 @@
+@import 'tailwindcss';
+
+@import "~/css/theme.css";
+
 #documentation-content {
     .heading-permalink {
-        @apply mr-2 text-gray-700/10 dark:text-gray-600 hover:text-primary dark:hover:text-primary-400 transition-colors;
-    }
-
-    /* Copy button styles for code blocks */
-    pre {
-        @apply relative;
-    }
-
-    .copy-button {
-        @apply absolute top-2 right-2;
-        @apply flex items-center justify-center;
-        @apply w-8 h-8 rounded-md;
-        @apply bg-gray-800/50 dark:bg-gray-200/10;
-        @apply backdrop-blur-sm;
-        @apply transition-all duration-200;
-        @apply cursor-pointer;
-        @apply opacity-60 hover:opacity-100;
-    }
-
-    /* Button hover and active states */
-    .copy-button:hover {
-        @apply bg-gray-700/50 dark:bg-gray-200/20;
-    }
-
-    .copy-button:active {
-        @apply scale-95;
-    }
-
-    /* Icon styles */
-    .copy-button svg {
-        @apply w-4 h-4;
-        @apply text-gray-300 dark:text-gray-400;
-        @apply transition-all duration-200;
-    }
-
-    /* Copied state - subtle feedback */
-    .copy-button.copied {
-        @apply opacity-100;
-    }
-
-    .copy-button.copied svg {
-        @apply text-gray-100 dark:text-gray-200;
-    }
-
-    /* Smooth icon transitions */
-    .copy-icon, .check-icon {
-        @apply transition-all duration-200;
-    }
-
-    .copy-button.copied .copy-icon {
-        @apply scale-0 opacity-0;
-    }
-
-    .copy-button.copied .check-icon {
-        @apply scale-100 opacity-100;
-    }
-
-    /* Mobile responsive adjustments */
-    @media (max-width: 640px) {
-        .copy-button {
-            @apply w-7 h-7;
-        }
-
-        .copy-button svg {
-            @apply w-3.5 h-3.5;
-        }
+        @apply mr-2 text-gray-700/10 dark:text-gray-600 hover:text-[var(--color-primary)] dark:hover:text-[var(--color-primary-400)] transition-colors;
     }
 }

@@ -10,9 +10,9 @@ final readonly class PeopleObserver
 {
     public function creating(People $people): void
     {
-        if (auth()->check()) {
-            $people->creator_id = auth()->id();
-            $people->team_id = auth()->user()->currentTeam->getKey();
+        if (auth('web')->check()) {
+            $people->creator_id = auth('web')->id();
+            $people->team_id = auth('web')->user()->currentTeam->getKey();
         }
     }
 }

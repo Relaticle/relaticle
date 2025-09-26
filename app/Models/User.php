@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use App\Services\AvatarService;
+use App\Models\Concerns\HasProfilePhoto;
 use Database\Factories\UserFactory;
 use Exception;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasAvatar;
+use Filament\Models\Contracts\HasDefaultTenant;
 use Filament\Models\Contracts\HasTenants;
 use Filament\Panel;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -18,10 +19,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Storage;
 use Laravel\Fortify\TwoFactorAuthenticatable;
-use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Jetstream\HasTeams;
 use Laravel\Sanctum\HasApiTokens;
 
@@ -30,12 +30,13 @@ use Laravel\Sanctum\HasApiTokens;
  * @property string $email
  * @property string|null $password
  * @property string|null $profile_photo_path
- * @property \Illuminate\Support\Carbon|null $email_verified_at
+ * @property-read string $profile_photo_url
+ * @property Carbon|null $email_verified_at
  * @property string|null $remember_token
  * @property string|null $two_factor_recovery_codes
  * @property string|null $two_factor_secret
  */
-final class User extends Authenticatable implements FilamentUser, HasAvatar, HasTenants, MustVerifyEmail
+final class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaultTenant, HasTenants, MustVerifyEmail
 {
     use HasApiTokens;
 
@@ -76,7 +77,7 @@ final class User extends Authenticatable implements FilamentUser, HasAvatar, Has
      * @var list<string>
      */
     protected $appends = [
-        'profile_photo_url',
+        'profile_photo_url', // @phpstan-ignore rules.modelAppends
     ];
 
     /**
@@ -109,15 +110,24 @@ final class User extends Authenticatable implements FilamentUser, HasAvatar, Has
     }
 
     /**
+     * @return HasMany<Opportunity, $this>
+     */
+    public function opportunities(): HasMany
+    {
+        return $this->hasMany(Opportunity::class, 'creator_id');
+    }
+
+    public function getDefaultTenant(Panel $panel): ?Model
+    {
+        return $this->currentTeam;
+    }
+
+    /**
      * @throws Exception
      */
     public function canAccessPanel(Panel $panel): bool
     {
-        if ($panel->getId() === 'admin') {
-            return (string) $this->email === 'manuk.minasyan1@gmail.com' && $this->hasVerifiedEmail();
-        }
-
-        return true;
+        return $panel->getId() === 'app';
     }
 
     /**
@@ -131,17 +141,5 @@ final class User extends Authenticatable implements FilamentUser, HasAvatar, Has
     public function canAccessTenant(Model $tenant): bool
     {
         return $this->belongsToTeam($tenant);
-    }
-
-    public function getAvatarAttribute(): string
-    {
-        return $this->getFilamentAvatarUrl();
-    }
-
-    public function getFilamentAvatarUrl(): string
-    {
-        return $this->profile_photo_path
-            ? Storage::disk($this->profilePhotoDisk())->url($this->profile_photo_path)
-            : app(AvatarService::class)->generate($this->name);
     }
 }

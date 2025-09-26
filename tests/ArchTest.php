@@ -2,6 +2,10 @@
 
 declare(strict_types=1);
 
+use App\Filament\Exports\BaseExporter;
+use App\Filament\Imports\BaseImporter;
+use App\Livewire\BaseLivewireComponent;
+
 arch()->preset()->php();
 
 // arch()->preset()->strict();
@@ -27,14 +31,21 @@ arch('avoid open for extension')
     ->classes()
     ->toBeFinal()
     ->ignoring([
-        //        App\Services\Autocomplete\Types\Type::class,
+        BaseLivewireComponent::class,
+        BaseImporter::class,
+        BaseExporter::class,
     ]);
 
 arch('ensure no extends')
     ->expect('App')
     ->classes()
     ->not
-    ->toBeAbstract();
+    ->toBeAbstract()
+    ->ignoring([
+        BaseLivewireComponent::class,
+        BaseImporter::class,
+        BaseExporter::class,
+    ]);
 
 arch('avoid mutation')
     ->expect('App')
@@ -46,9 +57,11 @@ arch('avoid mutation')
         'App\Filament',
         'App\Http\Requests',
         'App\Jobs',
+        'App\Listeners',
         'App\Livewire',
         'App\Mail',
         'App\Models',
+        'App\Data',
         'App\Notifications',
         'App\Providers',
         'App\View',
@@ -65,6 +78,7 @@ arch('avoid inheritance')
         'App\Filament',
         'App\Http\Requests',
         'App\Jobs',
+        'App\Data',
         'App\Livewire',
         'App\Mail',
         'App\Models',
@@ -77,3 +91,20 @@ arch('avoid inheritance')
 //    ->expect('App')
 //    ->toHavePropertiesDocumented()
 //    ->toHaveMethodsDocumented();
+
+arch('main app must not depend on SystemAdmin module')
+    ->expect('App')
+    ->not
+    ->toUse('Relaticle\SystemAdmin')
+    ->ignoring([
+        'App\Providers\AppServiceProvider',
+    ]);
+
+arch('SystemAdmin module must not depend on main app namespace')
+    ->expect('Relaticle\SystemAdmin')
+    ->not
+    ->toUse('App')
+    ->ignoring([
+        'App\Models',
+        'App\Enums',
+    ]);

@@ -6,6 +6,7 @@ namespace App\Jobs;
 
 use App\Models\Company;
 use AshAllenDesign\FaviconFetcher\Facades\Favicon;
+use Exception;
 use Illuminate\Contracts\Broadcasting\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -58,7 +59,7 @@ final class FetchFaviconForCompany implements ShouldBeUnique, ShouldQueue
                 ->toMediaCollection('logo');
 
             $this->company->clearMediaCollectionExcept('logo', $logo);
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             report($exception);
         }
     }

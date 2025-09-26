@@ -7,13 +7,14 @@ namespace App\Providers;
 use App\Models\User;
 use Illuminate\Support\Facades\Gate;
 use Laravel\Horizon\HorizonApplicationServiceProvider;
+use Override;
 
 final class HorizonServiceProvider extends HorizonApplicationServiceProvider
 {
     /**
      * Bootstrap any application services.
      */
-    #[\Override]
+    #[Override]
     public function boot(): void
     {
         parent::boot();

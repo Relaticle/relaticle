@@ -15,9 +15,9 @@ final readonly class TeamPolicy
     /**
      * Determine whether the user can view any models.
      */
-    public function viewAny(): bool
+    public function viewAny(User $user): bool
     {
-        return true;
+        return $user->hasVerifiedEmail() && $user->currentTeam !== null;
     }
 
     /**
@@ -74,5 +74,30 @@ final readonly class TeamPolicy
     public function delete(User $user, Team $team): bool
     {
         return $user->ownsTeam($team);
+    }
+
+    public function deleteAny(): bool
+    {
+        return false;
+    }
+
+    public function restore(User $user, Team $team): bool
+    {
+        return $user->ownsTeam($team);
+    }
+
+    public function restoreAny(): bool
+    {
+        return false;
+    }
+
+    public function forceDelete(User $user, Team $team): bool
+    {
+        return $user->ownsTeam($team);
+    }
+
+    public function forceDeleteAny(): bool
+    {
+        return false;
     }
 }
