@@ -1,0 +1,34 @@
+<?php
+
+namespace Spatie\MailcoachSdk\Resources;
+
+class Subscriber
+{
+    /** @var string */
+    public $uuid;
+
+    /** @var string */
+    public $email;
+
+    /** @var array<string> */
+    public $tags;
+}
+
+namespace Spatie\MailcoachSdk\Facades;
+
+/**
+ * @method static \Spatie\MailcoachSdk\Resources\Subscriber createSubscriber(string $emailListUuid, array<string, mixed> $attributes)
+ * @method static ?\Spatie\MailcoachSdk\Resources\Subscriber findByEmail(string $emailListUuid, string $email)
+ * @method static \Spatie\MailcoachSdk\Resources\Subscriber updateSubscriber(string $subscriberUuid, array<string, mixed> $attributes)
+ * @method static \Spatie\MailcoachSdk\Resources\Subscriber subscriber(string $uuid)
+ * @method static void deleteSubscriber(string $subscriberUuid)
+ * @method static void confirmSubscriber(string $subscriberUuid)
+ * @method static void unsubscribeSubscriber(string $subscriberUuid)
+ * @method static void resubscribeSubscriber(string $subscriberUuid)
+ * @method static void resendConfirmation(string $subscriberUuid)
+ *
+ * @see \Spatie\MailcoachSdk\Mailcoach
+ */
+class Mailcoach
+{
+}

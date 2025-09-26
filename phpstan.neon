@@ -5,6 +5,9 @@ includes:
 parameters:
     level: 7
 
+    stubFiles:
+        - stubs/Mailcoach.stub
+
     paths:
         - app
         - app-modules
