@@ -99,6 +99,7 @@ arch('main app must not depend on SystemAdmin module')
     ->ignoring([
         'App\Providers\AppServiceProvider',
         'App\Console\Commands\InstallCommand',
+        'App\Console\Commands\CreateSystemAdminCommand',
     ]);
 
 arch('SystemAdmin module must not depend on main app namespace')
