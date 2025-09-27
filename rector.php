@@ -3,7 +3,9 @@
 declare(strict_types=1);
 
 use Rector\Config\RectorConfig;
+use Rector\DeadCode\Rector\ClassMethod\RemoveUnusedPrivateMethodRector;
 use Rector\Php83\Rector\ClassMethod\AddOverrideAttributeToOverriddenMethodsRector;
+use Rector\Privatization\Rector\ClassMethod\PrivatizeFinalClassMethodRector;
 
 return RectorConfig::configure()
     ->withPaths([
@@ -16,6 +18,14 @@ return RectorConfig::configure()
     ])
     ->withSkip([
         AddOverrideAttributeToOverriddenMethodsRector::class,
+        RemoveUnusedPrivateMethodRector::class => [
+            // Skip Filament importer lifecycle hooks - they're called dynamically via callHook()
+            __DIR__.'/app/Filament/Imports/*',
+        ],
+        PrivatizeFinalClassMethodRector::class => [
+            // Filament expects protected visibility for lifecycle hooks
+            __DIR__.'/app/Filament/Imports/*',
+        ],
     ])
     ->withPreparedSets(
         deadCode: true,
