@@ -1,6 +1,7 @@
 <div class="space-y-3">
     <x-filament::button
         :href="route('auth.socialite.redirect', 'google')"
+        :spa-mode="false"
         tag="a"
         color="gray"
         class="w-full justify-center"
@@ -22,6 +23,7 @@
 
     <x-filament::button
         :href="route('auth.socialite.redirect', 'github')"
+        :spa-mode="false"
         tag="a"
         color="gray"
         class="w-full justify-center flex"
