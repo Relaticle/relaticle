@@ -13,6 +13,7 @@ use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Actions;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 
@@ -63,6 +64,8 @@ final class DeleteTeam extends BaseLivewireComponent
 
         $this->sendNotification(__('teams.notifications.team_deleted.success'));
 
-        redirect()->to(Filament::getCurrentPanel()?->getUrl());
+        Filament::setTenant(Auth::user()->personalTeam());
+
+        redirect()->to(Filament::getCurrentPanel()?->getHomeUrl());
     }
 }
