@@ -35,6 +35,9 @@
                 alt="{{ $state['name'] ?? '' }}"
                 size="{{ $state['avatarSize'] }}"
                 :circular="$state['circular']"
+                @style([
+                    'border-radius: 0 !important' => !$state['circular'], // Force square shape when not circular
+                ])
             />
         @endif
 
