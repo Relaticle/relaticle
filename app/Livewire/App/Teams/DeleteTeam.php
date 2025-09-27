@@ -62,9 +62,9 @@ final class DeleteTeam extends BaseLivewireComponent
     {
         app(DeleteTeamAction::class)->delete($team);
 
-        $this->sendNotification(__('teams.notifications.team_deleted.success'));
+        Filament::setTenant(Auth::guard('web')->user()->personalTeam());
 
-        Filament::setTenant(Auth::user()->personalTeam());
+        $this->sendNotification(__('teams.notifications.team_deleted.success'));
 
         redirect()->to(Filament::getCurrentPanel()?->getHomeUrl());
     }

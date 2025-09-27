@@ -168,6 +168,10 @@ final class AppPanelProvider extends PanelProvider
             ->renderHook(
                 PanelsRenderHook::AUTH_REGISTER_FORM_BEFORE,
                 fn (): View|Factory => view('filament.auth.social_login_buttons')
+            )
+            ->renderHook(
+                PanelsRenderHook::HEAD_END,
+                fn (): View|Factory => view('filament.app.analytics')
             );
 
         if (Features::hasApiFeatures()) {
