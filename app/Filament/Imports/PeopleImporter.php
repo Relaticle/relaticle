@@ -13,7 +13,6 @@ use Filament\Actions\Imports\Models\Import;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Number;
 use Relaticle\CustomFields\Facades\CustomFields;
-use Relaticle\CustomFields\Filament\Integration\Support\Imports\ImportDataStorage;
 
 final class PeopleImporter extends BaseImporter
 {
@@ -127,12 +126,7 @@ final class PeopleImporter extends BaseImporter
 
     protected function afterSave(): void
     {
-        // Save custom fields from ImportDataStorage
-        $customFieldsData = ImportDataStorage::pull($this->record);
-
-        if (! empty($customFieldsData)) {
-            $this->record->saveCustomFields($customFieldsData);
-        }
+        CustomFields::importer()->forModel($this->record)->saveValues();
     }
 
     public static function getCompletedNotificationBody(Import $import): string
