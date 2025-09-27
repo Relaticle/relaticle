@@ -7,17 +7,17 @@
     },
     "devDependencies": {
         "@tailwindcss/forms": "^0.5.10",
-        "@tailwindcss/typography": "^0.5.16",
+        "@tailwindcss/typography": "^0.5.19",
         "autoprefixer": "^10.4.21",
         "chokidar": "^4.0.3",
-        "laravel-vite-plugin": "^1.2",
-        "postcss": "^8.5.3",
-        "postcss-nesting": "^13.0.1",
-        "tailwindcss": "^4.1.10",
-        "vite": "^6.0"
+        "laravel-vite-plugin": "^2.0",
+        "postcss": "^8.5.6",
+        "postcss-nesting": "^13.0.2",
+        "tailwindcss": "^4.1.13",
+        "vite": "^7.1"
     },
     "dependencies": {
-        "@tailwindcss/vite": "^4.1.10",
-        "shiki": "^3.3.0"
+        "@tailwindcss/vite": "^4.1.13",
+        "shiki": "^3.13.0"
     }
 }
