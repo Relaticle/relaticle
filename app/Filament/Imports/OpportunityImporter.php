@@ -13,6 +13,7 @@ use Filament\Actions\Imports\Importer;
 use Filament\Actions\Imports\Models\Import;
 use Illuminate\Support\Number;
 use Relaticle\CustomFields\Facades\CustomFields;
+use Relaticle\CustomFields\Filament\Integration\Support\Imports\ImportDataStorage;
 
 final class OpportunityImporter extends BaseImporter
 {
@@ -131,6 +132,16 @@ final class OpportunityImporter extends BaseImporter
         }
 
         return new Opportunity;
+    }
+
+    protected function afterSave(): void
+    {
+        // Save custom fields from ImportDataStorage
+        $customFieldsData = ImportDataStorage::pull($this->record);
+
+        if (! empty($customFieldsData)) {
+            $this->record->saveCustomFields($customFieldsData);
+        }
     }
 
     public static function getCompletedNotificationBody(Import $import): string
