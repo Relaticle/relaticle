@@ -124,6 +124,11 @@ final class PeopleImporter extends BaseImporter
             ->toArray();
     }
 
+    protected function afterSave(): void
+    {
+        CustomFields::importer()->forModel($this->record)->saveValues();
+    }
+
     public static function getCompletedNotificationBody(Import $import): string
     {
         $body = 'Your people import has completed and '.Number::format($import->successful_rows).' '.str('row')->plural($import->successful_rows).' imported.';
