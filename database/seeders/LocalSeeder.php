@@ -18,6 +18,12 @@ final class LocalSeeder extends Seeder
 {
     public function run(): void
     {
+        if (! app()->isLocal()) {
+            $this->command->info('Skipping local seeding as the environment is not local.');
+
+            return;
+        }
+
         $this->call(SystemAdministratorSeeder::class);
 
         $user = User::factory()

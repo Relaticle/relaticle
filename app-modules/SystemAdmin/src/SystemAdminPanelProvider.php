@@ -76,6 +76,7 @@ final class SystemAdminPanelProvider extends PanelProvider
             ->plugins([
                 OverlookPlugin::make()
                     ->sort(0)
+                    ->abbreviateCount(false)
                     ->columns([
                         'default' => 1,
                         'sm' => 2,
