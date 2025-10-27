@@ -50,7 +50,11 @@ jobs:
       fail-fast: false
       matrix:
         php: [8.4]
+        # Note: If changing shard count, also update TOTAL_SHARDS env variable below
         shard: [1, 2, 3, 4, 5, 6, 7]
+
+    env:
+      TOTAL_SHARDS: 7
 
     name: Tests (Shard ${{ matrix.shard }}/7)
 
@@ -140,11 +144,11 @@ jobs:
 
       - name: Create Test Databases
         run: |
-          for i in 1 2 3 4 5 6 7; do
+          for i in $(seq 1 $TOTAL_SHARDS); do
             PGPASSWORD=postgres psql -h 127.0.0.1 -U postgres -c "CREATE DATABASE relaticle_testing_test_${i};"
           done
 
       - name: Tests
         run: composer test:unit:ci:shard
         env:
-          SHARD: ${{ matrix.shard }}/7
+          SHARD: ${{ matrix.shard }}/${{ env.TOTAL_SHARDS }}
