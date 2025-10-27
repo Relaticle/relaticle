@@ -138,6 +138,12 @@ jobs:
           cp .env.ci .env
           php artisan key:generate
 
+      - name: Create Test Databases
+        run: |
+          for i in 1 2 3 4 5 6 7; do
+            PGPASSWORD=postgres psql -h 127.0.0.1 -U postgres -c "CREATE DATABASE relaticle_testing_test_${i};"
+          done
+
       - name: Tests
         run: composer test:unit:ci:shard
         env:
