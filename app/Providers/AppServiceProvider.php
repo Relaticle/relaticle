@@ -94,7 +94,11 @@ final class AppServiceProvider extends ServiceProvider
         }
 
         // Return the first existing class, or fallback
-        $existingPolicy = $candidates->reverse()->first(fn (string $policyClass): bool => class_exists($policyClass));
+        // Note: Cannot use class_exists(...) first-class callable here because:
+        // - class_exists signature: callable(string, bool): bool
+        // - Collection::first() expects: callable(mixed, int|string): bool
+        // Parameter types are incompatible, so we use an explicit closure
+        $existingPolicy = $candidates->reverse()->first(fn (string $class): bool => class_exists($class));
 
         return $existingPolicy ?: $classDirname.'\\Policies\\'.class_basename($modelClass).'Policy';
     }

@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Rector\CodingStyle\Rector\FunctionLike\FunctionLikeToFirstClassCallableRector;
 use Rector\Config\RectorConfig;
 use Rector\DeadCode\Rector\ClassMethod\RemoveUnusedPrivateMethodRector;
 use Rector\Php83\Rector\ClassMethod\AddOverrideAttributeToOverriddenMethodsRector;
@@ -21,6 +22,10 @@ return RectorConfig::configure()
     ])
     ->withSkip([
         AddOverrideAttributeToOverriddenMethodsRector::class,
+        // Skip first-class callable conversion due to type incompatibilities with PHPStan
+        // Examples: class_exists(...) signature doesn't match Collection::first() expectations,
+        // filled(...) doesn't match Filament's callback parameter injection patterns
+        FunctionLikeToFirstClassCallableRector::class,
         RemoveUnusedPrivateMethodRector::class => [
             // Skip Filament importer lifecycle hooks - they're called dynamically via callHook()
             __DIR__.'/app/Filament/Imports/*',
@@ -35,7 +40,6 @@ return RectorConfig::configure()
         codeQuality: true,
         typeDeclarations: true,
         privatization: true,
-        earlyReturn: true,
-        strictBooleans: true,
+        earlyReturn: true
     )
     ->withPhpSets();

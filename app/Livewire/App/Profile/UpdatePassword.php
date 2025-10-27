@@ -49,7 +49,7 @@ final class UpdatePassword extends BaseLivewireComponent
                             ->revealable(filament()->arePasswordsRevealable())
                             ->rule(Password::default())
                             ->autocomplete('new-password')
-                            ->dehydrated(fn (?string $state): bool => filled($state))
+                            ->dehydrated(fn (mixed $state): bool => filled($state))
                             ->live(debounce: 500)
                             ->same('passwordConfirmation'),
                         TextInput::make('passwordConfirmation')
