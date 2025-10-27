@@ -94,7 +94,7 @@ final class AppServiceProvider extends ServiceProvider
         }
 
         // Return the first existing class, or fallback
-        $existingPolicy = $candidates->reverse()->first(class_exists(...));
+        $existingPolicy = $candidates->reverse()->first(fn (string $policyClass): bool => class_exists($policyClass));
 
         return $existingPolicy ?: $classDirname.'\\Policies\\'.class_basename($modelClass).'Policy';
     }
