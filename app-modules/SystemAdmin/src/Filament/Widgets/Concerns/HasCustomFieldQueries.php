@@ -150,13 +150,14 @@ trait HasCustomFieldQueries
      */
     private function getOptionIdsByPatterns(string $entityType, string $fieldCode, array $patterns): array
     {
+        // Convert patterns to lowercase for case-insensitive matching using a single whereIn clause
+        $lowercasePatterns = array_map('strtolower', $patterns);
+
         return DB::table('custom_field_options as cfo')
             ->join('custom_fields as cf', 'cfo.custom_field_id', '=', 'cf.id')
             ->where('cf.entity_type', $entityType)
             ->where('cf.code', $fieldCode)
-            ->where(fn ($query) => collect($patterns)->each(fn ($pattern) => $query->orWhereRaw('LOWER(cfo.name) = ?', [strtolower($pattern)])
-            )
-            )
+            ->whereRaw('LOWER(cfo.name) IN ('.implode(',', array_fill(0, count($lowercasePatterns), '?')).')', $lowercasePatterns)
             ->pluck('cfo.id')
             ->toArray();
     }

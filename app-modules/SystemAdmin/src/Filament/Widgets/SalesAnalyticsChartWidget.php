@@ -91,27 +91,12 @@ final class SalesAnalyticsChartWidget extends ChartWidget
      */
     private function getSalesData(): array
     {
-        $monthlyData = collect(range(5, 0))
-            ->map($this->getMonthData(...))
-            ->values();
+        // Calculate date range for the last 6 months
+        $startDate = now()->subMonths(5)->startOfMonth();
+        $endDate = now()->endOfMonth();
 
-        return [
-            'months' => $monthlyData->pluck('month')->toArray(),
-            'monthly_values' => $monthlyData->pluck('value')->toArray(),
-            'monthly_counts' => $monthlyData->pluck('count')->toArray(),
-        ];
-    }
-
-    /**
-     * @return array{month: string, value: float, count: int}
-     */
-    private function getMonthData(int $monthsAgo): array
-    {
-        $month = now()->subMonths($monthsAgo);
-        $monthStart = $month->startOfMonth();
-        $monthEnd = $month->copy()->endOfMonth();
-
-        $monthData = DB::table('opportunities')
+        // Fetch all opportunities in a single query
+        $opportunities = DB::table('opportunities')
             ->leftJoin('custom_field_values as cfv_amount', fn (mixed $join) => $join->on('opportunities.id', '=', 'cfv_amount.entity_id')
                 ->where('cfv_amount.entity_type', 'opportunity')
             )
@@ -120,14 +105,31 @@ final class SalesAnalyticsChartWidget extends ChartWidget
             )
             ->whereNull('opportunities.deleted_at')
             ->where('opportunities.creation_source', '!=', CreationSource::SYSTEM->value)
-            ->whereBetween('opportunities.created_at', [$monthStart, $monthEnd])
-            ->select('cfv_amount.float_value as amount')
+            ->whereBetween('opportunities.created_at', [$startDate, $endDate])
+            ->select('opportunities.created_at', 'cfv_amount.float_value as amount')
             ->get();
 
+        // Group opportunities by month and aggregate
+        $monthlyData = collect(range(5, 0))
+            ->map(function (int $monthsAgo) use ($opportunities): array {
+                $month = now()->subMonths($monthsAgo);
+                $monthStart = $month->copy()->startOfMonth();
+                $monthEnd = $month->copy()->endOfMonth();
+
+                $monthOpportunities = $opportunities->whereBetween('created_at', [$monthStart, $monthEnd]);
+
+                return [
+                    'month' => $month->format('M Y'),
+                    'value' => $monthOpportunities->sum('amount') ?? 0,
+                    'count' => $monthOpportunities->count(),
+                ];
+            })
+            ->values();
+
         return [
-            'month' => $month->format('M Y'),
-            'value' => $monthData->sum('amount') ?? 0,
-            'count' => $monthData->count(),
+            'months' => $monthlyData->pluck('month')->toArray(),
+            'monthly_values' => $monthlyData->pluck('value')->toArray(),
+            'monthly_counts' => $monthlyData->pluck('count')->toArray(),
         ];
     }
 }

@@ -133,11 +133,12 @@ final readonly class CreateTeamCustomFields
     private function applyColorsToOptions(mixed $customField, CompanyCustomField|OpportunityCustomField|PeopleCustomField|TaskCustomField|NoteCustomField $enum): void
     {
         $colorMapping = $enum->getOptionColors();
-        if ($colorMapping === null) {
+        if ($colorMapping === null || $colorMapping === []) {
             return;
         }
 
         // Get the created field options and apply colors
+        // Options are already eager-loaded from the custom field creation
         foreach ($customField->options as $option) {
             $color = $colorMapping[$option->name] ?? null;
             if ($color !== null) {

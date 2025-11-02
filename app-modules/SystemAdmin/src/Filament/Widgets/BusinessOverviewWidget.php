@@ -117,19 +117,27 @@ final class BusinessOverviewWidget extends BaseWidget
         $currentMonth = now()->startOfMonth();
         $lastMonth = now()->subMonth()->startOfMonth();
 
-        $opportunitiesThisMonth = Opportunity::where('created_at', '>=', $currentMonth)
+        // Use a single query with conditional aggregation for opportunities
+        $opportunityCounts = Opportunity::selectRaw('
+                COUNT(CASE WHEN created_at >= ? THEN 1 END) as current_month,
+                COUNT(CASE WHEN created_at >= ? AND created_at < ? THEN 1 END) as last_month
+            ', [$currentMonth, $lastMonth, $currentMonth])
             ->where('creation_source', '!=', CreationSource::SYSTEM)
-            ->count();
-        $opportunitiesLastMonth = Opportunity::whereBetween('created_at', [$lastMonth, $currentMonth])
-            ->where('creation_source', '!=', CreationSource::SYSTEM)
-            ->count();
+            ->first();
 
-        $companiesThisMonth = Company::where('created_at', '>=', $currentMonth)
+        $opportunitiesThisMonth = $opportunityCounts->current_month ?? 0;
+        $opportunitiesLastMonth = $opportunityCounts->last_month ?? 0;
+
+        // Use a single query with conditional aggregation for companies
+        $companyCounts = Company::selectRaw('
+                COUNT(CASE WHEN created_at >= ? THEN 1 END) as current_month,
+                COUNT(CASE WHEN created_at >= ? AND created_at < ? THEN 1 END) as last_month
+            ', [$currentMonth, $lastMonth, $currentMonth])
             ->where('creation_source', '!=', CreationSource::SYSTEM)
-            ->count();
-        $companiesLastMonth = Company::whereBetween('created_at', [$lastMonth, $currentMonth])
-            ->where('creation_source', '!=', CreationSource::SYSTEM)
-            ->count();
+            ->first();
+
+        $companiesThisMonth = $companyCounts->current_month ?? 0;
+        $companiesLastMonth = $companyCounts->last_month ?? 0;
 
         $opportunitiesGrowth = $this->calculateGrowthRate($opportunitiesThisMonth, $opportunitiesLastMonth);
         $companiesGrowth = $this->calculateGrowthRate($companiesThisMonth, $companiesLastMonth);
