@@ -109,7 +109,8 @@ final class SalesAnalyticsChartWidget extends ChartWidget
             ->select('opportunities.created_at', 'cfv_amount.float_value as amount')
             ->get();
 
-        // Group opportunities by month and aggregate
+        // Group opportunities by month and aggregate in memory
+        // For 6 months of data, in-memory filtering is efficient and simpler than database date functions
         $monthlyData = collect(range(5, 0))
             ->map(function (int $monthsAgo) use ($opportunities): array {
                 $month = now()->subMonths($monthsAgo);

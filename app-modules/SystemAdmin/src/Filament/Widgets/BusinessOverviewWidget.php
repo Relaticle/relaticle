@@ -125,8 +125,8 @@ final class BusinessOverviewWidget extends BaseWidget
             ->where('creation_source', '!=', CreationSource::SYSTEM)
             ->first();
 
-        $opportunitiesThisMonth = $opportunityCounts->current_month ?? 0;
-        $opportunitiesLastMonth = $opportunityCounts->last_month ?? 0;
+        $opportunitiesThisMonth = $opportunityCounts?->current_month ?? 0;
+        $opportunitiesLastMonth = $opportunityCounts?->last_month ?? 0;
 
         // Use a single query with conditional aggregation for companies
         $companyCounts = Company::selectRaw('
@@ -136,8 +136,8 @@ final class BusinessOverviewWidget extends BaseWidget
             ->where('creation_source', '!=', CreationSource::SYSTEM)
             ->first();
 
-        $companiesThisMonth = $companyCounts->current_month ?? 0;
-        $companiesLastMonth = $companyCounts->last_month ?? 0;
+        $companiesThisMonth = $companyCounts?->current_month ?? 0;
+        $companiesLastMonth = $companyCounts?->last_month ?? 0;
 
         $opportunitiesGrowth = $this->calculateGrowthRate($opportunitiesThisMonth, $opportunitiesLastMonth);
         $companiesGrowth = $this->calculateGrowthRate($companiesThisMonth, $companiesLastMonth);
