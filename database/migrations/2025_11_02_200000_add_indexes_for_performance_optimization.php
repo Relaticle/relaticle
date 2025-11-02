@@ -14,8 +14,10 @@ return new class extends Migration
     public function up(): void
     {
         // Add indexes for creation_source which is frequently filtered
+        // Also add composite indexes for creator_id which is frequently used with creation_source
         Schema::table('companies', function (Blueprint $table): void {
             $table->index('creation_source');
+            $table->index(['creator_id', 'creation_source']);
         });
 
         Schema::table('people', function (Blueprint $table): void {
@@ -26,27 +28,16 @@ return new class extends Migration
             $table->index('creation_source');
             // Composite index for common query pattern: created_at + creation_source
             $table->index(['created_at', 'creation_source']);
+            $table->index(['creator_id', 'creation_source']);
         });
 
         Schema::table('tasks', function (Blueprint $table): void {
             $table->index('creation_source');
+            $table->index(['creator_id', 'creation_source']);
         });
 
         Schema::table('notes', function (Blueprint $table): void {
             $table->index('creation_source');
-        });
-
-        // Add composite index for creator_id which is frequently used with creation_source
-        Schema::table('tasks', function (Blueprint $table): void {
-            $table->index(['creator_id', 'creation_source']);
-        });
-
-        Schema::table('opportunities', function (Blueprint $table): void {
-            $table->index(['creator_id', 'creation_source']);
-        });
-
-        Schema::table('companies', function (Blueprint $table): void {
-            $table->index(['creator_id', 'creation_source']);
         });
     }
 
