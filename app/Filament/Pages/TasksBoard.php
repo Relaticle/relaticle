@@ -50,6 +50,7 @@ final class TasksBoard extends BoardPage
         return $board
             ->query(
                 Task::query()
+                    ->with('assignees') // Eager load assignees to avoid N+1 queries
                     ->leftJoin('custom_field_values as cfv', function (\Illuminate\Database\Query\JoinClause $join): void {
                         $join->on('tasks.id', '=', 'cfv.entity_id')
                             ->where('cfv.custom_field_id', '=', $this->statusCustomField()->getKey());
