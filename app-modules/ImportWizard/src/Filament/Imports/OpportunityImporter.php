@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Filament\Imports;
+namespace Relaticle\ImportWizard\Filament\Imports;
 
 use App\Enums\CreationSource;
 use App\Models\Company;
@@ -11,8 +11,10 @@ use App\Models\People;
 use Filament\Actions\Imports\ImportColumn;
 use Filament\Actions\Imports\Importer;
 use Filament\Actions\Imports\Models\Import;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Number;
 use Relaticle\CustomFields\Facades\CustomFields;
+use Relaticle\ImportWizard\Enums\DuplicateHandlingStrategy;
 
 final class OpportunityImporter extends BaseImporter
 {
@@ -21,7 +23,18 @@ final class OpportunityImporter extends BaseImporter
     public static function getColumns(): array
     {
         return [
+            ImportColumn::make('id')
+                ->label('Record ID')
+                ->guess(['id', 'record_id', 'ulid', 'record id'])
+                ->rules(['nullable', 'ulid'])
+                ->example('01KCCFMZ52QWZSQZWVG0AP704V')
+                ->helperText('Include existing record IDs to update specific records. Leave empty to create new records.')
+                ->fillRecordUsing(function (Model $record, ?string $state, Importer $importer): void {
+                    // ID handled in resolveRecord(), skip here
+                }),
+
             ImportColumn::make('name')
+                ->label('Name')
                 ->requiredMapping()
                 ->guess(['name', 'opportunity_name', 'title'])
                 ->rules(['required', 'string', 'max:255'])
@@ -43,7 +56,7 @@ final class OpportunityImporter extends BaseImporter
                 ->rules(['nullable', 'string', 'max:255'])
                 ->example('Acme Corporation')
                 ->fillRecordUsing(function (Opportunity $record, ?string $state, Importer $importer): void {
-                    if (in_array($state, [null, '', '0'], true)) {
+                    if (blank($state)) {
                         $record->company_id = null;
 
                         return;
@@ -78,7 +91,7 @@ final class OpportunityImporter extends BaseImporter
                 ->rules(['nullable', 'string', 'max:255'])
                 ->example('John Doe')
                 ->fillRecordUsing(function (Opportunity $record, ?string $state, Importer $importer): void {
-                    if (in_array($state, [null, '', '0'], true)) {
+                    if (blank($state)) {
                         $record->contact_id = null;
 
                         return;
@@ -89,26 +102,21 @@ final class OpportunityImporter extends BaseImporter
                     }
 
                     try {
-                        // First try to find existing contact
-                        $contact = People::query()
-                            ->where('team_id', $importer->import->team_id)
-                            ->where('name', trim($state))
-                            ->first();
-
-                        if (! $contact) {
-                            // Create new contact if not found
-                            $contact = People::create([
+                        $contact = People::firstOrCreate(
+                            [
                                 'name' => trim($state),
                                 'team_id' => $importer->import->team_id,
+                            ],
+                            [
                                 'creator_id' => $importer->import->user_id,
                                 'creation_source' => CreationSource::IMPORT,
-                            ]);
-                        }
+                            ]
+                        );
 
                         $record->contact_id = $contact->getKey();
                     } catch (\Exception $e) {
                         report($e);
-                        throw $e; // Re-throw to fail the import for this row
+                        throw $e;
                     }
                 }),
 
@@ -118,24 +126,33 @@ final class OpportunityImporter extends BaseImporter
 
     public function resolveRecord(): Opportunity
     {
-        // Try to find existing opportunity by name and team
-        if ($this->import->team_id) {
-            $opportunity = Opportunity::query()
-                ->where('team_id', $this->import->team_id)
-                ->where('name', $this->getOriginalData()['name'] ?? '')
-                ->first();
+        // ID-based resolution takes absolute precedence
+        if ($this->hasIdValue()) {
+            /** @var Opportunity|null $record */
+            $record = $this->resolveById();
 
-            if ($opportunity) {
-                return $opportunity;
-            }
+            return $record ?? new Opportunity;
         }
 
-        return new Opportunity;
-    }
+        // Fall back to name-based duplicate detection
+        $name = $this->data['name'] ?? null;
 
-    protected function afterSave(): void
-    {
-        CustomFields::importer()->forModel($this->record)->saveValues();
+        if (blank($name)) {
+            return new Opportunity;
+        }
+
+        $existing = Opportunity::query()
+            ->where('team_id', $this->import->team_id)
+            ->where('name', trim((string) $name))
+            ->first();
+
+        $strategy = $this->getDuplicateStrategy();
+
+        return match ($strategy) {
+            DuplicateHandlingStrategy::SKIP => $existing ?? new Opportunity,
+            DuplicateHandlingStrategy::UPDATE => $existing ?? new Opportunity,
+            DuplicateHandlingStrategy::CREATE_NEW => new Opportunity,
+        };
     }
 
     public static function getCompletedNotificationBody(Import $import): string

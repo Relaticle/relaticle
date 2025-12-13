@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Filament\Imports;
+namespace Relaticle\ImportWizard\Filament\Imports;
 
 use App\Enums\CreationSource;
 use App\Models\Company;
@@ -11,8 +11,10 @@ use Filament\Actions\Imports\ImportColumn;
 use Filament\Actions\Imports\Importer;
 use Filament\Actions\Imports\Models\Import;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Number;
 use Relaticle\CustomFields\Facades\CustomFields;
+use Relaticle\ImportWizard\Enums\DuplicateHandlingStrategy;
 
 final class PeopleImporter extends BaseImporter
 {
@@ -21,7 +23,18 @@ final class PeopleImporter extends BaseImporter
     public static function getColumns(): array
     {
         return [
+            ImportColumn::make('id')
+                ->label('Record ID')
+                ->guess(['id', 'record_id', 'ulid', 'record id'])
+                ->rules(['nullable', 'ulid'])
+                ->example('01KCCFMZ52QWZSQZWVG0AP704V')
+                ->helperText('Include existing record IDs to update specific records. Leave empty to create new records.')
+                ->fillRecordUsing(function (Model $record, ?string $state, Importer $importer): void {
+                    // ID handled in resolveRecord(), skip here
+                }),
+
             ImportColumn::make('name')
+                ->label('Name')
                 ->requiredMapping()
                 ->guess(['name', 'full_name', 'person_name'])
                 ->rules(['required', 'string', 'max:255'])
@@ -74,9 +87,24 @@ final class PeopleImporter extends BaseImporter
 
     public function resolveRecord(): People
     {
-        $person = $this->findByEmail();
+        // ID-based resolution takes absolute precedence
+        if ($this->hasIdValue()) {
+            /** @var People|null $record */
+            $record = $this->resolveById();
 
-        return $person ?? new People;
+            return $record ?? new People;
+        }
+
+        // Fall back to email-based duplicate detection
+        $existing = $this->findByEmail();
+
+        $strategy = $this->getDuplicateStrategy();
+
+        return match ($strategy) {
+            DuplicateHandlingStrategy::SKIP => $existing ?? new People,
+            DuplicateHandlingStrategy::UPDATE => $existing ?? new People,
+            DuplicateHandlingStrategy::CREATE_NEW => new People,
+        };
     }
 
     private function findByEmail(): ?People
@@ -87,13 +115,43 @@ final class PeopleImporter extends BaseImporter
             return null;
         }
 
+        // Security: Always require team_id for proper tenant isolation
+        if (! $this->import->team_id) {
+            return null;
+        }
+
+        // Find the emails custom field for this team
+        $emailsField = \Relaticle\CustomFields\Models\CustomField::withoutGlobalScopes()
+            ->where('code', 'emails')
+            ->where('entity_type', People::class)
+            ->where('tenant_id', $this->import->team_id)
+            ->first();
+
+        if (! $emailsField) {
+            return null;
+        }
+
+        // Get the correct value column for this field type
+        $valueColumn = $emailsField->getValueColumn();
+
         return People::query()
-            ->when($this->import->team_id, fn (Builder $query) => $query->where('team_id', $this->import->team_id))
-            ->whereHas('customFieldValues', function (Builder $query) use ($emails): void {
-                $query->whereRelation('customField', 'code', 'emails')
-                    ->where(function (Builder $query) use ($emails): void {
+            ->where('team_id', $this->import->team_id)
+            ->whereHas('customFieldValues', function (Builder $query) use ($emails, $emailsField, $valueColumn): void {
+                $query->withoutGlobalScopes()
+                    ->where('custom_field_id', $emailsField->id)
+                    ->where('tenant_id', $this->import->team_id)
+                    ->where(function (Builder $query) use ($emails, $valueColumn): void {
                         foreach ($emails as $email) {
-                            $query->orWhereJsonContains('json_value', $email);
+                            // For json_value (collection type), need to check if array contains email
+                            // For other value types, use direct match
+                            if ($valueColumn === 'json_value') {
+                                // SQLite-compatible JSON search
+                                // JSON value is stored as: ["email@example.com"]
+                                // So we search for: "email@example.com" (with quotes)
+                                $query->orWhere($valueColumn, 'LIKE', '%"'.str_replace('"', '\"', $email).'"%');
+                            } else {
+                                $query->orWhere($valueColumn, $email);
+                            }
                         }
                     });
             })
@@ -101,13 +159,13 @@ final class PeopleImporter extends BaseImporter
     }
 
     /**
-     * Extract and validate emails from original data
+     * Extract and validate emails from import data
      *
      * @return array<int, string>
      */
     private function extractEmails(): array
     {
-        $emailsField = $this->getOriginalData()['custom_fields_emails'] ?? null;
+        $emailsField = $this->data['custom_fields_emails'] ?? null;
 
         if (empty($emailsField)) {
             return [];
@@ -122,11 +180,6 @@ final class PeopleImporter extends BaseImporter
             ->filter(fn (string $email): bool => filter_var($email, FILTER_VALIDATE_EMAIL) !== false)
             ->values()
             ->toArray();
-    }
-
-    protected function afterSave(): void
-    {
-        CustomFields::importer()->forModel($this->record)->saveValues();
     }
 
     public static function getCompletedNotificationBody(Import $import): string
