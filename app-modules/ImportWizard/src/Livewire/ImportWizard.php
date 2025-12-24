@@ -11,7 +11,12 @@ use Filament\Actions\Imports\ImportColumn;
 use Filament\Facades\Filament;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
+use Filament\Forms\Form;
 use Filament\Notifications\Notification;
+use Filament\Schemas\Components\View as ViewComponent;
+use Filament\Schemas\Components\Wizard;
+use Filament\Schemas\Components\Wizard\Step;
+use Filament\Support\Exceptions\Halt;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Bus;
@@ -37,9 +42,7 @@ use Relaticle\ImportWizard\Services\CsvService;
 use Relaticle\ImportWizard\Services\ImportPreviewService;
 
 /**
- * 4-step import wizard: Upload → Map → Review → Preview.
- *
- * Consolidated from 4 traits into single component for maintainability.
+ * 4-step import wizard using Filament's native Wizard component.
  */
 final class ImportWizard extends Component implements HasActions, HasForms
 {
@@ -48,16 +51,7 @@ final class ImportWizard extends Component implements HasActions, HasForms
     use InteractsWithForms;
     use WithFileUploads;
 
-    // Step constants
-    public const int STEP_UPLOAD = 1;
-    public const int STEP_MAP = 2;
-    public const int STEP_REVIEW = 3;
-    public const int STEP_PREVIEW = 4;
-
     private const int PREVIEW_SAMPLE_SIZE = 50;
-
-    // Core state
-    public int $currentStep = self::STEP_UPLOAD;
 
     #[Locked]
     public string $entityType = 'companies';
@@ -92,6 +86,75 @@ final class ImportWizard extends Component implements HasActions, HasForms
     public array $previewRows = [];
 
     // ═══════════════════════════════════════════════════════════════════════
+    // FILAMENT WIZARD FORM
+    // ═══════════════════════════════════════════════════════════════════════
+
+    public function form(Form $form): Form
+    {
+        return $form->schema([
+            Wizard::make([
+                Step::make('Upload')
+                    ->icon(Heroicon::ArrowUpTray)
+                    ->description('Select your CSV or Excel file')
+                    ->schema([
+                        ViewComponent::make('import-wizard::steps.upload'),
+                    ])
+                    ->afterValidation(function (): void {
+                        if ($this->persistedFilePath === null || $this->csvHeaders === []) {
+                            Notification::make()->title('Please upload a valid file')->warning()->send();
+                            throw new Halt;
+                        }
+                        $this->autoMapColumns();
+                    }),
+
+                Step::make('Map Columns')
+                    ->icon(Heroicon::ArrowsRightLeft)
+                    ->description('Match file columns to attributes')
+                    ->schema([
+                        ViewComponent::make('import-wizard::steps.map'),
+                    ])
+                    ->afterValidation(function (): void {
+                        if (! $this->hasAllRequiredMappings()) {
+                            Notification::make()->title('Please map all required fields')->warning()->send();
+                            throw new Halt;
+                        }
+                        if (! $this->hasUniqueIdentifierMapped()) {
+                            $this->mountAction('proceedWithoutUniqueIdentifiers');
+                            throw new Halt;
+                        }
+                        $this->analyzeColumns();
+                    }),
+
+                Step::make('Review')
+                    ->icon(Heroicon::MagnifyingGlass)
+                    ->description('Fix validation issues')
+                    ->schema([
+                        ViewComponent::make('import-wizard::steps.review'),
+                    ])
+                    ->afterValidation(function (): void {
+                        if ($this->hasValidationErrors()) {
+                            $this->mountAction('proceedWithErrors');
+                            throw new Halt;
+                        }
+                        $this->generateImportPreview();
+                    }),
+
+                Step::make('Preview')
+                    ->icon(Heroicon::Eye)
+                    ->description('Review and start import')
+                    ->schema([
+                        ViewComponent::make('import-wizard::steps.preview'),
+                    ]),
+            ])
+                ->submitAction(new HtmlString(<<<'HTML'
+                    <x-filament::button type="button" wire:click="executeImport" wire:loading.attr="disabled">
+                        Start Import
+                    </x-filament::button>
+                HTML)),
+        ]);
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
     // COMPUTED PROPERTIES
     // ═══════════════════════════════════════════════════════════════════════
 
@@ -116,66 +179,6 @@ final class ImportWizard extends Component implements HasActions, HasForms
     public function previewResult(): ?ImportPreviewResult
     {
         return $this->previewResultData ? ImportPreviewResult::from($this->previewResultData) : null;
-    }
-
-    // ═══════════════════════════════════════════════════════════════════════
-    // STEP NAVIGATION
-    // ═══════════════════════════════════════════════════════════════════════
-
-    public function nextStep(): void
-    {
-        if (! $this->canProceedToNextStep()) {
-            if ($this->currentStep === self::STEP_REVIEW && $this->hasValidationErrors()) {
-                $this->mountAction('proceedWithErrors');
-            }
-
-            return;
-        }
-
-        if ($this->currentStep === self::STEP_MAP && ! $this->hasUniqueIdentifierMapped()) {
-            $this->mountAction('proceedWithoutUniqueIdentifiers');
-
-            return;
-        }
-
-        $this->advanceToNextStep();
-    }
-
-    public function advanceToNextStep(): void
-    {
-        match ($this->currentStep) {
-            self::STEP_UPLOAD => $this->autoMapColumns(),
-            self::STEP_MAP => $this->analyzeColumns(),
-            self::STEP_REVIEW => $this->generateImportPreview(),
-            default => null,
-        };
-
-        $this->currentStep++;
-    }
-
-    public function previousStep(): void
-    {
-        if ($this->currentStep > self::STEP_UPLOAD) {
-            $this->currentStep--;
-        }
-    }
-
-    public function goToStep(int $step): void
-    {
-        if ($step >= self::STEP_UPLOAD && $step <= $this->currentStep) {
-            $this->currentStep = $step;
-        }
-    }
-
-    public function canProceedToNextStep(): bool
-    {
-        return match ($this->currentStep) {
-            self::STEP_UPLOAD => $this->persistedFilePath !== null && $this->csvHeaders !== [],
-            self::STEP_MAP => $this->hasAllRequiredMappings(),
-            self::STEP_REVIEW => ! $this->hasValidationErrors(),
-            self::STEP_PREVIEW => $this->hasRecordsToImport(),
-            default => false,
-        };
     }
 
     // ═══════════════════════════════════════════════════════════════════════
@@ -211,19 +214,16 @@ final class ImportWizard extends Component implements HasActions, HasForms
             $this->rowCount = $csvService->countRows($csvPath);
 
             if ($this->rowCount > 10000) {
-                $this->addError('uploadedFile',
-                    'This file contains '.number_format($this->rowCount).' rows. '.
-                    'The maximum is 10,000 rows per import.');
+                $this->addError('uploadedFile', 'Maximum 10,000 rows per import. This file has '.number_format($this->rowCount).'.');
                 $this->cleanupTempFile();
                 $this->persistedFilePath = null;
                 $this->rowCount = 0;
             }
         } catch (SyntaxError $e) {
             $duplicates = $e->duplicateColumnNames();
-            $message = $duplicates !== []
+            $this->addError('uploadedFile', $duplicates !== []
                 ? 'Duplicate column names: '.implode(', ', $duplicates)
-                : 'CSV syntax error: '.$e->getMessage();
-            $this->addError('uploadedFile', $message);
+                : 'CSV syntax error: '.$e->getMessage());
             $this->cleanupTempFile();
             $this->persistedFilePath = null;
             $this->rowCount = 0;
@@ -560,7 +560,6 @@ final class ImportWizard extends Component implements HasActions, HasForms
     private function calculateOptimalChunkSize(): int
     {
         $columnCount = count($this->columnMap);
-
         $chunkSize = match (true) {
             $columnCount <= 5 => 500,
             $columnCount <= 10 => 250,
@@ -568,19 +567,15 @@ final class ImportWizard extends Component implements HasActions, HasForms
             default => 75,
         };
 
-        $customFieldCount = collect($this->columnMap)
-            ->keys()
-            ->filter(fn (string $f): bool => str_starts_with($f, 'custom_fields_'))
-            ->count();
+        $customFieldCount = collect($this->columnMap)->keys()
+            ->filter(fn (string $f): bool => str_starts_with($f, 'custom_fields_'))->count();
 
         if ($customFieldCount > 0) {
             $chunkSize = (int) ($chunkSize * (1 - min($customFieldCount, 15) / 5 * 0.20));
         }
 
         $entityPenalty = match ($this->entityType) {
-            'opportunities' => 0.8,
-            'people' => 0.9,
-            default => 1.0,
+            'opportunities' => 0.8, 'people' => 0.9, default => 1.0,
         };
 
         return max(50, min(1000, (int) ($chunkSize * $entityPenalty)));
@@ -655,27 +650,6 @@ final class ImportWizard extends Component implements HasActions, HasForms
     }
 
     // ═══════════════════════════════════════════════════════════════════════
-    // UTILITY METHODS
-    // ═══════════════════════════════════════════════════════════════════════
-
-    public function resetWizard(): void
-    {
-        $this->cleanupTempFile();
-        $this->currentStep = self::STEP_UPLOAD;
-        $this->uploadedFile = null;
-        $this->persistedFilePath = null;
-        $this->rowCount = 0;
-        $this->csvHeaders = [];
-        $this->columnMap = [];
-        $this->columnAnalysesData = [];
-        $this->valueCorrections = [];
-        $this->previewResultData = null;
-        $this->previewRows = [];
-        $this->reviewPage = 1;
-        $this->expandedColumn = null;
-    }
-
-    // ═══════════════════════════════════════════════════════════════════════
     // ACTIONS
     // ═══════════════════════════════════════════════════════════════════════
 
@@ -697,7 +671,7 @@ final class ImportWizard extends Component implements HasActions, HasForms
                         }
                     }
                 }
-                $this->advanceToNextStep();
+                $this->generateImportPreview();
             });
     }
 
@@ -717,7 +691,7 @@ final class ImportWizard extends Component implements HasActions, HasForms
             ))
             ->modalSubmitActionLabel('Continue without mapping')
             ->modalCancelActionLabel('Go back')
-            ->action(fn () => $this->advanceToNextStep());
+            ->action(fn () => $this->analyzeColumns());
     }
 
     private function getAffectedRowCount(): int
