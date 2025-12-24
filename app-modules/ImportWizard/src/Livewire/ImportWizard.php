@@ -7,78 +7,69 @@ namespace Relaticle\ImportWizard\Livewire;
 use Filament\Actions\Action;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
+use Filament\Actions\Imports\ImportColumn;
 use Filament\Facades\Filament;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
+use League\Csv\SyntaxError;
+use Livewire\Attributes\Computed;
 use Livewire\Attributes\Locked;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Relaticle\ImportWizard\Data\ColumnAnalysis;
+use Relaticle\ImportWizard\Data\ImportPreviewResult;
 use Relaticle\ImportWizard\Enums\DuplicateHandlingStrategy;
 use Relaticle\ImportWizard\Filament\Concerns\HasImportEntities;
+use Relaticle\ImportWizard\Filament\Imports\BaseImporter;
 use Relaticle\ImportWizard\Jobs\StreamingImportCsv;
-use Relaticle\ImportWizard\Livewire\Concerns\HasColumnMapping;
-use Relaticle\ImportWizard\Livewire\Concerns\HasCsvParsing;
-use Relaticle\ImportWizard\Livewire\Concerns\HasImportPreview;
-use Relaticle\ImportWizard\Livewire\Concerns\HasValueAnalysis;
 use Relaticle\ImportWizard\Models\Import;
+use Relaticle\ImportWizard\Services\CsvAnalyzer;
 use Relaticle\ImportWizard\Services\CsvService;
+use Relaticle\ImportWizard\Services\ImportPreviewService;
 
 /**
- * 4-step import wizard following the Attio pattern.
+ * 4-step import wizard: Upload → Map → Review → Preview.
  *
- * Steps:
- * 1. Upload - File upload with row/column counts
- * 2. Map Columns - Smart auto-detection + manual adjustment
- * 3. Review Values - See unique values, fix invalid data
- * 4. Preview Import - Summary of creates/updates/skips before committing
+ * Consolidated from 4 traits into single component for maintainability.
  */
 final class ImportWizard extends Component implements HasActions, HasForms
 {
-    use HasColumnMapping;
-    use HasCsvParsing;
     use HasImportEntities;
-    use HasImportPreview;
-    use HasValueAnalysis;
     use InteractsWithActions;
     use InteractsWithForms;
     use WithFileUploads;
 
     // Step constants
     public const int STEP_UPLOAD = 1;
-
     public const int STEP_MAP = 2;
-
     public const int STEP_REVIEW = 3;
-
     public const int STEP_PREVIEW = 4;
 
-    // Current step
+    private const int PREVIEW_SAMPLE_SIZE = 50;
+
+    // Core state
     public int $currentStep = self::STEP_UPLOAD;
 
-    // Entity type (passed from parent page, locked to prevent tampering)
     #[Locked]
     public string $entityType = 'companies';
 
-    // URL to redirect to after import completion
     #[Locked]
     public ?string $returnUrl = null;
 
+    // Step 1: Upload
     #[Validate('required|file|max:51200')]
     public mixed $uploadedFile = null;
-
     public ?string $persistedFilePath = null;
-
     public int $rowCount = 0;
-
     /** @var array<string> */
     public array $csvHeaders = [];
 
@@ -89,38 +80,51 @@ final class ImportWizard extends Component implements HasActions, HasForms
     // Step 3: Value analysis
     /** @var array<array<string, mixed>> */
     public array $columnAnalysesData = [];
-
     /** @var array<string, array<string, string>> */
     public array $valueCorrections = [];
-
-    // Review values UI state
     public int $reviewPage = 1;
-
     public ?string $expandedColumn = null;
 
     // Step 4: Preview
     /** @var array<string, mixed>|null */
     public ?array $previewResultData = null;
-
-    /** @var array<int, array<string, mixed>> All rows for preview/editing */
+    /** @var array<int, array<string, mixed>> */
     public array $previewRows = [];
 
-    /**
-     * Handle file upload.
-     */
-    public function updatedUploadedFile(): void
+    // ═══════════════════════════════════════════════════════════════════════
+    // COMPUTED PROPERTIES
+    // ═══════════════════════════════════════════════════════════════════════
+
+    /** @return array<ImportColumn> */
+    #[Computed]
+    public function importerColumns(): array
     {
-        $this->resetErrorBag('uploadedFile');
-        $this->parseUploadedFile();
+        $importerClass = $this->getImporterClass();
+
+        return $importerClass ? $importerClass::getColumns() : [];
     }
 
-    /**
-     * Move to the next step.
-     */
+    /** @return Collection<int, ColumnAnalysis> */
+    #[Computed]
+    public function columnAnalyses(): Collection
+    {
+        return collect($this->columnAnalysesData)
+            ->map(fn (array $data): ColumnAnalysis => ColumnAnalysis::from($data));
+    }
+
+    #[Computed]
+    public function previewResult(): ?ImportPreviewResult
+    {
+        return $this->previewResultData ? ImportPreviewResult::from($this->previewResultData) : null;
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // STEP NAVIGATION
+    // ═══════════════════════════════════════════════════════════════════════
+
     public function nextStep(): void
     {
         if (! $this->canProceedToNextStep()) {
-            // If on review step with validation errors, show confirmation dialog
             if ($this->currentStep === self::STEP_REVIEW && $this->hasValidationErrors()) {
                 $this->mountAction('proceedWithErrors');
             }
@@ -128,7 +132,6 @@ final class ImportWizard extends Component implements HasActions, HasForms
             return;
         }
 
-        // Check for unique identifier mapping when leaving MAP step
         if ($this->currentStep === self::STEP_MAP && ! $this->hasUniqueIdentifierMapped()) {
             $this->mountAction('proceedWithoutUniqueIdentifiers');
 
@@ -138,25 +141,18 @@ final class ImportWizard extends Component implements HasActions, HasForms
         $this->advanceToNextStep();
     }
 
-    /**
-     * Actually advance to the next step (called directly or after confirmation).
-     */
     public function advanceToNextStep(): void
     {
-        // Perform step-specific actions before advancing
         match ($this->currentStep) {
-            self::STEP_UPLOAD => $this->prepareForMapping(),
-            self::STEP_MAP => $this->prepareForReview(),
-            self::STEP_REVIEW => $this->prepareForPreview(),
+            self::STEP_UPLOAD => $this->autoMapColumns(),
+            self::STEP_MAP => $this->analyzeColumns(),
+            self::STEP_REVIEW => $this->generateImportPreview(),
             default => null,
         };
 
         $this->currentStep++;
     }
 
-    /**
-     * Move to the previous step.
-     */
     public function previousStep(): void
     {
         if ($this->currentStep > self::STEP_UPLOAD) {
@@ -164,22 +160,13 @@ final class ImportWizard extends Component implements HasActions, HasForms
         }
     }
 
-    /**
-     * Navigate directly to a specific step (for clickable step navigation).
-     */
     public function goToStep(int $step): void
     {
-        // Only allow navigating to completed steps or current step
-        if ($step < self::STEP_UPLOAD || $step > $this->currentStep) {
-            return;
+        if ($step >= self::STEP_UPLOAD && $step <= $this->currentStep) {
+            $this->currentStep = $step;
         }
-
-        $this->currentStep = $step;
     }
 
-    /**
-     * Check if user can proceed to the next step.
-     */
     public function canProceedToNextStep(): bool
     {
         return match ($this->currentStep) {
@@ -191,46 +178,363 @@ final class ImportWizard extends Component implements HasActions, HasForms
         };
     }
 
-    /**
-     * Prepare for the mapping step.
-     */
-    private function prepareForMapping(): void
+    /** @return array<int, string> */
+    public function getStepLabels(): array
     {
-        $this->autoMapColumns();
+        return [
+            self::STEP_UPLOAD => 'Upload',
+            self::STEP_MAP => 'Map Columns',
+            self::STEP_REVIEW => 'Review Values',
+            self::STEP_PREVIEW => 'Preview',
+        ];
     }
 
-    /**
-     * Prepare for the review step.
-     */
-    private function prepareForReview(): void
+    // ═══════════════════════════════════════════════════════════════════════
+    // STEP 1: FILE UPLOAD
+    // ═══════════════════════════════════════════════════════════════════════
+
+    public function updatedUploadedFile(): void
     {
-        $this->analyzeColumns();
+        $this->resetErrorBag('uploadedFile');
+        $this->parseUploadedFile();
+    }
+
+    protected function parseUploadedFile(): void
+    {
+        if ($this->uploadedFile === null) {
+            return;
+        }
+
+        $csvService = app(CsvService::class);
+        $csvPath = $csvService->processUploadedFile($this->uploadedFile);
+
+        if ($csvPath === null) {
+            $this->addError('uploadedFile', 'Failed to process file');
+
+            return;
+        }
+
+        $this->persistedFilePath = $csvPath;
+
+        try {
+            $csvReader = $csvService->createReader($csvPath);
+            $this->csvHeaders = $csvReader->getHeader();
+            $this->rowCount = $csvService->countRows($csvPath);
+
+            if ($this->rowCount > 10000) {
+                $this->addError('uploadedFile',
+                    'This file contains '.number_format($this->rowCount).' rows. '.
+                    'The maximum is 10,000 rows per import.');
+                $this->cleanupTempFile();
+                $this->persistedFilePath = null;
+                $this->rowCount = 0;
+            }
+        } catch (SyntaxError $e) {
+            $duplicates = $e->duplicateColumnNames();
+            $message = $duplicates !== []
+                ? 'Duplicate column names: '.implode(', ', $duplicates)
+                : 'CSV syntax error: '.$e->getMessage();
+            $this->addError('uploadedFile', $message);
+            $this->cleanupTempFile();
+            $this->persistedFilePath = null;
+            $this->rowCount = 0;
+        }
+    }
+
+    public function removeFile(): void
+    {
+        $this->cleanupTempFile();
+        $this->uploadedFile = null;
+        $this->persistedFilePath = null;
+        $this->rowCount = 0;
+        $this->csvHeaders = [];
+        $this->columnMap = [];
+    }
+
+    protected function cleanupTempFile(): void
+    {
+        app(CsvService::class)->cleanup($this->persistedFilePath);
+    }
+
+    /** @return array<int, string> */
+    public function getColumnPreviewValues(string $csvColumn, int $limit = 5): array
+    {
+        if ($this->persistedFilePath === null) {
+            return [];
+        }
+
+        return collect(app(CsvService::class)->createReader($this->persistedFilePath)->getRecords())
+            ->take($limit)
+            ->pluck($csvColumn)
+            ->map(fn (mixed $v): string => (string) $v)
+            ->values()
+            ->toArray();
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // STEP 2: COLUMN MAPPING
+    // ═══════════════════════════════════════════════════════════════════════
+
+    protected function autoMapColumns(): void
+    {
+        if ($this->csvHeaders === [] || $this->importerColumns === []) {
+            return;
+        }
+
+        $csvHeadersLower = collect($this->csvHeaders)
+            ->mapWithKeys(fn (string $h): array => [Str::lower($h) => $h]);
+
+        $this->columnMap = collect($this->importerColumns)
+            ->mapWithKeys(function (ImportColumn $col) use ($csvHeadersLower): array {
+                $guesses = collect($col->getGuesses())->map(fn (string $g): string => Str::lower($g));
+                $match = $guesses->first(fn (string $g): bool => $csvHeadersLower->has($g));
+
+                return [$col->getName() => $match ? $csvHeadersLower->get($match) : ''];
+            })
+            ->toArray();
+    }
+
+    /** @return class-string<BaseImporter>|null */
+    protected function getImporterClass(): ?string
+    {
+        return $this->getEntities()[$this->entityType]['importer'] ?? null;
+    }
+
+    public function hasAllRequiredMappings(): bool
+    {
+        return collect($this->importerColumns)
+            ->filter(fn (ImportColumn $c): bool => $c->isMappingRequired())
+            ->every(fn (ImportColumn $c): bool => ($this->columnMap[$c->getName()] ?? '') !== '');
+    }
+
+    public function mapCsvColumnToField(string $csvColumn, string $fieldName): void
+    {
+        foreach ($this->columnMap as $field => $csv) {
+            if ($csv === $csvColumn) {
+                $this->columnMap[$field] = '';
+            }
+        }
+        if ($fieldName !== '') {
+            $this->columnMap[$fieldName] = $csvColumn;
+        }
+    }
+
+    public function unmapColumn(string $fieldName): void
+    {
+        if (isset($this->columnMap[$fieldName])) {
+            $this->columnMap[$fieldName] = '';
+        }
+    }
+
+    public function getFieldLabel(string $fieldName): string
+    {
+        $col = collect($this->importerColumns)->first(fn (ImportColumn $c): bool => $c->getName() === $fieldName);
+
+        return $col?->getLabel() ?? Str::title(str_replace('_', ' ', $fieldName));
+    }
+
+    protected function hasUniqueIdentifierMapped(): bool
+    {
+        $importerClass = $this->getImporterClass();
+        if ($importerClass === null || $importerClass::skipUniqueIdentifierWarning()) {
+            return true;
+        }
+
+        foreach ($importerClass::getUniqueIdentifierColumns() as $column) {
+            if (($this->columnMap[$column] ?? '') !== '') {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    protected function getMissingUniqueIdentifiersMessage(): string
+    {
+        return $this->getImporterClass()?::getMissingUniqueIdentifiersMessage() ?? 'Map a Record ID column';
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // STEP 3: VALUE ANALYSIS
+    // ═══════════════════════════════════════════════════════════════════════
+
+    protected function analyzeColumns(): void
+    {
+        if ($this->persistedFilePath === null) {
+            $this->columnAnalysesData = [];
+
+            return;
+        }
+
+        $analyses = app(CsvAnalyzer::class)->analyze(
+            csvPath: $this->persistedFilePath,
+            columnMap: $this->columnMap,
+            importerColumns: $this->importerColumns,
+            entityType: $this->getImporterClass()?::getModel(),
+        );
+
+        $this->columnAnalysesData = $analyses->map(fn (ColumnAnalysis $a): array => $a->toArray())->toArray();
         $this->reviewPage = 1;
-
-        // Select first column by default
-        $firstAnalysis = $this->columnAnalyses->first();
-        $this->expandedColumn = $firstAnalysis?->mappedToField;
+        $this->expandedColumn = $this->columnAnalyses->first()?->mappedToField;
     }
 
-    /**
-     * Prepare for the preview step.
-     */
-    private function prepareForPreview(): void
+    public function hasValidationErrors(): bool
     {
-        $this->generateImportPreview();
+        return $this->columnAnalyses->contains(fn (ColumnAnalysis $a): bool => $a->hasErrors());
     }
 
-    /**
-     * Execute the import.
-     */
+    public function getTotalErrorCount(): int
+    {
+        return $this->columnAnalyses->sum(fn (ColumnAnalysis $a): int => $a->getErrorCount());
+    }
+
+    public function correctValue(string $fieldName, string $oldValue, string $newValue): void
+    {
+        $this->valueCorrections[$fieldName] ??= [];
+        $this->valueCorrections[$fieldName][$oldValue] = $newValue;
+        $this->revalidateCorrectedValue($fieldName, $oldValue, $newValue);
+    }
+
+    private function revalidateCorrectedValue(string $fieldName, string $oldValue, string $newValue): void
+    {
+        $idx = collect($this->columnAnalysesData)->search(fn (array $d): bool => $d['mappedToField'] === $fieldName);
+        if ($idx === false) {
+            return;
+        }
+
+        $issues = collect($this->columnAnalysesData[$idx]['issues'])
+            ->reject(fn (array $i): bool => $i['value'] === $oldValue)
+            ->values()
+            ->toArray();
+
+        if ($newValue !== '') {
+            $error = app(CsvAnalyzer::class)->validateSingleValue(
+                value: $newValue,
+                fieldName: $fieldName,
+                importerColumns: $this->importerColumns,
+                entityType: $this->getImporterClass()?::getModel(),
+            );
+
+            if ($error !== null) {
+                $issues[] = [
+                    'value' => $oldValue,
+                    'message' => $error,
+                    'rowCount' => $this->columnAnalysesData[$idx]['uniqueValues'][$oldValue] ?? 1,
+                    'severity' => 'error',
+                ];
+            }
+        }
+
+        $this->columnAnalysesData[$idx]['issues'] = $issues;
+    }
+
+    public function skipValue(string $fieldName, string $oldValue): void
+    {
+        if ($this->isValueSkipped($fieldName, $oldValue)) {
+            unset($this->valueCorrections[$fieldName][$oldValue]);
+            if (empty($this->valueCorrections[$fieldName])) {
+                unset($this->valueCorrections[$fieldName]);
+            }
+
+            return;
+        }
+        $this->correctValue($fieldName, $oldValue, '');
+    }
+
+    public function isValueSkipped(string $fieldName, string $value): bool
+    {
+        return isset($this->valueCorrections[$fieldName][$value])
+            && $this->valueCorrections[$fieldName][$value] === '';
+    }
+
+    public function getCorrectedValue(string $fieldName, string $originalValue): ?string
+    {
+        return $this->valueCorrections[$fieldName][$originalValue] ?? null;
+    }
+
+    public function hasCorrectionForValue(string $fieldName, string $value): bool
+    {
+        return isset($this->valueCorrections[$fieldName][$value]);
+    }
+
+    public function toggleColumn(string $columnName): void
+    {
+        $this->expandedColumn = $this->expandedColumn === $columnName ? null : $columnName;
+        $this->reviewPage = 1;
+    }
+
+    public function loadMoreValues(): void
+    {
+        $this->reviewPage++;
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // STEP 4: PREVIEW
+    // ═══════════════════════════════════════════════════════════════════════
+
+    protected function generateImportPreview(): void
+    {
+        $importerClass = $this->getImporterClass();
+        $team = Filament::getTenant();
+        $user = auth()->user();
+
+        if ($importerClass === null || $this->persistedFilePath === null || $team === null || $user === null) {
+            $this->previewResultData = null;
+            $this->previewRows = [];
+
+            return;
+        }
+
+        $result = app(ImportPreviewService::class)->preview(
+            importerClass: $importerClass,
+            csvPath: $this->persistedFilePath,
+            columnMap: $this->columnMap,
+            options: ['duplicate_handling' => DuplicateHandlingStrategy::SKIP],
+            teamId: $team->getKey(),
+            userId: $user->getAuthIdentifier(),
+            valueCorrections: $this->valueCorrections,
+            sampleSize: min($this->rowCount, 1000),
+        );
+
+        $this->previewResultData = [
+            'totalRows' => $result->totalRows,
+            'createCount' => $result->createCount,
+            'updateCount' => $result->updateCount,
+            'rows' => [],
+            'isSampled' => $result->isSampled,
+            'sampleSize' => $result->sampleSize,
+        ];
+        $this->previewRows = array_slice($result->rows, 0, self::PREVIEW_SAMPLE_SIZE);
+    }
+
+    public function hasRecordsToImport(): bool
+    {
+        return ($this->previewResultData['totalRows'] ?? 0) > 0;
+    }
+
+    public function getCreateCount(): int
+    {
+        return $this->previewResultData['createCount'] ?? 0;
+    }
+
+    public function getUpdateCount(): int
+    {
+        return $this->previewResultData['updateCount'] ?? 0;
+    }
+
+    public function getActiveRowCount(): int
+    {
+        return $this->previewResultData['totalRows'] ?? 0;
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // IMPORT EXECUTION
+    // ═══════════════════════════════════════════════════════════════════════
+
     public function executeImport(): void
     {
         if (! $this->hasRecordsToImport()) {
-            Notification::make()
-                ->title('No Records to Import')
-                ->body('There are no records that would be created or updated.')
-                ->warning()
-                ->send();
+            Notification::make()->title('No Records to Import')->warning()->send();
 
             return;
         }
@@ -240,16 +544,11 @@ final class ImportWizard extends Component implements HasActions, HasForms
         $importerClass = $this->getImporterClass();
 
         if ($team === null || $user === null || $importerClass === null || $this->persistedFilePath === null) {
-            Notification::make()
-                ->title('Import Error')
-                ->body('Unable to start import. Please try again.')
-                ->danger()
-                ->send();
+            Notification::make()->title('Import Error')->danger()->send();
 
             return;
         }
 
-        // Create the Import model
         $import = Import::create([
             'team_id' => $team->getKey(),
             'user_id' => $user->getAuthIdentifier(),
@@ -261,7 +560,6 @@ final class ImportWizard extends Component implements HasActions, HasForms
             'successful_rows' => 0,
         ]);
 
-        // Dispatch import jobs
         $this->dispatchImportJobs($import);
 
         Notification::make()
@@ -270,7 +568,6 @@ final class ImportWizard extends Component implements HasActions, HasForms
             ->success()
             ->send();
 
-        // Clean up and redirect
         $this->cleanupTempFile();
 
         if ($this->returnUrl !== null) {
@@ -278,74 +575,49 @@ final class ImportWizard extends Component implements HasActions, HasForms
         }
     }
 
-    /**
-     * Calculate optimal chunk size based on import complexity.
-     *
-     * Factors considered:
-     * - Column count (more columns = smaller chunks)
-     * - Custom fields presence (penalty for custom field processing)
-     * - Entity type (different entities have different overhead)
-     */
     private function calculateOptimalChunkSize(): int
     {
         $columnCount = count($this->columnMap);
 
-        // Base chunk size by column count
         $chunkSize = match (true) {
-            $columnCount <= 5 => 500,   // Simple imports (few fields)
-            $columnCount <= 10 => 250,  // Medium complexity
-            $columnCount <= 20 => 150,  // Complex (many fields)
-            default => 75,              // Very complex (20+ fields)
+            $columnCount <= 5 => 500,
+            $columnCount <= 10 => 250,
+            $columnCount <= 20 => 150,
+            default => 75,
         };
 
-        // Apply penalty for custom fields (they require extra processing)
         $customFieldCount = collect($this->columnMap)
             ->keys()
-            ->filter(fn (string $field): bool => str_starts_with($field, 'custom_fields_'))
+            ->filter(fn (string $f): bool => str_starts_with($f, 'custom_fields_'))
             ->count();
 
         if ($customFieldCount > 0) {
-            // Reduce chunk size by 20% for each 5 custom fields
-            $customFieldPenalty = 1 - (min($customFieldCount, 15) / 5 * 0.20);
-            $chunkSize = (int) ($chunkSize * $customFieldPenalty);
+            $chunkSize = (int) ($chunkSize * (1 - min($customFieldCount, 15) / 5 * 0.20));
         }
 
-        // Entity-specific adjustments
         $entityPenalty = match ($this->entityType) {
-            'opportunities' => 0.8,  // Opportunities are more complex (company matching, etc.)
-            'people' => 0.9,         // People have moderate complexity
-            default => 1.0,          // Companies and others are simpler
+            'opportunities' => 0.8,
+            'people' => 0.9,
+            default => 1.0,
         };
 
-        $chunkSize = (int) ($chunkSize * $entityPenalty);
-
-        // Clamp to safe range: 50-1000 rows per chunk
-        return max(50, min(1000, $chunkSize));
+        return max(50, min(1000, (int) ($chunkSize * $entityPenalty)));
     }
 
-    /**
-     * Move the temporary file to permanent storage.
-     */
     private function moveFileToPermanentStorage(): string
     {
         $permanentPath = 'imports/'.Str::uuid()->toString().'.csv';
 
-        // If we have corrections, apply them
         if ($this->valueCorrections !== []) {
-            $correctedContent = $this->applyCorrectionsToCsv();
-            Storage::disk('local')->put($permanentPath, $correctedContent);
+            Storage::disk('local')->put($permanentPath, $this->applyCorrectionsToCsv());
         } else {
-            // Just copy the file
-            $tempStoragePath = str_replace(Storage::disk('local')->path(''), '', $this->persistedFilePath);
-            Storage::disk('local')->copy($tempStoragePath, $permanentPath);
+            $tempPath = str_replace(Storage::disk('local')->path(''), '', $this->persistedFilePath);
+            Storage::disk('local')->copy($tempPath, $permanentPath);
         }
 
         return $permanentPath;
     }
 
-    /**
-     * Apply value corrections to the CSV and return the corrected content.
-     */
     private function applyCorrectionsToCsv(): string
     {
         $csvReader = app(CsvService::class)->createReader($this->persistedFilePath);
@@ -361,14 +633,10 @@ final class ImportWizard extends Component implements HasActions, HasForms
         foreach ($csvReader->getRecords() as $record) {
             foreach ($this->valueCorrections as $fieldName => $valueMappings) {
                 $csvColumn = $this->columnMap[$fieldName] ?? null;
-                if ($csvColumn !== null && isset($record[$csvColumn])) {
-                    $currentValue = $record[$csvColumn];
-                    if (isset($valueMappings[$currentValue])) {
-                        $record[$csvColumn] = $valueMappings[$currentValue];
-                    }
+                if ($csvColumn !== null && isset($record[$csvColumn], $valueMappings[$record[$csvColumn]])) {
+                    $record[$csvColumn] = $valueMappings[$record[$csvColumn]];
                 }
             }
-
             fputcsv($output, array_values($record), escape: '\\');
         }
 
@@ -379,68 +647,39 @@ final class ImportWizard extends Component implements HasActions, HasForms
         return $content !== false ? $content : '';
     }
 
-    /**
-     * Dispatch import jobs using streaming approach.
-     *
-     * Instead of serializing row data, we pass row offset/limit ranges
-     * to reduce queue payload size from ~100KB to ~500 bytes per job.
-     */
     private function dispatchImportJobs(Import $import): void
     {
         $chunkSize = $this->calculateOptimalChunkSize();
-        $totalRows = $this->rowCount;
-
         $jobs = [];
         $currentOffset = 0;
 
-        // Create streaming jobs with row ranges instead of data
-        while ($currentOffset < $totalRows) {
-            $rowsInThisChunk = min($chunkSize, $totalRows - $currentOffset);
-
+        while ($currentOffset < $this->rowCount) {
+            $rowsInChunk = min($chunkSize, $this->rowCount - $currentOffset);
             $jobs[] = new StreamingImportCsv(
                 import: $import,
                 startRow: $currentOffset,
-                rowCount: $rowsInThisChunk,
+                rowCount: $rowsInChunk,
                 columnMap: $this->columnMap,
-                options: [
-                    'duplicate_handling' => DuplicateHandlingStrategy::SKIP,
-                ],
+                options: ['duplicate_handling' => DuplicateHandlingStrategy::SKIP],
             );
-
-            $currentOffset += $rowsInThisChunk;
+            $currentOffset += $rowsInChunk;
         }
 
         Bus::batch($jobs)
             ->name("import-{$import->getKey()}")
             ->onQueue('imports')
-            ->finally(function () use ($import): void {
-                $import->update(['completed_at' => now()]);
-            })
+            ->finally(fn () => $import->update(['completed_at' => now()]))
             ->dispatch();
     }
 
-    /**
-     * Remove the current file and allow selecting a new one.
-     */
-    public function removeFile(): void
-    {
-        $this->cleanupTempFile();
-        $this->uploadedFile = null;
-        $this->persistedFilePath = null;
-        $this->rowCount = 0;
-        $this->csvHeaders = [];
-        $this->columnMap = [];
-    }
+    // ═══════════════════════════════════════════════════════════════════════
+    // UTILITY METHODS
+    // ═══════════════════════════════════════════════════════════════════════
 
-    /**
-     * Reset the wizard to start a new import.
-     */
     public function resetWizard(): void
     {
         $this->cleanupTempFile();
-
         $this->currentStep = self::STEP_UPLOAD;
-        // Note: entityType and returnUrl are locked, don't reset them
         $this->uploadedFile = null;
         $this->persistedFilePath = null;
         $this->rowCount = 0;
@@ -454,63 +693,24 @@ final class ImportWizard extends Component implements HasActions, HasForms
         $this->expandedColumn = null;
     }
 
-    /**
-     * Get the count of rows that will be imported.
-     */
-    public function getActiveRowCount(): int
-    {
-        return $this->previewResultData['totalRows'] ?? 0;
-    }
-
-    /**
-     * Cancel the import and return to the resource list.
-     */
     public function cancelImport(): void
     {
         $this->cleanupTempFile();
-
         if ($this->returnUrl !== null) {
             $this->redirect($this->returnUrl);
         }
     }
 
-    /**
-     * Get the entity label for display.
-     */
     public function getEntityLabel(): string
     {
-        $entities = $this->getEntities();
-
-        return $entities[$this->entityType]['label'] ?? str($this->entityType)->title()->toString();
+        return $this->getEntities()[$this->entityType]['label']
+            ?? str($this->entityType)->title()->toString();
     }
 
-    /**
-     * Toggle column expansion in review step.
-     */
-    public function toggleColumn(string $columnName): void
-    {
-        $this->expandedColumn = $this->expandedColumn === $columnName ? null : $columnName;
-        $this->reviewPage = 1;
-    }
+    // ═══════════════════════════════════════════════════════════════════════
+    // ACTIONS
+    // ═══════════════════════════════════════════════════════════════════════
 
-    /**
-     * Get the step labels for the progress indicator.
-     *
-     * @return array<int, string>
-     */
-    public function getStepLabels(): array
-    {
-        return [
-            self::STEP_UPLOAD => 'Upload',
-            self::STEP_MAP => 'Map Columns',
-            self::STEP_REVIEW => 'Review Values',
-            self::STEP_PREVIEW => 'Preview',
-        ];
-    }
-
-    /**
-     * Action for confirming to proceed with validation errors.
-     */
     public function proceedWithErrorsAction(): Action
     {
         return Action::make('proceedWithErrors')
@@ -519,10 +719,16 @@ final class ImportWizard extends Component implements HasActions, HasForms
             ->color('warning')
             ->requiresConfirmation()
             ->modalHeading('Continue with validation errors?')
-            ->modalDescription(fn (): string => $this->getAffectedRowCount().' rows have validation errors and will be skipped.')
+            ->modalDescription(fn (): string => $this->getAffectedRowCount().' rows have errors and will be skipped.')
             ->modalSubmitActionLabel('Skip errors and continue')
             ->action(function (): void {
-                $this->skipAllErrorValues();
+                foreach ($this->columnAnalyses as $analysis) {
+                    foreach ($analysis->issues as $issue) {
+                        if ($issue->severity === 'error') {
+                            $this->skipValue($analysis->mappedToField, $issue->value);
+                        }
+                    }
+                }
                 $this->advanceToNextStep();
             });
     }
@@ -538,40 +744,17 @@ final class ImportWizard extends Component implements HasActions, HasForms
             ->requiresConfirmation()
             ->modalHeading('Avoid creating duplicate records')
             ->modalDescription(fn (): HtmlString => new HtmlString(
-                'To avoid creating duplicate records, make sure you include and map the following columns:<br><br>'.
-                '<strong>'.$this->getMissingUniqueIdentifiersMessage().'</strong><br><br>'.
-                '<a href="'.$docsUrl.'" target="_blank" class="text-primary-600 hover:underline">Learn more about unique identifiers</a>'
+                'To avoid duplicates, map: <strong>'.$this->getMissingUniqueIdentifiersMessage().'</strong><br><br>'.
+                '<a href="'.$docsUrl.'" target="_blank" class="text-primary-600 hover:underline">Learn more</a>'
             ))
             ->modalSubmitActionLabel('Continue without mapping')
             ->modalCancelActionLabel('Go back')
-            ->action(function (): void {
-                $this->advanceToNextStep();
-            });
+            ->action(fn () => $this->advanceToNextStep());
     }
 
-    /**
-     * Skip all values that have validation errors.
-     */
-    private function skipAllErrorValues(): void
-    {
-        /** @var ColumnAnalysis $analysis */
-        foreach ($this->columnAnalyses as $analysis) {
-            foreach ($analysis->issues as $issue) {
-                if ($issue->severity === 'error') {
-                    $this->skipValue($analysis->mappedToField, $issue->value);
-                }
-            }
-        }
-    }
-
-    /**
-     * Get the total number of rows affected by validation errors.
-     */
     private function getAffectedRowCount(): int
     {
         $count = 0;
-
-        /** @var ColumnAnalysis $analysis */
         foreach ($this->columnAnalyses as $analysis) {
             foreach ($analysis->issues as $issue) {
                 if ($issue->severity === 'error') {
