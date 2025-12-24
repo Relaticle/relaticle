@@ -9,17 +9,21 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use League\Csv\Reader as CsvReader;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Writer\Csv;
 
 /**
- * Unified CSV service consolidating reader creation, row counting, and file handling.
- *
- * Replaces: CsvReaderFactory (merged), fastRowCount duplication (eliminated)
+ * Unified CSV service: reader creation, row counting, file handling, Excel conversion.
  */
 final class CsvService
 {
-    public function __construct(
-        private readonly ExcelToCsvConverter $excelConverter,
-    ) {}
+    private const array EXCEL_MIME_TYPES = [
+        'application/vnd.ms-excel',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'application/vnd.oasis.opendocument.spreadsheet',
+    ];
+
+    private const array EXCEL_EXTENSIONS = ['xls', 'xlsx', 'ods'];
 
     /**
      * Create a CSV reader with auto-detected delimiter.
@@ -40,52 +44,53 @@ final class CsvService
     }
 
     /**
-     * Fast row counting with file size estimation for large files.
-     *
-     * For small files (< 1MB), uses exact counting.
-     * For large files, samples rows and estimates based on average row size.
+     * Fast row counting with estimation for large files.
      */
     public function countRows(string $csvPath): int
     {
         $fileSize = filesize($csvPath);
-        if ($fileSize === false) {
-            return $this->exactRowCount($csvPath);
+        if ($fileSize === false || $fileSize < 1_048_576) {
+            return iterator_count($this->createReader($csvPath)->getRecords());
         }
 
-        // For small files (< 1MB), exact count is fast
-        if ($fileSize < 1_048_576) {
-            return $this->exactRowCount($csvPath);
+        // Sample-based estimation for large files
+        $file = fopen($csvPath, 'r');
+        if ($file === false) {
+            return iterator_count($this->createReader($csvPath)->getRecords());
         }
 
-        return $this->estimateRowCount($csvPath, $fileSize);
+        $headerBytes = strlen(fgets($file) ?: '');
+        fclose($file);
+
+        $sample = file_get_contents($csvPath, offset: $headerBytes, length: 8192);
+        if ($sample === false) {
+            return iterator_count($this->createReader($csvPath)->getRecords());
+        }
+
+        $lines = explode("\n", trim($sample));
+        $avgRowSize = strlen($sample) / max(1, count($lines));
+
+        return (int) ceil(($fileSize - $headerBytes) / max(1, $avgRowSize));
     }
 
     /**
      * Process uploaded file: convert Excel if needed and persist to storage.
-     *
-     * @return string|null Path to persisted CSV file, or null on failure
      */
     public function processUploadedFile(TemporaryUploadedFile $file): ?string
     {
-        $uploadedFile = new UploadedFile(
-            $file->getRealPath(),
-            $file->getClientOriginalName(),
-            $file->getMimeType(),
-        );
+        $uploadedFile = new UploadedFile($file->getRealPath(), $file->getClientOriginalName(), $file->getMimeType());
 
         // Convert Excel to CSV if needed
-        if ($this->excelConverter->isExcelFile($uploadedFile)) {
-            $uploadedFile = $this->excelConverter->convert($uploadedFile);
+        if ($this->isExcelFile($uploadedFile)) {
+            $uploadedFile = $this->convertExcelToCsv($uploadedFile);
         }
 
-        // Persist to storage
-        $storagePath = 'temp-imports/'.Str::uuid()->toString().'.csv';
         $content = file_get_contents($uploadedFile->getRealPath());
-
         if ($content === false) {
             return null;
         }
 
+        $storagePath = 'temp-imports/'.Str::uuid()->toString().'.csv';
         Storage::disk('local')->put($storagePath, $content);
 
         return Storage::disk('local')->path($storagePath);
@@ -107,7 +112,44 @@ final class CsvService
     }
 
     /**
-     * Auto-detect CSV delimiter by sampling first 1KB of file.
+     * Check if a file is an Excel file.
+     */
+    private function isExcelFile(UploadedFile $file): bool
+    {
+        return in_array($file->getMimeType(), self::EXCEL_MIME_TYPES, true)
+            || in_array(strtolower($file->getClientOriginalExtension()), self::EXCEL_EXTENSIONS, true);
+    }
+
+    /**
+     * Convert an Excel file to CSV format.
+     */
+    private function convertExcelToCsv(UploadedFile $file): UploadedFile
+    {
+        $spreadsheet = IOFactory::load($file->getRealPath());
+
+        $tempDir = Storage::disk('local')->path('temp');
+        if (! is_dir($tempDir)) {
+            mkdir($tempDir, 0755, true);
+        }
+        $csvPath = $tempDir.'/'.Str::uuid()->toString().'.csv';
+
+        $writer = new Csv($spreadsheet);
+        $writer->setSheetIndex($spreadsheet->getActiveSheetIndex());
+        $writer->setDelimiter(',');
+        $writer->setEnclosure('"');
+        $writer->setLineEnding("\n");
+        $writer->setUseBOM(true);
+        $writer->save($csvPath);
+
+        $spreadsheet->disconnectWorksheets();
+
+        $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+
+        return new UploadedFile($csvPath, $originalName.'.csv', 'text/csv', null, true);
+    }
+
+    /**
+     * Auto-detect CSV delimiter by sampling first 1KB.
      */
     private function detectDelimiter(string $csvPath): ?string
     {
@@ -116,56 +158,14 @@ final class CsvService
             return null;
         }
 
-        $delimiters = [',', ';', "\t", '|'];
         $counts = [];
-
-        foreach ($delimiters as $delimiter) {
-            $counts[$delimiter] = substr_count($content, $delimiter);
+        foreach ([',', ';', "\t", '|'] as $d) {
+            $counts[$d] = substr_count($content, $d);
         }
 
         arsort($counts);
         $detected = array_key_first($counts);
 
         return $counts[$detected] > 0 ? $detected : null;
-    }
-
-    /**
-     * Exact row count using iterator.
-     */
-    private function exactRowCount(string $csvPath): int
-    {
-        $csvReader = $this->createReader($csvPath);
-
-        return iterator_count($csvReader->getRecords());
-    }
-
-    /**
-     * Estimate row count for large files using sampling.
-     */
-    private function estimateRowCount(string $csvPath, int $fileSize): int
-    {
-        // Get header size (first line)
-        $file = fopen($csvPath, 'r');
-        if ($file === false) {
-            return $this->exactRowCount($csvPath);
-        }
-
-        $headerContent = fgets($file) ?: '';
-        fclose($file);
-        $headerBytes = strlen($headerContent);
-
-        // Sample content after header
-        $sampleContent = file_get_contents($csvPath, offset: $headerBytes, length: 8192);
-        if ($sampleContent === false) {
-            return $this->exactRowCount($csvPath);
-        }
-
-        $sampleLines = explode("\n", trim($sampleContent));
-        $avgRowSize = strlen($sampleContent) / max(1, count($sampleLines));
-
-        // Estimate total rows
-        $dataSize = $fileSize - $headerBytes;
-
-        return (int) ceil($dataSize / max(1, $avgRowSize));
     }
 }

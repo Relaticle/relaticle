@@ -178,17 +178,6 @@ final class ImportWizard extends Component implements HasActions, HasForms
         };
     }
 
-    /** @return array<int, string> */
-    public function getStepLabels(): array
-    {
-        return [
-            self::STEP_UPLOAD => 'Upload',
-            self::STEP_MAP => 'Map Columns',
-            self::STEP_REVIEW => 'Review Values',
-            self::STEP_PREVIEW => 'Preview',
-        ];
-    }
-
     // ═══════════════════════════════════════════════════════════════════════
     // STEP 1: FILE UPLOAD
     // ═══════════════════════════════════════════════════════════════════════
@@ -325,20 +314,6 @@ final class ImportWizard extends Component implements HasActions, HasForms
         if ($fieldName !== '') {
             $this->columnMap[$fieldName] = $csvColumn;
         }
-    }
-
-    public function unmapColumn(string $fieldName): void
-    {
-        if (isset($this->columnMap[$fieldName])) {
-            $this->columnMap[$fieldName] = '';
-        }
-    }
-
-    public function getFieldLabel(string $fieldName): string
-    {
-        $col = collect($this->importerColumns)->first(fn (ImportColumn $c): bool => $c->getName() === $fieldName);
-
-        return $col?->getLabel() ?? Str::title(str_replace('_', ' ', $fieldName));
     }
 
     protected function hasUniqueIdentifierMapped(): bool
@@ -534,11 +509,6 @@ final class ImportWizard extends Component implements HasActions, HasForms
         return $this->previewResultData['updateCount'] ?? 0;
     }
 
-    public function getActiveRowCount(): int
-    {
-        return $this->previewResultData['totalRows'] ?? 0;
-    }
-
     // ═══════════════════════════════════════════════════════════════════════
     // IMPORT EXECUTION
     // ═══════════════════════════════════════════════════════════════════════
@@ -703,20 +673,6 @@ final class ImportWizard extends Component implements HasActions, HasForms
         $this->previewRows = [];
         $this->reviewPage = 1;
         $this->expandedColumn = null;
-    }
-
-    public function cancelImport(): void
-    {
-        $this->cleanupTempFile();
-        if ($this->returnUrl !== null) {
-            $this->redirect($this->returnUrl);
-        }
-    }
-
-    public function getEntityLabel(): string
-    {
-        return $this->getEntities()[$this->entityType]['label']
-            ?? str($this->entityType)->title()->toString();
     }
 
     // ═══════════════════════════════════════════════════════════════════════
