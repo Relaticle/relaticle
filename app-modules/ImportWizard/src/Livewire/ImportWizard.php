@@ -300,6 +300,14 @@ final class ImportWizard extends Component implements HasActions, HasForms
         return $this->getEntities()[$this->entityType]['importer'] ?? null;
     }
 
+    /** @return class-string|null */
+    protected function getModelClass(): ?string
+    {
+        $importerClass = $this->getImporterClass();
+
+        return $importerClass !== null ? $importerClass::getModel() : null;
+    }
+
     public function hasAllRequiredMappings(): bool
     {
         return collect($this->importerColumns)
@@ -351,7 +359,11 @@ final class ImportWizard extends Component implements HasActions, HasForms
 
     protected function getMissingUniqueIdentifiersMessage(): string
     {
-        return $this->getImporterClass()?::getMissingUniqueIdentifiersMessage() ?? 'Map a Record ID column';
+        $importerClass = $this->getImporterClass();
+
+        return $importerClass !== null
+            ? $importerClass::getMissingUniqueIdentifiersMessage()
+            : 'Map a Record ID column';
     }
 
     // ═══════════════════════════════════════════════════════════════════════
@@ -370,7 +382,7 @@ final class ImportWizard extends Component implements HasActions, HasForms
             csvPath: $this->persistedFilePath,
             columnMap: $this->columnMap,
             importerColumns: $this->importerColumns,
-            entityType: $this->getImporterClass()?::getModel(),
+            entityType: $this->getModelClass(),
         );
 
         $this->columnAnalysesData = $analyses->map(fn (ColumnAnalysis $a): array => $a->toArray())->toArray();
@@ -412,7 +424,7 @@ final class ImportWizard extends Component implements HasActions, HasForms
                 value: $newValue,
                 fieldName: $fieldName,
                 importerColumns: $this->importerColumns,
-                entityType: $this->getImporterClass()?::getModel(),
+                entityType: $this->getModelClass(),
             );
 
             if ($error !== null) {
