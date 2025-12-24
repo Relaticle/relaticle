@@ -12,7 +12,6 @@ use Filament\Actions\Imports\ImportColumn;
 use Filament\Actions\Imports\Importer;
 use Filament\Actions\Imports\Models\Import;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Number;
 use Relaticle\CustomFields\Facades\CustomFields;
 use App\Models\CustomField;
 use Relaticle\ImportWizard\Enums\DuplicateHandlingStrategy;
@@ -24,12 +23,7 @@ final class PeopleImporter extends BaseImporter
     public static function getColumns(): array
     {
         return [
-            ImportColumn::make('id')
-                ->label('Record ID')
-                ->guess(['id', 'record_id', 'ulid', 'record id'])
-                ->rules(['nullable', 'ulid'])
-                ->example('01KCCFMZ52QWZSQZWVG0AP704V')
-                ->helperText('Include existing record IDs to update specific records. Leave empty to create new records.'),
+            static::idColumn(),
 
             ImportColumn::make('name')
                 ->label('Name')
@@ -119,7 +113,7 @@ final class PeopleImporter extends BaseImporter
 
         // Fast path: Use pre-loaded resolver (preview mode)
         if ($this->hasRecordResolver()) {
-            return $this->getRecordResolver()->resolvePeopleByEmail(
+            return $this->getRecordResolver()->resolvePersonByEmail(
                 $emails,
                 $this->import->team_id
             );
@@ -191,13 +185,7 @@ final class PeopleImporter extends BaseImporter
 
     public static function getCompletedNotificationBody(Import $import): string
     {
-        $body = 'Your people import has completed and '.Number::format($import->successful_rows).' '.str('row')->plural($import->successful_rows).' imported.';
-
-        if (($failedRowsCount = $import->getFailedRowsCount()) !== 0) {
-            $body .= ' '.Number::format($failedRowsCount).' '.str('row')->plural($failedRowsCount).' failed to import.';
-        }
-
-        return $body;
+        return static::completedNotificationBody($import, 'people');
     }
 
     public static function getUniqueIdentifierColumns(): array

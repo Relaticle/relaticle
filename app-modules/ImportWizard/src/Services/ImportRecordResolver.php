@@ -5,12 +5,17 @@ declare(strict_types=1);
 namespace Relaticle\ImportWizard\Services;
 
 use App\Models\Company;
+use App\Models\Note;
 use App\Models\Opportunity;
 use App\Models\People;
+use App\Models\Task;
+use Illuminate\Database\Eloquent\Model;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\ImportWizard\Filament\Imports\CompanyImporter;
+use Relaticle\ImportWizard\Filament\Imports\NoteImporter;
 use Relaticle\ImportWizard\Filament\Imports\OpportunityImporter;
 use Relaticle\ImportWizard\Filament\Imports\PeopleImporter;
+use Relaticle\ImportWizard\Filament\Imports\TaskImporter;
 
 /**
  * Fast record resolution for import previews using in-memory caching.
@@ -25,16 +30,14 @@ final class ImportRecordResolver
     /**
      * In-memory cache of records indexed for O(1) lookups.
      *
-     * @var array{
-     *     people: array{byId: array<int|string, People>, byEmail: array<string, People>},
-     *     companies: array{byId: array<int|string, Company>, byName: array<string, Company>},
-     *     opportunities: array{byId: array<int|string, Opportunity>, byName: array<string, Opportunity>}
-     * }
+     * @var array<string, array<string, array<string, Model>>>
      */
     private array $cache = [
         'people' => ['byId' => [], 'byEmail' => []],
         'companies' => ['byId' => [], 'byName' => []],
         'opportunities' => ['byId' => [], 'byName' => []],
+        'tasks' => ['byId' => [], 'byTitle' => []],
+        'notes' => ['byId' => [], 'byTitle' => []],
     ];
 
     private ?string $cachedTeamId = null;
@@ -56,6 +59,8 @@ final class ImportRecordResolver
             'people' => ['byId' => [], 'byEmail' => []],
             'companies' => ['byId' => [], 'byName' => []],
             'opportunities' => ['byId' => [], 'byName' => []],
+            'tasks' => ['byId' => [], 'byTitle' => []],
+            'notes' => ['byId' => [], 'byTitle' => []],
         ];
 
         // Load records based on importer type
@@ -63,8 +68,35 @@ final class ImportRecordResolver
             PeopleImporter::class => $this->loadPeople($teamId),
             CompanyImporter::class => $this->loadCompanies($teamId),
             OpportunityImporter::class => $this->loadOpportunities($teamId),
+            TaskImporter::class => $this->loadTasks($teamId),
+            NoteImporter::class => $this->loadNotes($teamId),
             default => null,
         };
+    }
+
+    /**
+     * Resolve any record by ID across all cached entity types.
+     *
+     * @param  class-string  $importerClass
+     */
+    public function resolveById(string $id, string $teamId, string $importerClass): ?Model
+    {
+        $this->ensureCacheLoaded($teamId);
+
+        $cacheKey = match ($importerClass) {
+            PeopleImporter::class => 'people',
+            CompanyImporter::class => 'companies',
+            OpportunityImporter::class => 'opportunities',
+            TaskImporter::class => 'tasks',
+            NoteImporter::class => 'notes',
+            default => null,
+        };
+
+        if ($cacheKey === null) {
+            return null;
+        }
+
+        return $this->cache[$cacheKey]['byId'][$id] ?? null;
     }
 
     /**
@@ -72,18 +104,45 @@ final class ImportRecordResolver
      *
      * @param  array<string>  $emails
      */
-    public function resolvePeopleByEmail(array $emails, string $teamId): ?People
+    public function resolvePersonByEmail(array $emails, string $teamId): ?People
     {
         $this->ensureCacheLoaded($teamId);
 
         foreach ($emails as $email) {
             $email = strtolower(trim($email));
             if (isset($this->cache['people']['byEmail'][$email])) {
+                /** @var People */
                 return $this->cache['people']['byEmail'][$email];
             }
         }
 
         return null;
+    }
+
+    /**
+     * Resolve a Task record by title.
+     */
+    public function resolveTaskByTitle(string $title, string $teamId): ?Task
+    {
+        $this->ensureCacheLoaded($teamId);
+
+        $title = trim($title);
+
+        /** @var Task|null */
+        return $this->cache['tasks']['byTitle'][$title] ?? null;
+    }
+
+    /**
+     * Resolve a Note record by title.
+     */
+    public function resolveNoteByTitle(string $title, string $teamId): ?Note
+    {
+        $this->ensureCacheLoaded($teamId);
+
+        $title = trim($title);
+
+        /** @var Note|null */
+        return $this->cache['notes']['byTitle'][$title] ?? null;
     }
 
     /**
@@ -199,6 +258,44 @@ final class ImportRecordResolver
             // First match wins (same as current behavior)
             if ($name !== '' && ! isset($this->cache['opportunities']['byName'][$name])) {
                 $this->cache['opportunities']['byName'][$name] = $opportunity;
+            }
+        }
+    }
+
+    /**
+     * Load all tasks for a team.
+     */
+    private function loadTasks(string $teamId): void
+    {
+        $tasks = Task::query()
+            ->where('team_id', $teamId)
+            ->get();
+
+        foreach ($tasks as $task) {
+            $this->cache['tasks']['byId'][(string) $task->id] = $task;
+
+            $title = trim((string) $task->title);
+            if ($title !== '' && ! isset($this->cache['tasks']['byTitle'][$title])) {
+                $this->cache['tasks']['byTitle'][$title] = $task;
+            }
+        }
+    }
+
+    /**
+     * Load all notes for a team.
+     */
+    private function loadNotes(string $teamId): void
+    {
+        $notes = Note::query()
+            ->where('team_id', $teamId)
+            ->get();
+
+        foreach ($notes as $note) {
+            $this->cache['notes']['byId'][(string) $note->id] = $note;
+
+            $title = trim((string) $note->title);
+            if ($title !== '' && ! isset($this->cache['notes']['byTitle'][$title])) {
+                $this->cache['notes']['byTitle'][$title] = $note;
             }
         }
     }

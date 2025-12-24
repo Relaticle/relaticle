@@ -9,8 +9,6 @@ use App\Models\Company;
 use Filament\Actions\Imports\ImportColumn;
 use Filament\Actions\Imports\Importer;
 use Filament\Actions\Imports\Models\Import;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Number;
 use Relaticle\CustomFields\Facades\CustomFields;
 use Relaticle\ImportWizard\Enums\DuplicateHandlingStrategy;
 
@@ -21,15 +19,7 @@ final class CompanyImporter extends BaseImporter
     public static function getColumns(): array
     {
         return [
-            ImportColumn::make('id')
-                ->label('Record ID')
-                ->guess(['id', 'record_id', 'ulid', 'record id'])
-                ->rules(['nullable', 'ulid'])
-                ->example('01KCCFMZ52QWZSQZWVG0AP704V')
-                ->helperText('Include existing record IDs to update specific records. Leave empty to create new records.')
-                ->fillRecordUsing(function (Model $record, ?string $state, Importer $importer): void {
-                    // ID handled in resolveRecord(), skip here
-                }),
+            static::idColumn(),
 
             ImportColumn::make('name')
                 ->label('Name')
@@ -111,13 +101,7 @@ final class CompanyImporter extends BaseImporter
 
     public static function getCompletedNotificationBody(Import $import): string
     {
-        $body = 'Your company import has completed and '.Number::format($import->successful_rows).' '.str('row')->plural($import->successful_rows).' imported.';
-
-        if (($failedRowsCount = $import->getFailedRowsCount()) !== 0) {
-            $body .= ' '.Number::format($failedRowsCount).' '.str('row')->plural($failedRowsCount).' failed to import.';
-        }
-
-        return $body;
+        return static::completedNotificationBody($import, 'company');
     }
 
     public static function getUniqueIdentifierColumns(): array

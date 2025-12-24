@@ -30,7 +30,7 @@ use Relaticle\ImportWizard\Livewire\Concerns\HasCsvParsing;
 use Relaticle\ImportWizard\Livewire\Concerns\HasImportPreview;
 use Relaticle\ImportWizard\Livewire\Concerns\HasValueAnalysis;
 use Relaticle\ImportWizard\Models\Import;
-use Relaticle\ImportWizard\Services\CsvReaderFactory;
+use Relaticle\ImportWizard\Services\CsvService;
 
 /**
  * 4-step import wizard following the Attio pattern.
@@ -348,7 +348,7 @@ final class ImportWizard extends Component implements HasActions, HasForms
      */
     private function applyCorrectionsToCsv(): string
     {
-        $csvReader = app(CsvReaderFactory::class)->createFromPath($this->persistedFilePath);
+        $csvReader = app(CsvService::class)->createReader($this->persistedFilePath);
         $headers = $csvReader->getHeader();
 
         $output = fopen('php://temp', 'r+');

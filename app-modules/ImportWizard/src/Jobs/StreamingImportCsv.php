@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Storage;
 use League\Csv\Statement;
 use Relaticle\ImportWizard\Events\ImportChunkProcessed;
 use Relaticle\ImportWizard\Models\Import;
-use Relaticle\ImportWizard\Services\CsvReaderFactory;
+use Relaticle\ImportWizard\Services\CsvService;
 
 /**
  * Streaming import job that reads rows on-demand from file instead of serializing data.
@@ -67,7 +67,7 @@ final class StreamingImportCsv implements ShouldQueue
             throw new \RuntimeException("Import file not found: {$csvPath}");
         }
 
-        $csvReader = App::make(CsvReaderFactory::class)->createFromPath($csvPath);
+        $csvReader = App::make(CsvService::class)->createReader($csvPath);
 
         $records = (new Statement)
             ->offset($this->startRow)

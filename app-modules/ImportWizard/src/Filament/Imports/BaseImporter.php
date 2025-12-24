@@ -8,9 +8,12 @@ use App\Models\Team;
 use App\Models\User;
 use Filament\Actions\Imports\Exceptions\RowImportFailedException;
 use Filament\Actions\Imports\Importer;
+use Filament\Actions\Imports\ImportColumn;
+use Filament\Actions\Imports\Models\Import;
 use Filament\Forms\Components\Select;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Number;
 use Illuminate\Support\Str;
 use Relaticle\CustomFields\Facades\CustomFields;
 use Relaticle\ImportWizard\Enums\DuplicateHandlingStrategy;
@@ -175,5 +178,39 @@ abstract class BaseImporter extends Importer
     public static function skipUniqueIdentifierWarning(): bool
     {
         return false;
+    }
+
+    /**
+     * Create the standard ID column for record matching.
+     *
+     * Shared factory method to eliminate duplication across importers.
+     */
+    protected static function idColumn(): ImportColumn
+    {
+        return ImportColumn::make('id')
+            ->label('Record ID')
+            ->guess(['id', 'record_id', 'ulid', 'record id'])
+            ->rules(['nullable', 'ulid'])
+            ->example('01KCCFMZ52QWZSQZWVG0AP704V')
+            ->helperText('Include existing record IDs to update specific records. Leave empty to create new records.')
+            ->fillRecordUsing(function (Model $record, ?string $state, Importer $importer): void {
+                // ID handled in resolveRecord(), skip here
+            });
+    }
+
+    /**
+     * Generate a standardized import completion notification body.
+     *
+     * @param  string  $entityName  e.g., "company", "person", "opportunity"
+     */
+    protected static function completedNotificationBody(Import $import, string $entityName): string
+    {
+        $body = 'Your '.$entityName.' import has completed and '.Number::format($import->successful_rows).' '.str('row')->plural($import->successful_rows).' imported.';
+
+        if (($failedRowsCount = $import->getFailedRowsCount()) !== 0) {
+            $body .= ' '.Number::format($failedRowsCount).' '.str('row')->plural($failedRowsCount).' failed to import.';
+        }
+
+        return $body;
     }
 }

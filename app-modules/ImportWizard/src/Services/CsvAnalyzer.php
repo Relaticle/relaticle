@@ -24,7 +24,7 @@ use Spatie\LaravelData\DataCollection;
 final readonly class CsvAnalyzer
 {
     public function __construct(
-        private CsvReaderFactory $csvReaderFactory,
+        private CsvService $csvService,
         private ValidationService $validationService,
     ) {}
 
@@ -79,7 +79,7 @@ final readonly class CsvAnalyzer
         }
 
         // SINGLE PASS through CSV - update all collectors simultaneously
-        $csvReader = $this->csvReaderFactory->createFromPath($csvPath);
+        $csvReader = $this->csvService->createReader($csvPath);
         $records = (new Statement)->process($csvReader);
 
         foreach ($records as $record) {

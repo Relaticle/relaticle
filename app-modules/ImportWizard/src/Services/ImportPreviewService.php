@@ -4,43 +4,30 @@ declare(strict_types=1);
 
 namespace Relaticle\ImportWizard\Services;
 
-use Filament\Actions\Imports\Importer;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\App;
+use Illuminate\Support\Str;
 use League\Csv\Statement;
 use Relaticle\ImportWizard\Data\ImportPreviewResult;
 use Relaticle\ImportWizard\Filament\Imports\OpportunityImporter;
 use Relaticle\ImportWizard\Filament\Imports\PeopleImporter;
-use Relaticle\ImportWizard\Models\Import;
 
 /**
  * Service for previewing import results without actually saving data.
  *
- * Performs a dry-run of the import by calling each importer's resolveRecord()
- * method to determine whether records would be created or updated.
+ * Uses direct database lookups via ImportRecordResolver for O(1) performance.
+ * No reflection - simpler, faster, upgrade-proof.
  */
-final class ImportPreviewService
+final readonly class ImportPreviewService
 {
-    /** @var \ReflectionClass<Importer>|null */
-    private ?\ReflectionClass $cachedReflectionClass = null;
-
-    /** @var array<string, \ReflectionProperty> */
-    private array $cachedReflectionProperties = [];
-
-    /** @var array<string, \ReflectionMethod> */
-    private array $cachedReflectionMethods = [];
-
-    private ?string $cachedImporterClass = null;
-
     public function __construct(
-        private readonly CsvReaderFactory $csvReaderFactory,
-        private readonly CompanyMatcher $companyMatcher,
+        private CsvService $csvService,
+        private CompanyMatcher $companyMatcher,
+        private ImportRecordResolver $recordResolver,
     ) {}
 
     /**
      * Generate a preview of what an import will do.
      *
-     * @param  class-string<Importer>  $importerClass
+     * @param  class-string  $importerClass
      * @param  array<string, string>  $columnMap  Maps importer field name to CSV column name
      * @param  array<string, mixed>  $options  Import options
      * @param  array<string, array<string, string>>  $valueCorrections  User-defined value corrections
@@ -56,20 +43,14 @@ final class ImportPreviewService
         array $valueCorrections = [],
         int $sampleSize = 1000,
     ): ImportPreviewResult {
-        // Create a non-persisted Import model for the importer
-        $import = new Import;
-        $import->setAttribute('team_id', $teamId);
-        $import->setAttribute('user_id', $userId);
-
-        $csvReader = $this->csvReaderFactory->createFromPath($csvPath);
-        $totalRows = $this->fastRowCount($csvPath, $csvReader);
+        $csvReader = $this->csvService->createReader($csvPath);
+        $totalRows = $this->csvService->countRows($csvPath);
 
         // Process only sampled rows for preview
         $records = (new Statement)->limit($sampleSize)->process($csvReader);
 
-        // Pre-load all records for fast O(1) lookups (avoids N+1 queries)
-        $recordResolver = app(ImportRecordResolver::class);
-        $recordResolver->loadForTeam($teamId, $importerClass);
+        // Pre-load all records for fast O(1) lookups
+        $this->recordResolver->loadForTeam($teamId, $importerClass);
 
         $willCreate = 0;
         $willUpdate = 0;
@@ -82,55 +63,32 @@ final class ImportPreviewService
             // Apply value corrections
             $record = $this->applyCorrections($record, $columnMap, $valueCorrections);
 
-            try {
-                $result = $this->previewRow(
-                    importerClass: $importerClass,
-                    import: $import,
-                    columnMap: $columnMap,
-                    options: $options,
-                    rowData: $record,
-                    recordResolver: $recordResolver,
-                );
+            // Format row with mapped field names
+            $formattedRow = $this->formatRowRecord($record, $columnMap);
 
-                $isNew = $result['action'] === 'create';
+            // Determine action using direct lookup (no reflection!)
+            $result = $this->determineAction($formattedRow, $teamId, $importerClass);
 
-                if ($isNew) {
-                    $willCreate++;
-                } else {
-                    $willUpdate++;
-                }
-
-                // Store row data with metadata
-                $formattedRow = $this->formatRowRecord($record, $columnMap);
-
-                // Enrich with company match data for People/Opportunity imports
-                if ($this->shouldEnrichWithCompanyMatch($importerClass)) {
-                    $formattedRow = $this->enrichRowWithCompanyMatch($formattedRow, $teamId);
-                }
-
-                // Detect update method (ID-based or attribute-based)
-                $hasId = ! blank($formattedRow['id'] ?? null);
-                $updateMethod = null;
-                $recordId = null;
-
-                if (! $isNew) {
-                    $updateMethod = $hasId ? 'id' : 'attribute';
-                    $recordId = $result['record']?->getKey();
-                }
-
-                $rows[] = array_merge(
-                    $formattedRow,
-                    [
-                        '_row_index' => $rowNumber,
-                        '_is_new' => $isNew,
-                        '_update_method' => $updateMethod,
-                        '_record_id' => $recordId,
-                    ]
-                );
-            } catch (\Throwable) {
-                // Skip errored rows in preview - they'll be handled during actual import
-                continue;
+            if ($result['action'] === 'create') {
+                $willCreate++;
+            } else {
+                $willUpdate++;
             }
+
+            // Enrich with company match data for People/Opportunity imports
+            if ($this->shouldEnrichWithCompanyMatch($importerClass)) {
+                $formattedRow = $this->enrichRowWithCompanyMatch($formattedRow, $teamId);
+            }
+
+            $rows[] = array_merge(
+                $formattedRow,
+                [
+                    '_row_index' => $rowNumber,
+                    '_is_new' => $result['action'] === 'create',
+                    '_update_method' => $result['method'],
+                    '_record_id' => $result['recordId'],
+                ]
+            );
         }
 
         $actualSampleSize = min($totalRows, $sampleSize);
@@ -157,145 +115,93 @@ final class ImportPreviewService
     }
 
     /**
-     * Preview a single row to determine what action would be taken.
+     * Determine what action would be taken for a row using direct lookup.
      *
-     * @param  class-string<Importer>  $importerClass
-     * @param  array<string, string>  $columnMap
-     * @param  array<string, mixed>  $options
-     * @param  array<string, mixed>  $rowData
-     * @return array{action: string, record: Model|null}
+     * No reflection - uses ImportRecordResolver's pre-loaded cache for O(1) lookups.
+     *
+     * @param  array<string, mixed>  $row
+     * @param  class-string  $importerClass
+     * @return array{action: string, method: string|null, recordId: string|null}
      */
-    private function previewRow(
-        string $importerClass,
-        Import $import,
-        array $columnMap,
-        array $options,
-        array $rowData,
-        ImportRecordResolver $recordResolver,
-    ): array {
-        /** @var Importer $importer */
-        $importer = App::make($importerClass, [
-            'import' => $import,
-            'columnMap' => $columnMap,
-            'options' => $options,
-        ]);
-
-        // Set resolver for fast preview lookups (avoids per-row database queries)
-        if (method_exists($importer, 'setRecordResolver')) {
-            $importer->setRecordResolver($recordResolver);
+    private function determineAction(array $row, string $teamId, string $importerClass): array
+    {
+        // 1. Check for ID-based match (highest priority)
+        $id = $row['id'] ?? null;
+        if (! blank($id) && Str::isUlid((string) $id)) {
+            $record = $this->recordResolver->resolveById((string) $id, $teamId, $importerClass);
+            if ($record !== null) {
+                return [
+                    'action' => 'update',
+                    'method' => 'id',
+                    'recordId' => $record->getKey(),
+                ];
+            }
+            // Invalid ID - will create new record
+            return ['action' => 'create', 'method' => null, 'recordId' => null];
         }
 
-        // Invoke importer's resolution logic using reflection
-        /** @var Model|null $record */
-        $record = $this->invokeImporterResolution($importer, $rowData);
-
-        if ($record === null) {
-            return ['action' => 'create', 'record' => null];
+        // 2. Check for attribute-based match (name, email, etc.)
+        $record = $this->resolveByAttributes($row, $teamId, $importerClass);
+        if ($record !== null) {
+            return [
+                'action' => 'update',
+                'method' => 'attribute',
+                'recordId' => $record->getKey(),
+            ];
         }
 
-        // If record exists in DB, it's an update; otherwise it's a create
-        if ($record->exists) {
-            return ['action' => 'update', 'record' => $record];
-        }
-
-        return ['action' => 'create', 'record' => $record];
+        return ['action' => 'create', 'method' => null, 'recordId' => null];
     }
 
     /**
-     * Invoke Filament importer's record resolution logic via reflection.
+     * Resolve a record by its unique attributes (name, email, etc.)
      *
-     * WARNING: This method uses reflection to access Filament's internal APIs.
-     * If Filament's internal structure changes, this may break.
-     *
-     * Maintenance: If this breaks after a Filament upgrade, check:
-     * 1. Property names: originalData, data
-     * 2. Method names: remapData, castData, resolveRecord
-     * 3. Consider requesting a public API from Filament for dry-run imports
-     *
-     * @param  array<string, mixed>  $rowData
-     *
-     * @throws \RuntimeException If reflection fails (Filament internals changed)
+     * @param  array<string, mixed>  $row
+     * @param  class-string  $importerClass
      */
-    private function invokeImporterResolution(Importer $importer, array $rowData): ?Model
+    private function resolveByAttributes(array $row, string $teamId, string $importerClass): ?object
     {
-        try {
-            // Use cached reflection objects for performance
-            $reflection = $this->getCachedReflectionClass($importer);
-
-            // Set row data on the importer
-            $originalDataProp = $this->getCachedReflectionProperty($reflection, 'originalData');
-            $originalDataProp->setValue($importer, $rowData);
-
-            $dataProp = $this->getCachedReflectionProperty($reflection, 'data');
-            $dataProp->setValue($importer, $rowData);
-
-            // Process the row through importer's pipeline
-            $remapMethod = $this->getCachedReflectionMethod($reflection, 'remapData');
-            $remapMethod->invoke($importer);
-
-            $castMethod = $this->getCachedReflectionMethod($reflection, 'castData');
-            $castMethod->invoke($importer);
-
-            // Resolve record (queries DB but doesn't save)
-            $resolveMethod = $this->getCachedReflectionMethod($reflection, 'resolveRecord');
-
-            /** @var Model|null */
-            return $resolveMethod->invoke($importer);
-        } catch (\ReflectionException $e) {
-            throw new \RuntimeException('Failed to invoke Filament importer via reflection. This likely means Filament\'s internal API has changed. '
-            .'Please check ImportPreviewService::invokeImporterResolution() and update reflection calls. '
-            .'Original error: '.$e->getMessage(), $e->getCode(), previous: $e);
-        }
-    }
-
-    /**
-     * Get or create cached reflection class.
-     *
-     * @return \ReflectionClass<Importer>
-     */
-    private function getCachedReflectionClass(Importer $importer): \ReflectionClass
-    {
-        $importerClass = $importer::class;
-
-        if ($this->cachedImporterClass !== $importerClass || ! $this->cachedReflectionClass instanceof \ReflectionClass) {
-            /** @var \ReflectionClass<Importer> $reflection */
-            $reflection = new \ReflectionClass($importer);
-            $this->cachedReflectionClass = $reflection;
-            $this->cachedImporterClass = $importerClass;
-            // Clear property and method caches when class changes
-            $this->cachedReflectionProperties = [];
-            $this->cachedReflectionMethods = [];
+        // Company: match by name
+        if (str_contains($importerClass, 'CompanyImporter')) {
+            $name = trim((string) ($row['name'] ?? ''));
+            if ($name !== '') {
+                return $this->recordResolver->resolveCompanyByName($name, $teamId);
+            }
         }
 
-        return $this->cachedReflectionClass;
-    }
-
-    /**
-     * Get or create cached reflection property.
-     *
-     * @param  \ReflectionClass<Importer>  $reflection
-     */
-    private function getCachedReflectionProperty(\ReflectionClass $reflection, string $propertyName): \ReflectionProperty
-    {
-        if (! isset($this->cachedReflectionProperties[$propertyName])) {
-            $this->cachedReflectionProperties[$propertyName] = $reflection->getProperty($propertyName);
+        // People: match by email
+        if (str_contains($importerClass, 'PeopleImporter')) {
+            $emails = $this->extractEmailsFromRow($row);
+            if ($emails !== []) {
+                return $this->recordResolver->resolvePersonByEmail($emails, $teamId);
+            }
         }
 
-        return $this->cachedReflectionProperties[$propertyName];
-    }
-
-    /**
-     * Get or create cached reflection method.
-     *
-     * @param  \ReflectionClass<Importer>  $reflection
-     */
-    private function getCachedReflectionMethod(\ReflectionClass $reflection, string $methodName): \ReflectionMethod
-    {
-        if (! isset($this->cachedReflectionMethods[$methodName])) {
-            $this->cachedReflectionMethods[$methodName] = $reflection->getMethod($methodName);
+        // Opportunity: match by name
+        if (str_contains($importerClass, 'OpportunityImporter')) {
+            $name = trim((string) ($row['name'] ?? ''));
+            if ($name !== '') {
+                return $this->recordResolver->resolveOpportunityByName($name, $teamId);
+            }
         }
 
-        return $this->cachedReflectionMethods[$methodName];
+        // Task: match by title
+        if (str_contains($importerClass, 'TaskImporter')) {
+            $title = trim((string) ($row['title'] ?? ''));
+            if ($title !== '') {
+                return $this->recordResolver->resolveTaskByTitle($title, $teamId);
+            }
+        }
+
+        // Note: match by title
+        if (str_contains($importerClass, 'NoteImporter')) {
+            $title = trim((string) ($row['title'] ?? ''));
+            if ($title !== '') {
+                return $this->recordResolver->resolveNoteByTitle($title, $teamId);
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -303,17 +209,14 @@ final class ImportPreviewService
      *
      * @param  array<string, mixed>  $record
      * @param  array<string, string>  $columnMap
-     * @param  array<string, array<string, string>>  $corrections  Map of field name => [old_value => new_value]
+     * @param  array<string, array<string, string>>  $corrections
      * @return array<string, mixed>
      */
     private function applyCorrections(array $record, array $columnMap, array $corrections): array
     {
         foreach ($corrections as $fieldName => $valueMappings) {
             $csvColumn = $columnMap[$fieldName] ?? null;
-            if ($csvColumn === null) {
-                continue;
-            }
-            if (! isset($record[$csvColumn])) {
+            if ($csvColumn === null || ! isset($record[$csvColumn])) {
                 continue;
             }
 
@@ -349,7 +252,7 @@ final class ImportPreviewService
     /**
      * Check if the importer should have company match enrichment.
      *
-     * @param  class-string<Importer>  $importerClass
+     * @param  class-string  $importerClass
      */
     private function shouldEnrichWithCompanyMatch(string $importerClass): bool
     {
@@ -402,70 +305,5 @@ final class ImportPreviewService
             $emails,
             static fn (mixed $email): bool => filter_var($email, FILTER_VALIDATE_EMAIL) !== false
         ));
-    }
-
-    /**
-     * Fast row counting with file size estimation for large files.
-     *
-     * For small files (< 1MB), uses exact counting.
-     * For large files, samples rows and estimates based on average row size.
-     *
-     * @param  \League\Csv\Reader<array<string, mixed>>  $csvReader
-     */
-    private function fastRowCount(string $csvPath, \League\Csv\Reader $csvReader): int
-    {
-        $fileSize = filesize($csvPath);
-        if ($fileSize === false) {
-            // Fallback to exact count if filesize fails
-            return iterator_count($csvReader->getRecords());
-        }
-
-        // For small files (< 1MB), exact count is fast
-        if ($fileSize < 1_048_576) {
-            return iterator_count($csvReader->getRecords());
-        }
-
-        // For large files, sample 100 rows and estimate
-        $sampleSize = 100;
-        $sample = [];
-        $iterator = $csvReader->getRecords();
-        $count = 0;
-
-        foreach ($iterator as $record) {
-            $sample[] = $record;
-            $count++;
-            if ($count >= $sampleSize) {
-                break;
-            }
-        }
-
-        if ($count === 0) {
-            return 0;
-        }
-
-        // Get header size (first line)
-        $headerContent = '';
-        $file = fopen($csvPath, 'r');
-        if ($file !== false) {
-            $headerContent = fgets($file) ?: '';
-            fclose($file);
-        }
-        $headerBytes = strlen($headerContent);
-
-        // Calculate average row size from sample
-        $sampleStartPos = $headerBytes;
-        $sampleContent = file_get_contents($csvPath, offset: $sampleStartPos, length: 8192);
-        if ($sampleContent === false) {
-            // Fallback to exact count if reading fails
-            return iterator_count($csvReader->getRecords());
-        }
-
-        $sampleLines = explode("\n", trim($sampleContent));
-        $avgRowSize = strlen($sampleContent) / max(1, count($sampleLines));
-
-        // Estimate total rows
-        $dataSize = $fileSize - $headerBytes;
-
-        return (int) ceil($dataSize / max(1, $avgRowSize));
     }
 }
