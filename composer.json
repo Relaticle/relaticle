@@ -18,6 +18,7 @@
         "awcodes/overlook": "^v3.0",
         "blade-ui-kit/blade-heroicons": "^2.6",
         "blade-ui-kit/blade-icons": "^1.8",
+        "doctrine/dbal": "^4.4",
         "filament/filament": "^4.0",
         "laravel/framework": "^12.0",
         "laravel/horizon": "^5.29",
@@ -27,8 +28,8 @@
         "laravel/tinker": "^2.9",
         "livewire/livewire": "^3.0",
         "prism-php/prism": "^0.98.5",
-        "relaticle/custom-fields": "^2.0",
-        "relaticle/flowforge": "@dev",
+        "relaticle/custom-fields": "^3.0.0-beta",
+        "relaticle/flowforge": "^v3.0.0-beta",
         "sentry/sentry-laravel": "^4.13",
         "spatie/eloquent-sortable": "^4.4",
         "spatie/laravel-data": "^4.15",
@@ -69,6 +70,7 @@
             "Relaticle\\SystemAdmin\\": "app-modules/SystemAdmin/src",
             "Relaticle\\Documentation\\": "app-modules/Documentation/src",
             "Relaticle\\OnboardSeed\\": "app-modules/OnboardSeed/src",
+            "Relaticle\\ImportWizard\\": "app-modules/ImportWizard/src",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
         }
