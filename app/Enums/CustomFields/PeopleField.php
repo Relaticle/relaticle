@@ -21,7 +21,7 @@ enum PeopleField: string
     public function getFieldType(): string
     {
         return match ($this) {
-            self::EMAILS => CustomFieldType::TAGS_INPUT->value,
+            self::EMAILS => CustomFieldType::EMAIL->value,
             self::PHONE_NUMBER, self::JOB_TITLE => CustomFieldType::TEXT->value,
             self::LINKEDIN => CustomFieldType::LINK->value,
         };
@@ -42,6 +42,30 @@ enum PeopleField: string
         return match ($this) {
             self::JOB_TITLE, self::EMAILS => false,
             default => true,
+        };
+    }
+
+    public function isSystemDefined(): bool
+    {
+        return match ($this) {
+            self::EMAILS => true,
+            default => false,
+        };
+    }
+
+    public function allowsMultipleValues(): bool
+    {
+        return match ($this) {
+            self::EMAILS => true,
+            default => false,
+        };
+    }
+
+    public function isUniquePerEntityType(): bool
+    {
+        return match ($this) {
+            self::EMAILS => true,
+            default => false,
         };
     }
 }
