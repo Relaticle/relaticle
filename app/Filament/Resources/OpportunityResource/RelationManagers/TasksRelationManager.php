@@ -25,7 +25,7 @@ final class TasksRelationManager extends RelationManager
 {
     protected static string $relationship = 'tasks';
 
-    protected static string|\BackedEnum|null $icon = 'heroicon-o-check-circle';
+    protected static string|\BackedEnum|null $icon = 'phosphor-o-check-circle';
 
     public function form(Schema $schema): Schema
     {
@@ -45,7 +45,7 @@ final class TasksRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                CreateAction::make()->icon('heroicon-o-plus')->size(Size::Small),
+                CreateAction::make()->icon('phosphor-o-plus')->size(Size::Small),
                 AttachAction::make(),
             ])
             ->recordActions([

@@ -14,7 +14,7 @@
 
         <!-- Delete Team Confirmation Modal -->
         <x-filament::modal id="delete-team-modal"
-                           icon="heroicon-o-exclamation-triangle"
+                           icon="phosphor-o-warning"
                            icon-color="danger"
                            width="md"
                            alignment="center"

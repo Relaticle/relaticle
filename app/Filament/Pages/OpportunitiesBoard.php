@@ -38,7 +38,7 @@ final class OpportunitiesBoard extends BoardPage
 
     protected static string|null|UnitEnum $navigationGroup = 'Workspace';
 
-    protected static string|null|BackedEnum $navigationIcon = 'heroicon-o-view-columns';
+    protected static string|null|BackedEnum $navigationIcon = 'phosphor-d-columns';
 
     /**
      * Configure the board using the new Filament V4 architecture.
@@ -79,7 +79,7 @@ final class OpportunitiesBoard extends BoardPage
             ->columnActions([
                 CreateAction::make()
                     ->label('Add Opportunity')
-                    ->icon('heroicon-o-plus')
+                    ->icon('phosphor-o-plus')
                     ->iconButton()
                     ->modalWidth(Width::Large)
                     ->slideOver(false)
@@ -104,7 +104,7 @@ final class OpportunitiesBoard extends BoardPage
                     ->label('Edit')
                     ->slideOver()
                     ->modalWidth(Width::ExtraLarge)
-                    ->icon('heroicon-o-pencil-square')
+                    ->icon('phosphor-o-pencil-simple')
                     ->schema(OpportunityForm::get(...))
                     ->fillForm(fn (Opportunity $record): array => [
                         'name' => $record->name,
@@ -116,7 +116,7 @@ final class OpportunitiesBoard extends BoardPage
                     }),
                 Action::make('delete')
                     ->label('Delete')
-                    ->icon('heroicon-o-trash')
+                    ->icon('phosphor-o-trash')
                     ->color('danger')
                     ->requiresConfirmation()
                     ->action(function (Opportunity $record): void {

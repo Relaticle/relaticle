@@ -24,7 +24,7 @@ final class PeopleRelationManager extends RelationManager
 
     protected static ?string $modelLabel = 'person';
 
-    protected static string|\BackedEnum|null $icon = 'heroicon-o-user';
+    protected static string|\BackedEnum|null $icon = 'phosphor-o-user';
 
     public function form(Schema $schema): Schema
     {
@@ -53,7 +53,7 @@ final class PeopleRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                CreateAction::make()->icon('heroicon-o-plus')->size(Size::Small),
+                CreateAction::make()->icon('phosphor-o-plus')->size(Size::Small),
             ])
             ->recordActions([
                 ActionGroup::make([

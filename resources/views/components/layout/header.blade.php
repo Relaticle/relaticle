@@ -43,14 +43,14 @@
                         @if(isset($githubStars) && $githubStars > 0)
                             <span>{{ $formattedGithubStars }}</span>
                         @endif
-                        <x-heroicon-o-arrow-up-right class="h-3 w-3 text-gray-400"/>
+                        <x-phosphor-o-arrow-square-out class="h-3 w-3 text-gray-400"/>
                     </a>
                     <a href="{{ route('discord') }}" target="_blank"
                        class="text-gray-700 dark:text-white hover:text-primary dark:hover:text-primary-400 text-sm font-medium transition-all duration-200 flex items-center gap-1.5 relative after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:w-0 after:bg-primary dark:after:bg-primary after:transition-all hover:after:w-full"
                        aria-label="Join Discord Community">
                         <x-icon-discord class="w-4 h-4"/>
                         Discord
-                        <x-heroicon-o-arrow-up-right class="h-3 w-3 text-gray-400"/>
+                        <x-phosphor-o-arrow-square-out class="h-3 w-3 text-gray-400"/>
                     </a>
                 </nav>
             </div>
@@ -61,8 +61,8 @@
                 <button id="theme-toggle"
                         class="p-2 text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-primary-400 focus:outline-none focus:ring-2 focus:ring-primary/30 rounded-full transition-transform duration-300 active:scale-90"
                         aria-label="Toggle dark mode">
-                    <x-heroicon-o-sun class="h-5 w-5 hidden dark:block"/>
-                    <x-heroicon-o-moon class="h-5 w-5 block dark:hidden"/>
+                    <x-phosphor-o-sun class="h-5 w-5 hidden dark:block"/>
+                    <x-phosphor-o-moon class="h-5 w-5 block dark:hidden"/>
                 </button>
 
                 <!-- Auth Links -->
@@ -86,7 +86,7 @@
                             class="p-2 text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-primary-400 focus:outline-none focus:ring-2 focus:ring-primary/30 rounded-full transition-all active:scale-95"
                             aria-label="Toggle mobile menu"
                             aria-expanded="false">
-                        <x-heroicon-o-bars-3 class="h-6 w-6"/>
+                        <x-phosphor-o-list class="h-6 w-6"/>
                     </button>
                 </div>
             </div>

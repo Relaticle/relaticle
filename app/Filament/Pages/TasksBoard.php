@@ -41,7 +41,7 @@ final class TasksBoard extends BoardPage
 
     protected static string|null|UnitEnum $navigationGroup = 'Workspace';
 
-    protected static string|null|BackedEnum $navigationIcon = 'heroicon-o-view-columns';
+    protected static string|null|BackedEnum $navigationIcon = 'phosphor-d-columns';
 
     /**
      * Configure the board using the new Filament V4 architecture.
@@ -87,13 +87,13 @@ final class TasksBoard extends BoardPage
                     ->grow(false)
                     ->badge()
                     ->hiddenLabel()
-                    ->icon('heroicon-o-flag');
+                    ->icon('phosphor-o-flag');
 
                 $dueDateField = $customFields->get('custom_fields.due_date')
                     ?->visible(fn (?string $state): bool => filled($state))
                     ->badge()
                     ->color('gray')
-                    ->icon('heroicon-o-calendar')
+                    ->icon('phosphor-o-calendar')
                     ->grow(false)
                     ->hiddenLabel()
                     ->formatStateUsing(fn (?string $state): string => $this->formatDueDateBadge($state));
@@ -119,7 +119,7 @@ final class TasksBoard extends BoardPage
             ->columnActions([
                 CreateAction::make()
                     ->label('Add Task')
-                    ->icon('heroicon-o-plus')
+                    ->icon('phosphor-o-plus')
                     ->iconButton()
                     ->modalWidth(Width::TwoExtraLarge)
                     ->slideOver(false)
@@ -144,7 +144,7 @@ final class TasksBoard extends BoardPage
                     ->label('Edit')
                     ->slideOver()
                     ->modalWidth(Width::ThreeExtraLarge)
-                    ->icon('heroicon-o-pencil-square')
+                    ->icon('phosphor-o-pencil-simple')
                     ->schema(fn (Schema $schema): Schema => TaskForm::get($schema))
                     ->fillForm(fn (Task $record): array => [
                         'title' => $record->title,
@@ -154,7 +154,7 @@ final class TasksBoard extends BoardPage
                     }),
                 Action::make('delete')
                     ->label('Delete')
-                    ->icon('heroicon-o-trash')
+                    ->icon('phosphor-o-trash')
                     ->color('danger')
                     ->requiresConfirmation()
                     ->action(function (Task $record): void {

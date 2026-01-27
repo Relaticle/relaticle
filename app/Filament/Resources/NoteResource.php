@@ -35,7 +35,7 @@ final class NoteResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'title';
 
-    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-document-text';
+    protected static string|\BackedEnum|null $navigationIcon = 'phosphor-d-notebook';
 
     protected static ?int $navigationSort = 5;
 

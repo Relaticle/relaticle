@@ -29,16 +29,16 @@ final class ListOpportunities extends ListRecords
             ActionGroup::make([
                 Action::make('import')
                     ->label('Import opportunities')
-                    ->icon('heroicon-o-arrow-up-tray')
+                    ->icon('phosphor-o-upload')
                     ->url(ImportOpportunities::getUrl()),
                 ExportAction::make()->exporter(OpportunityExporter::class),
             ])
-                ->icon('heroicon-o-arrows-up-down')
+                ->icon('phosphor-o-arrows-down-up')
                 ->color('gray')
                 ->button()
                 ->label('Import / Export')
                 ->size(Size::Small),
-            CreateAction::make()->icon('heroicon-o-plus')->size(Size::Small),
+            CreateAction::make()->icon('phosphor-o-plus')->size(Size::Small),
         ];
     }
 }

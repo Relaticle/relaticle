@@ -4,7 +4,7 @@
         <div class="hidden sm:block col-span-12 sm:col-span-3 lg:col-span-2 relative">
             <div class="sticky top-24 pt-0.5 max-h-[calc(100vh-6rem)] overflow-y-auto pr-4 pb-16">
                 <h2 class="text-sm font-semibold text-black dark:text-white mb-4 flex items-center space-x-2">
-                    <x-heroicon-o-book-open class="h-4 w-4 text-primary dark:text-primary-400" />
+                    <x-phosphor-o-book-open class="h-4 w-4 text-primary dark:text-primary-400" />
                     <span>Documentation</span>
                 </h2>
                 <div class="flex flex-col space-y-1 border-l border-gray-200 dark:border-gray-800">
@@ -35,7 +35,7 @@
             <div class="sticky top-[5rem] pt-0.5 overflow-y-auto pb-16">
                 @if(count($tableOfContents))
                     <h3 class="text-sm font-semibold text-black dark:text-white mb-4 flex items-center space-x-2">
-                        <x-heroicon-o-list-bullet class="h-4 w-4 text-primary dark:text-primary-400" />
+                        <x-phosphor-o-list-bullets class="h-4 w-4 text-primary dark:text-primary-400" />
                         <span>On this page</span>
                     </h3>
                     <nav>

@@ -20,7 +20,7 @@ final class EditProfile extends Page
 
     protected static ?int $navigationSort = 1;
 
-    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-user-circle';
+    protected static string|\BackedEnum|null $navigationIcon = 'phosphor-d-user-circle';
 
     public static function shouldRegisterNavigation(): bool
     {

@@ -20,6 +20,7 @@ return [
         '127.0.0.1',
         'relaticle.test',
         'app.relaticle.test',
+        'app.relaticle-main.test',
     ],
 
     /*

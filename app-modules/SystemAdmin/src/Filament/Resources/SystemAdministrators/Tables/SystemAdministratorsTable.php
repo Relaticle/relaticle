@@ -41,8 +41,8 @@ final class SystemAdministratorsTable
                 IconColumn::make('email_verified_at')
                     ->label('Verified')
                     ->boolean()
-                    ->trueIcon('heroicon-o-check-badge')
-                    ->falseIcon('heroicon-o-x-mark'),
+                    ->trueIcon('phosphor-o-seal-check')
+                    ->falseIcon('phosphor-o-x'),
 
                 TextColumn::make('created_at')
                     ->dateTime()

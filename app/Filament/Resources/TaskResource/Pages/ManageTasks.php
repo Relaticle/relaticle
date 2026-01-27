@@ -29,16 +29,16 @@ final class ManageTasks extends ManageRecords
             ActionGroup::make([
                 Action::make('import')
                     ->label('Import tasks')
-                    ->icon('heroicon-o-arrow-up-tray')
+                    ->icon('phosphor-o-upload')
                     ->url(ImportTasks::getUrl()),
                 ExportAction::make()->exporter(TaskExporter::class),
             ])
-                ->icon('heroicon-o-arrows-up-down')
+                ->icon('phosphor-o-arrows-down-up')
                 ->color('gray')
                 ->button()
                 ->label('Import / Export')
                 ->size(Size::Small),
-            CreateAction::make()->icon('heroicon-o-plus')->size(Size::Small)->slideOver(),
+            CreateAction::make()->icon('phosphor-o-plus')->size(Size::Small)->slideOver(),
         ];
     }
 }

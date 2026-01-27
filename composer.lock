@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ac95e2d70b43b7da34110a9de9a84183",
+    "content-hash": "67f2a53305f73a1578254c39368c0d59",
     "packages": [
         {
             "name": "anourvalar/eloquent-serialize",
@@ -7214,7 +7214,7 @@
             "dist": {
                 "type": "path",
                 "url": "../flowforge",
-                "reference": "9e3b078be50544f3215fef58620c1f6ae18d8c8a"
+                "reference": "a3d35c02b4162b4a0f0eb887b844fa84fbfef5f7"
             },
             "require": {
                 "ext-bcmath": "*",

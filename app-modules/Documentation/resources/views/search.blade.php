@@ -40,7 +40,7 @@
                 <!-- Empty state with minimal design -->
                 <div class="text-center space-y-5">
                     <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-50 dark:bg-gray-800 mb-2">
-                        <x-heroicon-o-magnifying-glass class="h-8 w-8 text-gray-400 dark:text-gray-500" />
+                        <x-phosphor-o-magnifying-glass class="h-8 w-8 text-gray-400 dark:text-gray-500" />
                     </div>
 
                     <h2 class="text-xl font-semibold text-gray-900 dark:text-white">

@@ -47,7 +47,7 @@
                 <a href="{{ route('register') }}"
                    class="group w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-primary hover:bg-primary-600 text-white px-7 py-3.5 rounded-md text-base font-medium transition-all duration-200 shadow-sm hover:shadow">
                     <span>Start for free</span>
-                    <x-heroicon-c-arrow-right class="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1"/>
+                    <x-phosphor-o-arrow-right class="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1"/>
                 </a>
 
                 <a href="https://github.com/relaticle/relaticle" target="_blank"

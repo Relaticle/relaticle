@@ -12,7 +12,7 @@
                 @if($icon)
                     <x-dynamic-component :component="$icon" class="h-5 w-5" />
                 @else
-                    <x-heroicon-o-document-text class="h-5 w-5" />
+                    <x-phosphor-o-file-text class="h-5 w-5" />
                 @endif
             </div>
 
@@ -32,7 +32,7 @@
             <div class="pt-2">
                 <span class="inline-flex items-center text-sm font-medium text-primary dark:text-primary-400 group-hover:text-primary-600 dark:group-hover:text-primary-300 transition-colors duration-300">
                     Read documentation
-                    <x-heroicon-s-chevron-right class="ml-1 h-4 w-4" />
+                    <x-phosphor-o-caret-right class="ml-1 h-4 w-4" />
                 </span>
             </div>
         </div>

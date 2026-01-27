@@ -111,7 +111,7 @@ final class AppPanelProvider extends PanelProvider
             ->userMenuItems([
                 Action::make('profile')
                     ->label('Profile')
-                    ->icon('heroicon-m-user-circle')
+                    ->icon('phosphor-o-user-circle')
                     ->url(fn (): string => $this->shouldRegisterMenuItem()
                         ? url(EditProfile::getUrl())
                         : url($panel->getPath())),
@@ -133,7 +133,7 @@ final class AppPanelProvider extends PanelProvider
             ->navigationGroups([
                 NavigationGroup::make()
                     ->label('Tasks')
-                    ->icon('heroicon-o-shopping-cart'),
+                    ->icon('phosphor-o-shopping-cart'),
             ])
             ->middleware([
                 EncryptCookies::class,
@@ -182,7 +182,7 @@ final class AppPanelProvider extends PanelProvider
             $panel->userMenuItems([
                 Action::make('api_tokens')
                     ->label('API Tokens')
-                    ->icon('heroicon-o-key')
+                    ->icon('phosphor-o-key')
                     ->url(fn (): string => $this->shouldRegisterMenuItem()
                         ? url(ApiTokens::getUrl())
                         : url($panel->getPath())),

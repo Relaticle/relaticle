@@ -23,7 +23,7 @@ final class TeamResource extends Resource
 {
     protected static ?string $model = Team::class;
 
-    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-users';
+    protected static string|\BackedEnum|null $navigationIcon = 'phosphor-o-users';
 
     protected static string|\UnitEnum|null $navigationGroup = 'User Management';
 

@@ -23,8 +23,8 @@ enum SortDirection: string implements HasIcon, HasLabel
     public function getIcon(): string
     {
         return match ($this) {
-            self::Desc => 'heroicon-o-bars-arrow-down',
-            self::Asc => 'heroicon-o-bars-arrow-up',
+            self::Desc => 'phosphor-o-arrow-fat-lines-down',
+            self::Asc => 'phosphor-o-arrow-fat-lines-up',
         };
     }
 }

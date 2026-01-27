@@ -4,7 +4,7 @@
     <div class="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6">
         <div class="text-center">
             <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-success-100 dark:bg-success-900/20">
-                <x-heroicon-o-rocket-launch class="h-6 w-6 text-success-600 dark:text-success-400" />
+                <x-phosphor-o-rocket-launch class="h-6 w-6 text-success-600 dark:text-success-400" />
             </div>
             <h3 class="mt-4 text-lg font-medium text-gray-900 dark:text-white">
                 Ready to Import
