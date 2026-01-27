@@ -282,10 +282,10 @@ final class RelationshipField extends Data
     public function icon(): string
     {
         return match ($this->relatedModel) {
-            Company::class => 'heroicon-o-building-office-2',
-            People::class => 'heroicon-o-user',
-            Opportunity::class => 'heroicon-o-currency-dollar',
-            default => 'heroicon-o-link',
+            Company::class => 'phosphor-o-buildings',
+            People::class => 'phosphor-o-user',
+            Opportunity::class => 'phosphor-o-currency-dollar',
+            default => 'phosphor-o-link',
         };
     }
 }

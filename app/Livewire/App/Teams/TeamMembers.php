@@ -97,7 +97,7 @@ final class TeamMembers extends BaseLivewireComponent implements Tables\Contract
                     }),
                 Action::make('leaveTeam')
                     ->visible(fn (Membership $record): bool => (string) $this->authUser()->id === (string) $record->user_id)
-                    ->icon('heroicon-o-arrow-right-start-on-rectangle')
+                    ->icon('phosphor-o-sign-out')
                     ->color('danger')
                     ->label(__('teams.actions.leave_team'))
                     ->modalDescription(__('teams.modals.leave_team.notice'))

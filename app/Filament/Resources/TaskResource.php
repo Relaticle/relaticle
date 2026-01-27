@@ -43,7 +43,7 @@ final class TaskResource extends Resource
 
     protected static ?string $navigationLabel = 'Tasks';
 
-    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-check-circle';
+    protected static string|\BackedEnum|null $navigationIcon = 'phosphor-d-check-circle';
 
     protected static ?string $recordTitleAttribute = 'title';
 
@@ -154,7 +154,7 @@ final class TaskResource extends Resource
                                                         ->url(ManageTasks::getUrl(['record' => $record]))
                                                         ->markAsRead(),
                                                 ])
-                                                ->icon('heroicon-o-check-circle')
+                                                ->icon('phosphor-o-check-circle')
                                                 ->iconColor('primary')
                                                 ->viewData(['task_id' => $record->id]) // Store task ID in notification data
                                                 ->sendToDatabase($recipient);

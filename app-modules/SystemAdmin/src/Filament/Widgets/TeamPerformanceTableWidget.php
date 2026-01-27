@@ -46,7 +46,7 @@ final class TeamPerformanceTableWidget extends BaseWidget
                     ->searchable()
                     ->sortable()
                     ->weight('semibold')
-                    ->icon('heroicon-o-user'),
+                    ->icon('phosphor-o-user'),
 
                 Tables\Columns\TextColumn::make('tasks_created')
                     ->label('Tasks')
@@ -103,7 +103,7 @@ final class TeamPerformanceTableWidget extends BaseWidget
             ->striped()
             ->emptyStateHeading('No Team Activity')
             ->emptyStateDescription('User performance data will appear here once team members start creating tasks, opportunities, and companies')
-            ->emptyStateIcon('heroicon-o-users');
+            ->emptyStateIcon('phosphor-o-users');
     }
 
     /**

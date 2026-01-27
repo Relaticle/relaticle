@@ -24,7 +24,7 @@ final class NotesRelationManager extends RelationManager
 {
     protected static string $relationship = 'notes';
 
-    protected static string|\BackedEnum|null $icon = 'heroicon-o-document-text';
+    protected static string|\BackedEnum|null $icon = 'phosphor-o-file-text';
 
     public function form(Schema $schema): Schema
     {
@@ -51,7 +51,7 @@ final class NotesRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                CreateAction::make()->icon('heroicon-o-plus')->size(Size::Small),
+                CreateAction::make()->icon('phosphor-o-plus')->size(Size::Small),
                 AttachAction::make(),
             ])
             ->recordActions([

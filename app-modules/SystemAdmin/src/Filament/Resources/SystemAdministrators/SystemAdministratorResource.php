@@ -7,7 +7,7 @@ namespace Relaticle\SystemAdmin\Filament\Resources\SystemAdministrators;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
+use App\Support\Icons\Phosphoricon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Relaticle\SystemAdmin\Filament\Resources\SystemAdministrators\Pages\CreateSystemAdministrator;
@@ -24,7 +24,7 @@ final class SystemAdministratorResource extends Resource
 {
     protected static ?string $model = SystemAdministrator::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedShieldCheck;
+    protected static string|BackedEnum|null $navigationIcon = Phosphoricon::DuotoneShieldCheck;
 
     protected static string|UnitEnum|null $navigationGroup = 'User Management';
 

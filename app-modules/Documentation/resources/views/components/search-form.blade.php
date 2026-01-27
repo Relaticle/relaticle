@@ -4,7 +4,7 @@
       class="relative" {{ $attributes->merge(['class' => 'relative']) }}>
     <div>
         <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-            <x-heroicon-o-magnifying-glass class="h-5 w-5 text-gray-400"/>
+            <x-phosphor-o-magnifying-glass class="h-5 w-5 text-gray-400"/>
         </div>
         <input
             type="text"

@@ -394,7 +394,7 @@
         ></span>
 
         <x-filament::icon
-            icon="heroicon-o-chevron-down"
+            icon="phosphor-o-caret-down"
             class="w-3.5 h-3.5 text-gray-400 shrink-0 transition-transform duration-150"
             x-bind:class="open && 'rotate-180'"
             aria-hidden="true"
@@ -414,7 +414,7 @@
     >
         @if ($searchable)
             <div class="relative border-b border-gray-200 dark:border-gray-700">
-                <x-filament::icon icon="heroicon-o-magnifying-glass" class="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none" aria-hidden="true" />
+                <x-filament::icon icon="phosphor-o-magnifying-glass" class="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none" aria-hidden="true" />
                 <input
                     type="text"
                     placeholder="Search..."
@@ -462,7 +462,7 @@
                             :class="isSelected(option.value) ? 'opacity-100' : 'opacity-0'"
                             aria-hidden="true"
                         >
-                            <x-filament::icon icon="heroicon-s-check" class="w-4 h-4 text-primary-600 dark:text-primary-400" />
+                            <x-filament::icon icon="phosphor-o-check" class="w-4 h-4 text-primary-600 dark:text-primary-400" />
                         </span>
                         <span class="truncate flex-1 text-xs" :title="option.label" x-text="option.label"></span>
                     </div>

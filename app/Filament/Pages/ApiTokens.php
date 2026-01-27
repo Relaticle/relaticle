@@ -9,7 +9,7 @@ use Override;
 
 final class ApiTokens extends Page
 {
-    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-key';
+    protected static string|\BackedEnum|null $navigationIcon = 'phosphor-d-key';
 
     protected string $view = 'filament.pages.api-tokens';
 

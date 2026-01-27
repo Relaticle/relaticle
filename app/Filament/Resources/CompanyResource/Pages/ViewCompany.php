@@ -31,12 +31,12 @@ final class ViewCompany extends ViewRecord
     {
         return [
             GenerateRecordSummaryAction::make(),
-            EditAction::make()->icon('heroicon-o-pencil-square')->label('Edit'),
+            EditAction::make()->icon('phosphor-o-pencil-simple')->label('Edit'),
             ActionGroup::make([
                 ActionGroup::make([
                     Action::make('copyPageUrl')
                         ->label('Copy page URL')
-                        ->icon('heroicon-o-clipboard-document')
+                        ->icon('phosphor-o-clipboard-text')
                         ->action(function (Company $record): void {
                             $url = CompanyResource::getUrl('view', [$record]);
                             $this->js("
@@ -50,7 +50,7 @@ final class ViewCompany extends ViewRecord
                         }),
                     Action::make('copyRecordId')
                         ->label('Copy record ID')
-                        ->icon('heroicon-o-clipboard-document')
+                        ->icon('phosphor-o-clipboard-text')
                         ->action(function (Company $record): void {
                             $id = $record->getKey();
                             $this->js("
@@ -126,11 +126,11 @@ final class ViewCompany extends ViewRecord
                     Section::make([
                         TextEntry::make('created_at')
                             ->label('Created Date')
-                            ->icon('heroicon-o-clock')
+                            ->icon('phosphor-o-clock')
                             ->dateTime(),
                         TextEntry::make('updated_at')
                             ->label('Last Updated')
-                            ->icon('heroicon-o-clock')
+                            ->icon('phosphor-o-clock')
                             ->dateTime(),
                     ])->grow(false),
                 ])->columnSpan('full'),

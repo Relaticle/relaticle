@@ -22,10 +22,10 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             @php
                 $documentIcons = [
-                    'getting-started' => 'heroicon-o-rocket-launch',
-                    'import' => 'heroicon-o-arrow-up-tray',
-                    'developer' => 'heroicon-o-code-bracket',
-                    'api' => 'heroicon-o-variable',
+                    'getting-started' => 'phosphor-o-rocket-launch',
+                    'import' => 'phosphor-o-upload',
+                    'developer' => 'phosphor-o-code',
+                    'api' => 'phosphor-o-code',
                 ];
             @endphp
 

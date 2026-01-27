@@ -9,7 +9,7 @@ use Filament\Pages\Dashboard as BaseDashboard;
 
 final class Dashboard extends BaseDashboard
 {
-    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-home';
+    protected static string|\BackedEnum|null $navigationIcon = 'phosphor-d-house';
 
     protected ?string $heading = 'Dashboard';
 
@@ -23,7 +23,7 @@ final class Dashboard extends BaseDashboard
             Action::make('view-site')
                 ->label('View Website')
                 ->url(config('app.url'))
-                ->icon('heroicon-o-globe-alt')
+                ->icon('phosphor-o-globe')
                 ->color('gray')
                 ->openUrlInNewTab(),
         ];

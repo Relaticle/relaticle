@@ -60,7 +60,7 @@
                                     :options="DateFormat::toOptions($this->selectedColumn->getType()->isTimestamp())"
                                     :searchable="false"
                                     placeholder="Date format"
-                                    icon="heroicon-o-cog-6-tooth"
+                                    icon="phosphor-o-gear-six"
                                     :value="$this->selectedColumn->dateFormat ?? DateFormat::ISO"
                                     @input="$wire.setColumnFormat('date', $event.detail)"
                                 />
@@ -73,7 +73,7 @@
                                     :options="NumberFormat::toOptions()"
                                     :searchable="false"
                                     placeholder="Number format"
-                                    icon="heroicon-o-cog-6-tooth"
+                                    icon="phosphor-o-gear-six"
                                     :value="$this->selectedColumn->numberFormat ?? NumberFormat::POINT"
                                     @input="$wire.setColumnFormat('number', $event.detail)"
                                 />
@@ -102,7 +102,7 @@
                     class="flex-1 flex items-center justify-center"
                 >
                     <div class="flex flex-col items-center text-center max-w-sm">
-                        <x-filament::icon icon="heroicon-o-arrow-path" class="h-12 w-12 text-primary-500 animate-spin" />
+                        <x-filament::icon icon="phosphor-o-arrows-clockwise" class="h-12 w-12 text-primary-500 animate-spin" />
                         <p class="mt-6 text-sm font-medium text-gray-700 dark:text-gray-300">Processing column values...</p>
                         <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Validating and preparing data for review</p>
 
@@ -146,7 +146,7 @@
                             {{-- Search --}}
                             <div class="relative">
                                 <x-filament::icon
-                                    icon="heroicon-o-magnifying-glass"
+                                    icon="phosphor-o-magnifying-glass"
                                     class="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400"
                                 />
                                 <input
@@ -166,7 +166,7 @@
                             >
                                 <x-filament::icon :icon="$sortDirection->getIcon()" class="w-4 h-4"/>
                                 <span>{{ $sortField->getLabel() }}</span>
-                                <x-filament::icon icon="heroicon-m-chevron-down" class="w-3 h-3"/>
+                                <x-filament::icon icon="phosphor-o-caret-down" class="w-3 h-3"/>
                             </button>
 
                             <div
@@ -195,7 +195,7 @@
                                                 {{ $field->getLabel() }}
                                             </span>
                                             @if ($sortField === $field)
-                                                <x-filament::icon icon="heroicon-m-check" class="w-4 h-4"/>
+                                                <x-filament::icon icon="phosphor-o-check" class="w-4 h-4"/>
                                             @endif
                                         </button>
                                     @endforeach
@@ -217,7 +217,7 @@
                                                 {{ $direction->getLabel() }}
                                             </span>
                                             @if ($sortDirection === $direction)
-                                                <x-filament::icon icon="heroicon-m-check" class="w-4 h-4"/>
+                                                <x-filament::icon icon="phosphor-o-check" class="w-4 h-4"/>
                                             @endif
                                         </button>
                                     @endforeach
@@ -233,7 +233,7 @@
                     class="flex items-center px-3 py-1.5 text-[10px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/30 shrink-0">
                     <div class="w-1/2">Raw Data</div>
                     <div class="w-6 text-center">
-                        <x-filament::icon icon="heroicon-o-arrow-right" class="w-3 h-3 mx-auto"/>
+                        <x-filament::icon icon="phosphor-o-arrow-right" class="w-3 h-3 mx-auto"/>
                     </div>
                     <div class="flex-1">Mapped Value</div>
                 </div>
@@ -272,7 +272,7 @@
 
                             {{-- Arrow --}}
                             <div class="w-6 text-center">
-                                <x-filament::icon icon="heroicon-o-arrow-right" class="w-3 h-3 text-gray-400 mx-auto"/>
+                                <x-filament::icon icon="phosphor-o-arrow-right" class="w-3 h-3 text-gray-400 mx-auto"/>
                             </div>
 
                             {{-- Mapped Value + Actions --}}
@@ -295,13 +295,13 @@
                     @empty
                         <div class="flex flex-col items-center justify-center py-8 text-sm text-gray-500 dark:text-gray-400">
                             @if ($search !== '' && $filter !== ReviewFilter::All)
-                                <x-filament::icon icon="heroicon-o-magnifying-glass" class="w-8 h-8 mb-2 text-gray-300 dark:text-gray-600"/>
+                                <x-filament::icon icon="phosphor-o-magnifying-glass" class="w-8 h-8 mb-2 text-gray-300 dark:text-gray-600"/>
                                 <span>No values match your search and filter</span>
                             @elseif ($search !== '')
-                                <x-filament::icon icon="heroicon-o-magnifying-glass" class="w-8 h-8 mb-2 text-gray-300 dark:text-gray-600"/>
+                                <x-filament::icon icon="phosphor-o-magnifying-glass" class="w-8 h-8 mb-2 text-gray-300 dark:text-gray-600"/>
                                 <span>No values match "{{ $search }}"</span>
                             @elseif ($filter !== ReviewFilter::All)
-                                <x-filament::icon icon="heroicon-o-funnel" class="w-8 h-8 mb-2 text-gray-300 dark:text-gray-600"/>
+                                <x-filament::icon icon="phosphor-o-funnel" class="w-8 h-8 mb-2 text-gray-300 dark:text-gray-600"/>
                                 <span>No {{ $filter->getLabel() }} values</span>
                             @else
                                 No values to display

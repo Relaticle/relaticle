@@ -7,7 +7,7 @@
 
     <div class="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
         <div class="flex items-center gap-2">
-            <x-heroicon-o-clock class="h-4 w-4" />
+            <x-phosphor-o-clock class="h-4 w-4" />
             <span>Generated {{ $summary->created_at->diffForHumans() }}</span>
         </div>
     </div>

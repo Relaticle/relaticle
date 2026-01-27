@@ -29,12 +29,12 @@ final class ViewPeople extends ViewRecord
     {
         return [
             GenerateRecordSummaryAction::make(),
-            EditAction::make()->icon('heroicon-o-pencil-square')->label('Edit'),
+            EditAction::make()->icon('phosphor-o-pencil-simple')->label('Edit'),
             ActionGroup::make([
                 ActionGroup::make([
                     Action::make('copyPageUrl')
                         ->label('Copy page URL')
-                        ->icon('heroicon-o-clipboard-document')
+                        ->icon('phosphor-o-clipboard-text')
                         ->action(function (People $record): void {
                             $url = PeopleResource::getUrl('view', [$record]);
                             $this->js("
@@ -48,7 +48,7 @@ final class ViewPeople extends ViewRecord
                         }),
                     Action::make('copyRecordId')
                         ->label('Copy record ID')
-                        ->icon('heroicon-o-clipboard-document')
+                        ->icon('phosphor-o-clipboard-text')
                         ->action(function (People $record): void {
                             $id = $record->getKey();
                             $this->js("

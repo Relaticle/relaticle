@@ -29,7 +29,7 @@
                     </span>
                 @endif
                 @if ($step < 4)
-                    <x-filament::icon icon="heroicon-m-chevron-right" class="h-4 w-4 text-gray-300 dark:text-gray-600 mx-2" />
+                    <x-filament::icon icon="phosphor-o-caret-right" class="h-4 w-4 text-gray-300 dark:text-gray-600 mx-2" />
                 @endif
             </li>
         @endforeach

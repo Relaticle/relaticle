@@ -48,7 +48,7 @@ final class PeopleResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name';
 
-    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-user';
+    protected static string|\BackedEnum|null $navigationIcon = 'phosphor-d-user';
 
     protected static ?int $navigationSort = 1;
 
@@ -83,7 +83,7 @@ final class PeopleResource extends Resource
                                     ]))
                                     ->modalWidth(Width::Large)
                                     ->slideOver()
-                                    ->icon('heroicon-o-plus')
+                                    ->icon('phosphor-o-plus')
                                     ->action(function (array $data, Set $set): void {
                                         $company = Company::query()->create($data);
                                         $set('company_id', $company->id);

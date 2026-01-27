@@ -17,7 +17,7 @@ abstract class ImportPage extends Page
 {
     protected string $view = 'import-wizard-new::filament.pages.import-page';
 
-    protected static string|null|BackedEnum $navigationIcon = 'heroicon-o-arrow-up-tray';
+    protected static string|null|BackedEnum $navigationIcon = 'phosphor-o-upload';
 
     protected static string|null|UnitEnum $navigationGroup = null;
 

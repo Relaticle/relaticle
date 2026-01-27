@@ -29,7 +29,7 @@ final class BusinessOverviewWidget extends BaseWidget
         return [
             Stat::make('Pipeline Value', $this->formatCurrency($businessData['pipeline_value']))
                 ->description($this->getPipelineDescription($businessData['pipeline_value']))
-                ->descriptionIcon('heroicon-o-banknotes')
+                ->descriptionIcon('phosphor-o-bank')
                 ->color('success')
                 ->chart($businessData['pipeline_trend'])
                 ->extraAttributes([
@@ -38,7 +38,7 @@ final class BusinessOverviewWidget extends BaseWidget
 
             Stat::make('Active Opportunities', number_format($businessData['total_opportunities']))
                 ->description($this->getGrowthDescription($businessData['opportunities_growth'], 'opportunities'))
-                ->descriptionIcon($businessData['opportunities_growth'] >= 0 ? 'heroicon-o-arrow-trending-up' : 'heroicon-o-arrow-trending-down')
+                ->descriptionIcon($businessData['opportunities_growth'] >= 0 ? 'phosphor-o-chart-line-up' : 'phosphor-o-chart-line-down')
                 ->color($this->getGrowthColor($businessData['opportunities_growth']))
                 ->extraAttributes([
                     'class' => 'relative overflow-hidden',
@@ -54,7 +54,7 @@ final class BusinessOverviewWidget extends BaseWidget
 
             Stat::make('Total Companies', number_format($businessData['total_companies']))
                 ->description($this->getGrowthDescription($businessData['companies_growth'], 'companies'))
-                ->descriptionIcon($businessData['companies_growth'] >= 0 ? 'heroicon-o-building-office-2' : 'heroicon-o-building-office')
+                ->descriptionIcon($businessData['companies_growth'] >= 0 ? 'phosphor-o-buildings' : 'phosphor-o-buildings')
                 ->color($this->getGrowthColor($businessData['companies_growth']))
                 ->extraAttributes([
                     'class' => 'relative overflow-hidden',
@@ -229,10 +229,10 @@ final class BusinessOverviewWidget extends BaseWidget
     private function getCompletionIcon(float $rate): string
     {
         return match (true) {
-            $rate >= 80 => 'heroicon-o-check-badge',
-            $rate >= 60 => 'heroicon-o-check-circle',
-            $rate >= 40 => 'heroicon-o-clock',
-            default => 'heroicon-o-exclamation-triangle'
+            $rate >= 80 => 'phosphor-o-seal-check',
+            $rate >= 60 => 'phosphor-o-check-circle',
+            $rate >= 40 => 'phosphor-o-clock',
+            default => 'phosphor-o-warning'
         };
     }
 }

@@ -29,16 +29,16 @@ final class ManageNotes extends ManageRecords
             ActionGroup::make([
                 Action::make('import')
                     ->label('Import notes')
-                    ->icon('heroicon-o-arrow-up-tray')
+                    ->icon('phosphor-o-upload')
                     ->url(ImportNotes::getUrl()),
                 ExportAction::make()->exporter(NoteExporter::class),
             ])
-                ->icon('heroicon-o-arrows-up-down')
+                ->icon('phosphor-o-arrows-down-up')
                 ->color('gray')
                 ->button()
                 ->label('Import / Export')
                 ->size(Size::Small),
-            CreateAction::make()->icon('heroicon-o-plus')->size(Size::Small),
+            CreateAction::make()->icon('phosphor-o-plus')->size(Size::Small),
         ];
     }
 }
