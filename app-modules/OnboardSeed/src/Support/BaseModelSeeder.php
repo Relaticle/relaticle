@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace Relaticle\OnboardSeed\Support;
 
 use App\Enums\CreationSource;
+use App\Models\CustomField;
 use App\Models\Team;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
-use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\OnboardSeed\Contracts\ModelSeederInterface;
 
 abstract class BaseModelSeeder implements ModelSeederInterface
@@ -272,7 +272,7 @@ abstract class BaseModelSeeder implements ModelSeederInterface
             ...$this->getGlobalAttributes(),
         ]);
 
-        $entity = app($this->modelClass)->create($attributes);
+        $entity = resolve($this->modelClass)->create($attributes);
         $this->applyCustomFields($entity, $customFields);
 
         // Register the entity in the registry

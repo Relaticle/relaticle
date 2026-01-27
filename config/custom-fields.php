@@ -2,7 +2,10 @@
 
 declare(strict_types=1);
 
+use App\Filament\Resources\PeopleResource;
+use App\Models\People;
 use Relaticle\CustomFields\EntitySystem\EntityConfigurator;
+use Relaticle\CustomFields\EntitySystem\EntityModel;
 use Relaticle\CustomFields\Enums\CustomFieldsFeature;
 use Relaticle\CustomFields\FeatureSystem\FeatureConfigurator;
 use Relaticle\CustomFields\FieldTypeSystem\FieldTypeConfigurator;
@@ -19,12 +22,19 @@ return [
     */
     'entity_configuration' => EntityConfigurator::configure()
         ->discover(app_path('Models'))
-        ->include([
-            App\Models\People::class,
-            App\Models\Company::class,
-            App\Models\Opportunity::class,
-            App\Models\Task::class,
-            App\Models\Note::class,
+        ->models([
+            EntityModel::configure(
+                modelClass: People::class,
+                primaryAttribute: 'name',
+                resourceClass: PeopleResource::class,
+                avatarConfiguration: EntityModel::avatar(attribute: 'avatar'),
+            ),
+            EntityModel::configure(
+                modelClass: \App\Models\Company::class,
+                primaryAttribute: 'name',
+                resourceClass: \App\Filament\Resources\CompanyResource::class,
+                avatarConfiguration: EntityModel::avatar(attribute: 'logo', shape: \Relaticle\CustomFields\Enums\AvatarShape::Square),
+            ),
         ])
         ->cache(),
 
@@ -55,14 +65,21 @@ return [
     */
     'features' => FeatureConfigurator::configure()
         ->enable(
-            CustomFieldsFeature::FIELD_CONDITIONAL_VISIBILITY,
             CustomFieldsFeature::FIELD_ENCRYPTION,
             CustomFieldsFeature::FIELD_OPTION_COLORS,
+            CustomFieldsFeature::FIELD_MULTI_VALUE,
+            CustomFieldsFeature::FIELD_UNIQUE_VALUE,
+            CustomFieldsFeature::FIELD_CODE_AUTO_GENERATE,
             CustomFieldsFeature::UI_TABLE_COLUMNS,
             CustomFieldsFeature::UI_TOGGLEABLE_COLUMNS,
             CustomFieldsFeature::UI_TABLE_FILTERS,
             CustomFieldsFeature::SYSTEM_MANAGEMENT_INTERFACE,
-            CustomFieldsFeature::SYSTEM_MULTI_TENANCY
+            CustomFieldsFeature::SYSTEM_MULTI_TENANCY,
+        )->disable(
+            CustomFieldsFeature::FIELD_CONDITIONAL_VISIBILITY,
+            CustomFieldsFeature::FIELD_VALIDATION_RULES,
+            CustomFieldsFeature::UI_FIELD_WIDTH_CONTROL,
+            CustomFieldsFeature::SYSTEM_SECTIONS_ENABLED,
         ),
 
     /*

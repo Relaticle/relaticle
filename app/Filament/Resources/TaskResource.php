@@ -7,6 +7,7 @@ namespace App\Filament\Resources;
 use App\Enums\CreationSource;
 use App\Filament\Resources\TaskResource\Forms\TaskForm;
 use App\Filament\Resources\TaskResource\Pages\ManageTasks;
+use App\Models\CustomField;
 use App\Models\Task;
 use App\Models\User;
 use Filament\Actions\Action;
@@ -34,7 +35,6 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\Support\Facades\DB;
 use Relaticle\CustomFields\Contracts\ValueResolvers;
-use Relaticle\CustomFields\Models\CustomField;
 use Throwable;
 
 final class TaskResource extends Resource
@@ -61,7 +61,7 @@ final class TaskResource extends Resource
         /** @var Collection<string, CustomField> $customFields */
         $customFields = CustomField::query()->whereIn('code', ['status', 'priority'])->get()->keyBy('code');
         /** @var ValueResolvers $valueResolver */
-        $valueResolver = app(ValueResolvers::class);
+        $valueResolver = resolve(ValueResolvers::class);
 
         return $table
             ->columns([
@@ -212,7 +212,7 @@ final class TaskResource extends Resource
             ->getTitleFromRecordUsing(function (Task $record) use ($valueResolver, $field, $label): string {
                 $value = $valueResolver->resolve($record, $field);
 
-                return empty($value) ? "No {$label}" : $value;
+                return blank($value) ? "No {$label}" : $value;
             })
             ->getKeyFromRecordUsing(function (Task $record) use ($field): string {
                 $fieldValue = $record->customFieldValues->firstWhere('custom_field_id', $field->id);
