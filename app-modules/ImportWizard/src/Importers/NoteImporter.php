@@ -6,10 +6,10 @@ namespace Relaticle\ImportWizard\Importers;
 
 use App\Models\Note;
 use Illuminate\Database\Eloquent\Model;
+use Relaticle\ImportWizard\Data\EntityLink;
 use Relaticle\ImportWizard\Data\ImportField;
 use Relaticle\ImportWizard\Data\ImportFieldCollection;
 use Relaticle\ImportWizard\Data\MatchableField;
-use Relaticle\ImportWizard\Data\RelationshipField;
 
 /**
  * Importer for Note entities.
@@ -41,7 +41,8 @@ final class NoteImporter extends BaseImporter
                     'title', 'subject', 'note_title', 'heading',
                     'note subject', 'summary',
                 ])
-                ->example('Meeting Notes'),
+                ->example('Meeting Notes')
+                ->icon('heroicon-o-pencil-square'),
 
             ImportField::make('content')
                 ->label('Content')
@@ -51,19 +52,20 @@ final class NoteImporter extends BaseImporter
                     'content', 'body', 'text', 'note', 'notes',
                     'note content', 'note body', 'description', 'details',
                 ])
-                ->example('Discussed project timeline and deliverables.'),
+                ->example('Discussed project timeline and deliverables.')
+                ->icon('heroicon-o-document-text'),
         ]);
     }
 
     /**
-     * @return array<string, RelationshipField>
+     * @return array<string, EntityLink>
      */
-    public function relationships(): array
+    protected function defineEntityLinks(): array
     {
         return [
-            'companies' => RelationshipField::polymorphicCompanies(),
-            'people' => RelationshipField::polymorphicPeople(),
-            'opportunities' => RelationshipField::polymorphicOpportunities(),
+            'companies' => EntityLink::polymorphicCompanies(),
+            'people' => EntityLink::polymorphicPeople(),
+            'opportunities' => EntityLink::polymorphicOpportunities(),
         ];
     }
 

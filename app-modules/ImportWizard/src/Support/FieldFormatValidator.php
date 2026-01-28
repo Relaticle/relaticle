@@ -10,16 +10,13 @@ use Relaticle\ImportWizard\Enums\DateFormat;
 use Relaticle\ImportWizard\Enums\NumberFormat;
 
 /**
- * Validates import values based on column type and format settings.
+ * Validates import field values based on column type and format settings.
  *
  * Supports: Date/DateTime, Float, Choice (single/multi).
  * Returns error message or null if valid.
  */
-final class ImportValueValidator
+final class FieldFormatValidator
 {
-    /** @var array<string, array<int, array{label: string, value: string}>> */
-    private array $choiceOptionsCache = [];
-
     public function __construct(
         private readonly string $entityType,
     ) {}
@@ -94,15 +91,9 @@ final class ImportValueValidator
      */
     public function getChoiceOptions(ColumnData $column): array
     {
-        $cacheKey = $column->target;
-
-        if (isset($this->choiceOptionsCache[$cacheKey])) {
-            return $this->choiceOptionsCache[$cacheKey];
-        }
-
         $customFieldKey = str_replace('custom_fields_', '', $column->target);
 
-        $options = CustomField::query()
+        return CustomField::query()
             ->forEntity($this->entityType)
             ->where('code', $customFieldKey)
             ->first()
@@ -113,22 +104,5 @@ final class ImportValueValidator
                 'value' => $option->name,
             ])
             ->toArray() ?? [];
-
-        $this->choiceOptionsCache[$cacheKey] = $options;
-
-        return $options;
-    }
-
-    /**
-     * Preload all choice options for given columns.
-     * Eliminates N+1 queries during bulk validation.
-     */
-    public function preloadChoiceOptions(iterable $columns): void
-    {
-        foreach ($columns as $column) {
-            if ($column->getType()->isChoiceField()) {
-                $this->getChoiceOptions($column);
-            }
-        }
     }
 }

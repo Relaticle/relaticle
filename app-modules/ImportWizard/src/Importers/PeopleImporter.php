@@ -7,10 +7,10 @@ namespace Relaticle\ImportWizard\Importers;
 use App\Models\Company;
 use App\Models\People;
 use Illuminate\Database\Eloquent\Model;
+use Relaticle\ImportWizard\Data\EntityLink;
 use Relaticle\ImportWizard\Data\ImportField;
 use Relaticle\ImportWizard\Data\ImportFieldCollection;
 use Relaticle\ImportWizard\Data\MatchableField;
-use Relaticle\ImportWizard\Data\RelationshipField;
 
 /**
  * Importer for People entities.
@@ -44,17 +44,18 @@ final class PeopleImporter extends BaseImporter
                     'full name', 'display_name', 'displayname',
                     'contact name', 'lead name', 'prospect name',
                 ])
-                ->example('John Doe'),
+                ->example('John Doe')
+                ->icon('heroicon-o-user'),
         ]);
     }
 
     /**
-     * @return array<string, RelationshipField>
+     * @return array<string, EntityLink>
      */
-    public function relationships(): array
+    protected function defineEntityLinks(): array
     {
         return [
-            'company' => RelationshipField::company(),
+            'company' => EntityLink::company(),
         ];
     }
 

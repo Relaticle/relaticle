@@ -8,10 +8,10 @@ use App\Models\Company;
 use App\Models\Opportunity;
 use App\Models\People;
 use Illuminate\Database\Eloquent\Model;
+use Relaticle\ImportWizard\Data\EntityLink;
 use Relaticle\ImportWizard\Data\ImportField;
 use Relaticle\ImportWizard\Data\ImportFieldCollection;
 use Relaticle\ImportWizard\Data\MatchableField;
-use Relaticle\ImportWizard\Data\RelationshipField;
 
 /**
  * Importer for Opportunity entities.
@@ -45,18 +45,19 @@ final class OpportunityImporter extends BaseImporter
                     'opportunity', 'title', 'subject',
                     'deal title', 'opportunity title', 'pipeline',
                 ])
-                ->example('Enterprise License Deal'),
+                ->example('Enterprise License Deal')
+                ->icon('heroicon-o-currency-dollar'),
         ]);
     }
 
     /**
-     * @return array<string, RelationshipField>
+     * @return array<string, EntityLink>
      */
-    public function relationships(): array
+    protected function defineEntityLinks(): array
     {
         return [
-            'company' => RelationshipField::company(),
-            'contact' => RelationshipField::contact(),
+            'company' => EntityLink::company(),
+            'contact' => EntityLink::contact(),
         ];
     }
 
