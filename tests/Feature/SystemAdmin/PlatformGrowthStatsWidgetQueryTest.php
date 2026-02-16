@@ -14,7 +14,7 @@ beforeEach(function () {
 });
 
 it('tracks query count for PlatformGrowthStatsWidget', function () {
-    $counter = new QueryCounter();
+    $counter = new QueryCounter;
     $counter->start();
 
     livewire(PlatformGrowthStatsWidget::class, ['pageFilters' => ['period' => '30']])
@@ -34,4 +34,5 @@ it('tracks query count for PlatformGrowthStatsWidget', function () {
     dump("Total queries: {$totalQueries}");
 
     expect($totalQueries)->toBeGreaterThan(0);
+    expect($totalQueries)->toBeLessThan(15);
 });
