@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     /*
      * A result store is responsible for saving the results of the checks. The
@@ -27,7 +29,7 @@ return [
         'enabled' => env('OH_DEAR_HEALTH_CHECK_SECRET') !== null && env('OH_DEAR_HEALTH_CHECK_SECRET') !== '',
         'always_send_fresh_results' => true,
         'secret' => env('OH_DEAR_HEALTH_CHECK_SECRET', ''),
-        'url' => 'oh-dear-health-check-results',
+        'url' => '/oh-dear-health-check-results',
     ],
 
     /*
