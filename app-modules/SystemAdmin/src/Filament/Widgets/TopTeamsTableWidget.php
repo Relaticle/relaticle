@@ -28,6 +28,12 @@ final class TopTeamsTableWidget extends BaseWidget
     /** @var array<int, string> */
     private const array ENTITY_TABLES = ['companies', 'people', 'tasks', 'notes', 'opportunities'];
 
+    /** @var array{string, string}|null */
+    private ?array $cachedDateRange = null;
+
+    /** @var array{string, array<int, string>}|null */
+    private ?array $cachedRecordsCountExpression = null;
+
     public function table(Table $table): Table
     {
         return $table
@@ -57,10 +63,7 @@ final class TopTeamsTableWidget extends BaseWidget
                     ->label('Records')
                     ->numeric()
                     ->sortable(query: function (Builder $query, string $direction): Builder {
-                        [$sql, $bindings] = $this->buildRecordsCountExpression(
-                            CreationSource::SYSTEM->value,
-                            ...array_values($this->getDateRange()),
-                        );
+                        [$sql, $bindings] = $this->getRecordsCountExpression();
 
                         return $query->orderByRaw("({$sql}) {$direction}", $bindings);
                     })
@@ -100,20 +103,36 @@ final class TopTeamsTableWidget extends BaseWidget
      */
     private function getDateRange(): array
     {
+        if ($this->cachedDateRange !== null) {
+            return $this->cachedDateRange;
+        }
+
         $days = (int) ($this->pageFilters['period'] ?? 30);
         $end = CarbonImmutable::now();
         $start = $end->subDays($days);
 
-        return [$start->toDateTimeString(), $end->toDateTimeString()];
+        return $this->cachedDateRange = [$start->toDateTimeString(), $end->toDateTimeString()];
+    }
+
+    /**
+     * @return array{string, array<int, string>}
+     */
+    private function getRecordsCountExpression(): array
+    {
+        if ($this->cachedRecordsCountExpression !== null) {
+            return $this->cachedRecordsCountExpression;
+        }
+
+        $systemSource = CreationSource::SYSTEM->value;
+        [$startStr, $endStr] = $this->getDateRange();
+
+        return $this->cachedRecordsCountExpression = $this->buildRecordsCountExpression($systemSource, $startStr, $endStr);
     }
 
     private function buildQuery(): Builder
     {
-        $systemSource = CreationSource::SYSTEM->value;
-        [$startStr, $endStr] = $this->getDateRange();
-
-        [$recordsCountSql, $recordsBindings] = $this->buildRecordsCountExpression($systemSource, $startStr, $endStr);
-        [$lastActivitySql, $lastActivityBindings] = $this->buildLastActivityExpression($systemSource);
+        [$recordsCountSql, $recordsBindings] = $this->getRecordsCountExpression();
+        [$lastActivitySql, $lastActivityBindings] = $this->buildLastActivityExpression(CreationSource::SYSTEM->value);
 
         return Team::query()
             ->where('personal_team', false)
