@@ -119,7 +119,7 @@ abstract class BaseModelSeeder implements ModelSeederInterface
             return null;
         }
 
-        $option = $field->options->firstWhere('label', $optionLabel)
+        $option = $field->options->firstWhere('name', $optionLabel)
             ?? $field->options->first();
 
         return $option?->id;
