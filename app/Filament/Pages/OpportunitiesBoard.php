@@ -40,6 +40,10 @@ final class OpportunitiesBoard extends BoardPage
 
     protected static string|null|BackedEnum $navigationIcon = 'heroicon-o-view-columns';
 
+    private ?CustomField $cachedStageCustomField = null;
+
+    private bool $stageCustomFieldResolved = false;
+
     /**
      * Configure the board using the new Filament V4 architecture.
      */
@@ -198,11 +202,18 @@ final class OpportunitiesBoard extends BoardPage
 
     private function stageCustomField(): ?CustomField
     {
-        /** @var CustomField|null */
-        return CustomField::query()
-            ->forEntity(Opportunity::class)
-            ->where('code', OpportunityCustomField::STAGE)
-            ->first();
+        if (! $this->stageCustomFieldResolved) {
+            /** @var CustomField|null $field */
+            $field = CustomField::query()
+                ->forEntity(Opportunity::class)
+                ->where('code', OpportunityCustomField::STAGE)
+                ->first();
+
+            $this->cachedStageCustomField = $field;
+            $this->stageCustomFieldResolved = true;
+        }
+
+        return $this->cachedStageCustomField;
     }
 
     /**
