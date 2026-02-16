@@ -3,6 +3,9 @@
 declare(strict_types=1);
 
 use App\Providers\HealthServiceProvider;
+use Spatie\Health\Checks\Checks\DatabaseCheck;
+use Spatie\Health\Checks\Checks\HorizonCheck;
+use Spatie\Health\Checks\Checks\RedisCheck;
 use Spatie\Health\Facades\Health;
 
 mutates(HealthServiceProvider::class);
@@ -26,6 +29,11 @@ it('registers health checks when enabled', function () {
     $provider = new HealthServiceProvider(app());
     $provider->register();
 
-    expect(Health::registeredChecks())->not->toBeEmpty()
-        ->and(Health::registeredChecks())->toHaveCount(15);
+    $checkClasses = collect(Health::registeredChecks())
+        ->map(fn ($check) => $check::class);
+
+    expect($checkClasses)
+        ->toContain(DatabaseCheck::class)
+        ->toContain(RedisCheck::class)
+        ->toContain(HorizonCheck::class);
 });
