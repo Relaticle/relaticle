@@ -1,0 +1,75 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Relaticle\OnboardSeed\Support;
+
+use App\Models\CustomField;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use Relaticle\CustomFields\Models\CustomFieldValue;
+use Relaticle\CustomFields\Support\SafeValueConverter;
+
+final class BulkCustomFieldValueWriter
+{
+    /** @var array<int, array<string, mixed>> */
+    private array $pendingInserts = [];
+
+    public function queue(
+        CustomField $customField,
+        mixed $value,
+        string $entityId,
+        string $entityType,
+        string $tenantId,
+    ): void {
+        $valueColumn = CustomFieldValue::getValueColumn($customField->type);
+        $safeValue = SafeValueConverter::toDbSafe($value, $customField->type);
+
+        if (is_array($safeValue)) {
+            $safeValue = json_encode($safeValue);
+        }
+
+        $this->pendingInserts[] = [
+            'id' => Str::ulid()->toBase32(),
+            'custom_field_id' => $customField->getKey(),
+            'entity_id' => $entityId,
+            'entity_type' => $entityType,
+            'tenant_id' => $tenantId,
+            $valueColumn => $safeValue,
+        ];
+    }
+
+    public function flush(): int
+    {
+        if ($this->pendingInserts === []) {
+            return 0;
+        }
+
+        $allColumns = [
+            'id', 'custom_field_id', 'entity_id', 'entity_type', 'tenant_id',
+            'string_value', 'text_value', 'boolean_value', 'integer_value',
+            'float_value', 'date_value', 'datetime_value', 'json_value',
+        ];
+
+        $normalized = array_map(function (array $row) use ($allColumns): array {
+            $full = [];
+            foreach ($allColumns as $col) {
+                $full[$col] = $row[$col] ?? null;
+            }
+
+            return $full;
+        }, $this->pendingInserts);
+
+        $count = count($normalized);
+        $tableName = config('custom-fields.database.table_names.custom_field_values', 'custom_field_values');
+        DB::table($tableName)->insert($normalized);
+        $this->pendingInserts = [];
+
+        return $count;
+    }
+
+    public function pending(): int
+    {
+        return count($this->pendingInserts);
+    }
+}

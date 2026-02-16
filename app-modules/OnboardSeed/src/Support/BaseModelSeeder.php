@@ -45,6 +45,8 @@ abstract class BaseModelSeeder implements ModelSeederInterface
      */
     protected ?string $teamId = null;
 
+    private ?BulkCustomFieldValueWriter $bulkWriter = null;
+
     /**
      * Initialize the seeder and auto-detect entity type if not set
      */
@@ -103,7 +105,11 @@ abstract class BaseModelSeeder implements ModelSeederInterface
     {
         $this->prepareForSeed($team);
 
-        return $this->createEntitiesFromFixtures($team, $user, $context);
+        $result = $this->createEntitiesFromFixtures($team, $user, $context);
+
+        $this->flushCustomFieldValues();
+
+        return $result;
     }
 
     /**
@@ -117,17 +123,37 @@ abstract class BaseModelSeeder implements ModelSeederInterface
     abstract protected function createEntitiesFromFixtures(Team $team, Authenticatable $user, array $context = []): array;
 
     /**
-     * Apply custom fields to a model
+     * Queue custom field values for bulk insertion
      *
      * @param  array<string, mixed>  $data  The field data
      */
-    protected function applyCustomFields(HasCustomFields $model, array $data): void
+    protected function applyCustomFields(HasCustomFields&Model $model, array $data): void
     {
+        if ($this->teamId === null) {
+            return;
+        }
+
         foreach ($data as $code => $value) {
             if (isset($this->customFieldDefinitions[$code])) {
-                $model->saveCustomFieldValue($this->customFieldDefinitions[$code], $value);
+                $this->getBulkWriter()->queue(
+                    customField: $this->customFieldDefinitions[$code],
+                    value: $value,
+                    entityId: $model->getKey(),
+                    entityType: $model->getMorphClass(),
+                    tenantId: $this->teamId,
+                );
             }
         }
+    }
+
+    protected function getBulkWriter(): BulkCustomFieldValueWriter
+    {
+        return $this->bulkWriter ??= new BulkCustomFieldValueWriter;
+    }
+
+    protected function flushCustomFieldValues(): int
+    {
+        return $this->getBulkWriter()->flush();
     }
 
     /**

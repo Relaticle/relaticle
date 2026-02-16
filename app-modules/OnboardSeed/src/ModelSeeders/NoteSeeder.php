@@ -21,9 +21,8 @@ final class NoteSeeder extends BaseModelSeeder
 
     protected string $entityType = 'notes';
 
-    /**
-     * Map of singular entity types to their plural registry keys
-     */
+    private ?string $personalTeamId = null;
+
     /**
      * @var array<string, string>
      */
@@ -107,13 +106,13 @@ final class NoteSeeder extends BaseModelSeeder
 
         assert(method_exists($noteable, 'notes'));
 
-        /**
-         * @var User $user
-         * @var Note $note
-         */
+        /** @var User $user */
+        $this->personalTeamId ??= $user->personalTeam()->getKey();
+
+        /** @var Note $note */
         $note = $noteable->notes()->create([
             'title' => $data['title'],
-            'team_id' => $user->personalTeam()->getKey(),
+            'team_id' => $this->personalTeamId,
             'creator_id' => $user->id,
             ...$this->getGlobalAttributes(),
         ]);
