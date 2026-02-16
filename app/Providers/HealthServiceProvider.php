@@ -77,7 +77,8 @@ final class HealthServiceProvider extends ServiceProvider
 
             EnvironmentCheck::new(),
 
-            ScheduleCheck::new(),
+            ScheduleCheck::new()
+                ->heartbeatMaxAgeInMinutes(2),
 
             SecurityAdvisoriesCheck::new(),
 
