@@ -24,7 +24,7 @@ use Spatie\SecurityAdvisoriesHealthCheck\SecurityAdvisoriesCheck;
 
 final class HealthServiceProvider extends ServiceProvider
 {
-    public function register(): void
+    public function boot(): void
     {
         if (! $this->isEnabled()) {
             return;

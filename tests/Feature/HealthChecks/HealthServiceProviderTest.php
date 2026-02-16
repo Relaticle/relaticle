@@ -16,7 +16,7 @@ it('does not register health checks when disabled', function () {
     config()->set('app.health_checks_enabled', false);
 
     $provider = new HealthServiceProvider(app());
-    $provider->register();
+    $provider->boot();
 
     expect(Health::registeredChecks())->toBeEmpty();
 });
@@ -27,7 +27,7 @@ it('registers health checks when enabled', function () {
     config()->set('app.health_checks_enabled', true);
 
     $provider = new HealthServiceProvider(app());
-    $provider->register();
+    $provider->boot();
 
     $checkClasses = collect(Health::registeredChecks())
         ->map(fn ($check) => $check::class);
