@@ -15,6 +15,7 @@ use App\Models\Opportunity;
 use App\Models\People;
 use App\Models\Task;
 use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Support\Facades\DB;
 use Laravel\Jetstream\Events\TeamCreated;
 use Laravel\Jetstream\Features;
 use Relaticle\CustomFields\Contracts\CustomsFieldsMigrators;
@@ -23,6 +24,7 @@ use Relaticle\CustomFields\Data\CustomFieldOptionSettingsData;
 use Relaticle\CustomFields\Data\CustomFieldSectionData;
 use Relaticle\CustomFields\Data\CustomFieldSettingsData;
 use Relaticle\CustomFields\Enums\CustomFieldSectionType;
+use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\OnboardSeed\OnboardSeeder;
 
 /**
@@ -128,26 +130,50 @@ final readonly class CreateTeamCustomFields
     }
 
     /**
-     * Apply colors to field options based on enum configuration
+     * Apply colors to field options based on enum configuration using a single batch UPDATE
      *
-     * @param  mixed  $customField  The created custom field
      * @param  CompanyCustomField|OpportunityCustomField|PeopleCustomField|TaskCustomField|NoteCustomField  $enum  The custom field enum instance
      */
-    private function applyColorsToOptions(mixed $customField, CompanyCustomField|OpportunityCustomField|PeopleCustomField|TaskCustomField|NoteCustomField $enum): void
+    private function applyColorsToOptions(CustomField $customField, CompanyCustomField|OpportunityCustomField|PeopleCustomField|TaskCustomField|NoteCustomField $enum): void
     {
         $colorMapping = $enum->getOptionColors();
         if ($colorMapping === null) {
             return;
         }
 
-        // Get the created field options and apply colors
-        foreach ($customField->options as $option) {
-            $color = $colorMapping[$option->name] ?? null;
-            if ($color !== null) {
-                $option->update([
-                    'settings' => new CustomFieldOptionSettingsData(color: $color),
-                ]);
-            }
+        $options = $customField->options()->withoutGlobalScopes()->get();
+
+        $updates = $options
+            ->filter(fn ($option) => isset($colorMapping[$option->name]))
+            ->map(fn ($option) => [
+                'id' => $option->getKey(),
+                'settings' => json_encode(new CustomFieldOptionSettingsData(color: $colorMapping[$option->name])),
+            ])
+            ->values()
+            ->all();
+
+        if ($updates === []) {
+            return;
         }
+
+        $table = $customField->options()->getModel()->getTable();
+        $ids = array_column($updates, 'id');
+        $cases = [];
+        $bindings = [];
+
+        foreach ($updates as $item) {
+            $cases[] = 'WHEN id = ? THEN ?';
+            $bindings[] = $item['id'];
+            $bindings[] = $item['settings'];
+        }
+
+        $casesSql = implode(' ', $cases);
+        $placeholders = implode(',', array_fill(0, count($ids), '?'));
+        $bindings = array_merge($bindings, $ids);
+
+        DB::update(
+            "UPDATE \"{$table}\" SET \"settings\" = CASE {$casesSql} END, \"updated_at\" = ? WHERE \"id\" IN ({$placeholders})",
+            [...$bindings, now()],
+        );
     }
 }
