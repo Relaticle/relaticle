@@ -99,25 +99,27 @@ final class TopTeamsTableWidget extends BaseWidget
         $startStr = $start->toDateTimeString();
         $endStr = $end->toDateTimeString();
 
+        $recordsCountExpression = $this->buildRecordsCountExpression($systemSource, $startStr, $endStr);
+
         return Team::query()
             ->where('personal_team', false)
             ->addSelect([
                 'teams.*',
-                $this->buildRecordsCountSelect($systemSource, $startStr, $endStr),
+                DB::raw("({$recordsCountExpression}) as records_count"),
                 DB::raw('(SELECT COUNT(*) FROM team_user WHERE team_user.team_id = teams.id) as members_count'),
                 DB::raw('(SELECT COUNT(*) FROM custom_fields WHERE custom_fields.tenant_id = teams.id) as custom_fields_count'),
                 $this->buildLastActivitySelect($systemSource),
             ])
-            ->having('records_count', '>', 0);
+            ->whereRaw("({$recordsCountExpression}) > 0");
     }
 
-    private function buildRecordsCountSelect(string $systemSource, string $startStr, string $endStr): Expression
+    private function buildRecordsCountExpression(string $systemSource, string $startStr, string $endStr): string
     {
         $subqueries = collect(self::ENTITY_TABLES)->map(
             fn (string $table): string => "(SELECT COUNT(*) FROM {$table} WHERE {$table}.team_id = teams.id AND {$table}.deleted_at IS NULL AND {$table}.creation_source != '{$systemSource}' AND {$table}.created_at BETWEEN '{$startStr}' AND '{$endStr}')"
         );
 
-        return DB::raw("({$subqueries->implode(' + ')}) as records_count");
+        return $subqueries->implode(' + ');
     }
 
     private function buildLastActivitySelect(string $systemSource): Expression
