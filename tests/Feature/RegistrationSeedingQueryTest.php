@@ -24,18 +24,6 @@ it('tracks query count for team creation seeding', function () {
 
     $counter->stop();
 
-    $counter->dump();
-
-    $existsQueries = $counter->findRepeated('select exists');
-    dump("EXISTS check queries: {$existsQueries['count']}");
-
-    $optionUpdates = $counter->findRepeated('update');
-    dump("UPDATE queries: {$optionUpdates['count']}");
-
-    $cfvInserts = $counter->findRepeated('custom_field_values');
-    dump("Custom field value queries: {$cfvInserts['count']}");
-
-    dump("Total queries: {$counter->count()}");
-
     expect($counter->count())->toBeGreaterThan(0);
+    expect($counter->count())->toBeLessThan(200);
 });

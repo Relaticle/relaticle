@@ -166,7 +166,7 @@ final class TopTeamsTableWidget extends BaseWidget
     private function buildLastActivityExpression(string $systemSource): array
     {
         $coalesces = collect(self::ENTITY_TABLES)->map(
-            fn (string $table): string => "COALESCE((SELECT MAX(created_at) FROM {$table} WHERE {$table}.team_id = teams.id AND {$table}.creation_source != ?), TIMESTAMP '1970-01-01')"
+            fn (string $table): string => "COALESCE((SELECT MAX(created_at) FROM {$table} WHERE {$table}.team_id = teams.id AND {$table}.deleted_at IS NULL AND {$table}.creation_source != ?), TIMESTAMP '1970-01-01')"
         );
 
         $bindings = collect(self::ENTITY_TABLES)

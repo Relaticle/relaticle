@@ -22,16 +22,7 @@ it('tracks query count for PlatformGrowthStatsWidget', function () {
 
     $counter->stop();
 
-    $counter->dump();
-
     $totalQueries = $counter->count();
-
-    $companiesCount = $counter->findRepeated('from "companies" where "creation_source"');
-    $peopleCount = $counter->findRepeated('from "people" where "creation_source"');
-
-    dump("Companies count queries: {$companiesCount['count']}");
-    dump("People count queries: {$peopleCount['count']}");
-    dump("Total queries: {$totalQueries}");
 
     expect($totalQueries)->toBeGreaterThan(0);
     expect($totalQueries)->toBeLessThan(15);
