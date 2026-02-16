@@ -27,16 +27,9 @@ use Relaticle\CustomFields\Enums\CustomFieldSectionType;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\OnboardSeed\OnboardSeeder;
 
-/**
- * Creates custom fields for a team when it's created
- */
 final readonly class CreateTeamCustomFields
 {
-    /**
-     * Maps model classes to their corresponding custom field enum classes
-     *
-     * @var array<class-string, class-string>
-     */
+    /** @var array<class-string, class-string> */
     private const array MODEL_ENUM_MAP = [
         Company::class => CompanyCustomField::class,
         Opportunity::class => OpportunityCustomField::class,
@@ -45,17 +38,11 @@ final readonly class CreateTeamCustomFields
         Task::class => TaskCustomField::class,
     ];
 
-    /**
-     * Create a new event listener instance
-     */
     public function __construct(
         private CustomsFieldsMigrators $migrator,
         private OnboardSeeder $onboardSeeder,
     ) {}
 
-    /**
-     * Handle the team created event
-     */
     public function handle(TeamCreated $event): void
     {
         if (! Features::hasTeamFeatures()) {
@@ -64,10 +51,8 @@ final readonly class CreateTeamCustomFields
 
         $team = $event->team;
 
-        // Set the tenant ID for the custom fields migrator
         $this->migrator->setTenantId($team->id);
 
-        // Create custom fields for all models defined in the map
         foreach (self::MODEL_ENUM_MAP as $modelClass => $enumClass) {
             foreach ($enumClass::cases() as $enum) {
                 $this->createCustomField($modelClass, $enum);
@@ -81,15 +66,8 @@ final readonly class CreateTeamCustomFields
         }
     }
 
-    /**
-     * Create a custom field using the provided enum configuration
-     *
-     * @param  class-string  $model  The model class name
-     * @param  CompanyCustomField|OpportunityCustomField|PeopleCustomField|TaskCustomField|NoteCustomField  $enum  The custom field enum instance
-     */
     private function createCustomField(string $model, CompanyCustomField|OpportunityCustomField|PeopleCustomField|TaskCustomField|NoteCustomField $enum): void
     {
-        // Extract field configuration from the enum
         $fieldData = new CustomFieldData(
             name: $enum->getDisplayName(),
             code: $enum->value,
@@ -110,30 +88,21 @@ final readonly class CreateTeamCustomFields
             )
         );
 
-        // Create the migrator for this field
         $migrator = $this->migrator->new(
             model: $model,
             fieldData: $fieldData
         );
 
-        // Add options for select-type fields if available
         $options = $enum->getOptions();
         if ($options !== null) {
             $migrator->options($options);
         }
 
-        // Create the field in the database
         $customField = $migrator->create();
 
-        // Apply colors to options if available
         $this->applyColorsToOptions($customField, $enum);
     }
 
-    /**
-     * Apply colors to field options based on enum configuration using a single batch UPDATE
-     *
-     * @param  CompanyCustomField|OpportunityCustomField|PeopleCustomField|TaskCustomField|NoteCustomField  $enum  The custom field enum instance
-     */
     private function applyColorsToOptions(CustomField $customField, CompanyCustomField|OpportunityCustomField|PeopleCustomField|TaskCustomField|NoteCustomField $enum): void
     {
         $colorMapping = $enum->getOptionColors();

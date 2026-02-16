@@ -28,12 +28,6 @@ final class TopTeamsTableWidget extends BaseWidget
     /** @var array<int, string> */
     private const array ENTITY_TABLES = ['companies', 'people', 'tasks', 'notes', 'opportunities'];
 
-    /** @var array{string, string}|null */
-    private ?array $cachedDateRange = null;
-
-    /** @var array{string, array<int, string>}|null */
-    private ?array $cachedRecordsCountExpression = null;
-
     public function table(Table $table): Table
     {
         return $table
@@ -103,15 +97,13 @@ final class TopTeamsTableWidget extends BaseWidget
      */
     private function getDateRange(): array
     {
-        if ($this->cachedDateRange !== null) {
-            return $this->cachedDateRange;
-        }
+        return once(function (): array {
+            $days = (int) ($this->pageFilters['period'] ?? 30);
+            $end = CarbonImmutable::now();
+            $start = $end->subDays($days);
 
-        $days = (int) ($this->pageFilters['period'] ?? 30);
-        $end = CarbonImmutable::now();
-        $start = $end->subDays($days);
-
-        return $this->cachedDateRange = [$start->toDateTimeString(), $end->toDateTimeString()];
+            return [$start->toDateTimeString(), $end->toDateTimeString()];
+        });
     }
 
     /**
@@ -119,14 +111,11 @@ final class TopTeamsTableWidget extends BaseWidget
      */
     private function getRecordsCountExpression(): array
     {
-        if ($this->cachedRecordsCountExpression !== null) {
-            return $this->cachedRecordsCountExpression;
-        }
+        return once(function (): array {
+            [$startStr, $endStr] = $this->getDateRange();
 
-        $systemSource = CreationSource::SYSTEM->value;
-        [$startStr, $endStr] = $this->getDateRange();
-
-        return $this->cachedRecordsCountExpression = $this->buildRecordsCountExpression($systemSource, $startStr, $endStr);
+            return $this->buildRecordsCountExpression(CreationSource::SYSTEM->value, $startStr, $endStr);
+        });
     }
 
     private function buildQuery(): Builder
@@ -169,9 +158,7 @@ final class TopTeamsTableWidget extends BaseWidget
             fn (string $table): string => "COALESCE((SELECT MAX(created_at) FROM {$table} WHERE {$table}.team_id = teams.id AND {$table}.deleted_at IS NULL AND {$table}.creation_source != ?), TIMESTAMP '1970-01-01')"
         );
 
-        $bindings = collect(self::ENTITY_TABLES)
-            ->map(fn (): string => $systemSource)
-            ->all();
+        $bindings = array_fill(0, count(self::ENTITY_TABLES), $systemSource);
 
         return ["GREATEST({$coalesces->implode(', ')})", $bindings];
     }

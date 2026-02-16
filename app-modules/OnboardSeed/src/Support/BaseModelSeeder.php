@@ -16,44 +16,23 @@ use Relaticle\OnboardSeed\Contracts\ModelSeederInterface;
 
 abstract class BaseModelSeeder implements ModelSeederInterface
 {
-    /**
-     * The custom fields collection
-     *
-     * @var Collection<string, mixed>
-     */
+    /** @var Collection<string, mixed> */
     protected Collection $customFieldDefinitions;
 
-    /**
-     * The model class this seeder handles
-     */
     protected string $modelClass;
 
-    /**
-     * The entity type for fixtures (defaults to pluralized model class name)
-     */
     protected string $entityType;
 
-    /**
-     * The field codes to fetch
-     *
-     * @var array<int, string>
-     */
+    /** @var array<int, string> */
     protected array $fieldCodes = [];
 
-    /**
-     * Personal team ID
-     */
     protected ?string $teamId = null;
 
     private ?BulkCustomFieldValueWriter $bulkWriter = null;
 
-    /**
-     * Initialize the seeder and auto-detect entity type if not set
-     */
     public function initialize(): self
     {
         if (! isset($this->entityType) && isset($this->modelClass)) {
-            // Default entity type based on model class name
             $className = class_basename($this->modelClass);
             $this->entityType = Str::plural(Str::snake($className));
         }
@@ -61,19 +40,12 @@ abstract class BaseModelSeeder implements ModelSeederInterface
         return $this;
     }
 
-    /**
-     * Set team ID for custom fields retrieval
-     */
     protected function setTeamId(string $teamId): void
     {
         $this->teamId = $teamId;
     }
 
-    /**
-     * Get custom fields for the model
-     *
-     * @return Collection<string, mixed>
-     */
+    /** @return Collection<string, mixed> */
     public function customFields(): Collection
     {
         if ($this->teamId === null) {
@@ -89,18 +61,12 @@ abstract class BaseModelSeeder implements ModelSeederInterface
             ->keyBy('code');
     }
 
-    /**
-     * Prepare for seeding by loading custom field definitions
-     */
     protected function prepareForSeed(Team $team): void
     {
         $this->setTeamId($team->id);
         $this->customFieldDefinitions = $this->customFields();
     }
 
-    /**
-     * Run the model seed process
-     */
     public function seed(Team $team, Authenticatable $user, array $context = []): array
     {
         $this->prepareForSeed($team);
@@ -112,21 +78,10 @@ abstract class BaseModelSeeder implements ModelSeederInterface
         return $result;
     }
 
-    /**
-     * Create entities from fixtures implementation
-     *
-     * @param  Team  $team  The team to create data for
-     * @param  Authenticatable  $user  The user creating the data
-     * @param  array<string, mixed>  $context  Context data from previous seeders
-     * @return array<string, mixed> Seeded data for use by subsequent seeders
-     */
+    /** @return array<string, mixed> */
     abstract protected function createEntitiesFromFixtures(Team $team, Authenticatable $user, array $context = []): array;
 
-    /**
-     * Queue custom field values for bulk insertion
-     *
-     * @param  array<string, mixed>  $data  The field data
-     */
+    /** @param  array<string, mixed>  $data */
     protected function applyCustomFields(HasCustomFields&Model $model, array $data): void
     {
         if ($this->teamId === null) {
@@ -156,13 +111,6 @@ abstract class BaseModelSeeder implements ModelSeederInterface
         return $this->getBulkWriter()->flush();
     }
 
-    /**
-     * Get option ID from a custom field by label
-     *
-     * @param  string  $fieldCode  The field code
-     * @param  string  $optionLabel  The option label to find
-     * @return mixed The option ID or null if not found
-     */
     protected function getOptionId(string $fieldCode, string $optionLabel): mixed
     {
         $field = $this->customFieldDefinitions[$fieldCode] ?? null;
@@ -174,14 +122,10 @@ abstract class BaseModelSeeder implements ModelSeederInterface
         $option = $field->options->firstWhere('label', $optionLabel)
             ?? $field->options->first();
 
-        return $option ? $option->id : null;
+        return $option?->id;
     }
 
-    /**
-     * Get global attributes for the model
-     *
-     * @return array<string, mixed>
-     */
+    /** @return array<string, mixed> */
     protected function getGlobalAttributes(): array
     {
         return [
@@ -189,33 +133,20 @@ abstract class BaseModelSeeder implements ModelSeederInterface
         ];
     }
 
-    /**
-     * Load fixtures for this entity type
-     *
-     * @return array<string, array<string, mixed>> The loaded fixtures
-     */
+    /** @return array<string, array<string, mixed>> */
     protected function loadEntityFixtures(): array
     {
         return FixtureLoader::load($this->entityType);
     }
 
-    /**
-     * Process dynamic template expressions in fixture data
-     * Handles expressions like {{ +5d }} for dates (days, weeks, months, years)
-     *
-     * @param  string  $template  The template string with {{ expression }}
-     * @return mixed The evaluated result
-     */
     protected function evaluateTemplateExpression(string $template): mixed
     {
-        // If not a template expression, return as is
         if (! str_starts_with($template, '{{') || ! str_ends_with($template, '}}')) {
             return $template;
         }
 
         $expression = trim(substr($template, 2, -2));
 
-        // Handle simple date patterns: +5d, +1w, +3m, +1y, +2b (business days)
         if (preg_match('/^([+])(\d+)([dwmyb])$/', $expression, $matches)) {
             $value = (int) $matches[2];
             $unit = $matches[3];
@@ -229,7 +160,6 @@ abstract class BaseModelSeeder implements ModelSeederInterface
             };
         }
 
-        // Handle specific date keywords
         return match ($expression) {
             'now' => now(),
             'today' => today(),
@@ -244,32 +174,25 @@ abstract class BaseModelSeeder implements ModelSeederInterface
     }
 
     /**
-     * Process custom field values for use with the model
-     * Handles expressions, option lookups, and other transformations
-     *
-     * @param  array<string, mixed>  $customFields  Custom field data from fixture
-     * @param  array<string, callable|string>  $fieldMappings  Optional mappings of field codes to processors
-     * @return array<string, mixed> Processed custom field data
+     * @param  array<string, mixed>  $customFields
+     * @param  array<string, callable|string>  $fieldMappings
+     * @return array<string, mixed>
      */
     protected function processCustomFieldValues(array $customFields, array $fieldMappings = []): array
     {
         $processed = [];
 
         foreach ($customFields as $code => $value) {
-            // Handle dynamic expressions in string values
             if (is_string($value) && str_starts_with($value, '{{') && str_ends_with($value, '}}')) {
                 $value = $this->evaluateTemplateExpression($value);
             }
 
-            // Apply field-specific transformations if defined
             if (isset($fieldMappings[$code])) {
                 $processor = $fieldMappings[$code];
 
                 if ($processor === 'option' && is_string($value)) {
-                    // Handle option lookup by label
                     $value = $this->getOptionId($code, $value);
                 } elseif (is_callable($processor)) {
-                    // Apply custom processing function
                     $value = $processor($value);
                 }
             }
@@ -281,14 +204,8 @@ abstract class BaseModelSeeder implements ModelSeederInterface
     }
 
     /**
-     * Create and register an entity from fixture data
-     *
-     * @param  string  $key  The entity key
-     * @param  array<string, mixed>  $attributes  The entity attributes
-     * @param  array<string, mixed>  $customFields  The custom field values
-     * @param  Team  $team  The team to create the entity for
-     * @param  Authenticatable  $user  The user creating the entity
-     * @return Model The created entity
+     * @param  array<string, mixed>  $attributes
+     * @param  array<string, mixed>  $customFields
      */
     protected function registerEntityFromFixture(string $key, array $attributes, array $customFields, Team $team, Authenticatable $user): Model
     {
@@ -301,7 +218,6 @@ abstract class BaseModelSeeder implements ModelSeederInterface
         $entity = resolve($this->modelClass)->create($attributes);
         $this->applyCustomFields($entity, $customFields);
 
-        // Register the entity in the registry
         FixtureRegistry::register($this->entityType, $key, $entity);
 
         return $entity;
