@@ -25,6 +25,7 @@ use Relaticle\CustomFields\Data\CustomFieldSectionData;
 use Relaticle\CustomFields\Data\CustomFieldSettingsData;
 use Relaticle\CustomFields\Enums\CustomFieldSectionType;
 use Relaticle\CustomFields\Models\CustomField;
+use Relaticle\CustomFields\Models\CustomFieldOption;
 use Relaticle\OnboardSeed\OnboardSeeder;
 
 final readonly class CreateTeamCustomFields
@@ -116,8 +117,8 @@ final readonly class CreateTeamCustomFields
         $options = $customField->options()->withoutGlobalScopes()->get();
 
         $updates = $options
-            ->filter(fn ($option): bool => isset($colorMapping[$option->name]))
-            ->map(fn ($option): array => [
+            ->filter(fn (CustomFieldOption $option): bool => isset($colorMapping[$option->name]))
+            ->map(fn (CustomFieldOption $option): array => [
                 'id' => $option->getKey(),
                 'settings' => json_encode(new CustomFieldOptionSettingsData(color: $colorMapping[$option->name])),
             ])
