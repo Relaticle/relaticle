@@ -12,6 +12,7 @@ use Filament\Tables\Table;
 use Filament\Widgets\Concerns\InteractsWithPageFilters;
 use Filament\Widgets\TableWidget as BaseWidget;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 use Relaticle\SystemAdmin\Filament\Resources\TeamResource;
 use Relaticle\SystemAdmin\Filament\Resources\UserResource;
 
@@ -154,12 +155,17 @@ final class TopTeamsTableWidget extends BaseWidget
      */
     private function buildLastActivityExpression(string $systemSource): array
     {
+        $epoch = DB::getDriverName() === 'sqlite'
+            ? "'1970-01-01 00:00:00'"
+            : "TIMESTAMP '1970-01-01'";
+
         $coalesces = collect(self::ENTITY_TABLES)->map(
-            fn (string $table): string => "COALESCE((SELECT MAX(created_at) FROM {$table} WHERE {$table}.team_id = teams.id AND {$table}.deleted_at IS NULL AND {$table}.creation_source != ?), TIMESTAMP '1970-01-01')"
+            fn (string $table): string => "COALESCE((SELECT MAX(created_at) FROM {$table} WHERE {$table}.team_id = teams.id AND {$table}.deleted_at IS NULL AND {$table}.creation_source != ?), {$epoch})"
         );
 
         $bindings = array_fill(0, count(self::ENTITY_TABLES), $systemSource);
+        $aggregateFn = DB::getDriverName() === 'sqlite' ? 'MAX' : 'GREATEST';
 
-        return ["GREATEST({$coalesces->implode(', ')})", $bindings];
+        return ["{$aggregateFn}({$coalesces->implode(', ')})", $bindings];
     }
 }

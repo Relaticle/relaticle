@@ -191,7 +191,7 @@ abstract class BaseModelSeeder implements ModelSeederInterface
         $processed = [];
 
         foreach ($customFields as $code => $value) {
-            if (is_string($value)) {
+            if (is_string($value) && str_starts_with($value, '{{') && str_ends_with($value, '}}')) {
                 $value = $this->evaluateTemplateExpression($value);
             }
 

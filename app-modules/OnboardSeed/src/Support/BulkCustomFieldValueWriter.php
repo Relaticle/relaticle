@@ -58,7 +58,11 @@ final class BulkCustomFieldValueWriter
 
         $count = count($normalized);
         $tableName = config('custom-fields.database.table_names.custom_field_values', 'custom_field_values');
-        DB::table($tableName)->insert($normalized);
+
+        foreach (array_chunk($normalized, 500) as $chunk) {
+            DB::table($tableName)->insert($chunk);
+        }
+
         $this->pendingInserts = [];
 
         return $count;
