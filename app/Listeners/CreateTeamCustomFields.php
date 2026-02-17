@@ -116,8 +116,8 @@ final readonly class CreateTeamCustomFields
         $options = $customField->options()->withoutGlobalScopes()->get();
 
         $updates = $options
-            ->filter(fn ($option) => isset($colorMapping[$option->name]))
-            ->map(fn ($option) => [
+            ->filter(fn ($option): bool => isset($colorMapping[$option->name]))
+            ->map(fn ($option): array => [
                 'id' => $option->getKey(),
                 'settings' => json_encode(new CustomFieldOptionSettingsData(color: $colorMapping[$option->name])),
             ])

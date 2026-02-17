@@ -33,7 +33,7 @@ final class OnboardSeedManager
 
     public function generateFor(Authenticatable $user, ?Team $team = null): bool
     {
-        if ($team === null) {
+        if (! $team instanceof Team) {
             /** @var User $user */
             $user->loadMissing('ownedTeams');
             $team = $user->personalTeam();
