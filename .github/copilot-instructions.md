@@ -42,7 +42,7 @@ Policies exist for Company, People, Opportunity, Task, Note. They check `$user->
 
 ```php
 // Correct: authorize before acting
-public function delete(int $id): void
+public function delete(string $id): void
 {
     $record = Company::findOrFail($id);
     $this->authorize('delete', $record);
@@ -50,7 +50,7 @@ public function delete(int $id): void
 }
 
 // Dangerous: no authorization, any authenticated user can delete any record
-public function delete(int $id): void
+public function delete(string $id): void
 {
     Company::findOrFail($id)->delete();
 }
@@ -122,6 +122,7 @@ New features or modified behavior should include corresponding Pest tests. There
 - Icons: `Heroicon` enum, not strings
 - File visibility: `private` by default
 - `Grid`, `Section`, `Fieldset` no longer span all columns by default
+- `deferFilters()` is now the default table behavior
 
 ## Livewire 4
 
