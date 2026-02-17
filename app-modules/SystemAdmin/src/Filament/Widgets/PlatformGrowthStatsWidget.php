@@ -178,8 +178,8 @@ final class PlatformGrowthStatsWidget extends StatsOverviewWidget
                 $segmentSeconds,
             ])
             ->whereBetween('created_at', [$start, $end])
-            ->groupByRaw('bucket')
-            ->orderByRaw('bucket');
+            ->groupByRaw('1')
+            ->orderByRaw('1');
 
         if ($scope instanceof \Closure) {
             $scope($query);
@@ -226,7 +226,7 @@ final class PlatformGrowthStatsWidget extends StatsOverviewWidget
 
         $unionSql = implode(' UNION ALL ', $unionParts);
         $bucketExpr = $this->bucketExpression();
-        $sql = "SELECT {$bucketExpr} AS bucket, COUNT(*) AS cnt FROM ({$unionSql}) AS all_records GROUP BY bucket ORDER BY bucket";
+        $sql = "SELECT {$bucketExpr} AS bucket, COUNT(*) AS cnt FROM ({$unionSql}) AS all_records GROUP BY 1 ORDER BY 1";
 
         $rows = DB::select($sql, [$start->toDateTimeString(), $segmentSeconds, ...$bindings]);
 
