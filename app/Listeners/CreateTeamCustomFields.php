@@ -60,12 +60,15 @@ final readonly class CreateTeamCustomFields
         }
 
         if ($team->isPersonalTeam()) {
+            $team->loadMissing('owner');
+
             /** @var Authenticatable $owner */
             $owner = $team->owner;
-            $this->onboardSeeder->run($owner);
+            $this->onboardSeeder->run($owner, $team);
         }
     }
 
+    /** @param class-string $model */
     private function createCustomField(string $model, CompanyCustomField|OpportunityCustomField|PeopleCustomField|TaskCustomField|NoteCustomField $enum): void
     {
         $fieldData = new CustomFieldData(
@@ -128,21 +131,25 @@ final readonly class CreateTeamCustomFields
         $table = $customField->options()->getModel()->getTable();
         $ids = array_column($updates, 'id');
         $cases = [];
-        $bindings = [];
+        $caseBindings = [];
 
         foreach ($updates as $item) {
             $cases[] = 'WHEN id = ? THEN ?';
-            $bindings[] = $item['id'];
-            $bindings[] = $item['settings'];
+            $caseBindings[] = $item['id'];
+            $caseBindings[] = $item['settings'];
         }
 
         $casesSql = implode(' ', $cases);
         $placeholders = implode(',', array_fill(0, count($ids), '?'));
-        $bindings = array_merge($bindings, $ids);
+
+        $caseExpr = "(CASE {$casesSql} END)";
+        if (DB::getDriverName() === 'pgsql') {
+            $caseExpr .= '::json';
+        }
 
         DB::update(
-            "UPDATE \"{$table}\" SET \"settings\" = CASE {$casesSql} END, \"updated_at\" = ? WHERE \"id\" IN ({$placeholders})",
-            [...$bindings, now()],
+            "UPDATE \"{$table}\" SET \"settings\" = {$caseExpr}, \"updated_at\" = ? WHERE \"id\" IN ({$placeholders})",
+            [...$caseBindings, now(), ...$ids],
         );
     }
 }

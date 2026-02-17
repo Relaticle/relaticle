@@ -10,9 +10,12 @@ use App\Models\Team;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
+use Relaticle\Flowforge\Services\DecimalPosition;
 use Relaticle\OnboardSeed\Contracts\ModelSeederInterface;
+use Spatie\EloquentSortable\SortableTrait;
 
 abstract class BaseModelSeeder implements ModelSeederInterface
 {
@@ -29,6 +32,8 @@ abstract class BaseModelSeeder implements ModelSeederInterface
     protected ?string $teamId = null;
 
     private ?BulkCustomFieldValueWriter $bulkWriter = null;
+
+    private int $positionCounter = 0;
 
     public function initialize(): self
     {
@@ -65,21 +70,19 @@ abstract class BaseModelSeeder implements ModelSeederInterface
     {
         $this->setTeamId($team->id);
         $this->customFieldDefinitions = $this->customFields();
+        $this->positionCounter = 0;
     }
 
-    public function seed(Team $team, Authenticatable $user, array $context = []): array
+    public function seed(Team $team, Authenticatable $user): void
     {
         $this->prepareForSeed($team);
 
-        $result = $this->createEntitiesFromFixtures($team, $user, $context);
+        $this->createEntitiesFromFixtures($team, $user);
 
         $this->flushCustomFieldValues();
-
-        return $result;
     }
 
-    /** @return array<string, mixed> */
-    abstract protected function createEntitiesFromFixtures(Team $team, Authenticatable $user, array $context = []): array;
+    abstract protected function createEntitiesFromFixtures(Team $team, Authenticatable $user): void;
 
     /** @param  array<string, mixed>  $data */
     protected function applyCustomFields(HasCustomFields&Model $model, array $data): void
@@ -119,10 +122,15 @@ abstract class BaseModelSeeder implements ModelSeederInterface
             return null;
         }
 
-        $option = $field->options->firstWhere('name', $optionLabel)
-            ?? $field->options->first();
+        $option = $field->options->firstWhere('name', $optionLabel);
 
-        return $option?->id;
+        if (! $option) {
+            Log::warning("Option '{$optionLabel}' not found for field '{$fieldCode}'");
+
+            return null;
+        }
+
+        return $option->id;
     }
 
     /** @return array<string, mixed> */
@@ -183,7 +191,7 @@ abstract class BaseModelSeeder implements ModelSeederInterface
         $processed = [];
 
         foreach ($customFields as $code => $value) {
-            if (is_string($value) && str_starts_with($value, '{{') && str_ends_with($value, '}}')) {
+            if (is_string($value)) {
                 $value = $this->evaluateTemplateExpression($value);
             }
 
@@ -214,6 +222,13 @@ abstract class BaseModelSeeder implements ModelSeederInterface
             'creator_id' => $user->getAuthIdentifier(),
             ...$this->getGlobalAttributes(),
         ]);
+
+        // SortableTrait's creating event is suppressed by withoutEvents(),
+        // so we manually assign sequential order_column values.
+        if (in_array(SortableTrait::class, class_uses_recursive($this->modelClass), true)) {
+            $this->positionCounter++;
+            $attributes['order_column'] = bcmul((string) $this->positionCounter, DecimalPosition::DEFAULT_GAP, DecimalPosition::SCALE);
+        }
 
         $entity = resolve($this->modelClass)->create($attributes);
         $this->applyCustomFields($entity, $customFields);

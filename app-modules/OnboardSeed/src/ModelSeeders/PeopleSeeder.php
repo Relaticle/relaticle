@@ -26,14 +26,9 @@ final class PeopleSeeder extends BaseModelSeeder
         PeopleCustomField::LINKEDIN->value,
     ];
 
-    /**
-     * @param  array<string, mixed>  $context
-     * @return array<string, mixed>
-     */
-    protected function createEntitiesFromFixtures(Team $team, Authenticatable $user, array $context = []): array
+    protected function createEntitiesFromFixtures(Team $team, Authenticatable $user): void
     {
         $fixtures = $this->loadEntityFixtures();
-        $people = [];
 
         foreach ($fixtures as $key => $data) {
             $companyKey = $data['company'] ?? null;
@@ -52,13 +47,8 @@ final class PeopleSeeder extends BaseModelSeeder
                 continue;
             }
 
-            $person = $this->createPersonFromFixture($company, $team, $user, $key, $data);
-            $people[$key] = $person;
+            $this->createPersonFromFixture($company, $team, $user, $key, $data);
         }
-
-        return [
-            'people' => $people,
-        ];
     }
 
     /** @param  array<string, mixed>  $data */
@@ -67,7 +57,6 @@ final class PeopleSeeder extends BaseModelSeeder
         $attributes = [
             'name' => $data['name'],
             'company_id' => $company->id,
-            'team_id' => $team->id,
         ];
 
         $customFields = $data['custom_fields'] ?? [];

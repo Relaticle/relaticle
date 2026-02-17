@@ -45,20 +45,16 @@ final class BulkCustomFieldValueWriter
             return 0;
         }
 
-        $allColumns = [
+        $nullDefaults = array_fill_keys([
             'id', 'custom_field_id', 'entity_id', 'entity_type', 'tenant_id',
             'string_value', 'text_value', 'boolean_value', 'integer_value',
             'float_value', 'date_value', 'datetime_value', 'json_value',
-        ];
+        ], null);
 
-        $normalized = array_map(function (array $row) use ($allColumns): array {
-            $full = [];
-            foreach ($allColumns as $col) {
-                $full[$col] = $row[$col] ?? null;
-            }
-
-            return $full;
-        }, $this->pendingInserts);
+        $normalized = array_map(
+            fn (array $row): array => array_merge($nullDefaults, $row),
+            $this->pendingInserts,
+        );
 
         $count = count($normalized);
         $tableName = config('custom-fields.database.table_names.custom_field_values', 'custom_field_values');

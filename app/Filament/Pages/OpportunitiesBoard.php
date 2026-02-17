@@ -58,7 +58,7 @@ final class OpportunitiesBoard extends BoardPage
                     ->with(['company', 'contact'])
             )
             ->recordTitleAttribute('name')
-            ->columnIdentifier('cfv.'.$valueColumn)
+            ->columnIdentifier($valueColumn)
             ->positionIdentifier('order_column')
             ->searchable(['name'])
             ->columns($this->getColumns())

@@ -7,7 +7,6 @@ namespace Relaticle\OnboardSeed\ModelSeeders;
 use App\Enums\CustomFields\NoteField as NoteCustomField;
 use App\Models\Note;
 use App\Models\Team;
-use App\Models\User;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
@@ -20,8 +19,6 @@ final class NoteSeeder extends BaseModelSeeder
     protected string $modelClass = Note::class;
 
     protected string $entityType = 'notes';
-
-    private ?string $personalTeamId = null;
 
     /**
      * @var array<string, string>
@@ -38,11 +35,9 @@ final class NoteSeeder extends BaseModelSeeder
         NoteCustomField::BODY->value,
     ];
 
-    /** @return array<string, mixed> */
-    protected function createEntitiesFromFixtures(Team $team, Authenticatable $user, array $context = []): array
+    protected function createEntitiesFromFixtures(Team $team, Authenticatable $user): void
     {
         $fixtures = $this->loadEntityFixtures();
-        $notes = [];
 
         foreach ($fixtures as $key => $data) {
             $noteableType = $data['noteable_type'] ?? null;
@@ -63,13 +58,8 @@ final class NoteSeeder extends BaseModelSeeder
                 continue;
             }
 
-            $note = $this->createNoteFromFixture($noteable, $user, $key, $data);
-            $notes[$key] = $note;
+            $this->createNoteFromFixture($noteable, $user, $key, $data);
         }
-
-        return [
-            'notes' => $notes,
-        ];
     }
 
     private function getPluralEntityType(string $singularType): string
@@ -88,14 +78,11 @@ final class NoteSeeder extends BaseModelSeeder
 
         assert(method_exists($noteable, 'notes'));
 
-        /** @var User $user */
-        $this->personalTeamId ??= $user->personalTeam()->getKey();
-
         /** @var Note $note */
         $note = $noteable->notes()->create([
             'title' => $data['title'],
-            'team_id' => $this->personalTeamId,
-            'creator_id' => $user->id,
+            'team_id' => $this->teamId,
+            'creator_id' => $user->getAuthIdentifier(),
             ...$this->getGlobalAttributes(),
         ]);
 
