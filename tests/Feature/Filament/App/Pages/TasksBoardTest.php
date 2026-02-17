@@ -26,12 +26,11 @@ beforeEach(function () {
         ->first();
 });
 
-function getTaskBoardRecords(): array
+function getTaskBoard(): \Relaticle\Flowforge\Board
 {
     $component = livewire(TasksBoard::class);
-    $board = $component->instance()->getBoard();
 
-    return $board->getBatchedBoardRecords();
+    return $component->instance()->getBoard();
 }
 
 it('can render the board page', function (): void {
@@ -49,11 +48,11 @@ it('displays tasks in the correct board columns', function (): void {
     $doneTask = Task::factory()->for($this->team)->create();
     $doneTask->saveCustomFieldValue($this->statusField, $done->getKey());
 
-    $records = getTaskBoardRecords();
+    $board = getTaskBoard();
 
-    expect($records[(string) $todo->getKey()]->pluck('id'))
+    expect($board->getBoardRecords((string) $todo->getKey())->pluck('id'))
         ->toContain($todoTask->id)
-        ->and($records[(string) $done->getKey()]->pluck('id'))
+        ->and($board->getBoardRecords((string) $done->getKey())->pluck('id'))
         ->toContain($doneTask->id);
 });
 
@@ -61,8 +60,10 @@ it('does not show tasks from other teams', function (): void {
     $otherUser = User::factory()->withPersonalTeam()->create();
     $otherTask = Task::factory()->for($otherUser->personalTeam())->create();
 
-    $records = getTaskBoardRecords();
-    $allRecordIds = collect($records)->flatten()->pluck('id');
+    $board = getTaskBoard();
+    $allRecordIds = collect($this->statusField->options)
+        ->flatMap(fn ($opt) => $board->getBoardRecords((string) $opt->getKey()))
+        ->pluck('id');
 
     expect($allRecordIds)->not->toContain($otherTask->id);
 });

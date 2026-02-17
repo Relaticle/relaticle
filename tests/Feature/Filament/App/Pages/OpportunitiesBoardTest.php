@@ -26,12 +26,11 @@ beforeEach(function () {
         ->first();
 });
 
-function getBoardRecords(): array
+function getOpportunityBoard(): \Relaticle\Flowforge\Board
 {
     $component = livewire(OpportunitiesBoard::class);
-    $board = $component->instance()->getBoard();
 
-    return $board->getBatchedBoardRecords();
+    return $component->instance()->getBoard();
 }
 
 it('can render the board page', function (): void {
@@ -49,11 +48,11 @@ it('displays opportunities in the correct board columns', function (): void {
     $closedWonOpportunity = Opportunity::factory()->for($this->team)->create();
     $closedWonOpportunity->saveCustomFieldValue($this->stageField, $closedWon->getKey());
 
-    $records = getBoardRecords();
+    $board = getOpportunityBoard();
 
-    expect($records[(string) $prospecting->getKey()]->pluck('id'))
+    expect($board->getBoardRecords((string) $prospecting->getKey())->pluck('id'))
         ->toContain($prospectingOpportunity->id)
-        ->and($records[(string) $closedWon->getKey()]->pluck('id'))
+        ->and($board->getBoardRecords((string) $closedWon->getKey())->pluck('id'))
         ->toContain($closedWonOpportunity->id);
 });
 
@@ -61,8 +60,10 @@ it('does not show opportunities from other teams', function (): void {
     $otherUser = User::factory()->withPersonalTeam()->create();
     $otherOpportunity = Opportunity::factory()->for($otherUser->personalTeam())->create();
 
-    $records = getBoardRecords();
-    $allRecordIds = collect($records)->flatten()->pluck('id');
+    $board = getOpportunityBoard();
+    $allRecordIds = collect($this->stageField->options)
+        ->flatMap(fn ($opt) => $board->getBoardRecords((string) $opt->getKey()))
+        ->pluck('id');
 
     expect($allRecordIds)->not->toContain($otherOpportunity->id);
 });
