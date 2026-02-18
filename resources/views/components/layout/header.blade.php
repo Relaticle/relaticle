@@ -20,7 +20,7 @@
                 <a href="{{ url('/') }}" class="flex items-center space-x-2.5 group" aria-label="Relaticle Home">
                     <div class="relative overflow-hidden group-hover:scale-105 transition-transform duration-300">
                         <img class="h-8 w-auto"
-                             src="{{ asset('relaticle-logomark.svg') }}" alt="Relaticle Logo">
+                             src="{{ asset('brand/logomark.svg') }}" alt="Relaticle Logo">
                     </div>
                     <span
                         class="font-bold text-lg text-black dark:text-white hidden sm:block transition-opacity duration-300 group-hover:opacity-80">Relaticle</span>

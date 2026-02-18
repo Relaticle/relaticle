@@ -26,8 +26,7 @@
 
     <title>{{ $title ?? config('app.name', 'Relaticle - The Next-Generation Open-Source CRM Platform') }}</title>
     <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet"/>
+    <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,600,700&display=swap" rel="stylesheet"/>
 
     <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -50,7 +49,7 @@
         <!-- / Fathom -->
     @endif
 </head>
-<body class="antialiased text-gray-800">
+<body class="antialiased text-gray-800" style="font-family: 'Satoshi', system-ui, -apple-system, sans-serif;">
 
 <x-layout.header/>
 
