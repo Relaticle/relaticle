@@ -25,9 +25,6 @@
     <meta name="twitter:image" content="{{ $ogImage ?? url('/images/og-image.jpg') }}" />
 
     <title>{{ $title ?? config('app.name', 'Relaticle - The Next-Generation Open-Source CRM Platform') }}</title>
-    <!-- Fonts -->
-    <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,600,700&display=swap" rel="stylesheet"/>
-
     <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="shortcut icon" href="/favicon.ico" />
@@ -49,7 +46,7 @@
         <!-- / Fathom -->
     @endif
 </head>
-<body class="antialiased text-gray-800" style="font-family: 'Satoshi', system-ui, -apple-system, sans-serif;">
+<body class="font-sans antialiased text-gray-800">
 
 <x-layout.header/>
 
