@@ -41,21 +41,11 @@ final readonly class NotesController
             ->setStatusCode(201);
     }
 
-    public function show(Request $request, Note $note): NoteResource
+    public function show(Note $note): NoteResource
     {
         Gate::authorize('view', $note);
 
         $note->loadMissing('customFieldValues.customField');
-
-        $allowedIncludes = ['creator', 'companies', 'people', 'opportunities'];
-        $requested = array_intersect(
-            explode(',', $request->query('include', '')),
-            $allowedIncludes,
-        );
-
-        if ($requested !== []) {
-            $note->loadMissing($requested);
-        }
 
         return new NoteResource($note);
     }

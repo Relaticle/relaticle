@@ -41,21 +41,11 @@ final readonly class OpportunitiesController
             ->setStatusCode(201);
     }
 
-    public function show(Request $request, Opportunity $opportunity): OpportunityResource
+    public function show(Opportunity $opportunity): OpportunityResource
     {
         Gate::authorize('view', $opportunity);
 
         $opportunity->loadMissing('customFieldValues.customField');
-
-        $allowedIncludes = ['creator', 'company', 'contact'];
-        $requested = array_intersect(
-            explode(',', $request->query('include', '')),
-            $allowedIncludes,
-        );
-
-        if ($requested !== []) {
-            $opportunity->loadMissing($requested);
-        }
 
         return new OpportunityResource($opportunity);
     }

@@ -41,21 +41,11 @@ final readonly class PeopleController
             ->setStatusCode(201);
     }
 
-    public function show(Request $request, People $person): PeopleResource
+    public function show(People $person): PeopleResource
     {
         Gate::authorize('view', $person);
 
         $person->loadMissing('customFieldValues.customField');
-
-        $allowedIncludes = ['creator', 'company'];
-        $requested = array_intersect(
-            explode(',', $request->query('include', '')),
-            $allowedIncludes,
-        );
-
-        if ($requested !== []) {
-            $person->loadMissing($requested);
-        }
 
         return new PeopleResource($person);
     }

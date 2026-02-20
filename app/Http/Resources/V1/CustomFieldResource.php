@@ -6,7 +6,7 @@ namespace App\Http\Resources\V1;
 
 use App\Models\CustomField;
 use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Http\Resources\JsonApi\JsonApiResource;
 use Relaticle\CustomFields\Services\ValidationService;
 
 /**
@@ -15,17 +15,16 @@ use Relaticle\CustomFields\Services\ValidationService;
  *
  * @mixin CustomField
  */
-final class CustomFieldResource extends JsonResource
+final class CustomFieldResource extends JsonApiResource
 {
     /**
      * @return array<string, mixed>
      */
-    public function toArray(Request $request): array
+    public function toAttributes(Request $request): array
     {
         $validationService = resolve(ValidationService::class);
 
         return [
-            'id' => $this->id,
             'code' => $this->code,
             'name' => $this->name,
             'type' => $this->type,

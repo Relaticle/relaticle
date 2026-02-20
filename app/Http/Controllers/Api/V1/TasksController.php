@@ -41,21 +41,11 @@ final readonly class TasksController
             ->setStatusCode(201);
     }
 
-    public function show(Request $request, Task $task): TaskResource
+    public function show(Task $task): TaskResource
     {
         Gate::authorize('view', $task);
 
         $task->loadMissing('customFieldValues.customField');
-
-        $allowedIncludes = ['creator', 'assignees', 'companies', 'people', 'opportunities'];
-        $requested = array_intersect(
-            explode(',', $request->query('include', '')),
-            $allowedIncludes,
-        );
-
-        if ($requested !== []) {
-            $task->loadMissing($requested);
-        }
 
         return new TaskResource($task);
     }
