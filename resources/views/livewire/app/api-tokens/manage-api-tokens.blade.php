@@ -1,6 +1,6 @@
 <x-filament::section aside>
     <x-slot name="heading">
-        Manage API Tokens
+        Manage Access Tokens
     </x-slot>
     <x-slot name="description">
         You may delete any of your existing tokens if they are no longer needed.

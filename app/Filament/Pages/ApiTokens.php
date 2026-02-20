@@ -17,7 +17,7 @@ final class ApiTokens extends Page
 
     protected string $view = 'filament.pages.api-tokens';
 
-    protected static ?string $navigationLabel = 'API Tokens';
+    protected static ?string $navigationLabel = 'Access Tokens';
 
     #[Override]
     public static function shouldRegisterNavigation(): bool
@@ -40,6 +40,6 @@ final class ApiTokens extends Page
 
     public static function getLabel(): string
     {
-        return 'API Tokens';
+        return 'Access Tokens';
     }
 }

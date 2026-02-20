@@ -38,10 +38,10 @@ final class CreateApiToken extends BaseLivewireComponent
     {
         return $schema
             ->schema([
-                Section::make('Create API Token')
+                Section::make('Create Access Token')
                     ->aside()
                     ->description(
-                        'API tokens allow third-party services to authenticate with our application on your behalf.',
+                        'Access tokens allow third-party services and AI agents to authenticate with our application on your behalf.',
                     )
                     ->schema([
                         TextInput::make('name')
@@ -93,9 +93,9 @@ final class CreateApiToken extends BaseLivewireComponent
     public function showTokenAction(): Action
     {
         return Action::make('showToken')
-            ->modalHeading('API Token')
+            ->modalHeading('Access Token')
             ->modalDescription(
-                'Please copy your new API token. For your security, it won\'t be shown again.',
+                'Please copy your new access token. For your security, it won\'t be shown again.',
             )
             ->modalWidth(Width::Large)
             ->modalSubmitAction(false)

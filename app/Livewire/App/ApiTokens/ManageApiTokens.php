@@ -87,18 +87,18 @@ final class ManageApiTokens extends BaseLivewireComponent implements HasTable
                             ->save();
 
                         $this->sendNotification(
-                            title: 'API token permissions updated.',
+                            title: 'Access token permissions updated.',
                         );
                     }),
                 DeleteAction::make()
                     ->iconButton()
                     ->after(
                         fn () => $this->sendNotification(
-                            title: 'API token deleted.',
+                            title: 'Access token deleted.',
                         ),
                     ),
             ])
-            ->emptyStateHeading('No API tokens')
+            ->emptyStateHeading('No access tokens')
             ->emptyStateDescription('Create a token above to get started.')
             ->paginated(false);
     }
