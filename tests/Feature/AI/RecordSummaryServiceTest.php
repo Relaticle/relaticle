@@ -154,11 +154,10 @@ describe('RecordContextBuilder', function () {
             ->for($this->user->currentTeam)
             ->create();
 
-        $domainsField = CustomField::withoutGlobalScopes()
+        $domainsField = CustomField::query()
             ->where('code', CompanyField::DOMAINS->value)
-            ->where('entity_type', 'company')
-            ->where('tenant_id', $this->user->currentTeam->getKey())
-            ->first();
+            ->forEntity(Company::class)
+            ->firstOrFail();
 
         CustomFieldValue::forceCreate([
             'tenant_id' => $this->user->currentTeam->getKey(),
