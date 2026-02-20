@@ -78,6 +78,27 @@ final class UserFactory extends Factory
         });
     }
 
+    /**
+     * Indicate that the user should have a standard (non-personal) team.
+     */
+    public function withTeam(?callable $callback = null): static
+    {
+        return $this->afterCreating(function (User $user) use ($callback): void {
+            $team = Team::factory()->create([
+                'name' => $user->name."'s Team",
+                'user_id' => $user->id,
+                'personal_team' => false,
+            ]);
+
+            if (is_callable($callback)) {
+                $callback($team, $user);
+            }
+
+            $user->ownedTeams()->save($team);
+            $user->switchTeam($team);
+        });
+    }
+
     public function configure(): Factory
     {
         return $this->sequence(fn (Sequence $sequence): array => [
