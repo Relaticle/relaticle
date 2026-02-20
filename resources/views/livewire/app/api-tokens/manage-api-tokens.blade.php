@@ -1,9 +1,9 @@
 <x-filament::section aside>
     <x-slot name="heading">
-        Manage Access Tokens
+        {{ __('access-tokens.sections.manage.title') }}
     </x-slot>
     <x-slot name="description">
-        You may delete any of your existing tokens if they are no longer needed.
+        {{ __('access-tokens.sections.manage.description') }}
     </x-slot>
 
     {{ $this->table }}
