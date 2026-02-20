@@ -35,7 +35,7 @@ final class ListOpportunitiesTool extends Tool
         /** @var User $user */
         $user = auth()->user();
 
-        $opportunities = $action->execute($user);
+        $opportunities = $action->execute($user, (int) $request->get('per_page', 15));
 
         return Response::text(
             OpportunityResource::collection($opportunities)->toJson(JSON_PRETTY_PRINT)

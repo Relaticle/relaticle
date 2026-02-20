@@ -13,11 +13,11 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 final readonly class ListNotes
 {
-    public function execute(User $user): CursorPaginator|LengthAwarePaginator
+    public function execute(User $user, ?int $perPage = null): CursorPaginator|LengthAwarePaginator
     {
         abort_unless($user->can('viewAny', Note::class), 403);
 
-        $perPage = min((int) (request()->query('per_page', '15')), 100);
+        $perPage = min($perPage ?? (int) (request()->query('per_page', '15')), 100);
 
         $query = QueryBuilder::for(Note::query()->withCustomFieldValues())
             ->allowedFilters([
