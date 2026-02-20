@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Api\V1\Concerns;
 
+use App\Models\CustomField;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
-use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Services\ValidationService;
 
 /**
@@ -70,14 +70,6 @@ trait ValidatesCustomFields
         return in_array($this->method(), ['PUT', 'PATCH'], true);
     }
 
-    /**
-     * Fetch the relevant custom fields for validation.
-     *
-     * - UPDATE: only fields matching submitted custom_fields keys (partial update)
-     * - STORE: submitted fields + any required fields the client may have missed
-     *
-     * @return EloquentCollection<int, CustomField>
-     */
     private function resolveCustomFields(string $teamId): EloquentCollection
     {
         /** @var array<string, mixed>|null $submittedFields */
