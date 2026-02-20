@@ -36,7 +36,7 @@ final readonly class CompaniesController
 
         $company = $action->execute($user, $request->validated(), CreationSource::API);
 
-        return (new CompanyResource($company->loadMissing('customFieldValues.customField')))
+        return new CompanyResource($company->loadMissing('customFieldValues.customField'))
             ->response()
             ->setStatusCode(201);
     }

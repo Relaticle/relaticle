@@ -36,7 +36,7 @@ final readonly class NotesController
 
         $note = $action->execute($user, $request->validated(), CreationSource::API);
 
-        return (new NoteResource($note->loadMissing('customFieldValues.customField')))
+        return new NoteResource($note->loadMissing('customFieldValues.customField'))
             ->response()
             ->setStatusCode(201);
     }

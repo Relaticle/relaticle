@@ -36,7 +36,7 @@ final readonly class PeopleController
 
         $person = $action->execute($user, $request->validated(), CreationSource::API);
 
-        return (new PeopleResource($person->loadMissing('customFieldValues.customField')))
+        return new PeopleResource($person->loadMissing('customFieldValues.customField'))
             ->response()
             ->setStatusCode(201);
     }

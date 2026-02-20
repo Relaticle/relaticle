@@ -36,7 +36,7 @@ final readonly class TasksController
 
         $task = $action->execute($user, $request->validated(), CreationSource::API);
 
-        return (new TaskResource($task->loadMissing('customFieldValues.customField')))
+        return new TaskResource($task->loadMissing('customFieldValues.customField'))
             ->response()
             ->setStatusCode(201);
     }

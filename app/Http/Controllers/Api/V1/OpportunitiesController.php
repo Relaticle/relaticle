@@ -36,7 +36,7 @@ final readonly class OpportunitiesController
 
         $opportunity = $action->execute($user, $request->validated(), CreationSource::API);
 
-        return (new OpportunityResource($opportunity->loadMissing('customFieldValues.customField')))
+        return new OpportunityResource($opportunity->loadMissing('customFieldValues.customField'))
             ->response()
             ->setStatusCode(201);
     }

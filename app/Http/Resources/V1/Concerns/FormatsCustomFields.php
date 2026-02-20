@@ -19,7 +19,7 @@ trait FormatsCustomFields
         }
 
         return $record->getRelation('customFieldValues')
-            ->mapWithKeys(fn (CustomFieldValue $fieldValue) => [
+            ->mapWithKeys(fn (CustomFieldValue $fieldValue): array => [
                 $fieldValue->customField->code => $fieldValue->getValue(),
             ])
             ->all();
