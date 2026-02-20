@@ -156,6 +156,52 @@ describe('cross-tenant isolation', function (): void {
     });
 });
 
+describe('includes', function (): void {
+    it('can include relations on list endpoint', function (): void {
+        Sanctum::actingAs($this->user);
+
+        Company::factory()->for($this->team)->create();
+
+        $this->getJson('/api/v1/companies?include=creator')
+            ->assertOk()
+            ->assertJson(fn (AssertableJson $json) => $json
+                ->has('data.0.creator')
+                ->etc()
+            );
+    });
+
+    it('can include relations on show endpoint', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $company = Company::factory()->for($this->team)->create();
+
+        $this->getJson("/api/v1/companies/{$company->id}?include=creator")
+            ->assertOk()
+            ->assertJson(fn (AssertableJson $json) => $json
+                ->has('data.creator')
+                ->etc()
+            );
+    });
+
+    it('does not include relations when not requested', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $company = Company::factory()->for($this->team)->create();
+
+        $response = $this->getJson("/api/v1/companies/{$company->id}")
+            ->assertOk();
+
+        expect($response->json('data.creator'))->toBeNull();
+    });
+
+    it('rejects disallowed includes on list endpoint', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $this->getJson('/api/v1/companies?include=secret')
+            ->assertStatus(400);
+    });
+});
+
 describe('custom fields', function (): void {
     beforeEach(function (): void {
         $this->section = CustomFieldSection::create([

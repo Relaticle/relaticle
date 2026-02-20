@@ -41,11 +41,23 @@ final readonly class CompaniesController
             ->setStatusCode(201);
     }
 
-    public function show(Company $company): CompanyResource
+    public function show(Request $request, Company $company): CompanyResource
     {
         Gate::authorize('view', $company);
 
-        return new CompanyResource($company->loadMissing('customFieldValues.customField'));
+        $company->loadMissing('customFieldValues.customField');
+
+        $allowedIncludes = ['creator', 'people', 'opportunities'];
+        $requested = array_intersect(
+            explode(',', $request->query('include', '')),
+            $allowedIncludes,
+        );
+
+        if ($requested !== []) {
+            $company->loadMissing($requested);
+        }
+
+        return new CompanyResource($company);
     }
 
     public function update(UpdateCompanyRequest $request, Company $company, UpdateCompany $action): CompanyResource

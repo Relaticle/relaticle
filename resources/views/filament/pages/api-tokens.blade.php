@@ -1,3 +1,3 @@
 <x-filament-panels::page>
-    @livewire(Laravel\Jetstream\Http\Livewire\ApiTokenManager::class)
+    {{ $this->form }}
 </x-filament-panels::page>
