@@ -36,7 +36,7 @@ final readonly class PeopleController
 
         $person = $action->execute($user, $request->validated(), CreationSource::API);
 
-        return new PeopleResource($person->loadMissing('customFieldValues.customField'))
+        return new PeopleResource($person->load('customFieldValues.customField'))
             ->response()
             ->setStatusCode(201);
     }
@@ -45,7 +45,7 @@ final readonly class PeopleController
     {
         Gate::authorize('view', $person);
 
-        return new PeopleResource($person->loadMissing('customFieldValues.customField'));
+        return new PeopleResource($person->load('customFieldValues.customField'));
     }
 
     public function update(UpdatePeopleRequest $request, People $person, UpdatePeople $action): PeopleResource
@@ -55,7 +55,7 @@ final readonly class PeopleController
 
         $person = $action->execute($user, $person, $request->validated());
 
-        return new PeopleResource($person->loadMissing('customFieldValues.customField'));
+        return new PeopleResource($person->load('customFieldValues.customField'));
     }
 
     public function destroy(Request $request, People $person, DeletePeople $action): JsonResponse

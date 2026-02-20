@@ -11,6 +11,7 @@ use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
+use Relaticle\CustomFields\Services\TenantContextService;
 
 final readonly class UpdateTask
 {
@@ -21,11 +22,20 @@ final readonly class UpdateTask
     {
         abort_unless($user->can('update', $task), 403);
 
+        $customFields = $data['custom_fields'] ?? null;
+        unset($data['custom_fields']);
+
         DB::transaction(function () use ($task, $data): void {
             $task->update($data);
 
             $this->notifyNewAssignees($task);
         });
+
+        if (is_array($customFields) && $customFields !== []) {
+            TenantContextService::withTenant($user->currentTeam->getKey(), function () use ($task, $customFields): void {
+                $task->saveCustomFields($customFields);
+            });
+        }
 
         return $task->refresh();
     }

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 use App\Enums\CreationSource;
 use App\Models\Company;
+use App\Models\CustomField;
+use App\Models\CustomFieldSection;
 use App\Models\Team;
 use App\Models\User;
 use Illuminate\Testing\Fluent\AssertableJson;
@@ -151,5 +153,124 @@ describe('cross-tenant isolation', function (): void {
 
         $this->deleteJson("/api/v1/companies/{$otherCompany->id}")
             ->assertNotFound();
+    });
+});
+
+describe('custom fields', function (): void {
+    beforeEach(function (): void {
+        $this->section = CustomFieldSection::create([
+            'tenant_id' => $this->team->id,
+            'entity_type' => 'company',
+            'name' => 'General',
+            'code' => 'general',
+            'type' => 'section',
+            'sort_order' => 1,
+            'active' => true,
+        ]);
+    });
+
+    it('can create a company with custom fields', function (): void {
+        Sanctum::actingAs($this->user);
+
+        CustomField::create([
+            'tenant_id' => $this->team->id,
+            'custom_field_section_id' => $this->section->id,
+            'entity_type' => 'company',
+            'code' => 'industry',
+            'name' => 'Industry',
+            'type' => 'text',
+            'sort_order' => 1,
+            'active' => true,
+            'validation_rules' => [],
+        ]);
+
+        $this->postJson('/api/v1/companies', [
+            'name' => 'Acme Corp',
+            'custom_fields' => [
+                'industry' => 'Technology',
+            ],
+        ])
+            ->assertCreated()
+            ->assertValid()
+            ->assertJson(fn (AssertableJson $json) => $json
+                ->has('data', fn (AssertableJson $json) => $json
+                    ->where('name', 'Acme Corp')
+                    ->where('custom_fields.industry', 'Technology')
+                    ->etc()
+                )
+            );
+    });
+
+    it('can update a company with custom fields', function (): void {
+        Sanctum::actingAs($this->user);
+
+        CustomField::create([
+            'tenant_id' => $this->team->id,
+            'custom_field_section_id' => $this->section->id,
+            'entity_type' => 'company',
+            'code' => 'industry',
+            'name' => 'Industry',
+            'type' => 'text',
+            'sort_order' => 1,
+            'active' => true,
+            'validation_rules' => [],
+        ]);
+
+        $company = Company::factory()->for($this->team)->create();
+
+        $this->putJson("/api/v1/companies/{$company->id}", [
+            'name' => 'Updated Name',
+            'custom_fields' => [
+                'industry' => 'Finance',
+            ],
+        ])
+            ->assertOk()
+            ->assertValid()
+            ->assertJson(fn (AssertableJson $json) => $json
+                ->has('data', fn (AssertableJson $json) => $json
+                    ->where('name', 'Updated Name')
+                    ->where('custom_fields.industry', 'Finance')
+                    ->etc()
+                )
+            );
+    });
+
+    it('validates custom field values on create', function (): void {
+        Sanctum::actingAs($this->user);
+
+        CustomField::create([
+            'tenant_id' => $this->team->id,
+            'custom_field_section_id' => $this->section->id,
+            'entity_type' => 'company',
+            'code' => 'annual_revenue',
+            'name' => 'Annual Revenue',
+            'type' => 'number',
+            'sort_order' => 1,
+            'active' => true,
+            'validation_rules' => [
+                ['name' => 'numeric', 'parameters' => []],
+            ],
+        ]);
+
+        $this->postJson('/api/v1/companies', [
+            'name' => 'Acme Corp',
+            'custom_fields' => [
+                'annual_revenue' => 'not-a-number',
+            ],
+        ])
+            ->assertUnprocessable()
+            ->assertInvalid(['custom_fields.annual_revenue']);
+    });
+
+    it('ignores unknown custom field codes', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $this->postJson('/api/v1/companies', [
+            'name' => 'Acme Corp',
+            'custom_fields' => [
+                'nonexistent_field' => 'some value',
+            ],
+        ])
+            ->assertCreated();
     });
 });

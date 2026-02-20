@@ -51,14 +51,11 @@ trait ValidatesCustomFields
         }
 
         $validationService = resolve(ValidationService::class);
-        $ignoreEntityId = $this->isUpdateRequest()
-            ? $this->route($this->routeParameterName())
-            : null;
 
         $rules = [];
 
         foreach ($customFields as $customField) {
-            $fieldRules = $validationService->getValidationRules($customField, $ignoreEntityId);
+            $fieldRules = $validationService->getValidationRules($customField);
 
             if ($fieldRules !== []) {
                 $rules["custom_fields.{$customField->code}"] = $fieldRules;

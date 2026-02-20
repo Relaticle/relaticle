@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Api\V1;
 
+use App\Http\Requests\Api\V1\Concerns\ValidatesCustomFields;
 use Illuminate\Foundation\Http\FormRequest;
 
 final class StoreCompanyRequest extends FormRequest
 {
+    use ValidatesCustomFields;
+
     public function authorize(): bool
     {
         return true;
@@ -18,12 +21,17 @@ final class StoreCompanyRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
+        return array_merge([
             'name' => ['required', 'string', 'max:255'],
             'address' => ['nullable', 'string'],
             'country' => ['nullable', 'string'],
             'phone' => ['nullable', 'string'],
             'custom_fields' => ['nullable', 'array'],
-        ];
+        ], $this->customFieldRules());
+    }
+
+    public function customFieldEntityType(): string
+    {
+        return 'company';
     }
 }

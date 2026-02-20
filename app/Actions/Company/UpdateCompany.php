@@ -6,6 +6,7 @@ namespace App\Actions\Company;
 
 use App\Models\Company;
 use App\Models\User;
+use Relaticle\CustomFields\Services\TenantContextService;
 
 final readonly class UpdateCompany
 {
@@ -16,7 +17,16 @@ final readonly class UpdateCompany
     {
         abort_unless($user->can('update', $company), 403);
 
+        $customFields = $data['custom_fields'] ?? null;
+        unset($data['custom_fields']);
+
         $company->update($data);
+
+        if (is_array($customFields) && $customFields !== []) {
+            TenantContextService::withTenant($user->currentTeam->getKey(), function () use ($company, $customFields): void {
+                $company->saveCustomFields($customFields);
+            });
+        }
 
         return $company->refresh();
     }

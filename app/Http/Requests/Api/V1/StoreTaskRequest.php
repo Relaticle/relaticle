@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Api\V1;
 
+use App\Http\Requests\Api\V1\Concerns\ValidatesCustomFields;
 use Illuminate\Foundation\Http\FormRequest;
 
 final class StoreTaskRequest extends FormRequest
 {
+    use ValidatesCustomFields;
+
     public function authorize(): bool
     {
         return true;
@@ -18,9 +21,14 @@ final class StoreTaskRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
+        return array_merge([
             'title' => ['required', 'string', 'max:255'],
             'custom_fields' => ['nullable', 'array'],
-        ];
+        ], $this->customFieldRules());
+    }
+
+    public function customFieldEntityType(): string
+    {
+        return 'task';
     }
 }

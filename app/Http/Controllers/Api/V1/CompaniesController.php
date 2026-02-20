@@ -36,7 +36,7 @@ final readonly class CompaniesController
 
         $company = $action->execute($user, $request->validated(), CreationSource::API);
 
-        return new CompanyResource($company->loadMissing('customFieldValues.customField'))
+        return new CompanyResource($company->load('customFieldValues.customField'))
             ->response()
             ->setStatusCode(201);
     }
@@ -55,7 +55,7 @@ final readonly class CompaniesController
 
         $company = $action->execute($user, $company, $request->validated());
 
-        return new CompanyResource($company->loadMissing('customFieldValues.customField'));
+        return new CompanyResource($company->load('customFieldValues.customField'));
     }
 
     public function destroy(Request $request, Company $company, DeleteCompany $action): JsonResponse
