@@ -36,7 +36,7 @@ final readonly class OpportunitiesController
 
         $opportunity = $action->execute($user, $request->validated(), CreationSource::API);
 
-        return new OpportunityResource($opportunity->loadMissing('customFieldValues.customField'))
+        return new OpportunityResource($opportunity->load('customFieldValues.customField'))
             ->response()
             ->setStatusCode(201);
     }
@@ -45,7 +45,9 @@ final readonly class OpportunitiesController
     {
         Gate::authorize('view', $opportunity);
 
-        return new OpportunityResource($opportunity->loadMissing('customFieldValues.customField'));
+        $opportunity->loadMissing('customFieldValues.customField');
+
+        return new OpportunityResource($opportunity);
     }
 
     public function update(UpdateOpportunityRequest $request, Opportunity $opportunity, UpdateOpportunity $action): OpportunityResource
@@ -55,7 +57,7 @@ final readonly class OpportunitiesController
 
         $opportunity = $action->execute($user, $opportunity, $request->validated());
 
-        return new OpportunityResource($opportunity->loadMissing('customFieldValues.customField'));
+        return new OpportunityResource($opportunity->load('customFieldValues.customField'));
     }
 
     public function destroy(Request $request, Opportunity $opportunity, DeleteOpportunity $action): JsonResponse

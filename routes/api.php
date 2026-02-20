@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\Api\V1\CompaniesController;
+use App\Http\Controllers\Api\V1\CustomFieldsController;
 use App\Http\Controllers\Api\V1\NotesController;
 use App\Http\Controllers\Api\V1\OpportunitiesController;
 use App\Http\Controllers\Api\V1\PeopleController;
@@ -23,4 +24,6 @@ Route::prefix('v1')
         Route::apiResource('opportunities', OpportunitiesController::class);
         Route::apiResource('tasks', TasksController::class);
         Route::apiResource('notes', NotesController::class);
+
+        Route::get('custom-fields', [CustomFieldsController::class, 'index']);
     });

@@ -36,7 +36,7 @@ final readonly class TasksController
 
         $task = $action->execute($user, $request->validated(), CreationSource::API);
 
-        return new TaskResource($task->loadMissing('customFieldValues.customField'))
+        return new TaskResource($task->load('customFieldValues.customField'))
             ->response()
             ->setStatusCode(201);
     }
@@ -45,7 +45,9 @@ final readonly class TasksController
     {
         Gate::authorize('view', $task);
 
-        return new TaskResource($task->loadMissing('customFieldValues.customField'));
+        $task->loadMissing('customFieldValues.customField');
+
+        return new TaskResource($task);
     }
 
     public function update(UpdateTaskRequest $request, Task $task, UpdateTask $action): TaskResource
@@ -55,7 +57,7 @@ final readonly class TasksController
 
         $task = $action->execute($user, $task, $request->validated());
 
-        return new TaskResource($task->loadMissing('customFieldValues.customField'));
+        return new TaskResource($task->load('customFieldValues.customField'));
     }
 
     public function destroy(Request $request, Task $task, DeleteTask $action): JsonResponse

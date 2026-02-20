@@ -7,6 +7,7 @@ namespace App\Actions\Opportunity;
 use App\Enums\CreationSource;
 use App\Models\Opportunity;
 use App\Models\User;
+use Relaticle\CustomFields\Services\TenantContextService;
 
 final readonly class CreateOpportunity
 {
@@ -17,10 +18,21 @@ final readonly class CreateOpportunity
     {
         abort_unless($user->can('create', Opportunity::class), 403);
 
+        $customFields = $data['custom_fields'] ?? null;
+        unset($data['custom_fields']);
+
         $data['creation_source'] = $source;
         $data['creator_id'] = $user->getKey();
         $data['team_id'] = $user->currentTeam->getKey();
 
-        return Opportunity::query()->create($data);
+        $opportunity = Opportunity::query()->create($data);
+
+        if (is_array($customFields) && $customFields !== []) {
+            TenantContextService::withTenant($user->currentTeam->getKey(), function () use ($opportunity, $customFields): void {
+                $opportunity->saveCustomFields($customFields);
+            });
+        }
+
+        return $opportunity;
     }
 }

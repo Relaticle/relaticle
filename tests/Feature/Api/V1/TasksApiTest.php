@@ -27,7 +27,7 @@ it('can list tasks', function (): void {
     $this->getJson('/api/v1/tasks')
         ->assertOk()
         ->assertJsonCount($seeded + 3, 'data')
-        ->assertJsonStructure(['data' => [['id', 'title', 'creation_source', 'custom_fields']]]);
+        ->assertJsonStructure(['data' => [['id', 'type', 'attributes']]]);
 });
 
 it('can create a task', function (): void {
@@ -38,13 +38,17 @@ it('can create a task', function (): void {
         ->assertValid()
         ->assertJson(fn (AssertableJson $json) => $json
             ->has('data', fn (AssertableJson $json) => $json
-                ->where('title', 'Fix bug')
-                ->where('creation_source', CreationSource::API->value)
                 ->whereType('id', 'string')
-                ->whereType('created_at', 'string')
-                ->whereType('custom_fields', 'array')
-                ->missing('team_id')
-                ->missing('creator_id')
+                ->where('type', 'tasks')
+                ->has('attributes', fn (AssertableJson $json) => $json
+                    ->where('title', 'Fix bug')
+                    ->where('creation_source', CreationSource::API->value)
+                    ->whereType('created_at', 'string')
+                    ->whereType('custom_fields', 'array')
+                    ->missing('team_id')
+                    ->missing('creator_id')
+                    ->etc()
+                )
                 ->etc()
             )
         );
@@ -70,11 +74,15 @@ it('can show a task', function (): void {
         ->assertJson(fn (AssertableJson $json) => $json
             ->has('data', fn (AssertableJson $json) => $json
                 ->where('id', $task->id)
-                ->where('title', 'Show Test')
-                ->whereType('creation_source', 'string')
-                ->whereType('custom_fields', 'array')
-                ->missing('team_id')
-                ->missing('creator_id')
+                ->where('type', 'tasks')
+                ->has('attributes', fn (AssertableJson $json) => $json
+                    ->where('title', 'Show Test')
+                    ->whereType('creation_source', 'string')
+                    ->whereType('custom_fields', 'array')
+                    ->missing('team_id')
+                    ->missing('creator_id')
+                    ->etc()
+                )
                 ->etc()
             )
         );
@@ -91,7 +99,11 @@ it('can update a task', function (): void {
         ->assertJson(fn (AssertableJson $json) => $json
             ->has('data', fn (AssertableJson $json) => $json
                 ->where('id', $task->id)
-                ->where('title', 'Updated Title')
+                ->where('type', 'tasks')
+                ->has('attributes', fn (AssertableJson $json) => $json
+                    ->where('title', 'Updated Title')
+                    ->etc()
+                )
                 ->etc()
             )
         );
@@ -153,5 +165,61 @@ describe('cross-tenant isolation', function (): void {
 
         $this->deleteJson("/api/v1/tasks/{$otherTask->id}")
             ->assertNotFound();
+    });
+});
+
+describe('includes', function (): void {
+    it('can include creator on show endpoint', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $task = Task::factory()->for($this->team)->create();
+
+        $this->getJson("/api/v1/tasks/{$task->id}?include=creator")
+            ->assertOk()
+            ->assertJson(fn (AssertableJson $json) => $json
+                ->has('data.relationships.creator.data', fn (AssertableJson $json) => $json
+                    ->whereType('id', 'string')
+                    ->where('type', 'users')
+                )
+                ->has('included.0', fn (AssertableJson $json) => $json
+                    ->whereType('id', 'string')
+                    ->where('type', 'users')
+                    ->has('attributes')
+                    ->etc()
+                )
+                ->etc()
+            );
+    });
+
+    it('can include creator on list endpoint', function (): void {
+        Sanctum::actingAs($this->user);
+
+        Task::factory()->for($this->team)->create();
+
+        $this->getJson('/api/v1/tasks?include=creator')
+            ->assertOk()
+            ->assertJson(fn (AssertableJson $json) => $json
+                ->has('data.0.relationships.creator')
+                ->has('included')
+                ->etc()
+            );
+    });
+
+    it('does not include relations when not requested', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $task = Task::factory()->for($this->team)->create();
+
+        $response = $this->getJson("/api/v1/tasks/{$task->id}")
+            ->assertOk();
+
+        expect($response->json('data.relationships'))->toBeNull();
+    });
+
+    it('rejects disallowed includes on list endpoint', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $this->getJson('/api/v1/tasks?include=secret')
+            ->assertStatus(400);
     });
 });

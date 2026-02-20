@@ -7,22 +7,21 @@ namespace App\Http\Resources\V1;
 use App\Http\Resources\V1\Concerns\FormatsCustomFields;
 use App\Models\Company;
 use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Http\Resources\JsonApi\JsonApiResource;
 
 /**
  * @mixin Company
  */
-final class CompanyResource extends JsonResource
+final class CompanyResource extends JsonApiResource
 {
     use FormatsCustomFields;
 
     /**
      * @return array<string, mixed>
      */
-    public function toArray(Request $request): array
+    public function toAttributes(Request $request): array
     {
         return [
-            'id' => $this->id,
             'name' => $this->name,
             'address' => $this->address,
             'country' => $this->country,
@@ -31,9 +30,18 @@ final class CompanyResource extends JsonResource
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'custom_fields' => $this->formatCustomFields($this->resource),
-            'creator' => new UserResource($this->whenLoaded('creator')),
-            'people' => PeopleResource::collection($this->whenLoaded('people')),
-            'opportunities' => OpportunityResource::collection($this->whenLoaded('opportunities')),
+        ];
+    }
+
+    /**
+     * @return array<string, class-string<JsonApiResource>>
+     */
+    public function toRelationships(Request $request): array
+    {
+        return [
+            'creator' => UserResource::class,
+            'people' => PeopleResource::class,
+            'opportunities' => OpportunityResource::class,
         ];
     }
 }

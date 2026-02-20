@@ -36,7 +36,7 @@ final readonly class NotesController
 
         $note = $action->execute($user, $request->validated(), CreationSource::API);
 
-        return new NoteResource($note->loadMissing('customFieldValues.customField'))
+        return new NoteResource($note->load('customFieldValues.customField'))
             ->response()
             ->setStatusCode(201);
     }
@@ -45,7 +45,9 @@ final readonly class NotesController
     {
         Gate::authorize('view', $note);
 
-        return new NoteResource($note->loadMissing('customFieldValues.customField'));
+        $note->loadMissing('customFieldValues.customField');
+
+        return new NoteResource($note);
     }
 
     public function update(UpdateNoteRequest $request, Note $note, UpdateNote $action): NoteResource
@@ -55,7 +57,7 @@ final readonly class NotesController
 
         $note = $action->execute($user, $note, $request->validated());
 
-        return new NoteResource($note->loadMissing('customFieldValues.customField'));
+        return new NoteResource($note->load('customFieldValues.customField'));
     }
 
     public function destroy(Request $request, Note $note, DeleteNote $action): JsonResponse

@@ -35,7 +35,7 @@ final class ListPeopleTool extends Tool
         /** @var User $user */
         $user = auth()->user();
 
-        $people = $action->execute($user);
+        $people = $action->execute($user, (int) $request->get('per_page', 15));
 
         return Response::text(
             PeopleResource::collection($people)->toJson(JSON_PRETTY_PRINT)

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 use App\Enums\CreationSource;
 use App\Models\Company;
+use App\Models\CustomField;
+use App\Models\CustomFieldSection;
 use App\Models\Team;
 use App\Models\User;
 use Illuminate\Testing\Fluent\AssertableJson;
@@ -27,7 +29,7 @@ it('can list companies', function (): void {
     $this->getJson('/api/v1/companies')
         ->assertOk()
         ->assertJsonCount($seeded + 3, 'data')
-        ->assertJsonStructure(['data' => [['id', 'name', 'creation_source', 'custom_fields']]]);
+        ->assertJsonStructure(['data' => [['id', 'type', 'attributes']]]);
 });
 
 it('can create a company', function (): void {
@@ -38,11 +40,15 @@ it('can create a company', function (): void {
         ->assertValid()
         ->assertJson(fn (AssertableJson $json) => $json
             ->has('data', fn (AssertableJson $json) => $json
-                ->where('name', 'Acme Corp')
-                ->where('creation_source', CreationSource::API->value)
                 ->whereType('id', 'string')
-                ->whereType('created_at', 'string')
-                ->whereType('custom_fields', 'array')
+                ->where('type', 'companies')
+                ->has('attributes', fn (AssertableJson $json) => $json
+                    ->where('name', 'Acme Corp')
+                    ->where('creation_source', CreationSource::API->value)
+                    ->whereType('created_at', 'string')
+                    ->whereType('custom_fields', 'array')
+                    ->etc()
+                )
                 ->etc()
             )
         );
@@ -68,11 +74,15 @@ it('can show a company', function (): void {
         ->assertJson(fn (AssertableJson $json) => $json
             ->has('data', fn (AssertableJson $json) => $json
                 ->where('id', $company->id)
-                ->where('name', 'Show Test')
-                ->whereType('creation_source', 'string')
-                ->whereType('custom_fields', 'array')
-                ->missing('team_id')
-                ->missing('creator_id')
+                ->where('type', 'companies')
+                ->has('attributes', fn (AssertableJson $json) => $json
+                    ->where('name', 'Show Test')
+                    ->whereType('creation_source', 'string')
+                    ->whereType('custom_fields', 'array')
+                    ->missing('team_id')
+                    ->missing('creator_id')
+                    ->etc()
+                )
                 ->etc()
             )
         );
@@ -89,7 +99,11 @@ it('can update a company', function (): void {
         ->assertJson(fn (AssertableJson $json) => $json
             ->has('data', fn (AssertableJson $json) => $json
                 ->where('id', $company->id)
-                ->where('name', 'Updated Name')
+                ->where('type', 'companies')
+                ->has('attributes', fn (AssertableJson $json) => $json
+                    ->where('name', 'Updated Name')
+                    ->etc()
+                )
                 ->etc()
             )
         );
@@ -151,5 +165,203 @@ describe('cross-tenant isolation', function (): void {
 
         $this->deleteJson("/api/v1/companies/{$otherCompany->id}")
             ->assertNotFound();
+    });
+});
+
+describe('includes', function (): void {
+    it('can include relations on list endpoint', function (): void {
+        Sanctum::actingAs($this->user);
+
+        Company::factory()->for($this->team)->create();
+
+        $this->getJson('/api/v1/companies?include=creator')
+            ->assertOk()
+            ->assertJson(fn (AssertableJson $json) => $json
+                ->has('data.0.relationships.creator')
+                ->has('included')
+                ->etc()
+            );
+    });
+
+    it('can include relations on show endpoint with full structure', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $company = Company::factory()->for($this->team)->create();
+
+        $this->getJson("/api/v1/companies/{$company->id}?include=creator")
+            ->assertOk()
+            ->assertJson(fn (AssertableJson $json) => $json
+                ->has('data.relationships.creator.data', fn (AssertableJson $json) => $json
+                    ->whereType('id', 'string')
+                    ->where('type', 'users')
+                )
+                ->has('included.0', fn (AssertableJson $json) => $json
+                    ->whereType('id', 'string')
+                    ->where('type', 'users')
+                    ->has('attributes', fn (AssertableJson $json) => $json
+                        ->has('name')
+                        ->has('email')
+                    )
+                    ->etc()
+                )
+                ->etc()
+            );
+    });
+
+    it('can include multiple relations', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $company = Company::factory()->for($this->team)->create();
+
+        $this->getJson("/api/v1/companies/{$company->id}?include=creator,people")
+            ->assertOk()
+            ->assertJson(fn (AssertableJson $json) => $json
+                ->has('data.relationships.creator')
+                ->has('data.relationships.people')
+                ->etc()
+            );
+    });
+
+    it('does not include relations when not requested', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $company = Company::factory()->for($this->team)->create();
+
+        $response = $this->getJson("/api/v1/companies/{$company->id}")
+            ->assertOk();
+
+        expect($response->json('data.relationships'))->toBeNull();
+    });
+
+    it('rejects disallowed includes on list endpoint', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $this->getJson('/api/v1/companies?include=secret')
+            ->assertStatus(400);
+    });
+});
+
+describe('custom fields', function (): void {
+    beforeEach(function (): void {
+        $this->section = CustomFieldSection::create([
+            'tenant_id' => $this->team->id,
+            'entity_type' => 'company',
+            'name' => 'General',
+            'code' => 'general',
+            'type' => 'section',
+            'sort_order' => 1,
+            'active' => true,
+        ]);
+    });
+
+    it('can create a company with custom fields', function (): void {
+        Sanctum::actingAs($this->user);
+
+        CustomField::create([
+            'tenant_id' => $this->team->id,
+            'custom_field_section_id' => $this->section->id,
+            'entity_type' => 'company',
+            'code' => 'industry',
+            'name' => 'Industry',
+            'type' => 'text',
+            'sort_order' => 1,
+            'active' => true,
+            'validation_rules' => [],
+        ]);
+
+        $this->postJson('/api/v1/companies', [
+            'name' => 'Acme Corp',
+            'custom_fields' => [
+                'industry' => 'Technology',
+            ],
+        ])
+            ->assertCreated()
+            ->assertValid()
+            ->assertJson(fn (AssertableJson $json) => $json
+                ->has('data', fn (AssertableJson $json) => $json
+                    ->has('attributes', fn (AssertableJson $json) => $json
+                        ->where('name', 'Acme Corp')
+                        ->where('custom_fields.industry', 'Technology')
+                        ->etc()
+                    )
+                    ->etc()
+                )
+            );
+    });
+
+    it('can update a company with custom fields', function (): void {
+        Sanctum::actingAs($this->user);
+
+        CustomField::create([
+            'tenant_id' => $this->team->id,
+            'custom_field_section_id' => $this->section->id,
+            'entity_type' => 'company',
+            'code' => 'industry',
+            'name' => 'Industry',
+            'type' => 'text',
+            'sort_order' => 1,
+            'active' => true,
+            'validation_rules' => [],
+        ]);
+
+        $company = Company::factory()->for($this->team)->create();
+
+        $this->putJson("/api/v1/companies/{$company->id}", [
+            'name' => 'Updated Name',
+            'custom_fields' => [
+                'industry' => 'Finance',
+            ],
+        ])
+            ->assertOk()
+            ->assertValid()
+            ->assertJson(fn (AssertableJson $json) => $json
+                ->has('data', fn (AssertableJson $json) => $json
+                    ->has('attributes', fn (AssertableJson $json) => $json
+                        ->where('name', 'Updated Name')
+                        ->where('custom_fields.industry', 'Finance')
+                        ->etc()
+                    )
+                    ->etc()
+                )
+            );
+    });
+
+    it('validates custom field values on create', function (): void {
+        Sanctum::actingAs($this->user);
+
+        CustomField::create([
+            'tenant_id' => $this->team->id,
+            'custom_field_section_id' => $this->section->id,
+            'entity_type' => 'company',
+            'code' => 'annual_revenue',
+            'name' => 'Annual Revenue',
+            'type' => 'number',
+            'sort_order' => 1,
+            'active' => true,
+            'validation_rules' => [
+                ['name' => 'numeric', 'parameters' => []],
+            ],
+        ]);
+
+        $this->postJson('/api/v1/companies', [
+            'name' => 'Acme Corp',
+            'custom_fields' => [
+                'annual_revenue' => 'not-a-number',
+            ],
+        ])
+            ->assertUnprocessable()
+            ->assertInvalid(['custom_fields.annual_revenue']);
+    });
+
+    it('ignores unknown custom field codes', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $this->postJson('/api/v1/companies', [
+            'name' => 'Acme Corp',
+            'custom_fields' => [
+                'nonexistent_field' => 'some value',
+            ],
+        ])
+            ->assertCreated();
     });
 });
