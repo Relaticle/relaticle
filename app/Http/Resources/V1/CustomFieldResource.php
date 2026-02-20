@@ -31,7 +31,7 @@ final class CustomFieldResource extends JsonResource
             'type' => $this->type,
             'entity_type' => $this->entity_type,
             'required' => $validationService->isRequired($this->resource),
-            'options' => $this->whenLoaded('options', fn () => $this->options->map(fn ($option) => [
+            'options' => $this->whenLoaded('options', fn () => $this->options->map(fn ($option): array => [
                 'label' => $option->name,
                 'value' => $option->id,
             ])->all()),

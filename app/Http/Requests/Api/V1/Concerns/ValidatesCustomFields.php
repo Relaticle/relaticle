@@ -100,7 +100,7 @@ trait ValidatesCustomFields
         }
 
         return $baseQuery
-            ->where(function ($query) use ($submittedCodes): void {
+            ->where(function (\Illuminate\Contracts\Database\Query\Builder $query) use ($submittedCodes): void {
                 $query->whereIn('code', $submittedCodes)
                     ->orWhereJsonContains('validation_rules', ['name' => 'required']);
             })
