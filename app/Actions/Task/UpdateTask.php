@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Actions\Task;
 
-use App\Filament\Resources\TaskResource\Pages\ManageTasks;
 use App\Models\Task;
 use App\Models\User;
 use Filament\Actions\Action;
@@ -78,6 +77,16 @@ final readonly class UpdateTask
 
     private function resolveTaskUrl(Task $task): string
     {
-        return ManageTasks::getUrl(['record' => $task]);
+        try {
+            $pageClass = 'App\\Filament\\Resources\\TaskResource\\Pages\\ManageTasks';
+
+            if (class_exists($pageClass)) {
+                return $pageClass::getUrl(['record' => $task]);
+            }
+        } catch (\Throwable) {
+            // Filament panel context not available (e.g., API request)
+        }
+
+        return '#';
     }
 }

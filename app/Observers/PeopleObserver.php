@@ -14,8 +14,8 @@ final readonly class PeopleObserver
         if (auth()->check()) {
             /** @var User $user */
             $user = auth()->user();
-            $people->creator_id = $user->getKey();
-            $people->team_id = $user->currentTeam->getKey();
+            $people->creator_id ??= $user->getKey();
+            $people->team_id ??= $user->currentTeam->getKey();
         }
     }
 

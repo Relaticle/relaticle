@@ -14,8 +14,8 @@ final readonly class OpportunityObserver
         if (auth()->check()) {
             /** @var User $user */
             $user = auth()->user();
-            $opportunity->creator_id = $user->getKey();
-            $opportunity->team_id = $user->currentTeam->getKey();
+            $opportunity->creator_id ??= $user->getKey();
+            $opportunity->team_id ??= $user->currentTeam->getKey();
         }
     }
 

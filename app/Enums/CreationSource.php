@@ -44,7 +44,7 @@ enum CreationSource: string implements HasColor, HasLabel
             self::WEB => 'info',
             self::SYSTEM => 'warning',
             self::IMPORT => 'success',
-            self::API => 'danger',
+            self::API => 'info',
         };
     }
 

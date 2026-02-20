@@ -14,8 +14,8 @@ final readonly class TaskObserver
         if (auth()->check()) {
             /** @var User $user */
             $user = auth()->user();
-            $task->creator_id = $user->getKey();
-            $task->team_id = $user->currentTeam->getKey();
+            $task->creator_id ??= $user->getKey();
+            $task->team_id ??= $user->currentTeam->getKey();
         }
     }
 

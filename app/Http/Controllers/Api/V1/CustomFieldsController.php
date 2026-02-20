@@ -9,11 +9,18 @@ use App\Models\CustomField;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Validation\Rule;
 
 final readonly class CustomFieldsController
 {
+    private const array ENTITY_TYPES = ['company', 'people', 'opportunity', 'task', 'note'];
+
     public function index(Request $request): AnonymousResourceCollection
     {
+        $request->validate([
+            'entity_type' => ['sometimes', 'string', Rule::in(self::ENTITY_TYPES)],
+        ]);
+
         /** @var User $user */
         $user = $request->user();
 

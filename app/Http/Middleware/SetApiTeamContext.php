@@ -20,6 +20,16 @@ use Symfony\Component\HttpFoundation\Response;
 
 final readonly class SetApiTeamContext
 {
+    /** @var list<class-string<\Illuminate\Database\Eloquent\Model>> */
+    private const array SCOPED_MODELS = [
+        User::class,
+        Company::class,
+        People::class,
+        Opportunity::class,
+        Task::class,
+        Note::class,
+    ];
+
     public function handle(Request $request, Closure $next): Response
     {
         /** @var User $user */
@@ -45,18 +55,25 @@ final readonly class SetApiTeamContext
         return $next($request);
     }
 
+    public function terminate(): void
+    {
+        foreach (self::SCOPED_MODELS as $model) {
+            $model::clearBootedModels();
+        }
+    }
+
     private function resolveTeam(Request $request, User $user): ?Team
     {
         $token = $user->currentAccessToken();
 
-        if ($token instanceof PersonalAccessToken && $token->team_id !== null) {
+        if ($token instanceof PersonalAccessToken && is_string($token->team_id)) {
             return $token->team;
         }
 
         $teamId = $request->header('X-Team-Id');
 
         if ($teamId) {
-            return Team::query()->firstWhere('id', $teamId);
+            return Team::query()->find($teamId);
         }
 
         // @phpstan-ignore return.type (Jetstream's currentTeam is typed as Model|null)
