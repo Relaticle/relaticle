@@ -32,3 +32,4 @@ boost.json
 /.junie
 /.playwright-mcp
 /docs
+api.json
