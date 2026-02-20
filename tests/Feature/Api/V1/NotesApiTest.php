@@ -27,7 +27,7 @@ it('can list notes', function (): void {
     $this->getJson('/api/v1/notes')
         ->assertOk()
         ->assertJsonCount($seeded + 3, 'data')
-        ->assertJsonStructure(['data' => [['id', 'title', 'creation_source', 'custom_fields']]]);
+        ->assertJsonStructure(['data' => [['id', 'type', 'attributes']]]);
 });
 
 it('can create a note', function (): void {
@@ -38,13 +38,17 @@ it('can create a note', function (): void {
         ->assertValid()
         ->assertJson(fn (AssertableJson $json) => $json
             ->has('data', fn (AssertableJson $json) => $json
-                ->where('title', 'Meeting notes')
-                ->where('creation_source', CreationSource::API->value)
                 ->whereType('id', 'string')
-                ->whereType('created_at', 'string')
-                ->whereType('custom_fields', 'array')
-                ->missing('team_id')
-                ->missing('creator_id')
+                ->where('type', 'notes')
+                ->has('attributes', fn (AssertableJson $json) => $json
+                    ->where('title', 'Meeting notes')
+                    ->where('creation_source', CreationSource::API->value)
+                    ->whereType('created_at', 'string')
+                    ->whereType('custom_fields', 'array')
+                    ->missing('team_id')
+                    ->missing('creator_id')
+                    ->etc()
+                )
                 ->etc()
             )
         );
@@ -70,11 +74,15 @@ it('can show a note', function (): void {
         ->assertJson(fn (AssertableJson $json) => $json
             ->has('data', fn (AssertableJson $json) => $json
                 ->where('id', $note->id)
-                ->where('title', 'Show Test')
-                ->whereType('creation_source', 'string')
-                ->whereType('custom_fields', 'array')
-                ->missing('team_id')
-                ->missing('creator_id')
+                ->where('type', 'notes')
+                ->has('attributes', fn (AssertableJson $json) => $json
+                    ->where('title', 'Show Test')
+                    ->whereType('creation_source', 'string')
+                    ->whereType('custom_fields', 'array')
+                    ->missing('team_id')
+                    ->missing('creator_id')
+                    ->etc()
+                )
                 ->etc()
             )
         );
@@ -91,7 +99,11 @@ it('can update a note', function (): void {
         ->assertJson(fn (AssertableJson $json) => $json
             ->has('data', fn (AssertableJson $json) => $json
                 ->where('id', $note->id)
-                ->where('title', 'Updated Title')
+                ->where('type', 'notes')
+                ->has('attributes', fn (AssertableJson $json) => $json
+                    ->where('title', 'Updated Title')
+                    ->etc()
+                )
                 ->etc()
             )
         );

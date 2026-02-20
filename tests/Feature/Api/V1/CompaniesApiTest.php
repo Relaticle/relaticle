@@ -29,7 +29,7 @@ it('can list companies', function (): void {
     $this->getJson('/api/v1/companies')
         ->assertOk()
         ->assertJsonCount($seeded + 3, 'data')
-        ->assertJsonStructure(['data' => [['id', 'name', 'creation_source', 'custom_fields']]]);
+        ->assertJsonStructure(['data' => [['id', 'type', 'attributes']]]);
 });
 
 it('can create a company', function (): void {
@@ -40,11 +40,15 @@ it('can create a company', function (): void {
         ->assertValid()
         ->assertJson(fn (AssertableJson $json) => $json
             ->has('data', fn (AssertableJson $json) => $json
-                ->where('name', 'Acme Corp')
-                ->where('creation_source', CreationSource::API->value)
                 ->whereType('id', 'string')
-                ->whereType('created_at', 'string')
-                ->whereType('custom_fields', 'array')
+                ->where('type', 'companies')
+                ->has('attributes', fn (AssertableJson $json) => $json
+                    ->where('name', 'Acme Corp')
+                    ->where('creation_source', CreationSource::API->value)
+                    ->whereType('created_at', 'string')
+                    ->whereType('custom_fields', 'array')
+                    ->etc()
+                )
                 ->etc()
             )
         );
@@ -70,11 +74,15 @@ it('can show a company', function (): void {
         ->assertJson(fn (AssertableJson $json) => $json
             ->has('data', fn (AssertableJson $json) => $json
                 ->where('id', $company->id)
-                ->where('name', 'Show Test')
-                ->whereType('creation_source', 'string')
-                ->whereType('custom_fields', 'array')
-                ->missing('team_id')
-                ->missing('creator_id')
+                ->where('type', 'companies')
+                ->has('attributes', fn (AssertableJson $json) => $json
+                    ->where('name', 'Show Test')
+                    ->whereType('creation_source', 'string')
+                    ->whereType('custom_fields', 'array')
+                    ->missing('team_id')
+                    ->missing('creator_id')
+                    ->etc()
+                )
                 ->etc()
             )
         );
@@ -91,7 +99,11 @@ it('can update a company', function (): void {
         ->assertJson(fn (AssertableJson $json) => $json
             ->has('data', fn (AssertableJson $json) => $json
                 ->where('id', $company->id)
-                ->where('name', 'Updated Name')
+                ->where('type', 'companies')
+                ->has('attributes', fn (AssertableJson $json) => $json
+                    ->where('name', 'Updated Name')
+                    ->etc()
+                )
                 ->etc()
             )
         );
@@ -165,7 +177,8 @@ describe('includes', function (): void {
         $this->getJson('/api/v1/companies?include=creator')
             ->assertOk()
             ->assertJson(fn (AssertableJson $json) => $json
-                ->has('data.0.creator')
+                ->has('data.0.relationships.creator')
+                ->has('included')
                 ->etc()
             );
     });
@@ -178,7 +191,8 @@ describe('includes', function (): void {
         $this->getJson("/api/v1/companies/{$company->id}?include=creator")
             ->assertOk()
             ->assertJson(fn (AssertableJson $json) => $json
-                ->has('data.creator')
+                ->has('data.relationships.creator')
+                ->has('included')
                 ->etc()
             );
     });
@@ -191,7 +205,7 @@ describe('includes', function (): void {
         $response = $this->getJson("/api/v1/companies/{$company->id}")
             ->assertOk();
 
-        expect($response->json('data.creator'))->toBeNull();
+        expect($response->json('data.relationships'))->toBeNull();
     });
 
     it('rejects disallowed includes on list endpoint', function (): void {
@@ -240,8 +254,11 @@ describe('custom fields', function (): void {
             ->assertValid()
             ->assertJson(fn (AssertableJson $json) => $json
                 ->has('data', fn (AssertableJson $json) => $json
-                    ->where('name', 'Acme Corp')
-                    ->where('custom_fields.industry', 'Technology')
+                    ->has('attributes', fn (AssertableJson $json) => $json
+                        ->where('name', 'Acme Corp')
+                        ->where('custom_fields.industry', 'Technology')
+                        ->etc()
+                    )
                     ->etc()
                 )
             );
@@ -274,8 +291,11 @@ describe('custom fields', function (): void {
             ->assertValid()
             ->assertJson(fn (AssertableJson $json) => $json
                 ->has('data', fn (AssertableJson $json) => $json
-                    ->where('name', 'Updated Name')
-                    ->where('custom_fields.industry', 'Finance')
+                    ->has('attributes', fn (AssertableJson $json) => $json
+                        ->where('name', 'Updated Name')
+                        ->where('custom_fields.industry', 'Finance')
+                        ->etc()
+                    )
                     ->etc()
                 )
             );

@@ -55,15 +55,17 @@ it('can list custom fields with expected structure', function (): void {
     $response->assertOk()
         ->assertJsonCount($this->seededCount + 1, 'data');
 
-    $field = collect($response->json('data'))->firstWhere('code', 'cf_industry');
+    $field = collect($response->json('data'))
+        ->first(fn ($item) => ($item['attributes']['code'] ?? null) === 'cf_industry');
 
     expect($field)
         ->not->toBeNull()
-        ->and($field['name'])->toBe('Industry')
-        ->and($field['type'])->toBe('text')
-        ->and($field['entity_type'])->toBe('company')
-        ->and($field['required'])->toBeTrue()
-        ->and($field)->toHaveKeys(['id', 'code', 'name', 'type', 'entity_type', 'required', 'created_at', 'updated_at']);
+        ->and($field['attributes']['name'])->toBe('Industry')
+        ->and($field['attributes']['type'])->toBe('text')
+        ->and($field['attributes']['entity_type'])->toBe('company')
+        ->and($field['attributes']['required'])->toBeTrue()
+        ->and($field['attributes'])->toHaveKeys(['code', 'name', 'type', 'entity_type', 'required', 'created_at', 'updated_at'])
+        ->and($field)->toHaveKeys(['id', 'type']);
 });
 
 it('returns required as false when field has no required rule', function (): void {
@@ -85,10 +87,11 @@ it('returns required as false when field has no required rule', function (): voi
 
     $response->assertOk();
 
-    $field = collect($response->json('data'))->firstWhere('code', 'cf_notes');
+    $field = collect($response->json('data'))
+        ->first(fn ($item) => ($item['attributes']['code'] ?? null) === 'cf_notes');
 
     expect($field)->not->toBeNull()
-        ->and($field['required'])->toBeFalse();
+        ->and($field['attributes']['required'])->toBeFalse();
 });
 
 it('can filter by entity_type', function (): void {
@@ -132,11 +135,11 @@ it('can filter by entity_type', function (): void {
 
     $response->assertOk();
 
-    $entityTypes = collect($response->json('data'))->pluck('entity_type')->unique();
+    $entityTypes = collect($response->json('data'))->pluck('attributes.entity_type')->unique();
 
     expect($entityTypes->all())->toBe(['company']);
 
-    $codes = collect($response->json('data'))->pluck('code');
+    $codes = collect($response->json('data'))->pluck('attributes.code');
     expect($codes)->toContain('cf_industry');
     expect($codes)->not->toContain('cf_birthday');
 });
@@ -184,7 +187,7 @@ it('does not return custom fields from other teams', function (): void {
 
     $response->assertOk();
 
-    $codes = collect($response->json('data'))->pluck('code');
+    $codes = collect($response->json('data'))->pluck('attributes.code');
     expect($codes)->toContain('cf_own_field');
     expect($codes)->not->toContain('cf_secret_field');
 });
@@ -213,12 +216,13 @@ it('includes options for select fields', function (): void {
 
     $response->assertOk();
 
-    $fieldData = collect($response->json('data'))->firstWhere('code', 'cf_status');
+    $fieldData = collect($response->json('data'))
+        ->first(fn ($item) => ($item['attributes']['code'] ?? null) === 'cf_status');
 
     expect($fieldData)->not->toBeNull()
-        ->and($fieldData['options'])->toHaveCount(2)
-        ->and($fieldData['options'][0]['label'])->toBe('Active')
-        ->and($fieldData['options'][0])->toHaveKey('value');
+        ->and($fieldData['attributes']['options'])->toHaveCount(2)
+        ->and($fieldData['attributes']['options'][0]['label'])->toBe('Active')
+        ->and($fieldData['attributes']['options'][0])->toHaveKey('value');
 });
 
 it('excludes inactive custom fields', function (): void {
@@ -252,7 +256,7 @@ it('excludes inactive custom fields', function (): void {
 
     $response->assertOk();
 
-    $codes = collect($response->json('data'))->pluck('code');
+    $codes = collect($response->json('data'))->pluck('attributes.code');
     expect($codes)->toContain('cf_active_field');
     expect($codes)->not->toContain('cf_inactive_field');
 });
