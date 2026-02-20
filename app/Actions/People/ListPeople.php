@@ -17,7 +17,7 @@ final readonly class ListPeople
     {
         abort_unless($user->can('viewAny', People::class), 403);
 
-        $perPage = min($perPage ?? (int) (request()->query('per_page', '15')), 100);
+        $perPage = max(1, min($perPage ?? (int) (request()->query('per_page', '15')), 100));
 
         $query = QueryBuilder::for(People::query()->withCustomFieldValues())
             ->allowedFilters([

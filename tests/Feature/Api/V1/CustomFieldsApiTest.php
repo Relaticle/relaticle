@@ -100,7 +100,7 @@ it('can filter by entity_type', function (): void {
 
     $personSection = CustomFieldSection::create([
         'tenant_id' => $this->team->id,
-        'entity_type' => 'person',
+        'entity_type' => 'people',
         'name' => 'API Test Person',
         'code' => 'api_test_person',
         'type' => 'section',
@@ -123,7 +123,7 @@ it('can filter by entity_type', function (): void {
     CustomField::create([
         'tenant_id' => $this->team->id,
         'custom_field_section_id' => $personSection->id,
-        'entity_type' => 'person',
+        'entity_type' => 'people',
         'code' => 'cf_birthday',
         'name' => 'Birthday',
         'type' => 'date',

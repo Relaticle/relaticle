@@ -17,7 +17,7 @@ final readonly class ListCompanies
     {
         abort_unless($user->can('viewAny', Company::class), 403);
 
-        $perPage = min($perPage ?? (int) (request()->query('per_page', '15')), 100);
+        $perPage = max(1, min($perPage ?? (int) (request()->query('per_page', '15')), 100));
 
         $query = QueryBuilder::for(Company::query()->withCustomFieldValues())
             ->allowedFilters([

@@ -6,6 +6,7 @@ use App\Filament\Exports\BaseExporter;
 use App\Filament\Imports\BaseImporter;
 use App\Filament\Pages\Import\ImportPage;
 use App\Livewire\BaseLivewireComponent;
+use App\Models\PersonalAccessToken;
 
 arch()->preset()->php();
 
@@ -38,6 +39,7 @@ arch('avoid open for extension')
         BaseImporter::class,
         BaseExporter::class,
         ImportPage::class,
+        PersonalAccessToken::class,
     ]);
 
 arch('ensure no extends')
