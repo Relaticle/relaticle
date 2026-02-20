@@ -36,6 +36,8 @@ use Laravel\Mcp\Server\Attributes\Version;
 #[Instructions('This server provides access to Relaticle CRM data including companies, people, opportunities, tasks, and notes. All operations are scoped to the authenticated user\'s current team.')]
 final class RelaticleServer extends Server
 {
+    public int $defaultPaginationLength = 50;
+
     /** @var array<int, class-string<\Laravel\Mcp\Server\Tool>> */
     protected array $tools = [
         ListCompaniesTool::class,
