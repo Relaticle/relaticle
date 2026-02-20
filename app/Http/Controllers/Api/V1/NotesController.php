@@ -17,6 +17,7 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Gate;
 
 final readonly class NotesController
 {
@@ -25,23 +26,25 @@ final readonly class NotesController
         /** @var User $user */
         $user = $request->user();
 
-        $notes = $action->execute($user, $request->query());
-
-        return NoteResource::collection($notes);
+        return NoteResource::collection($action->execute($user));
     }
 
-    public function store(StoreNoteRequest $request, CreateNote $action): NoteResource
+    public function store(StoreNoteRequest $request, CreateNote $action): JsonResponse
     {
         /** @var User $user */
         $user = $request->user();
 
         $note = $action->execute($user, $request->validated(), CreationSource::API);
 
-        return new NoteResource($note->loadMissing('customFieldValues.customField'));
+        return (new NoteResource($note->loadMissing('customFieldValues.customField')))
+            ->response()
+            ->setStatusCode(201);
     }
 
     public function show(Note $note): NoteResource
     {
+        Gate::authorize('view', $note);
+
         return new NoteResource($note->loadMissing('customFieldValues.customField'));
     }
 

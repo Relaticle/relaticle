@@ -34,7 +34,7 @@ final class ListTasksTool extends Tool
         /** @var User $user */
         $user = auth()->user();
 
-        $tasks = $action->execute($user, $request->all());
+        $tasks = $action->execute($user);
 
         return Response::text(
             TaskResource::collection($tasks)->toJson(JSON_PRETTY_PRINT)

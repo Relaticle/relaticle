@@ -17,6 +17,7 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Gate;
 
 final readonly class OpportunitiesController
 {
@@ -25,23 +26,25 @@ final readonly class OpportunitiesController
         /** @var User $user */
         $user = $request->user();
 
-        $opportunities = $action->execute($user, $request->query());
-
-        return OpportunityResource::collection($opportunities);
+        return OpportunityResource::collection($action->execute($user));
     }
 
-    public function store(StoreOpportunityRequest $request, CreateOpportunity $action): OpportunityResource
+    public function store(StoreOpportunityRequest $request, CreateOpportunity $action): JsonResponse
     {
         /** @var User $user */
         $user = $request->user();
 
         $opportunity = $action->execute($user, $request->validated(), CreationSource::API);
 
-        return new OpportunityResource($opportunity->loadMissing('customFieldValues.customField'));
+        return (new OpportunityResource($opportunity->loadMissing('customFieldValues.customField')))
+            ->response()
+            ->setStatusCode(201);
     }
 
     public function show(Opportunity $opportunity): OpportunityResource
     {
+        Gate::authorize('view', $opportunity);
+
         return new OpportunityResource($opportunity->loadMissing('customFieldValues.customField'));
     }
 

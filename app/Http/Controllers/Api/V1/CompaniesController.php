@@ -17,6 +17,7 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Gate;
 
 final readonly class CompaniesController
 {
@@ -25,23 +26,25 @@ final readonly class CompaniesController
         /** @var User $user */
         $user = $request->user();
 
-        $companies = $action->execute($user, $request->query());
-
-        return CompanyResource::collection($companies);
+        return CompanyResource::collection($action->execute($user));
     }
 
-    public function store(StoreCompanyRequest $request, CreateCompany $action): CompanyResource
+    public function store(StoreCompanyRequest $request, CreateCompany $action): JsonResponse
     {
         /** @var User $user */
         $user = $request->user();
 
         $company = $action->execute($user, $request->validated(), CreationSource::API);
 
-        return new CompanyResource($company->loadMissing('customFieldValues.customField'));
+        return (new CompanyResource($company->loadMissing('customFieldValues.customField')))
+            ->response()
+            ->setStatusCode(201);
     }
 
     public function show(Company $company): CompanyResource
     {
+        Gate::authorize('view', $company);
+
         return new CompanyResource($company->loadMissing('customFieldValues.customField'));
     }
 

@@ -17,6 +17,7 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Gate;
 
 final readonly class PeopleController
 {
@@ -25,23 +26,25 @@ final readonly class PeopleController
         /** @var User $user */
         $user = $request->user();
 
-        $people = $action->execute($user, $request->query());
-
-        return PeopleResource::collection($people);
+        return PeopleResource::collection($action->execute($user));
     }
 
-    public function store(StorePeopleRequest $request, CreatePeople $action): PeopleResource
+    public function store(StorePeopleRequest $request, CreatePeople $action): JsonResponse
     {
         /** @var User $user */
         $user = $request->user();
 
         $person = $action->execute($user, $request->validated(), CreationSource::API);
 
-        return new PeopleResource($person->loadMissing('customFieldValues.customField'));
+        return (new PeopleResource($person->loadMissing('customFieldValues.customField')))
+            ->response()
+            ->setStatusCode(201);
     }
 
     public function show(People $person): PeopleResource
     {
+        Gate::authorize('view', $person);
+
         return new PeopleResource($person->loadMissing('customFieldValues.customField'));
     }
 

@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 use App\Enums\CreationSource;
 use App\Models\People;
+use App\Models\Team;
 use App\Models\User;
+use Illuminate\Testing\Fluent\AssertableJson;
 use Laravel\Sanctum\Sanctum;
 
 beforeEach(function () {
@@ -21,10 +23,13 @@ it('can list people', function (): void {
 
     $people = People::factory(3)->for($this->team)->create();
 
-    $this->getJson('/api/v1/people')
-        ->assertOk()
-        ->assertJsonCount(3, 'data')
+    $response = $this->getJson('/api/v1/people');
+
+    $response->assertOk()
         ->assertJsonStructure(['data' => [['id', 'name', 'creation_source', 'custom_fields']]]);
+
+    $ids = collect($response->json('data'))->pluck('id');
+    $people->each(fn (People $person) => expect($ids)->toContain($person->id));
 });
 
 it('can create a person', function (): void {
@@ -32,8 +37,19 @@ it('can create a person', function (): void {
 
     $this->postJson('/api/v1/people', ['name' => 'John Doe'])
         ->assertCreated()
-        ->assertJsonPath('data.name', 'John Doe')
-        ->assertJsonPath('data.creation_source', CreationSource::API->value);
+        ->assertValid()
+        ->assertJson(fn (AssertableJson $json) => $json
+            ->has('data', fn (AssertableJson $json) => $json
+                ->where('name', 'John Doe')
+                ->where('creation_source', CreationSource::API->value)
+                ->whereType('id', 'string')
+                ->whereType('created_at', 'string')
+                ->whereType('custom_fields', 'array')
+                ->missing('team_id')
+                ->missing('creator_id')
+                ->etc()
+            )
+        );
 
     $this->assertDatabaseHas('people', ['name' => 'John Doe', 'team_id' => $this->team->id]);
 });
@@ -43,17 +59,27 @@ it('validates required fields on create', function (): void {
 
     $this->postJson('/api/v1/people', [])
         ->assertUnprocessable()
-        ->assertJsonValidationErrors(['name']);
+        ->assertInvalid(['name']);
 });
 
 it('can show a person', function (): void {
     Sanctum::actingAs($this->user);
 
-    $person = People::factory()->for($this->team)->create();
+    $person = People::factory()->for($this->team)->create(['name' => 'Show Test']);
 
     $this->getJson("/api/v1/people/{$person->id}")
         ->assertOk()
-        ->assertJsonPath('data.id', $person->id);
+        ->assertJson(fn (AssertableJson $json) => $json
+            ->has('data', fn (AssertableJson $json) => $json
+                ->where('id', $person->id)
+                ->where('name', 'Show Test')
+                ->whereType('creation_source', 'string')
+                ->whereType('custom_fields', 'array')
+                ->missing('team_id')
+                ->missing('creator_id')
+                ->etc()
+            )
+        );
 });
 
 it('can update a person', function (): void {
@@ -63,7 +89,14 @@ it('can update a person', function (): void {
 
     $this->putJson("/api/v1/people/{$person->id}", ['name' => 'Updated Name'])
         ->assertOk()
-        ->assertJsonPath('data.name', 'Updated Name');
+        ->assertValid()
+        ->assertJson(fn (AssertableJson $json) => $json
+            ->has('data', fn (AssertableJson $json) => $json
+                ->where('id', $person->id)
+                ->where('name', 'Updated Name')
+                ->etc()
+            )
+        );
 });
 
 it('can delete a person', function (): void {
@@ -78,13 +111,46 @@ it('can delete a person', function (): void {
 });
 
 it('scopes people to current team', function (): void {
+    $otherPerson = People::withoutEvents(fn () => People::factory()->for(Team::factory())->create());
+
     Sanctum::actingAs($this->user);
 
     $ownPerson = People::factory()->for($this->team)->create();
-    $otherPerson = People::factory()->create();
 
-    $this->getJson('/api/v1/people')
-        ->assertOk()
-        ->assertJsonCount(1, 'data')
-        ->assertJsonPath('data.0.id', $ownPerson->id);
+    $response = $this->getJson('/api/v1/people');
+
+    $response->assertOk();
+
+    $ids = collect($response->json('data'))->pluck('id');
+    expect($ids)->toContain($ownPerson->id);
+    expect($ids)->not->toContain($otherPerson->id);
+});
+
+describe('cross-tenant isolation', function (): void {
+    it('cannot show a person from another team', function (): void {
+        $otherPerson = People::withoutEvents(fn () => People::factory()->for(Team::factory())->create());
+
+        Sanctum::actingAs($this->user);
+
+        $this->getJson("/api/v1/people/{$otherPerson->id}")
+            ->assertNotFound();
+    });
+
+    it('cannot update a person from another team', function (): void {
+        $otherPerson = People::withoutEvents(fn () => People::factory()->for(Team::factory())->create());
+
+        Sanctum::actingAs($this->user);
+
+        $this->putJson("/api/v1/people/{$otherPerson->id}", ['name' => 'Hacked'])
+            ->assertNotFound();
+    });
+
+    it('cannot delete a person from another team', function (): void {
+        $otherPerson = People::withoutEvents(fn () => People::factory()->for(Team::factory())->create());
+
+        Sanctum::actingAs($this->user);
+
+        $this->deleteJson("/api/v1/people/{$otherPerson->id}")
+            ->assertNotFound();
+    });
 });

@@ -16,7 +16,7 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 Route::prefix('v1')
-    ->middleware(['auth:sanctum', SetApiTeamContext::class, 'throttle:api'])
+    ->middleware(['auth:sanctum', SetApiTeamContext::class])
     ->group(function (): void {
         Route::apiResource('companies', CompaniesController::class);
         Route::apiResource('people', PeopleController::class);

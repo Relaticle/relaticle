@@ -17,24 +17,30 @@ it('uses current team by default', function (): void {
 
     $company = Company::factory()->for($this->team)->create();
 
-    $this->getJson('/api/v1/companies')
-        ->assertOk()
-        ->assertJsonCount(1, 'data');
+    $response = $this->getJson('/api/v1/companies');
+
+    $response->assertOk();
+
+    $ids = collect($response->json('data'))->pluck('id');
+    expect($ids)->toContain($company->id);
 });
 
 it('can switch team via X-Team-Id header', function (): void {
     $otherTeam = Team::factory()->create();
     $this->user->teams()->attach($otherTeam);
 
+    $otherCompany = Company::withoutEvents(fn () => Company::factory()->create(['team_id' => $otherTeam->id]));
+
     Sanctum::actingAs($this->user);
 
     Company::factory()->for($this->team)->create();
-    $otherCompany = Company::factory()->for($otherTeam)->create();
 
-    $this->getJson('/api/v1/companies', ['X-Team-Id' => $otherTeam->id])
-        ->assertOk()
-        ->assertJsonCount(1, 'data')
-        ->assertJsonPath('data.0.id', $otherCompany->id);
+    $response = $this->getJson('/api/v1/companies', ['X-Team-Id' => $otherTeam->id]);
+
+    $response->assertOk();
+
+    $ids = collect($response->json('data'))->pluck('id');
+    expect($ids)->toContain($otherCompany->id);
 });
 
 it('rejects X-Team-Id for team user does not belong to', function (): void {

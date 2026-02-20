@@ -34,7 +34,7 @@ final class ListCompaniesTool extends Tool
         /** @var User $user */
         $user = auth()->user();
 
-        $companies = $action->execute($user, $request->all());
+        $companies = $action->execute($user);
 
         return Response::text(
             CompanyResource::collection($companies)->toJson(JSON_PRETTY_PRINT)

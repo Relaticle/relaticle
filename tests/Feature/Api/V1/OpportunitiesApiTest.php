@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 use App\Enums\CreationSource;
 use App\Models\Opportunity;
+use App\Models\Team;
 use App\Models\User;
+use Illuminate\Testing\Fluent\AssertableJson;
 use Laravel\Sanctum\Sanctum;
 
 beforeEach(function () {
@@ -19,11 +21,12 @@ it('requires authentication', function (): void {
 it('can list opportunities', function (): void {
     Sanctum::actingAs($this->user);
 
-    $opportunities = Opportunity::factory(3)->for($this->team)->create();
+    $seeded = Opportunity::query()->where('team_id', $this->team->id)->count();
+    Opportunity::factory(3)->for($this->team)->create();
 
     $this->getJson('/api/v1/opportunities')
         ->assertOk()
-        ->assertJsonCount(3, 'data')
+        ->assertJsonCount($seeded + 3, 'data')
         ->assertJsonStructure(['data' => [['id', 'name', 'creation_source', 'custom_fields']]]);
 });
 
@@ -32,8 +35,19 @@ it('can create an opportunity', function (): void {
 
     $this->postJson('/api/v1/opportunities', ['name' => 'Big Deal'])
         ->assertCreated()
-        ->assertJsonPath('data.name', 'Big Deal')
-        ->assertJsonPath('data.creation_source', CreationSource::API->value);
+        ->assertValid()
+        ->assertJson(fn (AssertableJson $json) => $json
+            ->has('data', fn (AssertableJson $json) => $json
+                ->where('name', 'Big Deal')
+                ->where('creation_source', CreationSource::API->value)
+                ->whereType('id', 'string')
+                ->whereType('created_at', 'string')
+                ->whereType('custom_fields', 'array')
+                ->missing('team_id')
+                ->missing('creator_id')
+                ->etc()
+            )
+        );
 
     $this->assertDatabaseHas('opportunities', ['name' => 'Big Deal', 'team_id' => $this->team->id]);
 });
@@ -43,17 +57,27 @@ it('validates required fields on create', function (): void {
 
     $this->postJson('/api/v1/opportunities', [])
         ->assertUnprocessable()
-        ->assertJsonValidationErrors(['name']);
+        ->assertInvalid(['name']);
 });
 
 it('can show an opportunity', function (): void {
     Sanctum::actingAs($this->user);
 
-    $opportunity = Opportunity::factory()->for($this->team)->create();
+    $opportunity = Opportunity::factory()->for($this->team)->create(['name' => 'Show Test']);
 
     $this->getJson("/api/v1/opportunities/{$opportunity->id}")
         ->assertOk()
-        ->assertJsonPath('data.id', $opportunity->id);
+        ->assertJson(fn (AssertableJson $json) => $json
+            ->has('data', fn (AssertableJson $json) => $json
+                ->where('id', $opportunity->id)
+                ->where('name', 'Show Test')
+                ->whereType('creation_source', 'string')
+                ->whereType('custom_fields', 'array')
+                ->missing('team_id')
+                ->missing('creator_id')
+                ->etc()
+            )
+        );
 });
 
 it('can update an opportunity', function (): void {
@@ -63,7 +87,14 @@ it('can update an opportunity', function (): void {
 
     $this->putJson("/api/v1/opportunities/{$opportunity->id}", ['name' => 'Updated Name'])
         ->assertOk()
-        ->assertJsonPath('data.name', 'Updated Name');
+        ->assertValid()
+        ->assertJson(fn (AssertableJson $json) => $json
+            ->has('data', fn (AssertableJson $json) => $json
+                ->where('id', $opportunity->id)
+                ->where('name', 'Updated Name')
+                ->etc()
+            )
+        );
 });
 
 it('can delete an opportunity', function (): void {
@@ -78,13 +109,49 @@ it('can delete an opportunity', function (): void {
 });
 
 it('scopes opportunities to current team', function (): void {
+    $otherOpportunity = Opportunity::withoutEvents(fn () => Opportunity::factory()->create(['team_id' => Team::factory()->create()->id]));
+
     Sanctum::actingAs($this->user);
 
     $ownOpportunity = Opportunity::factory()->for($this->team)->create();
-    $otherOpportunity = Opportunity::factory()->create();
 
-    $this->getJson('/api/v1/opportunities')
-        ->assertOk()
-        ->assertJsonCount(1, 'data')
-        ->assertJsonPath('data.0.id', $ownOpportunity->id);
+    $response = $this->getJson('/api/v1/opportunities');
+
+    $response->assertOk();
+
+    $ids = collect($response->json('data'))->pluck('id');
+    expect($ids)->toContain($ownOpportunity->id);
+    expect($ids)->not->toContain($otherOpportunity->id);
+});
+
+describe('cross-tenant isolation', function (): void {
+    it('cannot show an opportunity from another team', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $otherTeam = Team::factory()->create();
+        $otherOpportunity = Opportunity::withoutEvents(fn () => Opportunity::factory()->create(['team_id' => $otherTeam->id]));
+
+        $this->getJson("/api/v1/opportunities/{$otherOpportunity->id}")
+            ->assertNotFound();
+    });
+
+    it('cannot update an opportunity from another team', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $otherTeam = Team::factory()->create();
+        $otherOpportunity = Opportunity::withoutEvents(fn () => Opportunity::factory()->create(['team_id' => $otherTeam->id]));
+
+        $this->putJson("/api/v1/opportunities/{$otherOpportunity->id}", ['name' => 'Hacked'])
+            ->assertNotFound();
+    });
+
+    it('cannot delete an opportunity from another team', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $otherTeam = Team::factory()->create();
+        $otherOpportunity = Opportunity::withoutEvents(fn () => Opportunity::factory()->create(['team_id' => $otherTeam->id]));
+
+        $this->deleteJson("/api/v1/opportunities/{$otherOpportunity->id}")
+            ->assertNotFound();
+    });
 });

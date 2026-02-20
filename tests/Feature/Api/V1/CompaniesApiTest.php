@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 use App\Enums\CreationSource;
 use App\Models\Company;
+use App\Models\Team;
 use App\Models\User;
+use Illuminate\Testing\Fluent\AssertableJson;
 use Laravel\Sanctum\Sanctum;
 
 beforeEach(function () {
@@ -19,11 +21,12 @@ it('requires authentication', function (): void {
 it('can list companies', function (): void {
     Sanctum::actingAs($this->user);
 
-    $companies = Company::factory(3)->for($this->team)->create();
+    $seeded = Company::query()->where('team_id', $this->team->id)->count();
+    Company::factory(3)->for($this->team)->create();
 
     $this->getJson('/api/v1/companies')
         ->assertOk()
-        ->assertJsonCount(3, 'data')
+        ->assertJsonCount($seeded + 3, 'data')
         ->assertJsonStructure(['data' => [['id', 'name', 'creation_source', 'custom_fields']]]);
 });
 
@@ -32,8 +35,17 @@ it('can create a company', function (): void {
 
     $this->postJson('/api/v1/companies', ['name' => 'Acme Corp'])
         ->assertCreated()
-        ->assertJsonPath('data.name', 'Acme Corp')
-        ->assertJsonPath('data.creation_source', CreationSource::API->value);
+        ->assertValid()
+        ->assertJson(fn (AssertableJson $json) => $json
+            ->has('data', fn (AssertableJson $json) => $json
+                ->where('name', 'Acme Corp')
+                ->where('creation_source', CreationSource::API->value)
+                ->whereType('id', 'string')
+                ->whereType('created_at', 'string')
+                ->whereType('custom_fields', 'array')
+                ->etc()
+            )
+        );
 
     $this->assertDatabaseHas('companies', ['name' => 'Acme Corp', 'team_id' => $this->team->id]);
 });
@@ -43,17 +55,27 @@ it('validates required fields on create', function (): void {
 
     $this->postJson('/api/v1/companies', [])
         ->assertUnprocessable()
-        ->assertJsonValidationErrors(['name']);
+        ->assertInvalid(['name']);
 });
 
 it('can show a company', function (): void {
     Sanctum::actingAs($this->user);
 
-    $company = Company::factory()->for($this->team)->create();
+    $company = Company::factory()->for($this->team)->create(['name' => 'Show Test']);
 
     $this->getJson("/api/v1/companies/{$company->id}")
         ->assertOk()
-        ->assertJsonPath('data.id', $company->id);
+        ->assertJson(fn (AssertableJson $json) => $json
+            ->has('data', fn (AssertableJson $json) => $json
+                ->where('id', $company->id)
+                ->where('name', 'Show Test')
+                ->whereType('creation_source', 'string')
+                ->whereType('custom_fields', 'array')
+                ->missing('team_id')
+                ->missing('creator_id')
+                ->etc()
+            )
+        );
 });
 
 it('can update a company', function (): void {
@@ -63,7 +85,14 @@ it('can update a company', function (): void {
 
     $this->putJson("/api/v1/companies/{$company->id}", ['name' => 'Updated Name'])
         ->assertOk()
-        ->assertJsonPath('data.name', 'Updated Name');
+        ->assertValid()
+        ->assertJson(fn (AssertableJson $json) => $json
+            ->has('data', fn (AssertableJson $json) => $json
+                ->where('id', $company->id)
+                ->where('name', 'Updated Name')
+                ->etc()
+            )
+        );
 });
 
 it('can delete a company', function (): void {
@@ -78,13 +107,49 @@ it('can delete a company', function (): void {
 });
 
 it('scopes companies to current team', function (): void {
+    $otherCompany = Company::withoutEvents(fn () => Company::factory()->create(['team_id' => Team::factory()->create()->id]));
+
     Sanctum::actingAs($this->user);
 
     $ownCompany = Company::factory()->for($this->team)->create();
-    $otherCompany = Company::factory()->create();
 
-    $this->getJson('/api/v1/companies')
-        ->assertOk()
-        ->assertJsonCount(1, 'data')
-        ->assertJsonPath('data.0.id', $ownCompany->id);
+    $response = $this->getJson('/api/v1/companies');
+
+    $response->assertOk();
+
+    $ids = collect($response->json('data'))->pluck('id');
+    expect($ids)->toContain($ownCompany->id);
+    expect($ids)->not->toContain($otherCompany->id);
+});
+
+describe('cross-tenant isolation', function (): void {
+    it('cannot show a company from another team', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $otherTeam = Team::factory()->create();
+        $otherCompany = Company::withoutEvents(fn () => Company::factory()->create(['team_id' => $otherTeam->id]));
+
+        $this->getJson("/api/v1/companies/{$otherCompany->id}")
+            ->assertNotFound();
+    });
+
+    it('cannot update a company from another team', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $otherTeam = Team::factory()->create();
+        $otherCompany = Company::withoutEvents(fn () => Company::factory()->create(['team_id' => $otherTeam->id]));
+
+        $this->putJson("/api/v1/companies/{$otherCompany->id}", ['name' => 'Hacked'])
+            ->assertNotFound();
+    });
+
+    it('cannot delete a company from another team', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $otherTeam = Team::factory()->create();
+        $otherCompany = Company::withoutEvents(fn () => Company::factory()->create(['team_id' => $otherTeam->id]));
+
+        $this->deleteJson("/api/v1/companies/{$otherCompany->id}")
+            ->assertNotFound();
+    });
 });

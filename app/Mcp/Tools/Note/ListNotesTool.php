@@ -34,7 +34,7 @@ final class ListNotesTool extends Tool
         /** @var User $user */
         $user = auth()->user();
 
-        $notes = $action->execute($user, $request->all());
+        $notes = $action->execute($user);
 
         return Response::text(
             NoteResource::collection($notes)->toJson(JSON_PRETTY_PRINT)

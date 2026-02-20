@@ -26,7 +26,7 @@ final readonly class SetApiTeamContext
 
         $team = $this->resolveTeam($request, $user);
 
-        if (! $team instanceof \App\Models\Team) {
+        if (! $team) {
             return response()->json(['message' => 'No team found.'], 403);
         }
 

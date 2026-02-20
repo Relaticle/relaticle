@@ -18,13 +18,10 @@ trait FormatsCustomFields
             return [];
         }
 
-        $result = [];
-
-        /** @var CustomFieldValue $fieldValue */
-        foreach ($record->getRelation('customFieldValues') as $fieldValue) {
-            $result[$fieldValue->customField->code] = $fieldValue->getValue();
-        }
-
-        return $result;
+        return $record->getRelation('customFieldValues')
+            ->mapWithKeys(fn (CustomFieldValue $fieldValue) => [
+                $fieldValue->customField->code => $fieldValue->getValue(),
+            ])
+            ->all();
     }
 }

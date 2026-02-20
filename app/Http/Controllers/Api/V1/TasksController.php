@@ -17,6 +17,7 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Gate;
 
 final readonly class TasksController
 {
@@ -25,23 +26,25 @@ final readonly class TasksController
         /** @var User $user */
         $user = $request->user();
 
-        $tasks = $action->execute($user, $request->query());
-
-        return TaskResource::collection($tasks);
+        return TaskResource::collection($action->execute($user));
     }
 
-    public function store(StoreTaskRequest $request, CreateTask $action): TaskResource
+    public function store(StoreTaskRequest $request, CreateTask $action): JsonResponse
     {
         /** @var User $user */
         $user = $request->user();
 
         $task = $action->execute($user, $request->validated(), CreationSource::API);
 
-        return new TaskResource($task->loadMissing('customFieldValues.customField'));
+        return (new TaskResource($task->loadMissing('customFieldValues.customField')))
+            ->response()
+            ->setStatusCode(201);
     }
 
     public function show(Task $task): TaskResource
     {
+        Gate::authorize('view', $task);
+
         return new TaskResource($task->loadMissing('customFieldValues.customField'));
     }
 

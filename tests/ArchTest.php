@@ -122,6 +122,13 @@ arch('SystemAdmin module must not depend on main app namespace')
         'App\Enums',
     ]);
 
+arch('API controllers must not use Eloquent query methods directly')
+    ->expect('App\Http\Controllers\Api\V1')
+    ->not
+    ->toUse([
+        'Illuminate\Support\Facades\DB',
+    ]);
+
 arch('must not use custom-fields package models directly')
     ->expect([
         'App',

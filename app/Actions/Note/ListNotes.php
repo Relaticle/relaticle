@@ -7,32 +7,26 @@ namespace App\Actions\Note;
 use App\Models\Note;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Spatie\QueryBuilder\AllowedFilter;
+use Spatie\QueryBuilder\QueryBuilder;
 
 final readonly class ListNotes
 {
     /**
-     * @param  array<string, mixed>  $filters
      * @return LengthAwarePaginator<int, Note>
      */
-    public function execute(User $user, array $filters = []): LengthAwarePaginator
+    public function execute(User $user): LengthAwarePaginator
     {
         abort_unless($user->can('viewAny', Note::class), 403);
 
-        $query = Note::query()->withCustomFieldValues();
+        $perPage = min((int) (request()->query('per_page', '15')), 100);
 
-        if (isset($filters['search']) && is_string($filters['search'])) {
-            $query->where('title', 'ilike', "%{$filters['search']}%");
-        }
-
-        if (isset($filters['sort']) && is_string($filters['sort'])) {
-            $direction = ($filters['sort_direction'] ?? 'asc') === 'desc' ? 'desc' : 'asc';
-            $query->orderBy($filters['sort'], $direction);
-        } else {
-            $query->latest();
-        }
-
-        $perPage = min((int) ($filters['per_page'] ?? 15), 100);
-
-        return $query->paginate($perPage);
+        return QueryBuilder::for(Note::query()->withCustomFieldValues())
+            ->allowedFilters([
+                AllowedFilter::partial('title'),
+            ])
+            ->allowedSorts(['title', 'created_at', 'updated_at'])
+            ->defaultSort('-created_at')
+            ->paginate($perPage);
     }
 }
