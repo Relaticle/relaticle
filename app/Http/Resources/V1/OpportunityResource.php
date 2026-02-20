@@ -23,8 +23,6 @@ final class OpportunityResource extends JsonApiResource
     {
         return [
             'name' => $this->name,
-            'company_id' => $this->company_id,
-            'contact_id' => $this->contact_id,
             'creation_source' => $this->creation_source,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

@@ -65,7 +65,8 @@ it('can list custom fields with expected structure', function (): void {
         ->and($field['attributes']['entity_type'])->toBe('company')
         ->and($field['attributes']['required'])->toBeTrue()
         ->and($field['attributes'])->toHaveKeys(['code', 'name', 'type', 'entity_type', 'required', 'created_at', 'updated_at'])
-        ->and($field)->toHaveKeys(['id', 'type']);
+        ->and($field)->toHaveKeys(['id', 'type'])
+        ->and($field['type'])->toBe('custom_fields');
 });
 
 it('returns required as false when field has no required rule', function (): void {

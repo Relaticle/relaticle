@@ -10,9 +10,6 @@ use Illuminate\Http\Resources\JsonApi\JsonApiResource;
 use Relaticle\CustomFields\Services\ValidationService;
 
 /**
- * @property string $created_at
- * @property string $updated_at
- *
  * @mixin CustomField
  */
 final class CustomFieldResource extends JsonApiResource

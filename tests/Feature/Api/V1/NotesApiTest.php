@@ -167,3 +167,59 @@ describe('cross-tenant isolation', function (): void {
             ->assertNotFound();
     });
 });
+
+describe('includes', function (): void {
+    it('can include creator on show endpoint', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $note = Note::factory()->for($this->team)->create();
+
+        $this->getJson("/api/v1/notes/{$note->id}?include=creator")
+            ->assertOk()
+            ->assertJson(fn (AssertableJson $json) => $json
+                ->has('data.relationships.creator.data', fn (AssertableJson $json) => $json
+                    ->whereType('id', 'string')
+                    ->where('type', 'users')
+                )
+                ->has('included.0', fn (AssertableJson $json) => $json
+                    ->whereType('id', 'string')
+                    ->where('type', 'users')
+                    ->has('attributes')
+                    ->etc()
+                )
+                ->etc()
+            );
+    });
+
+    it('can include creator on list endpoint', function (): void {
+        Sanctum::actingAs($this->user);
+
+        Note::factory()->for($this->team)->create();
+
+        $this->getJson('/api/v1/notes?include=creator')
+            ->assertOk()
+            ->assertJson(fn (AssertableJson $json) => $json
+                ->has('data.0.relationships.creator')
+                ->has('included')
+                ->etc()
+            );
+    });
+
+    it('does not include relations when not requested', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $note = Note::factory()->for($this->team)->create();
+
+        $response = $this->getJson("/api/v1/notes/{$note->id}")
+            ->assertOk();
+
+        expect($response->json('data.relationships'))->toBeNull();
+    });
+
+    it('rejects disallowed includes on list endpoint', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $this->getJson('/api/v1/notes?include=secret')
+            ->assertStatus(400);
+    });
+});

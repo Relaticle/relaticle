@@ -183,7 +183,7 @@ describe('includes', function (): void {
             );
     });
 
-    it('can include relations on show endpoint', function (): void {
+    it('can include relations on show endpoint with full structure', function (): void {
         Sanctum::actingAs($this->user);
 
         $company = Company::factory()->for($this->team)->create();
@@ -191,8 +191,33 @@ describe('includes', function (): void {
         $this->getJson("/api/v1/companies/{$company->id}?include=creator")
             ->assertOk()
             ->assertJson(fn (AssertableJson $json) => $json
+                ->has('data.relationships.creator.data', fn (AssertableJson $json) => $json
+                    ->whereType('id', 'string')
+                    ->where('type', 'users')
+                )
+                ->has('included.0', fn (AssertableJson $json) => $json
+                    ->whereType('id', 'string')
+                    ->where('type', 'users')
+                    ->has('attributes', fn (AssertableJson $json) => $json
+                        ->has('name')
+                        ->has('email')
+                    )
+                    ->etc()
+                )
+                ->etc()
+            );
+    });
+
+    it('can include multiple relations', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $company = Company::factory()->for($this->team)->create();
+
+        $this->getJson("/api/v1/companies/{$company->id}?include=creator,people")
+            ->assertOk()
+            ->assertJson(fn (AssertableJson $json) => $json
                 ->has('data.relationships.creator')
-                ->has('included')
+                ->has('data.relationships.people')
                 ->etc()
             );
     });
