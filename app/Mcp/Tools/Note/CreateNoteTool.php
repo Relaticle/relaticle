@@ -33,7 +33,7 @@ final class CreateNoteTool extends Tool
             'title' => ['required', 'string', 'max:255'],
         ]);
 
-        $note = $action->execute($user, $validated, CreationSource::API);
+        $note = $action->execute($user, $validated, CreationSource::MCP);
 
         return Response::text(
             new NoteResource($note->loadMissing('customFieldValues.customField'))->toJson(JSON_PRETTY_PRINT)

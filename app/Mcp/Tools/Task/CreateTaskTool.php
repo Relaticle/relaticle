@@ -33,7 +33,7 @@ final class CreateTaskTool extends Tool
             'title' => ['required', 'string', 'max:255'],
         ]);
 
-        $task = $action->execute($user, $validated, CreationSource::API);
+        $task = $action->execute($user, $validated, CreationSource::MCP);
 
         return Response::text(
             new TaskResource($task->loadMissing('customFieldValues.customField'))->toJson(JSON_PRETTY_PRINT)

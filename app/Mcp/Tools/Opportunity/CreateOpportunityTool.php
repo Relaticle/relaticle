@@ -37,7 +37,7 @@ final class CreateOpportunityTool extends Tool
             'contact_id' => ['sometimes', 'string'],
         ]);
 
-        $opportunity = $action->execute($user, $validated, CreationSource::API);
+        $opportunity = $action->execute($user, $validated, CreationSource::MCP);
 
         return Response::text(
             new OpportunityResource($opportunity->loadMissing('customFieldValues.customField'))->toJson(JSON_PRETTY_PRINT)

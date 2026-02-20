@@ -39,7 +39,7 @@ final class CreateCompanyTool extends Tool
             'country' => ['sometimes', 'string', 'max:100'],
         ]);
 
-        $company = $action->execute($user, $validated, CreationSource::API);
+        $company = $action->execute($user, $validated, CreationSource::MCP);
 
         return Response::text(
             new CompanyResource($company->loadMissing('customFieldValues.customField'))->toJson(JSON_PRETTY_PRINT)

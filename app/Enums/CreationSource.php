@@ -32,11 +32,18 @@ enum CreationSource: string implements HasColor, HasLabel
     case IMPORT = 'import';
 
     /**
-     * Created through the REST API or MCP server.
-     * This applies to records created by external integrations,
-     * third-party applications, or AI agents using API tokens.
+     * Created through the REST API.
+     * This applies to records created by external integrations
+     * and third-party applications using API tokens.
      */
     case API = 'api';
+
+    /**
+     * Created through the MCP server by AI agents.
+     * This applies to records created via Model Context Protocol
+     * tools, typically by AI assistants interacting with the system.
+     */
+    case MCP = 'mcp';
 
     public function getColor(): string
     {
@@ -45,6 +52,7 @@ enum CreationSource: string implements HasColor, HasLabel
             self::SYSTEM => 'warning',
             self::IMPORT => 'success',
             self::API => 'info',
+            self::MCP => 'gray',
         };
     }
 
@@ -55,6 +63,7 @@ enum CreationSource: string implements HasColor, HasLabel
             self::SYSTEM => 'System Process',
             self::IMPORT => 'Data Import',
             self::API => 'API',
+            self::MCP => 'MCP Agent',
         };
     }
 }

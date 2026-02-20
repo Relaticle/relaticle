@@ -35,7 +35,7 @@ final class CreatePeopleTool extends Tool
             'company_id' => ['sometimes', 'string'],
         ]);
 
-        $person = $action->execute($user, $validated, CreationSource::API);
+        $person = $action->execute($user, $validated, CreationSource::MCP);
 
         return Response::text(
             new PeopleResource($person->loadMissing('customFieldValues.customField'))->toJson(JSON_PRETTY_PRINT)
