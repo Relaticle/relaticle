@@ -49,8 +49,7 @@ final readonly class CreateTeamCustomFields
 
         $this->migrator->setTenantId($team->id);
 
-        // Wrap custom field creation in transaction to reduce overhead
-        DB::transaction(function () use ($team): void {
+        DB::transaction(function (): void {
             foreach (self::MODEL_ENUM_MAP as $modelClass => $enumClass) {
                 foreach ($enumClass::cases() as $enum) {
                     $this->createCustomField($modelClass, $enum);
