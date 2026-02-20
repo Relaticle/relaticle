@@ -38,7 +38,7 @@ final class CreatePeopleTool extends Tool
         $person = $action->execute($user, $validated, CreationSource::API);
 
         return Response::text(
-            (new PeopleResource($person->loadMissing('customFieldValues.customField')))->toJson(JSON_PRETTY_PRINT)
+            new PeopleResource($person->loadMissing('customFieldValues.customField'))->toJson(JSON_PRETTY_PRINT)
         );
     }
 }

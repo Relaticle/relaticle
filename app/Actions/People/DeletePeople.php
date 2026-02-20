@@ -11,7 +11,7 @@ final readonly class DeletePeople
 {
     public function execute(User $user, People $people): void
     {
-        $user->can('delete', $people) || abort(403);
+        abort_unless($user->can('delete', $people), 403);
 
         $people->delete();
     }

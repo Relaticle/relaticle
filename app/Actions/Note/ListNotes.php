@@ -16,7 +16,7 @@ final readonly class ListNotes
      */
     public function execute(User $user, array $filters = []): LengthAwarePaginator
     {
-        $user->can('viewAny', Note::class) || abort(403);
+        abort_unless($user->can('viewAny', Note::class), 403);
 
         $query = Note::query()->withCustomFieldValues();
 

@@ -11,7 +11,7 @@ final readonly class DeleteTask
 {
     public function execute(User $user, Task $task): void
     {
-        $user->can('delete', $task) || abort(403);
+        abort_unless($user->can('delete', $task), 403);
 
         $task->delete();
     }

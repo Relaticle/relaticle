@@ -15,12 +15,12 @@ final readonly class CreateOpportunity
      */
     public function execute(User $user, array $data, CreationSource $source = CreationSource::WEB): Opportunity
     {
-        $user->can('create', Opportunity::class) || abort(403);
+        abort_unless($user->can('create', Opportunity::class), 403);
 
         $data['creation_source'] = $source;
         $data['creator_id'] = $user->getKey();
         $data['team_id'] = $user->currentTeam->getKey();
 
-        return Opportunity::create($data);
+        return Opportunity::query()->create($data);
     }
 }

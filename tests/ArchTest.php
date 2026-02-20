@@ -21,6 +21,7 @@ arch()->preset()
         'Relaticle\Admin\AdminPanelProvider',
         'App\Enums\EnumValues',
         'App\Enums\CustomFields\CustomFieldTrait',
+        'App\Mcp',
     ]);
 
 arch('strict types')
@@ -59,10 +60,12 @@ arch('avoid mutation')
         'App\Exceptions',
         'App\Filament',
         'App\Http\Requests',
+        'App\Http\Resources',
         'App\Jobs',
         'App\Listeners',
         'App\Livewire',
         'App\Mail',
+        'App\Mcp',
         'App\Models',
         'App\Data',
         'App\Notifications',
@@ -81,10 +84,12 @@ arch('avoid inheritance')
         'App\Exceptions',
         'App\Filament',
         'App\Http\Requests',
+        'App\Http\Resources',
         'App\Jobs',
         'App\Data',
         'App\Livewire',
         'App\Mail',
+        'App\Mcp',
         'App\Models',
         'App\Notifications',
         'App\Providers',

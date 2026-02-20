@@ -15,12 +15,12 @@ final readonly class CreateTask
      */
     public function execute(User $user, array $data, CreationSource $source = CreationSource::WEB): Task
     {
-        $user->can('create', Task::class) || abort(403);
+        abort_unless($user->can('create', Task::class), 403);
 
         $data['creation_source'] = $source;
         $data['creator_id'] = $user->getKey();
         $data['team_id'] = $user->currentTeam->getKey();
 
-        return Task::create($data);
+        return Task::query()->create($data);
     }
 }

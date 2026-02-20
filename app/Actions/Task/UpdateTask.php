@@ -18,7 +18,7 @@ final readonly class UpdateTask
      */
     public function execute(User $user, Task $task, array $data): Task
     {
-        $user->can('update', $task) || abort(403);
+        abort_unless($user->can('update', $task), 403);
 
         DB::transaction(function () use ($task, $data): void {
             $task->update($data);
@@ -67,7 +67,7 @@ final readonly class UpdateTask
 
     private function resolveTaskUrl(Task $task): string
     {
-        $pageClass = 'App\\Filament\\Resources\\TaskResource\\Pages\\ManageTasks';
+        $pageClass = \App\Filament\Resources\TaskResource\Pages\ManageTasks::class;
 
         if (class_exists($pageClass)) {
             return $pageClass::getUrl(['record' => $task]);

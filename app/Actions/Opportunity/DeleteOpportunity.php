@@ -11,7 +11,7 @@ final readonly class DeleteOpportunity
 {
     public function execute(User $user, Opportunity $opportunity): void
     {
-        $user->can('delete', $opportunity) || abort(403);
+        abort_unless($user->can('delete', $opportunity), 403);
 
         $opportunity->delete();
     }

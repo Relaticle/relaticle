@@ -16,7 +16,7 @@ final readonly class ListOpportunities
      */
     public function execute(User $user, array $filters = []): LengthAwarePaginator
     {
-        $user->can('viewAny', Opportunity::class) || abort(403);
+        abort_unless($user->can('viewAny', Opportunity::class), 403);
 
         $query = Opportunity::query()->withCustomFieldValues();
 

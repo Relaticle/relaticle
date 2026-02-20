@@ -44,7 +44,7 @@ final class UpdateTaskTool extends Tool
         $task = $action->execute($user, $task, $validated);
 
         return Response::text(
-            (new TaskResource($task->loadMissing('customFieldValues.customField')))->toJson(JSON_PRETTY_PRINT)
+            new TaskResource($task->loadMissing('customFieldValues.customField'))->toJson(JSON_PRETTY_PRINT)
         );
     }
 }

@@ -36,7 +36,7 @@ final class CreateNoteTool extends Tool
         $note = $action->execute($user, $validated, CreationSource::API);
 
         return Response::text(
-            (new NoteResource($note->loadMissing('customFieldValues.customField')))->toJson(JSON_PRETTY_PRINT)
+            new NoteResource($note->loadMissing('customFieldValues.customField'))->toJson(JSON_PRETTY_PRINT)
         );
     }
 }

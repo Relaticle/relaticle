@@ -20,11 +20,11 @@ final class CrmOverviewPrompt extends Prompt
     public function handle(Request $request): Response
     {
         $counts = [
-            'companies' => Company::count(),
-            'people' => People::count(),
-            'opportunities' => Opportunity::count(),
-            'tasks' => Task::count(),
-            'notes' => Note::count(),
+            'companies' => Company::query()->count(),
+            'people' => People::query()->count(),
+            'opportunities' => Opportunity::query()->count(),
+            'tasks' => Task::query()->count(),
+            'notes' => Note::query()->count(),
         ];
 
         $recentCompanies = Company::query()

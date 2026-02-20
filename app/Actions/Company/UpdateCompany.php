@@ -14,7 +14,7 @@ final readonly class UpdateCompany
      */
     public function execute(User $user, Company $company, array $data): Company
     {
-        $user->can('update', $company) || abort(403);
+        abort_unless($user->can('update', $company), 403);
 
         $company->update($data);
 

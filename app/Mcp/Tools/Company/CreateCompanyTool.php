@@ -42,7 +42,7 @@ final class CreateCompanyTool extends Tool
         $company = $action->execute($user, $validated, CreationSource::API);
 
         return Response::text(
-            (new CompanyResource($company->loadMissing('customFieldValues.customField')))->toJson(JSON_PRETTY_PRINT)
+            new CompanyResource($company->loadMissing('customFieldValues.customField'))->toJson(JSON_PRETTY_PRINT)
         );
     }
 }

@@ -40,7 +40,7 @@ final class CreateOpportunityTool extends Tool
         $opportunity = $action->execute($user, $validated, CreationSource::API);
 
         return Response::text(
-            (new OpportunityResource($opportunity->loadMissing('customFieldValues.customField')))->toJson(JSON_PRETTY_PRINT)
+            new OpportunityResource($opportunity->loadMissing('customFieldValues.customField'))->toJson(JSON_PRETTY_PRINT)
         );
     }
 }

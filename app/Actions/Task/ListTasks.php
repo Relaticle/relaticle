@@ -16,7 +16,7 @@ final readonly class ListTasks
      */
     public function execute(User $user, array $filters = []): LengthAwarePaginator
     {
-        $user->can('viewAny', Task::class) || abort(403);
+        abort_unless($user->can('viewAny', Task::class), 403);
 
         $query = Task::query()->withCustomFieldValues();
 

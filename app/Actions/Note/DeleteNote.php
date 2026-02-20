@@ -11,7 +11,7 @@ final readonly class DeleteNote
 {
     public function execute(User $user, Note $note): void
     {
-        $user->can('delete', $note) || abort(403);
+        abort_unless($user->can('delete', $note), 403);
 
         $note->delete();
     }

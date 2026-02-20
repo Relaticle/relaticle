@@ -48,7 +48,7 @@ final class UpdateOpportunityTool extends Tool
         $opportunity = $action->execute($user, $opportunity, $validated);
 
         return Response::text(
-            (new OpportunityResource($opportunity->loadMissing('customFieldValues.customField')))->toJson(JSON_PRETTY_PRINT)
+            new OpportunityResource($opportunity->loadMissing('customFieldValues.customField'))->toJson(JSON_PRETTY_PRINT)
         );
     }
 }

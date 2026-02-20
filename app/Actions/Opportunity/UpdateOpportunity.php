@@ -14,7 +14,7 @@ final readonly class UpdateOpportunity
      */
     public function execute(User $user, Opportunity $opportunity, array $data): Opportunity
     {
-        $user->can('update', $opportunity) || abort(403);
+        abort_unless($user->can('update', $opportunity), 403);
 
         $opportunity->update($data);
 

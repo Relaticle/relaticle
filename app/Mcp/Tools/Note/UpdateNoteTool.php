@@ -44,7 +44,7 @@ final class UpdateNoteTool extends Tool
         $note = $action->execute($user, $note, $validated);
 
         return Response::text(
-            (new NoteResource($note->loadMissing('customFieldValues.customField')))->toJson(JSON_PRETTY_PRINT)
+            new NoteResource($note->loadMissing('customFieldValues.customField'))->toJson(JSON_PRETTY_PRINT)
         );
     }
 }

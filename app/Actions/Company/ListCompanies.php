@@ -16,7 +16,7 @@ final readonly class ListCompanies
      */
     public function execute(User $user, array $filters = []): LengthAwarePaginator
     {
-        $user->can('viewAny', Company::class) || abort(403);
+        abort_unless($user->can('viewAny', Company::class), 403);
 
         $query = Company::query()->withCustomFieldValues();
 

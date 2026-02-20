@@ -14,7 +14,7 @@ final readonly class UpdateNote
      */
     public function execute(User $user, Note $note, array $data): Note
     {
-        $user->can('update', $note) || abort(403);
+        abort_unless($user->can('update', $note), 403);
 
         $note->update($data);
 

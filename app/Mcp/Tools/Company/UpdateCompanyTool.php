@@ -50,7 +50,7 @@ final class UpdateCompanyTool extends Tool
         $company = $action->execute($user, $company, $validated);
 
         return Response::text(
-            (new CompanyResource($company->loadMissing('customFieldValues.customField')))->toJson(JSON_PRETTY_PRINT)
+            new CompanyResource($company->loadMissing('customFieldValues.customField'))->toJson(JSON_PRETTY_PRINT)
         );
     }
 }

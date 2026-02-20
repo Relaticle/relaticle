@@ -16,7 +16,7 @@ final readonly class ListPeople
      */
     public function execute(User $user, array $filters = []): LengthAwarePaginator
     {
-        $user->can('viewAny', People::class) || abort(403);
+        abort_unless($user->can('viewAny', People::class), 403);
 
         $query = People::query()->withCustomFieldValues();
 

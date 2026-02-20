@@ -46,7 +46,7 @@ final class UpdatePeopleTool extends Tool
         $person = $action->execute($user, $person, $validated);
 
         return Response::text(
-            (new PeopleResource($person->loadMissing('customFieldValues.customField')))->toJson(JSON_PRETTY_PRINT)
+            new PeopleResource($person->loadMissing('customFieldValues.customField'))->toJson(JSON_PRETTY_PRINT)
         );
     }
 }

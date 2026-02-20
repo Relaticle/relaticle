@@ -15,12 +15,12 @@ final readonly class CreateCompany
      */
     public function execute(User $user, array $data, CreationSource $source = CreationSource::WEB): Company
     {
-        $user->can('create', Company::class) || abort(403);
+        abort_unless($user->can('create', Company::class), 403);
 
         $data['creation_source'] = $source;
         $data['creator_id'] = $user->getKey();
         $data['team_id'] = $user->currentTeam->getKey();
 
-        return Company::create($data);
+        return Company::query()->create($data);
     }
 }
