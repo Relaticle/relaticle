@@ -200,7 +200,7 @@ describe('RecordSummaryService', function () {
         expect($summary)
             ->toBeInstanceOf(AiSummary::class)
             ->summary->toBe('Test Company is a promising lead with recent engagement.')
-            ->model_used->toBe('claude-3-5-haiku-latest')
+            ->model_used->toBe('claude-haiku-4-5')
             ->prompt_tokens->toBe(100)
             ->completion_tokens->toBe(50);
 
@@ -221,7 +221,7 @@ describe('RecordSummaryService', function () {
             'summarizable_type' => $company->getMorphClass(),
             'summarizable_id' => $company->getKey(),
             'summary' => 'Cached summary text',
-            'model_used' => 'claude-3-5-haiku-latest',
+            'model_used' => 'claude-haiku-4-5',
             'prompt_tokens' => 50,
             'completion_tokens' => 25,
         ]);
@@ -243,7 +243,7 @@ describe('RecordSummaryService', function () {
             'summarizable_type' => $company->getMorphClass(),
             'summarizable_id' => $company->getKey(),
             'summary' => 'Old cached summary',
-            'model_used' => 'claude-3-5-haiku-latest',
+            'model_used' => 'claude-haiku-4-5',
             'prompt_tokens' => 50,
             'completion_tokens' => 25,
         ]);
@@ -327,7 +327,7 @@ describe('HasAiSummary trait', function () {
             'summarizable_type' => $company->getMorphClass(),
             'summarizable_id' => $company->getKey(),
             'summary' => 'Test summary',
-            'model_used' => 'claude-3-5-haiku-latest',
+            'model_used' => 'claude-haiku-4-5',
             'prompt_tokens' => 50,
             'completion_tokens' => 25,
         ]);
@@ -355,7 +355,7 @@ describe('HasAiSummary trait', function () {
             'summarizable_type' => $person->getMorphClass(),
             'summarizable_id' => $person->getKey(),
             'summary' => 'Test summary',
-            'model_used' => 'claude-3-5-haiku-latest',
+            'model_used' => 'claude-haiku-4-5',
             'prompt_tokens' => 50,
             'completion_tokens' => 25,
         ]);
@@ -383,7 +383,7 @@ describe('HasAiSummary trait', function () {
             'summarizable_type' => $opportunity->getMorphClass(),
             'summarizable_id' => $opportunity->getKey(),
             'summary' => 'Test summary',
-            'model_used' => 'claude-3-5-haiku-latest',
+            'model_used' => 'claude-haiku-4-5',
             'prompt_tokens' => 50,
             'completion_tokens' => 25,
         ]);
