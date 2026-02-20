@@ -21,6 +21,7 @@ arch()->preset()
         'Relaticle\Admin\AdminPanelProvider',
         'App\Enums\EnumValues',
         'App\Enums\CustomFields\CustomFieldTrait',
+        'App\Mcp',
     ]);
 
 arch('strict types')
@@ -60,10 +61,12 @@ arch('avoid mutation')
         'App\Filament',
         'App\Health',
         'App\Http\Requests',
+        'App\Http\Resources',
         'App\Jobs',
         'App\Listeners',
         'App\Livewire',
         'App\Mail',
+        'App\Mcp',
         'App\Models',
         'App\Data',
         'App\Notifications',
@@ -82,11 +85,13 @@ arch('avoid inheritance')
         'App\Exceptions',
         'App\Filament',
         'App\Http\Requests',
+        'App\Http\Resources',
         'App\Jobs',
         'App\Data',
         'App\Livewire',
         'App\Mail',
         'App\Health',
+        'App\Mcp',
         'App\Models',
         'App\Notifications',
         'App\Providers',
@@ -115,6 +120,13 @@ arch('SystemAdmin module must not depend on main app namespace')
     ->ignoring([
         'App\Models',
         'App\Enums',
+    ]);
+
+arch('API controllers must not use Eloquent query methods directly')
+    ->expect('App\Http\Controllers\Api\V1')
+    ->not
+    ->toUse([
+        'Illuminate\Support\Facades\DB',
     ]);
 
 arch('must not use custom-fields package models directly')

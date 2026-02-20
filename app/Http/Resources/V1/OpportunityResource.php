@@ -1,0 +1,38 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Http\Resources\V1;
+
+use App\Http\Resources\V1\Concerns\FormatsCustomFields;
+use App\Models\Opportunity;
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
+
+/**
+ * @mixin Opportunity
+ */
+final class OpportunityResource extends JsonResource
+{
+    use FormatsCustomFields;
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function toArray(Request $request): array
+    {
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+            'company_id' => $this->company_id,
+            'contact_id' => $this->contact_id,
+            'creation_source' => $this->creation_source,
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
+            'custom_fields' => $this->formatCustomFields($this->resource),
+            'creator' => new UserResource($this->whenLoaded('creator')),
+            'company' => new CompanyResource($this->whenLoaded('company')),
+            'contact' => new PeopleResource($this->whenLoaded('contact')),
+        ];
+    }
+}

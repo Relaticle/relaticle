@@ -1,0 +1,36 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Actions\Task;
+
+use App\Models\Task;
+use App\Models\User;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Builder;
+use Spatie\QueryBuilder\AllowedFilter;
+use Spatie\QueryBuilder\QueryBuilder;
+
+final readonly class ListTasks
+{
+    /**
+     * @return LengthAwarePaginator<int, Task>
+     */
+    public function execute(User $user): LengthAwarePaginator
+    {
+        abort_unless($user->can('viewAny', Task::class), 403);
+
+        $perPage = min((int) (request()->query('per_page', '15')), 100);
+
+        return QueryBuilder::for(Task::query()->withCustomFieldValues())
+            ->allowedFilters([
+                AllowedFilter::partial('title'),
+                AllowedFilter::callback('assigned_to_me', function (Builder $query) use ($user): void {
+                    $query->whereHas('assignees', fn (Builder $q) => $q->where('users.id', $user->getKey()));
+                }),
+            ])
+            ->allowedSorts(['title', 'created_at', 'updated_at'])
+            ->defaultSort('-created_at')
+            ->paginate($perPage);
+    }
+}

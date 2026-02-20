@@ -11,6 +11,10 @@ parameters:
         -
             identifier: argument.type
             message: '#(Closure\(App\\Models\\CustomField|Relaticle\\CustomFields\\Models\\CustomField)(Option|Value|Section)?#'
+        # Laravel MCP package attributes not yet recognized by PHPStan/Larastan
+        -
+            identifier: attribute.notFound
+            path: app/Mcp
 
     stubFiles:
         - stubs/Mailcoach.stub
