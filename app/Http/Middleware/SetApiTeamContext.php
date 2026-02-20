@@ -8,6 +8,7 @@ use App\Models\Company;
 use App\Models\Note;
 use App\Models\Opportunity;
 use App\Models\People;
+use App\Models\PersonalAccessToken;
 use App\Models\Scopes\TeamScope;
 use App\Models\Task;
 use App\Models\Team;
@@ -46,6 +47,12 @@ final readonly class SetApiTeamContext
 
     private function resolveTeam(Request $request, User $user): ?Team
     {
+        $token = $user->currentAccessToken();
+
+        if ($token instanceof PersonalAccessToken && $token->team_id !== null) {
+            return $token->team;
+        }
+
         $teamId = $request->header('X-Team-Id');
 
         if ($teamId) {

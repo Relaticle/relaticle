@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Livewire\App\ApiTokens;
 
 use App\Livewire\BaseLivewireComponent;
+use App\Models\PersonalAccessToken;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
-use Filament\Forms\Components\CheckboxList;
 use Filament\Support\Enums\Width;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
@@ -16,7 +16,6 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\View\View;
 use Laravel\Jetstream\Jetstream;
-use Laravel\Sanctum\PersonalAccessToken;
 
 final class ManageApiTokens extends BaseLivewireComponent implements HasTable
 {
@@ -27,15 +26,20 @@ final class ManageApiTokens extends BaseLivewireComponent implements HasTable
 
     public function table(Table $table): Table
     {
+        $user = $this->authUser();
+
         return $table
             ->query(
-                fn (): Builder => PersonalAccessToken::query()->where(
-                    'tokenable_id',
-                    $this->authUser()->getKey(),
-                ),
+                fn (): Builder => PersonalAccessToken::query()
+                    ->with('team')
+                    ->where('tokenable_type', $user->getMorphClass())
+                    ->where('tokenable_id', $user->getKey()),
             )
             ->columns([
                 TextColumn::make('name')->label('Name')->searchable(),
+                TextColumn::make('team.name')
+                    ->label('Team')
+                    ->placeholder('—'),
                 TextColumn::make('abilities')
                     ->label('Permissions')
                     ->badge()
@@ -44,6 +48,10 @@ final class ManageApiTokens extends BaseLivewireComponent implements HasTable
                             ? 'All'
                             : ucfirst($state),
                     ),
+                TextColumn::make('expires_at')
+                    ->label('Expires')
+                    ->date()
+                    ->placeholder('Never'),
                 TextColumn::make('last_used_at')
                     ->label('Last Used')
                     ->since()
@@ -56,7 +64,7 @@ final class ManageApiTokens extends BaseLivewireComponent implements HasTable
                     ->icon('heroicon-o-lock-closed')
                     ->iconButton()
                     ->tooltip('Edit Permissions')
-                    ->modalHeading('API Token Permissions')
+                    ->modalHeading(fn (PersonalAccessToken $record): string => "Permissions: {$record->name}")
                     ->modalWidth(Width::Large)
                     ->fillForm(
                         fn (PersonalAccessToken $record): array => [
@@ -64,18 +72,7 @@ final class ManageApiTokens extends BaseLivewireComponent implements HasTable
                         ],
                     )
                     ->schema([
-                        CheckboxList::make('permissions')
-                            ->label('Permissions')
-                            ->options(
-                                collect(Jetstream::$permissions)
-                                    ->mapWithKeys(
-                                        fn (string $permission): array => [
-                                            $permission => ucfirst($permission),
-                                        ],
-                                    )
-                                    ->all(),
-                            )
-                            ->columns(2),
+                        CreateApiToken::permissionsCheckboxList(),
                     ])
                     ->action(function (
                         PersonalAccessToken $record,
@@ -95,11 +92,6 @@ final class ManageApiTokens extends BaseLivewireComponent implements HasTable
                     }),
                 DeleteAction::make()
                     ->iconButton()
-                    ->record(
-                        fn (
-                            PersonalAccessToken $record,
-                        ): PersonalAccessToken => $record,
-                    )
                     ->after(
                         fn () => $this->sendNotification(
                             title: 'API token deleted.',

@@ -8,6 +8,7 @@ use App\Livewire\BaseLivewireComponent;
 use DanHarrin\LivewireRateLimiting\Exceptions\TooManyRequestsException;
 use Filament\Actions\Action;
 use Filament\Forms\Components\CheckboxList;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Actions;
 use Filament\Schemas\Components\Section;
@@ -28,6 +29,7 @@ final class CreateApiToken extends BaseLivewireComponent
     public function mount(): void
     {
         $this->form->fill([
+            'team_id' => $this->authUser()->currentTeam?->getKey(),
             'permissions' => Jetstream::$defaultPermissions,
         ]);
     }
@@ -57,19 +59,27 @@ final class CreateApiToken extends BaseLivewireComponent
                                         $this->authUser()->getKey(),
                                     ),
                             ]),
-                        CheckboxList::make('permissions')
-                            ->label('Permissions')
+                        Select::make('team_id')
+                            ->label('Team')
                             ->required()
                             ->options(
-                                collect(Jetstream::$permissions)
-                                    ->mapWithKeys(
-                                        fn (string $permission): array => [
-                                            $permission => ucfirst($permission),
-                                        ],
-                                    )
-                                    ->all(),
-                            )
-                            ->columns(2),
+                                $this->authUser()->allTeams()->pluck('name', 'id'),
+                            ),
+                        Select::make('expiration')
+                            ->label('Expiration')
+                            ->required()
+                            ->placeholder('Select expiration...')
+                            ->options([
+                                '1' => '1 Day',
+                                '7' => '7 Days',
+                                '30' => '30 Days',
+                                '60' => '60 Days',
+                                '90' => '90 Days',
+                                '180' => '180 Days',
+                                '365' => '1 Year',
+                                '0' => 'No Expiration',
+                            ]),
+                        self::permissionsCheckboxList(),
                         Actions::make([
                             Action::make('create')
                                 ->label('Create')
@@ -119,21 +129,57 @@ final class CreateApiToken extends BaseLivewireComponent
 
         $state = $this->form->getState();
 
+        $user = $this->authUser();
+        $teamId = $state['team_id'];
+
+        if (! $user->allTeams()->contains('id', $teamId)) {
+            $this->sendNotification(title: 'You do not belong to this team.', type: 'danger');
+
+            return;
+        }
+
+        $expiration = (int) $state['expiration'];
+        $expiresAt = $expiration > 0 ? now()->addDays($expiration) : null;
+
         /** @var NewAccessToken $token */
-        $token = $this->authUser()->createToken(
+        $token = $user->createToken(
             $state['name'],
             Jetstream::validPermissions($state['permissions'] ?? []),
         );
 
+        // Sanctum's createToken() does not accept extra attributes, so we update after creation
+        $token->accessToken->forceFill([
+            'team_id' => $teamId,
+            'expires_at' => $expiresAt,
+        ])->save();
+
         $this->plainTextToken = explode('|', $token->plainTextToken, 2)[1];
 
         $this->form->fill([
+            'team_id' => $user->currentTeam?->getKey(),
             'permissions' => Jetstream::$defaultPermissions,
         ]);
 
         $this->dispatch('tokenCreated');
 
         $this->mountAction('showToken');
+    }
+
+    public static function permissionsCheckboxList(): CheckboxList
+    {
+        return CheckboxList::make('permissions')
+            ->label('Permissions')
+            ->required()
+            ->options(
+                collect(Jetstream::$permissions)
+                    ->mapWithKeys(
+                        fn (string $permission): array => [
+                            $permission => ucfirst($permission),
+                        ],
+                    )
+                    ->all(),
+            )
+            ->columns(2);
     }
 
     public function render(): View
