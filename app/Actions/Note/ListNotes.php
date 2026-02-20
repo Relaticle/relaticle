@@ -23,6 +23,7 @@ final readonly class ListNotes
             ->allowedFilters([
                 AllowedFilter::partial('title'),
             ])
+            ->allowedFields(['id', 'title', 'creator_id', 'created_at', 'updated_at'])
             ->allowedIncludes(['creator', 'companies', 'people', 'opportunities'])
             ->allowedSorts(['title', 'created_at', 'updated_at'])
             ->defaultSort('-created_at');

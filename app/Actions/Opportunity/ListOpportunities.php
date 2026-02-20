@@ -24,6 +24,7 @@ final readonly class ListOpportunities
                 AllowedFilter::partial('name'),
                 AllowedFilter::exact('company_id'),
             ])
+            ->allowedFields(['id', 'name', 'company_id', 'contact_id', 'creator_id', 'created_at', 'updated_at'])
             ->allowedIncludes(['creator', 'company', 'contact'])
             ->allowedSorts(['name', 'created_at', 'updated_at'])
             ->defaultSort('-created_at');

@@ -27,6 +27,7 @@ final readonly class ListTasks
                     $query->whereHas('assignees', fn (Builder $q) => $q->where('users.id', $user->getKey()));
                 }),
             ])
+            ->allowedFields(['id', 'title', 'creator_id', 'created_at', 'updated_at'])
             ->allowedIncludes(['creator', 'assignees', 'companies', 'people', 'opportunities'])
             ->allowedSorts(['title', 'created_at', 'updated_at'])
             ->defaultSort('-created_at');
