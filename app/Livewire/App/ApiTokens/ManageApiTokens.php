@@ -8,6 +8,7 @@ use App\Livewire\BaseLivewireComponent;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Forms\Components\CheckboxList;
+use Filament\Support\Enums\Width;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
@@ -16,60 +17,59 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\View\View;
 use Laravel\Jetstream\Jetstream;
 use Laravel\Sanctum\PersonalAccessToken;
-use Filament\Support\Enums\Width;
 
 final class ManageApiTokens extends BaseLivewireComponent implements HasTable
 {
     use InteractsWithTable;
 
     /** @var array<string> */
-    protected $listeners = ["tokenCreated" => '$refresh'];
+    protected $listeners = ['tokenCreated' => '$refresh'];
 
     public function table(Table $table): Table
     {
         return $table
             ->query(
-                fn(): Builder => PersonalAccessToken::query()->where(
-                    "tokenable_id",
+                fn (): Builder => PersonalAccessToken::query()->where(
+                    'tokenable_id',
                     $this->authUser()->getKey(),
                 ),
             )
             ->columns([
-                TextColumn::make("name")->label("Name")->searchable(),
-                TextColumn::make("abilities")
-                    ->label("Permissions")
+                TextColumn::make('name')->label('Name')->searchable(),
+                TextColumn::make('abilities')
+                    ->label('Permissions')
                     ->badge()
                     ->formatStateUsing(
-                        fn(string $state): string => $state === "*"
-                            ? "All"
+                        fn (string $state): string => $state === '*'
+                            ? 'All'
                             : ucfirst($state),
                     ),
-                TextColumn::make("last_used_at")
-                    ->label("Last Used")
+                TextColumn::make('last_used_at')
+                    ->label('Last Used')
                     ->since()
-                    ->placeholder("Never"),
-                TextColumn::make("created_at")->label("Created")->since(),
+                    ->placeholder('Never'),
+                TextColumn::make('created_at')->label('Created')->since(),
             ])
             ->actions([
-                Action::make("permissions")
-                    ->label("Permissions")
-                    ->icon("heroicon-o-lock-closed")
+                Action::make('permissions')
+                    ->label('Permissions')
+                    ->icon('heroicon-o-lock-closed')
                     ->iconButton()
-                    ->tooltip("Edit Permissions")
-                    ->modalHeading("API Token Permissions")
+                    ->tooltip('Edit Permissions')
+                    ->modalHeading('API Token Permissions')
                     ->modalWidth(Width::Large)
                     ->fillForm(
-                        fn(PersonalAccessToken $record): array => [
-                            "permissions" => $record->abilities,
+                        fn (PersonalAccessToken $record): array => [
+                            'permissions' => $record->abilities,
                         ],
                     )
                     ->schema([
-                        CheckboxList::make("permissions")
-                            ->label("Permissions")
+                        CheckboxList::make('permissions')
+                            ->label('Permissions')
                             ->options(
                                 collect(Jetstream::$permissions)
                                     ->mapWithKeys(
-                                        fn(string $permission): array => [
+                                        fn (string $permission): array => [
                                             $permission => ucfirst($permission),
                                         ],
                                     )
@@ -83,36 +83,36 @@ final class ManageApiTokens extends BaseLivewireComponent implements HasTable
                     ): void {
                         $record
                             ->forceFill([
-                                "abilities" => Jetstream::validPermissions(
-                                    $data["permissions"] ?? [],
+                                'abilities' => Jetstream::validPermissions(
+                                    $data['permissions'] ?? [],
                                 ),
                             ])
                             ->save();
 
                         $this->sendNotification(
-                            title: "API token permissions updated.",
+                            title: 'API token permissions updated.',
                         );
                     }),
                 DeleteAction::make()
                     ->iconButton()
                     ->record(
-                        fn(
+                        fn (
                             PersonalAccessToken $record,
                         ): PersonalAccessToken => $record,
                     )
                     ->after(
-                        fn() => $this->sendNotification(
-                            title: "API token deleted.",
+                        fn () => $this->sendNotification(
+                            title: 'API token deleted.',
                         ),
                     ),
             ])
-            ->emptyStateHeading("No API tokens")
-            ->emptyStateDescription("Create a token above to get started.")
+            ->emptyStateHeading('No API tokens')
+            ->emptyStateDescription('Create a token above to get started.')
             ->paginated(false);
     }
 
     public function render(): View
     {
-        return view("livewire.app.api-tokens.manage-api-tokens");
+        return view('livewire.app.api-tokens.manage-api-tokens');
     }
 }
