@@ -99,7 +99,6 @@ final class AppPanelProvider extends PanelProvider
             ->emailVerification()
             ->strictAuthorization()
             ->databaseNotifications()
-            ->viteTheme('resources/css/app.css')
             ->colors([
                 'primary' => [
                     50 => 'oklch(0.969 0.016 293.756)',
@@ -117,7 +116,6 @@ final class AppPanelProvider extends PanelProvider
                 ],
             ])
             ->viteTheme('resources/css/filament/app/theme.css')
-            ->font('Inter')
             ->userMenuItems([
                 Action::make('profile')
                     ->label('Profile')
@@ -199,18 +197,16 @@ final class AppPanelProvider extends PanelProvider
             ]);
         }
 
-        if (Features::hasTeamFeatures()) {
-            $panel
-                ->tenant(Team::class, slugAttribute: 'slug', ownershipRelationship: 'team')
-                ->tenantRegistration(CreateTeam::class)
-                ->tenantProfile(EditTeam::class)
-                ->tenantMenuItems([
-                    Action::make('import_history')
-                        ->label('Import History')
-                        ->icon(Heroicon::OutlinedClock)
-                        ->url(fn (): string => ImportHistory::getUrl()),
-                ]);
-        }
+        $panel
+            ->tenant(Team::class, slugAttribute: 'slug', ownershipRelationship: 'team')
+            ->tenantRegistration(CreateTeam::class)
+            ->tenantProfile(EditTeam::class)
+            ->tenantMenuItems([
+                Action::make('import_history')
+                    ->label('Import History')
+                    ->icon(Heroicon::OutlinedClock)
+                    ->url(fn (): string => ImportHistory::getUrl()),
+            ]);
 
         return $panel;
     }
