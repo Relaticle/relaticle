@@ -4,34 +4,27 @@ declare(strict_types=1);
 
 namespace App\Actions\Task;
 
+use App\Filament\Resources\TaskResource\Pages\ManageTasks;
 use App\Models\Task;
 use App\Models\User;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
-use Relaticle\CustomFields\Services\TenantContextService;
 
 final readonly class UpdateTask
 {
     /**
      * @param  array<string, mixed>  $data
+     *
+     * @throws \Throwable
      */
     public function execute(User $user, Task $task, array $data): Task
     {
         abort_unless($user->can('update', $task), 403);
 
-        $customFields = $data['custom_fields'] ?? null;
-        unset($data['custom_fields']);
-
-        return DB::transaction(function () use ($user, $task, $data, $customFields): Task {
+        return DB::transaction(function () use ($task, $data): Task {
             $task->update($data);
-
-            if (is_array($customFields) && $customFields !== []) {
-                TenantContextService::withTenant($user->currentTeam->getKey(), function () use ($task, $customFields): void {
-                    $task->saveCustomFields($customFields);
-                });
-            }
 
             $this->notifyNewAssignees($task);
 
@@ -78,7 +71,7 @@ final readonly class UpdateTask
     private function resolveTaskUrl(Task $task): string
     {
         try {
-            $pageClass = \App\Filament\Resources\TaskResource\Pages\ManageTasks::class;
+            $pageClass = ManageTasks::class;
 
             if (class_exists($pageClass)) {
                 return $pageClass::getUrl(['record' => $task]);

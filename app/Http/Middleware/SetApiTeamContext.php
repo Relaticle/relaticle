@@ -16,6 +16,7 @@ use App\Models\User;
 use Closure;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Relaticle\CustomFields\Services\TenantContextService;
 use Symfony\Component\HttpFoundation\Response;
 
 final readonly class SetApiTeamContext
@@ -47,6 +48,8 @@ final readonly class SetApiTeamContext
 
         $user->switchTeam($team);
 
+        TenantContextService::setTenantId($team->getKey());
+
         // Override to web guard because Filament policies, observers, and the TeamScope
         // global scope all check auth('web')->user(). Without this, API requests through
         // Sanctum would not be recognized by the existing authorization layer.
@@ -60,6 +63,8 @@ final readonly class SetApiTeamContext
 
     public function terminate(): void
     {
+        TenantContextService::setTenantId(null);
+
         foreach (self::SCOPED_MODELS as $model) {
             $model::clearBootedModels();
         }
