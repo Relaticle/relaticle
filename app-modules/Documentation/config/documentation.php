@@ -56,7 +56,7 @@ return [
         ],
         'api' => [
             'title' => 'API Reference',
-            'file' => 'api-guide.md',
+            'url' => '/docs/api',
             'description' => 'REST API documentation for managing CRM entities.',
         ],
     ],
