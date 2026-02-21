@@ -34,6 +34,22 @@ final class ListCompaniesTool extends Tool
         /** @var User $user */
         $user = auth()->user();
 
+        $query = [];
+
+        if ($search = $request->get('search')) {
+            $query['filter']['name'] = $search;
+        }
+
+        if ($page = $request->get('page')) {
+            $query['page'] = $page;
+        }
+
+        if ($perPage = $request->get('per_page')) {
+            $query['per_page'] = $perPage;
+        }
+
+        request()->merge($query);
+
         $companies = $action->execute($user, (int) $request->get('per_page', 15));
 
         return Response::text(

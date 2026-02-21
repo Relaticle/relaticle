@@ -190,6 +190,20 @@ it('validates company_id and contact_id exist when creating opportunity via MCP'
     $response->assertHasErrors(['company id', 'contact id']);
 });
 
+it('can filter companies by name via MCP search param', function (): void {
+    Company::factory()->for($this->team)->create(['name' => 'Acme Corp']);
+    Company::factory()->for($this->team)->create(['name' => 'Beta Inc']);
+
+    $response = RelaticleServer::actingAs($this->user)
+        ->tool(ListCompaniesTool::class, [
+            'search' => 'Acme',
+        ]);
+
+    $response->assertOk()
+        ->assertSee('Acme Corp')
+        ->assertDontSee('Beta Inc');
+});
+
 it('can read the CRM overview prompt', function (): void {
     $response = RelaticleServer::actingAs($this->user)
         ->prompt(CrmOverviewPrompt::class);

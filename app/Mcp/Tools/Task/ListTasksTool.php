@@ -34,6 +34,22 @@ final class ListTasksTool extends Tool
         /** @var User $user */
         $user = auth()->user();
 
+        $query = [];
+
+        if ($search = $request->get('search')) {
+            $query['filter']['title'] = $search;
+        }
+
+        if ($page = $request->get('page')) {
+            $query['page'] = $page;
+        }
+
+        if ($perPage = $request->get('per_page')) {
+            $query['per_page'] = $perPage;
+        }
+
+        request()->merge($query);
+
         $tasks = $action->execute($user, (int) $request->get('per_page', 15));
 
         return Response::text(

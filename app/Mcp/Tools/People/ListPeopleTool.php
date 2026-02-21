@@ -35,6 +35,26 @@ final class ListPeopleTool extends Tool
         /** @var User $user */
         $user = auth()->user();
 
+        $query = [];
+
+        if ($search = $request->get('search')) {
+            $query['filter']['name'] = $search;
+        }
+
+        if ($companyId = $request->get('company_id')) {
+            $query['filter']['company_id'] = $companyId;
+        }
+
+        if ($page = $request->get('page')) {
+            $query['page'] = $page;
+        }
+
+        if ($perPage = $request->get('per_page')) {
+            $query['per_page'] = $perPage;
+        }
+
+        request()->merge($query);
+
         $people = $action->execute($user, (int) $request->get('per_page', 15));
 
         return Response::text(
