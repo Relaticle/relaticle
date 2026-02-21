@@ -24,19 +24,19 @@ final readonly class UpdateTask
         $customFields = $data['custom_fields'] ?? null;
         unset($data['custom_fields']);
 
-        DB::transaction(function () use ($task, $data): void {
+        return DB::transaction(function () use ($user, $task, $data, $customFields): Task {
             $task->update($data);
 
+            if (is_array($customFields) && $customFields !== []) {
+                TenantContextService::withTenant($user->currentTeam->getKey(), function () use ($task, $customFields): void {
+                    $task->saveCustomFields($customFields);
+                });
+            }
+
             $this->notifyNewAssignees($task);
+
+            return $task->refresh();
         });
-
-        if (is_array($customFields) && $customFields !== []) {
-            TenantContextService::withTenant($user->currentTeam->getKey(), function () use ($task, $customFields): void {
-                $task->saveCustomFields($customFields);
-            });
-        }
-
-        return $task->refresh();
     }
 
     private function notifyNewAssignees(Task $task): void
