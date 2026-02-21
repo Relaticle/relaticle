@@ -115,7 +115,7 @@
         "test:refactor": "rector --dry-run",
         "test:types": "phpstan analyse",
         "test:arch": "pest --filter=arch",
-        "test:type-coverage": "pest --type-coverage --min=99.9",
+        "test:type-coverage": "pest --type-coverage --min=100",
         "test:coverage": "pest --coverage --min=80",
         "test:pest": "pest --parallel",
         "test:pest:shard": "pest --parallel --shard=${SHARD}",
