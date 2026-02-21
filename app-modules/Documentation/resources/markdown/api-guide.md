@@ -1,71 +1,51 @@
 # API Reference
 
-> **Coming Soon** — The REST API is under active development.
+Relaticle provides a REST API for integrating with external applications and building custom workflows.
 
 ---
 
-## Overview
+## Interactive Documentation
 
-Relaticle will provide a comprehensive REST API for integrating with external applications and building custom workflows.
+Full interactive API documentation with request/response examples, authentication details, and a built-in API client is available at:
 
----
-
-## Planned Features
-
-| Feature | Description |
-|---------|-------------|
-| **Authentication** | API tokens via Laravel Sanctum |
-| **CRUD Endpoints** | Companies, People, Opportunities, Tasks, Notes |
-| **Filtering** | Query parameters for filtering and searching |
-| **Pagination** | Cursor-based pagination for large datasets |
-| **Rate Limiting** | Fair usage limits per token |
+**[View API Documentation](/docs/api)**
 
 ---
 
-## Planned Endpoints
+## Quick Start
 
-```
-GET    /api/companies
-POST   /api/companies
-GET    /api/companies/{id}
-PUT    /api/companies/{id}
-DELETE /api/companies/{id}
+### Authentication
 
-GET    /api/people
-POST   /api/people
-GET    /api/people/{id}
-PUT    /api/people/{id}
-DELETE /api/people/{id}
+All API requests require a Bearer token. Generate one from **Settings > Access Tokens** in the Relaticle app.
 
-GET    /api/opportunities
-POST   /api/opportunities
-GET    /api/opportunities/{id}
-PUT    /api/opportunities/{id}
-DELETE /api/opportunities/{id}
-
-GET    /api/tasks
-POST   /api/tasks
-GET    /api/tasks/{id}
-PUT    /api/tasks/{id}
-DELETE /api/tasks/{id}
-
-GET    /api/notes
-POST   /api/notes
-GET    /api/notes/{id}
-PUT    /api/notes/{id}
-DELETE /api/notes/{id}
+```bash
+curl https://your-domain.com/api/v1/companies \
+  --header 'Authorization: Bearer YOUR_ACCESS_TOKEN'
 ```
 
----
+### Available Endpoints
 
-## Stay Updated
+| Resource | Endpoints |
+|----------|-----------|
+| **Companies** | `GET` `POST` `PUT` `DELETE` `/api/v1/companies` |
+| **People** | `GET` `POST` `PUT` `DELETE` `/api/v1/people` |
+| **Opportunities** | `GET` `POST` `PUT` `DELETE` `/api/v1/opportunities` |
+| **Tasks** | `GET` `POST` `PUT` `DELETE` `/api/v1/tasks` |
+| **Notes** | `GET` `POST` `PUT` `DELETE` `/api/v1/notes` |
+| **Custom Fields** | `GET` `/api/v1/custom-fields` |
 
-Follow the repository for release announcements:
+### Key Features
 
-[github.com/Relaticle/relaticle](https://github.com/Relaticle/relaticle)
+- **JSON:API format** for consistent response structure
+- **Cursor and offset pagination** for large datasets
+- **Filtering and sorting** via query parameters
+- **Sparse fieldsets** to request only the fields you need
+- **Custom fields** support for reading team-specific fields
 
 ---
 
 ## Have Suggestions?
 
 Open an issue on GitHub to share your API requirements and use cases.
+
+[github.com/Relaticle/relaticle](https://github.com/Relaticle/relaticle)
