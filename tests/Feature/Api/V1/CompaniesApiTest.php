@@ -364,4 +364,41 @@ describe('custom fields', function (): void {
         ])
             ->assertCreated();
     });
+
+    it('handles orphaned custom field values gracefully', function (): void {
+        $company = Company::factory()->for($this->team)->create();
+
+        $customField = CustomField::create([
+            'tenant_id' => $this->team->getKey(),
+            'custom_field_section_id' => $this->section->id,
+            'entity_type' => 'company',
+            'code' => 'orphan_field',
+            'name' => 'Orphan Field',
+            'type' => 'text',
+            'sort_order' => 1,
+            'active' => true,
+            'validation_rules' => [],
+        ]);
+
+        \Relaticle\CustomFields\Services\TenantContextService::withTenant(
+            $this->team->getKey(),
+            fn () => $company->saveCustomFields(['orphan_field' => 'test value']),
+        );
+
+        // Simulate an orphaned value by injecting a CustomFieldValue with a null customField relation
+        $company->load('customFieldValues.customField');
+        $orphanedValue = new \Relaticle\CustomFields\Models\CustomFieldValue;
+        $orphanedValue->setRelation('customField', null);
+        $company->setRelation(
+            'customFieldValues',
+            $company->customFieldValues->push($orphanedValue),
+        );
+
+        $resource = new \App\Http\Resources\V1\CompanyResource($company);
+        $attributes = $resource->toAttributes(request());
+
+        expect($attributes['custom_fields'])
+            ->toBeArray()
+            ->toHaveKey('orphan_field', 'test value');
+    });
 });
