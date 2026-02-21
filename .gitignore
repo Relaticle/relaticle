@@ -33,3 +33,5 @@ boost.json
 /.playwright-mcp
 /docs
 api.json
+.scribe/
+/public/vendor/scribe

@@ -23,15 +23,21 @@ final class UpdatePeopleRequest extends FormRequest
      */
     public function rules(): array
     {
-        /** @var User $user */
-        $user = $this->user();
-        $teamId = $user->currentTeam->getKey();
-
-        return array_merge([
+        $rules = [
             'name' => ['sometimes', 'required', 'string', 'max:255'],
-            'company_id' => ['nullable', 'string', Rule::exists('companies', 'id')->where('team_id', $teamId)],
+            'company_id' => ['nullable', 'string'],
             'custom_fields' => ['nullable', 'array'],
-        ], $this->customFieldRules());
+        ];
+
+        /** @var ?User $user */
+        $user = $this->user();
+
+        if ($user?->currentTeam) {
+            $teamId = $user->currentTeam->getKey();
+            $rules['company_id'] = ['nullable', 'string', Rule::exists('companies', 'id')->where('team_id', $teamId)];
+        }
+
+        return array_merge($rules, $this->customFieldRules());
     }
 
     public function customFieldEntityType(): string

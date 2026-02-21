@@ -1,3 +1,5 @@
 *
 !public/
+!scribe/
+!scribe/**
 !.gitignore

@@ -23,9 +23,6 @@ final class CompanyResource extends JsonApiResource
     {
         return [
             'name' => $this->name,
-            'address' => $this->address,
-            'country' => $this->country,
-            'phone' => $this->phone,
             'creation_source' => $this->creation_source,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

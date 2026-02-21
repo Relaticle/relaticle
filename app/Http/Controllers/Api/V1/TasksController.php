@@ -18,6 +18,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Gate;
+use Knuckles\Scribe\Attributes\Response;
+use Knuckles\Scribe\Attributes\ResponseFromApiResource;
 
 /**
  * @group Tasks
@@ -34,6 +36,7 @@ final readonly class TasksController
         return TaskResource::collection($action->execute($user));
     }
 
+    #[ResponseFromApiResource(TaskResource::class, Task::class, status: 201)]
     public function store(StoreTaskRequest $request, CreateTask $action): JsonResponse
     {
         /** @var User $user */
@@ -46,6 +49,7 @@ final readonly class TasksController
             ->setStatusCode(201);
     }
 
+    #[ResponseFromApiResource(TaskResource::class, Task::class)]
     public function show(Task $task): TaskResource
     {
         Gate::authorize('view', $task);
@@ -55,6 +59,7 @@ final readonly class TasksController
         return new TaskResource($task);
     }
 
+    #[ResponseFromApiResource(TaskResource::class, Task::class)]
     public function update(UpdateTaskRequest $request, Task $task, UpdateTask $action): TaskResource
     {
         /** @var User $user */
@@ -65,6 +70,7 @@ final readonly class TasksController
         return new TaskResource($task->load('customFieldValues.customField'));
     }
 
+    #[Response(status: 204)]
     public function destroy(Request $request, Task $task, DeleteTask $action): JsonResponse
     {
         /** @var User $user */

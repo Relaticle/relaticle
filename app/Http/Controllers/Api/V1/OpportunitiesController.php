@@ -18,6 +18,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Gate;
+use Knuckles\Scribe\Attributes\Response;
+use Knuckles\Scribe\Attributes\ResponseFromApiResource;
 
 /**
  * @group Opportunities
@@ -34,6 +36,7 @@ final readonly class OpportunitiesController
         return OpportunityResource::collection($action->execute($user));
     }
 
+    #[ResponseFromApiResource(OpportunityResource::class, Opportunity::class, status: 201)]
     public function store(StoreOpportunityRequest $request, CreateOpportunity $action): JsonResponse
     {
         /** @var User $user */
@@ -46,6 +49,7 @@ final readonly class OpportunitiesController
             ->setStatusCode(201);
     }
 
+    #[ResponseFromApiResource(OpportunityResource::class, Opportunity::class)]
     public function show(Opportunity $opportunity): OpportunityResource
     {
         Gate::authorize('view', $opportunity);
@@ -55,6 +59,7 @@ final readonly class OpportunitiesController
         return new OpportunityResource($opportunity);
     }
 
+    #[ResponseFromApiResource(OpportunityResource::class, Opportunity::class)]
     public function update(UpdateOpportunityRequest $request, Opportunity $opportunity, UpdateOpportunity $action): OpportunityResource
     {
         /** @var User $user */
@@ -65,6 +70,7 @@ final readonly class OpportunitiesController
         return new OpportunityResource($opportunity->load('customFieldValues.customField'));
     }
 
+    #[Response(status: 204)]
     public function destroy(Request $request, Opportunity $opportunity, DeleteOpportunity $action): JsonResponse
     {
         /** @var User $user */

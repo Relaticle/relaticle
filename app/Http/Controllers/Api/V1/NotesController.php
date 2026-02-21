@@ -18,6 +18,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Gate;
+use Knuckles\Scribe\Attributes\Response;
+use Knuckles\Scribe\Attributes\ResponseFromApiResource;
 
 /**
  * @group Notes
@@ -34,6 +36,7 @@ final readonly class NotesController
         return NoteResource::collection($action->execute($user));
     }
 
+    #[ResponseFromApiResource(NoteResource::class, Note::class, status: 201)]
     public function store(StoreNoteRequest $request, CreateNote $action): JsonResponse
     {
         /** @var User $user */
@@ -46,6 +49,7 @@ final readonly class NotesController
             ->setStatusCode(201);
     }
 
+    #[ResponseFromApiResource(NoteResource::class, Note::class)]
     public function show(Note $note): NoteResource
     {
         Gate::authorize('view', $note);
@@ -55,6 +59,7 @@ final readonly class NotesController
         return new NoteResource($note);
     }
 
+    #[ResponseFromApiResource(NoteResource::class, Note::class)]
     public function update(UpdateNoteRequest $request, Note $note, UpdateNote $action): NoteResource
     {
         /** @var User $user */
@@ -65,6 +70,7 @@ final readonly class NotesController
         return new NoteResource($note->load('customFieldValues.customField'));
     }
 
+    #[Response(status: 204)]
     public function destroy(Request $request, Note $note, DeleteNote $action): JsonResponse
     {
         /** @var User $user */

@@ -18,6 +18,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Gate;
+use Knuckles\Scribe\Attributes\Response;
+use Knuckles\Scribe\Attributes\ResponseFromApiResource;
 
 /**
  * @group Companies
@@ -34,6 +36,7 @@ final readonly class CompaniesController
         return CompanyResource::collection($action->execute($user));
     }
 
+    #[ResponseFromApiResource(CompanyResource::class, Company::class, status: 201)]
     public function store(StoreCompanyRequest $request, CreateCompany $action): JsonResponse
     {
         /** @var User $user */
@@ -46,6 +49,7 @@ final readonly class CompaniesController
             ->setStatusCode(201);
     }
 
+    #[ResponseFromApiResource(CompanyResource::class, Company::class)]
     public function show(Company $company): CompanyResource
     {
         Gate::authorize('view', $company);
@@ -55,6 +59,7 @@ final readonly class CompaniesController
         return new CompanyResource($company);
     }
 
+    #[ResponseFromApiResource(CompanyResource::class, Company::class)]
     public function update(UpdateCompanyRequest $request, Company $company, UpdateCompany $action): CompanyResource
     {
         /** @var User $user */
@@ -65,6 +70,7 @@ final readonly class CompaniesController
         return new CompanyResource($company->load('customFieldValues.customField'));
     }
 
+    #[Response(status: 204)]
     public function destroy(Request $request, Company $company, DeleteCompany $action): JsonResponse
     {
         /** @var User $user */

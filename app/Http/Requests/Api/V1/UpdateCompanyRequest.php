@@ -23,9 +23,6 @@ final class UpdateCompanyRequest extends FormRequest
     {
         return array_merge([
             'name' => ['sometimes', 'required', 'string', 'max:255'],
-            'address' => ['nullable', 'string'],
-            'country' => ['nullable', 'string'],
-            'phone' => ['nullable', 'string'],
             'custom_fields' => ['nullable', 'array'],
         ], $this->customFieldRules());
     }

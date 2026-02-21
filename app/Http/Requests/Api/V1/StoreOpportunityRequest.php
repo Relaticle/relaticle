@@ -23,16 +23,23 @@ final class StoreOpportunityRequest extends FormRequest
      */
     public function rules(): array
     {
-        /** @var User $user */
-        $user = $this->user();
-        $teamId = $user->currentTeam->getKey();
-
-        return array_merge([
+        $rules = [
             'name' => ['required', 'string', 'max:255'],
-            'company_id' => ['nullable', 'string', Rule::exists('companies', 'id')->where('team_id', $teamId)],
-            'contact_id' => ['nullable', 'string', Rule::exists('people', 'id')->where('team_id', $teamId)],
+            'company_id' => ['nullable', 'string'],
+            'contact_id' => ['nullable', 'string'],
             'custom_fields' => ['nullable', 'array'],
-        ], $this->customFieldRules());
+        ];
+
+        /** @var ?User $user */
+        $user = $this->user();
+
+        if ($user?->currentTeam) {
+            $teamId = $user->currentTeam->getKey();
+            $rules['company_id'] = ['nullable', 'string', Rule::exists('companies', 'id')->where('team_id', $teamId)];
+            $rules['contact_id'] = ['nullable', 'string', Rule::exists('people', 'id')->where('team_id', $teamId)];
+        }
+
+        return array_merge($rules, $this->customFieldRules());
     }
 
     public function customFieldEntityType(): string

@@ -23,8 +23,8 @@ return [
     Welcome to the Relaticle API documentation. This API follows the [JSON:API](https://jsonapi.org/) specification.
 
     All endpoints require authentication via Bearer token. Generate an access token from **Settings > Access Tokens** in the Relaticle app.
-    INTRO,
-
+    INTRO
+    ,
     // The base URL displayed in the docs.
     // If you're using `laravel` type, you can set this to a dynamic string, like '{{ config("app.tenant_url") }}' to get a dynamic base URL.
     'base_url' => config('app.url'),
@@ -73,7 +73,7 @@ return [
 
         // URL path to use for the docs endpoint (if `add_routes` is true).
         // By default, `/docs` opens the HTML page, `/docs.postman` opens the Postman collection, and `/docs.openapi` the OpenAPI spec.
-        'docs_url' => '/docs',
+        'docs_url' => '/docs/api',
 
         // Directory within `public` in which to store CSS and JS assets.
         // By default, assets are stored in `public/vendor/scribe`.
@@ -134,10 +134,7 @@ return [
     // Supported options are: bash, javascript, php, python
     // To add a language of your own, see https://scribe.knuckles.wtf/laravel/advanced/example-requests
     // Note: does not work for `external` docs types
-    'example_languages' => [
-        'bash',
-        'javascript',
-    ],
+    'example_languages' => ['bash', 'javascript'],
 
     // Generate a Postman collection (v2.1.0) in addition to HTML docs.
     // For 'static' docs, the collection will be generated to public/docs/collection.json.
@@ -221,44 +218,38 @@ return [
     // Use configureStrategy() to specify settings for a strategy in the list.
     // Use removeStrategies() to remove an included strategy.
     'strategies' => [
-        'metadata' => [
-            ...Defaults::METADATA_STRATEGIES,
-        ],
+        'metadata' => [...Defaults::METADATA_STRATEGIES],
         'headers' => [
             ...Defaults::HEADERS_STRATEGIES,
-            Strategies\StaticData::withSettings(data: [
-                'Content-Type' => 'application/json',
-                'Accept' => 'application/json',
-            ]),
+            Strategies\StaticData::withSettings(
+                data: [
+                    'Content-Type' => 'application/json',
+                    'Accept' => 'application/json',
+                ],
+            ),
         ],
-        'urlParameters' => [
-            ...Defaults::URL_PARAMETERS_STRATEGIES,
-        ],
+        'urlParameters' => [...Defaults::URL_PARAMETERS_STRATEGIES],
         'queryParameters' => [
             ...Defaults::QUERY_PARAMETERS_STRATEGIES,
             \App\Scribe\Strategies\GetFromSpatieQueryBuilder::class,
         ],
-        'bodyParameters' => [
-            ...Defaults::BODY_PARAMETERS_STRATEGIES,
-        ],
+        'bodyParameters' => [...Defaults::BODY_PARAMETERS_STRATEGIES],
         'responses' => configureStrategy(
             Defaults::RESPONSES_STRATEGIES,
             Strategies\Responses\ResponseCalls::withSettings(
-                only: ['GET *', 'POST *', 'PUT *', 'PATCH *', 'DELETE *'],
+                only: ['GET *'],
                 config: [
                     'app.debug' => false,
-                ]
-            )
+                ],
+            ),
         ),
-        'responseFields' => [
-            ...Defaults::RESPONSE_FIELDS_STRATEGIES,
-        ],
+        'responseFields' => [...Defaults::RESPONSE_FIELDS_STRATEGIES],
     ],
 
     // For response calls, API resource responses and transformer responses,
     // Scribe will try to start database transactions, so no changes are persisted to your database.
     // Tell Scribe which connections should be transacted here. If you only use one db connection, you can leave this as is.
-    'database_connections_to_transact' => [config('database.default')],
+    'database_connections_to_transact' => [],
 
     'fractal' => [
         // If you are using a custom serializer with league/fractal, you can specify it here.

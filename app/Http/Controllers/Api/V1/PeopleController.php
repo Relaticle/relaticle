@@ -18,6 +18,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Gate;
+use Knuckles\Scribe\Attributes\Response;
+use Knuckles\Scribe\Attributes\ResponseFromApiResource;
 
 /**
  * @group People
@@ -34,6 +36,7 @@ final readonly class PeopleController
         return PeopleResource::collection($action->execute($user));
     }
 
+    #[ResponseFromApiResource(PeopleResource::class, People::class, status: 201)]
     public function store(StorePeopleRequest $request, CreatePeople $action): JsonResponse
     {
         /** @var User $user */
@@ -46,6 +49,7 @@ final readonly class PeopleController
             ->setStatusCode(201);
     }
 
+    #[ResponseFromApiResource(PeopleResource::class, People::class)]
     public function show(People $person): PeopleResource
     {
         Gate::authorize('view', $person);
@@ -55,6 +59,7 @@ final readonly class PeopleController
         return new PeopleResource($person);
     }
 
+    #[ResponseFromApiResource(PeopleResource::class, People::class)]
     public function update(UpdatePeopleRequest $request, People $person, UpdatePeople $action): PeopleResource
     {
         /** @var User $user */
@@ -65,6 +70,7 @@ final readonly class PeopleController
         return new PeopleResource($person->load('customFieldValues.customField'));
     }
 
+    #[Response(status: 204)]
     public function destroy(Request $request, People $person, DeletePeople $action): JsonResponse
     {
         /** @var User $user */
