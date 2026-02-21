@@ -33,7 +33,7 @@
                 <x-documentation::card
                     :title="$document['title']"
                     :description="$document['description'] ?? ''"
-                    :link="route('documentation.show', ['type' => $type])"
+                    :link="isset($document['url']) ? $document['url'] : route('documentation.show', ['type' => $type])"
                     :icon="$documentIcons[$type] ?? null"
                 />
             @endforeach
