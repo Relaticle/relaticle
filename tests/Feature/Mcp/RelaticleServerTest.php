@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use App\Mcp\Prompts\CrmOverviewPrompt;
-use App\Mcp\Resources\CrmSchemaResource;
+use App\Mcp\Resources\CompanySchemaResource;
 use App\Mcp\Servers\RelaticleServer;
 use App\Mcp\Tools\Company\CreateCompanyTool;
 use App\Mcp\Tools\Company\DeleteCompanyTool;
@@ -146,16 +146,13 @@ it('can create a note via MCP tool', function (): void {
         ->assertSee('Meeting notes');
 });
 
-it('can read the CRM schema resource', function (): void {
+it('can read the company schema resource', function (): void {
     $response = RelaticleServer::actingAs($this->user)
-        ->resource(CrmSchemaResource::class);
+        ->resource(CompanySchemaResource::class);
 
     $response->assertOk()
         ->assertSee('company')
-        ->assertSee('people')
-        ->assertSee('opportunity')
-        ->assertSee('task')
-        ->assertSee('note');
+        ->assertSee('custom_fields');
 });
 
 it('can read the CRM overview prompt', function (): void {

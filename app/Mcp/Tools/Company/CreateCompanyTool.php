@@ -7,6 +7,7 @@ namespace App\Mcp\Tools\Company;
 use App\Actions\Company\CreateCompany;
 use App\Enums\CreationSource;
 use App\Http\Resources\V1\CompanyResource;
+use App\Mcp\Tools\Concerns\ValidatesCustomFields;
 use App\Models\User;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\Request;
@@ -14,16 +15,16 @@ use Laravel\Mcp\Response;
 use Laravel\Mcp\Server\Attributes\Description;
 use Laravel\Mcp\Server\Tool;
 
-#[Description('Create a new company in the CRM.')]
+#[Description('Create a new company in the CRM. Use the crm-schema resource to discover available custom fields.')]
 final class CreateCompanyTool extends Tool
 {
+    use ValidatesCustomFields;
+
     public function schema(JsonSchema $schema): array
     {
         return [
             'name' => $schema->string()->description('The company name.')->required(),
-            'address' => $schema->string()->description('The company address.'),
-            'phone' => $schema->string()->description('The company phone number.'),
-            'country' => $schema->string()->description('The company country.'),
+            'custom_fields' => $schema->object()->description('Custom field values as key-value pairs. Read the crm-schema resource to see available fields and their types.'),
         ];
     }
 
@@ -32,12 +33,15 @@ final class CreateCompanyTool extends Tool
         /** @var User $user */
         $user = auth()->user();
 
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'address' => ['sometimes', 'string', 'max:500'],
-            'phone' => ['sometimes', 'string', 'max:50'],
-            'country' => ['sometimes', 'string', 'max:100'],
-        ]);
+        $rules = array_merge(
+            [
+                'name' => ['required', 'string', 'max:255'],
+                'custom_fields' => ['sometimes', 'array'],
+            ],
+            $this->customFieldValidationRules($user, 'company', $request->get('custom_fields')),
+        );
+
+        $validated = $request->validate($rules);
 
         $company = $action->execute($user, $validated, CreationSource::MCP);
 

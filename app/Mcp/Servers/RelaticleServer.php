@@ -5,7 +5,11 @@ declare(strict_types=1);
 namespace App\Mcp\Servers;
 
 use App\Mcp\Prompts\CrmOverviewPrompt;
-use App\Mcp\Resources\CrmSchemaResource;
+use App\Mcp\Resources\CompanySchemaResource;
+use App\Mcp\Resources\NoteSchemaResource;
+use App\Mcp\Resources\OpportunitySchemaResource;
+use App\Mcp\Resources\PeopleSchemaResource;
+use App\Mcp\Resources\TaskSchemaResource;
 use App\Mcp\Tools\Company\CreateCompanyTool;
 use App\Mcp\Tools\Company\DeleteCompanyTool;
 use App\Mcp\Tools\Company\ListCompaniesTool;
@@ -64,7 +68,11 @@ final class RelaticleServer extends Server
 
     /** @var array<int, class-string<\Laravel\Mcp\Server\Resource>> */
     protected array $resources = [
-        CrmSchemaResource::class,
+        CompanySchemaResource::class,
+        PeopleSchemaResource::class,
+        OpportunitySchemaResource::class,
+        TaskSchemaResource::class,
+        NoteSchemaResource::class,
     ];
 
     /** @var array<int, class-string<\Laravel\Mcp\Server\Prompt>> */

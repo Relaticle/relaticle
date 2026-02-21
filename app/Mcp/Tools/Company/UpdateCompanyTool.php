@@ -6,6 +6,7 @@ namespace App\Mcp\Tools\Company;
 
 use App\Actions\Company\UpdateCompany;
 use App\Http\Resources\V1\CompanyResource;
+use App\Mcp\Tools\Concerns\ValidatesCustomFields;
 use App\Models\Company;
 use App\Models\User;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
@@ -15,18 +16,18 @@ use Laravel\Mcp\Server\Attributes\Description;
 use Laravel\Mcp\Server\Tool;
 use Laravel\Mcp\Server\Tools\Annotations\IsIdempotent;
 
-#[Description('Update an existing company in the CRM.')]
+#[Description('Update an existing company in the CRM. Use the crm-schema resource to discover available custom fields.')]
 #[IsIdempotent]
 final class UpdateCompanyTool extends Tool
 {
+    use ValidatesCustomFields;
+
     public function schema(JsonSchema $schema): array
     {
         return [
             'id' => $schema->string()->description('The company ID to update.')->required(),
             'name' => $schema->string()->description('The company name.'),
-            'address' => $schema->string()->description('The company address.'),
-            'phone' => $schema->string()->description('The company phone number.'),
-            'country' => $schema->string()->description('The company country.'),
+            'custom_fields' => $schema->object()->description('Custom field values as key-value pairs. Read the crm-schema resource to see available fields and their types.'),
         ];
     }
 
@@ -35,13 +36,16 @@ final class UpdateCompanyTool extends Tool
         /** @var User $user */
         $user = auth()->user();
 
-        $validated = $request->validate([
-            'id' => ['required', 'string'],
-            'name' => ['sometimes', 'string', 'max:255'],
-            'address' => ['sometimes', 'string', 'max:500'],
-            'phone' => ['sometimes', 'string', 'max:50'],
-            'country' => ['sometimes', 'string', 'max:100'],
-        ]);
+        $rules = array_merge(
+            [
+                'id' => ['required', 'string'],
+                'name' => ['sometimes', 'string', 'max:255'],
+                'custom_fields' => ['sometimes', 'array'],
+            ],
+            $this->customFieldValidationRules($user, 'company', $request->get('custom_fields'), isUpdate: true),
+        );
+
+        $validated = $request->validate($rules);
 
         /** @var Company $company */
         $company = Company::query()->findOrFail($validated['id']);
