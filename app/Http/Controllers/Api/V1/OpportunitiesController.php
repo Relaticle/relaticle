@@ -19,6 +19,11 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Gate;
 
+/**
+ * @group Opportunities
+ *
+ * Manage sales opportunities in your CRM workspace.
+ */
 final readonly class OpportunitiesController
 {
     public function index(Request $request, ListOpportunities $action): AnonymousResourceCollection

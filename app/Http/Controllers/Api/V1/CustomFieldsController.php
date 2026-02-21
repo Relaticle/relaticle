@@ -11,6 +11,11 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Validation\Rule;
 
+/**
+ * @group Custom Fields
+ *
+ * List custom field definitions configured for your workspace.
+ */
 final readonly class CustomFieldsController
 {
     private const array ENTITY_TYPES = ['company', 'people', 'opportunity', 'task', 'note'];

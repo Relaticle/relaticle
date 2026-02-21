@@ -19,6 +19,11 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Gate;
 
+/**
+ * @group People
+ *
+ * Manage people (contacts) in your CRM workspace.
+ */
 final readonly class PeopleController
 {
     public function index(Request $request, ListPeople $action): AnonymousResourceCollection

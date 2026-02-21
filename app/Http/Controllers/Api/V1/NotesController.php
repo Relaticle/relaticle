@@ -19,6 +19,11 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Gate;
 
+/**
+ * @group Notes
+ *
+ * Manage notes in your CRM workspace.
+ */
 final readonly class NotesController
 {
     public function index(Request $request, ListNotes $action): AnonymousResourceCollection
