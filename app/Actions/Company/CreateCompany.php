@@ -7,6 +7,7 @@ namespace App\Actions\Company;
 use App\Enums\CreationSource;
 use App\Models\Company;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Relaticle\CustomFields\Services\TenantContextService;
 
 final readonly class CreateCompany
@@ -25,14 +26,16 @@ final readonly class CreateCompany
         $data['creator_id'] = $user->getKey();
         $data['team_id'] = $user->currentTeam->getKey();
 
-        $company = Company::query()->create($data);
+        return DB::transaction(function () use ($user, $data, $customFields): Company {
+            $company = Company::query()->create($data);
 
-        if (is_array($customFields) && $customFields !== []) {
-            TenantContextService::withTenant($user->currentTeam->getKey(), function () use ($company, $customFields): void {
-                $company->saveCustomFields($customFields);
-            });
-        }
+            if (is_array($customFields) && $customFields !== []) {
+                TenantContextService::withTenant($user->currentTeam->getKey(), function () use ($company, $customFields): void {
+                    $company->saveCustomFields($customFields);
+                });
+            }
 
-        return $company;
+            return $company;
+        });
     }
 }

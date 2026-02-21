@@ -6,6 +6,7 @@ namespace App\Actions\Note;
 
 use App\Models\Note;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Relaticle\CustomFields\Services\TenantContextService;
 
 final readonly class UpdateNote
@@ -20,14 +21,16 @@ final readonly class UpdateNote
         $customFields = $data['custom_fields'] ?? null;
         unset($data['custom_fields']);
 
-        $note->update($data);
+        return DB::transaction(function () use ($user, $note, $data, $customFields): Note {
+            $note->update($data);
 
-        if (is_array($customFields) && $customFields !== []) {
-            TenantContextService::withTenant($user->currentTeam->getKey(), function () use ($note, $customFields): void {
-                $note->saveCustomFields($customFields);
-            });
-        }
+            if (is_array($customFields) && $customFields !== []) {
+                TenantContextService::withTenant($user->currentTeam->getKey(), function () use ($note, $customFields): void {
+                    $note->saveCustomFields($customFields);
+                });
+            }
 
-        return $note->refresh();
+            return $note->refresh();
+        });
     }
 }

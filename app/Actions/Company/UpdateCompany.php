@@ -6,6 +6,7 @@ namespace App\Actions\Company;
 
 use App\Models\Company;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Relaticle\CustomFields\Services\TenantContextService;
 
 final readonly class UpdateCompany
@@ -20,14 +21,16 @@ final readonly class UpdateCompany
         $customFields = $data['custom_fields'] ?? null;
         unset($data['custom_fields']);
 
-        $company->update($data);
+        return DB::transaction(function () use ($user, $company, $data, $customFields): Company {
+            $company->update($data);
 
-        if (is_array($customFields) && $customFields !== []) {
-            TenantContextService::withTenant($user->currentTeam->getKey(), function () use ($company, $customFields): void {
-                $company->saveCustomFields($customFields);
-            });
-        }
+            if (is_array($customFields) && $customFields !== []) {
+                TenantContextService::withTenant($user->currentTeam->getKey(), function () use ($company, $customFields): void {
+                    $company->saveCustomFields($customFields);
+                });
+            }
 
-        return $company->refresh();
+            return $company->refresh();
+        });
     }
 }

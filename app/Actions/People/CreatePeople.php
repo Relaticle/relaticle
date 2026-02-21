@@ -7,6 +7,7 @@ namespace App\Actions\People;
 use App\Enums\CreationSource;
 use App\Models\People;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Relaticle\CustomFields\Services\TenantContextService;
 
 final readonly class CreatePeople
@@ -25,14 +26,16 @@ final readonly class CreatePeople
         $data['creator_id'] = $user->getKey();
         $data['team_id'] = $user->currentTeam->getKey();
 
-        $people = People::query()->create($data);
+        return DB::transaction(function () use ($user, $data, $customFields): People {
+            $people = People::query()->create($data);
 
-        if (is_array($customFields) && $customFields !== []) {
-            TenantContextService::withTenant($user->currentTeam->getKey(), function () use ($people, $customFields): void {
-                $people->saveCustomFields($customFields);
-            });
-        }
+            if (is_array($customFields) && $customFields !== []) {
+                TenantContextService::withTenant($user->currentTeam->getKey(), function () use ($people, $customFields): void {
+                    $people->saveCustomFields($customFields);
+                });
+            }
 
-        return $people;
+            return $people;
+        });
     }
 }

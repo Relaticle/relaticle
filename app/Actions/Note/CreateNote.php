@@ -7,6 +7,7 @@ namespace App\Actions\Note;
 use App\Enums\CreationSource;
 use App\Models\Note;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Relaticle\CustomFields\Services\TenantContextService;
 
 final readonly class CreateNote
@@ -25,14 +26,16 @@ final readonly class CreateNote
         $data['creator_id'] = $user->getKey();
         $data['team_id'] = $user->currentTeam->getKey();
 
-        $note = Note::query()->create($data);
+        return DB::transaction(function () use ($user, $data, $customFields): Note {
+            $note = Note::query()->create($data);
 
-        if (is_array($customFields) && $customFields !== []) {
-            TenantContextService::withTenant($user->currentTeam->getKey(), function () use ($note, $customFields): void {
-                $note->saveCustomFields($customFields);
-            });
-        }
+            if (is_array($customFields) && $customFields !== []) {
+                TenantContextService::withTenant($user->currentTeam->getKey(), function () use ($note, $customFields): void {
+                    $note->saveCustomFields($customFields);
+                });
+            }
 
-        return $note;
+            return $note;
+        });
     }
 }

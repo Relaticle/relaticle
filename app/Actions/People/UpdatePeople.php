@@ -6,6 +6,7 @@ namespace App\Actions\People;
 
 use App\Models\People;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Relaticle\CustomFields\Services\TenantContextService;
 
 final readonly class UpdatePeople
@@ -20,14 +21,16 @@ final readonly class UpdatePeople
         $customFields = $data['custom_fields'] ?? null;
         unset($data['custom_fields']);
 
-        $people->update($data);
+        return DB::transaction(function () use ($user, $people, $data, $customFields): People {
+            $people->update($data);
 
-        if (is_array($customFields) && $customFields !== []) {
-            TenantContextService::withTenant($user->currentTeam->getKey(), function () use ($people, $customFields): void {
-                $people->saveCustomFields($customFields);
-            });
-        }
+            if (is_array($customFields) && $customFields !== []) {
+                TenantContextService::withTenant($user->currentTeam->getKey(), function () use ($people, $customFields): void {
+                    $people->saveCustomFields($customFields);
+                });
+            }
 
-        return $people->refresh();
+            return $people->refresh();
+        });
     }
 }
