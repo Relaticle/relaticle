@@ -18,7 +18,6 @@
         "asmit/resized-column": "^2.1",
         "blade-ui-kit/blade-heroicons": "^2.6",
         "blade-ui-kit/blade-icons": "^1.8",
-        "dedoc/scramble": "^0.13.14",
         "doctrine/dbal": "^4.4",
         "filament/filament": "^5.0",
         "laravel/framework": "^12.0",
@@ -56,6 +55,7 @@
         "driftingly/rector-laravel": "^2.0",
         "fakerphp/faker": "^1.23",
         "itsgoingd/clockwork": "^5.3",
+        "knuckleswtf/scribe": "^5.7",
         "larastan/larastan": "^3.0",
         "laravel/boost": "^2.0",
         "laravel/pail": "^1.2.2",
@@ -66,7 +66,8 @@
         "pestphp/pest": "^4.0",
         "pestphp/pest-plugin-laravel": "^4.0",
         "pestphp/pest-plugin-type-coverage": "^4.0",
-        "rector/rector": "^2.0"
+        "rector/rector": "^2.0",
+        "scalar/laravel": "^0.2.0"
     },
     "autoload": {
         "psr-4": {
