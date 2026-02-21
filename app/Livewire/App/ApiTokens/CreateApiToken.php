@@ -114,7 +114,7 @@ final class CreateApiToken extends BaseLivewireComponent
                             "),
                     ),
             ])
-            ->after(fn () => ($this->plainTextToken = null));
+            ->after(fn (): null => ($this->plainTextToken = null));
     }
 
     public function createToken(): void
@@ -132,7 +132,7 @@ final class CreateApiToken extends BaseLivewireComponent
         $user = $this->authUser();
         $teamId = $state['team_id'];
 
-        if (! $user->allTeams()->contains('id', $teamId)) {
+        if ($user->allTeams()->doesntContain('id', $teamId)) {
             $this->sendNotification(title: 'You do not belong to this team.', type: 'danger');
 
             return;

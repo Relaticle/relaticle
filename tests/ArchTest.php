@@ -77,6 +77,7 @@ arch('avoid mutation')
         'App\View',
         'App\Services\Favicon\Drivers',
         'App\Providers\Filament',
+        'App\Scribe',
     ]);
 
 arch('avoid inheritance')
@@ -98,6 +99,7 @@ arch('avoid inheritance')
         'App\Models',
         'App\Notifications',
         'App\Providers',
+        'App\Scribe',
         'App\View',
     ]);
 

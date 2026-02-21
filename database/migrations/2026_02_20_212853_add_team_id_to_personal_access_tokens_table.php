@@ -10,7 +10,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('personal_access_tokens', function (Blueprint $table) {
+        Schema::table('personal_access_tokens', function (Blueprint $table): void {
             $table->foreignUlid('team_id')->nullable()->after('tokenable_id')->constrained('teams')->nullOnDelete();
         });
     }

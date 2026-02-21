@@ -78,7 +78,7 @@ final readonly class UpdateTask
     private function resolveTaskUrl(Task $task): string
     {
         try {
-            $pageClass = 'App\\Filament\\Resources\\TaskResource\\Pages\\ManageTasks';
+            $pageClass = \App\Filament\Resources\TaskResource\Pages\ManageTasks::class;
 
             if (class_exists($pageClass)) {
                 return $pageClass::getUrl(['record' => $task]);

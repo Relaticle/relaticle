@@ -52,15 +52,16 @@ final class GetFromSpatieQueryBuilder extends Strategy
     {
         foreach ($endpointData->method->getParameters() as $parameter) {
             $type = $parameter->getType();
-
-            if (! $type instanceof ReflectionNamedType || $type->isBuiltin()) {
+            if (! $type instanceof ReflectionNamedType) {
+                continue;
+            }
+            if ($type->isBuiltin()) {
                 continue;
             }
 
             $className = $type->getName();
 
             if (str_starts_with($className, 'App\\Actions\\') && str_starts_with(class_basename($className), 'List') && class_exists($className)) {
-                /** @var class-string */
                 return $className;
             }
         }
