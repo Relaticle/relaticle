@@ -18,6 +18,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Gate;
+use Knuckles\Scribe\Attributes\BodyParam;
 use Knuckles\Scribe\Attributes\Response;
 use Knuckles\Scribe\Attributes\ResponseFromApiResource;
 
@@ -37,6 +38,8 @@ final readonly class PeopleController
     }
 
     #[ResponseFromApiResource(PeopleResource::class, People::class, status: 201)]
+    #[BodyParam('name', 'string', required: true, example: 'Jane Smith')]
+    #[BodyParam('company_id', 'string', required: false, example: null)]
     public function store(StorePeopleRequest $request, CreatePeople $action): JsonResponse
     {
         /** @var User $user */
@@ -60,6 +63,8 @@ final readonly class PeopleController
     }
 
     #[ResponseFromApiResource(PeopleResource::class, People::class)]
+    #[BodyParam('name', 'string', required: false, example: 'Jane Smith')]
+    #[BodyParam('company_id', 'string', required: false, example: null)]
     public function update(UpdatePeopleRequest $request, People $person, UpdatePeople $action): PeopleResource
     {
         /** @var User $user */

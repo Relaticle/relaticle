@@ -18,6 +18,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Gate;
+use Knuckles\Scribe\Attributes\BodyParam;
 use Knuckles\Scribe\Attributes\Response;
 use Knuckles\Scribe\Attributes\ResponseFromApiResource;
 
@@ -37,6 +38,9 @@ final readonly class OpportunitiesController
     }
 
     #[ResponseFromApiResource(OpportunityResource::class, Opportunity::class, status: 201)]
+    #[BodyParam('name', 'string', required: true, example: 'Enterprise Deal')]
+    #[BodyParam('company_id', 'string', required: false, example: null)]
+    #[BodyParam('contact_id', 'string', required: false, example: null)]
     public function store(StoreOpportunityRequest $request, CreateOpportunity $action): JsonResponse
     {
         /** @var User $user */
@@ -60,6 +64,9 @@ final readonly class OpportunitiesController
     }
 
     #[ResponseFromApiResource(OpportunityResource::class, Opportunity::class)]
+    #[BodyParam('name', 'string', required: false, example: 'Enterprise Deal')]
+    #[BodyParam('company_id', 'string', required: false, example: null)]
+    #[BodyParam('contact_id', 'string', required: false, example: null)]
     public function update(UpdateOpportunityRequest $request, Opportunity $opportunity, UpdateOpportunity $action): OpportunityResource
     {
         /** @var User $user */

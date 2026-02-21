@@ -23,21 +23,15 @@ final class StorePeopleRequest extends FormRequest
      */
     public function rules(): array
     {
-        $rules = [
-            'name' => ['required', 'string', 'max:255'],
-            'company_id' => ['nullable', 'string'],
-            'custom_fields' => ['nullable', 'array'],
-        ];
-
-        /** @var ?User $user */
+        /** @var User $user */
         $user = $this->user();
+        $teamId = $user->currentTeam->getKey();
 
-        if ($user?->currentTeam) {
-            $teamId = $user->currentTeam->getKey();
-            $rules['company_id'] = ['nullable', 'string', Rule::exists('companies', 'id')->where('team_id', $teamId)];
-        }
-
-        return array_merge($rules, $this->customFieldRules());
+        return array_merge([
+            'name' => ['required', 'string', 'max:255'],
+            'company_id' => ['nullable', 'string', Rule::exists('companies', 'id')->where('team_id', $teamId)],
+            'custom_fields' => ['nullable', 'array'],
+        ], $this->customFieldRules());
     }
 
     public function customFieldEntityType(): string
