@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Knuckles\Scribe\Config\AuthIn;
 use Knuckles\Scribe\Config\Defaults;
 use Knuckles\Scribe\Extracting\Strategies;
@@ -234,6 +236,7 @@ return [
         ],
         'queryParameters' => [
             ...Defaults::QUERY_PARAMETERS_STRATEGIES,
+            \App\Scribe\Strategies\GetFromSpatieQueryBuilder::class,
         ],
         'bodyParameters' => [
             ...Defaults::BODY_PARAMETERS_STRATEGIES,
