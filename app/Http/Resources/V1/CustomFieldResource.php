@@ -11,6 +11,9 @@ use Relaticle\CustomFields\Services\ValidationService;
 
 /**
  * @mixin CustomField
+ *
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  */
 final class CustomFieldResource extends JsonApiResource
 {

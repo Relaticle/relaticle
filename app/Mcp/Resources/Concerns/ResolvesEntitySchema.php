@@ -36,8 +36,8 @@ trait ResolvesEntitySchema
 
         foreach ($fields as $field) {
             $required = $field->validation_rules
-                ?->toCollection()
-                ->contains('name', 'required') ?? false;
+                ->toCollection()
+                ->contains('name', 'required');
 
             $result[$field->code] = [
                 'name' => $field->name,

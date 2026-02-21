@@ -13,6 +13,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 final readonly class ListPeople
 {
+    /** @return CursorPaginator<int, People>|LengthAwarePaginator<int, People> */
     public function execute(User $user, ?int $perPage = null): CursorPaginator|LengthAwarePaginator
     {
         abort_unless($user->can('viewAny', People::class), 403);

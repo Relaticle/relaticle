@@ -13,6 +13,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 final readonly class ListNotes
 {
+    /** @return CursorPaginator<int, Note>|LengthAwarePaginator<int, Note> */
     public function execute(User $user, ?int $perPage = null): CursorPaginator|LengthAwarePaginator
     {
         abort_unless($user->can('viewAny', Note::class), 403);

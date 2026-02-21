@@ -35,7 +35,7 @@ final readonly class CustomFieldsController
             ->withoutGlobalScopes()
             ->where('tenant_id', $teamId)
             ->active()
-            ->with(['options' => fn (\Illuminate\Database\Eloquent\Builder $q) => $q->withoutGlobalScopes()]);
+            ->with(['options' => fn (\Illuminate\Database\Eloquent\Relations\HasMany $q) => $q->withoutGlobalScopes()]);
 
         if ($request->has('entity_type')) {
             $query->where('entity_type', $request->query('entity_type'));

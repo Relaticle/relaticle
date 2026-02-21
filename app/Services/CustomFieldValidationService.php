@@ -15,7 +15,7 @@ use Relaticle\CustomFields\Services\ValidationService;
  *
  * Shared by API FormRequests and MCP tools to eliminate duplication.
  */
-final class CustomFieldValidationService
+final readonly class CustomFieldValidationService
 {
     /**
      * @param  array<string, mixed>|null  $submittedFields
