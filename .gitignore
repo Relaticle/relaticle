@@ -35,3 +35,6 @@ boost.json
 api.json
 .scribe/
 /public/vendor/scribe
+/resources/views/scribe
+/storage/app/scribe
+/tests/Feature/Scribe
