@@ -15,9 +15,11 @@ use App\Mcp\Tools\Opportunity\CreateOpportunityTool;
 use App\Mcp\Tools\Opportunity\ListOpportunitiesTool;
 use App\Mcp\Tools\People\CreatePeopleTool;
 use App\Mcp\Tools\People\ListPeopleTool;
+use App\Mcp\Tools\People\UpdatePeopleTool;
 use App\Mcp\Tools\Task\CreateTaskTool;
 use App\Mcp\Tools\Task\ListTasksTool;
 use App\Models\Company;
+use App\Models\People;
 use App\Models\User;
 
 beforeEach(function () {
@@ -153,6 +155,39 @@ it('can read the company schema resource', function (): void {
     $response->assertOk()
         ->assertSee('company')
         ->assertSee('custom_fields');
+});
+
+it('validates company_id exists when creating a person via MCP', function (): void {
+    $response = RelaticleServer::actingAs($this->user)
+        ->tool(CreatePeopleTool::class, [
+            'name' => 'Test Person',
+            'company_id' => 'non-existent-id',
+        ]);
+
+    $response->assertHasErrors(['company id']);
+});
+
+it('validates company_id exists when updating a person via MCP', function (): void {
+    $person = People::factory()->for($this->team)->create();
+
+    $response = RelaticleServer::actingAs($this->user)
+        ->tool(UpdatePeopleTool::class, [
+            'id' => $person->id,
+            'company_id' => 'non-existent-id',
+        ]);
+
+    $response->assertHasErrors(['company id']);
+});
+
+it('validates company_id and contact_id exist when creating opportunity via MCP', function (): void {
+    $response = RelaticleServer::actingAs($this->user)
+        ->tool(CreateOpportunityTool::class, [
+            'name' => 'Test Deal',
+            'company_id' => 'non-existent-id',
+            'contact_id' => 'non-existent-id',
+        ]);
+
+    $response->assertHasErrors(['company id', 'contact id']);
 });
 
 it('can read the CRM overview prompt', function (): void {

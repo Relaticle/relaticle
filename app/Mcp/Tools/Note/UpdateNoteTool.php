@@ -6,6 +6,7 @@ namespace App\Mcp\Tools\Note;
 
 use App\Actions\Note\UpdateNote;
 use App\Http\Resources\V1\NoteResource;
+use App\Mcp\Tools\Concerns\ValidatesCustomFields;
 use App\Models\Note;
 use App\Models\User;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
@@ -15,15 +16,18 @@ use Laravel\Mcp\Server\Attributes\Description;
 use Laravel\Mcp\Server\Tool;
 use Laravel\Mcp\Server\Tools\Annotations\IsIdempotent;
 
-#[Description('Update an existing note in the CRM.')]
+#[Description('Update an existing note in the CRM. Use the crm-schema resource to discover available custom fields.')]
 #[IsIdempotent]
 final class UpdateNoteTool extends Tool
 {
+    use ValidatesCustomFields;
+
     public function schema(JsonSchema $schema): array
     {
         return [
             'id' => $schema->string()->description('The note ID to update.')->required(),
             'title' => $schema->string()->description('The note title.'),
+            'custom_fields' => $schema->object()->description('Custom field values as key-value pairs. Read the crm-schema resource to see available fields and their types.'),
         ];
     }
 
@@ -32,10 +36,16 @@ final class UpdateNoteTool extends Tool
         /** @var User $user */
         $user = auth()->user();
 
-        $validated = $request->validate([
-            'id' => ['required', 'string'],
-            'title' => ['sometimes', 'string', 'max:255'],
-        ]);
+        $rules = array_merge(
+            [
+                'id' => ['required', 'string'],
+                'title' => ['sometimes', 'string', 'max:255'],
+                'custom_fields' => ['sometimes', 'array'],
+            ],
+            $this->customFieldValidationRules($user, 'note', $request->get('custom_fields'), isUpdate: true),
+        );
+
+        $validated = $request->validate($rules);
 
         /** @var Note $note */
         $note = Note::query()->findOrFail($validated['id']);
