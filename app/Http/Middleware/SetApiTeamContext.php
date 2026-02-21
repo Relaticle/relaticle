@@ -47,6 +47,9 @@ final readonly class SetApiTeamContext
 
         $user->switchTeam($team);
 
+        // Override to web guard because Filament policies, observers, and the TeamScope
+        // global scope all check auth('web')->user(). Without this, API requests through
+        // Sanctum would not be recognized by the existing authorization layer.
         auth()->guard('web')->setUser($user);
         auth()->shouldUse('web');
 
@@ -72,7 +75,7 @@ final readonly class SetApiTeamContext
 
         $teamId = $request->header('X-Team-Id');
 
-        if ($teamId) {
+        if (is_string($teamId) && preg_match('/^[0-9A-Za-z]{26}$/', $teamId)) {
             return Team::query()->find($teamId);
         }
 

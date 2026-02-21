@@ -249,7 +249,7 @@ return [
     // For response calls, API resource responses and transformer responses,
     // Scribe will try to start database transactions, so no changes are persisted to your database.
     // Tell Scribe which connections should be transacted here. If you only use one db connection, you can leave this as is.
-    'database_connections_to_transact' => [],
+    'database_connections_to_transact' => [config('database.default')],
 
     'fractal' => [
         // If you are using a custom serializer with league/fractal, you can specify it here.

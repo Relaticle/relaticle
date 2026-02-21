@@ -148,7 +148,7 @@ final class CreateApiToken extends BaseLivewireComponent
         );
 
         // Sanctum's createToken() does not accept extra attributes, so we update after creation
-        $token->accessToken->forceFill([
+        $token->accessToken->fill([
             'team_id' => $teamId,
             'expires_at' => $expiresAt,
         ])->save();
