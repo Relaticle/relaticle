@@ -1,5 +1,5 @@
 @php
-    $cardBase = 'group rounded-xl border border-gray-200/80 dark:border-white/[0.06] bg-white dark:bg-white/[0.02] transition-all duration-300 hover:border-gray-300 dark:hover:border-white/[0.10] hover:shadow-sm';
+    $cardBase = 'group feat-card rounded-xl border border-gray-200/80 dark:border-white/[0.06] bg-white dark:bg-white/[0.02] transition-all duration-300 hover:border-gray-300 dark:hover:border-white/[0.10] hover:shadow-sm';
     $cardTitle = 'font-display text-lg font-medium text-gray-900 dark:text-white mb-2';
     $cardDesc = 'text-[13px] leading-relaxed text-gray-500 dark:text-gray-400';
 @endphp
@@ -138,18 +138,24 @@
             </div>
 
             {{-- AI-Powered Insights --}}
-            <div class="{{ $cardBase }} p-6 overflow-hidden">
+            <div id="card-ai" class="{{ $cardBase }} p-6 overflow-hidden">
                 <h3 class="{{ $cardTitle }} inline-flex items-center gap-2">
-                    <x-ri-sparkling-2-line class="w-4 h-4 text-primary dark:text-primary-400"/>
+                    <x-ri-sparkling-2-line id="ai-sparkle" class="w-4 h-4 text-primary dark:text-primary-400"/>
                     AI-Powered Insights
                 </h3>
                 <p class="{{ $cardDesc }}">
                     One-click summaries of contacts and deals. AI analyzes notes, tasks, and interactions so you always know what happened and what to do next.
                 </p>
+                {{-- Animated insight lines --}}
+                <div class="mt-4 space-y-2">
+                    <div class="ai-line h-2 rounded-full bg-primary/[0.07] dark:bg-primary/[0.12] overflow-hidden"><div class="ai-fill h-full rounded-full bg-primary/20 dark:bg-primary/30 w-0"></div></div>
+                    <div class="ai-line h-2 rounded-full bg-primary/[0.07] dark:bg-primary/[0.12] overflow-hidden"><div class="ai-fill h-full rounded-full bg-primary/15 dark:bg-primary/25 w-0"></div></div>
+                    <div class="ai-line h-2 rounded-full bg-primary/[0.07] dark:bg-primary/[0.12] overflow-hidden"><div class="ai-fill h-full rounded-full bg-primary/10 dark:bg-primary/20 w-0"></div></div>
+                </div>
             </div>
 
             {{-- Customizable Data Model --}}
-            <div class="{{ $cardBase }} p-6 overflow-hidden">
+            <div id="card-data" class="{{ $cardBase }} p-6 overflow-hidden">
                 <h3 class="{{ $cardTitle }} inline-flex items-center gap-2">
                     <x-ri-database-2-line class="w-4 h-4 text-primary dark:text-primary-400"/>
                     Customizable Data Model
@@ -159,7 +165,7 @@
                 </p>
                 <div class="mt-4 rounded-lg bg-gray-50 dark:bg-gray-800 p-3 space-y-2">
                     @foreach([['Text', 'Company name...', false], ['Select', 'Industry', true]] as [$label, $placeholder, $hasArrow])
-                        <div class="flex items-center gap-2">
+                        <div class="field-row flex items-center gap-2">
                             <div class="w-14 text-[10px] text-gray-500 dark:text-gray-400 shrink-0">{{ $label }}</div>
                             <div class="flex-1 h-6 rounded bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 px-2 flex items-center {{ $hasArrow ? 'justify-between' : '' }} text-[10px] text-gray-400">
                                 <span>{{ $placeholder }}</span>
@@ -167,7 +173,7 @@
                             </div>
                         </div>
                     @endforeach
-                    <div class="flex items-center gap-2">
+                    <div class="field-row flex items-center gap-2">
                         <div class="w-14 text-[10px] text-gray-500 dark:text-gray-400 shrink-0">Toggle</div>
                         <div class="w-8 h-4 rounded-full bg-primary relative">
                             <div class="absolute right-0.5 top-0.5 w-3 h-3 rounded-full bg-white shadow-sm"></div>
@@ -191,7 +197,7 @@
             @endforeach
 
             {{-- Sales Opportunities --}}
-            <div class="{{ $cardBase }} p-6 overflow-hidden">
+            <div id="card-sales" class="{{ $cardBase }} p-6 overflow-hidden">
                 <h3 class="{{ $cardTitle }} inline-flex items-center gap-2">
                     <x-ri-hand-coin-line class="w-4 h-4 text-primary dark:text-primary-400"/>
                     Sales Opportunities
@@ -200,10 +206,10 @@
                     Manage your pipeline with custom stages, lifecycle tracking, and win/loss analysis.
                 </p>
                 <div class="mt-4 flex gap-1 h-2 rounded-full overflow-hidden">
-                    <div class="flex-[3] bg-primary/70 rounded-l-full"></div>
-                    <div class="flex-[2] bg-primary/45"></div>
-                    <div class="flex-[2] bg-primary/25"></div>
-                    <div class="flex-[1] bg-gray-200 dark:bg-gray-700 rounded-r-full"></div>
+                    <div class="pipe-seg flex-[3] bg-primary/70 rounded-l-full origin-left"></div>
+                    <div class="pipe-seg flex-[2] bg-primary/45 origin-left"></div>
+                    <div class="pipe-seg flex-[2] bg-primary/25 origin-left"></div>
+                    <div class="pipe-seg flex-[1] bg-gray-200 dark:bg-gray-700 rounded-r-full origin-left"></div>
                 </div>
                 <div class="mt-1.5 flex justify-between text-[10px] text-gray-400 dark:text-gray-500">
                     @foreach(['Lead', 'Qualified', 'Proposal', 'Won'] as $stage)
@@ -213,7 +219,7 @@
             </div>
 
             {{-- Task Management — 2col --}}
-            <div class="{{ $cardBase }} p-8 md:col-span-2 lg:col-span-2 overflow-hidden">
+            <div id="card-tasks" class="{{ $cardBase }} p-8 md:col-span-2 lg:col-span-2 overflow-hidden">
                 <div class="flex flex-col sm:flex-row sm:gap-8">
                     <div class="sm:flex-1">
                         <h3 class="font-display text-xl font-semibold text-gray-900 dark:text-white mb-2 inline-flex items-center gap-2">
@@ -230,7 +236,7 @@
                             [false, 'Follow up with', '@Sarah', 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'],
                             [false, 'Review Q4 pipeline', 'Due today', 'bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300'],
                         ] as [$done, $text, $badge, $badgeClass])
-                            <div class="flex items-center gap-3">
+                            <div class="task-row flex items-center gap-3">
                                 <div class="w-4 h-4 rounded-full border-2 {{ $done ? 'border-green-500 bg-green-500/20' : 'border-gray-300 dark:border-gray-600' }} flex items-center justify-center shrink-0">
                                     @if($done)<x-ri-check-line class="w-2.5 h-2.5 text-green-600 dark:text-green-400"/>@endif
                                 </div>
@@ -276,5 +282,48 @@
             </div>
 
         </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                var e = [0.22, 1, 0.36, 1];
+
+                // Cards entrance — staggered fade up
+                document.querySelectorAll('.feat-card').forEach(function(c) { c.style.opacity = '0'; });
+                inView('#features .grid', function() {
+                    animate('.feat-card', { opacity: [0, 1], y: [32, 0] }, { delay: stagger(0.07), duration: 0.6, ease: e });
+                }, { amount: 0.1 });
+
+                // AI Insights — scanning lines fill to random widths
+                inView('#card-ai', function() {
+                    animate('.ai-fill', { width: ['0%', '85%'] }, { delay: stagger(0.12, { start: 0.3 }), duration: 0.8, ease: e });
+                    setTimeout(function() {
+                        animate('.ai-fill', { width: ['85%', '60%'] }, { delay: stagger(0.08), duration: 0.5, ease: e });
+                        setTimeout(function() {
+                            animate('.ai-fill', { width: ['60%', '92%'] }, { delay: stagger(0.1), duration: 0.6, ease: e });
+                        }, 600);
+                    }, 1000);
+                    // Sparkle icon pulse
+                    animate('#ai-sparkle', { scale: [1, 1.3, 1], rotate: [0, 15, 0] }, { duration: 0.6, delay: 0.2, ease: e });
+                }, { amount: 0.4 });
+
+                // Data Model — form fields slide in from left
+                document.querySelectorAll('#card-data .field-row').forEach(function(r) { r.style.opacity = '0'; });
+                inView('#card-data', function() {
+                    animate('#card-data .field-row', { opacity: [0, 1], x: [-16, 0] }, { delay: stagger(0.1, { start: 0.3 }), duration: 0.4, ease: e });
+                }, { amount: 0.4 });
+
+                // Sales Pipeline — segments scale in from left
+                document.querySelectorAll('.pipe-seg').forEach(function(s) { s.style.transform = 'scaleX(0)'; });
+                inView('#card-sales', function() {
+                    animate('.pipe-seg', { scaleX: [0, 1] }, { delay: stagger(0.12, { start: 0.3 }), duration: 0.6, ease: e });
+                }, { amount: 0.4 });
+
+                // Tasks — rows slide in staggered from right
+                document.querySelectorAll('.task-row').forEach(function(r) { r.style.opacity = '0'; });
+                inView('#card-tasks', function() {
+                    animate('.task-row', { opacity: [0, 1], x: [20, 0] }, { delay: stagger(0.15, { start: 0.2 }), duration: 0.45, ease: e });
+                }, { amount: 0.3 });
+            });
+        </script>
     </div>
 </section>
