@@ -1,75 +1,40 @@
-<section class="relative overflow-hidden bg-white dark:bg-black">
-    <div class="container max-w-7xl mx-auto py-24 md:py-32 px-4 sm:px-6 lg:px-8 relative">
+<section class="relative bg-[#0c0a1d] overflow-hidden">
+    {{-- Gradient mesh --}}
+    <div class="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-20%,rgba(120,80,220,0.15),transparent)] pointer-events-none"></div>
+    <div class="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_80%_80%,rgba(80,60,180,0.08),transparent)] pointer-events-none"></div>
+    {{-- Curved notch — white tab hanging down with rounded bottom corners --}}
+    <div class="absolute top-0 inset-x-0 pointer-events-none" aria-hidden="true">
+        <svg class="w-full h-auto" viewBox="0 0 1440 80" fill="none" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0 0H1440V0H1440C1440 0 1380 0 1340 0C1300 0 1280 40 1240 40H200C160 40 140 0 100 0C60 0 0 0 0 0V0Z"
+                  class="fill-white dark:fill-[#0c0a1d]"/>
+        </svg>
+    </div>
 
-        {{-- Top transition dots pattern - adjusted to avoid overlap with corners --}}
-        <div
-            class="absolute top-0 left-32 right-32 md:left-48 md:right-48 lg:left-64 lg:right-64 h-16 md:h-24 overflow-hidden pointer-events-none">
-            <svg width="100%" height="100%"
-                 class="absolute inset-0 opacity-30 md:opacity-40 dark:opacity-20 dark:md:opacity-40">
-                <pattern id="dots-top" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
-                    <circle cx="2" cy="2" r="1.2" fill="#6B7280"/>
-                </pattern>
-                <rect width="100%" height="100%" fill="url(#dots-top)"/>
-            </svg>
-            <div class="absolute inset-0 bg-gradient-to-b from-transparent to-white dark:to-black"></div>
+    <div class="relative max-w-xl mx-auto text-center px-6 pt-24 md:pt-32 pb-20 md:pb-28">
+        <h2 class="font-display text-3xl sm:text-4xl md:text-[2.75rem] font-bold text-white tracking-[-0.02em] leading-[1.15]">
+            Your CRM, Your Rules
+        </h2>
+        <p class="mt-5 text-base md:text-lg text-gray-400 max-w-sm mx-auto leading-relaxed">
+            Self-hosted. Agent-native. Full control over your data and your AI.
+        </p>
+
+        <div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <a href="{{ route('register') }}"
+               class="group flex h-11 items-center gap-2.5 rounded-lg bg-white px-7 text-sm font-semibold text-gray-900 shadow-[0_1px_2px_rgba(0,0,0,0.1)] hover:bg-gray-100 transition-all duration-200">
+                <span>Start for free</span>
+                <x-ri-arrow-right-line class="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-0.5"/>
+            </a>
+            <a href="https://github.com/relaticle/relaticle" target="_blank"
+               class="group flex h-11 items-center gap-2.5 rounded-lg border border-white/[0.12] bg-white/[0.05] px-7 text-sm font-semibold text-white hover:bg-white/[0.10] hover:border-white/[0.20] transition-all duration-200">
+                <x-ri-github-fill class="h-4 w-4"/>
+                <span>GitHub</span>
+            </a>
         </div>
 
-        {{-- Left corner dots pattern --}}
-        <div
-            class="absolute top-0 left-0 w-32 h-32 md:w-48 md:h-48 lg:w-64 lg:h-64 overflow-hidden pointer-events-none">
-            <svg width="100%" height="100%"
-                 class="absolute inset-0 opacity-40 md:opacity-50 lg:opacity-60 dark:opacity-30 dark:md:opacity-40 dark:lg:opacity-50">
-                <pattern id="dots-left" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
-                    <circle cx="2" cy="2" r="1.2" fill="#6B7280"/>
-                </pattern>
-                <rect width="100%" height="100%" fill="url(#dots-left)"/>
-            </svg>
-            <div
-                class="absolute inset-0 bg-gradient-to-br from-transparent via-white/50 to-white dark:via-black/50 dark:to-black"></div>
-        </div>
-
-        {{-- Right corner dots pattern - identical to left but mirrored gradient --}}
-        <div
-            class="absolute top-0 right-0 w-32 h-32 md:w-48 md:h-48 lg:w-64 lg:h-64 overflow-hidden pointer-events-none">
-            <svg width="100%" height="100%"
-                 class="absolute inset-0 opacity-40 md:opacity-50 lg:opacity-60 dark:opacity-30 dark:md:opacity-40 dark:lg:opacity-50">
-                <pattern id="dots-right" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
-                    <circle cx="2" cy="2" r="1.2" fill="#6B7280"/>
-                </pattern>
-                <rect width="100%" height="100%" fill="url(#dots-right)"/>
-            </svg>
-            <div
-                class="absolute inset-0 bg-gradient-to-bl from-transparent via-white/50 to-white dark:via-black/50 dark:to-black"></div>
-        </div>
-
-        <div class="relative max-w-xl mx-auto text-center">
-            {{-- Main content --}}
-            <h2 class="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-black dark:text-white mb-4 tracking-tight leading-tight">
-                Your CRM, Your Rules
-            </h2>
-            <p class="text-base md:text-lg text-gray-600 dark:text-gray-400 mb-8 max-w-sm mx-auto leading-relaxed">
-                Self-hosted. Agent-native. Full control over your data and your AI.
-            </p>
-
-            {{-- Primary CTA with perfect design system styling --}}
-            <div class="mb-6">
-                <a href="{{ route('register') }}"
-                   class="group relative inline-flex items-center justify-center gap-2.5 bg-primary hover:bg-primary-700 text-white px-8 py-3.5 rounded-lg text-base font-medium transition-all duration-300 shadow-sm hover:shadow-md transform active:translate-y-0">
-                    <span>Start for free</span>
-                    <x-ri-arrow-right-line
-                        class="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"/>
-
-                </a>
-            </div>
-
-            {{-- Trust indicators - super minimal --}}
-            <div class="flex items-center justify-center gap-1 text-[13px] text-gray-600 dark:text-gray-400">
-                <x-ri-checkbox-circle-line class="h-3.5 w-3.5 text-green-500 dark:text-green-400 flex-shrink-0"/>
-                <span>No credit card</span>
-                <span class="mx-1.5 text-gray-400 dark:text-gray-600">•</span>
-                <x-ri-checkbox-circle-line class="h-3.5 w-3.5 text-green-500 dark:text-green-400 flex-shrink-0"/>
-                <span>Deploy in 5 minutes</span>
-            </div>
+        <div class="mt-6 flex items-center justify-center gap-1 text-[13px] text-gray-500">
+            <span>No credit card</span>
+            <span class="mx-1.5 text-gray-600">&middot;</span>
+            <span>Deploy in 5 minutes</span>
         </div>
     </div>
 </section>
