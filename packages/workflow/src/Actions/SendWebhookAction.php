@@ -1,0 +1,52 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Relaticle\Workflow\Actions;
+
+use Illuminate\Support\Facades\Http;
+
+class SendWebhookAction extends BaseAction
+{
+    /**
+     * Execute the send webhook action, posting a payload to the configured URL.
+     *
+     * @param  array<string, mixed>  $config  Expected keys: 'url' (string), 'payload' (array)
+     * @param  array<string, mixed>  $context  The workflow execution context
+     * @return array<string, mixed>
+     */
+    public function execute(array $config, array $context): array
+    {
+        $url = $config['url'] ?? '';
+        $payload = $config['payload'] ?? [];
+
+        $response = Http::post($url, $payload);
+
+        return [
+            'status_code' => $response->status(),
+            'success' => $response->successful(),
+            'response_body' => $response->json() ?? $response->body(),
+        ];
+    }
+
+    /**
+     * Get a human-readable label for this action.
+     */
+    public static function label(): string
+    {
+        return 'Send Webhook';
+    }
+
+    /**
+     * Get the configuration schema for this action.
+     *
+     * @return array<string, mixed>
+     */
+    public static function configSchema(): array
+    {
+        return [
+            'url' => ['type' => 'string', 'label' => 'Webhook URL', 'required' => true],
+            'payload' => ['type' => 'object', 'label' => 'Payload', 'required' => false],
+        ];
+    }
+}
