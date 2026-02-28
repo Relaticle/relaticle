@@ -162,6 +162,22 @@ it('has correct configSchema for HttpRequestAction', function () {
         ->toHaveKey('required', true);
 });
 
+// SSRF prevention tests
+it('rejects HTTP requests to localhost', function () {
+    $action = new \Relaticle\Workflow\Actions\HttpRequestAction();
+    $action->execute(['method' => 'GET', 'url' => 'http://localhost/admin'], []);
+})->throws(\InvalidArgumentException::class);
+
+it('rejects HTTP requests to 127.0.0.1', function () {
+    $action = new \Relaticle\Workflow\Actions\HttpRequestAction();
+    $action->execute(['method' => 'GET', 'url' => 'http://127.0.0.1/admin'], []);
+})->throws(\InvalidArgumentException::class);
+
+it('rejects webhook to localhost', function () {
+    $action = new \Relaticle\Workflow\Actions\SendWebhookAction();
+    $action->execute(['url' => 'http://localhost/hook'], []);
+})->throws(\InvalidArgumentException::class);
+
 // Registration tests
 it('registers send_webhook as a built-in action', function () {
     $actions = Workflow::getRegisteredActions();
