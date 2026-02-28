@@ -7,6 +7,7 @@ namespace Relaticle\Workflow;
 use Closure;
 use InvalidArgumentException;
 use Relaticle\Workflow\Actions\Contracts\WorkflowAction;
+use Relaticle\Workflow\Observers\WorkflowModelObserver;
 
 class WorkflowManager
 {
@@ -40,6 +41,13 @@ class WorkflowManager
     public function registerTriggerableModel(string $modelClass, array $config): void
     {
         $this->triggerableModels[$modelClass] = $config;
+
+        // Dynamically attach the observer so workflows fire on model events.
+        // This is done eagerly at registration time because the host app
+        // typically registers models after the service provider boots.
+        if (class_exists($modelClass) && is_a($modelClass, \Illuminate\Database\Eloquent\Model::class, true)) {
+            $modelClass::observe(WorkflowModelObserver::class);
+        }
     }
 
     /**
