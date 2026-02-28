@@ -16,6 +16,12 @@ abstract class TestCase extends BaseTestCase
         ];
     }
 
+    protected function defineRoutes($router): void
+    {
+        // Landing page for browser tests that need a page to execute JS from
+        $router->get('/_test', fn () => response('<html><body>OK</body></html>'));
+    }
+
     protected function defineEnvironment($app): void
     {
         $app['config']->set('database.default', 'testing');
