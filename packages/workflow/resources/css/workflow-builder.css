@@ -486,3 +486,33 @@
         width: 240px;
     }
 }
+
+/* ==========================================================================
+   Toast Notifications
+   ========================================================================== */
+
+.workflow-toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 12px 20px;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 500;
+    z-index: 10000;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.3s, transform 0.3s;
+    max-width: 400px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.workflow-toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.workflow-toast-success { background-color: #22c55e; }
+.workflow-toast-error { background-color: #ef4444; }
+.workflow-toast-warning { background-color: #f59e0b; }
