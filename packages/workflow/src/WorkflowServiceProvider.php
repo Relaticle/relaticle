@@ -13,7 +13,8 @@ class WorkflowServiceProvider extends PackageServiceProvider
     {
         $package
             ->name('workflow')
-            ->hasConfigFile();
+            ->hasConfigFile()
+            ->runsMigrations();
     }
 
     public function packageRegistered(): void
