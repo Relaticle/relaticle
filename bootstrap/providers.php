@@ -11,6 +11,7 @@ return [
     App\Providers\HorizonServiceProvider::class,
     App\Providers\JetstreamServiceProvider::class,
     App\Providers\MacroServiceProvider::class,
+    App\Providers\WorkflowServiceProvider::class,
     Relaticle\Documentation\DocumentationServiceProvider::class,
     Relaticle\ImportWizard\ImportWizardNewServiceProvider::class,
     Relaticle\SystemAdmin\SystemAdminPanelProvider::class,
