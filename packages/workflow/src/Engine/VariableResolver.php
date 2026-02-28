@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Relaticle\Workflow\Engine;
 
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class VariableResolver
 {
@@ -84,6 +85,8 @@ class VariableResolver
         $value = data_get($context, $path);
 
         if ($value === null) {
+            Log::warning("Workflow variable '{$path}' could not be resolved.");
+
             return '';
         }
 
