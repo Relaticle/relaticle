@@ -13,6 +13,7 @@ use Relaticle\Workflow\Enums\WorkflowRunStatus;
 use Relaticle\Workflow\Events\WorkflowRunCompleted;
 use Relaticle\Workflow\Events\WorkflowRunFailed;
 use Relaticle\Workflow\Events\WorkflowTriggered;
+use Relaticle\Workflow\Jobs\ExecuteStepJob;
 use Relaticle\Workflow\Models\Workflow;
 use Relaticle\Workflow\Models\WorkflowNode;
 use Relaticle\Workflow\Models\WorkflowRun;
@@ -56,7 +57,93 @@ class WorkflowExecutor
                 $this->walkGraph($walker, $triggerNode, $run, $context);
             });
 
-            $this->completeRun($run);
+            // Only complete if not paused by a delay
+            if ($run->fresh()->status !== WorkflowRunStatus::Paused) {
+                $this->completeRun($run);
+            }
+        } catch (\Throwable $e) {
+            $this->failRun($run, $e->getMessage());
+        }
+
+        $run->load('steps');
+
+        return $run;
+    }
+
+    /**
+     * Resume a paused workflow run from the given node ID.
+     *
+     * This is called by ExecuteStepJob after a delay period has elapsed.
+     * It sets the run back to Running, finds the delay node, and continues
+     * executing from the nodes after that delay node.
+     *
+     * @param  array<string, mixed>  $context
+     */
+    public function resume(WorkflowRun $run, string $resumeFromNodeId, array $context): WorkflowRun
+    {
+        $workflow = $run->workflow;
+        $run->update(['status' => WorkflowRunStatus::Running]);
+
+        try {
+            DB::transaction(function () use ($workflow, $run, $resumeFromNodeId, $context): void {
+                $workflow->load(['nodes', 'edges']);
+
+                $walker = new GraphWalker($workflow->nodes, $workflow->edges);
+
+                // Find the delay node we're resuming from (by node_id, not database id)
+                $delayNode = $workflow->nodes->firstWhere('node_id', $resumeFromNodeId);
+                if ($delayNode === null) {
+                    throw new \RuntimeException("Resume node {$resumeFromNodeId} not found.");
+                }
+
+                // Continue from nodes after the delay
+                $nextNodes = $walker->getNextNodes($delayNode);
+
+                /** @var \SplQueue<WorkflowNode> $queue */
+                $queue = new \SplQueue();
+                foreach ($nextNodes as $next) {
+                    $queue->enqueue($next);
+                }
+
+                $processedNodeIds = [];
+                $stepCount = 0;
+                $maxSteps = (int) config('workflow.max_steps_per_run', 100);
+
+                while (! $queue->isEmpty()) {
+                    /** @var WorkflowNode $node */
+                    $node = $queue->dequeue();
+
+                    if (in_array($node->id, $processedNodeIds, true)) {
+                        continue;
+                    }
+
+                    $processedNodeIds[] = $node->id;
+
+                    $stepCount++;
+                    if ($stepCount > $maxSteps) {
+                        throw new \RuntimeException('Maximum step limit exceeded.');
+                    }
+
+                    match ($node->type) {
+                        NodeType::Action => $this->executeActionNode($node, $walker, $run, $context, $queue),
+                        NodeType::Condition => $this->executeConditionNode($node, $walker, $run, $context, $queue),
+                        NodeType::Delay => $this->handleDelayPause($run, $node, $context),
+                        NodeType::Loop => $this->executeLoopNode($node, $walker, $run, $context, $processedNodeIds),
+                        NodeType::Stop => null,
+                        default => $this->enqueueNextNodes($walker, $node, $queue),
+                    };
+
+                    // If the run was paused (by another delay node), stop walking
+                    if ($run->fresh()->status === WorkflowRunStatus::Paused) {
+                        return;
+                    }
+                }
+            });
+
+            // Only complete if not paused by another delay
+            if ($run->fresh()->status !== WorkflowRunStatus::Paused) {
+                $this->completeRun($run);
+            }
         } catch (\Throwable $e) {
             $this->failRun($run, $e->getMessage());
         }
@@ -125,11 +212,16 @@ class WorkflowExecutor
             match ($currentNode->type) {
                 NodeType::Action => $this->executeActionNode($currentNode, $walker, $run, $context, $queue),
                 NodeType::Condition => $this->executeConditionNode($currentNode, $walker, $run, $context, $queue),
-                NodeType::Delay => $this->executeDelayNode($currentNode, $walker, $run, $context, $queue),
+                NodeType::Delay => $this->handleDelayPause($run, $currentNode, $context),
                 NodeType::Loop => $this->executeLoopNode($currentNode, $walker, $run, $context, $processedNodeIds),
                 NodeType::Stop => null, // Stop node: do nothing, just don't enqueue further nodes
                 default => $this->enqueueNextNodes($walker, $currentNode, $queue),
             };
+
+            // If the run was paused (by a delay node), stop walking
+            if ($run->fresh()->status === WorkflowRunStatus::Paused) {
+                return;
+            }
         }
     }
 
@@ -179,37 +271,36 @@ class WorkflowExecutor
     }
 
     /**
-     * Execute a delay node: run the built-in DelayAction, record the step, then continue.
+     * Handle a delay node by pausing the run and dispatching a delayed resume job.
      *
-     * @param  \SplQueue<WorkflowNode>  $queue
+     * Instead of continuing execution immediately, this method records the delay
+     * step, pauses the workflow run, and dispatches an ExecuteStepJob that will
+     * resume execution after the configured delay period.
+     *
      * @param  array<string, mixed>  $context
      */
-    private function executeDelayNode(
-        WorkflowNode $node,
-        GraphWalker $walker,
-        WorkflowRun $run,
-        array $context,
-        \SplQueue $queue,
-    ): void {
-        $step = $this->createStep($run, $node, StepStatus::Running);
-
+    private function handleDelayPause(WorkflowRun $run, WorkflowNode $node, array $context): void
+    {
         $resolvedConfig = $this->variableResolver->resolveArray($node->config ?? [], $context);
 
+        $delayAction = new \Relaticle\Workflow\Actions\DelayAction();
+        $output = $delayAction->execute($resolvedConfig, $context);
+
+        // Record the delay step as completed
+        $step = $this->createStep($run, $node, StepStatus::Completed);
         $step->update([
             'input_data' => $resolvedConfig,
-            'started_at' => Carbon::now(),
-        ]);
-
-        $action = new \Relaticle\Workflow\Actions\DelayAction();
-        $output = $action->execute($resolvedConfig, $context);
-
-        $step->update([
-            'status' => StepStatus::Completed,
             'output_data' => $output,
             'completed_at' => Carbon::now(),
         ]);
 
-        $this->enqueueNextNodes($walker, $node, $queue);
+        // Pause the run
+        $run->update(['status' => WorkflowRunStatus::Paused]);
+
+        // Dispatch delayed resume job
+        $delaySeconds = $output['delay_seconds'] ?? 0;
+        ExecuteStepJob::dispatch($run, $node->node_id, $context)
+            ->delay(now()->addSeconds($delaySeconds));
     }
 
     /**
@@ -323,10 +414,15 @@ class WorkflowExecutor
             match ($currentNode->type) {
                 NodeType::Action => $this->executeActionNode($currentNode, $walker, $run, $context, $queue),
                 NodeType::Condition => $this->executeConditionNode($currentNode, $walker, $run, $context, $queue),
-                NodeType::Delay => $this->executeDelayNode($currentNode, $walker, $run, $context, $queue),
+                NodeType::Delay => $this->handleDelayPause($run, $currentNode, $context),
                 NodeType::Stop => null,
                 default => $this->enqueueNextNodes($walker, $currentNode, $queue),
             };
+
+            // If the run was paused (by a delay node), stop walking
+            if ($run->fresh()->status === WorkflowRunStatus::Paused) {
+                return;
+            }
         }
     }
 
