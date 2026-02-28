@@ -161,6 +161,33 @@ it('persists run record even when execution fails (transaction rollback)', funct
     expect(\Relaticle\Workflow\Models\WorkflowRun::count())->toBe(1);
 });
 
+it('fails step when action config is missing required fields', function () {
+    $workflow = WorkflowModel::create([
+        'name' => 'Validation Test',
+        'trigger_type' => TriggerType::Manual,
+        'trigger_config' => [],
+        'canvas_data' => [],
+    ]);
+
+    $trigger = $workflow->nodes()->create([
+        'node_id' => 'trigger-1', 'type' => NodeType::Trigger,
+        'position_x' => 0, 'position_y' => 0,
+    ]);
+    $action = $workflow->nodes()->create([
+        'node_id' => 'action-1', 'type' => NodeType::Action,
+        'action_type' => 'send_email',
+        'config' => ['subject' => 'Test'], // missing required 'to' and 'body'
+        'position_x' => 0, 'position_y' => 100,
+    ]);
+    $workflow->edges()->create(['edge_id' => 'e1', 'source_node_id' => $trigger->id, 'target_node_id' => $action->id]);
+
+    $executor = app(\Relaticle\Workflow\Engine\WorkflowExecutor::class);
+    $run = $executor->execute($workflow, []);
+
+    expect($run->status)->toBe(WorkflowRunStatus::Failed);
+    expect($run->error_message)->toContain('to');
+});
+
 // Helper functions
 function createLinearWorkflow(): WorkflowModel
 {

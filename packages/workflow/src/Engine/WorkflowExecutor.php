@@ -6,6 +6,7 @@ namespace Relaticle\Workflow\Engine;
 
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 use Relaticle\Workflow\Actions\Contracts\WorkflowAction;
 use Relaticle\Workflow\Enums\NodeType;
 use Relaticle\Workflow\Enums\StepStatus;
@@ -251,6 +252,8 @@ class WorkflowExecutor
         $actionClass = $registeredActions[$actionKey];
 
         $resolvedConfig = $this->variableResolver->resolveArray($node->config ?? [], $context);
+
+        $this->validateActionConfig($actionKey, $resolvedConfig);
 
         $step->update([
             'input_data' => $resolvedConfig,
@@ -536,6 +539,42 @@ class WorkflowExecutor
         ]);
 
         return $step;
+    }
+
+    /**
+     * Validate action config against the action's configSchema() using Laravel Validator.
+     *
+     * @param  array<string, mixed>  $config
+     */
+    private function validateActionConfig(string $actionType, array $config): void
+    {
+        $actions = $this->manager->getRegisteredActions();
+        $actionClass = $actions[$actionType] ?? null;
+
+        if ($actionClass === null) {
+            return;
+        }
+
+        $schema = $actionClass::configSchema();
+
+        $rules = [];
+        foreach ($schema as $field => $fieldConfig) {
+            if (! empty($fieldConfig['required'])) {
+                $rules[$field] = 'required';
+            }
+        }
+
+        if (empty($rules)) {
+            return;
+        }
+
+        $validator = Validator::make($config, $rules);
+
+        if ($validator->fails()) {
+            throw new \RuntimeException(
+                "Action '{$actionType}' config validation failed: " . $validator->errors()->first()
+            );
+        }
     }
 
     /**
