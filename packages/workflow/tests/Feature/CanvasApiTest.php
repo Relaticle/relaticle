@@ -199,3 +199,90 @@ it('validates required node type on save', function () {
 
     $response->assertStatus(422);
 });
+
+it('rejects edges referencing non-existent source node', function () {
+    $workflow = WorkflowModel::create([
+        'name' => 'Edge Validation Test',
+        'trigger_type' => TriggerType::Manual,
+    ]);
+
+    $response = $this->putJson("/workflow/api/workflows/{$workflow->id}/canvas", [
+        'canvas_data' => [],
+        'nodes' => [
+            ['node_id' => 'trigger-1', 'type' => 'trigger', 'position_x' => 0, 'position_y' => 0],
+        ],
+        'edges' => [
+            ['edge_id' => 'e1', 'source_node_id' => 'nonexistent-node', 'target_node_id' => 'trigger-1'],
+        ],
+    ]);
+
+    $response->assertStatus(422);
+    $response->assertJsonFragment([
+        'error' => "Edge 'e1' references non-existent source node 'nonexistent-node'.",
+    ]);
+});
+
+it('rejects edges referencing non-existent target node', function () {
+    $workflow = WorkflowModel::create([
+        'name' => 'Edge Validation Test',
+        'trigger_type' => TriggerType::Manual,
+    ]);
+
+    $response = $this->putJson("/workflow/api/workflows/{$workflow->id}/canvas", [
+        'canvas_data' => [],
+        'nodes' => [
+            ['node_id' => 'trigger-1', 'type' => 'trigger', 'position_x' => 0, 'position_y' => 0],
+        ],
+        'edges' => [
+            ['edge_id' => 'e1', 'source_node_id' => 'trigger-1', 'target_node_id' => 'nonexistent-node'],
+        ],
+    ]);
+
+    $response->assertStatus(422);
+    $response->assertJsonFragment([
+        'error' => "Edge 'e1' references non-existent target node 'nonexistent-node'.",
+    ]);
+});
+
+it('rejects nodes with invalid type', function () {
+    $workflow = WorkflowModel::create([
+        'name' => 'Type Validation Test',
+        'trigger_type' => TriggerType::Manual,
+    ]);
+
+    $response = $this->putJson("/workflow/api/workflows/{$workflow->id}/canvas", [
+        'canvas_data' => [],
+        'nodes' => [
+            ['node_id' => 'node-1', 'type' => 'invalid_type', 'position_x' => 0, 'position_y' => 0],
+        ],
+        'edges' => [],
+    ]);
+
+    $response->assertStatus(422);
+});
+
+it('accepts all valid node types', function () {
+    $workflow = WorkflowModel::create([
+        'name' => 'All Types Test',
+        'trigger_type' => TriggerType::Manual,
+    ]);
+
+    $response = $this->putJson("/workflow/api/workflows/{$workflow->id}/canvas", [
+        'canvas_data' => [],
+        'nodes' => [
+            ['node_id' => 'n1', 'type' => 'trigger', 'position_x' => 0, 'position_y' => 0],
+            ['node_id' => 'n2', 'type' => 'action', 'action_type' => 'send_email', 'position_x' => 100, 'position_y' => 0],
+            ['node_id' => 'n3', 'type' => 'condition', 'position_x' => 200, 'position_y' => 0],
+            ['node_id' => 'n4', 'type' => 'delay', 'position_x' => 300, 'position_y' => 0],
+            ['node_id' => 'n5', 'type' => 'loop', 'position_x' => 400, 'position_y' => 0],
+            ['node_id' => 'n6', 'type' => 'stop', 'position_x' => 500, 'position_y' => 0],
+        ],
+        'edges' => [
+            ['edge_id' => 'e1', 'source_node_id' => 'n1', 'target_node_id' => 'n2'],
+            ['edge_id' => 'e2', 'source_node_id' => 'n2', 'target_node_id' => 'n3'],
+        ],
+    ]);
+
+    $response->assertOk();
+    expect($workflow->fresh()->nodes()->count())->toBe(6);
+});
