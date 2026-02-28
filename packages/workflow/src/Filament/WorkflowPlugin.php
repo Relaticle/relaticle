@@ -18,6 +18,7 @@ class WorkflowPlugin implements Plugin
     {
         $panel->resources([
             Resources\WorkflowResource::class,
+            Resources\WorkflowRunResource::class,
         ]);
     }
 
