@@ -9,6 +9,8 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
@@ -21,6 +23,7 @@ use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Relaticle\Workflow\Enums\TriggerType;
 use Relaticle\Workflow\Models\Workflow;
+use Relaticle\Workflow\WorkflowManager;
 
 class WorkflowResource extends Resource
 {
@@ -48,10 +51,48 @@ class WorkflowResource extends Resource
                     TriggerType::Manual->value => 'Manual',
                     TriggerType::Webhook->value => 'Webhook',
                 ])
+                ->live()
                 ->required(),
+
+            Section::make('Trigger Configuration')
+                ->schema([
+                    Select::make('trigger_config.model')
+                        ->label('Model')
+                        ->options(fn () => collect(app(WorkflowManager::class)->getTriggerableModels())
+                            ->mapWithKeys(fn ($config, $class) => [$class => $config['label'] ?? class_basename($class)]))
+                        ->visible(fn (Get $get) => $get('trigger_type') === TriggerType::RecordEvent->value)
+                        ->required(fn (Get $get) => $get('trigger_type') === TriggerType::RecordEvent->value),
+                    Select::make('trigger_config.event')
+                        ->label('Event')
+                        ->options([
+                            'created' => 'Created',
+                            'updated' => 'Updated',
+                            'deleted' => 'Deleted',
+                        ])
+                        ->visible(fn (Get $get) => $get('trigger_type') === TriggerType::RecordEvent->value)
+                        ->required(fn (Get $get) => $get('trigger_type') === TriggerType::RecordEvent->value),
+                    TextInput::make('trigger_config.cron')
+                        ->label('Cron Expression')
+                        ->placeholder('*/5 * * * *')
+                        ->visible(fn (Get $get) => $get('trigger_type') === TriggerType::TimeBased->value),
+                    TextInput::make('webhook_secret')
+                        ->label('Webhook Secret (optional)')
+                        ->password()
+                        ->revealable()
+                        ->visible(fn (Get $get) => $get('trigger_type') === TriggerType::Webhook->value),
+                ])
+                ->visible(fn (Get $get) => in_array($get('trigger_type'), [
+                    TriggerType::RecordEvent->value,
+                    TriggerType::TimeBased->value,
+                    TriggerType::Webhook->value,
+                ])),
+
             Toggle::make('is_active')
                 ->label('Active')
-                ->default(false),
+                ->default(false)
+                ->helperText(fn ($record) => $record && ! $record->canActivate()
+                    ? 'Cannot activate: ' . implode(' ', $record->getActivationErrors())
+                    : null),
         ]);
     }
 
