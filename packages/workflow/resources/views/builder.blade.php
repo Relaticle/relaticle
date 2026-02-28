@@ -29,28 +29,28 @@
                 <div class="sidebar-group">
                     <div class="sidebar-group-title">Triggers</div>
                     <div class="sidebar-node" data-node-type="trigger" data-test="sidebar-trigger-node" draggable="true">
-                        <span class="node-icon trigger-icon">&#9889;</span> Trigger
+                        <span class="node-icon trigger-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></span> Trigger
                     </div>
                 </div>
                 <div class="sidebar-group">
                     <div class="sidebar-group-title">Actions</div>
                     <div class="sidebar-node" data-node-type="action" draggable="true">
-                        <span class="node-icon action-icon">&#9654;</span> Action
+                        <span class="node-icon action-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></span> Action
                     </div>
                 </div>
                 <div class="sidebar-group">
                     <div class="sidebar-group-title">Logic</div>
                     <div class="sidebar-node" data-node-type="condition" draggable="true">
-                        <span class="node-icon condition-icon">&#9670;</span> Condition
+                        <span class="node-icon condition-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg></span> Condition
                     </div>
                     <div class="sidebar-node" data-node-type="delay" draggable="true">
-                        <span class="node-icon delay-icon">&#9201;</span> Delay
+                        <span class="node-icon delay-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></span> Delay
                     </div>
                     <div class="sidebar-node" data-node-type="loop" draggable="true">
-                        <span class="node-icon loop-icon">&#128260;</span> Loop
+                        <span class="node-icon loop-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"></polyline><polyline points="23 20 23 14 17 14"></polyline><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"></path></svg></span> Loop
                     </div>
                     <div class="sidebar-node" data-node-type="stop" draggable="true">
-                        <span class="node-icon stop-icon">&#9209;</span> Stop
+                        <span class="node-icon stop-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg></span> Stop
                     </div>
                 </div>
             </div>

@@ -12,7 +12,7 @@ export function registerStopNode() {
             div.className = 'workflow-node stop-node';
             div.innerHTML = `
                 <div class="node-header stop-header">
-                    <span class="node-icon">&#9209;</span>
+                    <span class="node-icon"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg></span>
                     <span class="node-title">Stop</span>
                 </div>
                 <div class="node-body">
