@@ -9,6 +9,20 @@ import { initSidebar } from './sidebar.js';
 import { initToolbar } from './toolbar.js';
 import { initConfigPanel } from './config-panel.js';
 
+function showToast(message, type = 'success') {
+    const toast = document.createElement('div');
+    toast.className = `workflow-toast workflow-toast-${type}`;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+
+    requestAnimationFrame(() => toast.classList.add('show'));
+
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const app = document.getElementById('workflow-builder-app');
     if (!app) return;
@@ -99,14 +113,12 @@ async function loadCanvas(graph, workflowId) {
             });
         }
 
-        // Restore canvas zoom if saved
-        if (data.canvas_data?.zoom) {
-            graph.zoom(data.canvas_data.zoom - 1);
-        }
-
-        // Fit to view if nodes exist
+        // Restore view: fit to content then apply saved zoom
         if (data.nodes?.length) {
-            graph.zoomToFit({ padding: 60 });
+            graph.zoomToFit({ padding: 60, maxScale: 1.5 });
+        }
+        if (data.canvas_data?.zoom) {
+            graph.zoomTo(data.canvas_data.zoom);
         }
     } catch (err) {
         console.error('Failed to load canvas:', err);
@@ -158,7 +170,7 @@ async function saveCanvas(graph, workflowId) {
                     'X-CSRF-TOKEN': csrfToken,
                 },
                 body: JSON.stringify({
-                    canvas_data: { zoom: graph.zoom() },
+                    canvas_data: { zoom: graph.zoom(), scroll: graph.getScrollbarPosition?.() || null },
                     nodes,
                     edges,
                 }),
@@ -166,34 +178,13 @@ async function saveCanvas(graph, workflowId) {
         );
 
         if (response.ok) {
-            if (btn) {
-                btn.textContent = 'Saved!';
-                btn.classList.add('toolbar-btn-success');
-                setTimeout(() => {
-                    btn.textContent = 'Save';
-                    btn.classList.remove('toolbar-btn-success');
-                }, 1500);
-            }
+            showToast('Workflow saved successfully.', 'success');
         } else {
             console.error('Save failed:', response.status, response.statusText);
-            if (btn) {
-                btn.textContent = 'Error!';
-                btn.classList.add('toolbar-btn-danger');
-                setTimeout(() => {
-                    btn.textContent = 'Save';
-                    btn.classList.remove('toolbar-btn-danger');
-                }, 2000);
-            }
+            showToast('Failed to save workflow. Please try again.', 'error');
         }
     } catch (err) {
         console.error('Failed to save canvas:', err);
-        if (btn) {
-            btn.textContent = 'Error!';
-            btn.classList.add('toolbar-btn-danger');
-            setTimeout(() => {
-                btn.textContent = 'Save';
-                btn.classList.remove('toolbar-btn-danger');
-            }, 2000);
-        }
+        showToast('Failed to save workflow. Please try again.', 'error');
     }
 }
