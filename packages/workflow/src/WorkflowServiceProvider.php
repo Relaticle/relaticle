@@ -45,5 +45,10 @@ class WorkflowServiceProvider extends PackageServiceProvider
     public function packageBooted(): void
     {
         $this->loadRoutesFrom(__DIR__ . '/../routes/api.php');
+
+        // Conditionally load Filament views/assets if Filament is installed
+        if (class_exists(\Filament\Panel::class)) {
+            // Filament is available — assets and views will be loaded by the plugin
+        }
     }
 }
