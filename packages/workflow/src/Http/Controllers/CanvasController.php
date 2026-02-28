@@ -55,18 +55,30 @@ class CanvasController extends Controller
         $actions = collect($manager->getRegisteredActions())
             ->map(fn ($class, $key) => [
                 'key' => $key,
-                'class' => $class,
+                'label' => $class::label(),
+                'configSchema' => $class::configSchema(),
             ])
             ->values()
             ->toArray();
 
+        // Also build a keyed map for quick lookup in the builder
+        $registeredActions = [];
+        foreach ($manager->getRegisteredActions() as $key => $class) {
+            $registeredActions[$key] = [
+                'label' => $class::label(),
+                'configSchema' => $class::configSchema(),
+            ];
+        }
+
         return response()->json([
             'canvas_data' => $workflow->canvas_data,
+            'canvas_version' => $workflow->canvas_version,
             'nodes' => $nodes,
             'edges' => $edges,
             'meta' => [
                 'models' => $models,
                 'actions' => $actions,
+                'registered_actions' => $registeredActions,
             ],
         ]);
     }
@@ -80,6 +92,7 @@ class CanvasController extends Controller
 
         $validated = $request->validate([
             'canvas_data' => ['present', 'array'],
+            'canvas_version' => ['nullable', 'integer'],
             'nodes' => ['present', 'array'],
             'nodes.*.node_id' => ['required', 'string'],
             'nodes.*.type' => ['required', 'string', Rule::enum(NodeType::class)],
@@ -94,6 +107,13 @@ class CanvasController extends Controller
             'edges.*.condition_label' => ['nullable', 'string'],
             'edges.*.condition_config' => ['nullable', 'array'],
         ]);
+
+        // Optimistic locking: reject stale canvas versions
+        if (isset($validated['canvas_version']) && $validated['canvas_version'] !== $workflow->canvas_version) {
+            return response()->json([
+                'error' => 'Canvas has been modified by another user. Please reload.',
+            ], 409);
+        }
 
         DB::transaction(function () use ($workflow, $validated) {
             // 1. Update canvas_data on the workflow
@@ -153,6 +173,11 @@ class CanvasController extends Controller
             }
         });
 
-        return response()->json(['message' => 'Canvas saved successfully.']);
+        $workflow->increment('canvas_version');
+
+        return response()->json([
+            'message' => 'Canvas saved successfully.',
+            'canvas_version' => $workflow->canvas_version,
+        ]);
     }
 }
