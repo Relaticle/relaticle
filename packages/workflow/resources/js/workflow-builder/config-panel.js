@@ -1,27 +1,86 @@
+export function validateAllNodes(graph) {
+    const cells = graph.getCells();
+    const errors = [];
+
+    cells.forEach(cell => {
+        if (!cell.isNode()) return;
+        const data = cell.getData() || {};
+        const type = data.type;
+
+        if (type === 'action' && !data.actionType) {
+            errors.push({ nodeId: cell.id, message: 'Action type not configured' });
+        }
+    });
+
+    return errors;
+}
+
+let _registeredActions = null;
+
+async function fetchRegisteredActions(workflowId) {
+    if (_registeredActions) return _registeredActions;
+    try {
+        const app = document.getElementById('workflow-builder-app');
+        const wfId = workflowId || app?.dataset.workflowId;
+        if (!wfId) return {};
+        const resp = await fetch(`/workflow/api/workflows/${wfId}/canvas`);
+        if (!resp.ok) return {};
+        const data = await resp.json();
+        _registeredActions = data.meta?.registered_actions || {};
+        return _registeredActions;
+    } catch {
+        return {};
+    }
+}
+
 export function initConfigPanel(graph) {
     const panel = document.getElementById('config-panel');
     const body = document.getElementById('config-panel-body');
     const closeBtn = document.getElementById('config-panel-close');
 
+    // Pre-fetch registered actions
+    fetchRegisteredActions();
+
     closeBtn?.addEventListener('click', () => {
         panel.style.display = 'none';
     });
 
-    graph.on('node:click', ({ node }) => {
+    graph.on('node:click', async ({ node }) => {
         const data = node.getData() || {};
-        body.innerHTML = renderConfig(data);
+        const actions = await fetchRegisteredActions();
+        body.innerHTML = renderConfig(data, actions);
         panel.style.display = 'block';
 
         // Bind change handlers to save config back to node
-        body.querySelectorAll('input, select, textarea').forEach((input) => {
-            input.addEventListener('change', () => {
-                const config = {};
-                body.querySelectorAll('[data-config-key]').forEach((el) => {
-                    config[el.dataset.configKey] = el.value;
+        const bindHandlers = () => {
+            body.querySelectorAll('input, select, textarea').forEach((input) => {
+                input.addEventListener('change', () => {
+                    const currentData = node.getData() || {};
+                    const updated = { ...currentData };
+                    const config = { ...(currentData.config || {}) };
+
+                    body.querySelectorAll('[data-config-key]').forEach((el) => {
+                        config[el.dataset.configKey] = el.value;
+                    });
+                    updated.config = config;
+
+                    // Handle action_type separately — it's a top-level node property
+                    const actionTypeEl = body.querySelector('[data-node-key="actionType"]');
+                    if (actionTypeEl) {
+                        updated.actionType = actionTypeEl.value;
+                    }
+
+                    node.setData(updated, { overwrite: true });
+
+                    // Re-render when action type changes to show its config fields
+                    if (input.dataset.nodeKey === 'actionType') {
+                        body.innerHTML = renderConfig(updated, actions);
+                        bindHandlers();
+                    }
                 });
-                node.setData({ ...data, config }, { overwrite: true });
             });
-        });
+        };
+        bindHandlers();
     });
 
     graph.on('blank:click', () => {
@@ -35,7 +94,7 @@ function escapeHtml(str) {
     return div.innerHTML;
 }
 
-function renderConfig(data) {
+function renderConfig(data, registeredActions) {
     const type = data.type || 'unknown';
     let html = `
         <div class="config-field">
@@ -62,17 +121,57 @@ function renderConfig(data) {
     }
 
     if (type === 'action') {
+        const currentAction = data.actionType || '';
+        let actionOptions = '<option value="">Select action...</option>';
+        if (registeredActions && Object.keys(registeredActions).length) {
+            for (const [key, meta] of Object.entries(registeredActions)) {
+                const label = meta.label || key;
+                const selected = currentAction === key ? ' selected' : '';
+                actionOptions += `<option value="${escapeHtml(key)}"${selected}>${escapeHtml(label)}</option>`;
+            }
+        }
         html += `
             <div class="config-field">
                 <label>Action Type</label>
-                <select data-config-key="action_type">
-                    <option value="">Select action...</option>
-                    <option value="send_email"${data.config?.action_type === 'send_email' ? ' selected' : ''}>Send Email</option>
-                    <option value="send_webhook"${data.config?.action_type === 'send_webhook' ? ' selected' : ''}>Send Webhook</option>
-                    <option value="http_request"${data.config?.action_type === 'http_request' ? ' selected' : ''}>HTTP Request</option>
+                <select data-node-key="actionType">
+                    ${actionOptions}
                 </select>
             </div>
         `;
+
+        // Render config fields for the selected action type
+        if (currentAction && registeredActions?.[currentAction]?.configSchema) {
+            const schema = registeredActions[currentAction].configSchema;
+            for (const [fieldKey, fieldDef] of Object.entries(schema)) {
+                const fieldLabel = fieldDef.label || fieldKey;
+                const fieldType = fieldDef.type || 'string';
+                const fieldValue = data.config?.[fieldKey] || '';
+                const required = fieldDef.required ? ' required' : '';
+
+                if (fieldType === 'object') {
+                    html += `
+                        <div class="config-field">
+                            <label>${escapeHtml(fieldLabel)}</label>
+                            <textarea data-config-key="${escapeHtml(fieldKey)}" rows="3" placeholder="JSON object"${required}>${escapeHtml(typeof fieldValue === 'object' ? JSON.stringify(fieldValue, null, 2) : String(fieldValue))}</textarea>
+                        </div>
+                    `;
+                } else if (fieldType === 'number') {
+                    html += `
+                        <div class="config-field">
+                            <label>${escapeHtml(fieldLabel)}</label>
+                            <input type="number" data-config-key="${escapeHtml(fieldKey)}" value="${escapeHtml(String(fieldValue))}"${required}>
+                        </div>
+                    `;
+                } else {
+                    html += `
+                        <div class="config-field">
+                            <label>${escapeHtml(fieldLabel)}</label>
+                            <input type="text" data-config-key="${escapeHtml(fieldKey)}" value="${escapeHtml(String(fieldValue))}" placeholder="${escapeHtml(fieldLabel)}"${required}>
+                        </div>
+                    `;
+                }
+            }
+        }
     }
 
     if (type === 'condition') {
