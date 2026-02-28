@@ -115,6 +115,7 @@ class WorkflowExecutor
             match ($currentNode->type) {
                 NodeType::Action => $this->executeActionNode($currentNode, $walker, $run, $context, $queue),
                 NodeType::Condition => $this->executeConditionNode($currentNode, $walker, $run, $context, $queue),
+                NodeType::Delay => $this->executeDelayNode($currentNode, $walker, $run, $context, $queue),
                 NodeType::Stop => null, // Stop node: do nothing, just don't enqueue further nodes
                 default => $this->enqueueNextNodes($walker, $currentNode, $queue),
             };
@@ -155,6 +156,40 @@ class WorkflowExecutor
 
         /** @var WorkflowAction $action */
         $action = new $actionClass();
+        $output = $action->execute($resolvedConfig, $context);
+
+        $step->update([
+            'status' => StepStatus::Completed,
+            'output_data' => $output,
+            'completed_at' => Carbon::now(),
+        ]);
+
+        $this->enqueueNextNodes($walker, $node, $queue);
+    }
+
+    /**
+     * Execute a delay node: run the built-in DelayAction, record the step, then continue.
+     *
+     * @param  \SplQueue<WorkflowNode>  $queue
+     * @param  array<string, mixed>  $context
+     */
+    private function executeDelayNode(
+        WorkflowNode $node,
+        GraphWalker $walker,
+        WorkflowRun $run,
+        array $context,
+        \SplQueue $queue,
+    ): void {
+        $step = $this->createStep($run, $node, StepStatus::Running);
+
+        $resolvedConfig = $this->variableResolver->resolveArray($node->config ?? [], $context);
+
+        $step->update([
+            'input_data' => $resolvedConfig,
+            'started_at' => Carbon::now(),
+        ]);
+
+        $action = new \Relaticle\Workflow\Actions\DelayAction();
         $output = $action->execute($resolvedConfig, $context);
 
         $step->update([
