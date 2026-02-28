@@ -8,6 +8,7 @@ return [
     'max_steps_per_run' => env('WORKFLOW_MAX_STEPS', 100),
     'max_loop_iterations' => env('WORKFLOW_MAX_LOOP', 500),
     'retry_attempts' => env('WORKFLOW_RETRY_ATTEMPTS', 3),
+    'action_timeout' => env('WORKFLOW_ACTION_TIMEOUT', 30),
     'enable_audit_trail' => true,
     'middleware' => ['web', 'auth'],
 ];
