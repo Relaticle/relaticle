@@ -24,6 +24,7 @@ class Workflow extends Model
         'trigger_type',
         'trigger_config',
         'canvas_data',
+        'canvas_version',
         'is_active',
         'last_triggered_at',
         'tenant_id',
@@ -34,6 +35,7 @@ class Workflow extends Model
         'trigger_type' => TriggerType::class,
         'trigger_config' => 'array',
         'canvas_data' => 'array',
+        'canvas_version' => 'integer',
         'is_active' => 'boolean',
         'last_triggered_at' => 'datetime',
     ];

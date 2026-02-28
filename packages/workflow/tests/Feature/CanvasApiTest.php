@@ -142,6 +142,46 @@ it('returns 404 for non-existent workflow', function () {
     $response->assertNotFound();
 });
 
+it('rejects canvas save with stale version', function () {
+    $workflow = WorkflowModel::create([
+        'name' => 'Version Test',
+        'trigger_type' => TriggerType::Manual,
+        'trigger_config' => [],
+        'canvas_data' => [],
+        'canvas_version' => 1,
+    ]);
+
+    $response = $this->putJson("/workflow/api/workflows/{$workflow->id}/canvas", [
+        'nodes' => [],
+        'edges' => [],
+        'canvas_data' => [],
+        'canvas_version' => 0,
+    ]);
+
+    $response->assertStatus(409);
+    $response->assertJson(['error' => 'Canvas has been modified by another user. Please reload.']);
+});
+
+it('increments canvas_version on successful save', function () {
+    $workflow = WorkflowModel::create([
+        'name' => 'Version Test',
+        'trigger_type' => TriggerType::Manual,
+        'trigger_config' => [],
+        'canvas_data' => [],
+        'canvas_version' => 1,
+    ]);
+
+    $response = $this->putJson("/workflow/api/workflows/{$workflow->id}/canvas", [
+        'nodes' => [],
+        'edges' => [],
+        'canvas_data' => [],
+        'canvas_version' => 1,
+    ]);
+
+    $response->assertOk();
+    expect($workflow->fresh()->canvas_version)->toBe(2);
+});
+
 it('validates required node type on save', function () {
     $workflow = WorkflowModel::create([
         'name' => 'Validation Test',
