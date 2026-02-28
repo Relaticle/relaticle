@@ -101,6 +101,12 @@ it('makes an HTTP POST request with body', function () {
     expect($result['status_code'])->toBe(201);
 });
 
+// SendEmailAction validation tests
+it('throws exception for invalid email address in SendEmailAction', function () {
+    $action = new \Relaticle\Workflow\Actions\SendEmailAction();
+    $action->execute(['to' => 'not-an-email', 'subject' => 'Test', 'body' => 'Body'], []);
+})->throws(\InvalidArgumentException::class);
+
 // Label and configSchema tests
 it('has correct labels for all built-in actions', function () {
     expect(SendWebhookAction::label())->toBe('Send Webhook');
