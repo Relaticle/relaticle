@@ -87,3 +87,69 @@ it('rejects webhook for non-webhook workflow type', function () {
     $response->assertStatus(422);
     Queue::assertNothingPushed();
 });
+
+it('rejects webhook with invalid signature', function () {
+    $workflow = Workflow::create([
+        'name' => 'Signed Webhook',
+        'trigger_type' => TriggerType::Webhook,
+        'trigger_config' => [],
+        'canvas_data' => [],
+        'is_active' => true,
+        'webhook_secret' => 'test-secret-key',
+    ]);
+
+    $response = $this->postJson(
+        "/workflow/api/webhooks/{$workflow->id}",
+        ['event' => 'test'],
+        ['X-Signature' => 'invalid-signature']
+    );
+
+    $response->assertStatus(401);
+});
+
+it('accepts webhook with valid HMAC signature', function () {
+    Queue::fake();
+
+    $secret = 'test-secret-key';
+    $workflow = Workflow::create([
+        'name' => 'Signed Webhook',
+        'trigger_type' => TriggerType::Webhook,
+        'trigger_config' => [],
+        'canvas_data' => [],
+        'is_active' => true,
+        'webhook_secret' => $secret,
+    ]);
+    $workflow->nodes()->create(['node_id' => 'trigger', 'type' => NodeType::Trigger]);
+
+    $payload = json_encode(['event' => 'test']);
+    $signature = hash_hmac('sha256', $payload, $secret);
+
+    $response = $this->postJson(
+        "/workflow/api/webhooks/{$workflow->id}",
+        ['event' => 'test'],
+        ['X-Signature' => $signature]
+    );
+
+    $response->assertOk();
+    Queue::assertPushed(ExecuteWorkflowJob::class);
+});
+
+it('allows webhook without signature when no secret is configured', function () {
+    Queue::fake();
+
+    $workflow = Workflow::create([
+        'name' => 'Open Webhook',
+        'trigger_type' => TriggerType::Webhook,
+        'trigger_config' => [],
+        'canvas_data' => [],
+        'is_active' => true,
+    ]);
+    $workflow->nodes()->create(['node_id' => 'trigger', 'type' => NodeType::Trigger]);
+
+    $response = $this->postJson(
+        "/workflow/api/webhooks/{$workflow->id}",
+        ['event' => 'test']
+    );
+
+    $response->assertOk();
+});

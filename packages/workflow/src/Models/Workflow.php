@@ -25,6 +25,7 @@ class Workflow extends Model
         'trigger_config',
         'canvas_data',
         'canvas_version',
+        'webhook_secret',
         'is_active',
         'last_triggered_at',
         'tenant_id',
