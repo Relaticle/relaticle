@@ -22,13 +22,16 @@ class EvaluateScheduledWorkflowsJob implements ShouldQueue
 
     public function handle(ScheduledTrigger $trigger): void
     {
-        $workflows = Workflow::where('trigger_type', TriggerType::TimeBased)
+        $workflows = Workflow::withoutGlobalScopes()
             ->where('is_active', true)
+            ->where('trigger_type', TriggerType::TimeBased)
             ->get();
 
         foreach ($workflows as $workflow) {
             if ($trigger->evaluate($workflow)) {
-                ExecuteWorkflowJob::dispatch($workflow, []);
+                ExecuteWorkflowJob::dispatch($workflow, [
+                    'tenant_id' => $workflow->tenant_id,
+                ]);
                 $workflow->update(['last_triggered_at' => now()]);
             }
         }
