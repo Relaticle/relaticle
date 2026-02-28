@@ -22,12 +22,24 @@ class SendEmailAction extends BaseAction
         $subject = $config['subject'] ?? 'Workflow Notification';
         $body = $config['body'] ?? '';
 
-        Mail::to($to)->send(new WorkflowNotification($subject, $body));
+        if (! filter_var($to, FILTER_VALIDATE_EMAIL)) {
+            throw new \InvalidArgumentException("Invalid email address: {$to}");
+        }
 
-        return [
-            'sent' => true,
-            'to' => $to,
-        ];
+        try {
+            Mail::to($to)->send(new WorkflowNotification($subject, $body));
+
+            return [
+                'sent' => true,
+                'to' => $to,
+            ];
+        } catch (\Throwable $e) {
+            return [
+                'sent' => false,
+                'to' => $to,
+                'error' => $e->getMessage(),
+            ];
+        }
     }
 
     /**
