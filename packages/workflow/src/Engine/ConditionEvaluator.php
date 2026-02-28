@@ -31,7 +31,7 @@ class ConditionEvaluator
             'less_than' => $fieldValue < $condition['value'],
             'is_empty' => empty($fieldValue),
             'is_not_empty' => ! empty($fieldValue),
-            'in' => is_array($condition['value']) && in_array($fieldValue, $condition['value']),
+            'in' => is_array($condition['value']) && in_array($fieldValue, $condition['value'], true),
             default => throw new InvalidArgumentException("Unsupported operator: {$operator}"),
         };
     }

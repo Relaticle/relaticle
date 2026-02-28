@@ -62,3 +62,14 @@ it('leaves non-variable strings untouched', function () {
 
     expect($resolver->resolve('No variables here', []))->toBe('No variables here');
 });
+
+it('logs warning for unresolved variables', function () {
+    \Illuminate\Support\Facades\Log::shouldReceive('warning')
+        ->once()
+        ->withArgs(fn ($msg) => str_contains($msg, 'nonexistent.path'));
+
+    $resolver = new VariableResolver();
+    $result = $resolver->resolve('Hello {{ nonexistent.path }}', ['record' => ['name' => 'Test']]);
+
+    expect($result)->toBe('Hello ');
+});

@@ -119,3 +119,14 @@ it('evaluates compound OR conditions', function () {
         ],
     ], $context))->toBeTrue();
 });
+
+it('uses strict comparison for in operator', function () {
+    $evaluator = new ConditionEvaluator();
+
+    $result = $evaluator->evaluate(
+        ['field' => 'status', 'operator' => 'in', 'value' => [true, false]],
+        ['status' => '1']
+    );
+
+    expect($result)->toBeFalse();
+});
