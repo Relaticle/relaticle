@@ -6,6 +6,7 @@ use Relaticle\Workflow\Filament\Resources\WorkflowResource;
 use Relaticle\Workflow\Filament\Resources\WorkflowResource\Pages\CreateWorkflow;
 use Relaticle\Workflow\Filament\Resources\WorkflowResource\Pages\EditWorkflow;
 use Relaticle\Workflow\Filament\Resources\WorkflowResource\Pages\ListWorkflows;
+use Relaticle\Workflow\Filament\Resources\WorkflowResource\Pages\ViewWorkflow;
 use Relaticle\Workflow\Filament\WorkflowPlugin;
 use Relaticle\Workflow\Models\Workflow;
 
@@ -35,7 +36,7 @@ it('has the correct navigation group', function () {
 it('registers the correct pages', function () {
     $pages = WorkflowResource::getPages();
 
-    expect($pages)->toHaveKeys(['index', 'create', 'edit']);
+    expect($pages)->toHaveKeys(['index', 'create', 'view', 'edit']);
 });
 
 it('has the correct page classes', function () {
@@ -66,4 +67,9 @@ it('page classes reference the correct resource', function () {
     $editReflection = new ReflectionClass(EditWorkflow::class);
     $editResource = $editReflection->getProperty('resource');
     expect($editResource->getDefaultValue())->toBe(WorkflowResource::class);
+});
+
+it('has a view page', function () {
+    $pages = \Relaticle\Workflow\Filament\Resources\WorkflowResource::getPages();
+    expect($pages)->toHaveKey('view');
 });

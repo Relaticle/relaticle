@@ -10,10 +10,10 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Tables\Actions\ActionGroup;
-use Filament\Tables\Actions\DeleteAction;
-use Filament\Tables\Actions\EditAction;
-use Filament\Tables\Actions\RestoreAction;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\RestoreAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -103,6 +103,7 @@ class WorkflowResource extends Resource
         return [
             'index' => WorkflowResource\Pages\ListWorkflows::route('/'),
             'create' => WorkflowResource\Pages\CreateWorkflow::route('/create'),
+            'view' => WorkflowResource\Pages\ViewWorkflow::route('/{record}'),
             'edit' => WorkflowResource\Pages\EditWorkflow::route('/{record}/edit'),
             'builder' => WorkflowResource\Pages\WorkflowBuilder::route('/{record}/builder'),
         ];
