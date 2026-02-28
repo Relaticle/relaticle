@@ -108,6 +108,59 @@ it('stops execution at a stop node', function () {
     expect($run->status)->toBe(WorkflowRunStatus::Completed);
 });
 
+it('persists run record even when execution fails (transaction rollback)', function () {
+    Workflow::registerAction('fail_action', get_class(new class implements WorkflowAction {
+        public function execute(array $config, array $context): array
+        {
+            throw new \RuntimeException('Boom');
+        }
+
+        public static function label(): string
+        {
+            return 'Fail';
+        }
+
+        public static function configSchema(): array
+        {
+            return [];
+        }
+    }));
+
+    $workflow = WorkflowModel::create([
+        'name' => 'Transaction Test',
+        'trigger_type' => TriggerType::Manual,
+        'trigger_config' => [],
+        'canvas_data' => [],
+    ]);
+
+    $trigger = $workflow->nodes()->create([
+        'node_id' => 'trigger-1',
+        'type' => NodeType::Trigger,
+        'position_x' => 0,
+        'position_y' => 0,
+    ]);
+    $action = $workflow->nodes()->create([
+        'node_id' => 'action-1',
+        'type' => NodeType::Action,
+        'action_type' => 'fail_action',
+        'config' => [],
+        'position_x' => 0,
+        'position_y' => 100,
+    ]);
+    $workflow->edges()->create([
+        'edge_id' => 'e1',
+        'source_node_id' => $trigger->id,
+        'target_node_id' => $action->id,
+    ]);
+
+    $executor = app(WorkflowExecutor::class);
+    $run = $executor->execute($workflow, []);
+
+    expect($run->status)->toBe(WorkflowRunStatus::Failed);
+    expect($run->error_message)->toContain('Boom');
+    expect(\Relaticle\Workflow\Models\WorkflowRun::count())->toBe(1);
+});
+
 // Helper functions
 function createLinearWorkflow(): WorkflowModel
 {
