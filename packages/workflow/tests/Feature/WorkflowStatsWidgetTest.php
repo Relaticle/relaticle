@@ -31,7 +31,7 @@ it('calculates total workflow runs', function () {
     $widget = new WorkflowStatsWidget();
     $metrics = $widget->getMetrics();
 
-    expect($metrics['total_runs'])->toBe(2);
+    expect($metrics['totalRuns'])->toBe(2);
 });
 
 it('calculates success rate', function () {
@@ -60,7 +60,7 @@ it('calculates success rate', function () {
     $widget = new WorkflowStatsWidget();
     $metrics = $widget->getMetrics();
 
-    expect($metrics['success_rate'])->toBe(75.0);
+    expect($metrics['successRate'])->toBe(75.0);
 });
 
 it('counts active workflows', function () {
@@ -71,16 +71,16 @@ it('counts active workflows', function () {
     $widget = new WorkflowStatsWidget();
     $metrics = $widget->getMetrics();
 
-    expect($metrics['active_workflows'])->toBe(2);
+    expect($metrics['activeWorkflows'])->toBe(2);
 });
 
 it('handles zero runs gracefully', function () {
     $widget = new WorkflowStatsWidget();
     $metrics = $widget->getMetrics();
 
-    expect($metrics['total_runs'])->toBe(0);
-    expect($metrics['success_rate'])->toBe(0.0);
-    expect($metrics['active_workflows'])->toBe(0);
+    expect($metrics['totalRuns'])->toBe(0);
+    expect($metrics['successRate'])->toBe(0);
+    expect($metrics['activeWorkflows'])->toBe(0);
 });
 
 it('counts failed runs', function () {
@@ -112,7 +112,7 @@ it('counts failed runs', function () {
     $widget = new WorkflowStatsWidget();
     $metrics = $widget->getMetrics();
 
-    expect($metrics['failed_runs'])->toBe(2);
+    expect($metrics['failedRuns'])->toBe(2);
 });
 
 it('excludes pending and running from success rate calculation', function () {
@@ -143,9 +143,9 @@ it('excludes pending and running from success rate calculation', function () {
     $metrics = $widget->getMetrics();
 
     // Total runs includes all statuses
-    expect($metrics['total_runs'])->toBe(3);
+    expect($metrics['totalRuns'])->toBe(3);
     // Success rate = completed / total * 100
-    expect($metrics['success_rate'])->toBeGreaterThan(0.0);
+    expect($metrics['successRate'])->toBeGreaterThan(0.0);
 });
 
 it('returns stat objects from getStats', function () {
@@ -160,4 +160,40 @@ it('returns stat objects from getStats', function () {
     foreach ($stats as $stat) {
         expect($stat)->toBeInstanceOf(\Filament\Widgets\StatsOverviewWidget\Stat::class);
     }
+});
+
+it('scopes metrics to current tenant', function () {
+    app(\Relaticle\Workflow\WorkflowManager::class)->useTenancy(
+        scopeColumn: 'tenant_id',
+        resolver: fn () => 'team-1',
+    );
+
+    $wf1 = Workflow::withoutGlobalScopes()->create([
+        'name' => 'T1', 'tenant_id' => 'team-1',
+        'trigger_type' => TriggerType::Manual, 'trigger_config' => [],
+        'canvas_data' => [], 'is_active' => true,
+    ]);
+    \Relaticle\Workflow\Models\WorkflowRun::create([
+        'workflow_id' => $wf1->id,
+        'status' => \Relaticle\Workflow\Enums\WorkflowRunStatus::Completed,
+        'started_at' => now(), 'completed_at' => now(),
+    ]);
+
+    $wf2 = Workflow::withoutGlobalScopes()->create([
+        'name' => 'T2', 'tenant_id' => 'team-2',
+        'trigger_type' => TriggerType::Manual, 'trigger_config' => [],
+        'canvas_data' => [], 'is_active' => true,
+    ]);
+    \Relaticle\Workflow\Models\WorkflowRun::create([
+        'workflow_id' => $wf2->id,
+        'status' => \Relaticle\Workflow\Enums\WorkflowRunStatus::Failed,
+        'started_at' => now(), 'completed_at' => now(),
+    ]);
+
+    $widget = new \Relaticle\Workflow\Filament\Widgets\WorkflowStatsWidget();
+    $metrics = $widget->getMetrics();
+
+    expect($metrics['totalRuns'])->toBe(1);
+    expect($metrics['activeWorkflows'])->toBe(1);
+    expect($metrics['successRate'])->toBe(100.0);
 });
