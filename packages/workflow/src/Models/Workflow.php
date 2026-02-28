@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Relaticle\Workflow\Enums\NodeType;
 use Relaticle\Workflow\Enums\TriggerType;
 use Relaticle\Workflow\Models\Concerns\BelongsToTenant;
 
@@ -76,5 +77,47 @@ class Workflow extends Model
     public function runs(): HasMany
     {
         return $this->hasMany(WorkflowRun::class);
+    }
+
+    public function canActivate(): bool
+    {
+        return empty($this->getActivationErrors());
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    public function getActivationErrors(): array
+    {
+        $errors = [];
+        $nodes = $this->nodes()->get();
+
+        if ($nodes->isEmpty()) {
+            $errors[] = 'Workflow must have at least one trigger node.';
+
+            return $errors;
+        }
+
+        $hasTrigger = $nodes->contains(fn ($node) => $node->type === NodeType::Trigger);
+        if (! $hasTrigger) {
+            $errors[] = 'Workflow must have at least one trigger node.';
+        }
+
+        $hasAction = $nodes->contains(fn ($node) => in_array($node->type, [
+            NodeType::Action,
+            NodeType::Condition,
+            NodeType::Delay,
+            NodeType::Loop,
+        ], true));
+        if (! $hasAction) {
+            $errors[] = 'Workflow must have at least one action or logic node.';
+        }
+
+        $unconfiguredActions = $nodes->filter(fn ($node) => $node->type === NodeType::Action && empty($node->action_type));
+        if ($unconfiguredActions->isNotEmpty()) {
+            $errors[] = 'All action nodes must have an action type configured.';
+        }
+
+        return $errors;
     }
 }
