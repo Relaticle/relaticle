@@ -118,3 +118,29 @@ it('casts config and canvas_data as arrays', function () {
     expect($workflow->trigger_config['model'])->toBe('App\\Models\\Task');
     expect($workflow->canvas_data)->toBeArray();
 });
+
+it('reports activation errors for empty workflow', function () {
+    $workflow = Workflow::create([
+        'name' => 'Empty', 'trigger_type' => TriggerType::Manual,
+        'trigger_config' => [], 'canvas_data' => [],
+    ]);
+    expect($workflow->canActivate())->toBeFalse();
+    expect($workflow->getActivationErrors())->toContain('Workflow must have at least one trigger node.');
+});
+
+it('allows activation for valid workflow', function () {
+    $workflow = Workflow::create([
+        'name' => 'Valid', 'trigger_type' => TriggerType::Manual,
+        'trigger_config' => [], 'canvas_data' => [],
+    ]);
+    $trigger = $workflow->nodes()->create([
+        'node_id' => 'trigger-1', 'type' => \Relaticle\Workflow\Enums\NodeType::Trigger,
+        'position_x' => 0, 'position_y' => 0,
+    ]);
+    $workflow->nodes()->create([
+        'node_id' => 'action-1', 'type' => \Relaticle\Workflow\Enums\NodeType::Action,
+        'action_type' => 'log_message', 'config' => [],
+        'position_x' => 0, 'position_y' => 100,
+    ]);
+    expect($workflow->canActivate())->toBeTrue();
+});
