@@ -104,6 +104,7 @@ class WorkflowResource extends Resource
             'index' => WorkflowResource\Pages\ListWorkflows::route('/'),
             'create' => WorkflowResource\Pages\CreateWorkflow::route('/create'),
             'edit' => WorkflowResource\Pages\EditWorkflow::route('/{record}/edit'),
+            'builder' => WorkflowResource\Pages\WorkflowBuilder::route('/{record}/builder'),
         ];
     }
 }

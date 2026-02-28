@@ -17,6 +17,7 @@ class WorkflowServiceProvider extends PackageServiceProvider
         $package
             ->name('workflow')
             ->hasConfigFile()
+            ->hasViews('workflow')
             ->runsMigrations();
     }
 
