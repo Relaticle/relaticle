@@ -7,7 +7,7 @@ import { registerLoopNode } from './nodes/LoopNode.js';
 import { registerStopNode } from './nodes/StopNode.js';
 import { initSidebar } from './sidebar.js';
 import { initToolbar } from './toolbar.js';
-import { initConfigPanel } from './config-panel.js';
+import { initConfigPanel, validateAllNodes } from './config-panel.js';
 
 function showToast(message, type = 'success') {
     const toast = document.createElement('div');
@@ -126,6 +126,12 @@ async function loadCanvas(graph, workflowId) {
 }
 
 async function saveCanvas(graph, workflowId) {
+    const validationErrors = validateAllNodes(graph);
+    if (validationErrors.length > 0) {
+        showToast(`${validationErrors.length} node(s) need configuration before saving.`, 'warning');
+        return;
+    }
+
     const cells = graph.getCells();
     const nodes = [];
     const edges = [];
