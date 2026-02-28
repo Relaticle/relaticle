@@ -21,18 +21,18 @@ class WorkflowStatsWidget extends StatsOverviewWidget
      */
     public function getMetrics(): array
     {
-        $totalRuns = WorkflowRun::count();
-        $completedRuns = WorkflowRun::where('status', WorkflowRunStatus::Completed)->count();
-        $failedRuns = WorkflowRun::where('status', WorkflowRunStatus::Failed)->count();
-        $activeWorkflows = Workflow::where('is_active', true)->count();
-        $successRate = $totalRuns > 0 ? round(($completedRuns / $totalRuns) * 100, 1) : 0.0;
+        // Use Workflow's global scope to only get tenant's workflows
+        $workflowIds = Workflow::pluck('id');
 
-        return [
-            'total_runs' => $totalRuns,
-            'success_rate' => $successRate,
-            'active_workflows' => $activeWorkflows,
-            'failed_runs' => $failedRuns,
-        ];
+        $totalRuns = WorkflowRun::whereIn('workflow_id', $workflowIds)->count();
+        $completedRuns = WorkflowRun::whereIn('workflow_id', $workflowIds)
+            ->where('status', WorkflowRunStatus::Completed)->count();
+        $failedRuns = WorkflowRun::whereIn('workflow_id', $workflowIds)
+            ->where('status', WorkflowRunStatus::Failed)->count();
+        $activeWorkflows = Workflow::where('is_active', true)->count();
+        $successRate = $totalRuns > 0 ? round(($completedRuns / $totalRuns) * 100, 1) : 0;
+
+        return compact('totalRuns', 'completedRuns', 'failedRuns', 'activeWorkflows', 'successRate');
     }
 
     /**
@@ -43,14 +43,14 @@ class WorkflowStatsWidget extends StatsOverviewWidget
         $metrics = $this->getMetrics();
 
         return [
-            Stat::make('Total Workflow Runs', (string) $metrics['total_runs'])
+            Stat::make('Total Workflow Runs', (string) $metrics['totalRuns'])
                 ->description('All time')
                 ->icon('heroicon-o-play'),
-            Stat::make('Success Rate', $metrics['success_rate'] . '%')
-                ->description($metrics['failed_runs'] . ' failed')
+            Stat::make('Success Rate', $metrics['successRate'] . '%')
+                ->description($metrics['failedRuns'] . ' failed')
                 ->icon('heroicon-o-check-circle')
-                ->color($metrics['success_rate'] >= 90 ? 'success' : ($metrics['success_rate'] >= 70 ? 'warning' : 'danger')),
-            Stat::make('Active Workflows', (string) $metrics['active_workflows'])
+                ->color($metrics['successRate'] >= 90 ? 'success' : ($metrics['successRate'] >= 70 ? 'warning' : 'danger')),
+            Stat::make('Active Workflows', (string) $metrics['activeWorkflows'])
                 ->description('Currently enabled')
                 ->icon('heroicon-o-bolt'),
         ];
