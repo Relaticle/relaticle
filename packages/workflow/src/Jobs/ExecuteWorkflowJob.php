@@ -19,6 +19,8 @@ class ExecuteWorkflowJob implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
+    public int $tries;
+
     /**
      * @param  array<string, mixed>  $context
      */
@@ -27,6 +29,7 @@ class ExecuteWorkflowJob implements ShouldQueue
         public readonly array $context = [],
     ) {
         $this->onQueue(config('workflow.queue', 'default'));
+        $this->tries = (int) config('workflow.retry_attempts', 3);
     }
 
     public function handle(WorkflowExecutor $executor): void

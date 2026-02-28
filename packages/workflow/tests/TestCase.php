@@ -24,6 +24,9 @@ abstract class TestCase extends BaseTestCase
             'database' => ':memory:',
             'prefix' => '',
         ]);
+
+        $app['config']->set('app.key', 'base64:' . base64_encode(random_bytes(32)));
+        $app['config']->set('workflow.middleware', []);
     }
 
     protected function defineDatabaseMigrations(): void

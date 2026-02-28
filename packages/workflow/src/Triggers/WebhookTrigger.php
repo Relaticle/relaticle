@@ -7,9 +7,15 @@ namespace Relaticle\Workflow\Triggers;
 use Relaticle\Workflow\Enums\TriggerType;
 use Relaticle\Workflow\Jobs\ExecuteWorkflowJob;
 use Relaticle\Workflow\Models\Workflow;
+use Relaticle\Workflow\Triggers\Contracts\WorkflowTrigger;
 
-class WebhookTrigger
+class WebhookTrigger implements WorkflowTrigger
 {
+    public static function type(): TriggerType
+    {
+        return TriggerType::Webhook;
+    }
+
     /**
      * Trigger a webhook workflow, dispatching the execution job.
      *

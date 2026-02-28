@@ -7,9 +7,15 @@ namespace Relaticle\Workflow\Triggers;
 use Relaticle\Workflow\Enums\TriggerType;
 use Relaticle\Workflow\Jobs\ExecuteWorkflowJob;
 use Relaticle\Workflow\Models\Workflow;
+use Relaticle\Workflow\Triggers\Contracts\WorkflowTrigger;
 
-class ManualTrigger
+class ManualTrigger implements WorkflowTrigger
 {
+    public static function type(): TriggerType
+    {
+        return TriggerType::Manual;
+    }
+
     /**
      * Trigger a manual workflow, dispatching the execution job.
      *

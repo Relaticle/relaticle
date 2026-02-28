@@ -9,4 +9,5 @@ return [
     'max_loop_iterations' => env('WORKFLOW_MAX_LOOP', 500),
     'retry_attempts' => env('WORKFLOW_RETRY_ATTEMPTS', 3),
     'enable_audit_trail' => true,
+    'middleware' => ['web', 'auth'],
 ];

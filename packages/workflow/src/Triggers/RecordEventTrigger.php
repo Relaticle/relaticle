@@ -7,9 +7,15 @@ namespace Relaticle\Workflow\Triggers;
 use Illuminate\Database\Eloquent\Model;
 use Relaticle\Workflow\Enums\TriggerType;
 use Relaticle\Workflow\Models\Workflow;
+use Relaticle\Workflow\Triggers\Contracts\WorkflowTrigger;
 
-class RecordEventTrigger
+class RecordEventTrigger implements WorkflowTrigger
 {
+    public static function type(): TriggerType
+    {
+        return TriggerType::RecordEvent;
+    }
+
     /**
      * Find all active workflows that should be triggered for the given model and event.
      *
