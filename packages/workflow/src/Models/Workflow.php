@@ -6,28 +6,17 @@ namespace Relaticle\Workflow\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Relaticle\Workflow\Enums\TriggerType;
+use Relaticle\Workflow\Models\Concerns\BelongsToTenant;
 
 class Workflow extends Model
 {
+    use BelongsToTenant;
     use HasUlids;
     use SoftDeletes;
-
-    protected static function boot(): void
-    {
-        parent::boot();
-
-        static::creating(function (self $workflow): void {
-            $manager = app(\Relaticle\Workflow\WorkflowManager::class);
-            $config = $manager->getTenancyConfig();
-
-            if ($config && $workflow->{$config['scopeColumn']} === null) {
-                $workflow->{$config['scopeColumn']} = ($config['resolver'])();
-            }
-        });
-    }
 
     protected $fillable = [
         'name',
@@ -52,6 +41,14 @@ class Workflow extends Model
     public function getTable(): string
     {
         return config('workflow.table_prefix', '') . 'workflows';
+    }
+
+    public function team(): BelongsTo
+    {
+        return $this->belongsTo(
+            config('workflow.team_model', 'App\\Models\\Team'),
+            'tenant_id',
+        );
     }
 
     /**

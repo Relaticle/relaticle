@@ -25,20 +25,20 @@ beforeEach(function () {
 it('scopes workflow queries when tenancy is configured', function () {
     Workflow::useTenancy('tenant_id', fn () => 'team-1');
 
-    // Create workflows for different tenants
+    // Create workflows for different tenants (use withoutGlobalScopes for cross-tenant insert)
     $team1Workflow = WorkflowModel::create([
         'name' => 'Team 1 Workflow',
         'trigger_type' => TriggerType::Manual,
         'tenant_id' => 'team-1',
     ]);
-    $team2Workflow = WorkflowModel::create([
+    WorkflowModel::withoutGlobalScopes()->create([
         'name' => 'Team 2 Workflow',
         'trigger_type' => TriggerType::Manual,
         'tenant_id' => 'team-2',
     ]);
 
-    // Apply the tenant scope
-    $workflows = WorkflowModel::where('tenant_id', Workflow::getTenancyConfig()['resolver']())->get();
+    // Global scope automatically filters to current tenant
+    $workflows = WorkflowModel::all();
 
     expect($workflows)->toHaveCount(1);
     expect($workflows->first()->id)->toBe($team1Workflow->id);
@@ -59,14 +59,14 @@ it('auto-attaches tenant_id on workflow creation when tenancy is configured', fu
 it('prevents cross-tenant access', function () {
     Workflow::useTenancy('tenant_id', fn () => 'team-1');
 
-    WorkflowModel::create([
+    WorkflowModel::withoutGlobalScopes()->create([
         'name' => 'Team 2 Workflow',
         'trigger_type' => TriggerType::Manual,
         'tenant_id' => 'team-2',
     ]);
 
-    // Query with tenant scope should not find team-2's workflow
-    $workflows = WorkflowModel::where('tenant_id', Workflow::getTenancyConfig()['resolver']())->get();
+    // Global scope automatically prevents access to team-2's workflow
+    $workflows = WorkflowModel::all();
     expect($workflows)->toHaveCount(0);
 });
 
@@ -137,8 +137,8 @@ it('scopes record event triggers to tenant', function () {
         'tenant_id' => 'team-1',
     ]);
 
-    // Create another for team-2
-    WorkflowModel::create([
+    // Create another for team-2 (bypass global scope for cross-tenant insert)
+    WorkflowModel::withoutGlobalScopes()->create([
         'name' => 'Team 2 Record Workflow',
         'trigger_type' => TriggerType::RecordEvent,
         'trigger_config' => [
@@ -149,13 +149,41 @@ it('scopes record event triggers to tenant', function () {
         'tenant_id' => 'team-2',
     ]);
 
-    // Create a test company - should trigger both workflows (observer finds all matching workflows)
+    // Create a test company - the global scope ensures only team-1's workflow is matched
     \Relaticle\Workflow\Tests\Fixtures\TestCompany::create([
         'name' => 'New Company',
     ]);
 
-    // Both workflows match the model event regardless of tenant — the observer dispatches for all matches
-    Queue::assertPushed(\Relaticle\Workflow\Jobs\ExecuteWorkflowJob::class);
+    // Only team-1's workflow should be dispatched due to tenant scoping
+    Queue::assertPushed(\Relaticle\Workflow\Jobs\ExecuteWorkflowJob::class, 1);
+});
+
+it('applies global scope to automatically filter by tenant', function () {
+    app(\Relaticle\Workflow\WorkflowManager::class)->useTenancy(
+        scopeColumn: 'tenant_id',
+        resolver: fn () => 'team-1',
+    );
+
+    WorkflowModel::unguarded(function () {
+        WorkflowModel::withoutGlobalScopes()->create([
+            'name' => 'Team 1 Workflow',
+            'tenant_id' => 'team-1',
+            'trigger_type' => TriggerType::Manual,
+            'trigger_config' => [],
+            'canvas_data' => [],
+        ]);
+        WorkflowModel::withoutGlobalScopes()->create([
+            'name' => 'Team 2 Workflow',
+            'tenant_id' => 'team-2',
+            'trigger_type' => TriggerType::Manual,
+            'trigger_config' => [],
+            'canvas_data' => [],
+        ]);
+    });
+
+    $workflows = WorkflowModel::all();
+    expect($workflows)->toHaveCount(1);
+    expect($workflows->first()->name)->toBe('Team 1 Workflow');
 });
 
 it('resolves tenant through middleware and sets request attribute', function () {
