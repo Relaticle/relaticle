@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Relaticle\Workflow\Engine;
 
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Relaticle\Workflow\Actions\Contracts\WorkflowAction;
 use Relaticle\Workflow\Enums\NodeType;
 use Relaticle\Workflow\Enums\StepStatus;
@@ -42,16 +43,18 @@ class WorkflowExecutor
         $run = $this->createRun($workflow, $context);
 
         try {
-            $workflow->load(['nodes', 'edges']);
+            DB::transaction(function () use ($workflow, $run, $context): void {
+                $workflow->load(['nodes', 'edges']);
 
-            $walker = new GraphWalker($workflow->nodes, $workflow->edges);
-            $triggerNode = $walker->findTriggerNode();
+                $walker = new GraphWalker($workflow->nodes, $workflow->edges);
+                $triggerNode = $walker->findTriggerNode();
 
-            if ($triggerNode === null) {
-                return $this->failRun($run, 'No trigger node found in workflow.');
-            }
+                if ($triggerNode === null) {
+                    throw new \RuntimeException('No trigger node found in workflow.');
+                }
 
-            $this->walkGraph($walker, $triggerNode, $run, $context);
+                $this->walkGraph($walker, $triggerNode, $run, $context);
+            });
 
             $this->completeRun($run);
         } catch (\Throwable $e) {
