@@ -32,4 +32,9 @@ class WorkflowServiceProvider extends PackageServiceProvider
             );
         });
     }
+
+    public function packageBooted(): void
+    {
+        $this->loadRoutesFrom(__DIR__ . '/../routes/api.php');
+    }
 }
