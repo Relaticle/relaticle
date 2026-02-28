@@ -5,6 +5,31 @@ import { Keyboard } from '@antv/x6-plugin-keyboard';
 import { Clipboard } from '@antv/x6-plugin-clipboard';
 import { History } from '@antv/x6-plugin-history';
 
+function showConfirmDialog(message, onConfirm) {
+    const overlay = document.createElement('div');
+    overlay.className = 'workflow-confirm-overlay';
+
+    const dialog = document.createElement('div');
+    dialog.className = 'workflow-confirm-dialog';
+    dialog.innerHTML = `
+        <p>${message}</p>
+        <div class="workflow-confirm-actions">
+            <button class="workflow-confirm-cancel">Cancel</button>
+            <button class="workflow-confirm-delete">Delete</button>
+        </div>
+    `;
+
+    overlay.appendChild(dialog);
+    document.body.appendChild(overlay);
+
+    dialog.querySelector('.workflow-confirm-cancel').onclick = () => overlay.remove();
+    dialog.querySelector('.workflow-confirm-delete').onclick = () => {
+        onConfirm();
+        overlay.remove();
+    };
+    overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
+}
+
 export function createGraph(container, minimapContainer) {
     const graph = new Graph({
         container,
@@ -95,9 +120,14 @@ export function createGraph(container, minimapContainer) {
     });
     graph.bindKey(['backspace', 'delete'], () => {
         const cells = graph.getSelectedCells();
-        if (cells.length) {
-            graph.removeCells(cells);
-        }
+        if (cells.length === 0) return false;
+
+        const hasTrigger = cells.some(c => c.isNode() && c.getData()?.type === 'trigger');
+        const message = hasTrigger
+            ? 'This will delete the trigger node. The workflow will not function without it. Continue?'
+            : `Delete ${cells.length} selected element(s)?`;
+
+        showConfirmDialog(message, () => graph.removeCells(cells));
         return false;
     });
 
