@@ -24,9 +24,12 @@ class HttpRequestAction extends BaseAction
 
         $pendingRequest = Http::withHeaders($headers);
 
-        $response = $pendingRequest->send($method, $url, [
-            'json' => $body,
-        ]);
+        $options = [];
+        if (in_array($method, ['POST', 'PUT', 'PATCH'], true) && ! empty($body)) {
+            $options['json'] = $body;
+        }
+
+        $response = $pendingRequest->send($method, $url, $options);
 
         return [
             'status_code' => $response->status(),

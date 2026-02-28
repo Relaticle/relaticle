@@ -66,6 +66,14 @@ class GraphWalker
     }
 
     /**
+     * Find a node by its database ID within the loaded node set.
+     */
+    public function findNodeById(string $nodeId): ?WorkflowNode
+    {
+        return $this->nodes->first(fn (WorkflowNode $node) => $node->id === $nodeId);
+    }
+
+    /**
      * Determine if a node is terminal (has no outgoing edges).
      */
     public function isTerminal(WorkflowNode $node): bool

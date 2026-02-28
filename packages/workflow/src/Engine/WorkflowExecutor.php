@@ -100,6 +100,8 @@ class WorkflowExecutor
         }
 
         $processedNodeIds = [];
+        $stepCount = 0;
+        $maxSteps = (int) config('workflow.max_steps_per_run', 100);
 
         while (! $queue->isEmpty()) {
             /** @var WorkflowNode $currentNode */
@@ -108,6 +110,11 @@ class WorkflowExecutor
             // Skip already-processed nodes to avoid cycles
             if (in_array($currentNode->id, $processedNodeIds, true)) {
                 continue;
+            }
+
+            $stepCount++;
+            if ($stepCount > $maxSteps) {
+                throw new \RuntimeException("Workflow exceeded maximum of {$maxSteps} steps per run.");
             }
 
             $processedNodeIds[] = $currentNode->id;
@@ -246,6 +253,11 @@ class WorkflowExecutor
 
         if (! is_array($items)) {
             $items = [];
+        }
+
+        $maxIterations = (int) config('workflow.max_loop_iterations', 500);
+        if (count($items) > $maxIterations) {
+            throw new \RuntimeException("Loop exceeds maximum of {$maxIterations} iterations (has " . count($items) . ').');
         }
 
         // Get the downstream nodes of the loop
@@ -397,12 +409,7 @@ class WorkflowExecutor
      */
     private function findNodeById(GraphWalker $walker, string $nodeId): ?WorkflowNode
     {
-        // The walker holds the collection of nodes. We need to access them.
-        // Since GraphWalker uses getNextNodes which filters by target_node_id,
-        // we can use the workflow's loaded nodes directly.
-        // However, we need a way to find by ID. Let's use the reflection approach
-        // or simply query the model.
-        return WorkflowNode::find($nodeId);
+        return $walker->findNodeById($nodeId);
     }
 
     /**

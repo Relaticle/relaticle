@@ -6,10 +6,17 @@ namespace Relaticle\Workflow\Triggers;
 
 use Cron\CronExpression;
 use Illuminate\Support\Carbon;
+use Relaticle\Workflow\Enums\TriggerType;
 use Relaticle\Workflow\Models\Workflow;
+use Relaticle\Workflow\Triggers\Contracts\WorkflowTrigger;
 
-class ScheduledTrigger
+class ScheduledTrigger implements WorkflowTrigger
 {
+    public static function type(): TriggerType
+    {
+        return TriggerType::TimeBased;
+    }
+
     /**
      * Evaluate whether a time-based workflow should fire right now.
      *
