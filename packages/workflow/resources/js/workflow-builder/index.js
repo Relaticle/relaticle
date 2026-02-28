@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
 async function loadCanvas(graph, workflowId) {
     try {
         const response = await fetch(`/workflow/api/workflows/${workflowId}/canvas`);
-        if (!response.ok) return;
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
         const data = await response.json();
 
@@ -120,8 +120,16 @@ async function loadCanvas(graph, workflowId) {
         if (data.canvas_data?.zoom) {
             graph.zoomTo(data.canvas_data.zoom);
         }
-    } catch (err) {
-        console.error('Failed to load canvas:', err);
+    } catch (error) {
+        console.error('Failed to load canvas:', error);
+        const container = document.getElementById('workflow-canvas-container');
+        container.innerHTML = `
+            <div class="workflow-error-state">
+                <h3>Failed to load workflow</h3>
+                <p>Check your connection and try again.</p>
+                <button onclick="location.reload()" class="toolbar-btn toolbar-btn-primary" style="margin-top:8px">Retry</button>
+            </div>
+        `;
     }
 }
 
@@ -162,6 +170,10 @@ async function saveCanvas(graph, workflowId) {
     });
 
     const btn = document.getElementById('btn-save');
+    if (btn) {
+        btn.disabled = true;
+        btn.textContent = 'Saving...';
+    }
 
     try {
         const csrfToken =
@@ -187,10 +199,15 @@ async function saveCanvas(graph, workflowId) {
             showToast('Workflow saved successfully.', 'success');
         } else {
             console.error('Save failed:', response.status, response.statusText);
-            showToast('Failed to save workflow. Please try again.', 'error');
+            showToast('Failed to save. Your changes are preserved.', 'error');
         }
     } catch (err) {
         console.error('Failed to save canvas:', err);
-        showToast('Failed to save workflow. Please try again.', 'error');
+        showToast('Failed to save. Your changes are preserved.', 'error');
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.textContent = 'Save';
+        }
     }
 }
