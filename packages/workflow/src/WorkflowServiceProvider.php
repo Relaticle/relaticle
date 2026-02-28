@@ -22,7 +22,12 @@ class WorkflowServiceProvider extends PackageServiceProvider
 
     public function packageRegistered(): void
     {
-        $this->app->singleton(WorkflowManager::class);
+        $this->app->singleton(WorkflowManager::class, function () {
+            $manager = new WorkflowManager();
+            $manager->registerAction('delay', \Relaticle\Workflow\Actions\DelayAction::class);
+
+            return $manager;
+        });
 
         $this->app->bind(WorkflowExecutor::class, function ($app) {
             return new WorkflowExecutor(
