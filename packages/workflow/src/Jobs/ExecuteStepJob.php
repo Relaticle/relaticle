@@ -9,7 +9,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Relaticle\Workflow\Models\WorkflowNode;
+use Relaticle\Workflow\Engine\WorkflowExecutor;
 use Relaticle\Workflow\Models\WorkflowRun;
 
 class ExecuteStepJob implements ShouldQueue
@@ -24,16 +24,14 @@ class ExecuteStepJob implements ShouldQueue
      */
     public function __construct(
         public readonly WorkflowRun $run,
-        public readonly WorkflowNode $node,
+        public readonly string $resumeFromNodeId,
         public readonly array $context = [],
     ) {
         $this->onQueue(config('workflow.queue', 'default'));
     }
 
-    public function handle(): void
+    public function handle(WorkflowExecutor $executor): void
     {
-        // Reserved for future async per-step execution.
-        // Currently, all step execution is handled synchronously
-        // by the WorkflowExecutor.
+        $executor->resume($this->run, $this->resumeFromNodeId, $this->context);
     }
 }
