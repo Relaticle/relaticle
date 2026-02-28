@@ -5,9 +5,12 @@ declare(strict_types=1);
 namespace Relaticle\Workflow\Actions;
 
 use Illuminate\Support\Facades\Http;
+use Relaticle\Workflow\Actions\Concerns\PreventsSSRF;
 
 class SendWebhookAction extends BaseAction
 {
+    use PreventsSSRF;
+
     /**
      * Execute the send webhook action, posting a payload to the configured URL.
      *
@@ -19,6 +22,8 @@ class SendWebhookAction extends BaseAction
     {
         $url = $config['url'] ?? '';
         $payload = $config['payload'] ?? [];
+
+        $this->validateUrl($url);
 
         $timeout = (int) config('workflow.action_timeout', 30);
         $response = Http::timeout($timeout)->post($url, $payload);

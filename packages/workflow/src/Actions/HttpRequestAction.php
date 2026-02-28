@@ -5,9 +5,12 @@ declare(strict_types=1);
 namespace Relaticle\Workflow\Actions;
 
 use Illuminate\Support\Facades\Http;
+use Relaticle\Workflow\Actions\Concerns\PreventsSSRF;
 
 class HttpRequestAction extends BaseAction
 {
+    use PreventsSSRF;
+
     /**
      * Execute the HTTP request action, making a request with the configured method and URL.
      *
@@ -21,6 +24,8 @@ class HttpRequestAction extends BaseAction
         $url = $config['url'] ?? '';
         $headers = $config['headers'] ?? [];
         $body = $config['body'] ?? [];
+
+        $this->validateUrl($url);
 
         $timeout = (int) config('workflow.action_timeout', 30);
         $pendingRequest = Http::withHeaders($headers)->timeout($timeout);
