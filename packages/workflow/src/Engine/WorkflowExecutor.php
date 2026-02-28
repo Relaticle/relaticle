@@ -116,6 +116,7 @@ class WorkflowExecutor
                 NodeType::Action => $this->executeActionNode($currentNode, $walker, $run, $context, $queue),
                 NodeType::Condition => $this->executeConditionNode($currentNode, $walker, $run, $context, $queue),
                 NodeType::Delay => $this->executeDelayNode($currentNode, $walker, $run, $context, $queue),
+                NodeType::Loop => $this->executeLoopNode($currentNode, $walker, $run, $context, $processedNodeIds),
                 NodeType::Stop => null, // Stop node: do nothing, just don't enqueue further nodes
                 default => $this->enqueueNextNodes($walker, $currentNode, $queue),
             };
@@ -199,6 +200,157 @@ class WorkflowExecutor
         ]);
 
         $this->enqueueNextNodes($walker, $node, $queue);
+    }
+
+    /**
+     * Execute a loop node: iterate over a collection and execute downstream nodes for each item.
+     *
+     * The loop resolves a collection from the context using a dot-notation path,
+     * then for each item it enriches the context with `loop.item` and `loop.index`
+     * and executes the downstream sub-graph. Loop body nodes are processed inline
+     * (not via the main BFS queue) and are marked as processed in the parent walk
+     * to prevent re-execution.
+     *
+     * @param  array<string, mixed>  $context
+     * @param  array<int|string>  $processedNodeIds  Passed by reference so loop body nodes are tracked
+     */
+    private function executeLoopNode(
+        WorkflowNode $node,
+        GraphWalker $walker,
+        WorkflowRun $run,
+        array $context,
+        array &$processedNodeIds,
+    ): void {
+        // Record the loop step itself
+        $step = $this->createStep($run, $node, StepStatus::Running);
+
+        $resolvedConfig = $this->variableResolver->resolveArray($node->config ?? [], $context);
+
+        $step->update([
+            'input_data' => $resolvedConfig,
+            'started_at' => Carbon::now(),
+        ]);
+
+        $action = new \Relaticle\Workflow\Actions\LoopAction();
+        $output = $action->execute($resolvedConfig, $context);
+
+        $step->update([
+            'status' => StepStatus::Completed,
+            'output_data' => $output,
+            'completed_at' => Carbon::now(),
+        ]);
+
+        // Resolve the collection from context
+        $collectionPath = $resolvedConfig['collection'] ?? '';
+        $items = data_get($context, $collectionPath, []);
+
+        if (! is_array($items)) {
+            $items = [];
+        }
+
+        // Get the downstream nodes of the loop
+        $downstreamNodes = $walker->getNextNodes($node);
+
+        // Mark downstream nodes as processed in the parent walk so they
+        // are not re-executed after the loop completes
+        $loopBodyNodeIds = $this->collectDescendantNodeIds($walker, $node);
+        foreach ($loopBodyNodeIds as $bodyNodeId) {
+            $processedNodeIds[] = $bodyNodeId;
+        }
+
+        // For each item, execute the downstream sub-graph with enriched context
+        foreach (array_values($items) as $index => $item) {
+            $iterationContext = array_merge($context, [
+                'loop' => [
+                    'item' => $item,
+                    'index' => $index,
+                ],
+            ]);
+
+            $this->walkLoopBody($walker, $downstreamNodes, $run, $iterationContext);
+        }
+    }
+
+    /**
+     * Walk the loop body sub-graph using BFS for a single loop iteration.
+     *
+     * Each iteration gets its own processed-node tracking so that the same
+     * node structure can be executed once per iteration without interference.
+     *
+     * @param  \Illuminate\Support\Collection<int, WorkflowNode>  $startNodes
+     * @param  array<string, mixed>  $context
+     */
+    private function walkLoopBody(
+        GraphWalker $walker,
+        \Illuminate\Support\Collection $startNodes,
+        WorkflowRun $run,
+        array $context,
+    ): void {
+        /** @var \SplQueue<WorkflowNode> $queue */
+        $queue = new \SplQueue();
+
+        foreach ($startNodes as $node) {
+            $queue->enqueue($node);
+        }
+
+        $processedNodeIds = [];
+
+        while (! $queue->isEmpty()) {
+            /** @var WorkflowNode $currentNode */
+            $currentNode = $queue->dequeue();
+
+            if (in_array($currentNode->id, $processedNodeIds, true)) {
+                continue;
+            }
+
+            $processedNodeIds[] = $currentNode->id;
+
+            match ($currentNode->type) {
+                NodeType::Action => $this->executeActionNode($currentNode, $walker, $run, $context, $queue),
+                NodeType::Condition => $this->executeConditionNode($currentNode, $walker, $run, $context, $queue),
+                NodeType::Delay => $this->executeDelayNode($currentNode, $walker, $run, $context, $queue),
+                NodeType::Stop => null,
+                default => $this->enqueueNextNodes($walker, $currentNode, $queue),
+            };
+        }
+    }
+
+    /**
+     * Collect all descendant node IDs reachable from a given node.
+     *
+     * Uses BFS to traverse the sub-graph and returns all node IDs found.
+     * This is used to mark loop body nodes as processed in the parent walk.
+     *
+     * @return array<int|string>
+     */
+    private function collectDescendantNodeIds(GraphWalker $walker, WorkflowNode $node): array
+    {
+        $ids = [];
+        $visited = [];
+
+        /** @var \SplQueue<WorkflowNode> $queue */
+        $queue = new \SplQueue();
+
+        foreach ($walker->getNextNodes($node) as $nextNode) {
+            $queue->enqueue($nextNode);
+        }
+
+        while (! $queue->isEmpty()) {
+            $current = $queue->dequeue();
+
+            if (in_array($current->id, $visited, true)) {
+                continue;
+            }
+
+            $visited[] = $current->id;
+            $ids[] = $current->id;
+
+            foreach ($walker->getNextNodes($current) as $nextNode) {
+                $queue->enqueue($nextNode);
+            }
+        }
+
+        return $ids;
     }
 
     /**

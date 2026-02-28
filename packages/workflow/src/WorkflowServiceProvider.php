@@ -25,6 +25,7 @@ class WorkflowServiceProvider extends PackageServiceProvider
         $this->app->singleton(WorkflowManager::class, function () {
             $manager = new WorkflowManager();
             $manager->registerAction('delay', \Relaticle\Workflow\Actions\DelayAction::class);
+            $manager->registerAction('loop', \Relaticle\Workflow\Actions\LoopAction::class);
 
             return $manager;
         });
