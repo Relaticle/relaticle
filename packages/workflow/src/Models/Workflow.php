@@ -15,6 +15,20 @@ class Workflow extends Model
     use HasUlids;
     use SoftDeletes;
 
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        static::creating(function (self $workflow): void {
+            $manager = app(\Relaticle\Workflow\WorkflowManager::class);
+            $config = $manager->getTenancyConfig();
+
+            if ($config && $workflow->{$config['scopeColumn']} === null) {
+                $workflow->{$config['scopeColumn']} = ($config['resolver'])();
+            }
+        });
+    }
+
     protected $fillable = [
         'name',
         'description',
