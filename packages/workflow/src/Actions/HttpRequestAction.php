@@ -22,7 +22,8 @@ class HttpRequestAction extends BaseAction
         $headers = $config['headers'] ?? [];
         $body = $config['body'] ?? [];
 
-        $pendingRequest = Http::withHeaders($headers);
+        $timeout = (int) config('workflow.action_timeout', 30);
+        $pendingRequest = Http::withHeaders($headers)->timeout($timeout);
 
         $options = [];
         if (in_array($method, ['POST', 'PUT', 'PATCH'], true) && ! empty($body)) {

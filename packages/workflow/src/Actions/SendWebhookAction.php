@@ -20,7 +20,8 @@ class SendWebhookAction extends BaseAction
         $url = $config['url'] ?? '';
         $payload = $config['payload'] ?? [];
 
-        $response = Http::post($url, $payload);
+        $timeout = (int) config('workflow.action_timeout', 30);
+        $response = Http::timeout($timeout)->post($url, $payload);
 
         return [
             'status_code' => $response->status(),
