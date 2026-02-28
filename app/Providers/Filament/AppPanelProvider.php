@@ -47,6 +47,7 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Laravel\Jetstream\Features;
 use Relaticle\CustomFields\CustomFieldsPlugin;
 use Relaticle\ImportWizard\Filament\Pages\ImportHistory;
+use Relaticle\Workflow\Filament\WorkflowPlugin;
 
 final class AppPanelProvider extends PanelProvider
 {
@@ -168,6 +169,7 @@ final class AppPanelProvider extends PanelProvider
                 CustomFieldsPlugin::make()
                     ->authorize(fn () => Gate::check('update', Filament::getTenant())),
                 ResizedColumnPlugin::make(),
+                WorkflowPlugin::make(),
             ])
             ->renderHook(
                 PanelsRenderHook::AUTH_LOGIN_FORM_BEFORE,
