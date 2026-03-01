@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Relaticle\Workflow\Actions;
 
+use Filament\Forms\Components\KeyValue;
+use Filament\Forms\Components\TextInput;
 use Illuminate\Support\Facades\Http;
 use Relaticle\Workflow\Actions\Concerns\PreventsSSRF;
 
@@ -63,6 +65,22 @@ class SendWebhookAction extends BaseAction
         return [
             'url' => ['type' => 'string', 'label' => 'Webhook URL', 'required' => true],
             'payload' => ['type' => 'object', 'label' => 'Payload', 'required' => false],
+        ];
+    }
+
+    public static function filamentForm(): array
+    {
+        return [
+            TextInput::make('url')
+                ->label('Webhook URL')
+                ->url()
+                ->required()
+                ->placeholder('https://example.com/webhook'),
+            KeyValue::make('payload')
+                ->label('Payload')
+                ->keyLabel('Key')
+                ->valueLabel('Value')
+                ->addActionLabel('Add field'),
         ];
     }
 

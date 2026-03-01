@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Relaticle\Workflow\Actions;
 
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+
 class DelayAction extends BaseAction
 {
     /**
@@ -54,6 +57,25 @@ class DelayAction extends BaseAction
         return [
             'duration' => ['type' => 'integer', 'label' => 'Duration', 'required' => true],
             'unit' => ['type' => 'select', 'label' => 'Unit', 'options' => ['minutes', 'hours', 'days']],
+        ];
+    }
+
+    public static function filamentForm(): array
+    {
+        return [
+            TextInput::make('duration')
+                ->label('Duration')
+                ->numeric()
+                ->required()
+                ->minValue(0),
+            Select::make('unit')
+                ->label('Unit')
+                ->options([
+                    'minutes' => 'Minutes',
+                    'hours' => 'Hours',
+                    'days' => 'Days',
+                ])
+                ->default('minutes'),
         ];
     }
 

@@ -122,7 +122,16 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
                 this.selectedNodeId = e.detail.nodeId;
                 this.panelView = 'config';
                 this.panelOpen = true;
-                this.renderConfigForm();
+
+                // Dispatch to Livewire config panel
+                if (window.Livewire) {
+                    const data = e.detail.data || {};
+                    window.Livewire.dispatch('node-selected', {
+                        nodeId: data.nodeId || e.detail.nodeId,
+                        nodeType: data.type || 'unknown',
+                        actionType: data.actionType || null,
+                    });
+                }
             });
 
             window.addEventListener('wf:node-deselected', () => {
@@ -132,6 +141,24 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
                 if (this.panelView === 'config') {
                     this.panelOpen = false;
                     this.panelView = null;
+                }
+
+                // Dispatch to Livewire config panel
+                if (window.Livewire) {
+                    window.Livewire.dispatch('node-deselected');
+                }
+            });
+
+            // Listen for Livewire config updates and sync back to X6 graph
+            window.addEventListener('node-config-saved', (e) => {
+                const { nodeId, config } = e.detail || {};
+                if (!nodeId || !graph) return;
+
+                const node = graph.getCellById(nodeId);
+                if (node) {
+                    const currentData = node.getData() || {};
+                    node.setData({ ...currentData, config: config }, { overwrite: true });
+                    this.isDirty = true;
                 }
             });
 
@@ -217,6 +244,11 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
             this.panelView = null;
             const graph = window.__wfGraph;
             if (graph) graph.cleanSelection();
+
+            // Notify Livewire config panel
+            if (window.Livewire) {
+                window.Livewire.dispatch('node-deselected');
+            }
         },
 
         // ── Canvas Mode ──────────────────────────────────────

@@ -177,18 +177,12 @@
             {{-- Right Panel --}}
             <div class="wf-panel" :class="{ 'wf-panel-open': panelOpen }">
                 {{-- Config Panel (shown when a node is selected) --}}
-                <div x-show="panelView === 'config' && selectedNode" class="wf-panel-content">
-                    <div class="wf-panel-header">
-                        <h3 x-text="selectedNode?.type === 'action' && selectedNode?.actionType
-                            ? selectedNode.actionType.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) + ' Settings'
-                            : selectedNode?.type ? selectedNode.type.charAt(0).toUpperCase() + selectedNode.type.slice(1) + ' Settings' : 'Settings'"></h3>
-                        <button type="button" @click="deselectNode()" class="wf-panel-close">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                        </button>
-                    </div>
-                    <div id="config-panel-body" class="wf-panel-body">
-                        {{-- Populated dynamically by config-panel.js --}}
-                    </div>
+                <div
+                    x-show="panelView === 'config'"
+                    x-on:config-panel-close.window="deselectNode()"
+                    class="wf-panel-content"
+                >
+                    @livewire('workflow-config-panel', ['workflowId' => $workflowId])
                 </div>
 
                 {{-- Settings Panel --}}

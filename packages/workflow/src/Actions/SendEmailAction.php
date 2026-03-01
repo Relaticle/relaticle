@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Relaticle\Workflow\Actions;
 
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Illuminate\Support\Facades\Mail;
 use Relaticle\Workflow\Mail\WorkflowNotification;
 
@@ -71,6 +73,26 @@ class SendEmailAction extends BaseAction
             'to' => ['type' => 'string', 'label' => 'Recipient Email', 'required' => true],
             'subject' => ['type' => 'string', 'label' => 'Subject', 'required' => true],
             'body' => ['type' => 'string', 'label' => 'Email Body', 'required' => true],
+        ];
+    }
+
+    public static function filamentForm(): array
+    {
+        return [
+            TextInput::make('to')
+                ->label('Recipient Email')
+                ->email()
+                ->required()
+                ->placeholder('recipient@example.com'),
+            TextInput::make('subject')
+                ->label('Subject')
+                ->required()
+                ->placeholder('Notification subject'),
+            Textarea::make('body')
+                ->label('Email Body')
+                ->required()
+                ->rows(5)
+                ->placeholder('Email content...'),
         ];
     }
 

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Relaticle\Workflow\Actions;
 
+use Filament\Forms\Components\KeyValue;
+use Filament\Forms\Components\Select;
 use Relaticle\Workflow\Schema\RelaticleSchema;
 use Relaticle\Workflow\WorkflowManager;
 
@@ -80,6 +82,38 @@ class CreateRecordAction extends BaseAction
             'field_mappings' => ['type' => 'object', 'label' => 'Field Mappings', 'required' => true],
             'custom_field_mappings' => ['type' => 'object', 'label' => 'Custom Field Mappings', 'required' => false],
         ];
+    }
+
+    public static function filamentForm(): array
+    {
+        return [
+            Select::make('entity_type')
+                ->label('Entity Type')
+                ->options(fn () => self::getEntityOptions())
+                ->required()
+                ->live(),
+            KeyValue::make('field_mappings')
+                ->label('Field Values')
+                ->keyLabel('Field')
+                ->valueLabel('Value')
+                ->addActionLabel('Add field'),
+            KeyValue::make('custom_field_mappings')
+                ->label('Custom Field Values')
+                ->keyLabel('Custom Field')
+                ->valueLabel('Value')
+                ->addActionLabel('Add custom field'),
+        ];
+    }
+
+    protected static function getEntityOptions(): array
+    {
+        try {
+            return collect(app(RelaticleSchema::class)->getEntities())
+                ->mapWithKeys(fn ($entity) => [$entity->key => $entity->label])
+                ->toArray();
+        } catch (\Throwable) {
+            return [];
+        }
     }
 
     public static function outputSchema(): array

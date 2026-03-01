@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Relaticle\Workflow\Actions;
 
+use Filament\Forms\Components\TextInput;
+
 class LoopAction extends BaseAction
 {
     /**
@@ -55,6 +57,16 @@ class LoopAction extends BaseAction
     {
         return [
             'collection' => ['type' => 'string', 'label' => 'Collection Path', 'required' => true],
+        ];
+    }
+
+    public static function filamentForm(): array
+    {
+        return [
+            TextInput::make('collection')
+                ->label('Collection Path')
+                ->required()
+                ->placeholder('record.items'),
         ];
     }
 

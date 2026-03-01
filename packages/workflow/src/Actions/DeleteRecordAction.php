@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Relaticle\Workflow\Actions;
 
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Model;
 
 class DeleteRecordAction extends BaseAction
@@ -79,6 +81,24 @@ class DeleteRecordAction extends BaseAction
         return [
             'record_source' => ['type' => 'string', 'label' => 'Record Source', 'required' => true],
             'step_node_id' => ['type' => 'string', 'label' => 'Step Node ID', 'required' => false],
+        ];
+    }
+
+    public static function filamentForm(): array
+    {
+        return [
+            Select::make('record_source')
+                ->label('Record Source')
+                ->options([
+                    'trigger' => 'Trigger Record',
+                    'step' => 'From Previous Step',
+                ])
+                ->required()
+                ->live(),
+            TextInput::make('step_node_id')
+                ->label('Step Node ID')
+                ->placeholder('e.g. action-2')
+                ->visible(fn ($get) => $get('record_source') === 'step'),
         ];
     }
 

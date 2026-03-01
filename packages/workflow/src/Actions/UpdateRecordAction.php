@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Relaticle\Workflow\Actions;
 
+use Filament\Forms\Components\KeyValue;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Model;
 
 class UpdateRecordAction extends BaseAction
@@ -93,6 +96,34 @@ class UpdateRecordAction extends BaseAction
             'step_node_id' => ['type' => 'string', 'label' => 'Step Node ID', 'required' => false],
             'field_mappings' => ['type' => 'object', 'label' => 'Field Mappings', 'required' => true],
             'custom_field_mappings' => ['type' => 'object', 'label' => 'Custom Field Mappings', 'required' => false],
+        ];
+    }
+
+    public static function filamentForm(): array
+    {
+        return [
+            Select::make('record_source')
+                ->label('Record Source')
+                ->options([
+                    'trigger' => 'Trigger Record',
+                    'step' => 'From Previous Step',
+                ])
+                ->required()
+                ->live(),
+            TextInput::make('step_node_id')
+                ->label('Step Node ID')
+                ->placeholder('e.g. action-2')
+                ->visible(fn ($get) => $get('record_source') === 'step'),
+            KeyValue::make('field_mappings')
+                ->label('Field Values')
+                ->keyLabel('Field')
+                ->valueLabel('Value')
+                ->addActionLabel('Add field'),
+            KeyValue::make('custom_field_mappings')
+                ->label('Custom Field Values')
+                ->keyLabel('Custom Field')
+                ->valueLabel('Value')
+                ->addActionLabel('Add custom field'),
         ];
     }
 

@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace Relaticle\Workflow\Actions;
 
+use Filament\Forms\Components\KeyValue;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Illuminate\Support\Facades\Http;
 use Relaticle\Workflow\Actions\Concerns\PreventsSSRF;
 
@@ -74,6 +78,36 @@ class HttpRequestAction extends BaseAction
             'url' => ['type' => 'string', 'label' => 'Request URL', 'required' => true],
             'headers' => ['type' => 'object', 'label' => 'Headers', 'required' => false],
             'body' => ['type' => 'object', 'label' => 'Request Body', 'required' => false],
+        ];
+    }
+
+    public static function filamentForm(): array
+    {
+        return [
+            Select::make('method')
+                ->label('HTTP Method')
+                ->options([
+                    'GET' => 'GET',
+                    'POST' => 'POST',
+                    'PUT' => 'PUT',
+                    'PATCH' => 'PATCH',
+                    'DELETE' => 'DELETE',
+                ])
+                ->required(),
+            TextInput::make('url')
+                ->label('Request URL')
+                ->url()
+                ->required()
+                ->placeholder('https://api.example.com/endpoint'),
+            KeyValue::make('headers')
+                ->label('Headers')
+                ->keyLabel('Header')
+                ->valueLabel('Value')
+                ->addActionLabel('Add header'),
+            Textarea::make('body')
+                ->label('Request Body')
+                ->rows(4)
+                ->placeholder('JSON body (for POST/PUT/PATCH)'),
         ];
     }
 

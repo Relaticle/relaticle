@@ -29,6 +29,16 @@ abstract class BaseAction implements WorkflowAction
     }
 
     /**
+     * Get the Filament form components for configuring this action.
+     *
+     * @return array<\Filament\Forms\Components\Field>
+     */
+    public static function filamentForm(): array
+    {
+        return [];
+    }
+
+    /**
      * Get the action category for the block picker.
      */
     public static function category(): string

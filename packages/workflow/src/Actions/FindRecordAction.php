@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Relaticle\Workflow\Actions;
 
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Relaticle\Workflow\Schema\RelaticleSchema;
 use Relaticle\Workflow\WorkflowManager;
 
@@ -104,6 +107,56 @@ class FindRecordAction extends BaseAction
             'conditions' => ['type' => 'array', 'label' => 'Conditions', 'required' => false],
             'limit' => ['type' => 'integer', 'label' => 'Limit', 'required' => false],
         ];
+    }
+
+    public static function filamentForm(): array
+    {
+        return [
+            Select::make('entity_type')
+                ->label('Entity Type')
+                ->options(fn () => self::getEntityOptions())
+                ->required()
+                ->live(),
+            Repeater::make('conditions')
+                ->label('Conditions')
+                ->schema([
+                    TextInput::make('field')
+                        ->label('Field')
+                        ->required(),
+                    Select::make('operator')
+                        ->label('Operator')
+                        ->options([
+                            'equals' => 'Equals',
+                            'not_equals' => 'Not Equals',
+                            'contains' => 'Contains',
+                            'greater_than' => 'Greater Than',
+                            'less_than' => 'Less Than',
+                            'is_empty' => 'Is Empty',
+                            'is_not_empty' => 'Is Not Empty',
+                        ])
+                        ->required(),
+                    TextInput::make('value')
+                        ->label('Value'),
+                ])
+                ->addActionLabel('Add condition')
+                ->defaultItems(0),
+            TextInput::make('limit')
+                ->label('Limit')
+                ->numeric()
+                ->default(1)
+                ->minValue(1),
+        ];
+    }
+
+    protected static function getEntityOptions(): array
+    {
+        try {
+            return collect(app(RelaticleSchema::class)->getEntities())
+                ->mapWithKeys(fn ($entity) => [$entity->key => $entity->label])
+                ->toArray();
+        } catch (\Throwable) {
+            return [];
+        }
     }
 
     public static function outputSchema(): array

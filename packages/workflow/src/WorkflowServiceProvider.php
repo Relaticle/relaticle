@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Relaticle\Workflow;
 
+use Livewire\Livewire;
 use Relaticle\Workflow\Engine\ConditionEvaluator;
 use Relaticle\Workflow\Engine\VariableResolver;
 use Relaticle\Workflow\Engine\WorkflowExecutor;
+use Relaticle\Workflow\Livewire\WorkflowConfigPanel;
 use Relaticle\Workflow\Schema\RelaticleSchema;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
@@ -41,9 +43,9 @@ class WorkflowServiceProvider extends PackageServiceProvider
     {
         $this->loadRoutesFrom(__DIR__ . '/../routes/api.php');
 
-        // Conditionally load Filament views/assets if Filament is installed
-        if (class_exists(\Filament\Panel::class)) {
-            // Filament is available — assets and views will be loaded by the plugin
+        // Register Livewire components
+        if (class_exists(Livewire::class) && $this->app->bound('livewire')) {
+            Livewire::component('workflow-config-panel', WorkflowConfigPanel::class);
         }
     }
 }
