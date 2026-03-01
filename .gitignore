@@ -29,6 +29,7 @@ boost.json
 /.idea
 /.vscode
 /.claude
+/.worktrees
 /.superset
 /.cursor
 /.junie
