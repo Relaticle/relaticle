@@ -79,6 +79,10 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
         _edgeAddHover: false,
         _insertOnEdge: null,
 
+        // Run view popover state
+        stepPopover: null,
+        totalRunCount: 0,
+
         // Block picker state
         blockPickerOpen: false,
         blockPickerSearch: '',
@@ -117,6 +121,21 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
 
             // Listen for graph events
             window.addEventListener('wf:node-selected', (e) => {
+                // In run view mode, show step popover instead of config panel
+                if (graph._runViewMode && graph._runViewSteps) {
+                    const nodeId = e.detail.nodeId;
+                    const step = graph._runViewSteps.find(s => s.node_id === nodeId);
+                    if (step) {
+                        const node = graph.getCellById(nodeId);
+                        if (node) {
+                            const bbox = node.getBBox();
+                            const pos = graph.localToPage({ x: bbox.x + bbox.width + 10, y: bbox.y });
+                            this.stepPopover = { visible: true, x: pos.x, y: pos.y, step: step };
+                        }
+                    }
+                    return;
+                }
+
                 this.selectedNode = e.detail.data;
                 this.nodeData = e.detail.data;
                 this.selectedNodeId = e.detail.nodeId;
@@ -184,6 +203,11 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
 
             window.addEventListener('wf:exit-run-view', () => {
                 exitRunView(graph);
+            });
+
+            // Track total run count for badge
+            window.addEventListener('wf:runs-loaded', (e) => {
+                this.totalRunCount = e.detail.total || 0;
             });
 
             // Track node count for empty canvas onboarding
@@ -379,6 +403,8 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
                 this.registeredActions = data.meta?.registered_actions || {};
                 this.workflowDescription = data.meta?.description || '';
                 this.triggerType = data.meta?.trigger_type || '';
+                this.maxStepsPerRun = data.meta?.trigger_config?.max_steps || 100;
+                this.notifyOnFailure = data.meta?.trigger_config?.notify_on_failure || false;
 
                 if (data.nodes?.length) {
                     // Add nodes

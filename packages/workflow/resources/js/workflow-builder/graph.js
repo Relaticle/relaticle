@@ -227,6 +227,10 @@ export function enterRunView(graph, runData) {
     graph.disableSelection();
     graph.disableKeyboard();
 
+    // Store run steps for popover access
+    graph._runViewSteps = runData.steps || [];
+    graph._runViewMode = true;
+
     // Map step statuses to node IDs
     const stepMap = {};
     if (runData.steps) {
@@ -249,6 +253,28 @@ export function enterRunView(graph, runData) {
             node.setData({ ...data, _runStatus: 'skipped' }, { overwrite: true });
         }
     });
+
+    // Color edges based on execution path
+    graph.getEdges().forEach(edge => {
+        const sourceNode = edge.getSourceNode();
+        const targetNode = edge.getTargetNode();
+        if (!sourceNode || !targetNode) return;
+
+        const sourceStatus = sourceNode.getData()?._runStatus;
+        const targetStatus = targetNode.getData()?._runStatus;
+
+        if (sourceStatus === 'completed' && targetStatus === 'completed') {
+            edge.attr('line/stroke', '#22c55e');
+            edge.attr('line/strokeWidth', 2.5);
+        } else if (sourceStatus === 'completed' && targetStatus === 'failed') {
+            edge.attr('line/stroke', '#ef4444');
+            edge.attr('line/strokeWidth', 2.5);
+        } else {
+            edge.attr('line/stroke', '#d1d5db');
+            edge.attr('line/strokeWidth', 1.5);
+            edge.attr('line/strokeDasharray', '4 2');
+        }
+    });
 }
 
 /**
@@ -257,10 +283,20 @@ export function enterRunView(graph, runData) {
 export function exitRunView(graph) {
     graph.enableSelection();
     graph.enableKeyboard();
+    graph._runViewSteps = null;
+    graph._runViewMode = false;
 
+    // Clear node status badges
     graph.getNodes().forEach(node => {
         const data = node.getData() || {};
         const { _runStatus, ...rest } = data;
         node.setData(rest, { overwrite: true });
+    });
+
+    // Reset edge styling
+    graph.getEdges().forEach(edge => {
+        edge.attr('line/stroke', '#94a3b8');
+        edge.attr('line/strokeWidth', 1.5);
+        edge.attr('line/strokeDasharray', null);
     });
 }

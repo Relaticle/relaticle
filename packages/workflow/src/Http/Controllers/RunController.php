@@ -14,12 +14,22 @@ class RunController extends Controller
     public function index(string $workflowId): JsonResponse
     {
         $workflow = Workflow::findOrFail($workflowId);
+        $total = $workflow->runs()->count();
+
         $runs = $workflow->runs()
             ->orderByDesc('started_at')
             ->limit(50)
-            ->get(['id', 'status', 'started_at', 'completed_at', 'error_message']);
+            ->get(['id', 'status', 'started_at', 'completed_at', 'error_message'])
+            ->map(function ($run, $index) use ($total) {
+                $run->number = $total - $index;
 
-        return response()->json(['runs' => $runs]);
+                return $run;
+            });
+
+        return response()->json([
+            'runs' => $runs,
+            'total' => $total,
+        ]);
     }
 
     public function show(string $runId): JsonResponse

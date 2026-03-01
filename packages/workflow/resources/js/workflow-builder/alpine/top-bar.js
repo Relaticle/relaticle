@@ -14,6 +14,8 @@ export function topBarMixin() {
         publishing: false,
         workflowDescription: '',
         triggerType: '',
+        maxStepsPerRun: 100,
+        notifyOnFailure: false,
 
         async saveName() {
             if (!this.workflowName || !this.workflowId) return;
@@ -95,6 +97,29 @@ export function topBarMixin() {
                 }
             } catch (e) {
                 this.showToast('Pause failed: ' + e.message, 'error');
+            }
+        },
+
+        async saveSettings() {
+            if (!this.workflowId) return;
+            try {
+                await fetch(`/workflow/api/workflows/${this.workflowId}/canvas`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+                    },
+                    body: JSON.stringify({
+                        settings: {
+                            max_steps: parseInt(this.maxStepsPerRun, 10) || 100,
+                            notify_on_failure: this.notifyOnFailure,
+                        },
+                    }),
+                });
+                this.showToast('Settings saved', 'success');
+            } catch (e) {
+                console.warn('Failed to save settings:', e);
+                this.showToast('Failed to save settings', 'error');
             }
         },
 

@@ -19,6 +19,7 @@ use Relaticle\Workflow\Models\Workflow;
 use Relaticle\Workflow\Models\WorkflowNode;
 use Relaticle\Workflow\Models\WorkflowRun;
 use Relaticle\Workflow\Models\WorkflowRunStep;
+use Relaticle\Workflow\Notifications\WorkflowRunFailedNotification;
 use Relaticle\Workflow\WorkflowManager;
 
 class WorkflowExecutor
@@ -645,6 +646,12 @@ class WorkflowExecutor
         ]);
 
         WorkflowRunFailed::dispatch($run);
+
+        // Send failure notification if enabled
+        $workflow = $run->workflow;
+        if ($workflow->trigger_config['notify_on_failure'] ?? false) {
+            $workflow->creator?->notify(new WorkflowRunFailedNotification($workflow, $run));
+        }
 
         return $run;
     }

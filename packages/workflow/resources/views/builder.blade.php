@@ -49,7 +49,11 @@
                             ? 'text-blue-500 dark:text-blue-400 border-b-blue-500 dark:border-b-blue-400'
                             : 'text-slate-500 dark:text-slate-400 border-b-transparent hover:text-slate-700 dark:hover:text-slate-200'"
                         @click="togglePanel('runs')"
-                    >Runs</button>
+                    >Runs <span
+                        x-show="totalRunCount > 0"
+                        x-text="totalRunCount"
+                        class="ml-0.5 px-1.5 py-0.5 text-[10px] font-semibold bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-full"
+                    ></span></button>
                     <button
                         type="button"
                         class="px-3.5 h-full text-[13px] font-medium bg-transparent border-0 border-b-2 border-solid cursor-pointer transition-all whitespace-nowrap"
@@ -213,6 +217,43 @@
                             </div>
                         </div>
 
+                        <div class="mb-6">
+                            <h4 class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide m-0 mb-2.5">Execution Limits</h4>
+                            <div class="flex items-center justify-between py-2">
+                                <label class="text-[13px] text-slate-700 dark:text-slate-200">Maximum steps per run</label>
+                                <input
+                                    type="number"
+                                    x-model="maxStepsPerRun"
+                                    min="1"
+                                    max="1000"
+                                    class="w-20 text-[13px] text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md px-2 py-1 outline-none focus:border-blue-500"
+                                    @blur="saveSettings()"
+                                >
+                            </div>
+                            <p class="text-[11px] text-slate-400 mt-0.5">Workflow run will stop if this limit is reached.</p>
+                        </div>
+
+                        <div class="mb-6">
+                            <h4 class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide m-0 mb-2.5">Notifications</h4>
+                            <div class="flex items-center justify-between py-2">
+                                <div>
+                                    <label class="text-[13px] font-medium text-slate-700 dark:text-slate-200">Notify on failure</label>
+                                    <p class="text-[11px] text-slate-400 mt-0.5">Receive a notification when this workflow fails</p>
+                                </div>
+                                <button
+                                    type="button"
+                                    @click="notifyOnFailure = !notifyOnFailure; saveSettings()"
+                                    :class="notifyOnFailure ? 'bg-blue-500' : 'bg-slate-300 dark:bg-slate-600'"
+                                    class="relative w-10 h-5 rounded-full transition-colors flex-shrink-0 border-0 cursor-pointer"
+                                >
+                                    <span
+                                        :class="notifyOnFailure ? 'translate-x-5' : 'translate-x-0.5'"
+                                        class="block w-4 h-4 bg-white rounded-full transition-transform shadow absolute top-0.5"
+                                    ></span>
+                                </button>
+                            </div>
+                        </div>
+
                         <div class="border-t border-red-100 dark:border-red-900/30 pt-4">
                             <h4 class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide m-0 mb-2.5">Danger Zone</h4>
                             <button
@@ -236,10 +277,28 @@
                     <div class="wf-panel-body">
                         <template x-if="!runViewActive">
                             <div>
-                                <button type="button" class="wf-btn-sm" @click="loadRuns()">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
-                                    Refresh
-                                </button>
+                                {{-- Status Summary --}}
+                                <div class="flex items-center gap-2 mb-3">
+                                    <template x-if="completedCount > 0">
+                                        <span class="px-2 py-0.5 text-[11px] font-medium rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300">
+                                            Completed <span x-text="completedCount"></span>
+                                        </span>
+                                    </template>
+                                    <template x-if="failedCount > 0">
+                                        <span class="px-2 py-0.5 text-[11px] font-medium rounded-full bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300">
+                                            Failed <span x-text="failedCount"></span>
+                                        </span>
+                                    </template>
+                                    <template x-if="runningCount > 0">
+                                        <span class="px-2 py-0.5 text-[11px] font-medium rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">
+                                            Running <span x-text="runningCount"></span>
+                                        </span>
+                                    </template>
+                                    <button type="button" class="ml-auto text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 p-1 rounded transition-colors" @click="loadRuns()" title="Refresh">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                                    </button>
+                                </div>
+
                                 {{-- Loading state --}}
                                 <template x-if="loadingRuns">
                                     <div class="flex flex-col items-center gap-3 py-8 text-slate-400 text-[13px]">
@@ -247,13 +306,20 @@
                                         <span>Loading runs...</span>
                                     </div>
                                 </template>
-                                <div class="wf-runs-list" x-show="!loadingRuns">
+                                <div class="space-y-0.5" x-show="!loadingRuns">
                                     <template x-for="run in runs" :key="run.id">
-                                        <div class="wf-run-item" @click="selectRun(run.id)">
-                                            <span class="wf-run-status" :class="'wf-run-' + run.status"></span>
-                                            <span class="wf-run-time" x-text="formatTime(run.started_at)"></span>
-                                            <span class="wf-run-status-text" x-text="run.status"></span>
-                                        </div>
+                                        <button
+                                            type="button"
+                                            class="w-full text-left px-3 py-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-2.5 transition-colors cursor-pointer border-0 bg-transparent"
+                                            @click="selectRun(run.id)"
+                                        >
+                                            <span class="w-2 h-2 rounded-full flex-shrink-0" :class="getStatusColor(run.status)"></span>
+                                            <span class="text-[13px] font-medium text-slate-700 dark:text-slate-200" x-text="'Run #' + run.number"></span>
+                                            <span class="text-xs text-slate-400 ml-auto flex-shrink-0" x-text="formatTime(run.started_at)"></span>
+                                            <template x-if="run.completed_at && run.started_at">
+                                                <span class="text-[10px] text-slate-400 flex-shrink-0" x-text="formatDuration(run.started_at, run.completed_at)"></span>
+                                            </template>
+                                        </button>
                                     </template>
                                     <template x-if="runs.length === 0 && !loadingRuns">
                                         <div class="flex flex-col items-center text-center py-8 px-4 text-slate-400">
@@ -271,27 +337,34 @@
                                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
                                     Back to runs
                                 </button>
-                                <div class="wf-run-detail">
-                                    <div class="wf-run-detail-header">
-                                        <span class="wf-run-status" :class="'wf-run-' + selectedRun.status"></span>
-                                        <strong x-text="selectedRun.status"></strong>
-                                        <span x-text="formatTime(selectedRun.started_at)"></span>
+                                <div class="mt-3">
+                                    <div class="flex items-center gap-2 mb-3">
+                                        <span class="w-2.5 h-2.5 rounded-full" :class="getStatusColor(selectedRun.status)"></span>
+                                        <strong class="text-sm text-slate-700 dark:text-slate-200 capitalize" x-text="selectedRun.status"></strong>
+                                        <span class="text-xs text-slate-400" x-text="formatTime(selectedRun.started_at)"></span>
                                         <template x-if="selectedRun.completed_at && selectedRun.started_at">
                                             <span class="text-xs text-slate-400 ml-auto" x-text="formatDuration(selectedRun.started_at, selectedRun.completed_at)"></span>
                                         </template>
                                     </div>
                                     <template x-if="selectedRun.error_message">
-                                        <div class="wf-run-error" x-text="selectedRun.error_message"></div>
+                                        <div class="px-3 py-2 mb-3 text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded-lg" x-text="selectedRun.error_message"></div>
                                     </template>
-                                    <div class="wf-run-steps">
-                                        <h4>Steps</h4>
-                                        <template x-for="step in selectedRun.steps" :key="step.id">
-                                            <div class="wf-run-step" :class="'wf-step-' + step.status">
-                                                <span class="wf-run-status" :class="'wf-run-' + step.status"></span>
-                                                <span x-text="getNodeLabel(step.node_id)"></span>
-                                                <span class="wf-step-status" x-text="step.status"></span>
-                                            </div>
-                                        </template>
+                                    <div>
+                                        <h4 class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide m-0 mb-2">Steps</h4>
+                                        <div class="space-y-1">
+                                            <template x-for="step in selectedRun.steps" :key="step.id">
+                                                <div class="flex items-center gap-2 px-2.5 py-1.5 rounded-md text-[13px]"
+                                                     :class="{
+                                                         'bg-green-50 dark:bg-green-900/10': step.status === 'completed',
+                                                         'bg-red-50 dark:bg-red-900/10': step.status === 'failed',
+                                                         'bg-slate-50 dark:bg-slate-800': step.status === 'skipped' || step.status === 'pending',
+                                                     }">
+                                                    <span class="w-1.5 h-1.5 rounded-full flex-shrink-0" :class="getStatusColor(step.status)"></span>
+                                                    <span class="text-slate-700 dark:text-slate-200 truncate" x-text="getNodeLabel(step.node_id)"></span>
+                                                    <span class="text-[11px] text-slate-400 ml-auto capitalize flex-shrink-0" x-text="step.status"></span>
+                                                </div>
+                                            </template>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -380,6 +453,59 @@
             <template x-if="variables.length === 0">
                 <p class="wf-panel-placeholder">No upstream variables available.</p>
             </template>
+        </div>
+
+        {{-- Step Detail Popover (Run View) --}}
+        <div
+            x-show="stepPopover?.visible"
+            x-cloak
+            x-transition
+            :style="`position:fixed; left:${stepPopover?.x}px; top:${stepPopover?.y}px; z-index:200;`"
+            @click.outside="stepPopover = null"
+            class="w-80 bg-gray-900 text-white rounded-xl shadow-2xl p-4 text-sm"
+        >
+            <div class="flex items-center gap-2 mb-3">
+                <span class="px-2 py-0.5 rounded-full text-xs font-semibold"
+                      :class="{
+                          'bg-green-500/20 text-green-300': stepPopover?.step?.status === 'completed',
+                          'bg-red-500/20 text-red-300': stepPopover?.step?.status === 'failed',
+                          'bg-blue-500/20 text-blue-300': stepPopover?.step?.status === 'running',
+                          'bg-gray-500/20 text-gray-300': stepPopover?.step?.status === 'skipped' || stepPopover?.step?.status === 'pending',
+                      }"
+                      x-text="stepPopover?.step?.status"></span>
+                <span class="text-gray-400 text-xs ml-auto"
+                      x-show="stepPopover?.step?.started_at && stepPopover?.step?.completed_at"
+                      x-text="(() => {
+                          const s = stepPopover?.step;
+                          if (!s?.started_at || !s?.completed_at) return '';
+                          const ms = new Date(s.completed_at) - new Date(s.started_at);
+                          if (ms < 1000) return ms + 'ms';
+                          if (ms < 60000) return Math.round(ms / 1000) + 's';
+                          return Math.round(ms / 60000) + 'm';
+                      })()"></span>
+            </div>
+
+            <div class="space-y-1 text-xs text-gray-400 mb-3">
+                <div x-show="stepPopover?.step?.started_at">Started: <span class="text-gray-200" x-text="stepPopover?.step?.started_at ? new Date(stepPopover.step.started_at).toLocaleTimeString() : ''"></span></div>
+                <div x-show="stepPopover?.step?.completed_at">Completed: <span class="text-gray-200" x-text="stepPopover?.step?.completed_at ? new Date(stepPopover.step.completed_at).toLocaleTimeString() : ''"></span></div>
+            </div>
+
+            <div x-show="stepPopover?.step?.input_data && Object.keys(stepPopover?.step?.input_data || {}).length > 0" class="mb-3">
+                <h5 class="text-xs font-semibold text-gray-400 uppercase mb-1">Inputs</h5>
+                <pre class="text-xs bg-gray-800 rounded p-2 max-h-32 overflow-auto whitespace-pre-wrap break-all"
+                     x-text="JSON.stringify(stepPopover?.step?.input_data, null, 2)"></pre>
+            </div>
+
+            <div x-show="stepPopover?.step?.output_data && Object.keys(stepPopover?.step?.output_data || {}).length > 0" class="mb-3">
+                <h5 class="text-xs font-semibold text-gray-400 uppercase mb-1">Outputs</h5>
+                <pre class="text-xs bg-gray-800 rounded p-2 max-h-32 overflow-auto whitespace-pre-wrap break-all"
+                     x-text="JSON.stringify(stepPopover?.step?.output_data, null, 2)"></pre>
+            </div>
+
+            <div x-show="stepPopover?.step?.error_message" class="text-red-400 text-xs">
+                <h5 class="font-semibold uppercase mb-1">Error</h5>
+                <p x-text="stepPopover?.step?.error_message" class="m-0"></p>
+            </div>
         </div>
 
         {{-- Toast Container --}}

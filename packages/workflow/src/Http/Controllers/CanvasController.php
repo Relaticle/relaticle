@@ -85,6 +85,9 @@ class CanvasController extends Controller
                 'models' => $models,
                 'actions' => $actions,
                 'registered_actions' => $registeredActions,
+                'description' => $workflow->description,
+                'trigger_type' => $workflow->trigger_type?->value,
+                'trigger_config' => $workflow->trigger_config ?? [],
                 'trigger_outputs' => [
                     'record_created' => [
                         'record' => ['type' => 'object', 'label' => 'Created Record'],
@@ -118,6 +121,33 @@ class CanvasController extends Controller
     public function update(Request $request, string $workflowId): JsonResponse
     {
         $workflow = Workflow::findOrFail($workflowId);
+
+        // Handle partial saves (name, description, settings)
+        if (! $request->has('nodes')) {
+            $updates = [];
+            if ($request->has('name')) {
+                $updates['name'] = $request->input('name');
+            }
+            if ($request->has('description')) {
+                $updates['description'] = $request->input('description');
+            }
+            if ($request->has('settings')) {
+                $triggerConfig = $workflow->trigger_config ?? [];
+                $settings = $request->input('settings', []);
+                if (isset($settings['max_steps'])) {
+                    $triggerConfig['max_steps'] = (int) $settings['max_steps'];
+                }
+                if (isset($settings['notify_on_failure'])) {
+                    $triggerConfig['notify_on_failure'] = (bool) $settings['notify_on_failure'];
+                }
+                $updates['trigger_config'] = $triggerConfig;
+            }
+            if (! empty($updates)) {
+                $workflow->update($updates);
+            }
+
+            return response()->json(['message' => 'Updated successfully.']);
+        }
 
         $validated = $request->validate([
             'canvas_data' => ['present', 'array'],

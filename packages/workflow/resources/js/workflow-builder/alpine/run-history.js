@@ -8,6 +8,7 @@
 export function runHistoryComponent(workflowId) {
     return {
         runs: [],
+        totalRuns: 0,
         selectedRun: null,
         runViewActive: false,
         loadingRuns: false,
@@ -23,6 +24,18 @@ export function runHistoryComponent(workflowId) {
             });
         },
 
+        get completedCount() {
+            return this.runs.filter(r => r.status === 'completed').length;
+        },
+
+        get failedCount() {
+            return this.runs.filter(r => r.status === 'failed').length;
+        },
+
+        get runningCount() {
+            return this.runs.filter(r => r.status === 'running').length;
+        },
+
         async loadRuns() {
             this.loadingRuns = true;
             try {
@@ -30,6 +43,8 @@ export function runHistoryComponent(workflowId) {
                 if (res.ok) {
                     const data = await res.json();
                     this.runs = data.runs || [];
+                    this.totalRuns = data.total || 0;
+                    window.dispatchEvent(new CustomEvent('wf:runs-loaded', { detail: { total: this.totalRuns } }));
                 }
             } catch (e) {
                 console.warn('Failed to load runs:', e);
@@ -76,6 +91,16 @@ export function runHistoryComponent(workflowId) {
                 return actionType.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
             }
             return type.charAt(0).toUpperCase() + type.slice(1);
+        },
+
+        getStatusColor(status) {
+            return {
+                completed: 'bg-green-500',
+                failed: 'bg-red-500',
+                running: 'bg-blue-500 animate-pulse',
+                pending: 'bg-gray-400',
+                skipped: 'bg-gray-300',
+            }[status] || 'bg-gray-400';
         },
 
         formatDuration(start, end) {

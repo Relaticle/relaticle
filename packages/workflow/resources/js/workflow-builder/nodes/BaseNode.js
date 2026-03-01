@@ -20,8 +20,24 @@ export function createNodeHTML(data, options) {
         ? `<span class="block mt-0.5 text-[11px] text-slate-400 dark:text-slate-500 truncate italic">${description}</span>`
         : '';
 
+    // Run status badge overlay
+    const runStatus = data._runStatus;
+    let statusBadge = '';
+    if (runStatus) {
+        const statusConfig = {
+            completed: { bg: '#dcfce7', text: '#15803d', label: 'Done' },
+            failed: { bg: '#fee2e2', text: '#b91c1c', label: 'Failed' },
+            skipped: { bg: '#f1f5f9', text: '#64748b', label: 'Skipped' },
+            running: { bg: '#dbeafe', text: '#1d4ed8', label: 'Running' },
+            pending: { bg: '#f1f5f9', text: '#94a3b8', label: 'Pending' },
+        };
+        const cfg = statusConfig[runStatus] || statusConfig.pending;
+        statusBadge = `<span style="position:absolute; top:-8px; right:-8px; padding:1px 6px; font-size:10px; font-weight:600; border-radius:9999px; background:${cfg.bg}; color:${cfg.text}; box-shadow:0 1px 2px rgba(0,0,0,0.1); z-index:10; ${runStatus === 'running' ? 'animation:pulse 2s infinite;' : ''}">${cfg.label}</span>`;
+    }
+
     return `
-        <div class="wf-block" style="--block-color: ${color}">
+        <div class="wf-block" style="--block-color: ${color}; position: relative;">
+            ${statusBadge}
             <div class="wf-block-header">
                 <span class="wf-block-icon">${icon}</span>
                 <span class="wf-block-label">${label}</span>

@@ -63,6 +63,14 @@ class Workflow extends Model
         );
     }
 
+    public function creator(): BelongsTo
+    {
+        return $this->belongsTo(
+            config('workflow.user_model', 'App\\Models\\User'),
+            'creator_id',
+        );
+    }
+
     /**
      * @return HasMany<WorkflowNode, $this>
      */
@@ -85,6 +93,41 @@ class Workflow extends Model
     public function runs(): HasMany
     {
         return $this->hasMany(WorkflowRun::class);
+    }
+
+    /**
+     * @return HasMany<WorkflowFavorite, $this>
+     */
+    public function favorites(): HasMany
+    {
+        return $this->hasMany(WorkflowFavorite::class);
+    }
+
+    public function isFavoritedBy($user): bool
+    {
+        if (! $user) {
+            return false;
+        }
+
+        return $this->favorites()->where('user_id', $user->id)->exists();
+    }
+
+    public function toggleFavorite($user): void
+    {
+        if (! $user) {
+            return;
+        }
+
+        $existing = $this->favorites()->where('user_id', $user->id)->first();
+
+        if ($existing) {
+            $existing->delete();
+        } else {
+            $this->favorites()->create([
+                'user_id' => $user->id,
+                'created_at' => now(),
+            ]);
+        }
     }
 
     public function canActivate(): bool

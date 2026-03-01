@@ -15,9 +15,11 @@ use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\RestoreAction;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
+use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 use Relaticle\Workflow\Enums\TriggerType;
 use Relaticle\Workflow\Enums\WorkflowStatus;
@@ -97,15 +99,18 @@ class WorkflowResource extends Resource
     {
         return $table
             ->columns([
+                IconColumn::make('is_favorited')
+                    ->label('')
+                    ->icon(fn (Workflow $record): string => $record->isFavoritedBy(auth()->user()) ? 'heroicon-s-star' : 'heroicon-o-star')
+                    ->color(fn (Workflow $record): string => $record->isFavoritedBy(auth()->user()) ? 'warning' : 'gray')
+                    ->action(fn (Workflow $record) => $record->toggleFavorite(auth()->user()))
+                    ->width('40px'),
                 TextColumn::make('name')
+                    ->description(fn (Workflow $record): string => $record->description ?? 'No description')
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('trigger_type')
                     ->badge(),
-                TextColumn::make('description')
-                    ->limit(50)
-                    ->toggleable()
-                    ->placeholder('No description'),
                 TextColumn::make('status')
                     ->badge()
                     ->color(fn (WorkflowStatus $state): string => match ($state) {
@@ -114,13 +119,18 @@ class WorkflowResource extends Resource
                         WorkflowStatus::Paused => 'warning',
                         WorkflowStatus::Archived => 'danger',
                     }),
+                TextColumn::make('creator.name')
+                    ->label('Created By')
+                    ->sortable()
+                    ->toggleable(),
                 TextColumn::make('last_triggered_at')
                     ->dateTime()
                     ->sortable()
                     ->placeholder('Never'),
                 TextColumn::make('runs_count')
                     ->counts('runs')
-                    ->label('Runs'),
+                    ->label('Runs')
+                    ->sortable(),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -139,6 +149,7 @@ class WorkflowResource extends Resource
             ->groups([
                 'status',
                 'trigger_type',
+                Group::make('creator.name')->label('Created By'),
             ])
             ->actions([
                 ActionGroup::make([
