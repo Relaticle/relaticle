@@ -32,6 +32,11 @@ beforeEach(function () {
         {
             return [];
         }
+
+        public static function outputSchema(): array
+        {
+            return [];
+        }
     }));
 });
 

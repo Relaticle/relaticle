@@ -14,7 +14,7 @@ it('triggers a webhook workflow via POST', function () {
     $workflow = Workflow::create([
         'name' => 'Webhook Workflow',
         'trigger_type' => TriggerType::Webhook,
-        'is_active' => true,
+        'status' => 'live',
     ]);
     $workflow->nodes()->create(['node_id' => 'trigger', 'type' => NodeType::Trigger]);
 
@@ -36,7 +36,7 @@ it('passes full webhook payload as context', function () {
     $workflow = Workflow::create([
         'name' => 'Webhook Workflow',
         'trigger_type' => TriggerType::Webhook,
-        'is_active' => true,
+        'status' => 'live',
     ]);
     $workflow->nodes()->create(['node_id' => 'trigger', 'type' => NodeType::Trigger]);
 
@@ -64,7 +64,7 @@ it('rejects webhook for inactive workflow', function () {
     $workflow = Workflow::create([
         'name' => 'Inactive Webhook',
         'trigger_type' => TriggerType::Webhook,
-        'is_active' => false,
+        'status' => 'draft',
     ]);
 
     $response = $this->postJson("/workflow/api/webhooks/{$workflow->id}", ['data' => 'test']);
@@ -79,7 +79,7 @@ it('rejects webhook for non-webhook workflow type', function () {
     $workflow = Workflow::create([
         'name' => 'Manual Workflow',
         'trigger_type' => TriggerType::Manual,
-        'is_active' => true,
+        'status' => 'live',
     ]);
 
     $response = $this->postJson("/workflow/api/webhooks/{$workflow->id}", ['data' => 'test']);
@@ -94,7 +94,7 @@ it('rejects webhook with invalid signature', function () {
         'trigger_type' => TriggerType::Webhook,
         'trigger_config' => [],
         'canvas_data' => [],
-        'is_active' => true,
+        'status' => 'live',
         'webhook_secret' => 'test-secret-key',
     ]);
 
@@ -116,7 +116,7 @@ it('accepts webhook with valid HMAC signature', function () {
         'trigger_type' => TriggerType::Webhook,
         'trigger_config' => [],
         'canvas_data' => [],
-        'is_active' => true,
+        'status' => 'live',
         'webhook_secret' => $secret,
     ]);
     $workflow->nodes()->create(['node_id' => 'trigger', 'type' => NodeType::Trigger]);
@@ -142,7 +142,7 @@ it('allows webhook without signature when no secret is configured', function () 
         'trigger_type' => TriggerType::Webhook,
         'trigger_config' => [],
         'canvas_data' => [],
-        'is_active' => true,
+        'status' => 'live',
     ]);
     $workflow->nodes()->create(['node_id' => 'trigger', 'type' => NodeType::Trigger]);
 

@@ -71,7 +71,7 @@ it('renders the workflow builder page with all structural elements', function ()
     $workflow = Workflow::create([
         'name' => 'Builder Page Test',
         'trigger_type' => TriggerType::Manual,
-        'is_active' => true,
+        'status' => 'live',
     ]);
 
     $this->visit("/test/builder/{$workflow->id}")

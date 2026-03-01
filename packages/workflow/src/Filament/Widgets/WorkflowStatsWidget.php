@@ -7,6 +7,7 @@ namespace Relaticle\Workflow\Filament\Widgets;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use Relaticle\Workflow\Enums\WorkflowRunStatus;
+use Relaticle\Workflow\Enums\WorkflowStatus;
 use Relaticle\Workflow\Models\Workflow;
 use Relaticle\Workflow\Models\WorkflowRun;
 
@@ -29,7 +30,7 @@ class WorkflowStatsWidget extends StatsOverviewWidget
             ->where('status', WorkflowRunStatus::Completed)->count();
         $failedRuns = WorkflowRun::whereIn('workflow_id', $workflowIds)
             ->where('status', WorkflowRunStatus::Failed)->count();
-        $activeWorkflows = Workflow::where('is_active', true)->count();
+        $activeWorkflows = Workflow::where('status', WorkflowStatus::Live)->count();
         $successRate = $totalRuns > 0 ? round(($completedRuns / $totalRuns) * 100, 1) : 0;
 
         return compact('totalRuns', 'completedRuns', 'failedRuns', 'activeWorkflows', 'successRate');

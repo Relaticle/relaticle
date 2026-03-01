@@ -5,15 +5,16 @@
         "dev": "vite"
     },
     "dependencies": {
-        "@antv/x6": "^2.18",
-        "@antv/x6-plugin-selection": "^2.2",
-        "@antv/x6-plugin-minimap": "^2.1",
-        "@antv/x6-plugin-snapline": "^2.1",
-        "@antv/x6-plugin-keyboard": "^2.2",
-        "@antv/x6-plugin-clipboard": "^2.2",
-        "@antv/x6-plugin-history": "^2.3",
-        "@antv/x6-plugin-dnd": "^2.1",
-        "@antv/x6-plugin-stencil": "^2.1"
+        "@antv/layout": "^1.2.14-beta.8",
+        "@antv/x6": "2.18.1",
+        "@antv/x6-plugin-clipboard": "2.1.6",
+        "@antv/x6-plugin-dnd": "2.1.1",
+        "@antv/x6-plugin-history": "2.2.4",
+        "@antv/x6-plugin-keyboard": "2.2.3",
+        "@antv/x6-plugin-minimap": "2.0.7",
+        "@antv/x6-plugin-selection": "2.2.2",
+        "@antv/x6-plugin-snapline": "2.1.7",
+        "@antv/x6-plugin-stencil": "2.1.5"
     },
     "devDependencies": {
         "vite": "^7.3"

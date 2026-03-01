@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Relaticle\Workflow\Triggers;
 
 use Relaticle\Workflow\Enums\TriggerType;
+use Relaticle\Workflow\Enums\WorkflowStatus;
 use Relaticle\Workflow\Jobs\ExecuteWorkflowJob;
 use Relaticle\Workflow\Models\Workflow;
 use Relaticle\Workflow\Triggers\Contracts\WorkflowTrigger;
@@ -26,7 +27,7 @@ class ManualTrigger implements WorkflowTrigger
      */
     public function trigger(Workflow $workflow, array $context = []): void
     {
-        if (! $workflow->is_active) {
+        if (! $workflow->status->canTrigger()) {
             throw new \InvalidArgumentException('Workflow is not active.');
         }
 

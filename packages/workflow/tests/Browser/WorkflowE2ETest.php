@@ -15,7 +15,7 @@ it('completes a full workflow lifecycle via browser: load → save canvas → tr
     $workflow = Workflow::create([
         'name' => 'E2E Lifecycle Test',
         'trigger_type' => TriggerType::Manual,
-        'is_active' => true,
+        'status' => 'live',
     ]);
 
     // Step 2: Load the empty canvas via browser
@@ -98,7 +98,7 @@ it('completes a workflow lifecycle with condition branching via browser', functi
     $workflow = Workflow::create([
         'name' => 'E2E Condition Test',
         'trigger_type' => TriggerType::Manual,
-        'is_active' => true,
+        'status' => 'live',
     ]);
 
     $canvasUrl = "/workflow/api/workflows/{$workflow->id}/canvas";
@@ -152,7 +152,7 @@ it('completes a webhook workflow lifecycle via browser', function () {
     $workflow = Workflow::create([
         'name' => 'E2E Webhook Test',
         'trigger_type' => TriggerType::Webhook,
-        'is_active' => true,
+        'status' => 'live',
     ]);
 
     $canvasUrl = "/workflow/api/workflows/{$workflow->id}/canvas";

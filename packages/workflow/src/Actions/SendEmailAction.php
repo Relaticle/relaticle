@@ -63,4 +63,17 @@ class SendEmailAction extends BaseAction
             'body' => ['type' => 'string', 'label' => 'Email Body', 'required' => true],
         ];
     }
+
+    /**
+     * Get the output schema describing what variables this action produces.
+     *
+     * @return array<string, array{type: string, label: string}>
+     */
+    public static function outputSchema(): array
+    {
+        return [
+            'sent' => ['type' => 'boolean', 'label' => 'Was Sent'],
+            'to' => ['type' => 'string', 'label' => 'Recipient'],
+        ];
+    }
 }

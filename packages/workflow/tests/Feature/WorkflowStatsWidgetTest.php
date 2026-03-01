@@ -12,7 +12,7 @@ it('calculates total workflow runs', function () {
     $workflow = Workflow::create([
         'name' => 'Test',
         'trigger_type' => TriggerType::Manual,
-        'is_active' => true,
+        'status' => 'live',
     ]);
 
     WorkflowRun::create([
@@ -38,7 +38,7 @@ it('calculates success rate', function () {
     $workflow = Workflow::create([
         'name' => 'Test',
         'trigger_type' => TriggerType::Manual,
-        'is_active' => true,
+        'status' => 'live',
     ]);
 
     // 3 completed, 1 failed = 75% success rate
@@ -64,9 +64,9 @@ it('calculates success rate', function () {
 });
 
 it('counts active workflows', function () {
-    Workflow::create(['name' => 'Active', 'trigger_type' => TriggerType::Manual, 'is_active' => true]);
-    Workflow::create(['name' => 'Inactive', 'trigger_type' => TriggerType::Manual, 'is_active' => false]);
-    Workflow::create(['name' => 'Active2', 'trigger_type' => TriggerType::Manual, 'is_active' => true]);
+    Workflow::create(['name' => 'Active', 'trigger_type' => TriggerType::Manual, 'status' => 'live']);
+    Workflow::create(['name' => 'Inactive', 'trigger_type' => TriggerType::Manual, 'status' => 'draft']);
+    Workflow::create(['name' => 'Active2', 'trigger_type' => TriggerType::Manual, 'status' => 'live']);
 
     $widget = new WorkflowStatsWidget();
     $metrics = $widget->getMetrics();
@@ -87,7 +87,7 @@ it('counts failed runs', function () {
     $workflow = Workflow::create([
         'name' => 'Test',
         'trigger_type' => TriggerType::Manual,
-        'is_active' => true,
+        'status' => 'live',
     ]);
 
     WorkflowRun::create([
@@ -119,7 +119,7 @@ it('excludes pending and running from success rate calculation', function () {
     $workflow = Workflow::create([
         'name' => 'Test',
         'trigger_type' => TriggerType::Manual,
-        'is_active' => true,
+        'status' => 'live',
     ]);
 
     WorkflowRun::create([
@@ -171,10 +171,11 @@ it('scopes metrics to current tenant', function () {
     $wf1 = Workflow::withoutGlobalScopes()->create([
         'name' => 'T1', 'tenant_id' => 'team-1',
         'trigger_type' => TriggerType::Manual, 'trigger_config' => [],
-        'canvas_data' => [], 'is_active' => true,
+        'canvas_data' => [], 'status' => 'live',
     ]);
     \Relaticle\Workflow\Models\WorkflowRun::create([
         'workflow_id' => $wf1->id,
+        'tenant_id' => 'team-1',
         'status' => \Relaticle\Workflow\Enums\WorkflowRunStatus::Completed,
         'started_at' => now(), 'completed_at' => now(),
     ]);
@@ -182,10 +183,11 @@ it('scopes metrics to current tenant', function () {
     $wf2 = Workflow::withoutGlobalScopes()->create([
         'name' => 'T2', 'tenant_id' => 'team-2',
         'trigger_type' => TriggerType::Manual, 'trigger_config' => [],
-        'canvas_data' => [], 'is_active' => true,
+        'canvas_data' => [], 'status' => 'live',
     ]);
-    \Relaticle\Workflow\Models\WorkflowRun::create([
+    \Relaticle\Workflow\Models\WorkflowRun::withoutGlobalScopes()->create([
         'workflow_id' => $wf2->id,
+        'tenant_id' => 'team-2',
         'status' => \Relaticle\Workflow\Enums\WorkflowRunStatus::Failed,
         'started_at' => now(), 'completed_at' => now(),
     ]);

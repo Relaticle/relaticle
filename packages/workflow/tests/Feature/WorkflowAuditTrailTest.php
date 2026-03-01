@@ -30,6 +30,11 @@ beforeEach(function () {
         {
             return [];
         }
+
+        public static function outputSchema(): array
+        {
+            return [];
+        }
     }));
 });
 
@@ -187,6 +192,11 @@ it('records error message on failed steps and failed run', function () {
         }
 
         public static function configSchema(): array
+        {
+            return [];
+        }
+
+        public static function outputSchema(): array
         {
             return [];
         }

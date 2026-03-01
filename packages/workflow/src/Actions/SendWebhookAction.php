@@ -55,4 +55,18 @@ class SendWebhookAction extends BaseAction
             'payload' => ['type' => 'object', 'label' => 'Payload', 'required' => false],
         ];
     }
+
+    /**
+     * Get the output schema describing what variables this action produces.
+     *
+     * @return array<string, array{type: string, label: string}>
+     */
+    public static function outputSchema(): array
+    {
+        return [
+            'status_code' => ['type' => 'number', 'label' => 'Status Code'],
+            'success' => ['type' => 'boolean', 'label' => 'Was Successful'],
+            'response_body' => ['type' => 'string', 'label' => 'Response Body'],
+        ];
+    }
 }

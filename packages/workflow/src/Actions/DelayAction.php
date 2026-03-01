@@ -48,6 +48,19 @@ class DelayAction extends BaseAction
     }
 
     /**
+     * Get the output schema describing what variables this action produces.
+     *
+     * @return array<string, array{type: string, label: string}>
+     */
+    public static function outputSchema(): array
+    {
+        return [
+            'delayed' => ['type' => 'boolean', 'label' => 'Was Delayed'],
+            'delay_seconds' => ['type' => 'number', 'label' => 'Delay Seconds'],
+        ];
+    }
+
+    /**
      * Convert a duration in the given unit to seconds.
      */
     private function toSeconds(int $duration, string $unit): int

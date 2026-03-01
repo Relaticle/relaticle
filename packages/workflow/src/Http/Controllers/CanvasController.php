@@ -68,6 +68,7 @@ class CanvasController extends Controller
             $registeredActions[$key] = [
                 'label' => $class::label(),
                 'configSchema' => $class::configSchema(),
+                'outputSchema' => $class::outputSchema(),
             ];
         }
 
@@ -80,6 +81,29 @@ class CanvasController extends Controller
                 'models' => $models,
                 'actions' => $actions,
                 'registered_actions' => $registeredActions,
+                'trigger_outputs' => [
+                    'record_created' => [
+                        'record' => ['type' => 'object', 'label' => 'Created Record'],
+                        'event' => ['type' => 'string', 'label' => 'Event Name'],
+                    ],
+                    'record_updated' => [
+                        'record' => ['type' => 'object', 'label' => 'Updated Record'],
+                        'event' => ['type' => 'string', 'label' => 'Event Name'],
+                    ],
+                    'record_deleted' => [
+                        'record' => ['type' => 'object', 'label' => 'Deleted Record'],
+                        'event' => ['type' => 'string', 'label' => 'Event Name'],
+                    ],
+                    'manual' => [
+                        'context' => ['type' => 'object', 'label' => 'Manual Context'],
+                    ],
+                    'webhook' => [
+                        'webhook' => ['type' => 'object', 'label' => 'Webhook Payload'],
+                    ],
+                    'scheduled' => [
+                        'tenant_id' => ['type' => 'string', 'label' => 'Tenant ID'],
+                    ],
+                ],
             ],
         ]);
     }

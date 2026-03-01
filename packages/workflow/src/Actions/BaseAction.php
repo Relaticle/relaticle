@@ -17,4 +17,14 @@ abstract class BaseAction implements WorkflowAction
     {
         return [];
     }
+
+    /**
+     * Get the output schema describing what variables this action produces.
+     *
+     * @return array<string, array{type: string, label: string}>
+     */
+    public static function outputSchema(): array
+    {
+        return [];
+    }
 }

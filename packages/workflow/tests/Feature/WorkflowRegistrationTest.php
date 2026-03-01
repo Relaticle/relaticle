@@ -43,6 +43,11 @@ it('registers a custom action class', function () {
         {
             return [];
         }
+
+        public static function outputSchema(): array
+        {
+            return [];
+        }
     };
 
     Workflow::registerAction('test_action', $action::class);
@@ -79,6 +84,7 @@ it('lists all registered models and actions', function () {
         public function execute(array $config, array $context): array { return []; }
         public static function label(): string { return 'Send Webhook'; }
         public static function configSchema(): array { return []; }
+        public static function outputSchema(): array { return []; }
     });
 
     Workflow::registerAction('send_webhook', $actionClass);

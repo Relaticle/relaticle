@@ -133,7 +133,7 @@ it('scopes record event triggers to tenant', function () {
             'model' => \Relaticle\Workflow\Tests\Fixtures\TestCompany::class,
             'event' => 'created',
         ],
-        'is_active' => true,
+        'status' => 'live',
         'tenant_id' => 'team-1',
     ]);
 
@@ -145,7 +145,7 @@ it('scopes record event triggers to tenant', function () {
             'model' => \Relaticle\Workflow\Tests\Fixtures\TestCompany::class,
             'event' => 'created',
         ],
-        'is_active' => true,
+        'status' => 'live',
         'tenant_id' => 'team-2',
     ]);
 

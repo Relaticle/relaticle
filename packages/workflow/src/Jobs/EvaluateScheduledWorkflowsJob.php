@@ -10,6 +10,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Relaticle\Workflow\Enums\TriggerType;
+use Relaticle\Workflow\Enums\WorkflowStatus;
 use Relaticle\Workflow\Models\Workflow;
 use Relaticle\Workflow\Triggers\ScheduledTrigger;
 
@@ -23,7 +24,7 @@ class EvaluateScheduledWorkflowsJob implements ShouldQueue
     public function handle(ScheduledTrigger $trigger): void
     {
         $workflows = Workflow::withoutGlobalScopes()
-            ->where('is_active', true)
+            ->where('status', WorkflowStatus::Live)
             ->where('trigger_type', TriggerType::TimeBased)
             ->get();
 
