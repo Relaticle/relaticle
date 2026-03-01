@@ -74,6 +74,10 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
         interactionMode: 'pointer',
         zoomLevel: 1,
         hasNodes: false,
+        isDirty: false,
+        edgeAddBtn: { visible: false, x: 0, y: 0, edgeId: null },
+        _edgeAddHover: false,
+        _insertOnEdge: null,
 
         // Block picker state
         blockPickerOpen: false,
@@ -158,6 +162,31 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
             // Track node count for empty canvas onboarding
             graph.on('cell:added', () => { this.hasNodes = graph.getNodes().length > 0; });
             graph.on('cell:removed', () => { this.hasNodes = graph.getNodes().length > 0; });
+
+            // Track dirty state
+            const markDirty = () => { this.isDirty = true; };
+            graph.on('cell:added', markDirty);
+            graph.on('cell:removed', markDirty);
+            graph.on('cell:changed', markDirty);
+            graph.on('node:moved', markDirty);
+            graph.on('edge:connected', markDirty);
+            graph.on('edge:removed', markDirty);
+
+            // Warn before leaving with unsaved changes
+            window.addEventListener('beforeunload', (e) => {
+                if (this.isDirty) {
+                    e.preventDefault();
+                    e.returnValue = '';
+                }
+            });
+
+            // Edge add button
+            window.addEventListener('wf:show-edge-add', (e) => {
+                this.edgeAddBtn = { visible: true, ...e.detail };
+            });
+            window.addEventListener('wf:hide-edge-add', () => {
+                setTimeout(() => { if (!this._edgeAddHover) this.edgeAddBtn.visible = false; }, 200);
+            });
 
             // Track zoom level
             graph.on('scale', ({ sx }) => {
@@ -254,10 +283,53 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
         addBlock(block) {
             const graph = window.__wfGraph;
             if (!graph) return;
+
+            if (this._insertOnEdge) {
+                this.edgeAddBtn.edgeId = this._insertOnEdge;
+                this._insertOnEdge = null;
+                this.insertBlockOnEdge(block);
+                return;
+            }
+
             const pos = !this.blockPickerSourceNode && this.blockPickerPos
                 ? graph.pageToLocal(this.blockPickerPos.x, this.blockPickerPos.y)
                 : null;
             addBlockToGraph(graph, block, this.blockPickerSourceNode, null, pos);
+            this.blockPickerOpen = false;
+        },
+
+        insertBlockOnEdge(block) {
+            const graph = window.__wfGraph;
+            if (!graph || !this.edgeAddBtn.edgeId) return;
+
+            const edge = graph.getCellById(this.edgeAddBtn.edgeId);
+            if (!edge) return;
+
+            const sourceId = edge.getSourceCellId();
+            const targetId = edge.getTargetCellId();
+            const sourcePortId = edge.getSourcePortId();
+            const targetPortId = edge.getTargetPortId();
+
+            graph.removeCell(edge);
+
+            const sourceNode = graph.getCellById(sourceId);
+            const targetNode = graph.getCellById(targetId);
+            let midX = 300, midY = 300;
+            if (sourceNode && targetNode) {
+                const sp = sourceNode.getPosition();
+                const tp = targetNode.getPosition();
+                midX = (sp.x + tp.x) / 2;
+                midY = (sp.y + tp.y) / 2;
+            }
+
+            const pos = { x: midX, y: midY };
+            const newNode = addBlockToGraph(graph, block, null, null, pos);
+            if (!newNode) return;
+
+            graph.addEdge({ source: { cell: sourceId, port: sourcePortId || 'out' }, target: { cell: newNode.id, port: 'in' } });
+            graph.addEdge({ source: { cell: newNode.id, port: 'out' }, target: { cell: targetId, port: targetPortId || 'in' } });
+
+            this.edgeAddBtn.visible = false;
             this.blockPickerOpen = false;
         },
 
@@ -273,6 +345,8 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
                 // Store meta for variable picker
                 window.__wfMeta = data.meta || {};
                 this.registeredActions = data.meta?.registered_actions || {};
+                this.workflowDescription = data.meta?.description || '';
+                this.triggerType = data.meta?.trigger_type || '';
 
                 if (data.nodes?.length) {
                     // Add nodes
@@ -406,6 +480,7 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
                 });
 
                 if (response.ok) {
+                    this.isDirty = false;
                     showToast('Workflow saved successfully.', 'success');
                 } else {
                     showToast('Failed to save. Your changes are preserved.', 'error');

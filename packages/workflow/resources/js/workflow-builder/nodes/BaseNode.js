@@ -17,7 +17,7 @@ export function createNodeHTML(data, options) {
     const { color, icon, label, summary, description } = options;
     const displaySummary = summary || 'Click to configure';
     const descHtml = description
-        ? `<span class="wf-block-description">${description}</span>`
+        ? `<span class="block mt-0.5 text-[11px] text-slate-400 dark:text-slate-500 truncate italic">${description}</span>`
         : '';
 
     return `

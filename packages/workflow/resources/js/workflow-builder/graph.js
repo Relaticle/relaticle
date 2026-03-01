@@ -183,6 +183,33 @@ export function createGraph(container, minimapContainer) {
         edge.attr('line/stroke', isYes ? '#22c55e' : '#ef4444');
     });
 
+    // Show + button on edge hover
+    graph.on('edge:mouseenter', ({ edge }) => {
+        const edgeView = graph.findViewByCell(edge);
+        if (!edgeView) return;
+
+        const pathEl = edgeView.findOne('path[data-index="0"]');
+        if (!pathEl) return;
+
+        const totalLength = pathEl.getTotalLength();
+        const midPoint = pathEl.getPointAtLength(totalLength / 2);
+        const ctm = pathEl.getScreenCTM();
+        if (!ctm) return;
+
+        const screenX = midPoint.x * ctm.a + ctm.e;
+        const screenY = midPoint.y * ctm.d + ctm.f;
+
+        window.dispatchEvent(new CustomEvent('wf:show-edge-add', {
+            detail: { edgeId: edge.id, x: screenX, y: screenY },
+        }));
+    });
+
+    graph.on('edge:mouseleave', ({ edge }) => {
+        window.dispatchEvent(new CustomEvent('wf:hide-edge-add', {
+            detail: { edgeId: edge.id },
+        }));
+    });
+
     // Resize graph when container resizes
     const resizeObserver = new ResizeObserver(() => {
         graph.resize(container.offsetWidth, container.offsetHeight);

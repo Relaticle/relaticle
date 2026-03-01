@@ -61,6 +61,18 @@ export function configPanelComponent() {
                     }
                 });
             });
+
+            // Variable picker {x} buttons
+            container.querySelectorAll('.wf-var-btn').forEach((btn) => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const configKey = btn.dataset.varFor;
+                    const input = container.querySelector(`[data-config-key="${configKey}"]`);
+                    if (input && this.selectedNodeId) {
+                        this.openVariablePicker(input, this.selectedNodeId);
+                    }
+                });
+            });
         },
 
         saveFieldsToNode(container) {
@@ -97,6 +109,15 @@ export function configPanelComponent() {
             return div.innerHTML;
         },
 
+        _wrapWithVarButton(inputHtml, configKey) {
+            return `
+                <div style="position: relative;">
+                    ${inputHtml}
+                    <button type="button" class="wf-var-btn" data-var-for="${configKey}" title="Insert variable">{x}</button>
+                </div>
+            `;
+        },
+
         buildConfigHTML(data, registeredActions) {
             const type = data.type || 'unknown';
             const esc = (s) => this.escapeHtml(s);
@@ -104,6 +125,10 @@ export function configPanelComponent() {
                 <div class="wf-config-group">
                     <label>Type</label>
                     <input type="text" value="${esc(type)}" disabled>
+                </div>
+                <div class="wf-config-group">
+                    <label>Description</label>
+                    <input type="text" data-config-key="description" value="${esc(data.config?.description || '')}" placeholder="Add a description..." class="wf-config-description">
                 </div>
             `;
 
@@ -151,7 +176,7 @@ export function configPanelComponent() {
                             html += `
                                 <div class="wf-config-group">
                                     <label>${esc(fieldLabel)}</label>
-                                    <textarea data-config-key="${esc(fieldKey)}" rows="3" placeholder="JSON object"${required}>${esc(typeof fieldValue === 'object' ? JSON.stringify(fieldValue, null, 2) : String(fieldValue))}</textarea>
+                                    ${this._wrapWithVarButton(`<textarea data-config-key="${esc(fieldKey)}" rows="3" placeholder="JSON object"${required}>${esc(typeof fieldValue === 'object' ? JSON.stringify(fieldValue, null, 2) : String(fieldValue))}</textarea>`, esc(fieldKey))}
                                 </div>
                             `;
                         } else if (fieldType === 'number' || fieldType === 'integer') {
@@ -177,7 +202,7 @@ export function configPanelComponent() {
                             html += `
                                 <div class="wf-config-group">
                                     <label>${esc(fieldLabel)}</label>
-                                    <input type="text" data-config-key="${esc(fieldKey)}" value="${esc(String(fieldValue))}" placeholder="${esc(fieldLabel)}"${required}>
+                                    ${this._wrapWithVarButton(`<input type="text" data-config-key="${esc(fieldKey)}" value="${esc(String(fieldValue))}" placeholder="${esc(fieldLabel)}"${required}>`, esc(fieldKey))}
                                 </div>
                             `;
                         }
@@ -189,7 +214,7 @@ export function configPanelComponent() {
                 html += `
                     <div class="wf-config-group">
                         <label>Field</label>
-                        <input type="text" data-config-key="field" value="${esc(data.config?.field || '')}" placeholder="record.status">
+                        ${this._wrapWithVarButton(`<input type="text" data-config-key="field" value="${esc(data.config?.field || '')}" placeholder="record.status">`, 'field')}
                     </div>
                     <div class="wf-config-group">
                         <label>Operator</label>
@@ -203,7 +228,7 @@ export function configPanelComponent() {
                     </div>
                     <div class="wf-config-group">
                         <label>Value</label>
-                        <input type="text" data-config-key="value" value="${esc(data.config?.value || '')}" placeholder="active">
+                        ${this._wrapWithVarButton(`<input type="text" data-config-key="value" value="${esc(data.config?.value || '')}" placeholder="active">`, 'value')}
                     </div>
                 `;
             }
@@ -229,7 +254,7 @@ export function configPanelComponent() {
                 html += `
                     <div class="wf-config-group">
                         <label>Collection Path</label>
-                        <input type="text" data-config-key="collection" value="${esc(data.config?.collection || '')}" placeholder="record.items">
+                        ${this._wrapWithVarButton(`<input type="text" data-config-key="collection" value="${esc(data.config?.collection || '')}" placeholder="record.items">`, 'collection')}
                     </div>
                 `;
             }
@@ -238,7 +263,7 @@ export function configPanelComponent() {
                 html += `
                     <div class="wf-config-group">
                         <label>Reason</label>
-                        <input type="text" data-config-key="reason" value="${esc(data.config?.reason || '')}" placeholder="Workflow complete">
+                        ${this._wrapWithVarButton(`<input type="text" data-config-key="reason" value="${esc(data.config?.reason || '')}" placeholder="Workflow complete">`, 'reason')}
                     </div>
                 `;
             }

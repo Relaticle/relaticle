@@ -12,6 +12,8 @@ export function topBarMixin() {
     return {
         editingName: false,
         publishing: false,
+        workflowDescription: '',
+        triggerType: '',
 
         async saveName() {
             if (!this.workflowName || !this.workflowId) return;
@@ -28,6 +30,22 @@ export function topBarMixin() {
                 });
             } catch (e) {
                 console.warn('Failed to save workflow name:', e);
+            }
+        },
+
+        async saveDescription() {
+            if (!this.workflowId) return;
+            try {
+                await fetch(`/workflow/api/workflows/${this.workflowId}/canvas`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+                    },
+                    body: JSON.stringify({ description: this.workflowDescription }),
+                });
+            } catch (e) {
+                console.warn('Failed to save description:', e);
             }
         },
 

@@ -428,67 +428,6 @@
     box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.1);
 }
 
-/* --- Empty Canvas Onboarding --- */
-.wf-empty-canvas {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    z-index: 10;
-    pointer-events: none;
-}
-
-.wf-empty-canvas > * {
-    pointer-events: auto;
-}
-
-.wf-empty-icon {
-    color: #94a3b8;
-    margin-bottom: 16px;
-}
-
-.dark .wf-empty-icon {
-    color: #475569;
-}
-
-.wf-empty-title {
-    font-size: 18px;
-    font-weight: 600;
-    color: #334155;
-    margin: 0 0 8px;
-}
-
-.dark .wf-empty-title {
-    color: #e2e8f0;
-}
-
-.wf-empty-text {
-    font-size: 14px;
-    color: #94a3b8;
-    margin: 0 0 20px;
-}
-
-.wf-empty-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 20px;
-    font-size: 14px;
-    font-weight: 600;
-    color: #fff;
-    background: #3b82f6;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background 0.15s;
-}
-
-.wf-empty-btn:hover {
-    background: #2563eb;
-}
-
 /* --- Block Nodes --- */
 .wf-block {
     width: 100%;
@@ -553,21 +492,6 @@
     color: #94a3b8;
 }
 
-.wf-block-description {
-    font-size: 11px;
-    color: #94a3b8;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: block;
-    margin-top: 2px;
-    font-style: italic;
-}
-
-.dark .wf-block-description {
-    color: #64748b;
-}
-
 /* Selected state */
 .x6-node-selected .wf-block {
     border-color: #3b82f6;
@@ -596,8 +520,8 @@
 /* --- Block Picker --- */
 .wf-picker {
     position: fixed;
-    width: 260px;
-    max-height: 360px;
+    width: 300px;
+    max-height: 400px;
     background: #fff;
     border: 1px solid #e2e8f0;
     border-radius: 10px;
@@ -658,6 +582,9 @@
     letter-spacing: 0.08em;
     color: #94a3b8;
     padding: 8px 8px 4px;
+    border-left: 3px solid #e2e8f0;
+    padding-left: 8px;
+    margin-left: 4px;
 }
 
 .wf-picker-item {
@@ -1136,6 +1063,24 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     animation: slideIn 0.3s ease;
     pointer-events: auto;
+    overflow: hidden;
+    position: relative;
+}
+
+.wf-toast::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 2px;
+    background: currentColor;
+    opacity: 0.3;
+    animation: wf-toastProgress 3s linear forwards;
+}
+
+@keyframes wf-toastProgress {
+    from { width: 100%; }
+    to { width: 0%; }
 }
 
 .dark .wf-toast {
@@ -1191,6 +1136,25 @@
     display: flex;
     justify-content: flex-end;
     gap: 8px;
+}
+
+/* --- Loading Spinner --- */
+.wf-spinner {
+    width: 24px;
+    height: 24px;
+    border: 2.5px solid #e2e8f0;
+    border-top-color: #3b82f6;
+    border-radius: 50%;
+    animation: wf-spin 0.8s linear infinite;
+}
+
+.dark .wf-spinner {
+    border-color: #334155;
+    border-top-color: #60a5fa;
+}
+
+@keyframes wf-spin {
+    to { transform: rotate(360deg); }
 }
 
 /* --- X6 Overrides --- */

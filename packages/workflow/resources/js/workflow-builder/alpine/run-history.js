@@ -64,6 +64,28 @@ export function runHistoryComponent(workflowId) {
             window.dispatchEvent(new CustomEvent('wf:exit-run-view'));
         },
 
+        getNodeLabel(nodeId) {
+            const graph = window.__wfGraph;
+            if (!graph) return nodeId;
+            const cell = graph.getCellById(nodeId);
+            if (!cell) return nodeId;
+            const data = cell.getData() || {};
+            const type = data.type || 'unknown';
+            const actionType = data.actionType;
+            if (actionType) {
+                return actionType.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+            }
+            return type.charAt(0).toUpperCase() + type.slice(1);
+        },
+
+        formatDuration(start, end) {
+            if (!start || !end) return '';
+            const ms = new Date(end) - new Date(start);
+            if (ms < 1000) return `${ms}ms`;
+            if (ms < 60000) return `${Math.round(ms / 1000)}s`;
+            return `${Math.round(ms / 60000)}m`;
+        },
+
         formatTime(dateStr) {
             if (!dateStr) return '';
             const date = new Date(dateStr);

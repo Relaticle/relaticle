@@ -102,6 +102,10 @@ class WorkflowResource extends Resource
                     ->sortable(),
                 TextColumn::make('trigger_type')
                     ->badge(),
+                TextColumn::make('description')
+                    ->limit(50)
+                    ->toggleable()
+                    ->placeholder('No description'),
                 TextColumn::make('status')
                     ->badge()
                     ->color(fn (WorkflowStatus $state): string => match ($state) {
@@ -131,6 +135,10 @@ class WorkflowResource extends Resource
                         TriggerType::Webhook->value => 'Webhook',
                     ]),
                 TrashedFilter::make(),
+            ])
+            ->groups([
+                'status',
+                'trigger_type',
             ])
             ->actions([
                 ActionGroup::make([

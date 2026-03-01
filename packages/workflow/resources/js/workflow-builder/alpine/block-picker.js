@@ -29,34 +29,34 @@ export function blockPickerData() {
             {
                 name: 'Triggers',
                 blocks: [
-                    { type: 'trigger', label: 'Trigger', icon: ICONS.trigger, color: COLORS.trigger },
+                    { type: 'trigger', label: 'Trigger', description: 'Start your workflow', icon: ICONS.trigger, color: COLORS.trigger },
                 ],
             },
             {
                 name: 'Actions',
                 blocks: [
-                    { type: 'action', label: 'Send Email', actionType: 'send_email', icon: ICONS.action, color: COLORS.action },
-                    { type: 'action', label: 'Send Webhook', actionType: 'send_webhook', icon: ICONS.action, color: COLORS.action },
-                    { type: 'action', label: 'HTTP Request', actionType: 'http_request', icon: ICONS.action, color: COLORS.action },
+                    { type: 'action', label: 'Send Email', description: 'Send an email notification', actionType: 'send_email', icon: ICONS.action, color: COLORS.action },
+                    { type: 'action', label: 'Send Webhook', description: 'Send data to an external URL', actionType: 'send_webhook', icon: ICONS.action, color: COLORS.action },
+                    { type: 'action', label: 'HTTP Request', description: 'Make an HTTP API call', actionType: 'http_request', icon: ICONS.action, color: COLORS.action },
                 ],
             },
             {
                 name: 'Logic',
                 blocks: [
-                    { type: 'condition', label: 'If / Else', icon: ICONS.condition, color: COLORS.condition },
+                    { type: 'condition', label: 'If / Else', description: 'Branch based on a condition', icon: ICONS.condition, color: COLORS.condition },
                 ],
             },
             {
                 name: 'Timing',
                 blocks: [
-                    { type: 'delay', label: 'Delay', icon: ICONS.delay, color: COLORS.delay },
+                    { type: 'delay', label: 'Delay', description: 'Wait before continuing', icon: ICONS.delay, color: COLORS.delay },
                 ],
             },
             {
                 name: 'Flow',
                 blocks: [
-                    { type: 'loop', label: 'Loop', icon: ICONS.loop, color: COLORS.loop },
-                    { type: 'stop', label: 'Stop', icon: ICONS.stop, color: COLORS.stop },
+                    { type: 'loop', label: 'Loop', description: 'Iterate over a collection', icon: ICONS.loop, color: COLORS.loop },
+                    { type: 'stop', label: 'Stop', description: 'End the workflow', icon: ICONS.stop, color: COLORS.stop },
                 ],
             },
         ],

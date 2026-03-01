@@ -33,36 +33,44 @@
                 <span class="wf-status-badge" :class="'wf-status-' + workflowStatus" x-text="workflowStatus"></span>
             </div>
             <div class="wf-topbar-right">
-                <button
-                    type="button"
-                    class="wf-topbar-btn"
-                    @click="togglePanel('runs')"
-                    :class="{ 'active': panelView === 'runs' }"
-                    title="Run History"
-                >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                    <span>Runs</span>
-                </button>
-                <button
-                    type="button"
-                    class="wf-topbar-btn"
-                    @click="togglePanel('settings')"
-                    :class="{ 'active': panelView === 'settings' }"
-                    title="Settings"
-                >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-                    <span>Settings</span>
-                </button>
+                <div class="flex items-center h-full">
+                    <button
+                        type="button"
+                        class="px-3.5 h-full text-[13px] font-medium bg-transparent border-none border-b-2 cursor-pointer transition-all whitespace-nowrap"
+                        :class="panelView !== 'runs' && panelView !== 'settings'
+                            ? 'text-blue-500 dark:text-blue-400 border-blue-500 dark:border-blue-400'
+                            : 'text-slate-500 dark:text-slate-400 border-transparent hover:text-slate-700 dark:hover:text-slate-200'"
+                        @click="closePanel()"
+                    >Editor</button>
+                    <button
+                        type="button"
+                        class="px-3.5 h-full text-[13px] font-medium bg-transparent border-none border-b-2 cursor-pointer transition-all whitespace-nowrap"
+                        :class="panelView === 'runs'
+                            ? 'text-blue-500 dark:text-blue-400 border-blue-500 dark:border-blue-400'
+                            : 'text-slate-500 dark:text-slate-400 border-transparent hover:text-slate-700 dark:hover:text-slate-200'"
+                        @click="togglePanel('runs')"
+                    >Runs</button>
+                    <button
+                        type="button"
+                        class="px-3.5 h-full text-[13px] font-medium bg-transparent border-none border-b-2 cursor-pointer transition-all whitespace-nowrap"
+                        :class="panelView === 'settings'
+                            ? 'text-blue-500 dark:text-blue-400 border-blue-500 dark:border-blue-400'
+                            : 'text-slate-500 dark:text-slate-400 border-transparent hover:text-slate-700 dark:hover:text-slate-200'"
+                        @click="togglePanel('settings')"
+                    >Settings</button>
+                </div>
                 <div class="wf-topbar-divider"></div>
                 <button
                     type="button"
-                    class="wf-save-btn"
+                    class="wf-save-btn relative"
                     @click="saveCanvas()"
                     :disabled="saving"
+                    :class="{ 'border-amber-400!': isDirty }"
                     id="save-btn"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
                     <span x-text="saving ? 'Saving...' : 'Save'"></span>
+                    <span x-show="isDirty" class="absolute top-1 right-1 w-1.5 h-1.5 bg-amber-400 rounded-full"></span>
                 </button>
                 <button
                     type="button"
@@ -110,13 +118,13 @@
                 </div>
 
                 {{-- Empty Canvas Onboarding --}}
-                <div class="wf-empty-canvas" x-show="!hasNodes" x-transition>
-                    <div class="wf-empty-icon">
+                <div class="absolute inset-0 flex flex-col items-center justify-center z-10 pointer-events-none" x-show="!hasNodes" x-transition>
+                    <div class="text-slate-400 dark:text-slate-600 mb-4 pointer-events-auto">
                         <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
                     </div>
-                    <h2 class="wf-empty-title">Start building your workflow</h2>
-                    <p class="wf-empty-text">Double-click the canvas or use the + button to add your first block.</p>
-                    <button type="button" class="wf-empty-btn" @click="openBlockPicker(null, $el.parentElement.getBoundingClientRect().left + $el.parentElement.getBoundingClientRect().width / 2, $el.parentElement.getBoundingClientRect().top + $el.parentElement.getBoundingClientRect().height / 2)">
+                    <h2 class="text-lg font-semibold text-slate-700 dark:text-slate-200 m-0 mb-2 pointer-events-auto">Start building your workflow</h2>
+                    <p class="text-sm text-slate-400 m-0 mb-5 pointer-events-auto">Double-click the canvas or use the + button to add your first block.</p>
+                    <button type="button" class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-blue-500 hover:bg-blue-600 border-none rounded-lg cursor-pointer transition-colors pointer-events-auto" @click="openBlockPicker(null, $el.parentElement.getBoundingClientRect().left + $el.parentElement.getBoundingClientRect().width / 2, $el.parentElement.getBoundingClientRect().top + $el.parentElement.getBoundingClientRect().height / 2)">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                         Add Trigger
                     </button>
@@ -171,7 +179,9 @@
                 {{-- Config Panel (shown when a node is selected) --}}
                 <div x-show="panelView === 'config' && selectedNode" class="wf-panel-content">
                     <div class="wf-panel-header">
-                        <h3 x-text="selectedNode?.type ? selectedNode.type.charAt(0).toUpperCase() + selectedNode.type.slice(1) + ' Settings' : 'Settings'"></h3>
+                        <h3 x-text="selectedNode?.type === 'action' && selectedNode?.actionType
+                            ? selectedNode.actionType.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) + ' Settings'
+                            : selectedNode?.type ? selectedNode.type.charAt(0).toUpperCase() + selectedNode.type.slice(1) + ' Settings' : 'Settings'"></h3>
                         <button type="button" @click="deselectNode()" class="wf-panel-close">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                         </button>
@@ -190,7 +200,34 @@
                         </button>
                     </div>
                     <div class="wf-panel-body">
-                        <p class="wf-panel-placeholder">Workflow settings coming soon.</p>
+                        <div class="mb-6">
+                            <h4 class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide m-0 mb-2.5">Description</h4>
+                            <textarea
+                                class="w-full p-2 text-[13px] text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md outline-none resize-y font-[inherit] focus:border-blue-500"
+                                x-model="workflowDescription"
+                                @blur="saveDescription()"
+                                placeholder="Add a workflow description..."
+                                rows="3"
+                            ></textarea>
+                        </div>
+
+                        <div class="mb-6">
+                            <h4 class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide m-0 mb-2.5">Trigger</h4>
+                            <div class="flex justify-between py-2 text-[13px] border-b border-slate-100 dark:border-slate-700">
+                                <span class="text-slate-500">Type</span>
+                                <span class="text-slate-800 dark:text-slate-200 font-medium" x-text="triggerType || 'Not configured'"></span>
+                            </div>
+                        </div>
+
+                        <div class="border-t border-red-100 dark:border-red-900/30 pt-4">
+                            <h4 class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide m-0 mb-2.5">Danger Zone</h4>
+                            <button
+                                type="button"
+                                class="wf-btn-sm text-red-500 border-red-200 hover:bg-red-50 hover:text-red-600"
+                                @click="archiveWorkflow()"
+                                x-show="workflowStatus === 'live' || workflowStatus === 'paused'"
+                            >Archive Workflow</button>
+                        </div>
                     </div>
                 </div>
 
@@ -209,7 +246,14 @@
                                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
                                     Refresh
                                 </button>
-                                <div class="wf-runs-list">
+                                {{-- Loading state --}}
+                                <template x-if="loadingRuns">
+                                    <div class="flex flex-col items-center gap-3 py-8 text-slate-400 text-[13px]">
+                                        <div class="wf-spinner"></div>
+                                        <span>Loading runs...</span>
+                                    </div>
+                                </template>
+                                <div class="wf-runs-list" x-show="!loadingRuns">
                                     <template x-for="run in runs" :key="run.id">
                                         <div class="wf-run-item" @click="selectRun(run.id)">
                                             <span class="wf-run-status" :class="'wf-run-' + run.status"></span>
@@ -217,8 +261,12 @@
                                             <span class="wf-run-status-text" x-text="run.status"></span>
                                         </div>
                                     </template>
-                                    <template x-if="runs.length === 0">
-                                        <p class="wf-panel-placeholder">No runs yet.</p>
+                                    <template x-if="runs.length === 0 && !loadingRuns">
+                                        <div class="flex flex-col items-center text-center py-8 px-4 text-slate-400">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mb-3 text-slate-300 dark:text-slate-600"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                            <p class="text-sm font-medium text-slate-500 dark:text-slate-400 m-0 mb-1">No runs yet</p>
+                                            <span class="text-xs text-slate-400">Publish and trigger your workflow to see results here.</span>
+                                        </div>
                                     </template>
                                 </div>
                             </div>
@@ -234,6 +282,9 @@
                                         <span class="wf-run-status" :class="'wf-run-' + selectedRun.status"></span>
                                         <strong x-text="selectedRun.status"></strong>
                                         <span x-text="formatTime(selectedRun.started_at)"></span>
+                                        <template x-if="selectedRun.completed_at && selectedRun.started_at">
+                                            <span class="text-xs text-slate-400 ml-auto" x-text="formatDuration(selectedRun.started_at, selectedRun.completed_at)"></span>
+                                        </template>
                                     </div>
                                     <template x-if="selectedRun.error_message">
                                         <div class="wf-run-error" x-text="selectedRun.error_message"></div>
@@ -243,7 +294,7 @@
                                         <template x-for="step in selectedRun.steps" :key="step.id">
                                             <div class="wf-run-step" :class="'wf-step-' + step.status">
                                                 <span class="wf-run-status" :class="'wf-run-' + step.status"></span>
-                                                <span x-text="step.node_id || 'Unknown'"></span>
+                                                <span x-text="getNodeLabel(step.node_id)"></span>
                                                 <span class="wf-step-status" x-text="step.status"></span>
                                             </div>
                                         </template>
@@ -284,12 +335,57 @@
                                 @click="addBlock(block)"
                             >
                                 <span class="wf-picker-icon" :style="'color:' + block.color" x-html="block.icon"></span>
-                                <span x-text="block.label"></span>
+                                <span class="flex flex-col min-w-0">
+                                    <span class="text-[13px] font-medium" x-text="block.label"></span>
+                                    <span class="text-[11px] text-slate-400 dark:text-slate-500 truncate" x-text="block.description"></span>
+                                </span>
                             </button>
                         </template>
                     </div>
                 </template>
             </div>
+        </div>
+
+        {{-- Edge Add Button --}}
+        <button
+            type="button"
+            class="fixed w-6 h-6 flex items-center justify-center bg-white dark:bg-slate-800 border-[1.5px] border-blue-500 dark:border-blue-400 rounded-full text-blue-500 dark:text-blue-400 cursor-pointer z-50 -translate-x-1/2 -translate-y-1/2 shadow-md transition-all hover:bg-blue-500 hover:text-white hover:scale-110"
+            x-show="edgeAddBtn.visible"
+            :style="'left:' + edgeAddBtn.x + 'px; top:' + edgeAddBtn.y + 'px'"
+            @mouseenter="_edgeAddHover = true"
+            @mouseleave="_edgeAddHover = false; edgeAddBtn.visible = false"
+            @click="openBlockPicker(null, edgeAddBtn.x, edgeAddBtn.y); _insertOnEdge = edgeAddBtn.edgeId"
+            title="Insert block"
+        >
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
+
+        {{-- Variable Picker Popover --}}
+        <div
+            x-show="varPickerOpen"
+            x-transition
+            class="wf-var-picker"
+            :style="'left:' + varPickerPos.x + 'px; top:' + varPickerPos.y + 'px'"
+            @click.outside="closeVariablePicker()"
+        >
+            <template x-for="group in variables" :key="group.nodeId">
+                <div>
+                    <div class="wf-var-group-name" x-text="group.source"></div>
+                    <template x-for="output in group.outputs" :key="output.key">
+                        <button
+                            type="button"
+                            class="wf-var-item"
+                            @click="insertVariable(group.nodeId, output.key)"
+                        >
+                            <span class="wf-var-key" x-text="output.key"></span>
+                            <span class="wf-var-label" x-text="output.label"></span>
+                        </button>
+                    </template>
+                </div>
+            </template>
+            <template x-if="variables.length === 0">
+                <p class="wf-panel-placeholder">No upstream variables available.</p>
+            </template>
         </div>
 
         {{-- Toast Container --}}
