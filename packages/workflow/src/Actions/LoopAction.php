@@ -47,4 +47,16 @@ class LoopAction extends BaseAction
             'collection' => ['type' => 'string', 'label' => 'Collection Path', 'required' => true],
         ];
     }
+
+    /**
+     * Get the output schema describing what variables this action produces.
+     *
+     * @return array<string, array{type: string, label: string}>
+     */
+    public static function outputSchema(): array
+    {
+        return [
+            'item_count' => ['type' => 'number', 'label' => 'Item Count'],
+        ];
+    }
 }

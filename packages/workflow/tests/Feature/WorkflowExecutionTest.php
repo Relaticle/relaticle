@@ -19,6 +19,7 @@ beforeEach(function () {
         }
         public static function label(): string { return 'Log Message'; }
         public static function configSchema(): array { return []; }
+        public static function outputSchema(): array { return []; }
     }));
 });
 
@@ -58,6 +59,7 @@ it('marks run as failed when an action throws exception', function () {
         }
         public static function label(): string { return 'Failing'; }
         public static function configSchema(): array { return []; }
+        public static function outputSchema(): array { return []; }
     }));
 
     $workflow = WorkflowModel::create([
@@ -121,6 +123,11 @@ it('persists run record even when execution fails (transaction rollback)', funct
         }
 
         public static function configSchema(): array
+        {
+            return [];
+        }
+
+        public static function outputSchema(): array
         {
             return [];
         }
