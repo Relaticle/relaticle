@@ -109,6 +109,19 @@
                     <div id="workflow-canvas"></div>
                 </div>
 
+                {{-- Empty Canvas Onboarding --}}
+                <div class="wf-empty-canvas" x-show="!hasNodes" x-transition>
+                    <div class="wf-empty-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                    </div>
+                    <h2 class="wf-empty-title">Start building your workflow</h2>
+                    <p class="wf-empty-text">Double-click the canvas or use the + button to add your first block.</p>
+                    <button type="button" class="wf-empty-btn" @click="openBlockPicker(null, $el.parentElement.getBoundingClientRect().left + $el.parentElement.getBoundingClientRect().width / 2, $el.parentElement.getBoundingClientRect().top + $el.parentElement.getBoundingClientRect().height / 2)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        Add Trigger
+                    </button>
+                </div>
+
                 {{-- Bottom Toolbar --}}
                 <div class="wf-toolbar-bottom">
                     <div class="wf-toolbar-group">

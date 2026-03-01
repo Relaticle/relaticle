@@ -73,6 +73,7 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
         saving: false,
         interactionMode: 'pointer',
         zoomLevel: 1,
+        hasNodes: false,
 
         // Block picker state
         blockPickerOpen: false,
@@ -153,6 +154,10 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
             window.addEventListener('wf:exit-run-view', () => {
                 exitRunView(graph);
             });
+
+            // Track node count for empty canvas onboarding
+            graph.on('cell:added', () => { this.hasNodes = graph.getNodes().length > 0; });
+            graph.on('cell:removed', () => { this.hasNodes = graph.getNodes().length > 0; });
 
             // Track zoom level
             graph.on('scale', ({ sx }) => {
@@ -336,6 +341,8 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
                 if (data.canvas_data?.zoom) {
                     graph.zoomTo(data.canvas_data.zoom);
                 }
+
+                this.hasNodes = graph.getNodes().length > 0;
             } catch (error) {
                 console.error('Failed to load canvas:', error);
                 showToast('Failed to load workflow canvas.', 'error');

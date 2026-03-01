@@ -428,6 +428,67 @@
     box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.1);
 }
 
+/* --- Empty Canvas Onboarding --- */
+.wf-empty-canvas {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.wf-empty-canvas > * {
+    pointer-events: auto;
+}
+
+.wf-empty-icon {
+    color: #94a3b8;
+    margin-bottom: 16px;
+}
+
+.dark .wf-empty-icon {
+    color: #475569;
+}
+
+.wf-empty-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #334155;
+    margin: 0 0 8px;
+}
+
+.dark .wf-empty-title {
+    color: #e2e8f0;
+}
+
+.wf-empty-text {
+    font-size: 14px;
+    color: #94a3b8;
+    margin: 0 0 20px;
+}
+
+.wf-empty-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    background: #3b82f6;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.wf-empty-btn:hover {
+    background: #2563eb;
+}
+
 /* --- Block Nodes --- */
 .wf-block {
     width: 100%;
