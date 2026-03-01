@@ -163,6 +163,26 @@ export function createGraph(container, minimapContainer) {
         }));
     });
 
+    // Color-code edges from condition nodes
+    graph.on('edge:connected', ({ edge }) => {
+        const sourceNode = edge.getSourceNode();
+        if (!sourceNode) return;
+        const data = sourceNode.getData();
+        if (data?.type !== 'condition') return;
+
+        const sourcePortId = edge.getSourcePortId();
+        const isYes = sourcePortId === 'out-yes';
+        const label = isYes ? 'Yes' : 'No';
+
+        edge.setLabels([{
+            attrs: {
+                label: { text: label, fill: '#fff', fontSize: 11, fontWeight: 600 },
+                rect: { ref: 'label', fill: isYes ? '#22c55e' : '#ef4444', rx: 10, ry: 10, refWidth: '140%', refHeight: '140%', refX: '-20%', refY: '-20%' },
+            },
+        }]);
+        edge.attr('line/stroke', isYes ? '#22c55e' : '#ef4444');
+    });
+
     // Resize graph when container resizes
     const resizeObserver = new ResizeObserver(() => {
         graph.resize(container.offsetWidth, container.offsetHeight);

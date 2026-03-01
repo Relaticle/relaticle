@@ -288,16 +288,40 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
 
                     // Add edges
                     data.edges?.forEach((edge) => {
+                        const label = edge.condition_label;
+                        let labelConfig = [];
+                        if (label) {
+                            const isYes = label.toLowerCase() === 'yes';
+                            labelConfig = [{
+                                attrs: {
+                                    label: {
+                                        text: label,
+                                        fill: '#fff',
+                                        fontSize: 11,
+                                        fontWeight: 600,
+                                    },
+                                    rect: {
+                                        ref: 'label',
+                                        fill: isYes ? '#22c55e' : '#ef4444',
+                                        rx: 10,
+                                        ry: 10,
+                                        refWidth: '140%',
+                                        refHeight: '140%',
+                                        refX: '-20%',
+                                        refY: '-20%',
+                                    },
+                                },
+                            }];
+                        }
+
                         graph.addEdge({
                             id: edge.edge_id,
                             source: edge.source_node_id,
                             target: edge.target_node_id,
-                            labels: edge.condition_label
-                                ? [{ attrs: { label: { text: edge.condition_label } } }]
-                                : [],
+                            labels: labelConfig,
                             attrs: {
                                 line: {
-                                    stroke: '#94a3b8',
+                                    stroke: label ? (label.toLowerCase() === 'yes' ? '#22c55e' : '#ef4444') : '#94a3b8',
                                     strokeWidth: 1.5,
                                     targetMarker: { name: 'block', width: 10, height: 6 },
                                 },
