@@ -74,7 +74,7 @@ class WorkflowServiceProvider extends ServiceProvider
     private function configureTenancy(): void
     {
         Workflow::useTenancy(
-            scopeColumn: 'team_id',
+            scopeColumn: 'tenant_id',
             resolver: fn () => filament()->getTenant()?->id,
         );
     }

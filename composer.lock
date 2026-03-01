@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9d47f81087f1d24bdb42aac7643c9f37",
+    "content-hash": "a5f05d3c7abebeccdc3d8df7e7b0f420",
     "packages": [
         {
             "name": "anourvalar/eloquent-serialize",
@@ -7309,6 +7309,71 @@
                 }
             ],
             "time": "2026-01-29T10:47:06+00:00"
+        },
+        {
+            "name": "relaticle/workflow",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/workflow",
+                "reference": "05fc2e07c1fc8bb0377541d75afbbce537ebab13"
+            },
+            "require": {
+                "illuminate/contracts": "^11.0||^12.0",
+                "illuminate/support": "^11.0||^12.0",
+                "php": "^8.3",
+                "spatie/laravel-package-tools": "^1.15"
+            },
+            "require-dev": {
+                "filament/filament": "^5.0",
+                "larastan/larastan": "^3.0",
+                "orchestra/testbench": "^10.0",
+                "pestphp/pest": "^4.0",
+                "pestphp/pest-plugin-browser": "^4.0",
+                "pestphp/pest-plugin-laravel": "^4.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Relaticle\\Workflow\\WorkflowServiceProvider"
+                    ],
+                    "aliases": {
+                        "Workflow": "Relaticle\\Workflow\\Facades\\Workflow"
+                    }
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Relaticle\\Workflow\\": "src/",
+                    "Relaticle\\Workflow\\Database\\Factories\\": "database/factories/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Relaticle\\Workflow\\Tests\\": "tests/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Relaticle",
+                    "email": "hello@relaticle.com"
+                }
+            ],
+            "description": "Visual workflow automation engine for Laravel with optional Filament adapter",
+            "keywords": [
+                "automation",
+                "filament",
+                "laravel",
+                "visual-builder",
+                "workflow"
+            ],
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "ryangjchandler/blade-capture-directive",
@@ -16855,7 +16920,8 @@
     "aliases": [],
     "minimum-stability": "beta",
     "stability-flags": {
-        "relaticle/flowforge": 20
+        "relaticle/flowforge": 20,
+        "relaticle/workflow": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,

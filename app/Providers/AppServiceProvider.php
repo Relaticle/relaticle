@@ -27,6 +27,8 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\View\View;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\SystemAdmin\Models\SystemAdministrator;
+use Relaticle\Workflow\Models\Workflow;
+use Relaticle\Workflow\Models\WorkflowRun;
 
 final class AppServiceProvider extends ServiceProvider
 {
@@ -53,6 +55,9 @@ final class AppServiceProvider extends ServiceProvider
 
     private function configurePolicies(): void
     {
+        Gate::policy(Workflow::class, \App\Policies\WorkflowPolicy::class);
+        Gate::policy(WorkflowRun::class, \App\Policies\WorkflowRunPolicy::class);
+
         Gate::guessPolicyNamesUsing(function (string $modelClass): ?string {
             try {
                 $currentPanelId = Filament::getCurrentPanel()?->getId();

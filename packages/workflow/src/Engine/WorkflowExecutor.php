@@ -163,6 +163,7 @@ class WorkflowExecutor
     {
         /** @var WorkflowRun $run */
         $run = $workflow->runs()->create([
+            'tenant_id' => $workflow->tenant_id,
             'status' => WorkflowRunStatus::Running,
             'context_data' => $context,
             'started_at' => Carbon::now(),
