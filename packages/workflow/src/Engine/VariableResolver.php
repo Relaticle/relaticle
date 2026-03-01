@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Relaticle\Workflow\Engine;
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
+use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 
 class VariableResolver
 {
@@ -27,11 +29,6 @@ class VariableResolver
     /**
      * Resolve all {{variable}} placeholders in a template string.
      *
-     * Variables are resolved in the following order:
-     * 1. Built-in variables (now, today)
-     * 2. Context values using dot-notation (e.g., record.name, trigger.user.name)
-     * 3. Missing variables resolve to an empty string
-     *
      * @param  array<string, mixed>  $context
      */
     public function resolve(string $template, array $context): string
@@ -45,8 +42,6 @@ class VariableResolver
 
     /**
      * Recursively resolve all string values in an array.
-     *
-     * Non-string values are left untouched. Nested arrays are resolved recursively.
      *
      * @param  array<string, mixed>  $config
      * @param  array<string, mixed>  $context
@@ -81,8 +76,7 @@ class VariableResolver
             return ($this->builtInVariables[$path])();
         }
 
-        // Resolve from context using dot-notation
-        $value = data_get($context, $path);
+        $value = $this->resolveFromContext($path, $context);
 
         if ($value === null) {
             Log::warning("Workflow variable '{$path}' could not be resolved.");
@@ -95,5 +89,112 @@ class VariableResolver
         }
 
         return '';
+    }
+
+    /**
+     * Resolve a dotted path from the context, with Eloquent model awareness.
+     */
+    private function resolveFromContext(string $path, array $context): mixed
+    {
+        $segments = explode('.', $path);
+        $current = $context;
+
+        foreach ($segments as $i => $segment) {
+            if ($current instanceof Model) {
+                $remainingSegments = array_slice($segments, $i);
+
+                return $this->resolveFromModel($current, $remainingSegments);
+            }
+
+            if (is_array($current) && array_key_exists($segment, $current)) {
+                $current = $current[$segment];
+            } else {
+                return null;
+            }
+        }
+
+        return $current;
+    }
+
+    /**
+     * Resolve a path from an Eloquent model, supporting attributes, custom fields, and relationships.
+     *
+     * @param  string[]  $segments
+     */
+    private function resolveFromModel(Model $model, array $segments): mixed
+    {
+        if (empty($segments)) {
+            return null;
+        }
+
+        $first = $segments[0];
+        $rest = array_slice($segments, 1);
+
+        // Custom field access: custom.{code}
+        if ($first === 'custom' && !empty($rest)) {
+            return $this->resolveCustomField($model, $rest[0]);
+        }
+
+        // Try as a standard attribute first
+        if ($model->getConnection()->getSchemaBuilder()->hasColumn($model->getTable(), $first)
+            || array_key_exists($first, $model->getAttributes())
+            || $model->hasGetMutator($first)
+            || $model->hasAttributeMutator($first)
+        ) {
+            $value = $model->getAttribute($first);
+
+            if (empty($rest)) {
+                return $value;
+            }
+
+            if ($value instanceof Model) {
+                return $this->resolveFromModel($value, $rest);
+            }
+
+            return data_get($value, implode('.', $rest));
+        }
+
+        // Try as a relationship
+        if (method_exists($model, $first)) {
+            try {
+                $related = $model->{$first};
+
+                if ($related instanceof Model) {
+                    return empty($rest) ? null : $this->resolveFromModel($related, $rest);
+                }
+
+                if (empty($rest)) {
+                    return $related;
+                }
+
+                return data_get($related, implode('.', $rest));
+            } catch (\Throwable) {
+                // Method exists but is not a relationship or failed
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Resolve a custom field value by its code.
+     */
+    private function resolveCustomField(Model $model, string $fieldCode): mixed
+    {
+        if (!$model instanceof HasCustomFields) {
+            return null;
+        }
+
+        try {
+            $customField = $model->customFields()->where('code', $fieldCode)->first();
+
+            if (!$customField) {
+                return null;
+            }
+
+            return $model->getCustomFieldValue($customField);
+        } catch (\Throwable) {
+            return null;
+        }
     }
 }

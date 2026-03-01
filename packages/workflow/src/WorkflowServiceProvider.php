@@ -7,6 +7,7 @@ namespace Relaticle\Workflow;
 use Relaticle\Workflow\Engine\ConditionEvaluator;
 use Relaticle\Workflow\Engine\VariableResolver;
 use Relaticle\Workflow\Engine\WorkflowExecutor;
+use Relaticle\Workflow\Schema\RelaticleSchema;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 
@@ -23,6 +24,8 @@ class WorkflowServiceProvider extends PackageServiceProvider
 
     public function packageRegistered(): void
     {
+        $this->app->singleton(RelaticleSchema::class);
+
         $this->app->singleton(WorkflowManager::class, function () {
             $manager = new WorkflowManager();
             $manager->registerAction('delay', \Relaticle\Workflow\Actions\DelayAction::class);
