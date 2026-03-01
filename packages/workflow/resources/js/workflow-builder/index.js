@@ -135,6 +135,11 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
                 this.saveCanvas();
             });
 
+            // Open block picker from canvas double-click
+            window.addEventListener('wf:open-picker', (e) => {
+                this.openBlockPicker(null, e.detail.x, e.detail.y);
+            });
+
             // Mode toggle shortcuts
             window.addEventListener('wf:set-mode', (e) => {
                 this.setMode(e.detail);
@@ -244,7 +249,10 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
         addBlock(block) {
             const graph = window.__wfGraph;
             if (!graph) return;
-            addBlockToGraph(graph, block, this.blockPickerSourceNode, null);
+            const pos = !this.blockPickerSourceNode && this.blockPickerPos
+                ? graph.pageToLocal(this.blockPickerPos.x, this.blockPickerPos.y)
+                : null;
+            addBlockToGraph(graph, block, this.blockPickerSourceNode, null, pos);
             this.blockPickerOpen = false;
         },
 

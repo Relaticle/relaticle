@@ -78,6 +78,26 @@
                         <span>Publish</span>
                     </template>
                 </button>
+                <button
+                    type="button"
+                    class="wf-topbar-btn"
+                    @click="pauseWorkflow()"
+                    x-show="workflowStatus === 'live'"
+                    title="Pause Workflow"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+                    <span>Pause</span>
+                </button>
+                <button
+                    type="button"
+                    class="wf-topbar-btn"
+                    @click="archiveWorkflow()"
+                    x-show="workflowStatus === 'live' || workflowStatus === 'paused'"
+                    title="Archive Workflow"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+                    <span>Archive</span>
+                </button>
             </div>
         </div>
 
@@ -114,6 +134,9 @@
                     </div>
                     <div class="wf-toolbar-divider"></div>
                     <div class="wf-toolbar-group">
+                        <button type="button" class="wf-tool-btn" @click="(() => { const c = document.getElementById('workflow-canvas'); const r = c.getBoundingClientRect(); openBlockPicker(null, r.left + r.width / 2, r.top + r.height / 2); })()" title="Add Block">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        </button>
                         <button type="button" class="wf-tool-btn" @click="organizeBlocks()" title="Auto-organize">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
                         </button>

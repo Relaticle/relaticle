@@ -91,13 +91,15 @@ const SHAPE_MAP = {
  * @param {object} block - The block definition from the picker
  * @param {string|null} sourceNodeId - The node to connect from (if any)
  * @param {string|null} sourcePortId - The port to connect from
+ * @param {{x: number, y: number}|null} position - Override position in graph coords
  */
-export function addBlockToGraph(graph, block, sourceNodeId, sourcePortId) {
+export function addBlockToGraph(graph, block, sourceNodeId, sourcePortId, position) {
     const shape = SHAPE_MAP[block.type];
     if (!shape) return null;
 
     const nodeId = `${block.type}-${Date.now()}`;
-    let x = 300, y = 200;
+    let x = position?.x ?? 300;
+    let y = position?.y ?? 200;
 
     // Position below the source node if one exists
     if (sourceNodeId) {

@@ -50,6 +50,7 @@ class WorkflowModelObserver
                 $context = $this->trigger->buildContext($model, $event);
 
                 ExecuteWorkflowJob::dispatch($workflow, $context);
+                $workflow->update(['last_triggered_at' => now()]);
             }
         }
     }

@@ -157,6 +157,12 @@ export function createGraph(container, minimapContainer) {
         window.dispatchEvent(new CustomEvent('wf:node-deselected'));
     });
 
+    graph.on('blank:dblclick', ({ e }) => {
+        window.dispatchEvent(new CustomEvent('wf:open-picker', {
+            detail: { x: e.clientX, y: e.clientY },
+        }));
+    });
+
     // Resize graph when container resizes
     const resizeObserver = new ResizeObserver(() => {
         graph.resize(container.offsetWidth, container.offsetHeight);
