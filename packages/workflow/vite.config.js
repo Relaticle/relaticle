@@ -3,14 +3,19 @@ import { defineConfig } from 'vite';
 export default defineConfig({
     build: {
         outDir: 'resources/dist',
+        cssCodeSplit: false,
         rollupOptions: {
-            input: {
-                'workflow-builder': 'resources/js/workflow-builder/index.js',
-                'workflow-builder-css': 'resources/css/workflow-builder.css',
-            },
+            input: 'resources/js/workflow-builder/index.js',
             output: {
-                entryFileNames: '[name].js',
-                assetFileNames: '[name].[ext]',
+                format: 'iife',
+                entryFileNames: 'workflow-builder.js',
+                assetFileNames: (assetInfo) => {
+                    if (assetInfo.names && assetInfo.names[0] === 'style.css') {
+                        return 'workflow-builder.css';
+                    }
+                    return '[name].[ext]';
+                },
+                inlineDynamicImports: true,
             },
         },
     },

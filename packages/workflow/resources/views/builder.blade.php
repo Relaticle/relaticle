@@ -33,29 +33,29 @@
                 <span class="wf-status-badge" :class="'wf-status-' + workflowStatus" x-text="workflowStatus"></span>
             </div>
             <div class="wf-topbar-right">
-                <div class="flex items-center h-full">
+                <div class="flex items-center h-full gap-0">
                     <button
                         type="button"
-                        class="px-3.5 h-full text-[13px] font-medium bg-transparent border-none border-b-2 cursor-pointer transition-all whitespace-nowrap"
+                        class="px-3.5 h-full text-[13px] font-medium bg-transparent border-0 border-b-2 border-solid cursor-pointer transition-all whitespace-nowrap"
                         :class="panelView !== 'runs' && panelView !== 'settings'
-                            ? 'text-blue-500 dark:text-blue-400 border-blue-500 dark:border-blue-400'
-                            : 'text-slate-500 dark:text-slate-400 border-transparent hover:text-slate-700 dark:hover:text-slate-200'"
+                            ? 'text-blue-500 dark:text-blue-400 border-b-blue-500 dark:border-b-blue-400'
+                            : 'text-slate-500 dark:text-slate-400 border-b-transparent hover:text-slate-700 dark:hover:text-slate-200'"
                         @click="closePanel()"
                     >Editor</button>
                     <button
                         type="button"
-                        class="px-3.5 h-full text-[13px] font-medium bg-transparent border-none border-b-2 cursor-pointer transition-all whitespace-nowrap"
+                        class="px-3.5 h-full text-[13px] font-medium bg-transparent border-0 border-b-2 border-solid cursor-pointer transition-all whitespace-nowrap"
                         :class="panelView === 'runs'
-                            ? 'text-blue-500 dark:text-blue-400 border-blue-500 dark:border-blue-400'
-                            : 'text-slate-500 dark:text-slate-400 border-transparent hover:text-slate-700 dark:hover:text-slate-200'"
+                            ? 'text-blue-500 dark:text-blue-400 border-b-blue-500 dark:border-b-blue-400'
+                            : 'text-slate-500 dark:text-slate-400 border-b-transparent hover:text-slate-700 dark:hover:text-slate-200'"
                         @click="togglePanel('runs')"
                     >Runs</button>
                     <button
                         type="button"
-                        class="px-3.5 h-full text-[13px] font-medium bg-transparent border-none border-b-2 cursor-pointer transition-all whitespace-nowrap"
+                        class="px-3.5 h-full text-[13px] font-medium bg-transparent border-0 border-b-2 border-solid cursor-pointer transition-all whitespace-nowrap"
                         :class="panelView === 'settings'
-                            ? 'text-blue-500 dark:text-blue-400 border-blue-500 dark:border-blue-400'
-                            : 'text-slate-500 dark:text-slate-400 border-transparent hover:text-slate-700 dark:hover:text-slate-200'"
+                            ? 'text-blue-500 dark:text-blue-400 border-b-blue-500 dark:border-b-blue-400'
+                            : 'text-slate-500 dark:text-slate-400 border-b-transparent hover:text-slate-700 dark:hover:text-slate-200'"
                         @click="togglePanel('settings')"
                     >Settings</button>
                 </div>

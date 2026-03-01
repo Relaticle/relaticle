@@ -13,6 +13,9 @@
 @source '../../../../vendor/relaticle/flowforge/resources/views/**/*.blade.php';
 @source '../../../../vendor/relaticle/custom-fields/resources';
 
+/* Workflow Package */
+@source '../../../../packages/workflow/resources';
+
 /* ===================================
    Relaticle Brand Theme Customization
    Pure Tailwind CSS Classes Only
