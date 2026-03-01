@@ -113,6 +113,7 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
             // Listen for graph events
             window.addEventListener('wf:node-selected', (e) => {
                 this.selectedNode = e.detail.data;
+                this.nodeData = e.detail.data;
                 this.selectedNodeId = e.detail.nodeId;
                 this.panelView = 'config';
                 this.panelOpen = true;
@@ -121,6 +122,7 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
 
             window.addEventListener('wf:node-deselected', () => {
                 this.selectedNode = null;
+                this.nodeData = null;
                 this.selectedNodeId = null;
                 if (this.panelView === 'config') {
                     this.panelOpen = false;
