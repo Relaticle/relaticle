@@ -7,6 +7,7 @@ use Relaticle\Workflow\Http\Controllers\CanvasController;
 use Relaticle\Workflow\Http\Controllers\RunController;
 use Relaticle\Workflow\Http\Controllers\WebhookTriggerController;
 use Relaticle\Workflow\Http\Controllers\WorkflowApiController;
+use Relaticle\Workflow\Http\Controllers\WorkflowLifecycleController;
 
 Route::prefix('workflow/api')
     ->middleware(config('workflow.middleware', ['web', 'auth']))
@@ -17,4 +18,8 @@ Route::prefix('workflow/api')
         Route::put('workflows/{workflow}/canvas', [CanvasController::class, 'update']);
         Route::get('workflows/{workflow}/runs', [RunController::class, 'index']);
         Route::get('workflow-runs/{run}', [RunController::class, 'show']);
+        Route::post('workflows/{workflow}/publish', [WorkflowLifecycleController::class, 'publish']);
+        Route::post('workflows/{workflow}/pause', [WorkflowLifecycleController::class, 'pause']);
+        Route::post('workflows/{workflow}/archive', [WorkflowLifecycleController::class, 'archive']);
+        Route::post('workflows/{workflow}/restore', [WorkflowLifecycleController::class, 'restore']);
     });
