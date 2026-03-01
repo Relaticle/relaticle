@@ -52,344 +52,361 @@ const SHAPE_MAP = {
 
 // ── Alpine Registration ──────────────────────────────────────────────
 
-document.addEventListener('alpine:init', () => {
-    const Alpine = window.Alpine;
-    if (!Alpine) return;
+function workflowBuilderFactory(workflowId, initialStatus, initialName) {
+    const topBar = topBarMixin();
+    const blockPicker = blockPickerData();
+    const configPanel = configPanelComponent();
+    const varPicker = variablePickerComponent();
 
-    // Main workflow builder component
-    Alpine.data('workflowBuilder', (workflowId, initialStatus, initialName) => {
-        const topBar = topBarMixin();
-        const blockPicker = blockPickerData();
-        const configPanel = configPanelComponent();
-        const varPicker = variablePickerComponent();
+    return {
+        // Core state
+        workflowId,
+        workflowName: initialName || 'Untitled Workflow',
+        workflowStatus: initialStatus || 'draft',
 
-        return {
-            // Core state
-            workflowId,
-            workflowName: initialName || 'Untitled Workflow',
-            workflowStatus: initialStatus || 'draft',
+        // Panel state
+        panelView: null,  // 'config' | 'settings' | 'runs'
+        panelOpen: false,
+        selectedNode: null,
 
-            // Panel state
-            panelView: null,  // 'config' | 'settings' | 'runs'
-            panelOpen: false,
-            selectedNode: null,
+        // Canvas state
+        saving: false,
+        interactionMode: 'pointer',
+        zoomLevel: 1,
 
-            // Canvas state
-            saving: false,
-            interactionMode: 'pointer',
-            zoomLevel: 1,
+        // Block picker state
+        blockPickerOpen: false,
+        blockPickerSearch: '',
+        blockPickerPos: { x: 0, y: 0 },
+        blockPickerSourceNode: null,
 
-            // Block picker state
-            blockPickerOpen: false,
-            blockPickerSearch: '',
-            blockPickerPos: { x: 0, y: 0 },
-            blockPickerSourceNode: null,
+        // Spread mixins
+        ...topBar,
+        ...blockPicker,
+        ...configPanel,
+        ...varPicker,
 
-            // Spread mixins
-            ...topBar,
-            ...blockPicker,
-            ...configPanel,
-            ...varPicker,
+        get zoomLabel() {
+            return Math.round(this.zoomLevel * 100) + '%';
+        },
 
-            get zoomLabel() {
-                return Math.round(this.zoomLevel * 100) + '%';
-            },
+        init() {
+            // Register X6 node shapes
+            registerTriggerNode();
+            registerActionNode();
+            registerConditionNode();
+            registerDelayNode();
+            registerLoopNode();
+            registerStopNode();
 
-            init() {
-                // Register X6 node shapes
-                registerTriggerNode();
-                registerActionNode();
-                registerConditionNode();
-                registerDelayNode();
-                registerLoopNode();
-                registerStopNode();
+            // Create graph
+            const container = document.getElementById('workflow-canvas');
+            const minimapContainer = document.getElementById('workflow-minimap');
+            if (!container) return;
 
-                // Create graph
-                const container = document.getElementById('workflow-canvas');
-                const minimapContainer = document.getElementById('workflow-minimap');
-                if (!container) return;
+            const graph = createGraph(container, minimapContainer);
+            window.__wfGraph = graph;
 
-                const graph = createGraph(container, minimapContainer);
-                window.__wfGraph = graph;
+            // Load canvas data
+            this.loadCanvas(graph);
 
-                // Load canvas data
-                this.loadCanvas(graph);
+            // Listen for graph events
+            window.addEventListener('wf:node-selected', (e) => {
+                this.selectedNode = e.detail.data;
+                this.selectedNodeId = e.detail.nodeId;
+                this.panelView = 'config';
+                this.panelOpen = true;
+                this.renderConfigForm();
+            });
 
-                // Listen for graph events
-                window.addEventListener('wf:node-selected', (e) => {
-                    this.selectedNode = e.detail.data;
-                    this.selectedNodeId = e.detail.nodeId;
-                    this.panelView = 'config';
-                    this.panelOpen = true;
-                    this.renderConfigForm();
-                });
-
-                window.addEventListener('wf:node-deselected', () => {
-                    this.selectedNode = null;
-                    this.selectedNodeId = null;
-                    if (this.panelView === 'config') {
-                        this.panelOpen = false;
-                        this.panelView = null;
-                    }
-                });
-
-                // Save shortcut
-                window.addEventListener('wf:save-requested', () => {
-                    this.saveCanvas();
-                });
-
-                // Mode toggle shortcuts
-                window.addEventListener('wf:set-mode', (e) => {
-                    this.setMode(e.detail);
-                });
-
-                // Run view events
-                window.addEventListener('wf:enter-run-view', (e) => {
-                    enterRunView(graph, e.detail);
-                });
-
-                window.addEventListener('wf:exit-run-view', () => {
-                    exitRunView(graph);
-                });
-
-                // Track zoom level
-                graph.on('scale', ({ sx }) => {
-                    this.zoomLevel = sx;
-                });
-            },
-
-            // ── Panel Management ─────────────────────────────────
-
-            togglePanel(view) {
-                if (this.panelView === view && this.panelOpen) {
-                    this.closePanel();
-                } else {
-                    this.panelView = view;
-                    this.panelOpen = true;
-                }
-            },
-
-            closePanel() {
-                this.panelOpen = false;
-                this.panelView = null;
-            },
-
-            deselectNode() {
+            window.addEventListener('wf:node-deselected', () => {
                 this.selectedNode = null;
                 this.selectedNodeId = null;
-                this.panelOpen = false;
-                this.panelView = null;
-                const graph = window.__wfGraph;
-                if (graph) graph.cleanSelection();
-            },
-
-            // ── Canvas Mode ──────────────────────────────────────
-
-            setMode(mode) {
-                this.interactionMode = mode;
-                const graph = window.__wfGraph;
-                if (!graph) return;
-
-                if (mode === 'hand') {
-                    graph.disableSelection();
-                    graph.panning.enablePanning();
-                } else {
-                    graph.enableSelection();
+                if (this.panelView === 'config') {
+                    this.panelOpen = false;
+                    this.panelView = null;
                 }
-            },
+            });
 
-            // ── Zoom Controls ────────────────────────────────────
+            // Save shortcut
+            window.addEventListener('wf:save-requested', () => {
+                this.saveCanvas();
+            });
 
-            zoomIn() {
-                const graph = window.__wfGraph;
-                if (graph) graph.zoom(0.1);
-            },
+            // Mode toggle shortcuts
+            window.addEventListener('wf:set-mode', (e) => {
+                this.setMode(e.detail);
+            });
 
-            zoomOut() {
-                const graph = window.__wfGraph;
-                if (graph) graph.zoom(-0.1);
-            },
+            // Run view events
+            window.addEventListener('wf:enter-run-view', (e) => {
+                enterRunView(graph, e.detail);
+            });
 
-            fitToView() {
-                const graph = window.__wfGraph;
-                if (graph) graph.zoomToFit({ padding: 60, maxScale: 1.5 });
-            },
+            window.addEventListener('wf:exit-run-view', () => {
+                exitRunView(graph);
+            });
 
-            // ── Toolbar Actions ──────────────────────────────────
+            // Track zoom level
+            graph.on('scale', ({ sx }) => {
+                this.zoomLevel = sx;
+            });
+        },
 
-            undoAction() {
-                const graph = window.__wfGraph;
-                if (graph) graph.undo();
-            },
+        // ── Panel Management ─────────────────────────────────
 
-            redoAction() {
-                const graph = window.__wfGraph;
-                if (graph) graph.redo();
-            },
+        togglePanel(view) {
+            if (this.panelView === view && this.panelOpen) {
+                this.closePanel();
+            } else {
+                this.panelView = view;
+                this.panelOpen = true;
+            }
+        },
 
-            organizeBlocks() {
-                const graph = window.__wfGraph;
-                if (graph) organizeLayout(graph);
-            },
+        closePanel() {
+            this.panelOpen = false;
+            this.panelView = null;
+        },
 
-            // ── Block Picker ─────────────────────────────────────
+        deselectNode() {
+            this.selectedNode = null;
+            this.selectedNodeId = null;
+            this.panelOpen = false;
+            this.panelView = null;
+            const graph = window.__wfGraph;
+            if (graph) graph.cleanSelection();
+        },
 
-            openBlockPicker(sourceNodeId, x, y) {
-                this.blockPickerSourceNode = sourceNodeId || null;
-                this.blockPickerPos = { x, y };
-                this.blockPickerSearch = '';
-                this.blockPickerOpen = true;
-                this.$nextTick(() => {
-                    this.$refs.pickerSearchInput?.focus();
-                });
-            },
+        // ── Canvas Mode ──────────────────────────────────────
 
-            addBlock(block) {
-                const graph = window.__wfGraph;
-                if (!graph) return;
-                addBlockToGraph(graph, block, this.blockPickerSourceNode, null);
-                this.blockPickerOpen = false;
-            },
+        setMode(mode) {
+            this.interactionMode = mode;
+            const graph = window.__wfGraph;
+            if (!graph) return;
 
-            // ── Canvas Load / Save ───────────────────────────────
+            if (mode === 'hand') {
+                graph.disableSelection();
+                graph.panning.enablePanning();
+            } else {
+                graph.enableSelection();
+            }
+        },
 
-            async loadCanvas(graph) {
-                try {
-                    const response = await fetch(`/workflow/api/workflows/${this.workflowId}/canvas`);
-                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        // ── Zoom Controls ────────────────────────────────────
 
-                    const data = await response.json();
+        zoomIn() {
+            const graph = window.__wfGraph;
+            if (graph) graph.zoom(0.1);
+        },
 
-                    // Store meta for variable picker
-                    window.__wfMeta = data.meta || {};
-                    this.registeredActions = data.meta?.registered_actions || {};
+        zoomOut() {
+            const graph = window.__wfGraph;
+            if (graph) graph.zoom(-0.1);
+        },
 
-                    if (data.nodes?.length) {
-                        // Add nodes
-                        data.nodes.forEach((node) => {
-                            graph.addNode({
-                                id: node.node_id,
-                                shape: SHAPE_MAP[node.type] || 'workflow-action',
-                                x: node.position_x || 100,
-                                y: node.position_y || 100,
-                                data: {
-                                    type: node.type,
-                                    nodeId: node.node_id,
-                                    config: node.config || {},
-                                    actionType: node.action_type,
-                                },
-                            });
+        fitToView() {
+            const graph = window.__wfGraph;
+            if (graph) graph.zoomToFit({ padding: 60, maxScale: 1.5 });
+        },
+
+        // ── Toolbar Actions ──────────────────────────────────
+
+        undoAction() {
+            const graph = window.__wfGraph;
+            if (graph) graph.undo();
+        },
+
+        redoAction() {
+            const graph = window.__wfGraph;
+            if (graph) graph.redo();
+        },
+
+        organizeBlocks() {
+            const graph = window.__wfGraph;
+            if (graph) organizeLayout(graph);
+        },
+
+        // ── Block Picker ─────────────────────────────────────
+
+        openBlockPicker(sourceNodeId, x, y) {
+            this.blockPickerSourceNode = sourceNodeId || null;
+            this.blockPickerPos = { x, y };
+            this.blockPickerSearch = '';
+            this.blockPickerOpen = true;
+            this.$nextTick(() => {
+                this.$refs.pickerSearchInput?.focus();
+            });
+        },
+
+        addBlock(block) {
+            const graph = window.__wfGraph;
+            if (!graph) return;
+            addBlockToGraph(graph, block, this.blockPickerSourceNode, null);
+            this.blockPickerOpen = false;
+        },
+
+        // ── Canvas Load / Save ───────────────────────────────
+
+        async loadCanvas(graph) {
+            try {
+                const response = await fetch(`/workflow/api/workflows/${this.workflowId}/canvas`);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+                const data = await response.json();
+
+                // Store meta for variable picker
+                window.__wfMeta = data.meta || {};
+                this.registeredActions = data.meta?.registered_actions || {};
+
+                if (data.nodes?.length) {
+                    // Add nodes
+                    data.nodes.forEach((node) => {
+                        graph.addNode({
+                            id: node.node_id,
+                            shape: SHAPE_MAP[node.type] || 'workflow-action',
+                            x: node.position_x || 100,
+                            y: node.position_y || 100,
+                            data: {
+                                type: node.type,
+                                nodeId: node.node_id,
+                                config: node.config || {},
+                                actionType: node.action_type,
+                            },
                         });
-
-                        // Add edges
-                        data.edges?.forEach((edge) => {
-                            graph.addEdge({
-                                id: edge.edge_id,
-                                source: edge.source_node_id,
-                                target: edge.target_node_id,
-                                labels: edge.condition_label
-                                    ? [{ attrs: { label: { text: edge.condition_label } } }]
-                                    : [],
-                                attrs: {
-                                    line: {
-                                        stroke: '#94a3b8',
-                                        strokeWidth: 1.5,
-                                        targetMarker: { name: 'block', width: 10, height: 6 },
-                                    },
-                                },
-                            });
-                        });
-
-                        // Fit to view
-                        graph.zoomToFit({ padding: 60, maxScale: 1.5 });
-                    }
-
-                    if (data.canvas_data?.zoom) {
-                        graph.zoomTo(data.canvas_data.zoom);
-                    }
-                } catch (error) {
-                    console.error('Failed to load canvas:', error);
-                    showToast('Failed to load workflow canvas.', 'error');
-                }
-            },
-
-            async saveCanvas() {
-                const graph = window.__wfGraph;
-                if (!graph) return;
-
-                const validationErrors = validateAllNodes(graph);
-                if (validationErrors.length > 0) {
-                    showToast(`${validationErrors.length} node(s) need configuration before saving.`, 'warning');
-                    return;
-                }
-
-                const cells = graph.getCells();
-                const nodes = [];
-                const edges = [];
-
-                cells.forEach((cell) => {
-                    if (cell.isNode()) {
-                        const data = cell.getData() || {};
-                        const pos = cell.getPosition();
-                        nodes.push({
-                            node_id: cell.id,
-                            type: data.type || 'action',
-                            action_type: data.actionType || data.config?.action_type || null,
-                            config: data.config || {},
-                            position_x: Math.round(pos.x),
-                            position_y: Math.round(pos.y),
-                        });
-                    } else if (cell.isEdge()) {
-                        const source = cell.getSourceCellId();
-                        const target = cell.getTargetCellId();
-                        const labels = cell.getLabels();
-                        edges.push({
-                            edge_id: cell.id,
-                            source_node_id: source,
-                            target_node_id: target,
-                            condition_label: labels?.[0]?.attrs?.label?.text || null,
-                        });
-                    }
-                });
-
-                this.saving = true;
-
-                try {
-                    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
-                    const response = await fetch(`/workflow/api/workflows/${this.workflowId}/canvas`, {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': csrfToken,
-                        },
-                        body: JSON.stringify({
-                            canvas_data: { zoom: graph.zoom() },
-                            nodes,
-                            edges,
-                        }),
                     });
 
-                    if (response.ok) {
-                        showToast('Workflow saved successfully.', 'success');
-                    } else {
-                        showToast('Failed to save. Your changes are preserved.', 'error');
-                    }
-                } catch (err) {
-                    console.error('Failed to save canvas:', err);
-                    showToast('Failed to save. Your changes are preserved.', 'error');
-                } finally {
-                    this.saving = false;
+                    // Add edges
+                    data.edges?.forEach((edge) => {
+                        graph.addEdge({
+                            id: edge.edge_id,
+                            source: edge.source_node_id,
+                            target: edge.target_node_id,
+                            labels: edge.condition_label
+                                ? [{ attrs: { label: { text: edge.condition_label } } }]
+                                : [],
+                            attrs: {
+                                line: {
+                                    stroke: '#94a3b8',
+                                    strokeWidth: 1.5,
+                                    targetMarker: { name: 'block', width: 10, height: 6 },
+                                },
+                            },
+                        });
+                    });
+
+                    // Fit to view
+                    graph.zoomToFit({ padding: 60, maxScale: 1.5 });
                 }
-            },
 
-            // ── Toast Helper ─────────────────────────────────────
+                if (data.canvas_data?.zoom) {
+                    graph.zoomTo(data.canvas_data.zoom);
+                }
+            } catch (error) {
+                console.error('Failed to load canvas:', error);
+                showToast('Failed to load workflow canvas.', 'error');
+            }
+        },
 
-            showToast(message, type) {
-                showToast(message, type);
-            },
-        };
-    });
+        async saveCanvas() {
+            const graph = window.__wfGraph;
+            if (!graph) return;
 
-    // Run History sub-component
+            const validationErrors = validateAllNodes(graph);
+            if (validationErrors.length > 0) {
+                showToast(`${validationErrors.length} node(s) need configuration before saving.`, 'warning');
+                return;
+            }
+
+            const cells = graph.getCells();
+            const nodes = [];
+            const edges = [];
+
+            cells.forEach((cell) => {
+                if (cell.isNode()) {
+                    const data = cell.getData() || {};
+                    const pos = cell.getPosition();
+                    nodes.push({
+                        node_id: cell.id,
+                        type: data.type || 'action',
+                        action_type: data.actionType || data.config?.action_type || null,
+                        config: data.config || {},
+                        position_x: Math.round(pos.x),
+                        position_y: Math.round(pos.y),
+                    });
+                } else if (cell.isEdge()) {
+                    const source = cell.getSourceCellId();
+                    const target = cell.getTargetCellId();
+                    const labels = cell.getLabels();
+                    edges.push({
+                        edge_id: cell.id,
+                        source_node_id: source,
+                        target_node_id: target,
+                        condition_label: labels?.[0]?.attrs?.label?.text || null,
+                    });
+                }
+            });
+
+            this.saving = true;
+
+            try {
+                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
+                const response = await fetch(`/workflow/api/workflows/${this.workflowId}/canvas`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                    },
+                    body: JSON.stringify({
+                        canvas_data: { zoom: graph.zoom() },
+                        nodes,
+                        edges,
+                    }),
+                });
+
+                if (response.ok) {
+                    showToast('Workflow saved successfully.', 'success');
+                } else {
+                    showToast('Failed to save. Your changes are preserved.', 'error');
+                }
+            } catch (err) {
+                console.error('Failed to save canvas:', err);
+                showToast('Failed to save. Your changes are preserved.', 'error');
+            } finally {
+                this.saving = false;
+            }
+        },
+
+        // ── Toast Helper ─────────────────────────────────────
+
+        showToast(message, type) {
+            showToast(message, type);
+        },
+    };
+}
+
+function registerAlpineComponents(Alpine) {
+    Alpine.data('workflowBuilder', workflowBuilderFactory);
     Alpine.data('runHistory', (workflowId) => runHistoryComponent(workflowId));
-});
+}
+
+// Handle both pre- and post-Alpine initialization scenarios.
+// In Filament/Livewire, Alpine may already be started by the time this
+// bundle loads (script in @push('scripts') runs after @filamentScripts).
+if (window.Alpine) {
+    // Alpine already available — register components immediately
+    registerAlpineComponents(window.Alpine);
+
+    // Re-initialize any x-data elements that Alpine already tried to process
+    // but failed because our components weren't registered yet
+    document.querySelectorAll('[x-data*="workflowBuilder"], [x-data*="runHistory"]').forEach((el) => {
+        if (!el._x_dataStack) {
+            window.Alpine.initTree(el);
+        }
+    });
+} else {
+    // Alpine not yet loaded — listen for its init event
+    document.addEventListener('alpine:init', () => {
+        if (window.Alpine) registerAlpineComponents(window.Alpine);
+    });
+}

@@ -3,6 +3,9 @@
         <link rel="stylesheet" href="{{ asset('vendor/workflow/workflow-builder.css') }}">
     @endpush
 
+    {{-- Load workflow builder JS before Alpine processes x-data --}}
+    <script src="{{ asset('vendor/workflow/workflow-builder.js') }}"></script>
+
     <div
         x-data="workflowBuilder('{{ $workflowId }}', '{{ $workflowStatus ?? 'draft' }}', {{ json_encode($workflowName ?? '') }})"
         class="workflow-builder"
@@ -270,7 +273,5 @@
         </div>
     </div>
 
-    @push('scripts')
-        <script src="{{ asset('vendor/workflow/workflow-builder.js') }}" defer></script>
-    @endpush
+
 </x-filament-panels::page>
