@@ -6,7 +6,7 @@ const ICON = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" vie
 export function registerDelayNode() {
     Shape.HTML.register({
         shape: 'workflow-delay',
-        width: 240,
+        width: 260,
         height: 72,
         html(cell) {
             const data = cell.getData() || {};
@@ -20,6 +20,7 @@ export function registerDelayNode() {
                 icon: ICON,
                 label: 'Delay',
                 summary,
+                description: data.config?.description || '',
             });
             return div;
         },

@@ -6,8 +6,8 @@ const ICON = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" vie
 export function registerConditionNode() {
     Shape.HTML.register({
         shape: 'workflow-condition',
-        width: 240,
-        height: 80,
+        width: 260,
+        height: 88,
         html(cell) {
             const data = cell.getData() || {};
             const field = data.config?.field || '';
@@ -20,6 +20,7 @@ export function registerConditionNode() {
                 icon: ICON,
                 label: 'Condition',
                 summary,
+                description: data.config?.description || '',
             });
             return div;
         },

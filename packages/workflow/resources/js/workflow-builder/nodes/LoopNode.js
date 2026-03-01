@@ -6,7 +6,7 @@ const ICON = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" vie
 export function registerLoopNode() {
     Shape.HTML.register({
         shape: 'workflow-loop',
-        width: 240,
+        width: 260,
         height: 72,
         html(cell) {
             const data = cell.getData() || {};
@@ -19,6 +19,7 @@ export function registerLoopNode() {
                 icon: ICON,
                 label: 'Loop',
                 summary,
+                description: data.config?.description || '',
             });
             return div;
         },

@@ -492,6 +492,21 @@
     color: #94a3b8;
 }
 
+.wf-block-description {
+    font-size: 11px;
+    color: #94a3b8;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+    margin-top: 2px;
+    font-style: italic;
+}
+
+.dark .wf-block-description {
+    color: #64748b;
+}
+
 /* Selected state */
 .x6-node-selected .wf-block {
     border-color: #3b82f6;

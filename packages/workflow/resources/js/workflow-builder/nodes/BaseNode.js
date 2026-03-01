@@ -14,8 +14,11 @@
  * @returns {string} HTML string
  */
 export function createNodeHTML(data, options) {
-    const { color, icon, label, summary } = options;
+    const { color, icon, label, summary, description } = options;
     const displaySummary = summary || 'Click to configure';
+    const descHtml = description
+        ? `<span class="wf-block-description">${description}</span>`
+        : '';
 
     return `
         <div class="wf-block" style="--block-color: ${color}">
@@ -25,6 +28,7 @@ export function createNodeHTML(data, options) {
             </div>
             <div class="wf-block-body">
                 <span class="wf-block-summary">${displaySummary}</span>
+                ${descHtml}
             </div>
         </div>
     `;
