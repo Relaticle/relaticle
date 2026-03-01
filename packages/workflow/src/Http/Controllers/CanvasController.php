@@ -57,6 +57,8 @@ class CanvasController extends Controller
             ->map(fn ($class, $key) => [
                 'key' => $key,
                 'label' => $class::label(),
+                'category' => $class::category(),
+                'icon' => $class::icon(),
                 'configSchema' => $class::configSchema(),
             ])
             ->values()
@@ -67,6 +69,8 @@ class CanvasController extends Controller
         foreach ($manager->getRegisteredActions() as $key => $class) {
             $registeredActions[$key] = [
                 'label' => $class::label(),
+                'category' => $class::category(),
+                'icon' => $class::icon(),
                 'configSchema' => $class::configSchema(),
                 'outputSchema' => $class::outputSchema(),
             ];

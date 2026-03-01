@@ -74,6 +74,47 @@ class GraphWalker
     }
 
     /**
+     * Find a node by its canvas node_id (e.g. "action-2"), not the database ULID.
+     */
+    public function findNodeByNodeId(string $nodeId): ?WorkflowNode
+    {
+        return $this->nodes->first(fn (WorkflowNode $node) => $node->node_id === $nodeId);
+    }
+
+    /**
+     * Get all predecessor (upstream) nodes reachable by walking edges backwards from the given node.
+     *
+     * @return Collection<int, WorkflowNode>
+     */
+    public function getPredecessors(WorkflowNode $targetNode): Collection
+    {
+        $predecessors = collect();
+        $visited = [];
+        $queue = new \SplQueue();
+        $queue->enqueue($targetNode);
+
+        while (!$queue->isEmpty()) {
+            $current = $queue->dequeue();
+
+            // Find all edges that point TO this node
+            $incomingEdges = $this->edges->filter(
+                fn (WorkflowEdge $edge) => $edge->target_node_id === $current->id
+            );
+
+            foreach ($incomingEdges as $edge) {
+                $sourceNode = $this->findNodeById($edge->source_node_id);
+                if ($sourceNode && !in_array($sourceNode->id, $visited, true)) {
+                    $visited[] = $sourceNode->id;
+                    $predecessors->push($sourceNode);
+                    $queue->enqueue($sourceNode);
+                }
+            }
+        }
+
+        return $predecessors;
+    }
+
+    /**
      * Determine if a node is terminal (has no outgoing edges).
      */
     public function isTerminal(WorkflowNode $node): bool

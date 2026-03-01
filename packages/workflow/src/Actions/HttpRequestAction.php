@@ -52,6 +52,16 @@ class HttpRequestAction extends BaseAction
         return 'HTTP Request';
     }
 
+    public static function category(): string
+    {
+        return 'Integration';
+    }
+
+    public static function icon(): string
+    {
+        return 'heroicon-o-globe-alt';
+    }
+
     /**
      * Get the configuration schema for this action.
      *

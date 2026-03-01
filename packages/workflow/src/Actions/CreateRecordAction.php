@@ -63,6 +63,16 @@ class CreateRecordAction extends BaseAction
         return 'Create Record';
     }
 
+    public static function category(): string
+    {
+        return 'Records';
+    }
+
+    public static function icon(): string
+    {
+        return 'heroicon-o-document-plus';
+    }
+
     public static function configSchema(): array
     {
         return [

@@ -76,6 +76,16 @@ class UpdateRecordAction extends BaseAction
         return 'Update Record';
     }
 
+    public static function category(): string
+    {
+        return 'Records';
+    }
+
+    public static function icon(): string
+    {
+        return 'heroicon-o-pencil-square';
+    }
+
     public static function configSchema(): array
     {
         return [

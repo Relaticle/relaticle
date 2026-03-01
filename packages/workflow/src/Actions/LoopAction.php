@@ -36,6 +36,16 @@ class LoopAction extends BaseAction
         return 'Loop / For Each';
     }
 
+    public static function category(): string
+    {
+        return 'Flow Control';
+    }
+
+    public static function icon(): string
+    {
+        return 'heroicon-o-arrow-path';
+    }
+
     /**
      * Get the configuration schema for this action.
      *

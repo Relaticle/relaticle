@@ -7,7 +7,18 @@ namespace Relaticle\Workflow;
 use Closure;
 use InvalidArgumentException;
 use Relaticle\Workflow\Actions\Contracts\WorkflowAction;
+use Relaticle\Workflow\Actions\CreateRecordAction;
+use Relaticle\Workflow\Actions\DeleteRecordAction;
+use Relaticle\Workflow\Actions\DelayAction;
+use Relaticle\Workflow\Actions\FindRecordAction;
+use Relaticle\Workflow\Actions\HttpRequestAction;
+use Relaticle\Workflow\Actions\LoopAction;
+use Relaticle\Workflow\Actions\SendEmailAction;
+use Relaticle\Workflow\Actions\SendWebhookAction;
+use Relaticle\Workflow\Actions\UpdateRecordAction;
 use Relaticle\Workflow\Observers\WorkflowModelObserver;
+use Relaticle\Workflow\Schema\EntityDefinition;
+use Relaticle\Workflow\Schema\RelaticleSchema;
 
 class WorkflowManager
 {
@@ -33,6 +44,40 @@ class WorkflowManager
     protected ?array $tenancyConfig = null;
 
     /**
+     * Built-in Relaticle action classes.
+     *
+     * @return array<string, class-string<WorkflowAction>>
+     */
+    public function getActions(): array
+    {
+        return array_merge([
+            'send_email' => SendEmailAction::class,
+            'send_webhook' => SendWebhookAction::class,
+            'http_request' => HttpRequestAction::class,
+            'delay' => DelayAction::class,
+            'loop' => LoopAction::class,
+            'create_record' => CreateRecordAction::class,
+            'update_record' => UpdateRecordAction::class,
+            'find_record' => FindRecordAction::class,
+            'delete_record' => DeleteRecordAction::class,
+        ], $this->actions);
+    }
+
+    /**
+     * Get trigger entities from the RelaticleSchema.
+     *
+     * @return array<string, EntityDefinition>
+     */
+    public function getTriggerEntities(): array
+    {
+        try {
+            return app(RelaticleSchema::class)->getEntities();
+        } catch (\Throwable) {
+            return [];
+        }
+    }
+
+    /**
      * Register a model class as a triggerable model for workflows.
      *
      * @param  string  $modelClass  The fully qualified model class name
@@ -42,9 +87,6 @@ class WorkflowManager
     {
         $this->triggerableModels[$modelClass] = $config;
 
-        // Dynamically attach the observer so workflows fire on model events.
-        // This is done eagerly at registration time because the host app
-        // typically registers models after the service provider boots.
         if (class_exists($modelClass) && is_a($modelClass, \Illuminate\Database\Eloquent\Model::class, true)) {
             $modelClass::observe(WorkflowModelObserver::class);
         }
@@ -80,20 +122,17 @@ class WorkflowManager
     }
 
     /**
-     * Get all registered actions.
+     * Get all registered actions (built-in + custom).
      *
      * @return array<string, class-string<WorkflowAction>>
      */
     public function getRegisteredActions(): array
     {
-        return $this->actions;
+        return $this->getActions();
     }
 
     /**
      * Configure tenancy scoping for workflows.
-     *
-     * @param  string  $scopeColumn  The database column used for tenant scoping
-     * @param  Closure  $resolver  A closure that resolves the current tenant identifier
      */
     public function useTenancy(string $scopeColumn, Closure $resolver): void
     {

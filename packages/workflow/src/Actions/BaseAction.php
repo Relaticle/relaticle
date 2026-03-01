@@ -27,4 +27,20 @@ abstract class BaseAction implements WorkflowAction
     {
         return [];
     }
+
+    /**
+     * Get the action category for the block picker.
+     */
+    public static function category(): string
+    {
+        return 'General';
+    }
+
+    /**
+     * Get the Heroicon name for this action.
+     */
+    public static function icon(): string
+    {
+        return 'heroicon-o-bolt';
+    }
 }

@@ -50,6 +50,16 @@ class SendEmailAction extends BaseAction
         return 'Send Email';
     }
 
+    public static function category(): string
+    {
+        return 'Communication';
+    }
+
+    public static function icon(): string
+    {
+        return 'heroicon-o-envelope';
+    }
+
     /**
      * Get the configuration schema for this action.
      *

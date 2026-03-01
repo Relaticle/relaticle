@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Facade;
 use Relaticle\Workflow\WorkflowManager;
 
 /**
+ * @method static array getActions()
+ * @method static array getTriggerEntities()
  * @method static void registerTriggerableModel(string $modelClass, array $config)
  * @method static array getTriggerableModels()
  * @method static void registerAction(string $key, string $actionClass)

@@ -87,6 +87,16 @@ class FindRecordAction extends BaseAction
         return 'Find Record';
     }
 
+    public static function category(): string
+    {
+        return 'Records';
+    }
+
+    public static function icon(): string
+    {
+        return 'heroicon-o-magnifying-glass';
+    }
+
     public static function configSchema(): array
     {
         return [

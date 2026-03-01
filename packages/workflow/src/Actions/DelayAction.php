@@ -34,6 +34,16 @@ class DelayAction extends BaseAction
         return 'Delay / Wait';
     }
 
+    public static function category(): string
+    {
+        return 'Flow Control';
+    }
+
+    public static function icon(): string
+    {
+        return 'heroicon-o-clock';
+    }
+
     /**
      * Get the configuration schema for this action.
      *

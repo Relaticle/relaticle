@@ -340,8 +340,9 @@ it('stores context data on the workflow run', function () {
     // Reload from DB to ensure it was persisted correctly
     $run->refresh();
 
-    expect($run->context_data)->toBe($context);
     expect($run->context_data['record']['name'])->toBe('Acme Corp');
     expect($run->context_data['user_id'])->toBe(7);
     expect($run->context_data['triggered_by'])->toBe('manual');
+    // Structured context adds trigger sub-context from record
+    expect($run->context_data['trigger']['record'])->toBe($context['record']);
 });

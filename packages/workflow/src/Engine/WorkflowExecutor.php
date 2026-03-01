@@ -42,10 +42,13 @@ class WorkflowExecutor
     {
         WorkflowTriggered::dispatch($workflow, $context);
 
-        $run = $this->createRun($workflow, $context);
+        // Build structured context
+        $structuredContext = $this->buildStructuredContext($workflow, $context);
+
+        $run = $this->createRun($workflow, $structuredContext);
 
         try {
-            DB::transaction(function () use ($workflow, $run, $context): void {
+            DB::transaction(function () use ($workflow, $run, &$structuredContext): void {
                 $workflow->load(['nodes', 'edges']);
 
                 $walker = new GraphWalker($workflow->nodes, $workflow->edges);
@@ -55,7 +58,7 @@ class WorkflowExecutor
                     throw new \RuntimeException('No trigger node found in workflow.');
                 }
 
-                $this->walkGraph($walker, $triggerNode, $run, $context);
+                $this->walkGraph($walker, $triggerNode, $run, $structuredContext);
             });
 
             // Only complete if not paused by a delay
@@ -161,15 +164,47 @@ class WorkflowExecutor
      */
     private function createRun(Workflow $workflow, array $context): WorkflowRun
     {
+        // Strip internal keys that shouldn't be persisted
+        $persistableContext = array_diff_key($context, array_flip(['_workflow']));
+
         /** @var WorkflowRun $run */
         $run = $workflow->runs()->create([
             'tenant_id' => $workflow->tenant_id,
             'status' => WorkflowRunStatus::Running,
-            'context_data' => $context,
+            'context_data' => $persistableContext,
             'started_at' => Carbon::now(),
         ]);
 
         return $run;
+    }
+
+    /**
+     * Build structured context from raw context and workflow metadata.
+     *
+     * @param  array<string, mixed>  $context
+     * @return array<string, mixed>
+     */
+    private function buildStructuredContext(Workflow $workflow, array $context): array
+    {
+        $structured = $context;
+
+        // Add workflow reference for actions that need tenant/creator info
+        $structured['_workflow'] = $workflow;
+
+        // Initialize steps container for output propagation
+        if (!isset($structured['steps'])) {
+            $structured['steps'] = [];
+        }
+
+        // Build trigger sub-context if not already structured
+        if (!isset($structured['trigger']) && isset($structured['record'])) {
+            $structured['trigger'] = [
+                'record' => $structured['record'],
+                'event' => $structured['event'] ?? null,
+            ];
+        }
+
+        return $structured;
     }
 
     /**
@@ -181,7 +216,7 @@ class WorkflowExecutor
         GraphWalker $walker,
         WorkflowNode $triggerNode,
         WorkflowRun $run,
-        array $context,
+        array &$context,
     ): void {
         /** @var \SplQueue<WorkflowNode> $queue */
         $queue = new \SplQueue();
@@ -193,7 +228,8 @@ class WorkflowExecutor
 
         $processedNodeIds = [];
         $stepCount = 0;
-        $maxSteps = (int) config('workflow.max_steps_per_run', 100);
+        $workflow = $run->workflow;
+        $maxSteps = (int) ($workflow->trigger_config['max_steps'] ?? config('workflow.max_steps_per_run', 100));
 
         while (! $queue->isEmpty()) {
             /** @var WorkflowNode $currentNode */
@@ -237,7 +273,7 @@ class WorkflowExecutor
         WorkflowNode $node,
         GraphWalker $walker,
         WorkflowRun $run,
-        array $context,
+        array &$context,
         \SplQueue $queue,
     ): void {
         $step = $this->createStep($run, $node, StepStatus::Running);
@@ -270,6 +306,12 @@ class WorkflowExecutor
             'output_data' => $output,
             'completed_at' => Carbon::now(),
         ]);
+
+        // Propagate step output into context for downstream steps
+        $context['steps'][$node->node_id] = [
+            'output' => $output,
+            'status' => 'completed',
+        ];
 
         $this->enqueueNextNodes($walker, $node, $queue);
     }

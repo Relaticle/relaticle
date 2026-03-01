@@ -64,6 +64,16 @@ class DeleteRecordAction extends BaseAction
         return 'Delete Record';
     }
 
+    public static function category(): string
+    {
+        return 'Records';
+    }
+
+    public static function icon(): string
+    {
+        return 'heroicon-o-trash';
+    }
+
     public static function configSchema(): array
     {
         return [

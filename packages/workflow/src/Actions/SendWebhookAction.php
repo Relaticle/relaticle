@@ -43,6 +43,16 @@ class SendWebhookAction extends BaseAction
         return 'Send Webhook';
     }
 
+    public static function category(): string
+    {
+        return 'Integration';
+    }
+
+    public static function icon(): string
+    {
+        return 'heroicon-o-arrow-up-tray';
+    }
+
     /**
      * Get the configuration schema for this action.
      *

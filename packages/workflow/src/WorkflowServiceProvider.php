@@ -26,16 +26,7 @@ class WorkflowServiceProvider extends PackageServiceProvider
     {
         $this->app->singleton(RelaticleSchema::class);
 
-        $this->app->singleton(WorkflowManager::class, function () {
-            $manager = new WorkflowManager();
-            $manager->registerAction('delay', \Relaticle\Workflow\Actions\DelayAction::class);
-            $manager->registerAction('loop', \Relaticle\Workflow\Actions\LoopAction::class);
-            $manager->registerAction('send_webhook', \Relaticle\Workflow\Actions\SendWebhookAction::class);
-            $manager->registerAction('send_email', \Relaticle\Workflow\Actions\SendEmailAction::class);
-            $manager->registerAction('http_request', \Relaticle\Workflow\Actions\HttpRequestAction::class);
-
-            return $manager;
-        });
+        $this->app->singleton(WorkflowManager::class);
 
         $this->app->bind(WorkflowExecutor::class, function ($app) {
             return new WorkflowExecutor(
