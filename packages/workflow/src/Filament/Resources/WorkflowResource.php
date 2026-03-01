@@ -7,7 +7,6 @@ namespace Relaticle\Workflow\Filament\Resources;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
@@ -16,12 +15,12 @@ use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\RestoreAction;
-use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Relaticle\Workflow\Enums\TriggerType;
+use Relaticle\Workflow\Enums\WorkflowStatus;
 use Relaticle\Workflow\Models\Workflow;
 use Relaticle\Workflow\WorkflowManager;
 
@@ -87,12 +86,10 @@ class WorkflowResource extends Resource
                     TriggerType::Webhook->value,
                 ])),
 
-            Toggle::make('is_active')
-                ->label('Active')
-                ->default(false)
-                ->helperText(fn ($record) => $record && ! $record->canActivate()
-                    ? 'Cannot activate: ' . implode(' ', $record->getActivationErrors())
-                    : null),
+            Select::make('status')
+                ->options(collect(WorkflowStatus::cases())->mapWithKeys(fn ($s) => [$s->value => ucfirst($s->value)]))
+                ->default('draft')
+                ->required(),
         ]);
     }
 
@@ -105,9 +102,14 @@ class WorkflowResource extends Resource
                     ->sortable(),
                 TextColumn::make('trigger_type')
                     ->badge(),
-                IconColumn::make('is_active')
-                    ->boolean()
-                    ->label('Active'),
+                TextColumn::make('status')
+                    ->badge()
+                    ->color(fn (WorkflowStatus $state): string => match ($state) {
+                        WorkflowStatus::Draft => 'gray',
+                        WorkflowStatus::Live => 'success',
+                        WorkflowStatus::Paused => 'warning',
+                        WorkflowStatus::Archived => 'danger',
+                    }),
                 TextColumn::make('last_triggered_at')
                     ->dateTime()
                     ->sortable()

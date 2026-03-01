@@ -35,7 +35,7 @@ it('dispatches job when a matching model is created', function () {
             'model' => TestCompany::class,
             'event' => 'created',
         ],
-        'is_active' => true,
+        'status' => 'live',
     ]);
 
     TestCompany::create([
@@ -58,7 +58,7 @@ it('dispatches job when a specific field changes to a target value', function ()
             'field' => 'status',
             'value' => 'active',
         ],
-        'is_active' => true,
+        'status' => 'live',
     ]);
 
     $company = TestCompany::create([
@@ -86,7 +86,7 @@ it('does not trigger for unrelated field changes', function () {
             'field' => 'status',
             'value' => 'active',
         ],
-        'is_active' => true,
+        'status' => 'live',
     ]);
 
     $company = TestCompany::create([
@@ -110,7 +110,7 @@ it('skips inactive workflows', function () {
             'model' => TestCompany::class,
             'event' => 'created',
         ],
-        'is_active' => false,
+        'status' => 'draft',
     ]);
 
     TestCompany::create([
@@ -128,7 +128,7 @@ it('passes record as context data in dispatched job', function () {
             'model' => TestCompany::class,
             'event' => 'created',
         ],
-        'is_active' => true,
+        'status' => 'live',
     ]);
 
     TestCompany::create([
@@ -153,7 +153,7 @@ it('dispatches job when a model is deleted', function () {
             'model' => TestCompany::class,
             'event' => 'deleted',
         ],
-        'is_active' => true,
+        'status' => 'live',
     ]);
 
     $company = TestCompany::create([
@@ -179,7 +179,7 @@ it('dispatches job for generic update without field filter', function () {
             'model' => TestCompany::class,
             'event' => 'updated',
         ],
-        'is_active' => true,
+        'status' => 'live',
     ]);
 
     $company = TestCompany::create([
@@ -206,7 +206,7 @@ it('does not dispatch when field changes but value does not match', function () 
             'field' => 'status',
             'value' => 'active',
         ],
-        'is_active' => true,
+        'status' => 'live',
     ]);
 
     $company = TestCompany::create([

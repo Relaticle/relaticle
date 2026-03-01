@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Relaticle\Workflow\Enums\NodeType;
 use Relaticle\Workflow\Enums\TriggerType;
+use Relaticle\Workflow\Enums\WorkflowStatus;
 use Relaticle\Workflow\Models\Concerns\BelongsToTenant;
 
 class Workflow extends Model
@@ -27,7 +28,8 @@ class Workflow extends Model
         'canvas_data',
         'canvas_version',
         'webhook_secret',
-        'is_active',
+        'status',
+        'published_at',
         'last_triggered_at',
         'tenant_id',
         'creator_id',
@@ -38,9 +40,15 @@ class Workflow extends Model
         'trigger_config' => 'array',
         'canvas_data' => 'array',
         'canvas_version' => 'integer',
-        'is_active' => 'boolean',
+        'status' => WorkflowStatus::class,
+        'published_at' => 'datetime',
         'last_triggered_at' => 'datetime',
     ];
+
+    public function getIsActiveAttribute(): bool
+    {
+        return $this->status === WorkflowStatus::Live;
+    }
 
     public function getTable(): string
     {

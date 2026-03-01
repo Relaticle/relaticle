@@ -14,7 +14,7 @@ it('triggers a manual workflow via browser fetch POST', function () {
     $workflow = Workflow::create([
         'name' => 'Manual Browser Test',
         'trigger_type' => TriggerType::Manual,
-        'is_active' => true,
+        'status' => 'live',
     ]);
     $workflow->nodes()->create(['node_id' => 'trigger', 'type' => NodeType::Trigger]);
 
@@ -35,7 +35,7 @@ it('returns error for inactive workflow via browser fetch', function () {
     $workflow = Workflow::create([
         'name' => 'Inactive Browser Test',
         'trigger_type' => TriggerType::Manual,
-        'is_active' => false,
+        'status' => 'draft',
     ]);
 
     $url = "/workflow/api/workflows/{$workflow->id}/trigger";
@@ -55,7 +55,7 @@ it('returns error for non-manual workflow via browser fetch', function () {
     $workflow = Workflow::create([
         'name' => 'Non-Manual Browser Test',
         'trigger_type' => TriggerType::RecordEvent,
-        'is_active' => true,
+        'status' => 'live',
     ]);
 
     $url = "/workflow/api/workflows/{$workflow->id}/trigger";
@@ -75,7 +75,7 @@ it('passes context data via browser fetch POST', function () {
     $workflow = Workflow::create([
         'name' => 'Context Browser Test',
         'trigger_type' => TriggerType::Manual,
-        'is_active' => true,
+        'status' => 'live',
     ]);
     $workflow->nodes()->create(['node_id' => 'trigger', 'type' => NodeType::Trigger]);
 

@@ -14,7 +14,7 @@ it('triggers a webhook workflow via browser fetch POST', function () {
     $workflow = Workflow::create([
         'name' => 'Webhook Browser Test',
         'trigger_type' => TriggerType::Webhook,
-        'is_active' => true,
+        'status' => 'live',
     ]);
     $workflow->nodes()->create(['node_id' => 'trigger', 'type' => NodeType::Trigger]);
 
@@ -37,7 +37,7 @@ it('passes full webhook payload as context via browser', function () {
     $workflow = Workflow::create([
         'name' => 'Webhook Payload Test',
         'trigger_type' => TriggerType::Webhook,
-        'is_active' => true,
+        'status' => 'live',
     ]);
     $workflow->nodes()->create(['node_id' => 'trigger', 'type' => NodeType::Trigger]);
 
@@ -60,7 +60,7 @@ it('returns error for inactive webhook workflow via browser', function () {
     $workflow = Workflow::create([
         'name' => 'Inactive Webhook Browser',
         'trigger_type' => TriggerType::Webhook,
-        'is_active' => false,
+        'status' => 'draft',
     ]);
 
     $url = "/workflow/api/webhooks/{$workflow->id}";
@@ -78,7 +78,7 @@ it('returns error for non-webhook workflow type via browser', function () {
     $workflow = Workflow::create([
         'name' => 'Manual Not Webhook',
         'trigger_type' => TriggerType::Manual,
-        'is_active' => true,
+        'status' => 'live',
     ]);
 
     $url = "/workflow/api/webhooks/{$workflow->id}";

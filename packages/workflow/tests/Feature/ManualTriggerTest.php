@@ -14,7 +14,7 @@ it('triggers a manual workflow via API endpoint', function () {
     $workflow = Workflow::create([
         'name' => 'Manual Workflow',
         'trigger_type' => TriggerType::Manual,
-        'is_active' => true,
+        'status' => 'live',
     ]);
     $workflow->nodes()->create(['node_id' => 'trigger', 'type' => NodeType::Trigger]);
 
@@ -32,7 +32,7 @@ it('passes record context when provided', function () {
     $workflow = Workflow::create([
         'name' => 'Manual Workflow',
         'trigger_type' => TriggerType::Manual,
-        'is_active' => true,
+        'status' => 'live',
     ]);
     $workflow->nodes()->create(['node_id' => 'trigger', 'type' => NodeType::Trigger]);
 
@@ -52,7 +52,7 @@ it('rejects trigger for inactive workflow', function () {
     $workflow = Workflow::create([
         'name' => 'Inactive Workflow',
         'trigger_type' => TriggerType::Manual,
-        'is_active' => false,
+        'status' => 'draft',
     ]);
 
     $response = $this->postJson("/workflow/api/workflows/{$workflow->id}/trigger");
@@ -67,7 +67,7 @@ it('rejects trigger for non-manual workflow', function () {
     $workflow = Workflow::create([
         'name' => 'Non-Manual Workflow',
         'trigger_type' => TriggerType::RecordEvent,
-        'is_active' => true,
+        'status' => 'live',
     ]);
 
     $response = $this->postJson("/workflow/api/workflows/{$workflow->id}/trigger");

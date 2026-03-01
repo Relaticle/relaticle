@@ -6,6 +6,7 @@ namespace Relaticle\Workflow\Triggers;
 
 use Illuminate\Database\Eloquent\Model;
 use Relaticle\Workflow\Enums\TriggerType;
+use Relaticle\Workflow\Enums\WorkflowStatus;
 use Relaticle\Workflow\Models\Workflow;
 use Relaticle\Workflow\Triggers\Contracts\WorkflowTrigger;
 
@@ -28,7 +29,7 @@ class RecordEventTrigger implements WorkflowTrigger
         $modelClass = get_class($model);
 
         return Workflow::query()
-            ->where('is_active', true)
+            ->where('status', WorkflowStatus::Live)
             ->where('trigger_type', TriggerType::RecordEvent)
             ->where('trigger_config->model', $modelClass)
             ->where('trigger_config->event', $event)

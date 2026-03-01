@@ -92,7 +92,7 @@ it('pauses workflow and dispatches delayed job for delay node', function () {
         'trigger_type' => TriggerType::Manual,
         'trigger_config' => [],
         'canvas_data' => [],
-        'is_active' => true,
+        'status' => 'live',
     ]);
 
     $trigger = $workflow->nodes()->create([
@@ -173,7 +173,7 @@ it('resumes workflow after delay and completes execution', function () {
         'trigger_type' => TriggerType::Manual,
         'trigger_config' => [],
         'canvas_data' => [],
-        'is_active' => true,
+        'status' => 'live',
     ]);
 
     $trigger = $workflow->nodes()->create([

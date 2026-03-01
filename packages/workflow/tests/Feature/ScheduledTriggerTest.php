@@ -23,7 +23,7 @@ it('dispatches job when cron expression matches', function () {
             'schedule_type' => 'cron',
             'cron' => '* * * * *',
         ],
-        'is_active' => true,
+        'status' => 'live',
     ]);
 
     (new EvaluateScheduledWorkflowsJob())->handle(app(\Relaticle\Workflow\Triggers\ScheduledTrigger::class));
@@ -44,7 +44,7 @@ it('does not dispatch when cron expression does not match', function () {
             'schedule_type' => 'cron',
             'cron' => '0 3 * * 0', // Sunday at 03:00
         ],
-        'is_active' => true,
+        'status' => 'live',
     ]);
 
     (new EvaluateScheduledWorkflowsJob())->handle(app(\Relaticle\Workflow\Triggers\ScheduledTrigger::class));
@@ -62,7 +62,7 @@ it('skips inactive workflows', function () {
             'schedule_type' => 'cron',
             'cron' => '* * * * *',
         ],
-        'is_active' => false,
+        'status' => 'draft',
     ]);
 
     (new EvaluateScheduledWorkflowsJob())->handle(app(\Relaticle\Workflow\Triggers\ScheduledTrigger::class));
@@ -80,7 +80,7 @@ it('updates last_triggered_at after dispatch', function () {
             'schedule_type' => 'cron',
             'cron' => '* * * * *',
         ],
-        'is_active' => true,
+        'status' => 'live',
     ]);
 
     expect($workflow->last_triggered_at)->toBeNull();
@@ -104,7 +104,7 @@ it('dispatches for stale records with inactivity trigger', function () {
             'model' => TestCompany::class,
             'inactive_days' => 30,
         ],
-        'is_active' => true,
+        'status' => 'live',
     ]);
 
     // Create a company that was last updated 31 days ago
@@ -131,7 +131,7 @@ it('does not dispatch for recently updated records with inactivity trigger', fun
             'model' => TestCompany::class,
             'inactive_days' => 30,
         ],
-        'is_active' => true,
+        'status' => 'live',
     ]);
 
     // Create a company that was last updated 5 days ago — should NOT trigger
