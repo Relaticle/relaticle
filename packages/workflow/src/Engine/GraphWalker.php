@@ -61,7 +61,7 @@ class GraphWalker
     public function getEdgeByLabel(WorkflowNode $node, string $label): ?WorkflowEdge
     {
         return $this->getOutgoingEdges($node)->first(
-            fn (WorkflowEdge $edge) => $edge->condition_label === $label
+            fn (WorkflowEdge $edge) => strcasecmp($edge->condition_label ?? '', $label) === 0
         );
     }
 
