@@ -6,15 +6,25 @@ namespace Relaticle\Workflow;
 
 use Closure;
 use InvalidArgumentException;
+use Relaticle\Workflow\Actions\AdjustTimeAction;
+use Relaticle\Workflow\Actions\AggregateAction;
+use Relaticle\Workflow\Actions\BroadcastMessageAction;
+use Relaticle\Workflow\Actions\CelebrationAction;
+use Relaticle\Workflow\Actions\ClassifyAction;
 use Relaticle\Workflow\Actions\Contracts\WorkflowAction;
 use Relaticle\Workflow\Actions\CreateRecordAction;
 use Relaticle\Workflow\Actions\DeleteRecordAction;
 use Relaticle\Workflow\Actions\DelayAction;
 use Relaticle\Workflow\Actions\FindRecordAction;
+use Relaticle\Workflow\Actions\FormulaAction;
 use Relaticle\Workflow\Actions\HttpRequestAction;
 use Relaticle\Workflow\Actions\LoopAction;
+use Relaticle\Workflow\Actions\ParseJsonAction;
+use Relaticle\Workflow\Actions\PromptCompletionAction;
+use Relaticle\Workflow\Actions\RandomNumberAction;
 use Relaticle\Workflow\Actions\SendEmailAction;
 use Relaticle\Workflow\Actions\SendWebhookAction;
+use Relaticle\Workflow\Actions\SummarizeAction;
 use Relaticle\Workflow\Actions\UpdateRecordAction;
 use Relaticle\Workflow\Observers\WorkflowModelObserver;
 use Relaticle\Workflow\Schema\EntityDefinition;
@@ -60,6 +70,16 @@ class WorkflowManager
             'update_record' => UpdateRecordAction::class,
             'find_record' => FindRecordAction::class,
             'delete_record' => DeleteRecordAction::class,
+            'formula' => FormulaAction::class,
+            'aggregate' => AggregateAction::class,
+            'adjust_time' => AdjustTimeAction::class,
+            'random_number' => RandomNumberAction::class,
+            'classify' => ClassifyAction::class,
+            'prompt_completion' => PromptCompletionAction::class,
+            'summarize' => SummarizeAction::class,
+            'broadcast_message' => BroadcastMessageAction::class,
+            'celebration' => CelebrationAction::class,
+            'parse_json' => ParseJsonAction::class,
         ], $this->actions);
     }
 
