@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a5f05d3c7abebeccdc3d8df7e7b0f420",
+    "content-hash": "14f42516c9f48d607584e5f2089ebb5b",
     "packages": [
         {
             "name": "anourvalar/eloquent-serialize",
@@ -2737,6 +2737,72 @@
                 "source": "https://github.com/kirschbaum-development/eloquent-power-joins/tree/4.2.11"
             },
             "time": "2025-12-17T00:37:48+00:00"
+        },
+        {
+            "name": "laravel/ai",
+            "version": "v0.2.5",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/laravel/ai.git",
+                "reference": "467196be87c9cc2ed1f381deffbe24371e89ba4f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/laravel/ai/zipball/467196be87c9cc2ed1f381deffbe24371e89ba4f",
+                "reference": "467196be87c9cc2ed1f381deffbe24371e89ba4f",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/console": "^12.0|^13.0",
+                "illuminate/container": "^12.0|^13.0",
+                "illuminate/contracts": "^12.0|^13.0",
+                "illuminate/filesystem": "^12.0|^13.0",
+                "illuminate/json-schema": "^12.0|^13.0",
+                "illuminate/support": "^12.0|^13.0",
+                "laravel/prompts": "^0.3.6",
+                "laravel/serializable-closure": "^2.0",
+                "php": "^8.3",
+                "prism-php/prism": "^0.99.0"
+            },
+            "require-dev": {
+                "laravel/pint": "^1.26",
+                "mockery/mockery": "^1.6.12",
+                "orchestra/testbench": "^10.6"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Laravel\\Ai\\AiServiceProvider"
+                    ]
+                },
+                "branch-alias": {
+                    "dev-master": "1.x-dev"
+                }
+            },
+            "autoload": {
+                "files": [
+                    "functions.php"
+                ],
+                "psr-4": {
+                    "Laravel\\Ai\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "The official AI SDK for Laravel.",
+            "homepage": "https://github.com/laravel/ai",
+            "keywords": [
+                "ai",
+                "laravel"
+            ],
+            "support": {
+                "issues": "https://github.com/laravel/ai/issues",
+                "source": "https://github.com/laravel/ai"
+            },
+            "time": "2026-02-26T22:55:23+00:00"
         },
         {
             "name": "laravel/fortify",
@@ -6244,26 +6310,26 @@
         },
         {
             "name": "prism-php/prism",
-            "version": "v0.98.5",
+            "version": "v0.99.21",
             "source": {
                 "type": "git",
                 "url": "https://github.com/prism-php/prism.git",
-                "reference": "6c1ca2dc2bc4e12c5313b0268ed2f62ccacf08ae"
+                "reference": "95272567629a62831294f63b1b927b1e2e608daf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/prism-php/prism/zipball/6c1ca2dc2bc4e12c5313b0268ed2f62ccacf08ae",
-                "reference": "6c1ca2dc2bc4e12c5313b0268ed2f62ccacf08ae",
+                "url": "https://api.github.com/repos/prism-php/prism/zipball/95272567629a62831294f63b1b927b1e2e608daf",
+                "reference": "95272567629a62831294f63b1b927b1e2e608daf",
                 "shasum": ""
             },
             "require": {
                 "ext-fileinfo": "*",
-                "laravel/framework": "^11.0|^12.0",
+                "laravel/framework": "^11.0|^12.0|^13.0",
                 "php": "^8.2"
             },
             "require-dev": {
                 "brianium/paratest": "^7.8.4",
-                "laravel/mcp": "^0.3.2",
+                "laravel/mcp": "^0.6.0",
                 "laravel/pint": "^1.14",
                 "mockery/mockery": "^1.6",
                 "orchestra/testbench": "^10",
@@ -6272,10 +6338,10 @@
                 "pestphp/pest-plugin-laravel": "^3.0",
                 "phpstan/extension-installer": "^1.3",
                 "phpstan/phpdoc-parser": "^2.0",
-                "phpstan/phpstan": "^2.1",
+                "phpstan/phpstan": "2.1.34",
                 "phpstan/phpstan-deprecation-rules": "^2.0",
                 "projektgopher/whisky": "^0.7.0",
-                "rector/rector": "2.2.7",
+                "rector/rector": "2.3.3",
                 "spatie/laravel-ray": "^1.39",
                 "symplify/rule-doc-generator-contracts": "^11.2"
             },
@@ -6311,7 +6377,7 @@
             "description": "A powerful Laravel package for integrating Large Language Models (LLMs) into your applications.",
             "support": {
                 "issues": "https://github.com/prism-php/prism/issues",
-                "source": "https://github.com/prism-php/prism/tree/v0.98.5"
+                "source": "https://github.com/prism-php/prism/tree/v0.99.21"
             },
             "funding": [
                 {
@@ -6319,7 +6385,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-11-22T19:19:11+00:00"
+            "time": "2026-03-01T21:12:44+00:00"
         },
         {
             "name": "propaganistas/laravel-phone",
