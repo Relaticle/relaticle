@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\Workflow\Tests;
 
+use Laravel\Ai\AiServiceProvider;
 use Orchestra\Testbench\TestCase as BaseTestCase;
 use Relaticle\Workflow\WorkflowServiceProvider;
 
@@ -12,6 +13,7 @@ abstract class TestCase extends BaseTestCase
     protected function getPackageProviders($app): array
     {
         return [
+            AiServiceProvider::class,
             WorkflowServiceProvider::class,
         ];
     }
