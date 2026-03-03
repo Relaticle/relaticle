@@ -16,7 +16,7 @@ import { registerStopNode } from './nodes/StopNode.js';
 import { validateAllNodes, clearValidationErrors } from './config-panel.js';
 import { organizeLayout } from './toolbar.js';
 import { configPanelComponent } from './alpine/config-panel.js';
-import { blockPickerData, addBlockToGraph } from './alpine/block-picker.js';
+import { blockPickerData, addBlockToGraph, getContextualDescription } from './alpine/block-picker.js';
 import { variablePickerComponent } from './alpine/variable-picker.js';
 import { topBarMixin } from './alpine/top-bar.js';
 import { runHistoryComponent } from './alpine/run-history.js';
@@ -132,6 +132,17 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
                 }
             }
 
+            // Resolve source node for contextual descriptions
+            let sourceNodeForContext = null;
+            if (this.blockPickerSourceNode && graph) {
+                sourceNodeForContext = graph.getCellById(this.blockPickerSourceNode);
+                // Walk upstream to find trigger context if source isn't trigger itself
+                if (sourceNodeForContext && sourceNodeForContext.getData()?.type !== 'trigger') {
+                    const trigNode = graph.getNodes().find(n => (n.getData() || {}).type === 'trigger');
+                    if (trigNode) sourceNodeForContext = trigNode;
+                }
+            }
+
             return this.categories
                 .map(cat => {
                     const filteredBlocks = cat.blocks.filter(block => {
@@ -152,6 +163,9 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
                         }
 
                         return true;
+                    }).map(block => {
+                        if (!sourceNodeForContext) return block;
+                        return { ...block, description: getContextualDescription(block, sourceNodeForContext) };
                     });
 
                     return { ...cat, blocks: filteredBlocks };
@@ -243,6 +257,16 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
                     const savedNodeData = node.getData() || {};
                     if (savedNodeData.type === 'trigger' && savedNodeData.config?.entity_type) {
                         this.propagateEntityType(savedNodeData.config.entity_type);
+                    }
+
+                    // Force re-render of downstream nodes when trigger entity changes
+                    if (savedNodeData.type === 'trigger') {
+                        graph.getNodes().forEach(n => {
+                            if (n.id !== nodeId) {
+                                const d = n.getData() || {};
+                                n.setData({ ...d, _renderKey: Date.now() }, { overwrite: true });
+                            }
+                        });
                     }
                 }
             });
@@ -460,7 +484,7 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
                     if (nodesWithFreeOutput.length === 1) {
                         const sourceNode = nodesWithFreeOutput[0];
                         const sourcePort = sourceNode.getData()?.type === 'condition' ? 'out-yes' : 'out';
-                        graph.addEdge({
+                        const autoEdgeConfig = {
                             source: { cell: sourceNode.id, port: sourcePort },
                             target: { cell: newNode.id, port: 'in' },
                             attrs: {
@@ -470,7 +494,22 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
                                     targetMarker: { name: 'block', width: 6, height: 4 },
                                 },
                             },
-                        });
+                        };
+
+                        // Add condition labels for auto-connected condition edges
+                        if (sourceNode.getData()?.type === 'condition') {
+                            const isYes = sourcePort === 'out-yes';
+                            const labelText = isYes ? 'does match' : 'does not match';
+                            autoEdgeConfig.labels = [{
+                                attrs: {
+                                    label: { text: labelText, fill: '#fff', fontSize: 11, fontWeight: 600 },
+                                    rect: { ref: 'label', fill: isYes ? '#22c55e' : '#ef4444', rx: 10, ry: 10, refWidth: '140%', refHeight: '140%', refX: '-20%', refY: '-20%' },
+                                },
+                            }];
+                            autoEdgeConfig.attrs.line.stroke = isYes ? '#22c55e' : '#ef4444';
+                        }
+
+                        graph.addEdge(autoEdgeConfig);
                     }
                 }
             }
@@ -615,7 +654,8 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
             const graph = window.__wfGraph;
             if (!graph) return;
 
-            const { errors: validationErrors, warnings: validationWarnings } = validateAllNodes(graph);
+            clearValidationErrors(graph);
+            const { errors: validationErrors, warnings: validationWarnings } = validateAllNodes(graph, true);
             if (validationErrors.length > 0) {
                 showToast(`${validationErrors.length} node(s) need configuration before saving.`, 'error');
                 return;
@@ -694,16 +734,25 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
 
             graph.getNodes().forEach(node => {
                 const data = node.getData() || {};
-                if (data.type !== 'action') return;
-                if (!entityActions.includes(data.actionType)) return;
 
-                const config = data.config || {};
-                // Only propagate if not manually overridden
-                if (!config._entityOverridden) {
+                // Propagate to record action nodes
+                if (data.type === 'action' && entityActions.includes(data.actionType)) {
+                    const config = data.config || {};
+                    if (!config._entityOverridden) {
+                        node.setData({
+                            ...data,
+                            config: { ...config, entity_type: entityType },
+                        }, { overwrite: true });
+                    }
+                }
+
+                // Store trigger entity context on condition/loop nodes
+                if (['condition', 'loop'].includes(data.type)) {
+                    const config = data.config || {};
                     node.setData({
                         ...data,
-                        config: { ...config, entity_type: entityType },
-                    }, { silent: true });
+                        config: { ...config, _triggerEntity: entityType },
+                    }, { overwrite: true });
                 }
             });
         },

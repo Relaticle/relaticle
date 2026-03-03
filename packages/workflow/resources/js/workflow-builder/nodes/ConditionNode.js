@@ -10,13 +10,18 @@ export function registerConditionNode() {
         html(cell) {
             const data = cell.getData() || {};
             const conditions = data.config?.conditions;
-            let summary = 'If / Else';
+            let summary = 'Configure conditions...';
             if (Array.isArray(conditions) && conditions.length > 0) {
                 const first = conditions[0];
-                summary = first.field ? `${first.field} ${(first.operator || '').replace(/_/g, ' ')}` : 'If / Else';
-                if (conditions.length > 1) summary += ` (+${conditions.length - 1} more)`;
+                const op = (first.operator || '').replace(/_/g, ' ');
+                if (first.field && first.value) {
+                    summary = `If ${first.field.split('.').pop()} ${op} ${first.value}`;
+                } else if (first.field) {
+                    summary = `If ${first.field.split('.').pop()} ${op}`;
+                }
+                if (conditions.length > 1) summary += ` (+${conditions.length - 1})`;
             } else if (data.config?.field) {
-                summary = `${data.config.field} ${(data.config.operator || '').replace(/_/g, ' ')}`;
+                summary = `If ${data.config.field} ${(data.config.operator || '').replace(/_/g, ' ')}`;
             }
             const div = document.createElement('div');
             div.setAttribute('data-test', 'workflow-node');

@@ -58,9 +58,9 @@ export function createNodeHTML(data, options) {
     const hasError = data._validationError;
     const hasWarning = data._warning;
     const validationBadge = hasError
-        ? '<div class="wf-validation-badge wf-error-badge">!</div>'
+        ? '<div class="wf-validation-badge wf-error-badge" title="Configuration error">!</div>'
         : hasWarning
-        ? '<div class="wf-validation-badge wf-warning-badge">!</div>'
+        ? '<div class="wf-validation-badge wf-warning-badge" title="Warning">&#x26A0;</div>'
         : '';
 
     return `

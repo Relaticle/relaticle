@@ -210,6 +210,35 @@ class WorkflowConfigPanel extends Component implements HasActions, HasForms
     }
 
     /**
+     * Get the trigger's entity type for contextual placeholders.
+     */
+    protected function getTriggerEntityType(): ?string
+    {
+        if (! $this->workflowId) {
+            return null;
+        }
+
+        $workflow = Workflow::find($this->workflowId);
+
+        return $workflow?->trigger_config['entity_type'] ?? null;
+    }
+
+    /**
+     * Get a singular label for an entity type.
+     */
+    protected function singularEntity(?string $entity): string
+    {
+        return match ($entity) {
+            'people' => 'person',
+            'companies' => 'company',
+            'opportunities' => 'opportunity',
+            'tasks' => 'task',
+            'notes' => 'note',
+            default => $entity ?? 'record',
+        };
+    }
+
+    /**
      * Verify the workflow belongs to the current user's tenant.
      */
     protected function authorizeTenantAccess(): void
@@ -448,14 +477,16 @@ class WorkflowConfigPanel extends Component implements HasActions, HasForms
             TextInput::make('duration')
                 ->label('Duration')
                 ->numeric()
-                ->minValue(0),
+                ->minValue(0)
+                ->placeholder('5'),
             Select::make('unit')
                 ->label('Unit')
                 ->options([
                     'minutes' => 'Minutes',
                     'hours' => 'Hours',
                     'days' => 'Days',
-                ]),
+                ])
+                ->placeholder('Select unit'),
         ];
     }
 
@@ -473,10 +504,14 @@ class WorkflowConfigPanel extends Component implements HasActions, HasForms
 
     protected function getStopFormSchema(): array
     {
+        $entity = $this->getTriggerEntityType();
+        $singular = $this->singularEntity($entity);
+        $placeholder = $entity ? "Finished processing {$singular}" : 'Workflow complete';
+
         return [
             TextInput::make('reason')
                 ->label('Reason')
-                ->placeholder('Workflow complete'),
+                ->placeholder($placeholder),
         ];
     }
 

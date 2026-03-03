@@ -10,7 +10,9 @@ export function registerLoopNode() {
         html(cell) {
             const data = cell.getData() || {};
             const collection = data.config?.collection;
-            const summary = collection ? `For each in ${collection}` : 'Loop...';
+            const summary = collection
+                ? `For each in ${collection.split('.').pop()}`
+                : 'Configure loop...';
             const div = document.createElement('div');
             div.setAttribute('data-test', 'workflow-node');
             div.innerHTML = createNodeHTML(data, {

@@ -11,13 +11,18 @@ export function registerTriggerNode() {
             const data = cell.getData() || {};
             const event = data.config?.event;
             const entity = data.config?.entity_type;
-            let summary = data.label || 'When...';
+            const singularMap = { people: 'person', companies: 'company', opportunities: 'opportunity', tasks: 'task', notes: 'note' };
+            const entitySingular = entity ? (singularMap[entity] || entity) : 'record';
+            let summary = 'Configure trigger...';
             if (event) {
-                const eventLabels = { record_created: 'Record created', record_updated: 'Record updated', record_deleted: 'Record deleted', manual: 'Manual run', webhook: 'Webhook received', scheduled: 'Recurring schedule' };
-                summary = eventLabels[event] || event;
-                if (entity && ['record_created', 'record_updated', 'record_deleted'].includes(event)) {
-                    summary += ` (${entity})`;
-                }
+                summary = ({
+                    record_created: `When a ${entitySingular} is created`,
+                    record_updated: `When a ${entitySingular} is updated`,
+                    record_deleted: `When a ${entitySingular} is deleted`,
+                    manual: 'Manual trigger',
+                    webhook: 'When webhook is received',
+                    scheduled: 'On a recurring schedule',
+                })[event] || event;
             }
             const div = document.createElement('div');
             div.setAttribute('data-test', 'workflow-node');

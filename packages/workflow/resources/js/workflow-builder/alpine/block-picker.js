@@ -44,6 +44,50 @@ const COLORS = {
     utility: '#f97316',
 };
 
+const SINGULAR_MAP = { people: 'person', companies: 'company', opportunities: 'opportunity', tasks: 'task', notes: 'note' };
+
+/**
+ * Generate a contextual description for a block based on the source node's config.
+ */
+export function getContextualDescription(block, sourceNode) {
+    if (!sourceNode) return block.description;
+
+    const sourceData = sourceNode.getData() || {};
+    const sourceConfig = sourceData.config || {};
+    const entity = sourceConfig.entity_type;
+    const entitySingular = entity ? (SINGULAR_MAP[entity] || entity) : null;
+
+    if (!entitySingular) return block.description;
+
+    const actionType = block.actionType;
+    const contextMap = {
+        create_record: `Create a new record when a ${entitySingular} triggers`,
+        update_record: `Update the triggered ${entitySingular} record`,
+        find_record: `Find records related to the ${entitySingular}`,
+        delete_record: `Delete the triggered ${entitySingular} record`,
+        send_email: `Send an email about the ${entitySingular}`,
+        send_webhook: `Send ${entitySingular} data to an external URL`,
+        http_request: `Make an API call with ${entitySingular} data`,
+        prompt_completion: `Generate AI text about the ${entitySingular}`,
+        summarize: `Summarize the ${entitySingular} with AI`,
+        classify: `Classify the ${entitySingular} into categories`,
+        formula: `Calculate a value from ${entitySingular} fields`,
+        aggregate: `Aggregate values from ${entitySingular} records`,
+        broadcast_message: `Broadcast a message about the ${entitySingular}`,
+    };
+
+    const typeContextMap = {
+        condition: `Branch based on ${entitySingular} field values`,
+        delay: `Wait before processing the ${entitySingular}`,
+        loop: `Iterate over ${entitySingular}-related data`,
+        stop: 'End the workflow',
+    };
+
+    if (actionType && contextMap[actionType]) return contextMap[actionType];
+    if (block.type && typeContextMap[block.type]) return typeContextMap[block.type];
+    return block.description;
+}
+
 export function blockPickerData() {
     return {
         categories: [
@@ -198,18 +242,25 @@ export function addBlockToGraph(graph, block, sourceNodeId, sourcePortId, positi
     const smartDefaults = {
         delay: { duration: 5, unit: 'minutes' },
         stop: { reason: 'Workflow complete' },
-        http_request: { method: 'POST' },
+        http_request: { method: 'POST', headers: '{"Content-Type": "application/json"}' },
         aggregate: { operation: 'sum' },
         adjust_time: { amount: 1, unit: 'days', direction: 'add' },
         random_number: { min: 1, max: 100 },
         send_email: { subject: '', body: '', to: '' },
+        send_webhook: { method: 'POST' },
         prompt_completion: { provider: 'anthropic', model: 'claude-haiku-4-5-20251001', max_tokens: 500, temperature: 0.7 },
         summarize: { record_source: 'trigger', provider: 'anthropic', model: 'claude-haiku-4-5-20251001' },
-        classify: { provider: 'anthropic', model: 'claude-haiku-4-5-20251001', categories: [] },
+        classify: { provider: 'anthropic', model: 'claude-haiku-4-5-20251001', categories: ['Positive', 'Negative', 'Neutral'] },
         broadcast_message: { channel: 'default' },
         celebration: { type: 'confetti' },
         update_record: { record_source: 'trigger' },
         delete_record: { record_source: 'trigger' },
+        find_record: {},
+        create_record: { field_mappings: [] },
+        formula: {},
+        parse_json: {},
+        condition: { match: 'all', conditions: [] },
+        loop: {},
     };
 
     if (smartDefaults[actionType]) {
@@ -220,27 +271,63 @@ export function addBlockToGraph(graph, block, sourceNodeId, sourcePortId, positi
         }, { silent: true });
     }
 
-    // Propagate entity_type from trigger to record action nodes
+    // Propagate entity_type from trigger to entity-aware nodes
     const triggerNode = graph.getNodes().find(n => (n.getData() || {}).type === 'trigger');
     const triggerConfig = triggerNode?.getData()?.config || {};
     const entityType = triggerConfig.entity_type;
 
-    if (entityType && ['create_record', 'find_record', 'update_record', 'delete_record'].includes(actionType)) {
-        const currentData = node.getData() || {};
-        node.setData({
-            ...currentData,
-            config: { ...(currentData.config || {}), entity_type: entityType },
-        }, { silent: true });
+    if (entityType) {
+        // Record actions get entity_type directly
+        if (['create_record', 'find_record', 'update_record', 'delete_record'].includes(actionType)) {
+            const currentData = node.getData() || {};
+            node.setData({
+                ...currentData,
+                config: { ...(currentData.config || {}), entity_type: entityType },
+            }, { silent: true });
+        }
+        // Store trigger entity context on condition/loop for field resolver awareness
+        if (['condition', 'loop'].includes(block.type)) {
+            const currentData = node.getData() || {};
+            node.setData({
+                ...currentData,
+                config: { ...(currentData.config || {}), _triggerEntity: entityType },
+            }, { silent: true });
+        }
     }
 
     // Auto-connect edge from source to new node
     if (sourceNodeId) {
+        const sourceCell = graph.getCellById(sourceNodeId);
+        const sourceData = sourceCell?.getData() || {};
         const edgeId = `edge-${Date.now()}`;
-        graph.addEdge({
+        const portId = sourcePortId || (sourceData.type === 'condition' ? 'out-yes' : 'out');
+
+        // Build edge config with condition labels
+        const edgeConfig = {
             id: edgeId,
-            source: { cell: sourceNodeId, port: sourcePortId || 'out' },
+            source: { cell: sourceNodeId, port: portId },
             target: { cell: nodeId, port: 'in' },
-        });
+        };
+
+        if (sourceData.type === 'condition') {
+            const isYes = portId === 'out-yes';
+            const labelText = isYes ? 'does match' : 'does not match';
+            edgeConfig.labels = [{
+                attrs: {
+                    label: { text: labelText, fill: '#fff', fontSize: 11, fontWeight: 600 },
+                    rect: { ref: 'label', fill: isYes ? '#22c55e' : '#ef4444', rx: 10, ry: 10, refWidth: '140%', refHeight: '140%', refX: '-20%', refY: '-20%' },
+                },
+            }];
+            edgeConfig.attrs = {
+                line: {
+                    stroke: isYes ? '#22c55e' : '#ef4444',
+                    strokeWidth: 1.5,
+                    targetMarker: { name: 'block', width: 10, height: 6 },
+                },
+            };
+        }
+
+        graph.addEdge(edgeConfig);
     }
 
     return node;

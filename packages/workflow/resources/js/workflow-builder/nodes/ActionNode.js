@@ -42,6 +42,70 @@ const ACTION_META = {
     parse_json:         { label: 'Parse JSON',           category: 'Logic',         color: '#f59e0b', icon: ICON_BRACES },
 };
 
+function truncate(str, max) {
+    if (!str) return '';
+    return str.length > max ? str.slice(0, max) + '...' : str;
+}
+
+function getActionSummary(actionType, config) {
+    const singularMap = { people: 'person', companies: 'company', opportunities: 'opportunity', tasks: 'task', notes: 'note' };
+    const entity = config.entity_type;
+    const entityLabel = entity ? (singularMap[entity] || entity) : null;
+
+    switch (actionType) {
+        case 'create_record':
+            return entityLabel ? `Create a new ${entityLabel}` : 'Create a new record';
+        case 'update_record':
+            return entityLabel ? `Update the ${entityLabel}` : 'Update a record';
+        case 'find_record':
+            return entityLabel ? `Find ${entity}` : 'Find records';
+        case 'delete_record':
+            return entityLabel ? `Delete the ${entityLabel}` : 'Delete a record';
+        case 'send_email': {
+            const to = config.to;
+            if (to) return `Email to ${truncate(to, 30)}`;
+            return 'Send an email';
+        }
+        case 'send_webhook':
+        case 'http_request': {
+            const url = config.url;
+            if (url) return `${(config.method || 'POST')} ${truncate(url, 25)}`;
+            return actionType === 'send_webhook' ? 'Send webhook' : 'HTTP request';
+        }
+        case 'prompt_completion': {
+            const prompt = config.prompt;
+            if (prompt) return `AI: ${truncate(prompt, 30)}`;
+            return 'AI prompt';
+        }
+        case 'summarize':
+            return entityLabel ? `Summarize ${entityLabel}` : 'Summarize record';
+        case 'classify': {
+            const cats = config.categories;
+            if (Array.isArray(cats) && cats.length > 0) return `Classify into ${cats.length} categories`;
+            return 'Classify text';
+        }
+        case 'formula': {
+            const f = config.formula;
+            if (f) return `= ${truncate(f, 30)}`;
+            return 'Calculate formula';
+        }
+        case 'aggregate':
+            return `${(config.operation || 'sum').toUpperCase()} of values`;
+        case 'adjust_time':
+            return config.amount ? `${config.direction || 'add'} ${config.amount} ${config.unit || 'days'}` : 'Adjust time';
+        case 'random_number':
+            return `Random ${config.min ?? 1}\u2013${config.max ?? 100}`;
+        case 'broadcast_message':
+            return config.message ? `Broadcast: ${truncate(config.message, 25)}` : 'Broadcast message';
+        case 'celebration':
+            return config.message ? truncate(config.message, 30) : 'Celebration';
+        case 'parse_json':
+            return config.json_path ? `Parse ${truncate(config.json_path, 25)}` : 'Parse JSON';
+        default:
+            return null;
+    }
+}
+
 export function registerActionNode() {
     Shape.HTML.register({
         shape: 'workflow-action',
@@ -51,18 +115,23 @@ export function registerActionNode() {
             const data = cell.getData() || {};
             const actionType = data.config?.action_type || data.actionType;
             const meta = ACTION_META[actionType] || {};
-            const summary = meta.label || (actionType ? actionType.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) : 'Do something...');
+            const config = data.config || {};
             const color = meta.color || '#3b82f6';
             const icon = meta.icon || ICON_RECORD;
+            const label = meta.label || (actionType ? actionType.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) : 'Action');
+
+            // Generate config-aware summary
+            const summary = config.description || getActionSummary(actionType, config) || label;
+
             const div = document.createElement('div');
             div.setAttribute('data-test', 'workflow-node');
             div.innerHTML = createNodeHTML(data, {
                 color,
                 icon,
-                label: summary,
+                label,
                 category: meta.category || 'Action',
-                summary: data.config?.description || summary,
-                description: data.config?.description || '',
+                summary,
+                description: '',
             });
             return div;
         },
