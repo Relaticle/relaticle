@@ -236,6 +236,22 @@ class WorkflowConfigPanel extends Component implements HasActions, HasForms
         }
     }
 
+    /**
+     * Get the current workflow ID (used by action form field option resolvers).
+     */
+    public function getWorkflowId(): ?string
+    {
+        return $this->workflowId;
+    }
+
+    /**
+     * Get the currently selected node ID (used by action form field option resolvers).
+     */
+    public function getNodeId(): ?string
+    {
+        return $this->selectedNodeId;
+    }
+
     public function render(): \Illuminate\View\View
     {
         return view('workflow::livewire.config-panel');

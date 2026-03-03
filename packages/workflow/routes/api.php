@@ -19,6 +19,7 @@ Route::prefix('workflow/api')
         Route::get('workflows/{workflow}/canvas', [CanvasController::class, 'show']);
         Route::put('workflows/{workflow}/canvas', [CanvasController::class, 'update']);
         Route::get('workflows/{workflow}/variables', [VariableController::class, 'index']);
+        Route::get('workflows/{workflow}/typed-fields', [VariableController::class, 'typedFields']);
         Route::get('workflows/{workflow}/runs', [RunController::class, 'index']);
         Route::get('workflow-runs/{run}', [RunController::class, 'show']);
         Route::post('workflows/{workflow}/publish', [WorkflowLifecycleController::class, 'publish']);

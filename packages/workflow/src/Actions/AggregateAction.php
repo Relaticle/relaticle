@@ -5,8 +5,7 @@ declare(strict_types=1);
 namespace Relaticle\Workflow\Actions;
 
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Relaticle\Workflow\Forms\Actions\VariablePickerAction;
+use Livewire\Component;
 
 class AggregateAction extends BaseAction
 {
@@ -109,12 +108,13 @@ class AggregateAction extends BaseAction
     public static function filamentForm(): array
     {
         return [
-            TextInput::make('values_path')
+            Select::make('values_path')
                 ->label('Values Path')
                 ->required()
-                ->placeholder('trigger.record.line_items.*.amount')
-                ->helperText('Dot-notation path to the array of values in the context')
-                ->suffixAction(VariablePickerAction::make('pickValuesPath')->forField('values_path')),
+                ->searchable()
+                ->placeholder('Select a field...')
+                ->helperText('Select the field containing values to aggregate')
+                ->options(fn (?Component $livewire) => static::getFieldOptions($livewire, null)),
             Select::make('operation')
                 ->label('Operation')
                 ->options([

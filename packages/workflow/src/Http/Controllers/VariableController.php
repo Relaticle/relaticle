@@ -8,6 +8,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Relaticle\Workflow\Services\FieldResolverService;
+use Relaticle\Workflow\Services\TypedFieldResolver;
 
 class VariableController extends Controller
 {
@@ -38,6 +39,25 @@ class VariableController extends Controller
         ], $rawGroups);
 
         return response()->json(['groups' => $groups]);
+    }
+
+    public function typedFields(Request $request, string $workflowId): JsonResponse
+    {
+        $nodeId = $request->query('node_id');
+        $types = $request->query('types') ? explode(',', $request->query('types')) : null;
+
+        if (!$nodeId) {
+            return response()->json(['error' => 'node_id is required'], 400);
+        }
+
+        try {
+            $resolver = app(TypedFieldResolver::class);
+            $fields = $resolver->getFieldsByType($workflowId, $nodeId, $types);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException) {
+            return response()->json(['error' => 'Workflow not found'], 404);
+        }
+
+        return response()->json(['fields' => $fields]);
     }
 
     /**

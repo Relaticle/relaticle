@@ -6,9 +6,8 @@ namespace Relaticle\Workflow\Actions;
 
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TagsInput;
-use Filament\Forms\Components\TextInput;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
-use Relaticle\Workflow\Forms\Actions\VariablePickerAction;
+use Livewire\Component;
 
 use function Laravel\Ai\agent;
 
@@ -188,12 +187,13 @@ class ClassifyAction extends BaseAction
     public static function filamentForm(): array
     {
         return [
-            TextInput::make('input_path')
-                ->label('Input Path')
+            Select::make('input_path')
+                ->label('Input Text')
                 ->required()
-                ->placeholder('trigger.record.description')
-                ->helperText('Dot-notation path to the text to classify')
-                ->suffixAction(VariablePickerAction::make('pickInputPath')->forField('input_path')),
+                ->searchable()
+                ->placeholder('Select a text field...')
+                ->helperText('Select the text field to classify')
+                ->options(fn (?Component $livewire) => static::getFieldOptions($livewire, ['string', 'text'])),
             TagsInput::make('categories')
                 ->label('Categories')
                 ->required()

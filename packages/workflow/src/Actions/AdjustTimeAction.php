@@ -7,7 +7,7 @@ namespace Relaticle\Workflow\Actions;
 use Carbon\Carbon;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Relaticle\Workflow\Forms\Actions\VariablePickerAction;
+use Livewire\Component;
 
 class AdjustTimeAction extends BaseAction
 {
@@ -125,12 +125,13 @@ class AdjustTimeAction extends BaseAction
     public static function filamentForm(): array
     {
         return [
-            TextInput::make('date_path')
-                ->label('Date Path')
+            Select::make('date_path')
+                ->label('Date Field')
                 ->required()
-                ->placeholder('trigger.record.created_at')
-                ->helperText('Dot-notation path to the date value in the context')
-                ->suffixAction(VariablePickerAction::make('pickDatePath')->forField('date_path')),
+                ->searchable()
+                ->placeholder('Select a date field...')
+                ->helperText('Select the date/datetime field to adjust')
+                ->options(fn (?Component $livewire) => static::getFieldOptions($livewire, ['date', 'datetime'])),
             TextInput::make('amount')
                 ->label('Amount')
                 ->numeric()

@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Relaticle\Workflow\Actions;
 
-use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Select;
+use Livewire\Component;
 
 class LoopAction extends BaseAction
 {
@@ -63,10 +64,13 @@ class LoopAction extends BaseAction
     public static function filamentForm(): array
     {
         return [
-            TextInput::make('collection')
-                ->label('Collection Path')
+            Select::make('collection')
+                ->label('Collection to Loop Over')
                 ->required()
-                ->placeholder('record.items'),
+                ->searchable()
+                ->placeholder('Select a field...')
+                ->helperText('Select the array field to iterate over')
+                ->options(fn (?Component $livewire) => static::getFieldOptions($livewire, null)),
         ];
     }
 

@@ -183,3 +183,89 @@ it('returns 422 when node_id is missing', function () {
 
     $response->assertStatus(422);
 });
+
+it('returns typed fields filtered by type', function () {
+    $workflow = Workflow::create([
+        'name' => 'Typed Fields Test',
+        'trigger_type' => TriggerType::RecordEvent,
+        'trigger_config' => ['entity_type' => 'companies', 'event' => 'record_created'],
+    ]);
+
+    $trigger = $workflow->nodes()->create([
+        'node_id' => 'trigger',
+        'type' => NodeType::Trigger,
+        'config' => ['event' => 'record_created', 'entity_type' => 'companies'],
+    ]);
+
+    $action = $workflow->nodes()->create([
+        'node_id' => 'action-1',
+        'type' => NodeType::Action,
+        'action_type' => 'send_email',
+    ]);
+
+    $workflow->edges()->create([
+        'edge_id' => 'e1',
+        'source_node_id' => $trigger->id,
+        'target_node_id' => $action->id,
+    ]);
+
+    $response = $this->getJson("/workflow/api/workflows/{$workflow->id}/typed-fields?node_id=action-1&types=date,datetime");
+
+    $response->assertOk();
+    $data = $response->json();
+
+    expect($data['fields'])->toBeArray();
+
+    // Every field should be date or datetime
+    foreach ($data['fields'] as $group) {
+        foreach ($group['fields'] as $field) {
+            expect($field['type'])->toBeIn(['date', 'datetime']);
+        }
+    }
+});
+
+it('returns all fields when types parameter is omitted', function () {
+    $workflow = Workflow::create([
+        'name' => 'Typed Fields All Test',
+        'trigger_type' => TriggerType::RecordEvent,
+        'trigger_config' => ['entity_type' => 'companies', 'event' => 'record_created'],
+    ]);
+
+    $trigger = $workflow->nodes()->create([
+        'node_id' => 'trigger',
+        'type' => NodeType::Trigger,
+        'config' => ['event' => 'record_created', 'entity_type' => 'companies'],
+    ]);
+
+    $action = $workflow->nodes()->create([
+        'node_id' => 'action-1',
+        'type' => NodeType::Action,
+        'action_type' => 'send_email',
+    ]);
+
+    $workflow->edges()->create([
+        'edge_id' => 'e1',
+        'source_node_id' => $trigger->id,
+        'target_node_id' => $action->id,
+    ]);
+
+    $response = $this->getJson("/workflow/api/workflows/{$workflow->id}/typed-fields?node_id=action-1");
+
+    $response->assertOk();
+    $data = $response->json();
+
+    expect($data['fields'])->toBeArray();
+    // Should contain multiple groups (trigger, built-in at minimum)
+    expect(count($data['fields']))->toBeGreaterThanOrEqual(2);
+});
+
+it('returns 400 when node_id is missing from typed-fields', function () {
+    $workflow = Workflow::create([
+        'name' => 'Missing Node ID Typed',
+        'trigger_type' => TriggerType::Manual,
+    ]);
+
+    $response = $this->getJson("/workflow/api/workflows/{$workflow->id}/typed-fields");
+
+    $response->assertStatus(400);
+});

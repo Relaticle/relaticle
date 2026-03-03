@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Relaticle\Workflow\Actions;
 
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TagsInput;
-use Filament\Forms\Components\TextInput;
-use Relaticle\Workflow\Forms\Actions\VariablePickerAction;
+use Livewire\Component;
 
 class ParseJsonAction extends BaseAction
 {
@@ -107,12 +107,13 @@ class ParseJsonAction extends BaseAction
     public static function filamentForm(): array
     {
         return [
-            TextInput::make('json_path')
-                ->label('JSON Path')
+            Select::make('json_path')
+                ->label('JSON Source')
                 ->required()
-                ->placeholder('steps.action-1.output.response_body')
-                ->helperText('Dot-notation path to the JSON string in the context')
-                ->suffixAction(VariablePickerAction::make('pickJsonPath')->forField('json_path')),
+                ->searchable()
+                ->placeholder('Select the field containing JSON...')
+                ->helperText('Select the field containing the JSON string to parse')
+                ->options(fn (?Component $livewire) => static::getFieldOptions($livewire, ['string', 'text'])),
             TagsInput::make('fields')
                 ->label('Fields to Extract')
                 ->placeholder('Add a dot-notation field path')
