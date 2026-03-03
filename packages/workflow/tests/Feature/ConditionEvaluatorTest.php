@@ -120,13 +120,22 @@ it('evaluates compound OR conditions', function () {
     ], $context))->toBeTrue();
 });
 
-it('uses strict comparison for in operator', function () {
+it('uses loose comparison for in operator to handle type coercion', function () {
     $evaluator = new ConditionEvaluator();
 
+    // Integer value should match string array element (loose comparison)
     $result = $evaluator->evaluate(
-        ['field' => 'status', 'operator' => 'in', 'value' => [true, false]],
-        ['status' => '1']
+        ['field' => 'age', 'operator' => 'in', 'value' => ['25', '30']],
+        ['age' => 25]
     );
 
-    expect($result)->toBeFalse();
+    expect($result)->toBeTrue();
+
+    // Non-matching value should still return false
+    $result2 = $evaluator->evaluate(
+        ['field' => 'status', 'operator' => 'in', 'value' => ['active', 'pending']],
+        ['status' => 'closed']
+    );
+
+    expect($result2)->toBeFalse();
 });

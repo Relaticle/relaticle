@@ -31,7 +31,7 @@ export function createNodeHTML(data, options) {
     const displaySummary = summary || 'Click to configure';
     const descHtml = description
         ? `<span class="wf-block-desc">${description}</span>`
-        : '<span class="wf-block-desc wf-block-desc-placeholder">No description</span>';
+        : '';
 
     // Run status badge overlay (Attio-style)
     const runStatus = data._runStatus;

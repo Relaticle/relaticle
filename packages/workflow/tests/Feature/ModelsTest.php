@@ -125,7 +125,7 @@ it('reports activation errors for empty workflow', function () {
         'trigger_config' => [], 'canvas_data' => [],
     ]);
     expect($workflow->canActivate())->toBeFalse();
-    expect($workflow->getActivationErrors())->toContain('Workflow must have at least one trigger node.');
+    expect($workflow->getActivationErrors())->toContain('Workflow must have exactly one trigger node.');
 });
 
 it('allows activation for valid workflow', function () {

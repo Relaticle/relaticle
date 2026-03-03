@@ -92,7 +92,7 @@ export function createGraph(container, minimapContainer) {
         },
         panning: {
             enabled: true,
-            eventTypes: ['leftMouseDown', 'mouseWheel'],
+            eventTypes: ['rightMouseDown', 'mouseWheel'],
         },
         mousewheel: {
             enabled: true,
@@ -176,7 +176,7 @@ export function createGraph(container, minimapContainer) {
 
         edge.setLabels([{
             attrs: {
-                label: { text: label, fill: '#fff', fontSize: 11, fontWeight: 600 },
+                label: { text: label, fill: '#fff', fontSize: 11, fontWeight: 600, letterSpacing: 'normal', wordSpacing: 'normal' },
                 rect: { ref: 'label', fill: isYes ? '#22c55e' : '#ef4444', rx: 10, ry: 10, refWidth: '140%', refHeight: '140%', refX: '-20%', refY: '-20%' },
             },
         }]);

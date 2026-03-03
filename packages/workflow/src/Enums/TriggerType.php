@@ -10,4 +10,14 @@ enum TriggerType: string
     case TimeBased = 'time_based';
     case Manual = 'manual';
     case Webhook = 'webhook';
+
+    public function getLabel(): string
+    {
+        return match ($this) {
+            self::RecordEvent => 'Record Event',
+            self::TimeBased => 'Time Based',
+            self::Manual => 'Manual',
+            self::Webhook => 'Webhook',
+        };
+    }
 }

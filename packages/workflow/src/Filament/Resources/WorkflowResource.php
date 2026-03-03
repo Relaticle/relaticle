@@ -112,7 +112,14 @@ class WorkflowResource extends Resource
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('trigger_type')
-                    ->badge(),
+                    ->badge()
+                    ->formatStateUsing(fn (TriggerType $state): string => $state->getLabel())
+                    ->color(fn (TriggerType $state): string => match ($state) {
+                        TriggerType::RecordEvent => 'info',
+                        TriggerType::TimeBased => 'warning',
+                        TriggerType::Manual => 'gray',
+                        TriggerType::Webhook => 'success',
+                    }),
                 TextColumn::make('status')
                     ->badge()
                     ->color(fn (WorkflowStatus $state): string => match ($state) {
@@ -156,6 +163,7 @@ class WorkflowResource extends Resource
                 Group::make('creator.name')->label('Created By'),
             ])
             ->defaultSort('created_at', 'desc')
+            ->recordUrl(fn (Workflow $record): string => static::getUrl('builder', ['record' => $record]))
             ->actions([
                 Action::make('open_builder')
                     ->label('Open Builder')

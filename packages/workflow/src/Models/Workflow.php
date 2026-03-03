@@ -144,14 +144,16 @@ class Workflow extends Model
         $nodes = $this->nodes()->get();
 
         if ($nodes->isEmpty()) {
-            $errors[] = 'Workflow must have at least one trigger node.';
+            $errors[] = 'Workflow must have exactly one trigger node.';
 
             return $errors;
         }
 
-        $hasTrigger = $nodes->contains(fn ($node) => $node->type === NodeType::Trigger);
-        if (! $hasTrigger) {
-            $errors[] = 'Workflow must have at least one trigger node.';
+        $triggerCount = $nodes->filter(fn ($node) => $node->type === NodeType::Trigger)->count();
+        if ($triggerCount === 0) {
+            $errors[] = 'Workflow must have exactly one trigger node.';
+        } elseif ($triggerCount > 1) {
+            $errors[] = 'Workflow must have exactly one trigger node.';
         }
 
         $hasAction = $nodes->contains(fn ($node) => in_array($node->type, [

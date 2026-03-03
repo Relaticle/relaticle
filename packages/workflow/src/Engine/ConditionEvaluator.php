@@ -19,6 +19,10 @@ class ConditionEvaluator
      */
     public function evaluate(array $condition, array $context): bool
     {
+        if (!isset($condition['field']) || !isset($condition['operator'])) {
+            return false;
+        }
+
         $field = $condition['field'];
         $operator = $condition['operator'];
         $fieldValue = data_get($context, $field);
@@ -31,7 +35,7 @@ class ConditionEvaluator
             'less_than' => $fieldValue < $condition['value'],
             'is_empty' => empty($fieldValue),
             'is_not_empty' => ! empty($fieldValue),
-            'in' => is_array($condition['value']) && in_array($fieldValue, $condition['value'], true),
+            'in' => is_array($condition['value']) && in_array($fieldValue, $condition['value'], false),
             default => throw new InvalidArgumentException("Unsupported operator: {$operator}"),
         };
     }
@@ -48,6 +52,10 @@ class ConditionEvaluator
         $conditions = $group['conditions'];
 
         if ($logicalOperator === 'and') {
+            if (empty($conditions)) {
+                return false;
+            }
+
             foreach ($conditions as $condition) {
                 if (! $this->evaluate($condition, $context)) {
                     return false;
@@ -58,6 +66,10 @@ class ConditionEvaluator
         }
 
         if ($logicalOperator === 'or') {
+            if (empty($conditions)) {
+                return false;
+            }
+
             foreach ($conditions as $condition) {
                 if ($this->evaluate($condition, $context)) {
                     return true;

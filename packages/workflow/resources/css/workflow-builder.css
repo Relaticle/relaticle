@@ -2,6 +2,9 @@
    Workflow Builder — Attio-style Layout
    ============================================ */
 
+/* --- Alpine x-cloak (hide before init) --- */
+[x-cloak] { display: none !important; }
+
 /* --- Root Container --- */
 .workflow-builder {
     display: flex;
@@ -98,6 +101,7 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    max-width: 400px;
     padding: 4px 8px;
     border-radius: 4px;
     margin: 0;
@@ -303,10 +307,12 @@
     flex-shrink: 0;
     display: flex;
     flex-direction: column;
+    pointer-events: none; /* Prevent collapsed panel from intercepting canvas clicks */
 }
 
 .wf-panel.wf-panel-open {
     width: 340px;
+    pointer-events: auto; /* Re-enable interaction when panel is open */
 }
 
 .dark .wf-panel {
@@ -678,6 +684,14 @@
     color: #94a3b8;
     padding: 10px 8px 4px;
     margin-top: 4px;
+    position: sticky;
+    top: 0;
+    background: #fff;
+    z-index: 1;
+}
+
+.dark .wf-picker-category-name {
+    background: #1e293b;
 }
 
 .wf-picker-category:first-child .wf-picker-category-name {
