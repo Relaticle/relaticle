@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Relaticle\Workflow\Actions;
 
-use Filament\Forms\Components\KeyValue;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Relaticle\Workflow\Forms\Actions\VariablePickerAction;
 use Relaticle\Workflow\Schema\RelaticleSchema;
 use Relaticle\Workflow\WorkflowManager;
 
@@ -27,8 +29,27 @@ class CreateRecordAction extends BaseAction
         }
 
         $modelClass = $entity->modelClass;
-        $fieldMappings = $config['field_mappings'] ?? [];
+        $rawMappings = $config['field_mappings'] ?? [];
         $customFieldMappings = $config['custom_field_mappings'] ?? [];
+
+        // Support both old KeyValue format and new Repeater format
+        $fieldMappings = [];
+        if (!empty($rawMappings) && isset($rawMappings[0]) && is_array($rawMappings[0]) && array_key_exists('field', $rawMappings[0])) {
+            // New Repeater format: [{field: "name", value: "..."}, ...]
+            foreach ($rawMappings as $mapping) {
+                $fieldKey = $mapping['field'] ?? '';
+                $value = $mapping['value'] ?? '';
+
+                if (str_starts_with($fieldKey, 'custom.')) {
+                    $customFieldMappings[substr($fieldKey, 7)] = $value;
+                } else {
+                    $fieldMappings[$fieldKey] = $value;
+                }
+            }
+        } else {
+            // Legacy KeyValue format: {field: value, ...}
+            $fieldMappings = $rawMappings;
+        }
 
         // Set tenant and creator from workflow context
         $workflow = $context['_workflow'] ?? null;
@@ -96,16 +117,34 @@ class CreateRecordAction extends BaseAction
                 ->options(fn () => self::getEntityOptions())
                 ->required()
                 ->live(),
-            KeyValue::make('field_mappings')
+            Repeater::make('field_mappings')
                 ->label('Field Values')
-                ->keyLabel('Field')
-                ->valueLabel('Value')
-                ->addActionLabel('Add field'),
-            KeyValue::make('custom_field_mappings')
-                ->label('Custom Field Values')
-                ->keyLabel('Custom Field')
-                ->valueLabel('Value')
-                ->addActionLabel('Add custom field'),
+                ->schema([
+                    Select::make('field')
+                        ->label('Field')
+                        ->searchable()
+                        ->options(function (callable $get) {
+                            $entityType = $get('../../entity_type');
+                            if (!$entityType) {
+                                return [];
+                            }
+                            return self::getFieldOptionsForEntity($entityType);
+                        })
+                        ->placeholder('Select field...')
+                        ->required()
+                        ->columnSpan(1),
+                    TextInput::make('value')
+                        ->label('Value')
+                        ->placeholder('Value or {{variable}}')
+                        ->columnSpan(1)
+                        ->suffixAction(
+                            VariablePickerAction::make('pickCreateValue')
+                                ->forField('value')
+                        ),
+                ])
+                ->columns(2)
+                ->addActionLabel('Add field mapping')
+                ->defaultItems(0),
         ];
     }
 
@@ -115,6 +154,25 @@ class CreateRecordAction extends BaseAction
             return collect(app(RelaticleSchema::class)->getEntities())
                 ->mapWithKeys(fn ($entity) => [$entity->key => $entity->label])
                 ->toArray();
+        } catch (\Throwable) {
+            return [];
+        }
+    }
+
+    protected static function getFieldOptionsForEntity(string $entityType): array
+    {
+        try {
+            $schema = app(RelaticleSchema::class);
+            $fields = $schema->getFields($entityType);
+
+            $options = [];
+            foreach ($fields as $field) {
+                $key = $field->isCustomField ? "custom.{$field->key}" : $field->key;
+                $group = $field->isCustomField ? 'Custom' : 'Standard';
+                $options[$key] = "[{$group}] {$field->label}";
+            }
+
+            return $options;
         } catch (\Throwable) {
             return [];
         }

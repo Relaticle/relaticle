@@ -8,6 +8,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\TextInput;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
+use Relaticle\Workflow\Forms\Actions\VariablePickerAction;
 
 use function Laravel\Ai\agent;
 
@@ -191,7 +192,8 @@ class ClassifyAction extends BaseAction
                 ->label('Input Path')
                 ->required()
                 ->placeholder('trigger.record.description')
-                ->helperText('Dot-notation path to the text to classify'),
+                ->helperText('Dot-notation path to the text to classify')
+                ->suffixAction(VariablePickerAction::make('pickInputPath')->forField('input_path')),
             TagsInput::make('categories')
                 ->label('Categories')
                 ->required()

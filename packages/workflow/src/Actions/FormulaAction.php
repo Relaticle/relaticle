@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace Relaticle\Workflow\Actions;
 
-use Filament\Forms\Components\KeyValue;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\TextInput;
+use Relaticle\Workflow\Forms\Actions\VariablePickerAction;
 
 class FormulaAction extends BaseAction
 {
@@ -21,7 +22,26 @@ class FormulaAction extends BaseAction
     public function execute(array $config, array $context): array
     {
         $formula = $config['formula'] ?? '';
-        $variables = $config['variables'] ?? [];
+        $rawVariables = $config['variables'] ?? [];
+
+        // Support both old KeyValue format and new Repeater format
+        $variables = [];
+        if (!empty($rawVariables)) {
+            $first = reset($rawVariables);
+            if (is_array($first) && array_key_exists('placeholder', $first)) {
+                // New Repeater format: [{placeholder: "price", path: "trigger.record.price"}, ...]
+                foreach ($rawVariables as $mapping) {
+                    $placeholder = $mapping['placeholder'] ?? '';
+                    $path = $mapping['path'] ?? '';
+                    if ($placeholder !== '') {
+                        $variables[$placeholder] = $path;
+                    }
+                }
+            } else {
+                // Legacy KeyValue format: {price: "trigger.record.price", ...}
+                $variables = $rawVariables;
+            }
+        }
 
         if (empty($formula)) {
             return ['error' => 'Formula is required', 'result' => null];
@@ -205,12 +225,28 @@ class FormulaAction extends BaseAction
                 ->required()
                 ->placeholder('{price} * {quantity} - {discount}')
                 ->helperText('Use {variable_name} placeholders. Supports +, -, *, /, and parentheses.'),
-            KeyValue::make('variables')
+            Repeater::make('variables')
                 ->label('Variable Mappings')
-                ->keyLabel('Placeholder')
-                ->valueLabel('Context Path')
+                ->schema([
+                    TextInput::make('placeholder')
+                        ->label('Placeholder')
+                        ->placeholder('price')
+                        ->required()
+                        ->columnSpan(1),
+                    TextInput::make('path')
+                        ->label('Context Path')
+                        ->placeholder('trigger.record.price')
+                        ->required()
+                        ->columnSpan(1)
+                        ->suffixAction(
+                            VariablePickerAction::make('pickFormulaVar')
+                                ->forField('path')
+                        ),
+                ])
+                ->columns(2)
                 ->addActionLabel('Add variable')
-                ->helperText('Map placeholder names to context paths (e.g. price -> trigger.record.price)'),
+                ->defaultItems(0)
+                ->helperText('Map placeholder names to context paths (e.g., price -> trigger.record.price)'),
         ];
     }
 

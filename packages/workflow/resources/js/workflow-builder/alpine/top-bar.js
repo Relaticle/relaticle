@@ -58,11 +58,14 @@ export function topBarMixin() {
             const graph = window.__wfGraph;
             if (graph) {
                 const { validateAllNodes } = await import('../config-panel.js');
-                const errors = validateAllNodes(graph, true);
+                const { errors, warnings } = validateAllNodes(graph, true);
                 if (errors.length > 0) {
                     const messages = errors.map(e => e.message);
                     this.showToast(`Cannot publish: ${messages[0]}${errors.length > 1 ? ` (+${errors.length - 1} more)` : ''}`, 'error');
                     return;
+                }
+                if (warnings.length > 0) {
+                    this.showToast(`${warnings.length} warning(s): ${warnings[0].message}${warnings.length > 1 ? ` (+${warnings.length - 1} more)` : ''}`, 'warning');
                 }
             }
 

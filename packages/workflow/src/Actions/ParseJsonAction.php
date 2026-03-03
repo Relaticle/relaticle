@@ -6,6 +6,7 @@ namespace Relaticle\Workflow\Actions;
 
 use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\TextInput;
+use Relaticle\Workflow\Forms\Actions\VariablePickerAction;
 
 class ParseJsonAction extends BaseAction
 {
@@ -110,7 +111,8 @@ class ParseJsonAction extends BaseAction
                 ->label('JSON Path')
                 ->required()
                 ->placeholder('steps.action-1.output.response_body')
-                ->helperText('Dot-notation path to the JSON string in the context'),
+                ->helperText('Dot-notation path to the JSON string in the context')
+                ->suffixAction(VariablePickerAction::make('pickJsonPath')->forField('json_path')),
             TagsInput::make('fields')
                 ->label('Fields to Extract')
                 ->placeholder('Add a dot-notation field path')

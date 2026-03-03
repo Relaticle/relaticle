@@ -116,17 +116,9 @@ export function blockPickerData() {
             },
         ],
 
-        get filteredCategories() {
-            const search = this.blockPickerSearch;
-            if (!search) return this.categories;
-            const q = search.toLowerCase();
-            return this.categories
-                .map(cat => ({
-                    ...cat,
-                    blocks: cat.blocks.filter(b => b.label.toLowerCase().includes(q)),
-                }))
-                .filter(cat => cat.blocks.length > 0);
-        },
+        // Note: filteredCategories getter is defined in the main component
+        // (index.js workflowBuilderFactory) AFTER the spread, because getters
+        // are lost when spreading objects via the ... operator.
     };
 }
 
@@ -200,6 +192,44 @@ export function addBlockToGraph(graph, block, sourceNodeId, sourcePortId, positi
         y,
         data,
     });
+
+    // Apply smart defaults based on block type
+    const actionType = block.actionType || block.type;
+    const smartDefaults = {
+        delay: { duration: 5, unit: 'minutes' },
+        stop: { reason: 'Workflow complete' },
+        http_request: { method: 'POST' },
+    };
+
+    if (smartDefaults[actionType]) {
+        const currentData = node.getData() || {};
+        node.setData({
+            ...currentData,
+            config: { ...(currentData.config || {}), ...smartDefaults[actionType] },
+        }, { silent: true });
+    }
+
+    // Propagate entity_type from trigger to record action nodes
+    const triggerNode = graph.getNodes().find(n => (n.getData() || {}).type === 'trigger');
+    const triggerConfig = triggerNode?.getData()?.config || {};
+    const entityType = triggerConfig.entity_type;
+
+    if (entityType && ['create_record', 'find_record', 'update_record', 'delete_record'].includes(actionType)) {
+        const currentData = node.getData() || {};
+        node.setData({
+            ...currentData,
+            config: { ...(currentData.config || {}), entity_type: entityType },
+        }, { silent: true });
+    }
+
+    // Default update_record to trigger source
+    if (actionType === 'update_record') {
+        const currentData = node.getData() || {};
+        node.setData({
+            ...currentData,
+            config: { ...(currentData.config || {}), record_source: 'trigger' },
+        }, { silent: true });
+    }
 
     // Auto-connect edge from source to new node
     if (sourceNodeId) {

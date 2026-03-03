@@ -7,139 +7,86 @@ namespace Relaticle\Workflow\Http\Controllers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Relaticle\Workflow\Engine\GraphWalker;
-use Relaticle\Workflow\Enums\NodeType;
-use Relaticle\Workflow\Models\Workflow;
-use Relaticle\Workflow\Schema\RelaticleSchema;
-use Relaticle\Workflow\WorkflowManager;
+use Relaticle\Workflow\Services\FieldResolverService;
 
 class VariableController extends Controller
 {
     public function index(Request $request, string $workflowId): JsonResponse
     {
-        $workflow = Workflow::with(['nodes', 'edges'])->findOrFail($workflowId);
-
         $nodeId = $request->query('node_id');
         if (!$nodeId) {
             return response()->json(['error' => 'node_id query parameter is required'], 422);
         }
 
-        $walker = new GraphWalker($workflow->nodes, $workflow->edges);
-        $targetNode = $walker->findNodeByNodeId($nodeId);
+        $service = app(FieldResolverService::class);
 
-        if (!$targetNode) {
-            return response()->json(['error' => "Node '{$nodeId}' not found"], 404);
+        try {
+            $rawGroups = $service->getAvailableFields($workflowId, $nodeId);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException) {
+            return response()->json(['error' => 'Workflow not found'], 404);
         }
 
-        $groups = $this->buildVariableGroups($workflow, $walker, $targetNode);
+        // Convert from FieldResolverService format to existing API format
+        $groups = array_map(fn (array $group) => [
+            'label' => $group['group'],
+            'prefix' => $this->derivePrefixFromGroup($group),
+            'fields' => array_map(fn (array $field) => [
+                'path' => $this->stripBraces($field['fullPath']),
+                'label' => $field['label'],
+                'type' => $field['type'],
+            ], $group['fields']),
+        ], $rawGroups);
 
         return response()->json(['groups' => $groups]);
     }
 
-    private function buildVariableGroups(Workflow $workflow, GraphWalker $walker, $targetNode): array
+    /**
+     * Derive the prefix from a FieldResolverService group for backward compatibility.
+     *
+     * The original VariableController used 'prefix' to indicate the common path prefix
+     * for fields in each group (e.g., 'trigger.record', 'steps.action-1.output').
+     */
+    private function derivePrefixFromGroup(array $group): string
     {
-        $groups = [];
+        $groupLabel = $group['group'];
 
-        // 1. Trigger record fields
-        $triggerGroup = $this->buildTriggerGroup($workflow);
-        if ($triggerGroup) {
-            $groups[] = $triggerGroup;
+        // Trigger Record groups have prefix 'trigger.record'
+        if (str_starts_with($groupLabel, 'Trigger Record')) {
+            return 'trigger.record';
         }
 
-        // 2. Upstream step outputs
-        $predecessors = $walker->getPredecessors($targetNode);
-        $manager = app(WorkflowManager::class);
-        $actions = $manager->getActions();
-
-        foreach ($predecessors as $predecessor) {
-            if ($predecessor->type !== NodeType::Action || !$predecessor->action_type) {
-                continue;
+        // Step groups: extract prefix from the first field's fullPath
+        // e.g., fullPath "{{steps.action-1.output.found}}" -> prefix "steps.action-1.output"
+        if (str_starts_with($groupLabel, 'Step:') && !empty($group['fields'])) {
+            $firstFieldPath = $this->stripBraces($group['fields'][0]['fullPath']);
+            // Remove the last segment (the field key) to get the prefix
+            $lastDotPos = strrpos($firstFieldPath, '.');
+            if ($lastDotPos !== false) {
+                return substr($firstFieldPath, 0, $lastDotPos);
             }
-
-            $actionClass = $actions[$predecessor->action_type] ?? null;
-            if (!$actionClass) {
-                continue;
-            }
-
-            $outputSchema = $actionClass::outputSchema();
-            if (empty($outputSchema)) {
-                continue;
-            }
-
-            $prefix = "steps.{$predecessor->node_id}.output";
-            $fields = [];
-            foreach ($outputSchema as $key => $meta) {
-                // Skip internal keys
-                if (str_starts_with($key, '_')) {
-                    continue;
-                }
-                $fields[] = [
-                    'path' => "{$prefix}.{$key}",
-                    'label' => $meta['label'] ?? $key,
-                    'type' => $meta['type'] ?? 'string',
-                ];
-            }
-
-            $groups[] = [
-                'label' => sprintf('Step: %s (%s)', $actionClass::label(), $predecessor->node_id),
-                'prefix' => $prefix,
-                'fields' => $fields,
-            ];
         }
 
-        // 3. Built-in variables
-        $groups[] = [
-            'label' => 'Built-in',
-            'prefix' => '',
-            'fields' => [
-                ['path' => 'now', 'label' => 'Current Timestamp', 'type' => 'datetime'],
-                ['path' => 'today', 'label' => 'Today\'s Date', 'type' => 'date'],
-            ],
-        ];
+        // Loop Context groups have prefix 'loop'
+        if ($groupLabel === 'Loop Context') {
+            return 'loop';
+        }
 
-        return $groups;
+        // Built-in and others have empty prefix
+        return '';
     }
 
-    private function buildTriggerGroup(Workflow $workflow): ?array
+    /**
+     * Strip the surrounding {{ and }} braces from a fullPath.
+     *
+     * The FieldResolverService returns fullPath with braces (e.g., "{{trigger.record.name}}"),
+     * but the existing API format uses paths without braces (e.g., "trigger.record.name").
+     */
+    private function stripBraces(string $fullPath): string
     {
-        $triggerConfig = $workflow->trigger_config ?? [];
-        $entityType = $triggerConfig['entity_type'] ?? null;
-
-        if (!$entityType) {
-            return null;
+        if (str_starts_with($fullPath, '{{') && str_ends_with($fullPath, '}}')) {
+            return substr($fullPath, 2, -2);
         }
 
-        try {
-            $schema = app(RelaticleSchema::class);
-            $fieldDefs = $schema->getFields($entityType);
-        } catch (\Throwable) {
-            return null;
-        }
-
-        if (empty($fieldDefs)) {
-            return null;
-        }
-
-        $entity = $schema->getEntity($entityType);
-        $label = $entity ? "Trigger Record ({$entity->label})" : 'Trigger Record';
-
-        $fields = [];
-        foreach ($fieldDefs as $fieldDef) {
-            $path = $fieldDef->isCustomField
-                ? "trigger.record.custom.{$fieldDef->key}"
-                : "trigger.record.{$fieldDef->key}";
-
-            $fields[] = [
-                'path' => $path,
-                'label' => $fieldDef->label,
-                'type' => $fieldDef->type,
-            ];
-        }
-
-        return [
-            'label' => $label,
-            'prefix' => 'trigger.record',
-            'fields' => $fields,
-        ];
+        return $fullPath;
     }
 }

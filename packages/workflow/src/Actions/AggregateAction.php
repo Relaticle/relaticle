@@ -6,6 +6,7 @@ namespace Relaticle\Workflow\Actions;
 
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Relaticle\Workflow\Forms\Actions\VariablePickerAction;
 
 class AggregateAction extends BaseAction
 {
@@ -112,7 +113,8 @@ class AggregateAction extends BaseAction
                 ->label('Values Path')
                 ->required()
                 ->placeholder('trigger.record.line_items.*.amount')
-                ->helperText('Dot-notation path to the array of values in the context'),
+                ->helperText('Dot-notation path to the array of values in the context')
+                ->suffixAction(VariablePickerAction::make('pickValuesPath')->forField('values_path')),
             Select::make('operation')
                 ->label('Operation')
                 ->options([

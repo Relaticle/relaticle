@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace Relaticle\Workflow\Actions;
 
-use Filament\Forms\Components\KeyValue;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Model;
+use Relaticle\Workflow\Forms\Actions\VariablePickerAction;
+use Relaticle\Workflow\Schema\RelaticleSchema;
 
 class UpdateRecordAction extends BaseAction
 {
@@ -19,8 +21,27 @@ class UpdateRecordAction extends BaseAction
             return ['error' => 'Could not resolve record to update', 'updated' => false];
         }
 
-        $fieldMappings = $config['field_mappings'] ?? [];
+        $rawMappings = $config['field_mappings'] ?? [];
         $customFieldMappings = $config['custom_field_mappings'] ?? [];
+
+        // Support both old KeyValue format and new Repeater format
+        $fieldMappings = [];
+        if (!empty($rawMappings) && isset($rawMappings[0]) && is_array($rawMappings[0]) && array_key_exists('field', $rawMappings[0])) {
+            // New Repeater format: [{field: "name", value: "..."}, ...]
+            foreach ($rawMappings as $mapping) {
+                $fieldKey = $mapping['field'] ?? '';
+                $value = $mapping['value'] ?? '';
+
+                if (str_starts_with($fieldKey, 'custom.')) {
+                    $customFieldMappings[substr($fieldKey, 7)] = $value;
+                } else {
+                    $fieldMappings[$fieldKey] = $value;
+                }
+            }
+        } else {
+            // Legacy KeyValue format: {field: value, ...}
+            $fieldMappings = $rawMappings;
+        }
 
         $record->update($fieldMappings);
 
@@ -111,6 +132,7 @@ class UpdateRecordAction extends BaseAction
         return [
             'record_source' => ['type' => 'string', 'label' => 'Record Source', 'required' => true],
             'step_node_id' => ['type' => 'string', 'label' => 'Step Node ID', 'required' => false],
+            'entity_type' => ['type' => 'string', 'label' => 'Entity Type', 'required' => false],
             'field_mappings' => ['type' => 'object', 'label' => 'Field Mappings', 'required' => true],
             'custom_field_mappings' => ['type' => 'object', 'label' => 'Custom Field Mappings', 'required' => false],
         ];
@@ -127,21 +149,78 @@ class UpdateRecordAction extends BaseAction
                 ])
                 ->required()
                 ->live(),
-            TextInput::make('step_node_id')
-                ->label('Step Node ID')
-                ->placeholder('e.g. action-2')
-                ->visible(fn ($get) => $get('record_source') === 'step'),
-            KeyValue::make('field_mappings')
+            Select::make('step_node_id')
+                ->label('Source Step')
+                ->searchable()
+                ->options(fn () => [])
+                ->placeholder('Select upstream step...')
+                ->visible(fn ($get) => $get('record_source') === 'step')
+                ->helperText('Select the step that found or created the record'),
+            Select::make('entity_type')
+                ->label('Entity Type')
+                ->options(fn () => self::getEntityOptions())
+                ->visible(fn ($get) => $get('record_source') === 'step')
+                ->helperText('Select entity type when updating a record from a previous step')
+                ->live(),
+            Repeater::make('field_mappings')
                 ->label('Field Values')
-                ->keyLabel('Field')
-                ->valueLabel('Value')
-                ->addActionLabel('Add field'),
-            KeyValue::make('custom_field_mappings')
-                ->label('Custom Field Values')
-                ->keyLabel('Custom Field')
-                ->valueLabel('Value')
-                ->addActionLabel('Add custom field'),
+                ->schema([
+                    Select::make('field')
+                        ->label('Field')
+                        ->searchable()
+                        ->options(function (callable $get) {
+                            $entityType = $get('../../entity_type');
+                            if (!$entityType) {
+                                return [];
+                            }
+                            return self::getFieldOptionsForEntity($entityType);
+                        })
+                        ->placeholder('Select field...')
+                        ->required()
+                        ->columnSpan(1),
+                    TextInput::make('value')
+                        ->label('Value')
+                        ->placeholder('Value or {{variable}}')
+                        ->columnSpan(1)
+                        ->suffixAction(
+                            VariablePickerAction::make('pickUpdateValue')
+                                ->forField('value')
+                        ),
+                ])
+                ->columns(2)
+                ->addActionLabel('Add field mapping')
+                ->defaultItems(0),
         ];
+    }
+
+    protected static function getEntityOptions(): array
+    {
+        try {
+            return collect(app(RelaticleSchema::class)->getEntities())
+                ->mapWithKeys(fn ($entity) => [$entity->key => $entity->label])
+                ->toArray();
+        } catch (\Throwable) {
+            return [];
+        }
+    }
+
+    protected static function getFieldOptionsForEntity(string $entityType): array
+    {
+        try {
+            $schema = app(RelaticleSchema::class);
+            $fields = $schema->getFields($entityType);
+
+            $options = [];
+            foreach ($fields as $field) {
+                $key = $field->isCustomField ? "custom.{$field->key}" : $field->key;
+                $group = $field->isCustomField ? 'Custom' : 'Standard';
+                $options[$key] = "[{$group}] {$field->label}";
+            }
+
+            return $options;
+        } catch (\Throwable) {
+            return [];
+        }
     }
 
     public static function outputSchema(): array

@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Relaticle\Workflow\Livewire;
 
 use Filament\Actions\Action;
+use Filament\Actions\Concerns\InteractsWithActions;
+use Filament\Actions\Contracts\HasActions;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -15,15 +17,18 @@ use Filament\Forms\Contracts\HasForms;
 use Filament\Schemas\Schema;
 use Livewire\Attributes\On;
 use Livewire\Component;
+use Relaticle\Workflow\Forms\Actions\VariablePickerAction;
 use Relaticle\Workflow\Models\Workflow;
 use Relaticle\Workflow\Models\WorkflowNode;
+use Relaticle\Workflow\Services\FieldResolverService;
 use Relaticle\Workflow\WorkflowManager;
 
 /**
  * @property Schema $form
  */
-class WorkflowConfigPanel extends Component implements HasForms
+class WorkflowConfigPanel extends Component implements HasActions, HasForms
 {
+    use InteractsWithActions;
     use InteractsWithForms;
 
     public ?string $workflowId = null;
@@ -56,6 +61,17 @@ class WorkflowConfigPanel extends Component implements HasForms
         $formData = $this->prepareConfigForForm($config);
 
         $this->form->fill($formData);
+
+        // Auto-detect cron preset from existing cron_expression
+        if ($nodeType === 'trigger') {
+            $presets = ['*/5 * * * *', '0 * * * *', '0 9 * * *', '0 9 * * 1', '0 9 1 * *'];
+            $cronExpr = $config['cron_expression'] ?? null;
+            if ($cronExpr && in_array($cronExpr, $presets, true)) {
+                $this->data['cron_preset'] = $cronExpr;
+            } elseif ($cronExpr) {
+                $this->data['cron_preset'] = 'custom';
+            }
+        }
     }
 
     #[On('node-deselected')]
@@ -285,11 +301,28 @@ class WorkflowConfigPanel extends Component implements HasForms
                             $livewire->js("navigator.clipboard.writeText(" . json_encode($state) . ")");
                         })
                 ),
-            TextInput::make('cron_expression')
-                ->label('Schedule (Cron)')
-                ->placeholder('*/5 * * * *')
+            Select::make('cron_preset')
+                ->label('Schedule')
+                ->options([
+                    '*/5 * * * *' => 'Every 5 minutes',
+                    '0 * * * *' => 'Every hour',
+                    '0 9 * * *' => 'Every day at 9:00 AM',
+                    '0 9 * * 1' => 'Every Monday at 9:00 AM',
+                    '0 9 1 * *' => '1st of every month at 9:00 AM',
+                    'custom' => 'Custom expression...',
+                ])
                 ->visible(fn (callable $get): bool => $get('event') === 'scheduled')
-                ->helperText('Cron expression for recurring schedule (e.g., "0 9 * * 1" for every Monday at 9am).'),
+                ->live()
+                ->afterStateUpdated(function ($state, callable $set) {
+                    if ($state !== 'custom') {
+                        $set('cron_expression', $state);
+                    }
+                }),
+            TextInput::make('cron_expression')
+                ->label('Cron Expression')
+                ->placeholder('*/5 * * * *')
+                ->visible(fn (callable $get): bool => $get('event') === 'scheduled' && $get('cron_preset') === 'custom')
+                ->helperText('Standard cron syntax: minute hour day month weekday'),
         ];
     }
 
@@ -328,9 +361,11 @@ class WorkflowConfigPanel extends Component implements HasForms
             Repeater::make('conditions')
                 ->label('Conditions')
                 ->schema([
-                    TextInput::make('field')
+                    Select::make('field')
                         ->label('Field')
-                        ->placeholder('trigger.record.status')
+                        ->searchable()
+                        ->options(fn () => $this->getConditionFieldOptions())
+                        ->placeholder('Select a field...')
                         ->columnSpan(1),
                     Select::make('operator')
                         ->label('Operator')
@@ -347,8 +382,12 @@ class WorkflowConfigPanel extends Component implements HasForms
                         ->columnSpan(1),
                     TextInput::make('value')
                         ->label('Value')
-                        ->placeholder('active')
-                        ->columnSpan(1),
+                        ->placeholder('Value or {{variable}}')
+                        ->columnSpan(1)
+                        ->suffixAction(
+                            VariablePickerAction::make('pickConditionValue')
+                                ->forField('value')
+                        ),
                 ])
                 ->columns(3)
                 ->defaultItems(1)
@@ -378,9 +417,12 @@ class WorkflowConfigPanel extends Component implements HasForms
     protected function getLoopFormSchema(): array
     {
         return [
-            TextInput::make('collection')
+            Select::make('collection')
                 ->label('Collection Path')
-                ->placeholder('record.items'),
+                ->searchable()
+                ->options(fn () => $this->getCollectionOptions())
+                ->placeholder('Select a collection...')
+                ->helperText('Choose an array field from upstream steps to iterate over'),
         ];
     }
 
@@ -391,6 +433,74 @@ class WorkflowConfigPanel extends Component implements HasForms
                 ->label('Reason')
                 ->placeholder('Workflow complete'),
         ];
+    }
+
+    /**
+     * Get field options for condition node field selector.
+     *
+     * Resolves available fields from upstream workflow steps via the
+     * FieldResolverService and formats them as Select options.
+     *
+     * @return array<string, string>
+     */
+    protected function getConditionFieldOptions(): array
+    {
+        if (! $this->workflowId || ! $this->selectedNodeId) {
+            return [];
+        }
+
+        try {
+            $service = app(FieldResolverService::class);
+            $groups = $service->getAvailableFields($this->workflowId, $this->selectedNodeId);
+        } catch (\Throwable) {
+            return [];
+        }
+
+        $options = [];
+        foreach ($groups as $group) {
+            foreach ($group['fields'] as $field) {
+                // Strip {{ and }} since conditions use raw dot-notation paths
+                $path = trim($field['fullPath'], '{}');
+                $options[$path] = "[{$group['group']}] {$field['label']}";
+            }
+        }
+
+        return $options;
+    }
+
+    /**
+     * Get collection options for loop node collection selector.
+     *
+     * Resolves available fields from upstream workflow steps and filters
+     * to only show array-typed fields that can be iterated over.
+     *
+     * @return array<string, string>
+     */
+    protected function getCollectionOptions(): array
+    {
+        if (! $this->workflowId || ! $this->selectedNodeId) {
+            return [];
+        }
+
+        try {
+            $service = app(FieldResolverService::class);
+            $groups = $service->getAvailableFields($this->workflowId, $this->selectedNodeId);
+        } catch (\Throwable) {
+            return [];
+        }
+
+        $options = [];
+        foreach ($groups as $group) {
+            foreach ($group['fields'] as $field) {
+                // Only show fields that could be collections (array, object, mixed types)
+                if (in_array($field['type'], ['array', 'object', 'mixed'], true)) {
+                    $path = trim($field['fullPath'], '{}');
+                    $options[$path] = "[{$group['group']}] {$field['label']}";
+                }
+            }
+        }
+
+        return $options;
     }
 
     /**

@@ -99,6 +99,33 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
             return Math.round(this.zoomLevel * 100) + '%';
         },
 
+        get filteredCategories() {
+            const search = this.blockPickerSearch;
+            const q = search ? search.toLowerCase() : '';
+
+            // Check if a trigger already exists on the graph
+            const graph = window.__wfGraph;
+            const hasTrigger = graph?.getNodes().some(n => (n.getData() || {}).type === 'trigger');
+
+            return this.categories
+                .map(cat => {
+                    let blocks = cat.blocks;
+
+                    // Filter by search query
+                    if (q) {
+                        blocks = blocks.filter(b => b.label.toLowerCase().includes(q));
+                    }
+
+                    // Hide trigger if one already exists
+                    if (hasTrigger) {
+                        blocks = blocks.filter(b => b.type !== 'trigger');
+                    }
+
+                    return { ...cat, blocks };
+                })
+                .filter(cat => cat.blocks.length > 0);
+        },
+
         init() {
             // Register X6 node shapes
             registerTriggerNode();
@@ -367,11 +394,47 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
                 return;
             }
 
-            const pos = !this.blockPickerSourceNode && this.blockPickerPos
+            const sourceNodeId = this.blockPickerSourceNode;
+            const pos = !sourceNodeId && this.blockPickerPos
                 ? graph.pageToLocal(this.blockPickerPos.x, this.blockPickerPos.y)
                 : null;
-            addBlockToGraph(graph, block, this.blockPickerSourceNode, null, pos);
+            const newNode = addBlockToGraph(graph, block, sourceNodeId, null, pos);
             this.blockPickerOpen = false;
+
+            // Auto-connect: if no explicit source and exactly one node has an unconnected output, connect to it
+            if (!sourceNodeId && newNode) {
+                const newNodeData = newNode.getData() || {};
+                if (newNodeData.type !== 'trigger') {
+                    const allEdges = graph.getEdges();
+                    const nodesWithFreeOutput = graph.getNodes().filter(n => {
+                        if (n.id === newNode.id) return false;
+                        const data = n.getData() || {};
+                        if (data.type === 'stop') return false;
+
+                        const hasOutgoing = allEdges.some(e => {
+                            const source = e.getSourceCell();
+                            return source && source.id === n.id;
+                        });
+                        return !hasOutgoing;
+                    });
+
+                    if (nodesWithFreeOutput.length === 1) {
+                        const sourceNode = nodesWithFreeOutput[0];
+                        const sourcePort = sourceNode.getData()?.type === 'condition' ? 'out-yes' : 'out';
+                        graph.addEdge({
+                            source: { cell: sourceNode.id, port: sourcePort },
+                            target: { cell: newNode.id, port: 'in' },
+                            attrs: {
+                                line: {
+                                    stroke: '#94a3b8',
+                                    strokeWidth: 1.5,
+                                    targetMarker: { name: 'block', width: 6, height: 4 },
+                                },
+                            },
+                        });
+                    }
+                }
+            }
         },
 
         insertBlockOnEdge(block) {
@@ -512,10 +575,13 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
             const graph = window.__wfGraph;
             if (!graph) return;
 
-            const validationErrors = validateAllNodes(graph);
+            const { errors: validationErrors, warnings: validationWarnings } = validateAllNodes(graph);
             if (validationErrors.length > 0) {
-                showToast(`${validationErrors.length} node(s) need configuration before saving.`, 'warning');
+                showToast(`${validationErrors.length} node(s) need configuration before saving.`, 'error');
                 return;
+            }
+            if (validationWarnings.length > 0) {
+                showToast(`${validationWarnings.length} warning(s): ${validationWarnings[0].message}${validationWarnings.length > 1 ? ` (+${validationWarnings.length - 1} more)` : ''}`, 'warning');
             }
 
             const cells = graph.getCells();

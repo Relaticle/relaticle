@@ -72,4 +72,6 @@
             <span class="text-xs text-slate-400">Click a block on the canvas to configure it.</span>
         </div>
     @endif
+
+    <x-filament-actions::modals />
 </div>

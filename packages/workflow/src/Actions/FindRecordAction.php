@@ -7,6 +7,7 @@ namespace Relaticle\Workflow\Actions;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Relaticle\Workflow\Forms\Actions\VariablePickerAction;
 use Relaticle\Workflow\Schema\RelaticleSchema;
 use Relaticle\Workflow\WorkflowManager;
 
@@ -125,8 +126,17 @@ class FindRecordAction extends BaseAction
             Repeater::make('conditions')
                 ->label('Conditions')
                 ->schema([
-                    TextInput::make('field')
+                    Select::make('field')
                         ->label('Field')
+                        ->searchable()
+                        ->options(function (callable $get) {
+                            $entityType = $get('../../entity_type');
+                            if (!$entityType) {
+                                return [];
+                            }
+                            return self::getFieldOptionsForEntity($entityType);
+                        })
+                        ->placeholder('Select field...')
                         ->required(),
                     Select::make('operator')
                         ->label('Operator')
@@ -141,7 +151,11 @@ class FindRecordAction extends BaseAction
                         ])
                         ->required(),
                     TextInput::make('value')
-                        ->label('Value'),
+                        ->label('Value')
+                        ->suffixAction(
+                            VariablePickerAction::make('pickFindValue')
+                                ->forField('value')
+                        ),
                 ])
                 ->addActionLabel('Add condition')
                 ->defaultItems(0),
@@ -159,6 +173,24 @@ class FindRecordAction extends BaseAction
             return collect(app(RelaticleSchema::class)->getEntities())
                 ->mapWithKeys(fn ($entity) => [$entity->key => $entity->label])
                 ->toArray();
+        } catch (\Throwable) {
+            return [];
+        }
+    }
+
+    protected static function getFieldOptionsForEntity(string $entityType): array
+    {
+        try {
+            $schema = app(RelaticleSchema::class);
+            $fields = $schema->getFields($entityType);
+
+            $options = [];
+            foreach ($fields as $field) {
+                $group = $field->isCustomField ? 'Custom' : 'Standard';
+                $options[$field->key] = "[{$group}] {$field->label}";
+            }
+
+            return $options;
         } catch (\Throwable) {
             return [];
         }

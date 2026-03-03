@@ -5,14 +5,23 @@ declare(strict_types=1);
 namespace Relaticle\Workflow\Forms\Actions;
 
 use Filament\Actions\Action;
-use Relaticle\Workflow\Engine\GraphWalker;
-use Relaticle\Workflow\Models\Workflow;
-use Relaticle\Workflow\Models\WorkflowNode;
-use Relaticle\Workflow\Schema\RelaticleSchema;
-use Relaticle\Workflow\WorkflowManager;
+use Relaticle\Workflow\Services\FieldResolverService;
 
 class VariablePickerAction extends Action
 {
+    protected string $targetFieldName = '';
+
+    /**
+     * Set the target form field name that this picker should insert variables into.
+     * The field name should match the Filament form field's statePath (e.g. 'values_path').
+     */
+    public function forField(string $field): static
+    {
+        $this->targetFieldName = $field;
+
+        return $this;
+    }
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -24,6 +33,7 @@ class VariablePickerAction extends Action
             ->modalCancelActionLabel('Close')
             ->modalContent(fn () => view('workflow::forms.variable-picker', [
                 'groups' => $this->getVariableGroups(),
+                'targetField' => $this->targetFieldName,
             ]));
     }
 
@@ -39,101 +49,39 @@ class VariablePickerAction extends Action
         $workflowId = $livewire->workflowId ?? null;
         $nodeId = $livewire->selectedNodeId ?? null;
 
-        if (! $workflowId || ! $nodeId) {
+        if (!$workflowId || !$nodeId) {
             return [];
         }
 
-        $workflow = Workflow::with(['nodes', 'edges'])->find($workflowId);
-        if (! $workflow) {
+        try {
+            $service = app(FieldResolverService::class);
+            $rawGroups = $service->getAvailableFields($workflowId, $nodeId);
+        } catch (\Throwable) {
             return [];
         }
 
-        $groups = [];
+        // Convert to the Blade view format (uses 'label' for group name, 'path' for field path).
+        // The Blade view wraps paths in {{ '{{' . $field['path'] . '}}' }}, so we must strip
+        // the braces from fullPath since the view adds them.
+        return array_map(fn (array $group) => [
+            'label' => $group['group'],
+            'fields' => array_map(fn (array $field) => [
+                'path' => $this->stripBraces($field['fullPath']),
+                'label' => $field['label'],
+                'type' => $field['type'],
+            ], $group['fields']),
+        ], $rawGroups);
+    }
 
-        // 1. Trigger record fields
-        $triggerNode = $workflow->nodes->first(fn ($n) => $n->type->value === 'trigger');
-        if ($triggerNode) {
-            $entityType = $triggerNode->config['entity_type'] ?? null;
-            $triggerFields = [];
-
-            if ($entityType) {
-                try {
-                    $schema = app(RelaticleSchema::class);
-                    $fields = $schema->getFields($entityType);
-
-                    foreach ($fields as $field) {
-                        $prefix = $field->isCustomField ? 'trigger.record.custom.' : 'trigger.record.';
-                        $triggerFields[] = [
-                            'path' => $prefix . $field->key,
-                            'label' => $field->label,
-                            'type' => $field->type,
-                        ];
-                    }
-                } catch (\Throwable) {
-                    // Schema may not be available in all contexts
-                }
-            }
-
-            if (! empty($triggerFields)) {
-                $groups[] = [
-                    'label' => 'Trigger Record',
-                    'fields' => $triggerFields,
-                ];
-            }
+    /**
+     * Strip the surrounding {{ and }} braces from a fullPath.
+     */
+    private function stripBraces(string $fullPath): string
+    {
+        if (str_starts_with($fullPath, '{{') && str_ends_with($fullPath, '}}')) {
+            return substr($fullPath, 2, -2);
         }
 
-        // 2. Upstream step outputs
-        $currentNode = $workflow->nodes->first(fn ($n) => $n->node_id === $nodeId);
-        if ($currentNode) {
-            try {
-                $walker = new GraphWalker($workflow->nodes, $workflow->edges);
-                $predecessors = $walker->getPredecessors($currentNode);
-                $manager = app(WorkflowManager::class);
-                $actions = $manager->getActions();
-
-                foreach ($predecessors as $pred) {
-                    if ($pred->type->value !== 'action' || ! $pred->action_type) {
-                        continue;
-                    }
-
-                    $actionClass = $actions[$pred->action_type] ?? null;
-                    if (! $actionClass) {
-                        continue;
-                    }
-
-                    $outputSchema = $actionClass::outputSchema();
-                    if (empty($outputSchema)) {
-                        continue;
-                    }
-
-                    $stepFields = [];
-                    foreach ($outputSchema as $key => $def) {
-                        $stepFields[] = [
-                            'path' => "steps.{$pred->node_id}.output.{$key}",
-                            'label' => $def['label'] ?? $key,
-                            'type' => $def['type'] ?? 'string',
-                        ];
-                    }
-
-                    $groups[] = [
-                        'label' => "Step: {$actionClass::label()} ({$pred->node_id})",
-                        'fields' => $stepFields,
-                    ];
-                }
-            } catch (\Throwable) {
-                // GraphWalker may fail if nodes/edges are incomplete
-            }
-        }
-
-        // 3. Built-in variables
-        $groups[] = [
-            'label' => 'Built-in',
-            'fields' => [
-                ['path' => 'now', 'label' => 'Current Timestamp', 'type' => 'datetime'],
-                ['path' => 'today', 'label' => "Today's Date", 'type' => 'date'],
-            ],
-        ];
-
-        return $groups;
+        return $fullPath;
     }
 }

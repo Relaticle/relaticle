@@ -7,6 +7,7 @@ namespace Relaticle\Workflow\Actions;
 use Carbon\Carbon;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Relaticle\Workflow\Forms\Actions\VariablePickerAction;
 
 class AdjustTimeAction extends BaseAction
 {
@@ -128,7 +129,8 @@ class AdjustTimeAction extends BaseAction
                 ->label('Date Path')
                 ->required()
                 ->placeholder('trigger.record.created_at')
-                ->helperText('Dot-notation path to the date value in the context'),
+                ->helperText('Dot-notation path to the date value in the context')
+                ->suffixAction(VariablePickerAction::make('pickDatePath')->forField('date_path')),
             TextInput::make('amount')
                 ->label('Amount')
                 ->numeric()
