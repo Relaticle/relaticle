@@ -24,7 +24,7 @@
             {{-- Agent-Native Infrastructure — 2col 2row --}}
             <div class="{{ $cardBase }} p-8 md:col-span-2 lg:col-span-2 lg:row-span-2 overflow-hidden">
                 <h3 class="font-display text-xl font-semibold text-gray-900 dark:text-white mb-2 inline-flex items-center gap-2">
-                    <x-ri-code-ai-line class="w-5 h-5 text-primary dark:text-primary-400"/>
+                    <x-ri-git-merge-line class="w-4 h-4 text-primary dark:text-primary-400"/>
                     Agent-Native Infrastructure
                 </h3>
                 <p class="{{ $cardDesc }} max-w-md">
@@ -140,7 +140,7 @@
             {{-- AI-Powered Insights --}}
             <div id="card-ai" class="{{ $cardBase }} p-6 overflow-hidden">
                 <h3 class="{{ $cardTitle }} inline-flex items-center gap-2">
-                    <x-ri-sparkling-2-line id="ai-sparkle" class="w-4 h-4 text-primary dark:text-primary-400"/>
+                    <x-ri-lightbulb-flash-line id="ai-sparkle" class="w-3.5 h-3.5 text-primary dark:text-primary-400"/>
                     AI-Powered Insights
                 </h3>
                 <p class="{{ $cardDesc }}">
@@ -157,7 +157,7 @@
             {{-- Customizable Data Model --}}
             <div id="card-data" class="{{ $cardBase }} p-6 overflow-hidden">
                 <h3 class="{{ $cardTitle }} inline-flex items-center gap-2">
-                    <x-ri-database-2-line class="w-4 h-4 text-primary dark:text-primary-400"/>
+                    <x-ri-stack-line class="w-3.5 h-3.5 text-primary dark:text-primary-400"/>
                     Customizable Data Model
                 </h3>
                 <p class="{{ $cardDesc }}">
@@ -187,7 +187,7 @@
                 <div class="absolute w-32 h-32 bg-primary/10 dark:bg-primary/15 rounded-full blur-2xl" style="top: -2rem; left: -2rem;"></div>
                 <div class="relative">
                     <h3 class="{{ $cardTitle }} inline-flex items-center gap-2">
-                        <x-ri-building-line class="w-4 h-4 text-primary dark:text-primary-400"/>
+                        <x-ri-building-2-line class="w-3.5 h-3.5 text-primary dark:text-primary-400"/>
                         Company Management
                     </h3>
                     <p class="{{ $cardDesc }}">Track companies with detailed profiles, linked contacts, and opportunity history. See the full picture at a glance.</p>
@@ -197,7 +197,7 @@
             {{-- People Management --}}
             <div class="{{ $cardBase }} p-6">
                 <h3 class="{{ $cardTitle }} inline-flex items-center gap-2">
-                    <x-ri-contacts-line class="w-4 h-4 text-primary dark:text-primary-400"/>
+                    <x-ri-user-star-line class="w-3.5 h-3.5 text-primary dark:text-primary-400"/>
                     People Management
                 </h3>
                 <p class="{{ $cardDesc }}">Rich contact profiles with interaction history, notes, and linked companies. Find anyone with advanced search and filters.</p>
@@ -206,7 +206,7 @@
             {{-- Sales Opportunities --}}
             <div id="card-sales" class="{{ $cardBase }} p-6 overflow-hidden">
                 <h3 class="{{ $cardTitle }} inline-flex items-center gap-2">
-                    <x-ri-hand-coin-line class="w-4 h-4 text-primary dark:text-primary-400"/>
+                    <x-ri-funds-line class="w-3.5 h-3.5 text-primary dark:text-primary-400"/>
                     Sales Opportunities
                 </h3>
                 <p class="{{ $cardDesc }}">
@@ -230,7 +230,7 @@
                 <div class="flex flex-col sm:flex-row sm:gap-8">
                     <div class="sm:flex-1">
                         <h3 class="font-display text-xl font-semibold text-gray-900 dark:text-white mb-2 inline-flex items-center gap-2">
-                            <x-ri-task-line class="w-5 h-5 text-primary dark:text-primary-400"/>
+                            <x-ri-layout-masonry-line class="w-4 h-4 text-primary dark:text-primary-400"/>
                             Task Management
                         </h3>
                         <p class="{{ $cardDesc }}">
@@ -258,12 +258,12 @@
             {{-- Simple feature cards row 2 --}}
             @foreach([
                 ['ri-team-line', 'Team Collaboration', 'Multi-workspace support with role-based permissions and 5-layer authorization. Every team member sees exactly what they should.'],
-                ['ri-file-transfer-line', 'Import & Export', 'Migrate from any CRM with CSV imports. Column mapping, validation, and error handling included. Export anytime — your data is yours.'],
-                ['ri-sticky-note-line', 'Notes & Activity Log', 'Capture notes linked to any record. Your AI agent can log meeting notes automatically. Search and retrieve context instantly.'],
+                ['ri-download-cloud-2-line', 'Import & Export', 'Migrate from any CRM with CSV imports. Column mapping, validation, and error handling included. Export anytime — your data is yours.'],
+                ['ri-quill-pen-line', 'Notes & Activity Log', 'Capture notes linked to any record. Your AI agent can log meeting notes automatically. Search and retrieve context instantly.'],
             ] as [$icon, $title, $desc])
                 <div class="{{ $cardBase }} p-6">
                     <h3 class="{{ $cardTitle }} inline-flex items-center gap-2">
-                        <x-dynamic-component :component="$icon" class="w-4 h-4 text-primary dark:text-primary-400"/>
+                        <x-dynamic-component :component="$icon" class="w-3.5 h-3.5 text-primary dark:text-primary-400"/>
                         {{ $title }}
                     </h3>
                     <p class="{{ $cardDesc }}">{{ $desc }}</p>
