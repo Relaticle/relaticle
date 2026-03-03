@@ -343,7 +343,12 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
 
         openBlockPicker(sourceNodeId, x, y) {
             this.blockPickerSourceNode = sourceNodeId || null;
-            this.blockPickerPos = { x, y };
+            // Clamp position so the picker stays within the viewport
+            const pickerHeight = 400;
+            const clampedY = (y + pickerHeight > window.innerHeight)
+                ? Math.max(60, window.innerHeight - pickerHeight - 20)
+                : y;
+            this.blockPickerPos = { x, y: clampedY };
             this.blockPickerSearch = '';
             this.blockPickerOpen = true;
             this.$nextTick(() => {

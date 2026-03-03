@@ -622,7 +622,7 @@
 .wf-picker {
     position: fixed;
     width: 300px;
-    max-height: 400px;
+    max-height: min(400px, calc(100vh - 100px));
     background: #fff;
     border: 1px solid #e2e8f0;
     border-radius: 10px;
