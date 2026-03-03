@@ -159,7 +159,7 @@ it('rejects canvas save with stale version', function () {
     ]);
 
     $response->assertStatus(409);
-    $response->assertJson(['error' => 'Canvas has been modified by another user. Please reload.']);
+    $response->assertJson(['error' => 'Canvas has been modified by another user. Please refresh and try again.']);
 });
 
 it('increments canvas_version on successful save', function () {
@@ -180,6 +180,35 @@ it('increments canvas_version on successful save', function () {
 
     $response->assertOk();
     expect($workflow->fresh()->canvas_version)->toBe(2);
+});
+
+it('rejects concurrent canvas saves with version conflict inside transaction', function () {
+    $workflow = WorkflowModel::create([
+        'name' => 'Concurrent Save Test',
+        'trigger_type' => TriggerType::Manual,
+        'trigger_config' => [],
+        'canvas_data' => [],
+        'canvas_version' => 1,
+    ]);
+
+    // First save with version 1 — succeeds
+    $response1 = $this->putJson("/workflow/api/workflows/{$workflow->id}/canvas", [
+        'nodes' => [['node_id' => 'trigger-1', 'type' => 'trigger', 'config' => [], 'position_x' => 0, 'position_y' => 0]],
+        'edges' => [],
+        'canvas_data' => [],
+        'canvas_version' => 1,
+    ]);
+    $response1->assertOk();
+    expect($workflow->fresh()->canvas_version)->toBe(2);
+
+    // Second save with stale version 1 — must be rejected
+    $response2 = $this->putJson("/workflow/api/workflows/{$workflow->id}/canvas", [
+        'nodes' => [['node_id' => 'trigger-1', 'type' => 'trigger', 'config' => [], 'position_x' => 100, 'position_y' => 100]],
+        'edges' => [],
+        'canvas_data' => [],
+        'canvas_version' => 1,
+    ]);
+    $response2->assertStatus(409);
 });
 
 it('validates required node type on save', function () {

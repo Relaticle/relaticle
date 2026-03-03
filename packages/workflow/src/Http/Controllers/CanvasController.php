@@ -135,7 +135,7 @@ class CanvasController extends Controller
                 $triggerConfig = $workflow->trigger_config ?? [];
                 $settings = $request->input('settings', []);
                 if (isset($settings['max_steps'])) {
-                    $triggerConfig['max_steps'] = (int) $settings['max_steps'];
+                    $triggerConfig['max_steps'] = min((int) $settings['max_steps'], 1000);
                 }
                 if (isset($settings['notify_on_failure'])) {
                     $triggerConfig['notify_on_failure'] = (bool) $settings['notify_on_failure'];
@@ -182,29 +182,32 @@ class CanvasController extends Controller
             }
         }
 
-        // Optimistic locking: reject stale canvas versions
-        if (isset($validated['canvas_version']) && $validated['canvas_version'] !== $workflow->canvas_version) {
-            return response()->json([
-                'error' => 'Canvas has been modified by another user. Please reload.',
-            ], 409);
-        }
-
         try {
-            DB::transaction(function () use ($workflow, $validated) {
+            return DB::transaction(function () use ($workflow, $validated) {
+                // Lock the row for the duration of the transaction
+                $lockedWorkflow = Workflow::lockForUpdate()->findOrFail($workflow->id);
+
+                // Optimistic lock check — inside the transaction to prevent TOCTOU race
+                if (isset($validated['canvas_version']) && $validated['canvas_version'] !== $lockedWorkflow->canvas_version) {
+                    return response()->json([
+                        'error' => 'Canvas has been modified by another user. Please refresh and try again.',
+                    ], 409);
+                }
+
                 // 1. Update canvas_data on the workflow
-                $workflow->update(['canvas_data' => $validated['canvas_data']]);
+                $lockedWorkflow->update(['canvas_data' => $validated['canvas_data']]);
 
                 // 2. Sync nodes: upsert by node_id, delete absent nodes
                 $incomingNodeIds = collect($validated['nodes'])->pluck('node_id')->toArray();
 
                 // Delete nodes that are no longer in the payload
-                $workflow->nodes()
+                $lockedWorkflow->nodes()
                     ->whereNotIn('node_id', $incomingNodeIds)
                     ->delete();
 
                 // Upsert each node
                 foreach ($validated['nodes'] as $nodeData) {
-                    $workflow->nodes()->updateOrCreate(
+                    $lockedWorkflow->nodes()->updateOrCreate(
                         ['node_id' => $nodeData['node_id']],
                         [
                             'type' => $nodeData['type'],
@@ -218,12 +221,12 @@ class CanvasController extends Controller
 
                 // 3. Sync edges: map node_id strings to ULID IDs, then upsert
                 // Refresh nodes to get the latest ULID mappings
-                $nodeMap = $workflow->nodes()->pluck('id', 'node_id');
+                $nodeMap = $lockedWorkflow->nodes()->pluck('id', 'node_id');
 
                 $incomingEdgeIds = collect($validated['edges'])->pluck('edge_id')->toArray();
 
                 // Delete edges that are no longer in the payload
-                $workflow->edges()
+                $lockedWorkflow->edges()
                     ->whereNotIn('edge_id', $incomingEdgeIds)
                     ->delete();
 
@@ -236,7 +239,7 @@ class CanvasController extends Controller
                         continue; // Skip edges referencing non-existent nodes
                     }
 
-                    $workflow->edges()->updateOrCreate(
+                    $lockedWorkflow->edges()->updateOrCreate(
                         ['edge_id' => $edgeData['edge_id']],
                         [
                             'source_node_id' => $sourceId,
@@ -246,14 +249,14 @@ class CanvasController extends Controller
                         ]
                     );
                 }
+                // Increment version inside the transaction for atomicity
+                $lockedWorkflow->increment('canvas_version');
+
+                return response()->json([
+                    'message' => 'Canvas saved successfully.',
+                    'canvas_version' => $lockedWorkflow->canvas_version,
+                ]);
             });
-
-            $workflow->increment('canvas_version');
-
-            return response()->json([
-                'message' => 'Canvas saved successfully.',
-                'canvas_version' => $workflow->canvas_version,
-            ]);
         } catch (\Throwable $e) {
             Log::error('Canvas save failed', [
                 'workflow_id' => $workflow->id,
