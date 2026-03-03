@@ -157,9 +157,31 @@ export function variablePickerComponent() {
             const input = this.varPickerTarget;
             const start = input.selectionStart || input.value.length;
             const end = input.selectionEnd || input.value.length;
-            input.value = input.value.substring(0, start) + variable + input.value.substring(end);
-            input.dispatchEvent(new Event('change', { bubbles: true }));
+            const newValue = input.value.substring(0, start) + variable + input.value.substring(end);
+
+            // Update the DOM value
+            input.value = newValue;
+
+            // Sync with Livewire: find the wire:model attribute and use $wire
+            const wireModel = input.getAttribute('wire:model') ||
+                              input.getAttribute('wire:model.live') ||
+                              input.getAttribute('wire:model.blur') ||
+                              input.getAttribute('wire:model.defer');
+
+            if (wireModel) {
+                const livewireEl = input.closest('[wire\\:id]');
+                if (livewireEl) {
+                    const wireId = livewireEl.getAttribute('wire:id');
+                    const component = window.Livewire?.find(wireId);
+                    if (component) {
+                        component.$set(wireModel, newValue);
+                    }
+                }
+            }
+
+            // Also dispatch native events as fallback for non-Livewire inputs
             input.dispatchEvent(new Event('input', { bubbles: true }));
+            input.dispatchEvent(new Event('change', { bubbles: true }));
             this.varPickerOpen = false;
         },
 
