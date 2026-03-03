@@ -315,3 +315,92 @@ it('accepts all valid node types', function () {
     $response->assertOk();
     expect($workflow->fresh()->nodes()->count())->toBe(6);
 });
+
+it('includes block metadata manifest in canvas response', function () {
+    $workflow = WorkflowModel::create([
+        'name' => 'Manifest Test',
+        'trigger_type' => TriggerType::Manual,
+    ]);
+
+    $response = $this->getJson("/workflow/api/workflows/{$workflow->id}/canvas");
+
+    $response->assertOk();
+    $data = $response->json();
+
+    expect($data)->toHaveKey('manifest');
+    expect($data['manifest'])->toHaveKeys(['blocks', 'actions', 'operators', 'entities']);
+
+    // Block rules should include all node types
+    expect($data['manifest']['blocks'])->toHaveKeys(['trigger', 'action', 'condition', 'delay', 'loop', 'stop']);
+
+    // Trigger block should be marked as root
+    expect($data['manifest']['blocks']['trigger']['isRoot'])->toBeTrue();
+
+    // Stop block should be terminal
+    expect($data['manifest']['blocks']['stop']['isTerminal'])->toBeTrue();
+
+    // Operators should be present
+    expect($data['manifest']['operators'])->toHaveKey('equals');
+});
+
+it('returns validation errors when saving a graph with cycles', function () {
+    $workflow = WorkflowModel::create([
+        'name' => 'Cycle Test',
+        'trigger_type' => TriggerType::Manual,
+    ]);
+
+    $response = $this->putJson("/workflow/api/workflows/{$workflow->id}/canvas", [
+        'canvas_data' => [],
+        'nodes' => [
+            ['node_id' => 'trigger-1', 'type' => 'trigger', 'position_x' => 0, 'position_y' => 0],
+            ['node_id' => 'action-1', 'type' => 'action', 'action_type' => 'send_email', 'position_x' => 100, 'position_y' => 0],
+            ['node_id' => 'action-2', 'type' => 'action', 'action_type' => 'log_message', 'position_x' => 200, 'position_y' => 0],
+        ],
+        'edges' => [
+            ['edge_id' => 'e1', 'source_node_id' => 'trigger-1', 'target_node_id' => 'action-1'],
+            ['edge_id' => 'e2', 'source_node_id' => 'action-1', 'target_node_id' => 'action-2'],
+            ['edge_id' => 'e3', 'source_node_id' => 'action-2', 'target_node_id' => 'action-1'],
+        ],
+    ]);
+
+    $response->assertStatus(422);
+    $data = $response->json();
+
+    expect($data)->toHaveKey('message', 'Graph validation failed');
+    expect($data)->toHaveKey('validation');
+    expect($data['validation']['errors'])->toBeArray();
+
+    $errorTypes = collect($data['validation']['errors'])->pluck('type')->all();
+    expect($errorTypes)->toContain('cycle');
+});
+
+it('returns validation errors for invalid connections', function () {
+    $workflow = WorkflowModel::create([
+        'name' => 'Invalid Connection Test',
+        'trigger_type' => TriggerType::Manual,
+    ]);
+
+    // stop -> action is invalid: stop block cannot have outgoing connections
+    $response = $this->putJson("/workflow/api/workflows/{$workflow->id}/canvas", [
+        'canvas_data' => [],
+        'nodes' => [
+            ['node_id' => 'trigger-1', 'type' => 'trigger', 'position_x' => 0, 'position_y' => 0],
+            ['node_id' => 'stop-1', 'type' => 'stop', 'position_x' => 100, 'position_y' => 0],
+            ['node_id' => 'action-1', 'type' => 'action', 'action_type' => 'send_email', 'position_x' => 200, 'position_y' => 0],
+        ],
+        'edges' => [
+            ['edge_id' => 'e1', 'source_node_id' => 'trigger-1', 'target_node_id' => 'stop-1'],
+            ['edge_id' => 'e2', 'source_node_id' => 'stop-1', 'target_node_id' => 'action-1'],
+        ],
+    ]);
+
+    $response->assertStatus(422);
+    $data = $response->json();
+
+    expect($data)->toHaveKey('message', 'Graph validation failed');
+    expect($data)->toHaveKey('validation');
+    expect($data['validation']['errors'])->toBeArray();
+
+    $errorTypes = collect($data['validation']['errors'])->pluck('type')->all();
+    expect($errorTypes)->toContain('invalid_connection');
+});

@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 use Relaticle\Workflow\Enums\NodeType;
 use Relaticle\Workflow\Models\Workflow;
+use Relaticle\Workflow\Services\BlockMetadataProvider;
+use Relaticle\Workflow\Services\GraphValidator;
 use Relaticle\Workflow\WorkflowManager;
 
 class CanvasController extends Controller
@@ -76,11 +78,14 @@ class CanvasController extends Controller
             ];
         }
 
+        $metadataProvider = app(BlockMetadataProvider::class);
+
         return response()->json([
             'canvas_data' => $workflow->canvas_data,
             'canvas_version' => $workflow->canvas_version,
             'nodes' => $nodes,
             'edges' => $edges,
+            'manifest' => $metadataProvider->getManifest(),
             'meta' => [
                 'models' => $models,
                 'actions' => $actions,
@@ -180,6 +185,20 @@ class CanvasController extends Controller
                     'error' => "Edge '{$edge['edge_id']}' references non-existent target node '{$edge['target_node_id']}'.",
                 ], 422);
             }
+        }
+
+        // Validate graph structure (cycles, invalid connections, etc.)
+        $graphValidator = app(GraphValidator::class);
+        $validationResult = $graphValidator->validate(
+            $validated['nodes'],
+            $validated['edges']
+        );
+
+        if (! empty($validationResult['errors'])) {
+            return response()->json([
+                'message' => 'Graph validation failed',
+                'validation' => $validationResult,
+            ], 422);
         }
 
         try {
