@@ -182,19 +182,26 @@
                 </div>
             </div>
 
-            {{-- Simple feature cards --}}
-            @foreach([
-                ['ri-building-line', 'Company Management', 'Track companies with detailed profiles, linked contacts, and opportunity history. See the full picture at a glance.'],
-                ['ri-contacts-line', 'People Management', 'Rich contact profiles with interaction history, notes, and linked companies. Find anyone with advanced search and filters.'],
-            ] as [$icon, $title, $desc])
-                <div class="{{ $cardBase }} p-6">
+            {{-- Company Management --}}
+            <div class="relative {{ $cardBase }} p-6 overflow-hidden">
+                <div class="absolute w-32 h-32 bg-primary/10 dark:bg-primary/15 rounded-full blur-2xl" style="top: -2rem; left: -2rem;"></div>
+                <div class="relative">
                     <h3 class="{{ $cardTitle }} inline-flex items-center gap-2">
-                        <x-dynamic-component :component="$icon" class="w-4 h-4 text-primary dark:text-primary-400"/>
-                        {{ $title }}
+                        <x-ri-building-line class="w-4 h-4 text-primary dark:text-primary-400"/>
+                        Company Management
                     </h3>
-                    <p class="{{ $cardDesc }}">{{ $desc }}</p>
+                    <p class="{{ $cardDesc }}">Track companies with detailed profiles, linked contacts, and opportunity history. See the full picture at a glance.</p>
                 </div>
-            @endforeach
+            </div>
+
+            {{-- People Management --}}
+            <div class="{{ $cardBase }} p-6">
+                <h3 class="{{ $cardTitle }} inline-flex items-center gap-2">
+                    <x-ri-contacts-line class="w-4 h-4 text-primary dark:text-primary-400"/>
+                    People Management
+                </h3>
+                <p class="{{ $cardDesc }}">Rich contact profiles with interaction history, notes, and linked companies. Find anyone with advanced search and filters.</p>
+            </div>
 
             {{-- Sales Opportunities --}}
             <div id="card-sales" class="{{ $cardBase }} p-6 overflow-hidden">

@@ -3,10 +3,6 @@
 
     <div class="relative max-w-6xl mx-auto px-6 lg:px-8">
         <div class="max-w-2xl mx-auto text-center mb-16 md:mb-20">
-            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-gray-200/80 dark:border-white/[0.08] bg-white/80 dark:bg-white/[0.03] backdrop-blur-sm mb-6 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
-                <span class="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span class="uppercase tracking-wider text-[10px] font-medium text-gray-500 dark:text-gray-400">Open Source</span>
-            </div>
             <h2 class="font-display text-3xl sm:text-4xl md:text-[2.75rem] font-bold text-gray-950 dark:text-white tracking-[-0.02em] leading-[1.15]">
                 Built in the Open
             </h2>

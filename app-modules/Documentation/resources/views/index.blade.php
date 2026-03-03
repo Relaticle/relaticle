@@ -9,7 +9,7 @@
             </p>
         </div>
 
-        <div class="mb-12 max-w-xl mx-auto">
+        <div class="mb-12 max-w-lg mx-auto">
             <x-documentation::search-form />
         </div>
 

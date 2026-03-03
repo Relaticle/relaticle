@@ -1,8 +1,9 @@
 <header
     id="main-header"
-    class="bg-white/80 dark:bg-black/80 fixed w-full top-0 z-50 transition-all duration-300 border-b border-gray-100 dark:border-white/5 backdrop-blur-md">
+    class="fixed w-full top-0 z-50"
+    style="background: transparent; border-bottom: 1px solid transparent; transition: background 0.4s ease, border-bottom 0.4s ease, backdrop-filter 0.4s ease;">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between h-16 md:h-20 transition-all duration-300" id="header-container">
+        <div class="flex items-center justify-between h-16 md:h-20" id="header-container">
 
             <div class="flex flex-1 items-center">
                 <a href="{{ url('/') }}" class="transition-opacity" aria-label="Relaticle Home">
@@ -10,8 +11,10 @@
                 </a>
             </div>
 
-            <div class="hidden md:flex items-center bg-gray-50/50 dark:bg-white/5 border border-gray-200/50 dark:border-white/10 rounded-full px-1 py-1">
-                <nav class="flex items-center">
+            <div id="nav-pill"
+                 class="hidden md:flex items-center rounded-full px-1.5 py-1"
+                 style="gap: 2px; background: transparent; border: 1px solid transparent; box-shadow: none; transition: background 0.4s ease, border 0.4s ease, box-shadow 0.4s ease, gap 0.4s ease;">
+                <nav class="flex items-center" id="nav-links" style="gap: 0px; transition: gap 0.4s ease;">
                     <a href="{{ url('/#features') }}"
                        class="px-4 py-1.5 text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary-400 text-[13px] font-medium transition-colors rounded-full">
                         Features
@@ -77,15 +80,53 @@
     document.addEventListener('DOMContentLoaded', function () {
         const header = document.getElementById('main-header');
         const container = document.getElementById('header-container');
+        const navPill = document.getElementById('nav-pill');
+        const navLinks = document.getElementById('nav-links');
+        const isDark = () => document.documentElement.classList.contains('dark');
 
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 20) {
-                header.classList.add('shadow-sm', 'bg-white/98', 'dark:bg-black/98');
-                container.classList.replace('h-20', 'h-14');
+        let scrolled = false;
+
+        function updateHeader() {
+            const isScrolled = window.scrollY > 20;
+
+            if (isScrolled === scrolled) return;
+            scrolled = isScrolled;
+
+            if (isScrolled) {
+                // Scrolled state — bordered pill, frosted header
+                header.style.background = isDark() ? 'rgba(0,0,0,0.85)' : 'rgba(255,255,255,0.85)';
+                header.style.backdropFilter = 'blur(16px)';
+                header.style.webkitBackdropFilter = 'blur(16px)';
+                header.style.borderBottom = isDark() ? '1px solid rgba(255,255,255,0.05)' : '1px solid rgba(0,0,0,0.04)';
+
+                navPill.style.background = isDark() ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)';
+                navPill.style.border = isDark() ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(0,0,0,0.06)';
+                navPill.style.boxShadow = '0 1px 2px rgba(0,0,0,0.04)';
+                navPill.style.gap = '4px';
+                navLinks.style.gap = '4px';
             } else {
-                header.classList.remove('shadow-sm', 'bg-white/98', 'dark:bg-black/98');
-                container.classList.replace('h-14', 'h-20');
+                // Default state — transparent, tight
+                header.style.background = 'transparent';
+                header.style.backdropFilter = 'none';
+                header.style.webkitBackdropFilter = 'none';
+                header.style.borderBottom = '1px solid transparent';
+
+                navPill.style.background = 'transparent';
+                navPill.style.border = '1px solid transparent';
+                navPill.style.boxShadow = 'none';
+                navPill.style.gap = '2px';
+                navLinks.style.gap = '0px';
             }
+        }
+
+        // Watch for dark mode changes
+        const darkObserver = new MutationObserver(() => {
+            scrolled = !scrolled; // force re-apply
+            updateHeader();
         });
+        darkObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+
+        window.addEventListener('scroll', updateHeader, { passive: true });
+        updateHeader();
     });
 </script>

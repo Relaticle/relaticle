@@ -7,22 +7,13 @@
     {{-- Layer 1: Soft grid --}}
     <div class="absolute inset-0 bg-[linear-gradient(to_right,rgba(0,0,0,0.015)_1px,transparent_1px),linear-gradient(to_bottom,rgba(0,0,0,0.015)_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,rgba(255,255,255,0.025)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.025)_1px,transparent_1px)] bg-[size:3rem_3rem] [mask-image:radial-gradient(ellipse_70%_50%_at_50%_50%,black_30%,transparent_100%)]"></div>
 
-    {{-- Layer 2: Gradient mesh — large soft blobs --}}
-    <div class="absolute inset-0 pointer-events-none" aria-hidden="true">
-        {{-- Center primary wash --}}
-        <div class="absolute top-[10%] left-1/2 -translate-x-1/2 w-[90%] h-[80%] rounded-full opacity-100">
-            <div class="absolute inset-0 bg-gradient-to-b from-primary/[0.04] via-primary/[0.02] to-transparent dark:from-primary/[0.08] dark:via-primary/[0.04] dark:to-transparent rounded-full blur-[100px]"></div>
-        </div>
-        {{-- Left warm blob --}}
-        <div class="absolute top-[20%] -left-[5%] w-[40%] h-[50%] bg-gradient-to-br from-primary/[0.05] via-violet-500/[0.03] to-transparent dark:from-primary/[0.09] dark:via-violet-500/[0.05] dark:to-transparent rounded-full blur-[80px]"></div>
-        {{-- Right cool blob --}}
-        <div class="absolute top-[15%] -right-[5%] w-[35%] h-[45%] bg-gradient-to-bl from-indigo-500/[0.04] via-primary/[0.02] to-transparent dark:from-indigo-400/[0.07] dark:via-primary/[0.04] dark:to-transparent rounded-full blur-[80px]"></div>
-        {{-- Bottom warm accent --}}
-        <div class="absolute bottom-[10%] left-1/2 -translate-x-1/2 w-[60%] h-[30%] bg-gradient-to-t from-violet-500/[0.03] to-transparent dark:from-violet-400/[0.06] dark:to-transparent rounded-full blur-[80px]"></div>
+    {{-- Layer 2: Diagonal line frames — left & right --}}
+    <div class="absolute top-0 left-0 h-full w-[100px] pointer-events-none hidden lg:block [mask-image:linear-gradient(to_right,black_20%,transparent_100%)]" aria-hidden="true">
+        <img src="{{ asset('images/hero-lines.svg') }}" alt="" class="h-full w-full object-cover opacity-70 dark:opacity-40"/>
     </div>
-
-    {{-- Layer 3: Top radial spotlight --}}
-    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-[radial-gradient(ellipse_at_center,var(--color-primary-200)_0%,transparent_70%)] opacity-[0.15] dark:opacity-[0.08] pointer-events-none blur-2xl"></div>
+    <div class="absolute top-0 right-0 h-full w-[100px] pointer-events-none hidden lg:block [mask-image:linear-gradient(to_left,black_20%,transparent_100%)]" aria-hidden="true">
+        <img src="{{ asset('images/hero-lines-right.svg') }}" alt="" class="h-full w-full object-cover opacity-70 dark:opacity-40"/>
+    </div>
 
     {{-- ═══════════════════════════════════════════
          Content
@@ -31,25 +22,6 @@
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         <div class="flex flex-col items-center gap-8 md:gap-10">
 
-            {{-- ── Badge ── --}}
-            <a href="https://github.com/relaticle/relaticle" target="_blank"
-               class="hero-enter hero-enter-1 group relative inline-flex items-center gap-3 rounded-full border border-gray-200/80 dark:border-white/[0.08] bg-white/80 dark:bg-white/[0.03] backdrop-blur-sm pl-4 pr-3 py-1.5 text-xs shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_2px_8px_rgba(0,0,0,0.06)] hover:border-gray-300 dark:hover:border-white/[0.15] transition-all duration-300">
-                <span class="text-gray-400 dark:text-gray-500 tracking-wide uppercase text-[10px] font-medium">Built with</span>
-                <span class="flex items-center gap-2">
-                    <span class="inline-flex items-center gap-1 rounded-full bg-gray-50/80 dark:bg-white/[0.06] px-2.5 py-0.5 border border-transparent dark:border-white/[0.04]">
-                        <x-icon-laravel class="h-3 w-3"/>
-                        <span class="font-medium text-gray-700 dark:text-gray-300">Laravel</span>
-                    </span>
-                    <span class="inline-flex items-center gap-1 rounded-full bg-gray-50/80 dark:bg-white/[0.06] px-2.5 py-0.5 border border-transparent dark:border-white/[0.04]">
-                        <x-icon-filament class="h-3 w-3 dark:fill-white"/>
-                        <span class="font-medium text-gray-700 dark:text-gray-300">Filament</span>
-                    </span>
-                    <span class="inline-flex items-center gap-1 rounded-full bg-gray-50/80 dark:bg-white/[0.06] px-2.5 py-0.5 border border-transparent dark:border-white/[0.04]">
-                        <span class="font-medium text-gray-700 dark:text-gray-300">MCP</span>
-                    </span>
-                </span>
-                <x-ri-arrow-right-s-line class="h-3.5 w-3.5 text-gray-300 dark:text-gray-600 group-hover:text-gray-500 dark:group-hover:text-gray-400 group-hover:translate-x-0.5 transition-all duration-300"/>
-            </a>
 
             {{-- ── Heading ── --}}
             <div class="text-center max-w-3xl">
@@ -63,7 +35,7 @@
                         <span class="absolute bottom-[0.02em] left-[-0.02em] right-[-0.02em] h-[0.34em] rounded-full bg-gradient-to-r from-primary/0 via-primary/[0.08] to-primary/0 dark:via-primary/[0.14] pointer-events-none" aria-hidden="true"></span>
 
                         {{-- Accent line --}}
-                        <span class="absolute -bottom-[2px] left-[8%] right-[8%] h-[2px] rounded-full bg-gradient-to-r from-transparent via-primary/25 to-transparent dark:via-primary/40 pointer-events-none" aria-hidden="true"></span>
+                        <span class="absolute -bottom-[2px] left-[8%] right-[6%] h-[2px] rounded-full bg-gradient-to-r from-transparent via-primary/25 to-transparent dark:via-primary/40 pointer-events-none" aria-hidden="true"></span>
 
                         {{-- Shimmer --}}
                         <span class="absolute -bottom-[2px] left-0 right-0 h-[0.36em] rounded-full overflow-hidden pointer-events-none" aria-hidden="true">
