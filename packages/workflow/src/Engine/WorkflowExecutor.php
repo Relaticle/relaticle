@@ -56,18 +56,16 @@ class WorkflowExecutor
         $run = $this->createRun($workflow, $structuredContext);
 
         try {
-            DB::transaction(function () use ($workflow, $run, &$structuredContext): void {
-                $workflow->load(['nodes', 'edges']);
+            $workflow->load(['nodes', 'edges']);
 
-                $walker = new GraphWalker($workflow->nodes, $workflow->edges);
-                $triggerNode = $walker->findTriggerNode();
+            $walker = new GraphWalker($workflow->nodes, $workflow->edges);
+            $triggerNode = $walker->findTriggerNode();
 
-                if ($triggerNode === null) {
-                    throw new \RuntimeException('No trigger node found in workflow.');
-                }
+            if ($triggerNode === null) {
+                throw new \RuntimeException('No trigger node found in workflow.');
+            }
 
-                $this->walkGraph($walker, $triggerNode, $run, $structuredContext);
-            });
+            $this->walkGraph($walker, $triggerNode, $run, $structuredContext);
 
             // Only complete if not paused by a delay
             if (! $this->isPaused) {
@@ -95,53 +93,64 @@ class WorkflowExecutor
     {
         $this->isPaused = false;
         $workflow = $run->workflow;
-        $run->update(['status' => WorkflowRunStatus::Running]);
+
+        // Idempotency guard: only resume from Paused status
+        // Use atomic update to prevent race conditions with concurrent resumes
+        $updated = WorkflowRun::where('id', $run->id)
+            ->where('status', WorkflowRunStatus::Paused)
+            ->update(['status' => WorkflowRunStatus::Running]);
+
+        if ($updated === 0) {
+            // Already resumed by another process, or not in Paused state
+            $run->load('steps');
+            return $run->fresh();
+        }
+
+        $run->refresh();
 
         try {
-            DB::transaction(function () use ($workflow, $run, $resumeFromNodeId, $context): void {
-                $workflow->load(['nodes', 'edges']);
+            $workflow->load(['nodes', 'edges']);
 
-                $walker = new GraphWalker($workflow->nodes, $workflow->edges);
+            $walker = new GraphWalker($workflow->nodes, $workflow->edges);
 
-                // Find the delay node we're resuming from (by node_id, not database id)
-                $delayNode = $workflow->nodes->firstWhere('node_id', $resumeFromNodeId);
-                if ($delayNode === null) {
-                    throw new \RuntimeException("Resume node {$resumeFromNodeId} not found.");
+            // Find the delay node we're resuming from (by node_id, not database id)
+            $delayNode = $workflow->nodes->firstWhere('node_id', $resumeFromNodeId);
+            if ($delayNode === null) {
+                throw new \RuntimeException("Resume node {$resumeFromNodeId} not found.");
+            }
+
+            // Continue from nodes after the delay
+            $nextNodes = $walker->getNextNodes($delayNode);
+
+            /** @var \SplQueue<WorkflowNode> $queue */
+            $queue = new \SplQueue();
+            foreach ($nextNodes as $next) {
+                $queue->enqueue($next);
+            }
+
+            $processedNodeIds = [];
+            $stepCount = 0;
+            $maxSteps = (int) config('workflow.max_steps_per_run', 100);
+
+            while (! $queue->isEmpty()) {
+                /** @var WorkflowNode $node */
+                $node = $queue->dequeue();
+
+                if (in_array($node->id, $processedNodeIds, true)) {
+                    continue;
                 }
 
-                // Continue from nodes after the delay
-                $nextNodes = $walker->getNextNodes($delayNode);
+                $processedNodeIds[] = $node->id;
 
-                /** @var \SplQueue<WorkflowNode> $queue */
-                $queue = new \SplQueue();
-                foreach ($nextNodes as $next) {
-                    $queue->enqueue($next);
+                $stepCount++;
+                if ($stepCount > $maxSteps) {
+                    throw new \RuntimeException('Maximum step limit exceeded.');
                 }
 
-                $processedNodeIds = [];
-                $stepCount = 0;
-                $maxSteps = (int) config('workflow.max_steps_per_run', 100);
-
-                while (! $queue->isEmpty()) {
-                    /** @var WorkflowNode $node */
-                    $node = $queue->dequeue();
-
-                    if (in_array($node->id, $processedNodeIds, true)) {
-                        continue;
-                    }
-
-                    $processedNodeIds[] = $node->id;
-
-                    $stepCount++;
-                    if ($stepCount > $maxSteps) {
-                        throw new \RuntimeException('Maximum step limit exceeded.');
-                    }
-
-                    if ($this->dispatchNode($node, $walker, $run, $context, $queue, $processedNodeIds)) {
-                        return;
-                    }
+                if ($this->dispatchNode($node, $walker, $run, $context, $queue, $processedNodeIds)) {
+                    break;
                 }
-            });
+            }
 
             // Only complete if not paused by another delay
             if (! $this->isPaused) {
@@ -333,9 +342,12 @@ class WorkflowExecutor
         $run->update(['status' => WorkflowRunStatus::Paused]);
         $this->isPaused = true;
 
+        // Serialize context for queue safety — convert models to primitives
+        $serializableContext = $this->makeContextSerializable($context);
+
         // Dispatch delayed resume job
         $delaySeconds = $output['delay_seconds'] ?? 0;
-        ExecuteStepJob::dispatch($run, $node->node_id, $context)
+        ExecuteStepJob::dispatch($run, $node->node_id, $serializableContext)
             ->delay(now()->addSeconds($delaySeconds));
     }
 
@@ -525,16 +537,41 @@ class WorkflowExecutor
             }
         }
 
-        // Mark the skipped branch's immediate target node as Skipped
+        // Mark all nodes in the skipped branch as Skipped (BFS walk)
         $skippedEdge = $walker->getEdgeByLabel($node, $skippedLabel);
         if ($skippedEdge !== null) {
             $skippedTarget = $this->findNodeById($walker, $skippedEdge->target_node_id);
             if ($skippedTarget !== null) {
-                $this->createStep($run, $skippedTarget, StepStatus::Skipped);
+                $this->markBranchSkipped($walker, $skippedTarget, $run);
             }
         }
     }
 
+
+    /**
+     * BFS-walk a skipped branch and mark all reachable nodes as Skipped.
+     */
+    private function markBranchSkipped(GraphWalker $walker, WorkflowNode $startNode, WorkflowRun $run): void
+    {
+        /** @var \SplQueue<WorkflowNode> $queue */
+        $queue = new \SplQueue();
+        $queue->enqueue($startNode);
+        $visited = [];
+
+        while (!$queue->isEmpty()) {
+            $current = $queue->dequeue();
+            if (in_array($current->id, $visited, true)) {
+                continue;
+            }
+            $visited[] = $current->id;
+
+            $this->createStep($run, $current, StepStatus::Skipped);
+
+            foreach ($walker->getNextNodes($current) as $next) {
+                $queue->enqueue($next);
+            }
+        }
+    }
 
     /**
      * Find a WorkflowNode by its database ID within the graph walker's node set.
@@ -616,6 +653,37 @@ class WorkflowExecutor
         }
 
         return $this->conditionEvaluator->evaluate($config, $context);
+    }
+
+    /**
+     * Convert context to a queue-safe format by replacing Eloquent models with primitives.
+     *
+     * @param  array<string, mixed>  $context
+     * @return array<string, mixed>
+     */
+    private function makeContextSerializable(array $context): array
+    {
+        $safe = $context;
+
+        // Convert _workflow model to array of needed properties
+        if (isset($safe['_workflow']) && $safe['_workflow'] instanceof Workflow) {
+            $workflow = $safe['_workflow'];
+            $safe['_workflow'] = [
+                'id' => $workflow->id,
+                'tenant_id' => $workflow->tenant_id,
+                'creator_id' => $workflow->creator_id,
+            ];
+        }
+
+        // Convert trigger record model to array
+        if (isset($safe['trigger']['record']) && $safe['trigger']['record'] instanceof \Illuminate\Database\Eloquent\Model) {
+            $record = $safe['trigger']['record'];
+            $safe['trigger']['model_class'] = get_class($record);
+            $safe['trigger']['model_id'] = $record->getKey();
+            $safe['trigger']['record'] = $record->toArray();
+        }
+
+        return $safe;
     }
 
     /**

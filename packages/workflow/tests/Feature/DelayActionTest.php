@@ -230,6 +230,86 @@ it('resumes workflow after delay and completes execution', function () {
     expect($actionSteps)->toHaveCount(1);
 });
 
+it('prevents double-resume of a workflow run', function () {
+    Workflow::registerAction('log_message', get_class(new class extends \Relaticle\Workflow\Actions\BaseAction
+    {
+        public static int $callCount = 0;
+
+        public function execute(array $config, array $context): array
+        {
+            static::$callCount++;
+            return ['logged' => true];
+        }
+
+        public static function label(): string
+        {
+            return 'Log';
+        }
+    }));
+
+    $workflow = WorkflowModel::create([
+        'name' => 'Double Resume Test',
+        'trigger_type' => TriggerType::Manual,
+        'trigger_config' => [],
+        'canvas_data' => [],
+        'status' => 'live',
+    ]);
+
+    $trigger = $workflow->nodes()->create([
+        'node_id' => 'trigger-1',
+        'type' => NodeType::Trigger,
+        'position_x' => 0,
+        'position_y' => 0,
+    ]);
+
+    $delay = $workflow->nodes()->create([
+        'node_id' => 'delay-1',
+        'type' => NodeType::Delay,
+        'config' => ['duration' => 1, 'unit' => 'minutes'],
+        'position_x' => 0,
+        'position_y' => 100,
+    ]);
+
+    $action = $workflow->nodes()->create([
+        'node_id' => 'action-1',
+        'type' => NodeType::Action,
+        'action_type' => 'log_message',
+        'config' => [],
+        'position_x' => 0,
+        'position_y' => 200,
+    ]);
+
+    $workflow->edges()->create([
+        'edge_id' => 'e1',
+        'source_node_id' => $trigger->id,
+        'target_node_id' => $delay->id,
+    ]);
+
+    $workflow->edges()->create([
+        'edge_id' => 'e2',
+        'source_node_id' => $delay->id,
+        'target_node_id' => $action->id,
+    ]);
+
+    // Execute to create a paused run
+    Queue::fake();
+    $executor = app(WorkflowExecutor::class);
+    $run = $executor->execute($workflow, ['test' => true]);
+    expect($run->status)->toBe(WorkflowRunStatus::Paused);
+
+    // First resume should work
+    $result1 = $executor->resume($run->fresh(), 'delay-1', ['test' => true]);
+    expect($result1->status)->toBe(WorkflowRunStatus::Completed);
+
+    // Second resume attempt should be a no-op (run is already completed, not paused)
+    $result2 = $executor->resume($run->fresh(), 'delay-1', ['test' => true]);
+    expect($result2->status)->toBe(WorkflowRunStatus::Completed);
+
+    // The action step should only appear once (from first resume)
+    $actionSteps = $result2->steps->filter(fn ($s) => $s->workflow_node_id === $action->id);
+    expect($actionSteps)->toHaveCount(1);
+});
+
 it('has a label and config schema', function () {
     expect(DelayAction::label())
         ->toBeString()
