@@ -1,7 +1,7 @@
 {
     "private": true,
     "scripts": {
-        "build": "vite build",
+        "build": "vite build && cp resources/dist/workflow-builder.js public/vendor/workflow/workflow-builder.js && cp resources/dist/workflow-builder.css public/vendor/workflow/workflow-builder.css",
         "dev": "vite"
     },
     "dependencies": {
