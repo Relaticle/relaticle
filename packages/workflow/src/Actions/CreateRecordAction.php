@@ -46,7 +46,11 @@ class CreateRecordAction extends BaseAction
             $attributes['creation_source'] = \App\Enums\CreationSource::SYSTEM;
         }
 
-        $record = $modelClass::create($attributes);
+        try {
+            $record = $modelClass::create($attributes);
+        } catch (\Throwable $e) {
+            return ['error' => 'Failed to create record: ' . class_basename($e) . ' - ' . $e->getMessage(), 'created' => false];
+        }
 
         // Save custom field values
         if (!empty($customFieldMappings) && method_exists($record, 'saveCustomFields')) {

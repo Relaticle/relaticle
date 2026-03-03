@@ -40,6 +40,8 @@ class WorkflowConfigPanel extends Component implements HasForms
     #[On('node-selected')]
     public function selectNode(string $nodeId, string $nodeType, ?string $actionType = null): void
     {
+        $this->authorizeTenantAccess();
+
         $this->selectedNodeId = $nodeId;
         $this->nodeType = $nodeType;
         $this->actionType = $actionType;
@@ -67,6 +69,10 @@ class WorkflowConfigPanel extends Component implements HasForms
 
     public function saveConfig(): void
     {
+        $this->authorizeTenantAccess();
+
+        $this->form->validate();
+
         $formData = $this->form->getState();
 
         // Deserialize JSON strings back to arrays for object fields
@@ -185,6 +191,33 @@ class WorkflowConfigPanel extends Component implements HasForms
         $actions = app(WorkflowManager::class)->getActions();
 
         return $actions[$this->actionType] ?? null;
+    }
+
+    /**
+     * Verify the workflow belongs to the current user's tenant.
+     */
+    protected function authorizeTenantAccess(): void
+    {
+        if (!$this->workflowId) {
+            return;
+        }
+
+        $workflow = Workflow::find($this->workflowId);
+        if (!$workflow) {
+            abort(404);
+        }
+
+        $user = auth()->user();
+
+        // Skip tenant check if no user or no tenant_id set
+        if (!$user || !$workflow->tenant_id) {
+            return;
+        }
+
+        $userTenantId = $user->current_team_id ?? $user->tenant_id ?? null;
+        if ($userTenantId && $workflow->tenant_id !== $userTenantId) {
+            abort(403);
+        }
     }
 
     public function render(): \Illuminate\View\View

@@ -32,8 +32,8 @@ class ScheduledTrigger implements WorkflowTrigger
 
         return match ($scheduleType) {
             'cron' => $this->evaluateCron($config),
-            'inactivity' => $this->evaluateInactivity($config),
-            'date_field' => $this->evaluateDateField($config),
+            'inactivity' => $this->evaluateInactivity($config, $workflow->tenant_id),
+            'date_field' => $this->evaluateDateField($config, $workflow->tenant_id),
             default => false,
         };
     }
@@ -62,7 +62,7 @@ class ScheduledTrigger implements WorkflowTrigger
      *
      * @param  array<string, mixed>  $config
      */
-    private function evaluateInactivity(array $config): bool
+    private function evaluateInactivity(array $config, ?string $tenantId = null): bool
     {
         $modelClass = $config['model'] ?? null;
         $inactiveDays = $config['inactive_days'] ?? null;
@@ -77,7 +77,12 @@ class ScheduledTrigger implements WorkflowTrigger
 
         $threshold = Carbon::now()->subDays((int) $inactiveDays);
 
-        return $modelClass::where('updated_at', '<', $threshold)->exists();
+        $query = $modelClass::where('updated_at', '<', $threshold);
+        if ($tenantId) {
+            $query->where('tenant_id', $tenantId);
+        }
+
+        return $query->exists();
     }
 
     /**
@@ -88,7 +93,7 @@ class ScheduledTrigger implements WorkflowTrigger
      *
      * @param  array<string, mixed>  $config
      */
-    private function evaluateDateField(array $config): bool
+    private function evaluateDateField(array $config, ?string $tenantId = null): bool
     {
         $modelClass = $config['model'] ?? null;
         $field = $config['field'] ?? null;
@@ -102,11 +107,21 @@ class ScheduledTrigger implements WorkflowTrigger
             return false;
         }
 
+        // Validate field name to prevent injection
+        if (!preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*$/', $field)) {
+            return false;
+        }
+
         // Calculate the target date: if offset_days is -3 (3 days before),
         // we look for records where the date field equals today + 3 days
         // (i.e., the trigger fires 3 days before the date).
         $targetDate = Carbon::today()->addDays(-1 * (int) $offsetDays);
 
-        return $modelClass::whereDate($field, $targetDate)->exists();
+        $query = $modelClass::whereDate($field, $targetDate);
+        if ($tenantId) {
+            $query->where('tenant_id', $tenantId);
+        }
+
+        return $query->exists();
     }
 }

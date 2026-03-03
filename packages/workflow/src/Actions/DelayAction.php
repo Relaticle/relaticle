@@ -18,7 +18,7 @@ class DelayAction extends BaseAction
      */
     public function execute(array $config, array $context): array
     {
-        $duration = $config['duration'] ?? 0;
+        $duration = (int) ($config['duration'] ?? 0);
         $unit = $config['unit'] ?? 'minutes';
 
         return [

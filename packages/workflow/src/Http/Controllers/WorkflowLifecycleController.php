@@ -14,6 +14,7 @@ class WorkflowLifecycleController extends Controller
     public function publish(string $workflowId): JsonResponse
     {
         $workflow = Workflow::findOrFail($workflowId);
+        $this->authorizeTenantAccess($workflow);
 
         $errors = $workflow->getActivationErrors();
         if (!empty($errors)) {
@@ -31,6 +32,7 @@ class WorkflowLifecycleController extends Controller
     public function pause(string $workflowId): JsonResponse
     {
         $workflow = Workflow::findOrFail($workflowId);
+        $this->authorizeTenantAccess($workflow);
 
         if ($workflow->status !== WorkflowStatus::Live) {
             return response()->json(['errors' => ['Only live workflows can be paused.']], 422);
@@ -44,6 +46,7 @@ class WorkflowLifecycleController extends Controller
     public function archive(string $workflowId): JsonResponse
     {
         $workflow = Workflow::findOrFail($workflowId);
+        $this->authorizeTenantAccess($workflow);
 
         if ($workflow->status === WorkflowStatus::Archived) {
             return response()->json(['errors' => ['Workflow is already archived.']], 422);
@@ -57,6 +60,7 @@ class WorkflowLifecycleController extends Controller
     public function restore(string $workflowId): JsonResponse
     {
         $workflow = Workflow::findOrFail($workflowId);
+        $this->authorizeTenantAccess($workflow);
 
         if ($workflow->status !== WorkflowStatus::Archived) {
             return response()->json(['errors' => ['Only archived workflows can be restored.']], 422);
@@ -65,5 +69,24 @@ class WorkflowLifecycleController extends Controller
         $workflow->update(['status' => WorkflowStatus::Paused]);
 
         return response()->json(['status' => 'paused']);
+    }
+
+    /**
+     * Verify the workflow belongs to the authenticated user's tenant.
+     */
+    private function authorizeTenantAccess(Workflow $workflow): void
+    {
+        $user = auth()->user();
+
+        // Skip tenant check if no user is authenticated (handled by auth middleware)
+        // or if the workflow has no tenant_id (e.g., in tests)
+        if (!$user || !$workflow->tenant_id) {
+            return;
+        }
+
+        $userTenantId = $user->current_team_id ?? $user->tenant_id ?? null;
+        if ($userTenantId && $workflow->tenant_id !== $userTenantId) {
+            abort(403, 'Unauthorized access to this workflow.');
+        }
     }
 }

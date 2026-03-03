@@ -73,6 +73,11 @@ class FindRecordAction extends BaseAction
 
     private function applyCondition($query, string $field, string $operator, mixed $value): void
     {
+        // Validate field name to prevent SQL injection via column names
+        if (!preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*$/', $field)) {
+            throw new \InvalidArgumentException("Invalid field name: {$field}");
+        }
+
         match ($operator) {
             'equals' => $query->where($field, '=', $value),
             'not_equals' => $query->where($field, '!=', $value),

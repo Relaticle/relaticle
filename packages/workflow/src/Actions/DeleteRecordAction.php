@@ -30,9 +30,22 @@ class DeleteRecordAction extends BaseAction
     private function resolveRecord(array $config, array $context): ?Model
     {
         $source = $config['record_source'] ?? 'trigger';
+        $tenantId = $context['_workflow']->tenant_id ?? ($context['_workflow']['tenant_id'] ?? null);
 
         if ($source === 'trigger') {
-            return $context['trigger']['record'] ?? null;
+            $record = $context['trigger']['record'] ?? null;
+
+            // Re-hydrate from model_class + model_id if record is an array
+            if (is_array($record) && isset($context['trigger']['model_class'], $context['trigger']['model_id'])) {
+                $modelClass = $context['trigger']['model_class'];
+                $query = $modelClass::query();
+                if ($tenantId) {
+                    $query->where('tenant_id', $tenantId);
+                }
+                return $query->find($context['trigger']['model_id']);
+            }
+
+            return $record instanceof Model ? $record : null;
         }
 
         if ($source === 'step') {
@@ -51,7 +64,11 @@ class DeleteRecordAction extends BaseAction
                 $schema = app(\Relaticle\Workflow\Schema\RelaticleSchema::class);
                 $entity = $schema->getEntity($entityType);
                 if ($entity) {
-                    return $entity->modelClass::find($stepOutput['id']);
+                    $query = $entity->modelClass::query();
+                    if ($tenantId) {
+                        $query->where('tenant_id', $tenantId);
+                    }
+                    return $query->find($stepOutput['id']);
                 }
             }
 
