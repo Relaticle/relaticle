@@ -100,28 +100,61 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
         },
 
         get filteredCategories() {
-            const search = this.blockPickerSearch;
-            const q = search ? search.toLowerCase() : '';
-
-            // Check if a trigger already exists on the graph
             const graph = window.__wfGraph;
-            const hasTrigger = graph?.getNodes().some(n => (n.getData() || {}).type === 'trigger');
+            const manifest = window.__wfManifest || {};
+            const blockRules = manifest.blocks || {};
+            const query = this.blockPickerSearch.toLowerCase().trim();
+
+            // Check if trigger exists on graph
+            const hasTrigger = graph
+                ? graph.getNodes().some(n => (n.getData() || {}).type === 'trigger')
+                : false;
+
+            // Determine allowed target types based on source node
+            let allowedTargets = null;
+            if (this.blockPickerSourceNode && graph) {
+                const sourceCell = graph.getCellById(this.blockPickerSourceNode);
+                if (sourceCell) {
+                    const sourceData = sourceCell.getData() || {};
+                    const sourceType = sourceData.type;
+                    const rules = blockRules[sourceType];
+                    if (rules) {
+                        allowedTargets = [...rules.allowedTargets];
+
+                        // Also check if source already has max outgoing
+                        if (rules.maxOutgoing !== null && rules.maxOutgoing !== undefined) {
+                            const existingOut = graph.getConnectedEdges(sourceCell, { outgoing: true });
+                            if (existingOut.length >= rules.maxOutgoing) {
+                                allowedTargets = []; // No more connections allowed
+                            }
+                        }
+                    }
+                }
+            }
 
             return this.categories
                 .map(cat => {
-                    let blocks = cat.blocks;
+                    const filteredBlocks = cat.blocks.filter(block => {
+                        // Hide trigger if one exists
+                        if (block.type === 'trigger' && hasTrigger) return false;
 
-                    // Filter by search query
-                    if (q) {
-                        blocks = blocks.filter(b => b.label.toLowerCase().includes(q));
-                    }
+                        // Filter by search query
+                        if (query && !block.label.toLowerCase().includes(query)
+                            && !block.description.toLowerCase().includes(query)) {
+                            return false;
+                        }
 
-                    // Hide trigger if one already exists
-                    if (hasTrigger) {
-                        blocks = blocks.filter(b => b.type !== 'trigger');
-                    }
+                        // Filter by connection rules if adding from a specific source
+                        if (allowedTargets !== null) {
+                            if (!allowedTargets.includes(block.type)) {
+                                return false;
+                            }
+                        }
 
-                    return { ...cat, blocks };
+                        return true;
+                    });
+
+                    return { ...cat, blocks: filteredBlocks };
                 })
                 .filter(cat => cat.blocks.length > 0);
         },
@@ -482,8 +515,9 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
 
                 const data = await response.json();
 
-                // Store meta for variable picker
+                // Store meta for variable picker and manifest for connection rules
                 window.__wfMeta = data.meta || {};
+                window.__wfManifest = data.manifest || {};
                 this.registeredActions = data.meta?.registered_actions || {};
                 this.workflowDescription = data.meta?.description || '';
                 this.triggerType = data.meta?.trigger_type || '';

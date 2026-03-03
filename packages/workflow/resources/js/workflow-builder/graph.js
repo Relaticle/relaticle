@@ -46,6 +46,35 @@ function showConfirmDialog(message, onConfirm) {
 }
 
 /**
+ * Check if connecting source -> target would create a cycle.
+ * Does a DFS from target following outgoing edges to see if source is reachable.
+ */
+function wouldCreateCycle(graph, sourceId, targetId) {
+    const visited = new Set();
+    const stack = [targetId];
+
+    while (stack.length > 0) {
+        const nodeId = stack.pop();
+        if (nodeId === sourceId) return true;
+        if (visited.has(nodeId)) continue;
+        visited.add(nodeId);
+
+        const cell = graph.getCellById(nodeId);
+        if (!cell) continue;
+
+        const outEdges = graph.getConnectedEdges(cell, { outgoing: true });
+        for (const edge of outEdges) {
+            const target = edge.getTargetCellId();
+            if (target && !visited.has(target)) {
+                stack.push(target);
+            }
+        }
+    }
+
+    return false;
+}
+
+/**
  * Create and configure the X6 graph instance.
  */
 export function createGraph(container, minimapContainer) {
@@ -86,8 +115,42 @@ export function createGraph(container, minimapContainer) {
                     zIndex: 0,
                 });
             },
-            validateConnection({ sourceCell, targetCell }) {
-                return sourceCell !== targetCell;
+            validateConnection({ sourceCell, targetCell, sourcePort, targetPort }) {
+                if (sourceCell === targetCell) return false;
+
+                const manifest = window.__wfManifest || {};
+                const blockRules = manifest.blocks || {};
+
+                // Get source and target node types
+                const sourceData = sourceCell.getData() || {};
+                const targetData = targetCell.getData() || {};
+                const sourceType = sourceData.type;
+                const targetType = targetData.type;
+
+                if (!sourceType || !targetType) return true; // fallback: allow
+
+                const rules = blockRules[sourceType];
+                if (!rules) return true;
+
+                // Check allowedTargets
+                if (!rules.allowedTargets.includes(targetType)) {
+                    return false;
+                }
+
+                // Check maxOutgoing
+                if (rules.maxOutgoing !== null && rules.maxOutgoing !== undefined) {
+                    const existingOutgoing = graph.getConnectedEdges(sourceCell, { outgoing: true });
+                    if (existingOutgoing.length >= rules.maxOutgoing) {
+                        return false;
+                    }
+                }
+
+                // Cycle detection: DFS from target to see if source is reachable
+                if (wouldCreateCycle(graph, sourceCell.id, targetCell.id)) {
+                    return false;
+                }
+
+                return true;
             },
         },
         panning: {
