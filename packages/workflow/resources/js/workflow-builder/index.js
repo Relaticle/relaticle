@@ -238,6 +238,12 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
                     const currentData = node.getData() || {};
                     node.setData({ ...currentData, config: config }, { overwrite: true });
                     this.isDirty = true;
+
+                    // Auto-propagate entity type when trigger config is saved
+                    const savedNodeData = node.getData() || {};
+                    if (savedNodeData.type === 'trigger' && savedNodeData.config?.entity_type) {
+                        this.propagateEntityType(savedNodeData.config.entity_type);
+                    }
                 }
             });
 
@@ -676,6 +682,30 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
             } finally {
                 this.saving = false;
             }
+        },
+
+        // ── Entity Type Propagation ──────────────────────────
+
+        propagateEntityType(entityType) {
+            const graph = window.__wfGraph;
+            if (!graph) return;
+
+            const entityActions = ['create_record', 'update_record', 'find_record', 'delete_record'];
+
+            graph.getNodes().forEach(node => {
+                const data = node.getData() || {};
+                if (data.type !== 'action') return;
+                if (!entityActions.includes(data.actionType)) return;
+
+                const config = data.config || {};
+                // Only propagate if not manually overridden
+                if (!config._entityOverridden) {
+                    node.setData({
+                        ...data,
+                        config: { ...config, entity_type: entityType },
+                    }, { silent: true });
+                }
+            });
         },
 
         // ── Toast Helper ─────────────────────────────────────

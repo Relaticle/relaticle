@@ -199,6 +199,17 @@ export function addBlockToGraph(graph, block, sourceNodeId, sourcePortId, positi
         delay: { duration: 5, unit: 'minutes' },
         stop: { reason: 'Workflow complete' },
         http_request: { method: 'POST' },
+        aggregate: { operation: 'sum' },
+        adjust_time: { amount: 1, unit: 'days', direction: 'add' },
+        random_number: { min: 1, max: 100 },
+        send_email: { subject: '', body: '', to: '' },
+        prompt_completion: { provider: 'anthropic', model: 'claude-haiku-4-5-20251001', max_tokens: 500, temperature: 0.7 },
+        summarize: { record_source: 'trigger', provider: 'anthropic', model: 'claude-haiku-4-5-20251001' },
+        classify: { provider: 'anthropic', model: 'claude-haiku-4-5-20251001', categories: [] },
+        broadcast_message: { channel: 'default' },
+        celebration: { type: 'confetti' },
+        update_record: { record_source: 'trigger' },
+        delete_record: { record_source: 'trigger' },
     };
 
     if (smartDefaults[actionType]) {
@@ -219,15 +230,6 @@ export function addBlockToGraph(graph, block, sourceNodeId, sourcePortId, positi
         node.setData({
             ...currentData,
             config: { ...(currentData.config || {}), entity_type: entityType },
-        }, { silent: true });
-    }
-
-    // Default update_record to trigger source
-    if (actionType === 'update_record') {
-        const currentData = node.getData() || {};
-        node.setData({
-            ...currentData,
-            config: { ...(currentData.config || {}), record_source: 'trigger' },
         }, { silent: true });
     }
 

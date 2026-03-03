@@ -618,6 +618,26 @@
     box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.15);
 }
 
+/* Validation badges (error / warning indicators on nodes) */
+.wf-validation-badge {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: white;
+    z-index: 10;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+.wf-error-badge { background: #ef4444; }
+.wf-warning-badge { background: #f59e0b; }
+
 /* --- Block Picker --- */
 .wf-picker {
     position: fixed;

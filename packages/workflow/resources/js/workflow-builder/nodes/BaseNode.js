@@ -54,9 +54,19 @@ export function createNodeHTML(data, options) {
         ? `<span class="wf-block-category" style="background: rgba(${rgb.r},${rgb.g},${rgb.b},0.1); color: ${color}">${category}</span>`
         : '';
 
+    // Validation badge (error or warning)
+    const hasError = data._validationError;
+    const hasWarning = data._warning;
+    const validationBadge = hasError
+        ? '<div class="wf-validation-badge wf-error-badge">!</div>'
+        : hasWarning
+        ? '<div class="wf-validation-badge wf-warning-badge">!</div>'
+        : '';
+
     return `
         <div class="wf-block" style="--block-color: ${color}; position: relative;">
             ${statusBadge}
+            ${validationBadge}
             <div class="wf-block-header">
                 <span class="wf-block-icon-box" style="background: ${color}">${icon}</span>
                 <span class="wf-block-label">${label}</span>

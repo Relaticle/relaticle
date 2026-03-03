@@ -385,16 +385,45 @@ class WorkflowConfigPanel extends Component implements HasActions, HasForms
                         ->columnSpan(1),
                     Select::make('operator')
                         ->label('Operator')
-                        ->options([
-                            'equals' => 'Equals',
-                            'not_equals' => 'Not Equals',
-                            'contains' => 'Contains',
-                            'greater_than' => 'Greater Than',
-                            'less_than' => 'Less Than',
-                            'is_empty' => 'Is Empty',
-                            'is_not_empty' => 'Is Not Empty',
-                            'in' => 'In List',
-                        ])
+                        ->options(function (callable $get) {
+                            $allOperators = [
+                                'equals' => 'Equals',
+                                'not_equals' => 'Not Equals',
+                                'contains' => 'Contains',
+                                'greater_than' => 'Greater Than',
+                                'less_than' => 'Less Than',
+                                'is_empty' => 'Is Empty',
+                                'is_not_empty' => 'Is Not Empty',
+                                'in' => 'In List',
+                            ];
+
+                            $field = $get('field');
+                            if (! $field) {
+                                return $allOperators;
+                            }
+
+                            // Attempt to resolve field type from upstream field metadata
+                            $fieldType = $this->resolveFieldType($field);
+
+                            if (! $fieldType) {
+                                return $allOperators;
+                            }
+
+                            // Filter operators based on field type
+                            return match ($fieldType) {
+                                'integer', 'number', 'float', 'decimal' => array_intersect_key($allOperators, array_flip([
+                                    'equals', 'not_equals', 'greater_than', 'less_than', 'is_empty', 'is_not_empty',
+                                ])),
+                                'boolean' => array_intersect_key($allOperators, array_flip([
+                                    'equals', 'not_equals', 'is_empty', 'is_not_empty',
+                                ])),
+                                'array', 'object' => array_intersect_key($allOperators, array_flip([
+                                    'contains', 'is_empty', 'is_not_empty', 'in',
+                                ])),
+                                default => $allOperators,
+                            };
+                        })
+                        ->reactive()
                         ->columnSpan(1),
                     TextInput::make('value')
                         ->label('Value')
@@ -517,6 +546,37 @@ class WorkflowConfigPanel extends Component implements HasActions, HasForms
         }
 
         return $options;
+    }
+
+    /**
+     * Resolve the type of a field by its path using the FieldResolverService.
+     *
+     * Looks up the field in the upstream field metadata and returns its type
+     * (e.g., 'string', 'integer', 'boolean', etc.) or null if not found.
+     */
+    protected function resolveFieldType(string $fieldPath): ?string
+    {
+        if (! $this->workflowId || ! $this->selectedNodeId) {
+            return null;
+        }
+
+        try {
+            $service = app(FieldResolverService::class);
+            $groups = $service->getAvailableFields($this->workflowId, $this->selectedNodeId);
+        } catch (\Throwable) {
+            return null;
+        }
+
+        foreach ($groups as $group) {
+            foreach ($group['fields'] as $field) {
+                $path = trim($field['fullPath'], '{}');
+                if ($path === $fieldPath) {
+                    return $field['type'] ?? null;
+                }
+            }
+        }
+
+        return null;
     }
 
     /**
