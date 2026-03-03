@@ -120,6 +120,53 @@ it('evaluates compound OR conditions', function () {
     ], $context))->toBeTrue();
 });
 
+it('uses strict string comparison for equals', function () {
+    $evaluator = new ConditionEvaluator();
+
+    // 0 should NOT equal empty string (PHP loose comparison gotcha)
+    expect($evaluator->evaluate(
+        ['field' => 'value', 'operator' => 'equals', 'value' => ''],
+        ['value' => 0]
+    ))->toBeFalse();
+
+    // 0 should NOT equal null
+    expect($evaluator->evaluate(
+        ['field' => 'value', 'operator' => 'equals', 'value' => null],
+        ['value' => 0]
+    ))->toBeFalse();
+
+    // String "1" should equal string "1"
+    expect($evaluator->evaluate(
+        ['field' => 'value', 'operator' => 'equals', 'value' => '1'],
+        ['value' => '1']
+    ))->toBeTrue();
+
+    // Numeric 1 should equal string "1" (reasonable coercion via string cast)
+    expect($evaluator->evaluate(
+        ['field' => 'value', 'operator' => 'equals', 'value' => '1'],
+        ['value' => 1]
+    ))->toBeTrue();
+});
+
+it('treats 0 as not empty for is_empty operator', function () {
+    $evaluator = new ConditionEvaluator();
+
+    expect($evaluator->evaluate(
+        ['field' => 'amount', 'operator' => 'is_empty'],
+        ['amount' => 0]
+    ))->toBeFalse();
+
+    expect($evaluator->evaluate(
+        ['field' => 'amount', 'operator' => 'is_empty'],
+        ['amount' => '']
+    ))->toBeTrue();
+
+    expect($evaluator->evaluate(
+        ['field' => 'amount', 'operator' => 'is_empty'],
+        ['amount' => null]
+    ))->toBeTrue();
+});
+
 it('uses loose comparison for in operator to handle type coercion', function () {
     $evaluator = new ConditionEvaluator();
 

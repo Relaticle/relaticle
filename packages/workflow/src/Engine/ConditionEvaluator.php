@@ -28,14 +28,14 @@ class ConditionEvaluator
         $fieldValue = data_get($context, $field);
 
         return match ($operator) {
-            'equals' => $fieldValue == $condition['value'],
-            'not_equals' => $fieldValue != $condition['value'],
-            'contains' => is_string($fieldValue) && str_contains($fieldValue, (string) $condition['value']),
-            'greater_than' => $fieldValue > $condition['value'],
-            'less_than' => $fieldValue < $condition['value'],
-            'is_empty' => empty($fieldValue),
-            'is_not_empty' => ! empty($fieldValue),
-            'in' => is_array($condition['value']) && in_array($fieldValue, $condition['value'], false),
+            'equals' => (string) $fieldValue === (string) ($condition['value'] ?? ''),
+            'not_equals' => (string) $fieldValue !== (string) ($condition['value'] ?? ''),
+            'contains' => is_string($fieldValue) && isset($condition['value']) && $condition['value'] !== '' && str_contains($fieldValue, (string) $condition['value']),
+            'greater_than' => is_numeric($fieldValue) && is_numeric($condition['value'] ?? null) && $fieldValue > $condition['value'],
+            'less_than' => is_numeric($fieldValue) && is_numeric($condition['value'] ?? null) && $fieldValue < $condition['value'],
+            'is_empty' => $fieldValue === null || $fieldValue === '',
+            'is_not_empty' => $fieldValue !== null && $fieldValue !== '',
+            'in' => is_array($condition['value'] ?? null) && in_array($fieldValue, $condition['value'], false),
             default => throw new InvalidArgumentException("Unsupported operator: {$operator}"),
         };
     }
