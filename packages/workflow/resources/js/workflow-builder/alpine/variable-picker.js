@@ -136,14 +136,30 @@ export function variablePickerComponent() {
             this.varPickerOpen = true;
         },
 
-        insertVariable(source, key) {
+        insertVariable(nodeId, key) {
             if (!this.varPickerTarget) return;
-            const variable = `{{${source}.${key}}}`;
+
+            let variable;
+            if (nodeId === '__builtin') {
+                variable = `{{${key}}}`;
+            } else {
+                // Determine if this is a trigger or step node
+                const graph = window.__wfGraph;
+                const cell = graph?.getCellById(nodeId);
+                const data = cell?.getData() || {};
+                if (data.type === 'trigger') {
+                    variable = `{{trigger.record.${key}}}`;
+                } else {
+                    variable = `{{steps.${nodeId}.output.${key}}}`;
+                }
+            }
+
             const input = this.varPickerTarget;
             const start = input.selectionStart || input.value.length;
             const end = input.selectionEnd || input.value.length;
             input.value = input.value.substring(0, start) + variable + input.value.substring(end);
             input.dispatchEvent(new Event('change', { bubbles: true }));
+            input.dispatchEvent(new Event('input', { bubbles: true }));
             this.varPickerOpen = false;
         },
 

@@ -60,8 +60,19 @@ class GraphWalker
      */
     public function getEdgeByLabel(WorkflowNode $node, string $label): ?WorkflowEdge
     {
+        // Support both legacy ("yes"/"no") and Attio-style ("does match"/"does not match") labels
+        $aliases = match (strtolower($label)) {
+            'yes', 'does match' => ['yes', 'does match'],
+            'no', 'does not match' => ['no', 'does not match'],
+            default => [$label],
+        };
+
         return $this->getOutgoingEdges($node)->first(
-            fn (WorkflowEdge $edge) => strcasecmp($edge->condition_label ?? '', $label) === 0
+            fn (WorkflowEdge $edge) => in_array(
+                strtolower($edge->condition_label ?? ''),
+                $aliases,
+                true
+            )
         );
     }
 

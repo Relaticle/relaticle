@@ -16,6 +16,7 @@ use Relaticle\Workflow\Events\WorkflowRunFailed;
 use Relaticle\Workflow\Events\WorkflowTriggered;
 use Relaticle\Workflow\Jobs\ExecuteStepJob;
 use Relaticle\Workflow\Models\Workflow;
+use Relaticle\Workflow\Models\WorkflowEdge;
 use Relaticle\Workflow\Models\WorkflowNode;
 use Relaticle\Workflow\Models\WorkflowRun;
 use Relaticle\Workflow\Models\WorkflowRunStep;
@@ -24,6 +25,10 @@ use Relaticle\Workflow\WorkflowManager;
 
 class WorkflowExecutor
 {
+    private bool $isPaused = false;
+
+    private ?array $registeredActionsCache = null;
+
     public function __construct(
         private readonly WorkflowManager $manager,
         private readonly ConditionEvaluator $conditionEvaluator,
@@ -41,6 +46,8 @@ class WorkflowExecutor
      */
     public function execute(Workflow $workflow, array $context): WorkflowRun
     {
+        $this->isPaused = false;
+
         WorkflowTriggered::dispatch($workflow, $context);
 
         // Build structured context
@@ -63,7 +70,7 @@ class WorkflowExecutor
             });
 
             // Only complete if not paused by a delay
-            if ($run->fresh()->status !== WorkflowRunStatus::Paused) {
+            if (! $this->isPaused) {
                 $this->completeRun($run);
             }
         } catch (\Throwable $e) {
@@ -86,6 +93,7 @@ class WorkflowExecutor
      */
     public function resume(WorkflowRun $run, string $resumeFromNodeId, array $context): WorkflowRun
     {
+        $this->isPaused = false;
         $workflow = $run->workflow;
         $run->update(['status' => WorkflowRunStatus::Running]);
 
@@ -129,24 +137,14 @@ class WorkflowExecutor
                         throw new \RuntimeException('Maximum step limit exceeded.');
                     }
 
-                    match ($node->type) {
-                        NodeType::Action => $this->executeActionNode($node, $walker, $run, $context, $queue),
-                        NodeType::Condition => $this->executeConditionNode($node, $walker, $run, $context, $queue),
-                        NodeType::Delay => $this->handleDelayPause($run, $node, $context),
-                        NodeType::Loop => $this->executeLoopNode($node, $walker, $run, $context, $processedNodeIds),
-                        NodeType::Stop => null,
-                        default => $this->enqueueNextNodes($walker, $node, $queue),
-                    };
-
-                    // If the run was paused (by another delay node), stop walking
-                    if ($run->fresh()->status === WorkflowRunStatus::Paused) {
+                    if ($this->dispatchNode($node, $walker, $run, $context, $queue, $processedNodeIds)) {
                         return;
                     }
                 }
             });
 
             // Only complete if not paused by another delay
-            if ($run->fresh()->status !== WorkflowRunStatus::Paused) {
+            if (! $this->isPaused) {
                 $this->completeRun($run);
             }
         } catch (\Throwable $e) {
@@ -248,17 +246,7 @@ class WorkflowExecutor
 
             $processedNodeIds[] = $currentNode->id;
 
-            match ($currentNode->type) {
-                NodeType::Action => $this->executeActionNode($currentNode, $walker, $run, $context, $queue),
-                NodeType::Condition => $this->executeConditionNode($currentNode, $walker, $run, $context, $queue),
-                NodeType::Delay => $this->handleDelayPause($run, $currentNode, $context),
-                NodeType::Loop => $this->executeLoopNode($currentNode, $walker, $run, $context, $processedNodeIds),
-                NodeType::Stop => null, // Stop node: do nothing, just don't enqueue further nodes
-                default => $this->enqueueNextNodes($walker, $currentNode, $queue),
-            };
-
-            // If the run was paused (by a delay node), stop walking
-            if ($run->fresh()->status === WorkflowRunStatus::Paused) {
+            if ($this->dispatchNode($currentNode, $walker, $run, $context, $queue, $processedNodeIds)) {
                 return;
             }
         }
@@ -280,7 +268,7 @@ class WorkflowExecutor
         $step = $this->createStep($run, $node, StepStatus::Running);
 
         $actionKey = $node->action_type;
-        $registeredActions = $this->manager->getRegisteredActions();
+        $registeredActions = $this->getRegisteredActions();
 
         if (! isset($registeredActions[$actionKey])) {
             throw new \RuntimeException("Action [{$actionKey}] is not registered.");
@@ -341,8 +329,9 @@ class WorkflowExecutor
             'completed_at' => Carbon::now(),
         ]);
 
-        // Pause the run
+        // Pause the run and signal the BFS loop to stop
         $run->update(['status' => WorkflowRunStatus::Paused]);
+        $this->isPaused = true;
 
         // Dispatch delayed resume job
         $delaySeconds = $output['delay_seconds'] ?? 0;
@@ -430,8 +419,13 @@ class WorkflowExecutor
      * Each iteration gets its own processed-node tracking so that the same
      * node structure can be executed once per iteration without interference.
      *
+     * NOTE: $context is passed by value intentionally. Each loop iteration
+     * starts from the same base context (enriched with loop.item/loop.index),
+     * and step outputs within an iteration are isolated — they do not propagate
+     * back to the parent scope or to subsequent iterations.
+     *
      * @param  \Illuminate\Support\Collection<int, WorkflowNode>  $startNodes
-     * @param  array<string, mixed>  $context
+     * @param  array<string, mixed>  $context  Passed by value for iteration isolation
      */
     private function walkLoopBody(
         GraphWalker $walker,
@@ -458,16 +452,7 @@ class WorkflowExecutor
 
             $processedNodeIds[] = $currentNode->id;
 
-            match ($currentNode->type) {
-                NodeType::Action => $this->executeActionNode($currentNode, $walker, $run, $context, $queue),
-                NodeType::Condition => $this->executeConditionNode($currentNode, $walker, $run, $context, $queue),
-                NodeType::Delay => $this->handleDelayPause($run, $currentNode, $context),
-                NodeType::Stop => null,
-                default => $this->enqueueNextNodes($walker, $currentNode, $queue),
-            };
-
-            // If the run was paused (by a delay node), stop walking
-            if ($run->fresh()->status === WorkflowRunStatus::Paused) {
+            if ($this->dispatchNode($currentNode, $walker, $run, $context, $queue, $processedNodeIds)) {
                 return;
             }
         }
@@ -526,10 +511,10 @@ class WorkflowExecutor
         \SplQueue $queue,
     ): void {
         $config = $node->config ?? [];
-        $result = $this->conditionEvaluator->evaluate($config, $context);
+        $result = $this->evaluateConditionConfig($config, $context);
 
-        $takenLabel = $result ? 'yes' : 'no';
-        $skippedLabel = $result ? 'no' : 'yes';
+        $takenLabel = $result ? 'does match' : 'does not match';
+        $skippedLabel = $result ? 'does not match' : 'does match';
 
         // Follow the taken branch
         $takenEdge = $walker->getEdgeByLabel($node, $takenLabel);
@@ -549,6 +534,7 @@ class WorkflowExecutor
             }
         }
     }
+
 
     /**
      * Find a WorkflowNode by its database ID within the graph walker's node set.
@@ -586,13 +572,70 @@ class WorkflowExecutor
     }
 
     /**
+     * Dispatch a single node during BFS traversal and return whether execution should stop.
+     *
+     * @param  \SplQueue<WorkflowNode>  $queue
+     * @param  array<string, mixed>  $context
+     * @param  array<int|string>  $processedNodeIds
+     */
+    private function dispatchNode(
+        WorkflowNode $node,
+        GraphWalker $walker,
+        WorkflowRun $run,
+        array &$context,
+        \SplQueue $queue,
+        array &$processedNodeIds = [],
+    ): bool {
+        match ($node->type) {
+            NodeType::Action => $this->executeActionNode($node, $walker, $run, $context, $queue),
+            NodeType::Condition => $this->executeConditionNode($node, $walker, $run, $context, $queue),
+            NodeType::Delay => $this->handleDelayPause($run, $node, $context),
+            NodeType::Loop => $this->executeLoopNode($node, $walker, $run, $context, $processedNodeIds),
+            NodeType::Stop => null,
+            default => $this->enqueueNextNodes($walker, $node, $queue),
+        };
+
+        return $this->isPaused;
+    }
+
+    /**
+     * Evaluate a condition config using the multi-condition or legacy format.
+     *
+     * @param  array<string, mixed>  $config
+     * @param  array<string, mixed>  $context
+     */
+    private function evaluateConditionConfig(array $config, array $context): bool
+    {
+        if (isset($config['conditions']) && is_array($config['conditions'])) {
+            $groupConfig = [
+                'operator' => ($config['match'] ?? 'all') === 'any' ? 'or' : 'and',
+                'conditions' => $config['conditions'],
+            ];
+
+            return $this->conditionEvaluator->evaluateGroup($groupConfig, $context);
+        }
+
+        return $this->conditionEvaluator->evaluate($config, $context);
+    }
+
+    /**
+     * Get the registered actions map, cached for the lifetime of this executor.
+     *
+     * @return array<string, class-string<WorkflowAction>>
+     */
+    private function getRegisteredActions(): array
+    {
+        return $this->registeredActionsCache ??= $this->manager->getRegisteredActions();
+    }
+
+    /**
      * Validate action config against the action's configSchema() using Laravel Validator.
      *
      * @param  array<string, mixed>  $config
      */
     private function validateActionConfig(string $actionType, array $config): void
     {
-        $actions = $this->manager->getRegisteredActions();
+        $actions = $this->getRegisteredActions();
         $actionClass = $actions[$actionType] ?? null;
 
         if ($actionClass === null) {

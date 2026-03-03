@@ -26,6 +26,21 @@ class WorkflowBuilder extends Page
 
     public function getTitle(): string
     {
-        return $this->workflowName ?? 'Workflow Builder';
+        return '';
+    }
+
+    public function getHeading(): string
+    {
+        return '';
+    }
+
+    public function getBreadcrumbs(): array
+    {
+        return [];
+    }
+
+    public function hasFullWidthContent(): bool
+    {
+        return true;
     }
 }

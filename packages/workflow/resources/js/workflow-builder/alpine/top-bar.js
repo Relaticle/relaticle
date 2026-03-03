@@ -53,6 +53,19 @@ export function topBarMixin() {
 
         async publishWorkflow() {
             if (this.publishing) return;
+
+            // Client-side validation first
+            const graph = window.__wfGraph;
+            if (graph) {
+                const { validateAllNodes } = await import('../config-panel.js');
+                const errors = validateAllNodes(graph, true);
+                if (errors.length > 0) {
+                    const messages = errors.map(e => e.message);
+                    this.showToast(`Cannot publish: ${messages[0]}${errors.length > 1 ? ` (+${errors.length - 1} more)` : ''}`, 'error');
+                    return;
+                }
+            }
+
             this.publishing = true;
 
             try {
@@ -66,10 +79,17 @@ export function topBarMixin() {
 
                 if (res.ok) {
                     this.workflowStatus = 'live';
-                    this.showToast('Workflow published', 'success');
+                    this.showToast('Workflow published successfully', 'success');
                 } else {
                     const data = await res.json();
-                    this.showToast(data.errors?.join(', ') || 'Publish failed', 'error');
+                    const errorList = data.errors || [];
+                    if (errorList.length > 0) {
+                        errorList.forEach((err, i) => {
+                            setTimeout(() => this.showToast(err, 'error'), i * 200);
+                        });
+                    } else {
+                        this.showToast(data.message || 'Publish failed', 'error');
+                    }
                 }
             } catch (e) {
                 this.showToast('Publish failed: ' + e.message, 'error');

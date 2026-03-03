@@ -11,6 +11,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
+use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
@@ -21,6 +22,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\DB;
 use Relaticle\Workflow\Enums\TriggerType;
 use Relaticle\Workflow\Enums\WorkflowStatus;
 use Relaticle\Workflow\Models\Workflow;
@@ -137,6 +139,8 @@ class WorkflowResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
+                SelectFilter::make('status')
+                    ->options(collect(WorkflowStatus::cases())->mapWithKeys(fn ($s) => [$s->value => ucfirst($s->value)])),
                 SelectFilter::make('trigger_type')
                     ->options([
                         TriggerType::RecordEvent->value => 'Record Event',
@@ -151,11 +155,52 @@ class WorkflowResource extends Resource
                 'trigger_type',
                 Group::make('creator.name')->label('Created By'),
             ])
+            ->defaultSort('created_at', 'desc')
             ->actions([
+                Action::make('open_builder')
+                    ->label('Open Builder')
+                    ->icon('heroicon-o-pencil-square')
+                    ->url(fn (Workflow $record): string => static::getUrl('builder', ['record' => $record])),
                 ActionGroup::make([
+                    Action::make('duplicate')
+                        ->label('Duplicate')
+                        ->icon('heroicon-o-document-duplicate')
+                        ->authorize('create', Workflow::class)
+                        ->action(function (Workflow $record) {
+                            $record->load(['nodes', 'edges']);
+                            DB::transaction(function () use ($record) {
+                                $new = $record->replicate(['status', 'last_triggered_at']);
+                                $new->name = $record->name . ' (copy)';
+                                $new->status = WorkflowStatus::Draft;
+                                $new->save();
+
+                                $nodeIdMap = [];
+                                foreach ($record->nodes as $node) {
+                                    $newNode = $node->replicate();
+                                    $newNode->workflow_id = $new->id;
+                                    $newNode->save();
+                                    $nodeIdMap[$node->id] = $newNode->id;
+                                }
+                                foreach ($record->edges as $edge) {
+                                    $newEdge = $edge->replicate();
+                                    $newEdge->workflow_id = $new->id;
+                                    $newEdge->source_node_id = $nodeIdMap[$edge->source_node_id] ?? $edge->source_node_id;
+                                    $newEdge->target_node_id = $nodeIdMap[$edge->target_node_id] ?? $edge->target_node_id;
+                                    $newEdge->save();
+                                }
+                            });
+                        })
+                        ->successNotificationTitle('Workflow duplicated'),
+                    Action::make('archive')
+                        ->label('Archive')
+                        ->icon('heroicon-o-archive-box')
+                        ->color('warning')
+                        ->requiresConfirmation()
+                        ->visible(fn (Workflow $record): bool => in_array($record->status, [WorkflowStatus::Live, WorkflowStatus::Paused, WorkflowStatus::Draft]))
+                        ->action(fn (Workflow $record) => $record->update(['status' => WorkflowStatus::Archived])),
+                    RestoreAction::make(),
                     EditAction::make(),
                     DeleteAction::make(),
-                    RestoreAction::make(),
                 ]),
             ]);
     }

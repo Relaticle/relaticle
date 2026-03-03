@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Relaticle\Workflow\Livewire;
 
+use Filament\Actions\Action;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -13,6 +15,7 @@ use Filament\Forms\Contracts\HasForms;
 use Filament\Schemas\Schema;
 use Livewire\Attributes\On;
 use Livewire\Component;
+use Relaticle\Workflow\Models\Workflow;
 use Relaticle\Workflow\Models\WorkflowNode;
 use Relaticle\Workflow\WorkflowManager;
 
@@ -72,6 +75,21 @@ class WorkflowConfigPanel extends Component implements HasForms
         WorkflowNode::where('workflow_id', $this->workflowId)
             ->where('node_id', $this->selectedNodeId)
             ->update(['config' => $config]);
+
+        // Sync trigger entity_type to workflow.trigger_config
+        if ($this->nodeType === 'trigger' && $this->workflowId) {
+            $workflow = Workflow::find($this->workflowId);
+            if ($workflow) {
+                $triggerConfig = $workflow->trigger_config ?? [];
+                if (isset($config['entity_type'])) {
+                    $triggerConfig['entity_type'] = $config['entity_type'];
+                }
+                if (isset($config['event'])) {
+                    $triggerConfig['event'] = $config['event'];
+                }
+                $workflow->update(['trigger_config' => $triggerConfig]);
+            }
+        }
 
         $this->dispatch('node-config-saved', nodeId: $this->selectedNodeId, config: $config);
     }
@@ -142,15 +160,19 @@ class WorkflowConfigPanel extends Component implements HasForms
 
     public function getCategoryColor(): string
     {
-        $category = $this->getActionCategory();
-
-        return match ($category) {
-            'Trigger' => 'amber',
-            'Records' => 'blue',
-            'Communication' => 'green',
-            'Integration' => 'purple',
-            'Flow Control' => 'orange',
-            default => 'gray',
+        return match ($this->nodeType) {
+            'trigger' => 'green',
+            'condition' => 'amber',
+            'delay' => 'gray',
+            'loop' => 'purple',
+            'stop' => 'red',
+            default => match ($this->getActionCategory()) {
+                'Records' => 'sky',
+                'Communication' => 'green',
+                'Integration' => 'purple',
+                'Flow Control' => 'orange',
+                default => 'blue',
+            },
         };
     }
 
@@ -165,7 +187,7 @@ class WorkflowConfigPanel extends Component implements HasForms
         return $actions[$this->actionType] ?? null;
     }
 
-    public function render(): \Illuminate\Contracts\View\View
+    public function render(): \Illuminate\View\View
     {
         return view('workflow::livewire.config-panel');
     }
@@ -204,7 +226,37 @@ class WorkflowConfigPanel extends Component implements HasForms
                     'manual' => 'Manual',
                     'webhook' => 'Webhook',
                     'scheduled' => 'Scheduled',
-                ]),
+                ])
+                ->live(),
+            Select::make('entity_type')
+                ->label('Record Type')
+                ->options([
+                    'people' => 'People',
+                    'companies' => 'Companies',
+                    'opportunities' => 'Opportunities',
+                    'tasks' => 'Tasks',
+                    'notes' => 'Notes',
+                ])
+                ->visible(fn (callable $get): bool => in_array($get('event'), ['record_created', 'record_updated', 'record_deleted']))
+                ->helperText('Which type of record should trigger this workflow?'),
+            TextInput::make('webhook_url')
+                ->label('Webhook URL')
+                ->disabled()
+                ->visible(fn (callable $get): bool => $get('event') === 'webhook')
+                ->default(fn () => $this->workflowId ? url("/workflow/api/workflows/{$this->workflowId}/webhook") : '')
+                ->helperText('Send POST requests to this URL to trigger the workflow.')
+                ->suffixAction(
+                    Action::make('copy')
+                        ->icon('heroicon-o-clipboard')
+                        ->action(function ($state, $livewire) {
+                            $livewire->js("navigator.clipboard.writeText(" . json_encode($state) . ")");
+                        })
+                ),
+            TextInput::make('cron_expression')
+                ->label('Schedule (Cron)')
+                ->placeholder('*/5 * * * *')
+                ->visible(fn (callable $get): bool => $get('event') === 'scheduled')
+                ->helperText('Cron expression for recurring schedule (e.g., "0 9 * * 1" for every Monday at 9am).'),
         ];
     }
 
@@ -233,23 +285,43 @@ class WorkflowConfigPanel extends Component implements HasForms
     protected function getConditionFormSchema(): array
     {
         return [
-            TextInput::make('field')
-                ->label('Field')
-                ->placeholder('record.status'),
-            Select::make('operator')
-                ->label('Operator')
+            Select::make('match')
+                ->label('Match')
                 ->options([
-                    'equals' => 'Equals',
-                    'not_equals' => 'Not Equals',
-                    'contains' => 'Contains',
-                    'greater_than' => 'Greater Than',
-                    'less_than' => 'Less Than',
-                    'is_empty' => 'Is Empty',
-                    'is_not_empty' => 'Is Not Empty',
-                ]),
-            TextInput::make('value')
-                ->label('Value')
-                ->placeholder('active'),
+                    'all' => 'All conditions (AND)',
+                    'any' => 'Any condition (OR)',
+                ])
+                ->default('all'),
+            Repeater::make('conditions')
+                ->label('Conditions')
+                ->schema([
+                    TextInput::make('field')
+                        ->label('Field')
+                        ->placeholder('trigger.record.status')
+                        ->columnSpan(1),
+                    Select::make('operator')
+                        ->label('Operator')
+                        ->options([
+                            'equals' => 'Equals',
+                            'not_equals' => 'Not Equals',
+                            'contains' => 'Contains',
+                            'greater_than' => 'Greater Than',
+                            'less_than' => 'Less Than',
+                            'is_empty' => 'Is Empty',
+                            'is_not_empty' => 'Is Not Empty',
+                            'in' => 'In List',
+                        ])
+                        ->columnSpan(1),
+                    TextInput::make('value')
+                        ->label('Value')
+                        ->placeholder('active')
+                        ->columnSpan(1),
+                ])
+                ->columns(3)
+                ->defaultItems(1)
+                ->addActionLabel('Add condition')
+                ->collapsible()
+                ->itemLabel(fn (array $state): ?string => ($state['field'] ?? '') . ' ' . ($state['operator'] ?? '') . ' ' . ($state['value'] ?? '')),
         ];
     }
 

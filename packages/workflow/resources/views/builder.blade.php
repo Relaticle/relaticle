@@ -11,8 +11,9 @@
         {{-- Top Bar --}}
         <div class="wf-topbar">
             <div class="wf-topbar-left">
-                <a href="{{ \Relaticle\Workflow\Filament\Resources\WorkflowResource::getUrl() }}" class="wf-back-link" title="Back to workflows">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                <a href="{{ \Relaticle\Workflow\Filament\Resources\WorkflowResource::getUrl() }}" class="wf-breadcrumb-link" title="Back to workflows">
+                    <span class="wf-breadcrumb-text">Workflows</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
                 </a>
                 <div class="wf-name-wrapper">
                     <template x-if="!editingName">
@@ -401,7 +402,7 @@
                                 class="wf-picker-item"
                                 @click="addBlock(block)"
                             >
-                                <span class="wf-picker-icon" :style="'color:' + block.color" x-html="block.icon"></span>
+                                <span class="wf-picker-icon" :style="'background:' + block.color + '; color: #fff'" x-html="block.icon"></span>
                                 <span class="flex flex-col min-w-0">
                                     <span class="text-[13px] font-medium" x-text="block.label"></span>
                                     <span class="text-[11px] text-slate-400 dark:text-slate-500 truncate" x-text="block.description"></span>

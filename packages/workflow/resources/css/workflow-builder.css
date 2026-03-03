@@ -10,6 +10,9 @@
     overflow: hidden;
     position: relative;
     background: #f8fafc;
+    /* Remove any Filament page padding */
+    margin: -1.5rem;
+    margin-top: -0.5rem;
 }
 
 .dark .workflow-builder {
@@ -50,26 +53,36 @@
     flex-shrink: 0;
 }
 
-.wf-back-link {
+/* Breadcrumb link (Attio-style "Workflows >") */
+.wf-breadcrumb-link {
     display: flex;
     align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
+    gap: 2px;
+    padding: 4px 6px;
     border-radius: 6px;
-    color: #64748b;
+    color: #94a3b8;
+    text-decoration: none;
     transition: all 0.15s;
     flex-shrink: 0;
+    font-size: 14px;
 }
 
-.wf-back-link:hover {
+.wf-breadcrumb-link:hover {
     background: #f1f5f9;
     color: #334155;
 }
 
-.dark .wf-back-link:hover {
+.dark .wf-breadcrumb-link {
+    color: #64748b;
+}
+
+.dark .wf-breadcrumb-link:hover {
     background: #334155;
     color: #e2e8f0;
+}
+
+.wf-breadcrumb-text {
+    font-weight: 400;
 }
 
 .wf-name-wrapper {
@@ -433,39 +446,49 @@
     width: 100%;
     background: #fff;
     border: 1px solid #e2e8f0;
-    border-radius: 8px;
+    border-radius: 10px;
     overflow: hidden;
     cursor: pointer;
     transition: box-shadow 0.15s, border-color 0.15s;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 .wf-block:hover {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border-color: #cbd5e1;
 }
 
 .dark .wf-block {
     background: #1e293b;
     border-color: #334155;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
 .dark .wf-block:hover {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    border-color: #475569;
 }
 
 .wf-block-header {
     display: flex;
     align-items: center;
-    gap: 6px;
-    padding: 6px 12px;
-    background: var(--block-color);
-    color: #fff;
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    gap: 8px;
+    padding: 8px 12px 4px;
 }
 
+.wf-block-icon-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    color: #fff;
+    flex-shrink: 0;
+}
+
+/* Legacy fallback for old icon class */
 .wf-block-icon {
     display: flex;
     align-items: center;
@@ -473,10 +496,29 @@
 
 .wf-block-label {
     flex: 1;
+    font-size: 13px;
+    font-weight: 600;
+    color: #1e293b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dark .wf-block-label {
+    color: #f1f5f9;
+}
+
+.wf-block-category {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 10px;
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .wf-block-body {
-    padding: 8px 12px;
+    padding: 2px 12px 8px;
 }
 
 .wf-block-summary {
@@ -490,6 +532,53 @@
 
 .dark .wf-block-summary {
     color: #94a3b8;
+}
+
+.wf-block-desc {
+    display: block;
+    margin-top: 2px;
+    font-size: 11px;
+    color: #94a3b8;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.wf-block-desc-placeholder {
+    font-style: italic;
+    color: #c5cdd8;
+}
+
+/* Validation error pulse */
+.wf-block[data-validation-error] .wf-block-icon-box {
+    animation: wf-error-pulse 2s infinite;
+}
+
+@keyframes wf-error-pulse {
+    0%, 100% { box-shadow: none; }
+    50% { box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.3); }
+}
+
+.dark .wf-block-desc {
+    color: #64748b;
+}
+
+.dark .wf-block-desc-placeholder {
+    color: #475569;
+}
+
+/* Run status badge (Attio-style) */
+.wf-run-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    padding: 2px 8px;
+    font-size: 10px;
+    font-weight: 600;
+    border-radius: 9999px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+    white-space: nowrap;
 }
 
 /* Selected state */
@@ -515,6 +604,12 @@
 
 .wf-block.wf-run-skipped {
     opacity: 0.5;
+}
+
+/* Validation error state */
+.wf-block[data-validation-error] {
+    border-color: #ef4444;
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.15);
 }
 
 /* --- Block Picker --- */
@@ -581,10 +676,22 @@
     text-transform: uppercase;
     letter-spacing: 0.08em;
     color: #94a3b8;
-    padding: 8px 8px 4px;
-    border-left: 3px solid #e2e8f0;
-    padding-left: 8px;
-    margin-left: 4px;
+    padding: 10px 8px 4px;
+    margin-top: 4px;
+}
+
+.wf-picker-category:first-child .wf-picker-category-name {
+    padding-top: 4px;
+    margin-top: 0;
+}
+
+.wf-picker-category + .wf-picker-category .wf-picker-category-name {
+    border-top: 1px solid #f1f5f9;
+    padding-top: 10px;
+}
+
+.dark .wf-picker-category + .wf-picker-category .wf-picker-category-name {
+    border-top-color: #334155;
 }
 
 .wf-picker-item {
@@ -622,12 +729,7 @@
     width: 28px;
     height: 28px;
     border-radius: 6px;
-    background: #f1f5f9;
     flex-shrink: 0;
-}
-
-.dark .wf-picker-icon {
-    background: #334155;
 }
 
 /* --- Bottom Toolbar --- */
@@ -1175,6 +1277,23 @@
 .x6-widget-snapline-horizontal,
 .x6-widget-snapline-vertical {
     stroke: #3b82f6 !important;
+}
+
+/* --- Completed run green border --- */
+.wf-block.wf-run-completed .wf-block-icon-box {
+    box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.3);
+}
+
+.wf-block.wf-run-failed .wf-block-icon-box {
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.3);
+}
+
+/* --- Run status summary chips (Attio-style) --- */
+.wf-run-summary-chips {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
 }
 
 /* --- Responsive --- */

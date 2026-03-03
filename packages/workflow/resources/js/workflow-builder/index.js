@@ -13,7 +13,7 @@ import { registerConditionNode } from './nodes/ConditionNode.js';
 import { registerDelayNode } from './nodes/DelayNode.js';
 import { registerLoopNode } from './nodes/LoopNode.js';
 import { registerStopNode } from './nodes/StopNode.js';
-import { validateAllNodes } from './config-panel.js';
+import { validateAllNodes, clearValidationErrors } from './config-panel.js';
 import { organizeLayout } from './toolbar.js';
 import { configPanelComponent } from './alpine/config-panel.js';
 import { blockPickerData, addBlockToGraph } from './alpine/block-picker.js';
@@ -426,13 +426,16 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
                     // Add edges
                     data.edges?.forEach((edge) => {
                         const label = edge.condition_label;
+                        const lower = label ? label.toLowerCase() : '';
+                        const isYes = lower === 'yes' || lower === 'does match';
                         let labelConfig = [];
                         if (label) {
-                            const isYes = label.toLowerCase() === 'yes';
+                            // Normalize legacy "Yes"/"No" labels to Attio-style
+                            const displayLabel = isYes ? 'does match' : 'does not match';
                             labelConfig = [{
                                 attrs: {
                                     label: {
-                                        text: label,
+                                        text: displayLabel,
                                         fill: '#fff',
                                         fontSize: 11,
                                         fontWeight: 600,
@@ -458,7 +461,7 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
                             labels: labelConfig,
                             attrs: {
                                 line: {
-                                    stroke: label ? (label.toLowerCase() === 'yes' ? '#22c55e' : '#ef4444') : '#94a3b8',
+                                    stroke: label ? (isYes ? '#22c55e' : '#ef4444') : '#94a3b8',
                                     strokeWidth: 1.5,
                                     targetMarker: { name: 'block', width: 10, height: 6 },
                                 },

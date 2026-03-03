@@ -10,37 +10,57 @@
  * @param {string} options.color - CSS color for the block header
  * @param {string} options.icon - SVG icon HTML
  * @param {string} options.label - Node type label
+ * @param {string} [options.category] - Category pill label
  * @param {string} [options.summary] - Config summary text
  * @returns {string} HTML string
  */
+/**
+ * Convert a hex color to RGB components.
+ */
+function hexToRgb(hex) {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16),
+    } : { r: 100, g: 100, b: 100 }; // Neutral mid-gray fallback for invalid hex values
+}
+
 export function createNodeHTML(data, options) {
-    const { color, icon, label, summary, description } = options;
+    const { color, icon, label, summary, description, category } = options;
     const displaySummary = summary || 'Click to configure';
     const descHtml = description
-        ? `<span class="block mt-0.5 text-[11px] text-slate-400 dark:text-slate-500 truncate italic">${description}</span>`
-        : '';
+        ? `<span class="wf-block-desc">${description}</span>`
+        : '<span class="wf-block-desc wf-block-desc-placeholder">No description</span>';
 
-    // Run status badge overlay
+    // Run status badge overlay (Attio-style)
     const runStatus = data._runStatus;
     let statusBadge = '';
     if (runStatus) {
         const statusConfig = {
-            completed: { bg: '#dcfce7', text: '#15803d', label: 'Done' },
-            failed: { bg: '#fee2e2', text: '#b91c1c', label: 'Failed' },
-            skipped: { bg: '#f1f5f9', text: '#64748b', label: 'Skipped' },
-            running: { bg: '#dbeafe', text: '#1d4ed8', label: 'Running' },
-            pending: { bg: '#f1f5f9', text: '#94a3b8', label: 'Pending' },
+            completed: { bg: '#dcfce7', text: '#15803d', label: 'Complete', icon: '\u2713' },
+            failed: { bg: '#fee2e2', text: '#b91c1c', label: 'Failed', icon: '\u2717' },
+            skipped: { bg: '#f1f5f9', text: '#64748b', label: 'Skipped', icon: '\u2014' },
+            running: { bg: '#dbeafe', text: '#1d4ed8', label: 'Running', icon: '\u25CB' },
+            pending: { bg: '#f1f5f9', text: '#94a3b8', label: 'Pending', icon: '\u25CB' },
         };
         const cfg = statusConfig[runStatus] || statusConfig.pending;
-        statusBadge = `<span style="position:absolute; top:-8px; right:-8px; padding:1px 6px; font-size:10px; font-weight:600; border-radius:9999px; background:${cfg.bg}; color:${cfg.text}; box-shadow:0 1px 2px rgba(0,0,0,0.1); z-index:10; ${runStatus === 'running' ? 'animation:pulse 2s infinite;' : ''}">${cfg.label}</span>`;
+        statusBadge = `<span class="wf-run-badge" style="background:${cfg.bg}; color:${cfg.text}; ${runStatus === 'running' ? 'animation:pulse 2s infinite;' : ''}">${cfg.icon} ${cfg.label}</span>`;
     }
+
+    // Category pill with tinted background matching node color (Attio-style)
+    const rgb = hexToRgb(color);
+    const categoryPill = category
+        ? `<span class="wf-block-category" style="background: rgba(${rgb.r},${rgb.g},${rgb.b},0.1); color: ${color}">${category}</span>`
+        : '';
 
     return `
         <div class="wf-block" style="--block-color: ${color}; position: relative;">
             ${statusBadge}
             <div class="wf-block-header">
-                <span class="wf-block-icon">${icon}</span>
+                <span class="wf-block-icon-box" style="background: ${color}">${icon}</span>
                 <span class="wf-block-label">${label}</span>
+                ${categoryPill}
             </div>
             <div class="wf-block-body">
                 <span class="wf-block-summary">${displaySummary}</span>

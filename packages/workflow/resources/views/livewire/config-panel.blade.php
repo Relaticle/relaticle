@@ -12,16 +12,19 @@
             </button>
         </div>
         <div class="wf-panel-body">
-            {{-- Block Type Header --}}
+            {{-- Block Type Header (Attio-style) --}}
             @php
                 $color = $this->getCategoryColor();
                 $colorClasses = match($color) {
-                    'amber' => 'bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400',
-                    'blue' => 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400',
-                    'green' => 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400',
-                    'purple' => 'bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400',
-                    'orange' => 'bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400',
-                    default => 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400',
+                    'amber' => 'bg-amber-500 text-white',
+                    'blue' => 'bg-blue-500 text-white',
+                    'green' => 'bg-green-500 text-white',
+                    'purple' => 'bg-purple-500 text-white',
+                    'orange' => 'bg-orange-500 text-white',
+                    'red' => 'bg-red-500 text-white',
+                    'sky' => 'bg-sky-500 text-white',
+                    'gray' => 'bg-gray-500 text-white',
+                    default => 'bg-gray-500 text-white',
                 };
                 $badgeClasses = match($color) {
                     'amber' => 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300',
@@ -29,6 +32,9 @@
                     'green' => 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300',
                     'purple' => 'bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300',
                     'orange' => 'bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-300',
+                    'red' => 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300',
+                    'sky' => 'bg-sky-50 dark:bg-sky-900/20 text-sky-700 dark:text-sky-300',
+                    'gray' => 'bg-gray-50 dark:bg-gray-900/20 text-gray-600 dark:text-gray-400',
                     default => 'bg-gray-50 dark:bg-gray-900 text-gray-600 dark:text-gray-400',
                 };
             @endphp
@@ -47,10 +53,13 @@
             </div>
 
             <form wire:submit="saveConfig">
+                {{-- Inputs section header (Attio-style) --}}
+                <h4 class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide m-0 mb-3">Inputs</h4>
+
                 {{ $this->form }}
 
-                <div class="mt-4 flex gap-2">
-                    <button type="submit" class="wf-save-btn text-[13px] px-4 py-1.5">
+                <div class="mt-5 pt-4 border-t border-gray-100 dark:border-gray-700 flex gap-2">
+                    <button type="submit" class="wf-publish-btn text-[13px] px-5 py-2">
                         Save
                     </button>
                 </div>
