@@ -276,42 +276,52 @@ class WorkflowExecutor
     ): void {
         $step = $this->createStep($run, $node, StepStatus::Running);
 
-        $actionKey = $node->action_type;
-        $registeredActions = $this->getRegisteredActions();
+        try {
+            $actionKey = $node->action_type;
+            $registeredActions = $this->getRegisteredActions();
 
-        if (! isset($registeredActions[$actionKey])) {
-            throw new \RuntimeException("Action [{$actionKey}] is not registered.");
+            if (! isset($registeredActions[$actionKey])) {
+                throw new \RuntimeException("Action [{$actionKey}] is not registered.");
+            }
+
+            /** @var class-string<WorkflowAction> $actionClass */
+            $actionClass = $registeredActions[$actionKey];
+
+            $resolvedConfig = $this->variableResolver->resolveArray($node->config ?? [], $context);
+
+            $this->validateActionConfig($actionKey, $resolvedConfig);
+
+            $step->update([
+                'input_data' => $resolvedConfig,
+                'started_at' => Carbon::now(),
+            ]);
+
+            /** @var WorkflowAction $action */
+            $action = new $actionClass();
+            $output = $action->execute($resolvedConfig, $context);
+
+            $step->update([
+                'status' => StepStatus::Completed,
+                'output_data' => $output,
+                'completed_at' => Carbon::now(),
+            ]);
+
+            // Propagate step output into context for downstream steps
+            $context['steps'][$node->node_id] = [
+                'output' => $output,
+                'status' => 'completed',
+            ];
+
+            $this->enqueueNextNodes($walker, $node, $queue);
+        } catch (\Throwable $e) {
+            $step->update([
+                'status' => StepStatus::Failed,
+                'error_message' => $e->getMessage(),
+                'completed_at' => Carbon::now(),
+            ]);
+
+            throw $e;
         }
-
-        /** @var class-string<WorkflowAction> $actionClass */
-        $actionClass = $registeredActions[$actionKey];
-
-        $resolvedConfig = $this->variableResolver->resolveArray($node->config ?? [], $context);
-
-        $this->validateActionConfig($actionKey, $resolvedConfig);
-
-        $step->update([
-            'input_data' => $resolvedConfig,
-            'started_at' => Carbon::now(),
-        ]);
-
-        /** @var WorkflowAction $action */
-        $action = new $actionClass();
-        $output = $action->execute($resolvedConfig, $context);
-
-        $step->update([
-            'status' => StepStatus::Completed,
-            'output_data' => $output,
-            'completed_at' => Carbon::now(),
-        ]);
-
-        // Propagate step output into context for downstream steps
-        $context['steps'][$node->node_id] = [
-            'output' => $output,
-            'status' => 'completed',
-        ];
-
-        $this->enqueueNextNodes($walker, $node, $queue);
     }
 
     /**

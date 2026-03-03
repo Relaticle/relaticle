@@ -195,6 +195,53 @@ it('fails step when action config is missing required fields', function () {
     expect($run->error_message)->toContain('to');
 });
 
+it('marks the failed action step as Failed with error message', function () {
+    Workflow::registerAction('failing_action', get_class(new class implements WorkflowAction {
+        public function execute(array $config, array $context): array
+        {
+            throw new \RuntimeException('Deliberate test failure');
+        }
+        public static function label(): string { return 'Failing Action'; }
+        public static function configSchema(): array { return []; }
+        public static function outputSchema(): array { return []; }
+    }));
+
+    $workflow = WorkflowModel::create([
+        'name' => 'Step Failure Test',
+        'trigger_type' => TriggerType::Manual,
+    ]);
+
+    $trigger = $workflow->nodes()->create([
+        'node_id' => 'trigger-1',
+        'type' => NodeType::Trigger,
+    ]);
+
+    $failNode = $workflow->nodes()->create([
+        'node_id' => 'action-1',
+        'type' => NodeType::Action,
+        'action_type' => 'failing_action',
+        'config' => [],
+    ]);
+
+    $workflow->edges()->create([
+        'edge_id' => 'e1',
+        'source_node_id' => $trigger->id,
+        'target_node_id' => $failNode->id,
+    ]);
+
+    $executor = app(WorkflowExecutor::class);
+    $run = $executor->execute($workflow, []);
+
+    // Run should be failed
+    expect($run->status)->toBe(WorkflowRunStatus::Failed);
+
+    // The action step should be marked as Failed, not Running
+    $step = $run->steps()->where('workflow_node_id', $failNode->id)->first();
+    expect($step)->not->toBeNull();
+    expect($step->status)->toBe(StepStatus::Failed);
+    expect($step->error_message)->toContain('Deliberate test failure');
+});
+
 // Helper functions
 function createLinearWorkflow(): WorkflowModel
 {
