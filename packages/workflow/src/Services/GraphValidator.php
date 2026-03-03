@@ -236,13 +236,12 @@ class GraphValidator
             }
 
             $hasIncoming = ! empty($incoming[$nodeId] ?? []);
-            $hasOutgoing = ! empty($outgoing[$nodeId] ?? []);
 
-            if (! $hasIncoming && ! $hasOutgoing) {
+            if (! $hasIncoming) {
                 $warnings[] = [
                     'type' => 'disconnected',
                     'nodeId' => $nodeId,
-                    'message' => "Node '{$nodeId}' is not connected to any other nodes.",
+                    'message' => 'This block is not connected to the workflow',
                 ];
             }
         }
