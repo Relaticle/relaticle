@@ -77,6 +77,16 @@ class GraphWalker
     }
 
     /**
+     * Get all incoming edges to a given node.
+     *
+     * @return Collection<int, WorkflowEdge>
+     */
+    public function getIncomingEdges(WorkflowNode $node): Collection
+    {
+        return $this->edges->filter(fn (WorkflowEdge $edge) => $edge->target_node_id === $node->id)->values();
+    }
+
+    /**
      * Find a node by its database ID within the loaded node set.
      */
     public function findNodeById(string $nodeId): ?WorkflowNode

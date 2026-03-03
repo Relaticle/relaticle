@@ -242,6 +242,39 @@ it('marks the failed action step as Failed with error message', function () {
     expect($step->error_message)->toContain('Deliberate test failure');
 });
 
+it('handles diamond-shaped condition graph without duplicate step records', function () {
+    $workflow = WorkflowModel::create([
+        'name' => 'Diamond Workflow',
+        'trigger_type' => TriggerType::Manual,
+    ]);
+
+    $trigger = $workflow->nodes()->create(['node_id' => 'trigger-1', 'type' => NodeType::Trigger]);
+    $condition = $workflow->nodes()->create([
+        'node_id' => 'cond-1',
+        'type' => NodeType::Condition,
+        'config' => ['match' => 'all', 'conditions' => [['field' => 'trigger.record.name', 'operator' => 'equals', 'value' => 'yes']]],
+    ]);
+    $yesAction = $workflow->nodes()->create(['node_id' => 'yes-action', 'type' => NodeType::Action, 'action_type' => 'log_message', 'config' => ['message' => 'Yes path']]);
+    $noAction = $workflow->nodes()->create(['node_id' => 'no-action', 'type' => NodeType::Action, 'action_type' => 'log_message', 'config' => ['message' => 'No path']]);
+    $mergeAction = $workflow->nodes()->create(['node_id' => 'merge-action', 'type' => NodeType::Action, 'action_type' => 'log_message', 'config' => ['message' => 'Merged']]);
+
+    $workflow->edges()->create(['edge_id' => 'e1', 'source_node_id' => $trigger->id, 'target_node_id' => $condition->id]);
+    $workflow->edges()->create(['edge_id' => 'e2', 'source_node_id' => $condition->id, 'target_node_id' => $yesAction->id, 'condition_label' => 'yes']);
+    $workflow->edges()->create(['edge_id' => 'e3', 'source_node_id' => $condition->id, 'target_node_id' => $noAction->id, 'condition_label' => 'no']);
+    $workflow->edges()->create(['edge_id' => 'e4', 'source_node_id' => $yesAction->id, 'target_node_id' => $mergeAction->id]);
+    $workflow->edges()->create(['edge_id' => 'e5', 'source_node_id' => $noAction->id, 'target_node_id' => $mergeAction->id]);
+
+    $executor = app(WorkflowExecutor::class);
+    $run = $executor->execute($workflow, ['record' => ['name' => 'yes']]);
+
+    expect($run->status)->toBe(WorkflowRunStatus::Completed);
+
+    // Merge action should have exactly ONE step record (not duplicated)
+    $mergeSteps = $run->steps()->where('workflow_node_id', $mergeAction->id)->get();
+    expect($mergeSteps)->toHaveCount(1);
+    expect($mergeSteps->first()->status)->toBe(StepStatus::Completed);
+});
+
 // Helper functions
 function createLinearWorkflow(): WorkflowModel
 {

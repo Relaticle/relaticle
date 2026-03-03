@@ -531,6 +531,7 @@ class WorkflowExecutor
         WorkflowRun $run,
         array $context,
         \SplQueue $queue,
+        array &$processedNodeIds = [],
     ): void {
         $config = $node->config ?? [];
         $result = $this->evaluateConditionConfig($config, $context);
@@ -552,7 +553,7 @@ class WorkflowExecutor
         if ($skippedEdge !== null) {
             $skippedTarget = $this->findNodeById($walker, $skippedEdge->target_node_id);
             if ($skippedTarget !== null) {
-                $this->markBranchSkipped($walker, $skippedTarget, $run);
+                $this->markBranchSkipped($walker, $skippedTarget, $run, $processedNodeIds);
             }
         }
     }
@@ -561,7 +562,7 @@ class WorkflowExecutor
     /**
      * BFS-walk a skipped branch and mark all reachable nodes as Skipped.
      */
-    private function markBranchSkipped(GraphWalker $walker, WorkflowNode $startNode, WorkflowRun $run): void
+    private function markBranchSkipped(GraphWalker $walker, WorkflowNode $startNode, WorkflowRun $run, array &$processedNodeIds = []): void
     {
         /** @var \SplQueue<WorkflowNode> $queue */
         $queue = new \SplQueue();
@@ -573,7 +574,23 @@ class WorkflowExecutor
             if (in_array($current->id, $visited, true)) {
                 continue;
             }
+
+            // Stop at merge points: if this node has incoming edges from
+            // nodes outside the skipped branch, let the taken branch handle it
+            if ($current->id !== $startNode->id) {
+                $incomingEdges = $walker->getIncomingEdges($current);
+                $hasExternalIncoming = $incomingEdges->contains(
+                    fn ($edge) => ! in_array($edge->source_node_id, $visited, true)
+                );
+                if ($hasExternalIncoming) {
+                    continue;
+                }
+            }
+
             $visited[] = $current->id;
+
+            // Track in parent's processedNodeIds to prevent duplicate processing
+            $processedNodeIds[] = $current->id;
 
             $this->createStep($run, $current, StepStatus::Skipped);
 
@@ -635,7 +652,7 @@ class WorkflowExecutor
     ): bool {
         match ($node->type) {
             NodeType::Action => $this->executeActionNode($node, $walker, $run, $context, $queue),
-            NodeType::Condition => $this->executeConditionNode($node, $walker, $run, $context, $queue),
+            NodeType::Condition => $this->executeConditionNode($node, $walker, $run, $context, $queue, $processedNodeIds),
             NodeType::Delay => $this->handleDelayPause($run, $node, $context),
             NodeType::Loop => $this->executeLoopNode($node, $walker, $run, $context, $processedNodeIds),
             NodeType::Stop => null,
