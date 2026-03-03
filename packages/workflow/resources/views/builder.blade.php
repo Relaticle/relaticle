@@ -17,7 +17,7 @@
                 </a>
                 <div class="wf-name-wrapper">
                     <template x-if="!editingName">
-                        <h1 class="wf-name" x-text="workflowName" @click="editingName = true; $nextTick(() => $refs.nameInput.focus())"></h1>
+                        <h1 class="wf-name" x-text="workflowName" :title="workflowName" @click="editingName = true; $nextTick(() => $refs.nameInput.focus())"></h1>
                     </template>
                     <template x-if="editingName">
                         <input
@@ -184,14 +184,21 @@
                 {{-- Config Panel (shown when a node is selected) --}}
                 <div
                     x-show="panelView === 'config'"
+                    x-cloak
                     x-on:config-panel-close.window="deselectNode()"
                     class="wf-panel-content"
                 >
+                    <div class="wf-panel-header">
+                        <h3 x-text="(selectedNode?.type ? selectedNode.type.charAt(0).toUpperCase() + selectedNode.type.slice(1) : 'Node') + ' Settings'"></h3>
+                        <button type="button" @click="deselectNode()" class="wf-panel-close" title="Close panel">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        </button>
+                    </div>
                     @livewire('workflow-config-panel', ['workflowId' => $workflowId])
                 </div>
 
                 {{-- Settings Panel --}}
-                <div x-show="panelView === 'settings'" class="wf-panel-content">
+                <div x-show="panelView === 'settings'" x-cloak class="wf-panel-content">
                     <div class="wf-panel-header">
                         <h3>Workflow Settings</h3>
                         <button type="button" @click="closePanel()" class="wf-panel-close">
@@ -268,10 +275,10 @@
                 </div>
 
                 {{-- Runs Panel --}}
-                <div x-show="panelView === 'runs'" class="wf-panel-content" x-data="runHistory('{{ $workflowId }}')">
+                <div x-show="panelView === 'runs'" x-cloak class="wf-panel-content" x-data="runHistory('{{ $workflowId }}')">
                     <div class="wf-panel-header">
                         <h3>Run History</h3>
-                        <button type="button" @click="$dispatch('close-panel')" class="wf-panel-close">
+                        <button type="button" @click="panelOpen = false; panelView = null; $dispatch('close-panel')" class="wf-panel-close">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                         </button>
                     </div>

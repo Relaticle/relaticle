@@ -214,8 +214,9 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
             graph.on('cell:added', () => { this.hasNodes = graph.getNodes().length > 0; });
             graph.on('cell:removed', () => { this.hasNodes = graph.getNodes().length > 0; });
 
-            // Track dirty state
-            const markDirty = () => { this.isDirty = true; };
+            // Track dirty state (suppressed during canvas load)
+            this._isLoading = false;
+            const markDirty = () => { if (!this._isLoading) this.isDirty = true; };
             graph.on('cell:added', markDirty);
             graph.on('cell:removed', markDirty);
             graph.on('cell:changed', markDirty);
@@ -228,6 +229,15 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
                 if (this.isDirty) {
                     e.preventDefault();
                     e.returnValue = '';
+                }
+            });
+
+            // SPA navigation guard (Livewire wire:navigate)
+            document.addEventListener('livewire:navigating', (e) => {
+                if (this.isDirty) {
+                    if (!confirm('You have unsaved changes. Leave without saving?')) {
+                        e.preventDefault();
+                    }
                 }
             });
 
@@ -287,6 +297,8 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
                 graph.panning.enablePanning();
             } else {
                 graph.enableSelection();
+                // Right-click and mouseWheel panning still work in pointer mode
+                // but we don't need to disable panning entirely
             }
         },
 
@@ -304,7 +316,10 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
 
         fitToView() {
             const graph = window.__wfGraph;
-            if (graph) graph.zoomToFit({ padding: 60, maxScale: 1.5 });
+            if (graph) {
+                graph.zoomToFit({ padding: 60, maxScale: 1.5 });
+                graph.centerContent();
+            }
         },
 
         // ── Toolbar Actions ──────────────────────────────────
@@ -392,6 +407,7 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
         // ── Canvas Load / Save ───────────────────────────────
 
         async loadCanvas(graph) {
+            this._isLoading = true;
             try {
                 const response = await fetch(`/workflow/api/workflows/${this.workflowId}/canvas`);
                 if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -481,6 +497,9 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
             } catch (error) {
                 console.error('Failed to load canvas:', error);
                 showToast('Failed to load workflow canvas.', 'error');
+            } finally {
+                this._isLoading = false;
+                this.isDirty = false;
             }
         },
 

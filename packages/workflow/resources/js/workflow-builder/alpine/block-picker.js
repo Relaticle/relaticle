@@ -21,6 +21,13 @@ import {
     ICON_FILE_TEXT,
     ICON_TAG,
     ICON_SPARKLES,
+    ICON_CALCULATOR,
+    ICON_BAR_CHART,
+    ICON_CLOCK_UP,
+    ICON_DICE,
+    ICON_MEGAPHONE,
+    ICON_PARTY,
+    ICON_BRACES,
 } from '../icons.js';
 
 const COLORS = {
@@ -34,6 +41,7 @@ const COLORS = {
     communication: '#10b981',
     integration: '#8b5cf6',
     ai: '#a855f7',
+    utility: '#f97316',
 };
 
 export function blockPickerData() {
@@ -66,6 +74,7 @@ export function blockPickerData() {
                 name: 'Communication',
                 blocks: [
                     { type: 'action', label: 'Send Email', description: 'Send an email notification', actionType: 'send_email', icon: ICON_MAIL, color: COLORS.communication },
+                    { type: 'action', label: 'Broadcast Message', description: 'Send a message to multiple recipients', actionType: 'broadcast_message', icon: ICON_MEGAPHONE, color: COLORS.communication },
                 ],
             },
             {
@@ -85,6 +94,17 @@ export function blockPickerData() {
                 name: 'Timing',
                 blocks: [
                     { type: 'delay', label: 'Delay', description: 'Wait before continuing', icon: ICON_DELAY, color: COLORS.delay },
+                ],
+            },
+            {
+                name: 'Utilities',
+                blocks: [
+                    { type: 'action', label: 'Formula', description: 'Calculate a value using an expression', actionType: 'formula', icon: ICON_CALCULATOR, color: COLORS.utility },
+                    { type: 'action', label: 'Aggregate', description: 'Aggregate values from records', actionType: 'aggregate', icon: ICON_BAR_CHART, color: COLORS.utility },
+                    { type: 'action', label: 'Adjust Time', description: 'Add or subtract time from a date', actionType: 'adjust_time', icon: ICON_CLOCK_UP, color: COLORS.utility },
+                    { type: 'action', label: 'Random Number', description: 'Generate a random number', actionType: 'random_number', icon: ICON_DICE, color: COLORS.utility },
+                    { type: 'action', label: 'Parse JSON', description: 'Parse a JSON string into data', actionType: 'parse_json', icon: ICON_BRACES, color: COLORS.utility },
+                    { type: 'action', label: 'Celebration', description: 'Mark a milestone achievement', actionType: 'celebration', icon: ICON_PARTY, color: COLORS.utility },
                 ],
             },
             {
@@ -136,14 +156,30 @@ export function addBlockToGraph(graph, block, sourceNodeId, sourcePortId, positi
     let x = position?.x ?? 300;
     let y = position?.y ?? 200;
 
-    // Position below the source node if one exists
     if (sourceNodeId) {
+        // Connected placement: below the source node
         const sourceNode = graph.getCellById(sourceNodeId);
         if (sourceNode) {
             const pos = sourceNode.getPosition();
             const size = sourceNode.getSize();
             x = pos.x;
             y = pos.y + size.height + 80;
+        }
+    } else if (!position) {
+        // Orphan placement: find the lowest existing node and place below it
+        const nodes = graph.getNodes();
+        if (nodes.length > 0) {
+            let maxY = -Infinity;
+            for (const existingNode of nodes) {
+                const pos = existingNode.getPosition();
+                const size = existingNode.getSize();
+                const bottom = pos.y + size.height;
+                if (bottom > maxY) {
+                    maxY = bottom;
+                    x = pos.x;
+                }
+            }
+            y = maxY + 80;
         }
     }
 
