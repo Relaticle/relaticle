@@ -12,6 +12,14 @@ use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 class VariableResolver
 {
     /**
+     * Attribute names that must never be exposed via workflow variables.
+     */
+    private const SENSITIVE_ATTRIBUTES = [
+        'password', 'remember_token', 'api_token', 'secret',
+        'webhook_secret', 'two_factor_secret', 'two_factor_recovery_codes',
+    ];
+
+    /**
      * Built-in variable resolvers keyed by variable name.
      *
      * @var array<string, callable(): string>
@@ -135,23 +143,28 @@ class VariableResolver
             return $this->resolveCustomField($model, $rest[0]);
         }
 
-        // Try as a standard attribute first
-        if ($model->getConnection()->getSchemaBuilder()->hasColumn($model->getTable(), $first)
-            || array_key_exists($first, $model->getAttributes())
-            || $model->hasGetMutator($first)
-            || $model->hasAttributeMutator($first)
-        ) {
+        // Block access to sensitive attributes
+        if ($this->isSensitiveAttribute($model, $first)) {
+            return '';
+        }
+
+        // Try as an attribute (no schema introspection — use getAttribute directly)
+        try {
             $value = $model->getAttribute($first);
 
-            if (empty($rest)) {
-                return $value;
-            }
+            if ($value !== null || array_key_exists($first, $model->getAttributes())) {
+                if (empty($rest)) {
+                    return $value;
+                }
 
-            if ($value instanceof Model) {
-                return $this->resolveFromModel($value, $rest);
-            }
+                if ($value instanceof Model) {
+                    return $this->resolveFromModel($value, $rest);
+                }
 
-            return data_get($value, implode('.', $rest));
+                return data_get($value, implode('.', $rest));
+            }
+        } catch (\Throwable) {
+            // Attribute access failed, try as relationship
         }
 
         // Try as a relationship
@@ -177,6 +190,18 @@ class VariableResolver
     }
 
     /**
+     * Check if an attribute is sensitive and should not be exposed.
+     */
+    private function isSensitiveAttribute(Model $model, string $attribute): bool
+    {
+        if (in_array($attribute, $model->getHidden(), true)) {
+            return true;
+        }
+
+        return in_array(strtolower($attribute), self::SENSITIVE_ATTRIBUTES, true);
+    }
+
+    /**
      * Resolve a custom field value by its code.
      */
     private function resolveCustomField(Model $model, string $fieldCode): mixed
@@ -186,6 +211,11 @@ class VariableResolver
         }
 
         try {
+            // Eager load custom field values and definitions to prevent N+1 queries
+            if (!$model->relationLoaded('customFieldValues')) {
+                $model->load('customFieldValues.customField');
+            }
+
             $customField = $model->customFields()->where('code', $fieldCode)->first();
 
             if (!$customField) {

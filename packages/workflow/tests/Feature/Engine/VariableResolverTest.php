@@ -111,6 +111,49 @@ it('resolves array configs with model context', function () {
     expect($resolved['subject'])->toBe('Update for Acme');
 });
 
+it('blocks access to hidden model attributes', function () {
+    $model = new class extends \Illuminate\Database\Eloquent\Model {
+        protected $guarded = [];
+        protected $hidden = ['password', 'remember_token', 'secret'];
+        protected $attributes = [
+            'name' => 'John',
+            'password' => 'hashed_password_123',
+            'remember_token' => 'token_abc',
+            'secret' => 'my_secret',
+        ];
+    };
+
+    $context = ['trigger' => ['record' => $model]];
+    $resolver = new VariableResolver();
+
+    // Sensitive attributes must be blocked
+    expect($resolver->resolve('{{trigger.record.password}}', $context))->toBe('');
+    expect($resolver->resolve('{{trigger.record.remember_token}}', $context))->toBe('');
+    expect($resolver->resolve('{{trigger.record.secret}}', $context))->toBe('');
+
+    // Non-sensitive attributes must still work
+    expect($resolver->resolve('{{trigger.record.name}}', $context))->toBe('John');
+});
+
+it('blocks access to common sensitive attribute names even without $hidden', function () {
+    $model = new class extends \Illuminate\Database\Eloquent\Model {
+        protected $guarded = [];
+        protected $attributes = [
+            'name' => 'John',
+            'password' => 'hashed_password_123',
+            'api_token' => 'tok_123',
+            'webhook_secret' => 'whsec_123',
+        ];
+    };
+
+    $context = ['trigger' => ['record' => $model]];
+    $resolver = new VariableResolver();
+
+    expect($resolver->resolve('{{trigger.record.password}}', $context))->toBe('');
+    expect($resolver->resolve('{{trigger.record.api_token}}', $context))->toBe('');
+    expect($resolver->resolve('{{trigger.record.webhook_secret}}', $context))->toBe('');
+});
+
 it('returns empty string for invalid paths on model', function () {
     $company = new TestCompany(['name' => 'Acme']);
 
