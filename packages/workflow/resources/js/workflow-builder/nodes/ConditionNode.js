@@ -1,7 +1,6 @@
 import { Shape } from '@antv/x6';
 import { createNodeHTML, portConfigs } from './BaseNode.js';
-
-const ICON = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>';
+import { ICON_CONDITION } from '../icons.js';
 
 export function registerConditionNode() {
     Shape.HTML.register({
@@ -10,15 +9,22 @@ export function registerConditionNode() {
         height: 88,
         html(cell) {
             const data = cell.getData() || {};
-            const field = data.config?.field || '';
-            const operator = data.config?.operator || '';
-            const summary = field ? `${field} ${operator.replace(/_/g, ' ')}` : 'If / Else';
+            const conditions = data.config?.conditions;
+            let summary = 'If / Else';
+            if (Array.isArray(conditions) && conditions.length > 0) {
+                const first = conditions[0];
+                summary = first.field ? `${first.field} ${(first.operator || '').replace(/_/g, ' ')}` : 'If / Else';
+                if (conditions.length > 1) summary += ` (+${conditions.length - 1} more)`;
+            } else if (data.config?.field) {
+                summary = `${data.config.field} ${(data.config.operator || '').replace(/_/g, ' ')}`;
+            }
             const div = document.createElement('div');
             div.setAttribute('data-test', 'workflow-node');
             div.innerHTML = createNodeHTML(data, {
                 color: '#f59e0b',
-                icon: ICON,
-                label: 'Condition',
+                icon: ICON_CONDITION,
+                label: 'If / Else',
+                category: 'Conditions',
                 summary,
                 description: data.config?.description || '',
             });

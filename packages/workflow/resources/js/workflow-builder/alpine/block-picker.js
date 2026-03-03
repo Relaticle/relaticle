@@ -4,15 +4,24 @@
  * Provides the categorized block picker popover that appears when the user
  * clicks a + button on the canvas. Replaces the old sidebar drag-and-drop.
  */
-
-const ICONS = {
-    trigger: '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>',
-    action: '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>',
-    condition: '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>',
-    delay: '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
-    loop: '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>',
-    stop: '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/></svg>',
-};
+import {
+    ICON_TRIGGER,
+    ICON_CONDITION,
+    ICON_DELAY,
+    ICON_LOOP,
+    ICON_STOP,
+    ICON_FILE_PLUS,
+    ICON_FILE_PEN,
+    ICON_FILE_SEARCH,
+    ICON_FILE_X,
+    ICON_MAIL,
+    ICON_WEBHOOK,
+    ICON_GLOBE,
+    ICON_MESSAGE,
+    ICON_FILE_TEXT,
+    ICON_TAG,
+    ICON_SPARKLES,
+} from '../icons.js';
 
 const COLORS = {
     trigger: '#22c55e',
@@ -21,6 +30,10 @@ const COLORS = {
     delay: '#6b7280',
     loop: '#8b5cf6',
     stop: '#ef4444',
+    record: '#0ea5e9',
+    communication: '#10b981',
+    integration: '#8b5cf6',
+    ai: '#a855f7',
 };
 
 export function blockPickerData() {
@@ -29,34 +42,56 @@ export function blockPickerData() {
             {
                 name: 'Triggers',
                 blocks: [
-                    { type: 'trigger', label: 'Trigger', description: 'Start your workflow', icon: ICONS.trigger, color: COLORS.trigger },
+                    { type: 'trigger', label: 'Trigger', description: 'Start your workflow', icon: ICON_TRIGGER, color: COLORS.trigger },
                 ],
             },
             {
-                name: 'Actions',
+                name: 'Records',
                 blocks: [
-                    { type: 'action', label: 'Send Email', description: 'Send an email notification', actionType: 'send_email', icon: ICONS.action, color: COLORS.action },
-                    { type: 'action', label: 'Send Webhook', description: 'Send data to an external URL', actionType: 'send_webhook', icon: ICONS.action, color: COLORS.action },
-                    { type: 'action', label: 'HTTP Request', description: 'Make an HTTP API call', actionType: 'http_request', icon: ICONS.action, color: COLORS.action },
+                    { type: 'action', label: 'Create Record', description: 'Create a new record', actionType: 'create_record', icon: ICON_FILE_PLUS, color: COLORS.record },
+                    { type: 'action', label: 'Update Record', description: 'Update an existing record', actionType: 'update_record', icon: ICON_FILE_PEN, color: COLORS.record },
+                    { type: 'action', label: 'Find Records', description: 'Search for matching records', actionType: 'find_record', icon: ICON_FILE_SEARCH, color: COLORS.record },
+                    { type: 'action', label: 'Delete Record', description: 'Delete a record', actionType: 'delete_record', icon: ICON_FILE_X, color: COLORS.record },
                 ],
             },
             {
-                name: 'Logic',
+                name: 'AI',
                 blocks: [
-                    { type: 'condition', label: 'If / Else', description: 'Branch based on a condition', icon: ICONS.condition, color: COLORS.condition },
+                    { type: 'action', label: 'Prompt Completion', description: 'Generate AI text from a prompt', actionType: 'prompt_completion', icon: ICON_MESSAGE, color: COLORS.ai },
+                    { type: 'action', label: 'Summarize Record', description: 'Summarize record data with AI', actionType: 'summarize', icon: ICON_FILE_TEXT, color: COLORS.ai },
+                    { type: 'action', label: 'Classify Record', description: 'Classify text into categories', actionType: 'classify', icon: ICON_TAG, color: COLORS.ai },
+                ],
+            },
+            {
+                name: 'Communication',
+                blocks: [
+                    { type: 'action', label: 'Send Email', description: 'Send an email notification', actionType: 'send_email', icon: ICON_MAIL, color: COLORS.communication },
+                ],
+            },
+            {
+                name: 'Integration',
+                blocks: [
+                    { type: 'action', label: 'Send Webhook', description: 'Send data to an external URL', actionType: 'send_webhook', icon: ICON_WEBHOOK, color: COLORS.integration },
+                    { type: 'action', label: 'HTTP Request', description: 'Make an HTTP API call', actionType: 'http_request', icon: ICON_GLOBE, color: COLORS.integration },
+                ],
+            },
+            {
+                name: 'Conditions',
+                blocks: [
+                    { type: 'condition', label: 'If / Else', description: 'Branch based on a condition', icon: ICON_CONDITION, color: COLORS.condition },
                 ],
             },
             {
                 name: 'Timing',
                 blocks: [
-                    { type: 'delay', label: 'Delay', description: 'Wait before continuing', icon: ICONS.delay, color: COLORS.delay },
+                    { type: 'delay', label: 'Delay', description: 'Wait before continuing', icon: ICON_DELAY, color: COLORS.delay },
                 ],
             },
             {
                 name: 'Flow',
                 blocks: [
-                    { type: 'loop', label: 'Loop', description: 'Iterate over a collection', icon: ICONS.loop, color: COLORS.loop },
-                    { type: 'stop', label: 'Stop', description: 'End the workflow', icon: ICONS.stop, color: COLORS.stop },
+                    { type: 'loop', label: 'Loop', description: 'Iterate over a collection', icon: ICON_LOOP, color: COLORS.loop },
+                    { type: 'stop', label: 'Stop', description: 'End the workflow', icon: ICON_STOP, color: COLORS.stop },
                 ],
             },
         ],

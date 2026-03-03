@@ -14,7 +14,8 @@
         "@antv/x6-plugin-minimap": "2.0.7",
         "@antv/x6-plugin-selection": "2.2.2",
         "@antv/x6-plugin-snapline": "2.1.7",
-        "@antv/x6-plugin-stencil": "2.1.5"
+        "@antv/x6-plugin-stencil": "2.1.5",
+        "lucide": "^0.576.0"
     },
     "devDependencies": {
         "vite": "^7.3"

@@ -1,7 +1,6 @@
 import { Shape } from '@antv/x6';
 import { createNodeHTML, portConfigs } from './BaseNode.js';
-
-const ICON = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/></svg>';
+import { ICON_STOP } from '../icons.js';
 
 export function registerStopNode() {
     Shape.HTML.register({
@@ -16,8 +15,9 @@ export function registerStopNode() {
             div.setAttribute('data-test', 'workflow-node');
             div.innerHTML = createNodeHTML(data, {
                 color: '#ef4444',
-                icon: ICON,
+                icon: ICON_STOP,
                 label: 'Stop',
+                category: 'Flow',
                 summary,
                 description: data.config?.description || '',
             });

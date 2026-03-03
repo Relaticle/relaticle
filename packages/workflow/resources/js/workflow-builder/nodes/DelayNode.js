@@ -1,7 +1,6 @@
 import { Shape } from '@antv/x6';
 import { createNodeHTML, portConfigs } from './BaseNode.js';
-
-const ICON = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>';
+import { ICON_DELAY } from '../icons.js';
 
 export function registerDelayNode() {
     Shape.HTML.register({
@@ -17,8 +16,9 @@ export function registerDelayNode() {
             div.setAttribute('data-test', 'workflow-node');
             div.innerHTML = createNodeHTML(data, {
                 color: '#6b7280',
-                icon: ICON,
+                icon: ICON_DELAY,
                 label: 'Delay',
+                category: 'Timing',
                 summary,
                 description: data.config?.description || '',
             });
