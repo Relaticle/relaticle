@@ -109,8 +109,8 @@ function getActionSummary(actionType, config) {
 export function registerActionNode() {
     Shape.HTML.register({
         shape: 'workflow-action',
-        width: 260,
-        height: 82,
+        width: 280,
+        height: 90,
         html(cell) {
             const data = cell.getData() || {};
             const actionType = data.config?.action_type || data.actionType;

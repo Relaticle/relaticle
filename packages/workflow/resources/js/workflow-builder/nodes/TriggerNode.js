@@ -5,8 +5,8 @@ import { ICON_TRIGGER } from '../icons.js';
 export function registerTriggerNode() {
     Shape.HTML.register({
         shape: 'workflow-trigger',
-        width: 260,
-        height: 72,
+        width: 280,
+        height: 82,
         html(cell) {
             const data = cell.getData() || {};
             const event = data.config?.event;

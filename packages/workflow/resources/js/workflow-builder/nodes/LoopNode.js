@@ -5,8 +5,8 @@ import { ICON_LOOP } from '../icons.js';
 export function registerLoopNode() {
     Shape.HTML.register({
         shape: 'workflow-loop',
-        width: 260,
-        height: 72,
+        width: 280,
+        height: 82,
         html(cell) {
             const data = cell.getData() || {};
             const collection = data.config?.collection;

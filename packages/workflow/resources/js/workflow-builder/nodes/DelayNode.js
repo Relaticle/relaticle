@@ -5,8 +5,8 @@ import { ICON_DELAY } from '../icons.js';
 export function registerDelayNode() {
     Shape.HTML.register({
         shape: 'workflow-delay',
-        width: 260,
-        height: 72,
+        width: 280,
+        height: 82,
         html(cell) {
             const data = cell.getData() || {};
             const duration = data.config?.duration;

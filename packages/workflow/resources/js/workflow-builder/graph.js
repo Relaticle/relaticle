@@ -86,6 +86,10 @@ export function createGraph(container, minimapContainer) {
             visible: true,
             size: 20,
             type: 'dot',
+            args: {
+                color: '#e2e8f0',
+                thickness: 1,
+            },
         },
         connecting: {
             router: 'manhattan',
@@ -239,8 +243,8 @@ export function createGraph(container, minimapContainer) {
 
         edge.setLabels([{
             attrs: {
-                label: { text: label, fill: '#fff', fontSize: 11, fontWeight: 600, letterSpacing: 'normal', wordSpacing: 'normal' },
-                rect: { ref: 'label', fill: isYes ? '#22c55e' : '#ef4444', rx: 10, ry: 10, refWidth: '140%', refHeight: '140%', refX: '-20%', refY: '-20%' },
+                label: { text: label, fill: '#94a3b8', fontSize: 11, fontWeight: 500 },
+                rect: { ref: 'label', fill: '#fff', rx: 4, ry: 4, refWidth: '120%', refHeight: '140%', refX: '-10%', refY: '-20%', stroke: '#e2e8f0', strokeWidth: 1 },
             },
         }]);
         edge.attr('line/stroke', isYes ? '#22c55e' : '#ef4444');

@@ -502,8 +502,8 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
                             const labelText = isYes ? 'does match' : 'does not match';
                             autoEdgeConfig.labels = [{
                                 attrs: {
-                                    label: { text: labelText, fill: '#fff', fontSize: 11, fontWeight: 600 },
-                                    rect: { ref: 'label', fill: isYes ? '#22c55e' : '#ef4444', rx: 10, ry: 10, refWidth: '140%', refHeight: '140%', refX: '-20%', refY: '-20%' },
+                                    label: { text: labelText, fill: '#94a3b8', fontSize: 11, fontWeight: 500 },
+                                    rect: { ref: 'label', fill: '#fff', rx: 4, ry: 4, refWidth: '120%', refHeight: '140%', refX: '-10%', refY: '-20%', stroke: '#e2e8f0', strokeWidth: 1 },
                                 },
                             }];
                             autoEdgeConfig.attrs.line.stroke = isYes ? '#22c55e' : '#ef4444';

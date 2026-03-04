@@ -5,8 +5,8 @@ import { ICON_CONDITION } from '../icons.js';
 export function registerConditionNode() {
     Shape.HTML.register({
         shape: 'workflow-condition',
-        width: 260,
-        height: 88,
+        width: 280,
+        height: 96,
         html(cell) {
             const data = cell.getData() || {};
             const conditions = data.config?.conditions;

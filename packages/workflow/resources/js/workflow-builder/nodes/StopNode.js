@@ -5,8 +5,8 @@ import { ICON_STOP } from '../icons.js';
 export function registerStopNode() {
     Shape.HTML.register({
         shape: 'workflow-stop',
-        width: 260,
-        height: 72,
+        width: 280,
+        height: 82,
         html(cell) {
             const data = cell.getData() || {};
             const reason = data.config?.reason;

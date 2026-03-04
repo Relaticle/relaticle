@@ -27,9 +27,9 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    height: 48px;
-    min-height: 48px;
-    padding: 0 12px;
+    height: 52px;
+    min-height: 52px;
+    padding: 0 16px;
     background: #fff;
     border-bottom: 1px solid #e2e8f0;
     gap: 12px;
@@ -251,15 +251,16 @@
     display: flex;
     align-items: center;
     gap: 6px;
-    padding: 6px 16px;
+    padding: 7px 20px;
     font-size: 13px;
     font-weight: 600;
     color: #fff;
     background: #3b82f6;
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
     cursor: pointer;
     transition: all 0.15s;
+    box-shadow: 0 1px 2px rgba(59, 130, 246, 0.3);
 }
 
 .wf-publish-btn:hover:not(:disabled) {
@@ -452,44 +453,44 @@
     width: 100%;
     background: #fff;
     border: 1px solid #e2e8f0;
-    border-radius: 10px;
+    border-radius: 12px;
     overflow: hidden;
     cursor: pointer;
     transition: box-shadow 0.15s, border-color 0.15s;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
 .wf-block:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
     border-color: #cbd5e1;
 }
 
 .dark .wf-block {
     background: #1e293b;
     border-color: #334155;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .dark .wf-block:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
     border-color: #475569;
 }
 
 .wf-block-header {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 8px 12px 4px;
+    gap: 10px;
+    padding: 10px 14px 6px;
 }
 
 .wf-block-icon-box {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 28px;
-    height: 28px;
-    border-radius: 6px;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
     color: #fff;
     flex-shrink: 0;
 }
@@ -502,7 +503,7 @@
 
 .wf-block-label {
     flex: 1;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 600;
     color: #1e293b;
     white-space: nowrap;
@@ -516,19 +517,27 @@
 
 .wf-block-category {
     font-size: 10px;
-    font-weight: 600;
+    font-weight: 500;
     padding: 2px 8px;
     border-radius: 10px;
     white-space: nowrap;
     flex-shrink: 0;
+    background: #f1f5f9;
+    color: #64748b;
+    letter-spacing: 0.02em;
+}
+
+.dark .wf-block-category {
+    background: #334155;
+    color: #94a3b8;
 }
 
 .wf-block-body {
-    padding: 2px 12px 8px;
+    padding: 4px 14px 10px;
 }
 
 .wf-block-summary {
-    font-size: 12px;
+    font-size: 13px;
     color: #64748b;
     white-space: nowrap;
     overflow: hidden;
@@ -542,7 +551,7 @@
 
 .wf-block-desc {
     display: block;
-    margin-top: 2px;
+    margin-top: 4px;
     font-size: 11px;
     color: #94a3b8;
     white-space: nowrap;
@@ -590,12 +599,22 @@
 /* Selected state */
 .x6-node-selected .wf-block {
     border-color: #3b82f6;
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
 }
 
 .dark .x6-node-selected .wf-block {
     border-color: #60a5fa;
-    box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.2);
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.25);
+}
+
+/* Dark mode edge labels */
+.dark .x6-edge-label rect {
+    fill: #1e293b !important;
+    stroke: #334155 !important;
+}
+
+.dark .x6-edge-label text {
+    fill: #94a3b8 !important;
 }
 
 /* Run view states */
@@ -641,11 +660,11 @@
 /* --- Block Picker --- */
 .wf-picker {
     position: fixed;
-    width: 300px;
+    width: 320px;
     max-height: min(400px, calc(100vh - 100px));
     background: #fff;
     border: 1px solid #e2e8f0;
-    border-radius: 10px;
+    border-radius: 12px;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
     z-index: 100;
     display: flex;
@@ -731,9 +750,9 @@
 .wf-picker-item {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
     width: 100%;
-    padding: 8px;
+    padding: 10px 8px;
     font-size: 13px;
     color: #334155;
     background: transparent;
@@ -760,9 +779,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 28px;
-    height: 28px;
-    border-radius: 6px;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
     flex-shrink: 0;
 }
 

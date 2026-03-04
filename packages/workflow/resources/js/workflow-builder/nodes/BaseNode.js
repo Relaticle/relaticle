@@ -48,10 +48,9 @@ export function createNodeHTML(data, options) {
         statusBadge = `<span class="wf-run-badge" style="background:${cfg.bg}; color:${cfg.text}; ${runStatus === 'running' ? 'animation:pulse 2s infinite;' : ''}">${cfg.icon} ${cfg.label}</span>`;
     }
 
-    // Category pill with tinted background matching node color (Attio-style)
-    const rgb = hexToRgb(color);
+    // Category pill with muted gray background (Attio-style)
     const categoryPill = category
-        ? `<span class="wf-block-category" style="background: rgba(${rgb.r},${rgb.g},${rgb.b},0.1); color: ${color}">${category}</span>`
+        ? `<span class="wf-block-category">${category}</span>`
         : '';
 
     // Validation badge (error or warning)
@@ -89,7 +88,7 @@ export const portConfigs = {
             out: {
                 position: 'bottom',
                 attrs: {
-                    circle: { r: 5, magnet: true, stroke: '#94a3b8', strokeWidth: 1.5, fill: '#fff' },
+                    circle: { r: 6, magnet: true, stroke: '#94a3b8', strokeWidth: 1.5, fill: '#fff' },
                 },
             },
         },
@@ -100,13 +99,13 @@ export const portConfigs = {
             in: {
                 position: 'top',
                 attrs: {
-                    circle: { r: 5, magnet: true, stroke: '#94a3b8', strokeWidth: 1.5, fill: '#fff' },
+                    circle: { r: 6, magnet: true, stroke: '#94a3b8', strokeWidth: 1.5, fill: '#fff' },
                 },
             },
             out: {
                 position: 'bottom',
                 attrs: {
-                    circle: { r: 5, magnet: true, stroke: '#94a3b8', strokeWidth: 1.5, fill: '#fff' },
+                    circle: { r: 6, magnet: true, stroke: '#94a3b8', strokeWidth: 1.5, fill: '#fff' },
                 },
             },
         },
@@ -120,7 +119,7 @@ export const portConfigs = {
             in: {
                 position: 'top',
                 attrs: {
-                    circle: { r: 5, magnet: true, stroke: '#94a3b8', strokeWidth: 1.5, fill: '#fff' },
+                    circle: { r: 6, magnet: true, stroke: '#94a3b8', strokeWidth: 1.5, fill: '#fff' },
                 },
             },
         },
@@ -131,20 +130,20 @@ export const portConfigs = {
             in: {
                 position: 'top',
                 attrs: {
-                    circle: { r: 5, magnet: true, stroke: '#94a3b8', strokeWidth: 1.5, fill: '#fff' },
+                    circle: { r: 6, magnet: true, stroke: '#94a3b8', strokeWidth: 1.5, fill: '#fff' },
                 },
             },
             'out-yes': {
                 position: { name: 'absolute', args: { x: '25%', y: '100%' } },
                 attrs: {
-                    circle: { r: 5, magnet: true, stroke: '#22c55e', strokeWidth: 1.5, fill: '#fff' },
+                    circle: { r: 6, magnet: true, stroke: '#22c55e', strokeWidth: 1.5, fill: '#fff' },
                 },
                 label: { position: 'bottom' },
             },
             'out-no': {
                 position: { name: 'absolute', args: { x: '75%', y: '100%' } },
                 attrs: {
-                    circle: { r: 5, magnet: true, stroke: '#ef4444', strokeWidth: 1.5, fill: '#fff' },
+                    circle: { r: 6, magnet: true, stroke: '#ef4444', strokeWidth: 1.5, fill: '#fff' },
                 },
                 label: { position: 'bottom' },
             },

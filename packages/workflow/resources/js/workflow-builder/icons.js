@@ -39,7 +39,7 @@ import {
  * @param {number} size - Rendered size in pixels (default 14)
  * @returns {string} SVG HTML string
  */
-function renderIcon(iconNode, size = 14) {
+function renderIcon(iconNode, size = 18) {
     const children = iconNode
         .map(([tag, attrs]) => {
             const attrStr = Object.entries(attrs)
