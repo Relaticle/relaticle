@@ -93,7 +93,7 @@ class WorkflowExecutor
             $this->failRun($run, $e->getMessage());
         }
 
-        $run->load('steps');
+        $run->load('steps.node');
 
         return $run;
     }
@@ -120,7 +120,7 @@ class WorkflowExecutor
 
         if ($updated === 0) {
             // Already resumed by another process, or not in Paused state
-            $run->load('steps');
+            $run->load('steps.node');
             return $run->fresh();
         }
 
@@ -178,7 +178,7 @@ class WorkflowExecutor
             $this->failRun($run, $e->getMessage());
         }
 
-        $run->load('steps');
+        $run->load('steps.node');
 
         return $run;
     }
@@ -324,10 +324,14 @@ class WorkflowExecutor
                 $output = $action->execute($resolvedConfig, $context);
             }
 
+            $completedAt = Carbon::now();
             $step->update([
                 'status' => StepStatus::Completed,
                 'output_data' => $output,
-                'completed_at' => Carbon::now(),
+                'completed_at' => $completedAt,
+                'duration_ms' => $step->started_at
+                    ? (int) $step->started_at->diffInMilliseconds($completedAt)
+                    : null,
             ]);
 
             // Propagate step output into context for downstream steps
@@ -338,10 +342,14 @@ class WorkflowExecutor
 
             $this->enqueueNextNodes($walker, $node, $queue);
         } catch (\Throwable $e) {
+            $failedAt = Carbon::now();
             $step->update([
                 'status' => StepStatus::Failed,
                 'error_message' => $e->getMessage(),
-                'completed_at' => Carbon::now(),
+                'completed_at' => $failedAt,
+                'duration_ms' => $step->started_at
+                    ? (int) $step->started_at->diffInMilliseconds($failedAt)
+                    : null,
             ]);
 
             throw $e;
