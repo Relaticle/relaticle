@@ -11,12 +11,12 @@ use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
-use Spatie\Sluggable\HasSlug;
-use Spatie\Sluggable\SlugOptions;
 use Laravel\Jetstream\Events\TeamCreated;
 use Laravel\Jetstream\Events\TeamDeleted;
 use Laravel\Jetstream\Events\TeamUpdated;
 use Laravel\Jetstream\Team as JetstreamTeam;
+use Spatie\Sluggable\HasSlug;
+use Spatie\Sluggable\SlugOptions;
 
 /**
  * @property string $name
@@ -28,10 +28,63 @@ final class Team extends JetstreamTeam implements HasAvatar
     use HasFactory;
 
     use HasSlug;
-
     use HasUlids;
 
     public const string SLUG_REGEX = '/^[a-z0-9]+(?:-[a-z0-9]+)*$/';
+
+    /**
+     * Slugs reserved for application routes that must not be used as team slugs.
+     *
+     * @var list<string>
+     */
+    public const array RESERVED_SLUGS = [
+        // Authentication & authorization
+        'login', 'logout', 'register', 'signin', 'signout', 'signup',
+        'auth', 'oauth', 'sso', 'callback',
+        'forgot-password', 'reset-password', 'verify-email', 'confirm-password',
+
+        // Administration
+        'admin', 'administrator', 'dashboard', 'console', 'root', 'super',
+
+        // Account & billing
+        'account', 'billing', 'checkout', 'invoices', 'plan', 'plans',
+        'pricing', 'settings', 'subscription', 'subscriptions',
+
+        // Teams & orgs
+        'teams', 'team', 'org', 'organization', 'workspace', 'invitations', 'invite',
+
+        // App routes
+        'companies', 'people', 'tasks', 'opportunities', 'notes',
+        'api-tokens', 'import-history', 'profile',
+        'opportunities-board', 'tasks-board',
+
+        // Content & info pages
+        'about', 'blog', 'docs', 'documentation', 'faq', 'help', 'support',
+        'privacy-policy', 'terms-of-service', 'legal', 'security', 'changelog',
+        'discord',
+
+        // API & developer
+        'api', 'graphql', 'webhooks', 'developer', 'developers', 'connect',
+
+        // Marketing & public
+        'home', 'welcome', 'features', 'demo', 'enterprise', 'pro',
+        'careers', 'jobs', 'partners', 'affiliate', 'store', 'marketplace',
+
+        // Communication
+        'mail', 'email', 'contact', 'feedback', 'abuse', 'report',
+
+        // Infrastructure & framework
+        'filament', 'livewire', 'storage', 'imports',
+        'up', 'health', 'status', 'metrics',
+        'static', 'assets', 'cdn', 'public', 'uploads',
+        'www', 'ftp', 'ssh', 'dns', 'ns1', 'ns2',
+
+        // Common actions
+        'new', 'create', 'edit', 'delete', 'search', 'explore',
+
+        // Misc
+        'null', 'undefined', 'error', 'test', 'staging', 'preview',
+    ];
 
     /**
      * The attributes that are mass assignable.
