@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use App\Observers\TeamObserver;
 use App\Services\AvatarService;
 use Database\Factories\TeamFactory;
 use Filament\Models\Contracts\HasAvatar;
-use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
+use Spatie\Sluggable\HasSlug;
+use Spatie\Sluggable\SlugOptions;
 use Laravel\Jetstream\Events\TeamCreated;
 use Laravel\Jetstream\Events\TeamDeleted;
 use Laravel\Jetstream\Events\TeamUpdated;
@@ -21,11 +22,12 @@ use Laravel\Jetstream\Team as JetstreamTeam;
  * @property string $name
  * @property string $slug
  */
-#[ObservedBy(TeamObserver::class)]
 final class Team extends JetstreamTeam implements HasAvatar
 {
     /** @use HasFactory<TeamFactory> */
     use HasFactory;
+
+    use HasSlug;
 
     use HasUlids;
 
@@ -63,6 +65,22 @@ final class Team extends JetstreamTeam implements HasAvatar
         return [
             'personal_team' => 'boolean',
         ];
+    }
+
+    public function getSlugOptions(): SlugOptions
+    {
+        return SlugOptions::create()
+            ->generateSlugsFrom(function (): string {
+                $slug = Str::slug($this->name);
+
+                if ($slug === '') {
+                    return Str::lower(Str::random(8));
+                }
+
+                return $slug;
+            })
+            ->saveSlugsTo('slug')
+            ->doNotGenerateSlugsOnUpdate();
     }
 
     public function isPersonalTeam(): bool
