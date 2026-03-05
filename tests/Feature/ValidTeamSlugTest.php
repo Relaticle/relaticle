@@ -69,3 +69,21 @@ it('allows valid non-reserved slugs', function (string $slug) {
     'relaticle',
     'team123',
 ]);
+
+it('allows reserved slug when it matches the ignored value', function () {
+    $validator = Validator::make(
+        ['slug' => 'admin'],
+        ['slug' => [new ValidTeamSlug(ignoreValue: 'admin')]],
+    );
+
+    expect($validator->passes())->toBeTrue();
+});
+
+it('still rejects different reserved slug even with ignored value', function () {
+    $validator = Validator::make(
+        ['slug' => 'login'],
+        ['slug' => [new ValidTeamSlug(ignoreValue: 'admin')]],
+    );
+
+    expect($validator->fails())->toBeTrue();
+});

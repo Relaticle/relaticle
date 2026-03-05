@@ -10,6 +10,10 @@ use Illuminate\Contracts\Validation\ValidationRule;
 
 final readonly class ValidTeamSlug implements ValidationRule
 {
+    public function __construct(
+        private ?string $ignoreValue = null,
+    ) {}
+
     /**
      * @param  Closure(string, ?string=): \Illuminate\Translation\PotentiallyTranslatedString  $fail
      */
@@ -26,6 +30,10 @@ final readonly class ValidTeamSlug implements ValidationRule
         if (! preg_match(Team::SLUG_REGEX, $value)) {
             $fail('The :attribute may only contain lowercase letters, numbers, and hyphens.');
 
+            return;
+        }
+
+        if ($this->ignoreValue !== null && $value === $this->ignoreValue) {
             return;
         }
 

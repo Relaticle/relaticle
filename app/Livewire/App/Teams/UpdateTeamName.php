@@ -62,7 +62,7 @@ final class UpdateTeamName extends BaseLivewireComponent
                             ->string()
                             ->maxLength(255)
                             ->required()
-                            ->rules([new ValidTeamSlug])
+                            ->rules([new ValidTeamSlug(ignoreValue: $this->team->slug)])
                             ->live(onBlur: true)
                             ->afterStateUpdated(function (): void {
                                 $this->slugManuallyEdited = true;
