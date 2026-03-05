@@ -9,6 +9,7 @@ use Relaticle\Workflow\Http\Controllers\RunController;
 use Relaticle\Workflow\Http\Controllers\WebhookTriggerController;
 use Relaticle\Workflow\Http\Controllers\VariableController;
 use Relaticle\Workflow\Http\Controllers\WorkflowApiController;
+use Relaticle\Workflow\Http\Controllers\TemplateController;
 use Relaticle\Workflow\Http\Controllers\WorkflowLifecycleController;
 
 Route::prefix('workflow/api')
@@ -30,4 +31,6 @@ Route::prefix('workflow/api')
         Route::get('workflows/{workflow}/nodes/{node}/available-fields', [FieldController::class, 'availableFields']);
         Route::get('workflows/{workflow}/nodes/{node}/upstream-steps', [FieldController::class, 'upstreamSteps']);
         Route::get('entity-fields/{entityType}', [FieldController::class, 'entityFields']);
+        Route::get('templates', [TemplateController::class, 'index']);
+        Route::get('templates/{template}', [TemplateController::class, 'show']);
     });
