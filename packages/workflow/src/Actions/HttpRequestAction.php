@@ -56,6 +56,11 @@ class HttpRequestAction extends BaseAction
         return 'HTTP Request';
     }
 
+    public static function hasSideEffects(): bool
+    {
+        return true;
+    }
+
     public static function category(): string
     {
         return 'Integration';

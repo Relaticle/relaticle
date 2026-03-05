@@ -81,6 +81,11 @@ class BroadcastMessageAction extends BaseAction
         return 'Broadcast message';
     }
 
+    public static function hasSideEffects(): bool
+    {
+        return true;
+    }
+
     public static function category(): string
     {
         return 'Workspace';

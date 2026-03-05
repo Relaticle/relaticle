@@ -27,6 +27,8 @@ class WorkflowExecutor
 {
     private bool $isPaused = false;
 
+    private bool $dryRun = false;
+
     private ?array $registeredActionsCache = null;
 
     public function __construct(
@@ -34,6 +36,22 @@ class WorkflowExecutor
         private readonly ConditionEvaluator $conditionEvaluator,
         private readonly VariableResolver $variableResolver,
     ) {}
+
+    /**
+     * Execute a workflow in dry-run mode (no side effects).
+     *
+     * @param  array<string, mixed>  $context
+     */
+    public function dryRun(Workflow $workflow, array $context): WorkflowRun
+    {
+        $this->dryRun = true;
+
+        try {
+            return $this->execute($workflow, $context);
+        } finally {
+            $this->dryRun = false;
+        }
+    }
 
     /**
      * Execute a workflow with the given context.
@@ -298,7 +316,13 @@ class WorkflowExecutor
 
             /** @var WorkflowAction $action */
             $action = new $actionClass();
-            $output = $action->execute($resolvedConfig, $context);
+
+            // In dry-run mode, skip actions with side effects
+            if ($this->dryRun && method_exists($actionClass, 'hasSideEffects') && $actionClass::hasSideEffects()) {
+                $output = ['_dry_run' => true, '_skipped' => true, '_reason' => 'Action has side effects'];
+            } else {
+                $output = $action->execute($resolvedConfig, $context);
+            }
 
             $step->update([
                 'status' => StepStatus::Completed,
@@ -347,6 +371,11 @@ class WorkflowExecutor
             'output_data' => $output,
             'completed_at' => Carbon::now(),
         ]);
+
+        // In dry-run mode, don't actually pause or dispatch jobs — just continue
+        if ($this->dryRun) {
+            return;
+        }
 
         // Pause the run and signal the BFS loop to stop
         $run->update(['status' => WorkflowRunStatus::Paused]);
@@ -407,9 +436,18 @@ class WorkflowExecutor
             $items = [];
         }
 
-        $maxIterations = (int) config('workflow.max_loop_iterations', 500);
+        $globalLimit = (int) config('workflow.max_loop_iterations', 500);
+        $nodeLimit = isset($resolvedConfig['max_iterations']) && $resolvedConfig['max_iterations'] !== null && $resolvedConfig['max_iterations'] !== ''
+            ? (int) $resolvedConfig['max_iterations']
+            : $globalLimit;
+        $maxIterations = min($nodeLimit, $globalLimit);
+
         if (count($items) > $maxIterations) {
-            throw new \RuntimeException("Loop exceeds maximum of {$maxIterations} iterations (has " . count($items) . ').');
+            \Illuminate\Support\Facades\Log::warning("Workflow loop limited: collection has " . count($items) . " items but max_iterations is {$maxIterations}. Truncating.", [
+                'workflow_run_id' => $run->id,
+                'node_id' => $node->node_id,
+            ]);
+            $items = array_slice($items, 0, $maxIterations);
         }
 
         // Get the downstream nodes of the loop
@@ -653,7 +691,13 @@ class WorkflowExecutor
         match ($node->type) {
             NodeType::Action => $this->executeActionNode($node, $walker, $run, $context, $queue),
             NodeType::Condition => $this->executeConditionNode($node, $walker, $run, $context, $queue, $processedNodeIds),
-            NodeType::Delay => $this->handleDelayPause($run, $node, $context),
+            NodeType::Delay => (function () use ($run, $node, $context, $walker, $queue) {
+                $this->handleDelayPause($run, $node, $context);
+                // In dry-run mode, delay doesn't pause — continue to next nodes
+                if ($this->dryRun) {
+                    $this->enqueueNextNodes($walker, $node, $queue);
+                }
+            })(),
             NodeType::Loop => $this->executeLoopNode($node, $walker, $run, $context, $processedNodeIds),
             NodeType::Stop => null,
             default => $this->enqueueNextNodes($walker, $node, $queue),

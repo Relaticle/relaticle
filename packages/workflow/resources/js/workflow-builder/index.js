@@ -83,11 +83,16 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
         stepPopover: null,
         totalRunCount: 0,
 
+        // Test run state
+        testRunning: false,
+        testRunResults: null,
+
         // Block picker state
         blockPickerOpen: false,
         blockPickerSearch: '',
         blockPickerPos: { x: 0, y: 0 },
         blockPickerSourceNode: null,
+        blockPickerHighlightKey: '',
 
         // Spread mixins
         ...topBar,
@@ -171,6 +176,10 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
                     return { ...cat, blocks: filteredBlocks };
                 })
                 .filter(cat => cat.blocks.length > 0);
+        },
+
+        get flatPickerBlocks() {
+            return this.filteredCategories.flatMap(cat => cat.blocks);
         },
 
         init() {
@@ -440,10 +449,37 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
                 : y;
             this.blockPickerPos = { x, y: clampedY };
             this.blockPickerSearch = '';
+            this.blockPickerHighlightKey = '';
             this.blockPickerOpen = true;
             this.$nextTick(() => {
                 this.$refs.pickerSearchInput?.focus();
             });
+        },
+
+        pickerKeydown(event) {
+            const flat = this.flatPickerBlocks;
+            if (event.key === 'Escape') {
+                this.blockPickerOpen = false;
+                return;
+            }
+            if (flat.length === 0) return;
+            const keyOf = b => b.type + (b.actionType || '');
+            const currentIdx = flat.findIndex(b => keyOf(b) === this.blockPickerHighlightKey);
+            if (event.key === 'ArrowDown') {
+                event.preventDefault();
+                const nextIdx = currentIdx < flat.length - 1 ? currentIdx + 1 : 0;
+                this.blockPickerHighlightKey = keyOf(flat[nextIdx]);
+                this.$nextTick(() => document.querySelector('.wf-picker-item-hl')?.scrollIntoView({ block: 'nearest' }));
+            } else if (event.key === 'ArrowUp') {
+                event.preventDefault();
+                const prevIdx = currentIdx > 0 ? currentIdx - 1 : flat.length - 1;
+                this.blockPickerHighlightKey = keyOf(flat[prevIdx]);
+                this.$nextTick(() => document.querySelector('.wf-picker-item-hl')?.scrollIntoView({ block: 'nearest' }));
+            } else if (event.key === 'Enter' && this.blockPickerHighlightKey) {
+                event.preventDefault();
+                const block = flat.find(b => keyOf(b) === this.blockPickerHighlightKey);
+                if (block) this.addBlock(block);
+            }
         },
 
         addBlock(block) {
@@ -721,6 +757,46 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
                 showToast('Failed to save. Your changes are preserved.', 'error');
             } finally {
                 this.saving = false;
+            }
+        },
+
+        async runTestRun() {
+            if (this.testRunning) return;
+
+            // Save first if dirty
+            if (this.isDirty) {
+                await this.saveCanvas();
+            }
+
+            this.testRunning = true;
+            this.testRunResults = null;
+
+            try {
+                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
+                const response = await fetch(`/workflow/api/workflows/${this.workflowId}/test-run`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                    },
+                    body: JSON.stringify({ context: {} }),
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    this.testRunResults = data;
+                    showToast(`Test run ${data.status}: ${(data.steps || []).length} step(s) traced.`, data.status === 'completed' ? 'success' : 'error');
+                } else {
+                    this.testRunResults = { status: 'failed', error: data.error || 'Test run failed', steps: [] };
+                    showToast(data.error || 'Test run failed.', 'error');
+                }
+            } catch (err) {
+                console.error('Test run failed:', err);
+                this.testRunResults = { status: 'failed', error: err.message, steps: [] };
+                showToast('Test run failed.', 'error');
+            } finally {
+                this.testRunning = false;
             }
         },
 

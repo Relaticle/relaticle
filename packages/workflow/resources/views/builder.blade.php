@@ -79,6 +79,16 @@
                 </button>
                 <button
                     type="button"
+                    class="wf-topbar-btn"
+                    @click="runTestRun()"
+                    :disabled="testRunning"
+                    title="Test this workflow without side effects"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+                    <span x-text="testRunning ? 'Testing...' : 'Test Run'"></span>
+                </button>
+                <button
+                    type="button"
                     class="wf-publish-btn"
                     @click="publishWorkflow()"
                     :disabled="publishing"
@@ -188,12 +198,6 @@
                     x-on:config-panel-close.window="deselectNode()"
                     class="wf-panel-content"
                 >
-                    <div class="wf-panel-header">
-                        <h3 x-text="(selectedNode?.type ? selectedNode.type.charAt(0).toUpperCase() + selectedNode.type.slice(1) : 'Node') + ' Settings'"></h3>
-                        <button type="button" @click="deselectNode()" class="wf-panel-close" title="Close panel">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                        </button>
-                    </div>
                     @livewire('workflow-config-panel', ['workflowId' => $workflowId])
                 </div>
 
@@ -397,6 +401,7 @@
                     placeholder="Search blocks..."
                     class="wf-picker-input"
                     x-ref="pickerSearchInput"
+                    @keydown="pickerKeydown($event)"
                 >
             </div>
             <div class="wf-picker-categories">
@@ -406,12 +411,13 @@
                         <template x-for="block in category.blocks" :key="block.type + (block.actionType || '')">
                             <button
                                 type="button"
-                                class="wf-picker-item"
+                                :class="['wf-picker-item', block.type + (block.actionType || '') === blockPickerHighlightKey ? 'wf-picker-item-hl' : '']"
                                 @click="addBlock(block)"
+                                @mouseenter="blockPickerHighlightKey = block.type + (block.actionType || '')"
                             >
                                 <span class="wf-picker-icon" :style="'background:' + block.color + '; color: #fff'" x-html="block.icon"></span>
                                 <span class="flex flex-col min-w-0">
-                                    <span class="text-[13px] font-medium" x-text="block.label"></span>
+                                    <span class="text-[13px] font-medium leading-snug" x-text="block.label"></span>
                                     <span class="text-[11px] text-slate-400 dark:text-slate-500 truncate" x-text="block.description"></span>
                                 </span>
                             </button>
@@ -513,6 +519,57 @@
             <div x-show="stepPopover?.step?.error_message" class="text-red-400 text-xs">
                 <h5 class="font-semibold uppercase mb-1">Error</h5>
                 <p x-text="stepPopover?.step?.error_message" class="m-0"></p>
+            </div>
+        </div>
+
+        {{-- Test Run Results Modal --}}
+        <div x-show="testRunResults" x-cloak class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40" @click.self="testRunResults = null">
+            <div class="bg-white dark:bg-slate-800 rounded-xl shadow-2xl w-full max-w-lg max-h-[80vh] flex flex-col overflow-hidden" @click.stop>
+                <div class="flex items-center justify-between px-5 py-3.5 border-b border-slate-200 dark:border-slate-700">
+                    <div class="flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-500"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+                        <h3 class="text-sm font-semibold text-slate-900 dark:text-white m-0">Test Run Results</h3>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs px-2 py-0.5 rounded-full font-medium"
+                            :class="testRunResults?.status === 'completed' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'"
+                            x-text="testRunResults?.status"></span>
+                        <button type="button" @click="testRunResults = null" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 bg-transparent border-0 cursor-pointer p-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="overflow-y-auto flex-1 px-5 py-3">
+                    <template x-if="testRunResults?.error && !testRunResults?.steps?.length">
+                        <div class="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded-lg p-3" x-text="testRunResults.error"></div>
+                    </template>
+                    <template x-for="(step, idx) in (testRunResults?.steps || [])" :key="idx">
+                        <div class="py-2.5 border-b border-slate-100 dark:border-slate-700/50 last:border-0">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-white shrink-0"
+                                    :class="{
+                                        'bg-green-500': step.status === 'completed' && !step.dry_run_skipped,
+                                        'bg-blue-400': step.dry_run_skipped,
+                                        'bg-red-500': step.status === 'failed',
+                                        'bg-gray-400': step.status === 'skipped',
+                                    }" x-text="idx + 1"></span>
+                                <span class="text-sm font-medium text-slate-800 dark:text-slate-200" x-text="step.action_label"></span>
+                                <template x-if="step.dry_run_skipped">
+                                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 font-medium">SKIPPED (side effect)</span>
+                                </template>
+                                <template x-if="step.status === 'skipped'">
+                                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400 font-medium">SKIPPED</span>
+                                </template>
+                            </div>
+                            <template x-if="step.output && !step.dry_run_skipped">
+                                <pre class="text-xs bg-slate-50 dark:bg-slate-900 rounded p-2 mt-1 overflow-x-auto m-0 text-slate-600 dark:text-slate-400" x-text="JSON.stringify(step.output, null, 2)"></pre>
+                            </template>
+                            <template x-if="step.error">
+                                <div class="text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded p-2 mt-1" x-text="step.error"></div>
+                            </template>
+                        </div>
+                    </template>
+                </div>
             </div>
         </div>
 

@@ -90,6 +90,11 @@ class CreateRecordAction extends BaseAction
         return 'Create Record';
     }
 
+    public static function hasSideEffects(): bool
+    {
+        return true;
+    }
+
     public static function category(): string
     {
         return 'Records';

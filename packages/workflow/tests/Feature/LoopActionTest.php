@@ -192,3 +192,113 @@ it('is registered as a built-in action', function () {
     expect($actions)->toHaveKey('loop');
     expect($actions['loop'])->toBe(LoopAction::class);
 });
+
+it('stops loop at global iteration limit and logs warning', function () {
+    config(['workflow.max_loop_iterations' => 3]);
+
+    $workflow = WorkflowModel::create([
+        'name' => 'Loop Limit Test',
+        'trigger_type' => TriggerType::Manual,
+    ]);
+
+    $trigger = $workflow->nodes()->create(['node_id' => 't', 'type' => NodeType::Trigger]);
+    $loop = $workflow->nodes()->create([
+        'node_id' => 'loop',
+        'type' => NodeType::Loop,
+        'config' => ['collection' => 'record.items'],
+    ]);
+    $action = $workflow->nodes()->create([
+        'node_id' => 'action',
+        'type' => NodeType::Action,
+        'action_type' => 'log_message',
+        'config' => ['message' => 'processing'],
+    ]);
+
+    $workflow->edges()->create(['edge_id' => 'e1', 'source_node_id' => $trigger->id, 'target_node_id' => $loop->id]);
+    $workflow->edges()->create(['edge_id' => 'e2', 'source_node_id' => $loop->id, 'target_node_id' => $action->id]);
+
+    $executor = app(WorkflowExecutor::class);
+    $run = $executor->execute($workflow, [
+        'record' => [
+            'items' => ['a', 'b', 'c', 'd', 'e'],
+        ],
+    ]);
+
+    expect($run->status)->toBe(WorkflowRunStatus::Completed);
+
+    // Only 3 action steps (limited from 5)
+    $actionSteps = $run->steps->filter(fn ($s) => $s->node->type === NodeType::Action);
+    expect($actionSteps)->toHaveCount(3);
+});
+
+it('stops loop at per-node max_iterations config', function () {
+    config(['workflow.max_loop_iterations' => 500]);
+
+    $workflow = WorkflowModel::create([
+        'name' => 'Loop Custom Limit Test',
+        'trigger_type' => TriggerType::Manual,
+    ]);
+
+    $trigger = $workflow->nodes()->create(['node_id' => 't', 'type' => NodeType::Trigger]);
+    $loop = $workflow->nodes()->create([
+        'node_id' => 'loop',
+        'type' => NodeType::Loop,
+        'config' => ['collection' => 'record.items', 'max_iterations' => 2],
+    ]);
+    $action = $workflow->nodes()->create([
+        'node_id' => 'action',
+        'type' => NodeType::Action,
+        'action_type' => 'log_message',
+        'config' => ['message' => 'processing'],
+    ]);
+
+    $workflow->edges()->create(['edge_id' => 'e1', 'source_node_id' => $trigger->id, 'target_node_id' => $loop->id]);
+    $workflow->edges()->create(['edge_id' => 'e2', 'source_node_id' => $loop->id, 'target_node_id' => $action->id]);
+
+    $executor = app(WorkflowExecutor::class);
+    $run = $executor->execute($workflow, [
+        'record' => [
+            'items' => ['a', 'b', 'c', 'd', 'e'],
+        ],
+    ]);
+
+    expect($run->status)->toBe(WorkflowRunStatus::Completed);
+
+    $actionSteps = $run->steps->filter(fn ($s) => $s->node->type === NodeType::Action);
+    expect($actionSteps)->toHaveCount(2);
+});
+
+it('uses global limit when per-node limit exceeds it', function () {
+    config(['workflow.max_loop_iterations' => 3]);
+
+    $workflow = WorkflowModel::create([
+        'name' => 'Loop Global Limit Override Test',
+        'trigger_type' => TriggerType::Manual,
+    ]);
+
+    $trigger = $workflow->nodes()->create(['node_id' => 't', 'type' => NodeType::Trigger]);
+    $loop = $workflow->nodes()->create([
+        'node_id' => 'loop',
+        'type' => NodeType::Loop,
+        'config' => ['collection' => 'record.items', 'max_iterations' => 100],
+    ]);
+    $action = $workflow->nodes()->create([
+        'node_id' => 'action',
+        'type' => NodeType::Action,
+        'action_type' => 'log_message',
+        'config' => ['message' => 'processing'],
+    ]);
+
+    $workflow->edges()->create(['edge_id' => 'e1', 'source_node_id' => $trigger->id, 'target_node_id' => $loop->id]);
+    $workflow->edges()->create(['edge_id' => 'e2', 'source_node_id' => $loop->id, 'target_node_id' => $action->id]);
+
+    $executor = app(WorkflowExecutor::class);
+    $run = $executor->execute($workflow, [
+        'record' => ['items' => ['a', 'b', 'c', 'd', 'e']],
+    ]);
+
+    expect($run->status)->toBe(WorkflowRunStatus::Completed);
+
+    $actionSteps = $run->steps->filter(fn ($s) => $s->node->type === NodeType::Action);
+    expect($actionSteps)->toHaveCount(3);
+});

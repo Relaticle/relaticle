@@ -52,6 +52,11 @@ class SendEmailAction extends BaseAction
         return 'Send Email';
     }
 
+    public static function hasSideEffects(): bool
+    {
+        return true;
+    }
+
     public static function category(): string
     {
         return 'Communication';
