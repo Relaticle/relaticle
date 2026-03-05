@@ -92,9 +92,9 @@ it('executes safe actions normally in dry run', function () {
     expect($step->output_data)->not->toHaveKey('_dry_run');
 });
 
-it('skips side-effect actions in dry run', function () {
+it('executes all actions including side-effect actions in test run', function () {
     $workflow = WorkflowModel::create([
-        'name' => 'Dry Run Dangerous',
+        'name' => 'Test Run E2E',
         'trigger_type' => TriggerType::Manual,
     ]);
 
@@ -115,9 +115,10 @@ it('skips side-effect actions in dry run', function () {
 
     $step = $run->steps->first(fn ($s) => $s->node->type === NodeType::Action);
     expect($step->status)->toBe(StepStatus::Completed);
-    expect($step->output_data['_dry_run'])->toBeTrue();
-    expect($step->output_data['_skipped'])->toBeTrue();
-    expect($step->output_data)->not->toHaveKey('danger');
+    // Test run executes everything for real — no simulation
+    expect($step->output_data['executed'])->toBeTrue();
+    expect($step->output_data['danger'])->toBe('real side effect happened');
+    expect($step->output_data)->not->toHaveKey('_dry_run');
 });
 
 it('continues through delay nodes in dry run', function () {

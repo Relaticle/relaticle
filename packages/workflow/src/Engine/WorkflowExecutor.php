@@ -38,7 +38,9 @@ class WorkflowExecutor
     ) {}
 
     /**
-     * Execute a workflow in dry-run mode (no side effects).
+     * Execute a workflow in test/debug mode — real E2E execution with all actions
+     * firing normally. Only delays are skipped (executed instantly) so you don't
+     * have to wait. The run is marked as a test run for identification.
      *
      * @param  array<string, mixed>  $context
      */
@@ -317,12 +319,7 @@ class WorkflowExecutor
             /** @var WorkflowAction $action */
             $action = new $actionClass();
 
-            // In dry-run mode, skip actions with side effects
-            if ($this->dryRun && method_exists($actionClass, 'hasSideEffects') && $actionClass::hasSideEffects()) {
-                $output = ['_dry_run' => true, '_skipped' => true, '_reason' => 'Action has side effects'];
-            } else {
-                $output = $action->execute($resolvedConfig, $context);
-            }
+            $output = $action->execute($resolvedConfig, $context);
 
             $completedAt = Carbon::now();
             $step->update([
