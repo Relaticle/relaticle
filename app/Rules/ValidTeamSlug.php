@@ -8,7 +8,7 @@ use App\Models\Team;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 
-final class ValidTeamSlug implements ValidationRule
+final readonly class ValidTeamSlug implements ValidationRule
 {
     /**
      * @param  Closure(string, ?string=): \Illuminate\Translation\PotentiallyTranslatedString  $fail
