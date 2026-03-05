@@ -108,7 +108,7 @@ class WorkflowResource extends Resource
                     ->action(fn (Workflow $record) => $record->toggleFavorite(auth()->user()))
                     ->width('40px'),
                 TextColumn::make('name')
-                    ->description(fn (Workflow $record): string => $record->description ?? 'No description')
+                    ->description(fn (Workflow $record): ?string => $record->description ?: null)
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('trigger_type')
@@ -122,6 +122,12 @@ class WorkflowResource extends Resource
                     }),
                 TextColumn::make('status')
                     ->badge()
+                    ->formatStateUsing(fn (WorkflowStatus $state): string => match ($state) {
+                        WorkflowStatus::Draft => 'Draft',
+                        WorkflowStatus::Live => 'Live',
+                        WorkflowStatus::Paused => 'Paused',
+                        WorkflowStatus::Archived => 'Archived',
+                    })
                     ->color(fn (WorkflowStatus $state): string => match ($state) {
                         WorkflowStatus::Draft => 'gray',
                         WorkflowStatus::Live => 'success',
@@ -161,6 +167,15 @@ class WorkflowResource extends Resource
                 'status',
                 'trigger_type',
                 Group::make('creator.name')->label('Created By'),
+            ])
+            ->emptyStateHeading('No workflows yet')
+            ->emptyStateDescription('Create your first workflow to automate tasks, send notifications, and streamline your CRM processes.')
+            ->emptyStateIcon('heroicon-o-bolt')
+            ->emptyStateActions([
+                Action::make('create_workflow')
+                    ->label('Create Workflow')
+                    ->icon('heroicon-o-plus')
+                    ->url(static::getUrl('create')),
             ])
             ->defaultSort('created_at', 'desc')
             ->recordUrl(fn (Workflow $record): string => static::getUrl('builder', ['record' => $record]))

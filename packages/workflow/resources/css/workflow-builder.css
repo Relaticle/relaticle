@@ -304,7 +304,7 @@
     overflow: hidden;
     background: #fff;
     border-left: 1px solid #e2e8f0;
-    transition: width 0.2s ease;
+    transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     flex-shrink: 0;
     display: flex;
     flex-direction: column;
@@ -1363,6 +1363,121 @@
     align-items: center;
     gap: 6px;
     flex-wrap: wrap;
+}
+
+/* --- Config Panel Section Headers --- */
+.wf-config-section {
+    margin-bottom: 20px;
+}
+
+.wf-config-section-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin: 0 0 10px 0;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.dark .wf-config-section-title {
+    color: #64748b;
+    border-bottom-color: #1e293b;
+}
+
+/* --- Smoother Edge Rendering --- */
+.x6-graph-svg .x6-edge path {
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.x6-graph-svg .x6-edge:hover path {
+    stroke-width: 2.5;
+    filter: drop-shadow(0 0 3px rgba(59, 130, 246, 0.3));
+}
+
+/* Edge labels — Attio-style pill */
+.x6-edge-label rect {
+    rx: 10;
+    ry: 10;
+}
+
+/* --- Panel Slide Animation (Enhanced) --- */
+.wf-panel-content {
+    opacity: 0;
+    transform: translateX(10px);
+    transition: opacity 0.2s ease 0.05s, transform 0.2s ease 0.05s;
+}
+
+.wf-panel.wf-panel-open .wf-panel-content {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* --- Block Picker Fade-in --- */
+.wf-picker {
+    animation: wf-pickerIn 0.15s ease;
+}
+
+@keyframes wf-pickerIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateY(-4px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* --- Node Selected State (Enhanced) --- */
+.wf-block.wf-selected {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2), 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.dark .wf-block.wf-selected {
+    border-color: #60a5fa;
+    box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.2), 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+/* --- Toolbar Button Active Glow --- */
+.wf-tool-btn.active {
+    background: #eff6ff;
+    color: #3b82f6;
+    box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.2);
+}
+
+.dark .wf-tool-btn.active {
+    background: rgba(59, 130, 246, 0.1);
+    color: #60a5fa;
+    box-shadow: 0 0 0 1px rgba(96, 165, 250, 0.2);
+}
+
+/* --- Run History Step Hover --- */
+.wf-run-step {
+    transition: background 0.1s ease;
+    border-radius: 6px;
+}
+
+.wf-run-step:hover {
+    background: #f8fafc;
+}
+
+.dark .wf-run-step:hover {
+    background: #1e293b;
+}
+
+/* --- Minimap Fade Effect --- */
+.wf-minimap {
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+}
+
+.wf-minimap:hover {
+    opacity: 1;
 }
 
 /* --- Responsive --- */
