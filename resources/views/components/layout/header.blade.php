@@ -42,10 +42,10 @@
                 </nav>
             </div>
 
-            <div class="flex flex-1 items-center justify-end gap-3">
+            <div class="flex flex-1 items-center justify-end gap-2 sm:gap-3">
 
                 <a href="{{ route('login') }}"
-                   class="flex h-9 items-center rounded-lg border border-gray-200
+                   class="hidden sm:flex h-9 items-center rounded-lg border border-gray-200
               bg-white px-5 text-sm font-medium
               transition-all duration-100
               hover:bg-gray-50/50
@@ -54,8 +54,8 @@
                 </a>
 
                 <a href="{{ route('register') }}"
-                   class="flex h-9 items-center rounded-lg border border-primary
-              bg-primary px-5 text-sm font-medium text-white
+                   class="flex h-8 sm:h-9 items-center rounded-lg border border-primary
+              bg-primary px-3.5 sm:px-5 text-xs sm:text-sm font-medium text-white
               transition-all duration-100
               hover:bg-primary/95 hover:shadow-sm hover:ring-2 hover:ring-primary/10">
                     Start for free
@@ -65,7 +65,7 @@
                     <button id="mobile-menu-button"
                             class="p-2 text-gray-500 hover:text-primary transition-colors duration-200"
                             aria-label="Toggle mobile menu">
-                        <x-ri-menu-line class="h-6 w-6"/>
+                        <x-ri-menu-line class="h-5 w-5 sm:h-6 sm:w-6"/>
                     </button>
                 </div>
 

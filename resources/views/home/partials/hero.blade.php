@@ -7,13 +7,6 @@
     {{-- Layer 1: Soft grid --}}
     <div class="absolute inset-0 bg-[linear-gradient(to_right,rgba(0,0,0,0.015)_1px,transparent_1px),linear-gradient(to_bottom,rgba(0,0,0,0.015)_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,rgba(255,255,255,0.025)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.025)_1px,transparent_1px)] bg-[size:3rem_3rem] [mask-image:radial-gradient(ellipse_70%_50%_at_50%_50%,black_30%,transparent_100%)]"></div>
 
-    {{-- Layer 2: Diagonal line frames — left & right --}}
-    <div class="absolute top-0 left-0 h-full w-[100px] pointer-events-none hidden lg:block [mask-image:linear-gradient(to_right,black_20%,transparent_100%)]" aria-hidden="true">
-        <img src="{{ asset('images/hero-lines.svg') }}" alt="" class="h-full w-full object-cover opacity-70 dark:opacity-40"/>
-    </div>
-    <div class="absolute top-0 right-0 h-full w-[100px] pointer-events-none hidden lg:block [mask-image:linear-gradient(to_left,black_20%,transparent_100%)]" aria-hidden="true">
-        <img src="{{ asset('images/hero-lines-right.svg') }}" alt="" class="h-full w-full object-cover opacity-70 dark:opacity-40"/>
-    </div>
 
     {{-- ═══════════════════════════════════════════
          Content
@@ -25,53 +18,39 @@
 
             {{-- ── Heading ── --}}
             <div class="text-center max-w-3xl">
-                <h1 class="hero-enter hero-enter-2 font-display text-[2.5rem] sm:text-5xl md:text-[3.5rem] lg:text-6xl font-bold text-gray-950 dark:text-white leading-[1.08] tracking-[-0.02em] text-pretty">
+                <h1 class="hero-enter hero-enter-2 font-display text-[2rem] sm:text-5xl md:text-[3.5rem] lg:text-6xl font-bold text-gray-950 dark:text-white leading-[1.08] tracking-[-0.03em] text-balance">
                     The Open-Source CRM<br class="hidden sm:block"/>
                     <span class="relative inline-block mt-1">
-                        {{-- Ambient glow --}}
-                        <span class="absolute -inset-x-[15%] bottom-[-0.15em] h-[0.7em] rounded-full bg-primary/[0.05] dark:bg-primary/[0.10] blur-2xl pointer-events-none" aria-hidden="true"></span>
-
-                        {{-- Highlight band --}}
-                        <span class="absolute bottom-[0.02em] left-[-0.02em] right-[-0.02em] h-[0.34em] rounded-full bg-gradient-to-r from-primary/0 via-primary/[0.08] to-primary/0 dark:via-primary/[0.14] pointer-events-none" aria-hidden="true"></span>
-
                         {{-- Accent line --}}
-                        <span class="absolute -bottom-[2px] left-[8%] right-[6%] h-[2px] rounded-full bg-gradient-to-r from-transparent via-primary/25 to-transparent dark:via-primary/40 pointer-events-none" aria-hidden="true"></span>
-
-                        {{-- Shimmer --}}
-                        <span class="absolute -bottom-[2px] left-0 right-0 h-[0.36em] rounded-full overflow-hidden pointer-events-none" aria-hidden="true">
-                            <span class="absolute inset-0 bg-[linear-gradient(105deg,transparent_40%,rgba(255,255,255,0.12)_45%,rgba(255,255,255,0.2)_50%,rgba(255,255,255,0.12)_55%,transparent_60%)] dark:bg-[linear-gradient(105deg,transparent_40%,rgba(255,255,255,0.04)_45%,rgba(255,255,255,0.08)_50%,rgba(255,255,255,0.04)_55%,transparent_60%)] bg-[length:250%_100%] animate-[shimmer-sweep_8s_ease-in-out_infinite]"></span>
-                        </span>
+                        <span class="absolute -bottom-[2px] left-[8%] right-[6%] h-[2px] rounded-full bg-gradient-to-r from-transparent via-primary/20 to-transparent dark:via-primary/35 pointer-events-none" aria-hidden="true"></span>
 
                         {{-- Text --}}
-                        <span class="relative z-10 bg-[linear-gradient(90deg,var(--color-primary-800),var(--color-primary),var(--color-primary-500),var(--color-primary),var(--color-primary-800))] bg-[length:200%_auto] animate-[gradient-shift_14s_ease-in-out_infinite] bg-clip-text text-transparent">Built for AI Agents</span>
-
-                        {{-- Dark mode text glow --}}
-                        <span class="absolute inset-0 z-0 bg-[linear-gradient(90deg,var(--color-primary-800),var(--color-primary),var(--color-primary-500),var(--color-primary),var(--color-primary-800))] bg-[length:200%_auto] animate-[gradient-shift_14s_ease-in-out_infinite] bg-clip-text text-transparent blur-2xl opacity-0 dark:opacity-20 select-none pointer-events-none" aria-hidden="true">Built for AI Agents</span>
+                        <span class="relative z-10 text-primary dark:text-primary-400">Built for AI Agents</span>
                     </span>
                 </h1>
 
-                <p class="hero-enter hero-enter-3 mt-6 text-base sm:text-lg text-gray-500 dark:text-gray-400 max-w-xl mx-auto leading-relaxed tracking-[-0.01em]">
+                <p class="hero-enter hero-enter-3 mt-5 sm:mt-6 text-[15px] sm:text-lg text-gray-500 dark:text-gray-400 max-w-xl mx-auto leading-relaxed tracking-[-0.01em]">
                     MCP-native. Self-hosted. 20 tools for any AI to operate your CRM.<br class="hidden sm:block"/>
                     Full control over your data and your AI.
                 </p>
             </div>
 
             {{-- ── CTA Buttons ── --}}
-            <div class="hero-enter hero-enter-4 flex flex-col sm:flex-row items-center gap-3 mt-2">
+            <div class="hero-enter hero-enter-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-3 w-full sm:w-auto max-w-sm sm:max-w-none mx-auto -mt-2 px-2 sm:px-0">
                 <a href="{{ route('register') }}"
-                   class="group relative flex h-11 items-center gap-2.5 rounded-xl bg-primary px-7 text-sm font-semibold text-white shadow-[0_1px_2px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.12)] hover:shadow-[0_4px_16px_var(--color-primary-500)/25] hover:brightness-110 transition-all duration-300">
-                    <span>Start for free</span>
-                    <x-ri-arrow-right-line class="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-0.5"/>
+                   class="group relative flex h-12 sm:h-[42px] items-center justify-center gap-2 rounded-lg bg-primary px-8 text-sm font-semibold text-white shadow-[0_1px_2px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.1)] hover:shadow-[0_4px_16px_var(--color-primary-500)/20] hover:brightness-110 transition-all duration-200">
+                    <span>Get started</span>
+                    <x-ri-arrow-right-line class="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5"/>
                 </a>
 
                 <a href="https://github.com/relaticle/relaticle" target="_blank"
-                   class="group flex h-11 items-center gap-2.5 rounded-xl border border-gray-200 bg-white px-7 text-sm font-semibold text-gray-700 shadow-[0_1px_2px_rgba(0,0,0,0.04)] hover:shadow-[0_2px_8px_rgba(0,0,0,0.06)] hover:border-gray-300 transition-all duration-300 dark:border-white/[0.08] dark:bg-white/[0.03] dark:text-white dark:hover:bg-white/[0.06] dark:hover:border-white/[0.15]">
+                   class="group flex h-12 sm:h-[42px] items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-8 text-sm font-semibold text-gray-700 shadow-[0_1px_2px_rgba(0,0,0,0.04)] hover:shadow-[0_2px_8px_rgba(0,0,0,0.06)] hover:border-gray-300 transition-all duration-200 dark:border-white/[0.08] dark:bg-white/[0.03] dark:text-white dark:hover:bg-white/[0.06] dark:hover:border-white/[0.15]">
                     <x-ri-github-fill class="h-4 w-4"/>
                     <span>GitHub</span>
                 </a>
             </div>
 
-            {{-- ── App Preview with glow ── --}}
+            {{-- ── App Preview with tabs ── --}}
             <div class="hero-enter hero-enter-5 relative w-full max-w-5xl mt-8 md:mt-12">
 
                 {{-- Multi-color glow behind mockup --}}
@@ -82,9 +61,55 @@
                     <div class="absolute bottom-[0%] right-[10%] w-[35%] h-[40%] rounded-full bg-primary/[0.03] dark:bg-primary/[0.07] blur-[80px]"></div>
                 </div>
 
-                {{-- Perspective wrapper --}}
-                <div class="[perspective:2000px]">
-                    <div class="relative rounded-2xl overflow-hidden border border-gray-200/80 dark:border-white/[0.08] shadow-[0_8px_40px_rgba(0,0,0,0.08),0_1px_3px_rgba(0,0,0,0.04)] dark:shadow-[0_8px_40px_rgba(0,0,0,0.4),0_0_0_1px_rgba(255,255,255,0.05)] transform-gpu hover:[transform:rotateX(1deg)] transition-transform duration-700 ease-out">
+                {{-- ── Decorative framing lines ── --}}
+                {{-- Center vertical line dropping into tabs --}}
+                <div class="hidden md:block absolute left-1/2 -translate-x-1/2 -top-10 w-px h-10 bg-gradient-to-b from-transparent via-gray-200/60 to-gray-200 dark:via-white/[0.04] dark:to-white/[0.08] pointer-events-none" aria-hidden="true"></div>
+                {{-- Full-width horizontal line at top --}}
+                <div class="hidden md:block absolute top-0 left-1/2 -translate-x-1/2 w-[100vw] h-px bg-gray-200 dark:bg-white/[0.08] pointer-events-none" aria-hidden="true"></div>
+                {{-- Left vertical line --}}
+                <div class="hidden md:block absolute top-0 -left-12 w-px bg-gradient-to-b from-gray-200 via-gray-200/60 to-transparent dark:from-white/[0.08] dark:via-white/[0.05] dark:to-transparent pointer-events-none" style="height:70%" aria-hidden="true"></div>
+                {{-- Right vertical line --}}
+                <div class="hidden md:block absolute top-0 -right-12 w-px bg-gradient-to-b from-gray-200 via-gray-200/60 to-transparent dark:from-white/[0.08] dark:via-white/[0.05] dark:to-transparent pointer-events-none" style="height:70%" aria-hidden="true"></div>
+
+                {{-- Feature Tabs --}}
+                <div id="hero-tabs" class="relative z-10 flex items-stretch">
+                    {{-- Solid border under tabs --}}
+                    <div class="absolute bottom-0 left-0 right-0 h-px bg-gray-200 dark:bg-white/[0.08] pointer-events-none" aria-hidden="true"></div>
+                    {{-- Dashed line — full screen width --}}
+                    <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-[100vw] h-px pointer-events-none bg-[repeating-linear-gradient(to_right,theme(colors.gray.200)_0,theme(colors.gray.200)_10px,transparent_10px,transparent_18px)] dark:bg-[repeating-linear-gradient(to_right,rgba(255,255,255,0.08)_0,rgba(255,255,255,0.08)_10px,transparent_10px,transparent_18px)]" aria-hidden="true"></div>
+                    {{-- Sliding active indicator --}}
+                    <div id="hero-tab-indicator" class="hero-tab-indicator absolute bottom-0 h-px bg-primary/80 rounded-full pointer-events-none" aria-hidden="true"></div>
+                    <button type="button" data-hero-tab="companies" class="hero-tab active relative flex-1 py-2.5 sm:py-3 text-xs sm:text-sm font-medium whitespace-nowrap text-gray-800 dark:text-white transition-colors duration-200 cursor-pointer">
+                        Companies
+                    </button>
+                    <div class="w-px self-stretch my-0 bg-gray-200 dark:bg-white/[0.08]" aria-hidden="true"></div>
+                    <button type="button" data-hero-tab="pipeline" class="hero-tab relative flex-1 py-2.5 sm:py-3 text-xs sm:text-sm font-medium whitespace-nowrap text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-200 cursor-pointer">
+                        Pipeline
+                    </button>
+                    <div class="w-px self-stretch my-0 bg-gray-200 dark:bg-white/[0.08]" aria-hidden="true"></div>
+                    <button type="button" data-hero-tab="ai-agent" class="hero-tab relative flex-1 py-2.5 sm:py-3 text-xs sm:text-sm font-medium whitespace-nowrap text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-200 cursor-pointer">
+                        AI Agent
+                    </button>
+                    <div class="w-px self-stretch my-0 bg-gray-200 dark:bg-white/[0.08]" aria-hidden="true"></div>
+                    <button type="button" data-hero-tab="custom-fields" class="hero-tab relative flex-1 py-2.5 sm:py-3 text-xs sm:text-sm font-medium whitespace-nowrap text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-200 cursor-pointer">
+                        <span class="sm:hidden">Fields</span><span class="hidden sm:inline">Custom Fields</span>
+                    </button>
+                </div>
+
+                {{-- Mockup with layered glow border --}}
+                <div class="relative z-10 mt-5 [perspective:2000px]">
+                    {{-- Left vertical line — tabs to mockup --}}
+                    <div class="hidden md:block absolute -top-[110px] lefta-0 w-px h-[120px] bg-gradient-to-b from-transparent via-gray-200/60 to-gray-200 dark:via-white/[0.04] dark:to-white/[0.08] pointer-events-none" aria-hidden="true"></div>
+                    {{-- Right vertical line — tabs to mockup --}}
+                    <div class="hidden md:block absolute -top-[110px] right-0 w-px h-[120px] bg-gradient-to-b from-transparent via-gray-200/60 to-gray-200 dark:via-white/[0.04] dark:to-white/[0.08] pointer-events-none" aria-hidden="true"></div>
+                    {{-- Layer 3: Wide ambient glow --}}
+                    <div class="absolute -inset-3 rounded-3xl bg-gradient-to-b from-black/[0.03] via-black/[0.015] to-transparent dark:from-white/[0.04] dark:via-white/[0.02] dark:to-transparent blur-xl pointer-events-none" aria-hidden="true"></div>
+                    {{-- Layer 2: Medium soft halo --}}
+                    <div class="absolute -inset-[3px] rounded-[18px] bg-gradient-to-b from-gray-300/40 via-gray-200/20 to-gray-100/5 dark:from-white/[0.07] dark:via-white/[0.03] dark:to-transparent blur-[3px] pointer-events-none" aria-hidden="true"></div>
+                    {{-- Layer 1: Crisp thin border --}}
+                    <div class="absolute -inset-px rounded-2xl bg-gradient-to-b from-gray-300/50 via-gray-200/30 to-gray-200/10 dark:from-white/[0.12] dark:via-white/[0.06] dark:to-white/[0.02] pointer-events-none" aria-hidden="true"></div>
+
+                    <div class="relative rounded-2xl overflow-hidden bg-white dark:bg-neutral-950 transform-gpu hover:[transform:rotateX(1deg)] transition-transform duration-700 ease-out">
 
                         {{-- Browser chrome --}}
                         <div class="bg-gradient-to-b from-gray-50 to-gray-100/50 dark:from-neutral-900 dark:to-neutral-900/80 border-b border-gray-200/80 dark:border-white/[0.06] px-4 py-3 flex items-center">
@@ -99,24 +124,52 @@
                             </div>
                         </div>
 
-                        {{-- Screenshot --}}
-                        <div class="relative">
-                            <img id="app-companies-preview-image"
-                                 src="{{ asset('images/app-companies-preview.jpg') }}"
-                                 alt="Relaticle CRM Dashboard"
-                                 class="w-full h-auto"
-                                 width="1200"
-                                 height="675"
-                                 loading="lazy">
+                        {{-- Screenshot panels — each with unique animation --}}
+                        <div class="relative overflow-hidden">
+                            <div id="hero-tab-panel-companies" class="hero-tab-panel" data-animation="fade-up">
+                                <img data-light-src="{{ asset('images/app-companies-preview.jpg') }}"
+                                     data-dark-src="{{ asset('images/app-companies-preview-dark.jpg') }}"
+                                     src="{{ asset('images/app-companies-preview.jpg') }}"
+                                     alt="Relaticle CRM — Companies"
+                                     class="hero-preview-image w-full h-auto"
+                                     width="1200"
+                                     height="675"
+                                     loading="eager">
+                            </div>
+                            <div id="hero-tab-panel-pipeline" class="hero-tab-panel hidden" data-animation="slide-right">
+                                <img data-light-src="{{ asset('images/app-companies-preview.jpg') }}"
+                                     data-dark-src="{{ asset('images/app-companies-preview-dark.jpg') }}"
+                                     src="{{ asset('images/app-companies-preview.jpg') }}"
+                                     alt="Relaticle CRM — Pipeline"
+                                     class="hero-preview-image w-full h-auto"
+                                     width="1200"
+                                     height="675"
+                                     loading="lazy">
+                            </div>
+                            <div id="hero-tab-panel-ai-agent" class="hero-tab-panel hidden" data-animation="scale-in">
+                                <img data-light-src="{{ asset('images/app-companies-preview.jpg') }}"
+                                     data-dark-src="{{ asset('images/app-companies-preview-dark.jpg') }}"
+                                     src="{{ asset('images/app-companies-preview.jpg') }}"
+                                     alt="Relaticle CRM — AI Agent"
+                                     class="hero-preview-image w-full h-auto"
+                                     width="1200"
+                                     height="675"
+                                     loading="lazy">
+                            </div>
+                            <div id="hero-tab-panel-custom-fields" class="hero-tab-panel hidden" data-animation="slide-left">
+                                <img data-light-src="{{ asset('images/app-companies-preview.jpg') }}"
+                                     data-dark-src="{{ asset('images/app-companies-preview-dark.jpg') }}"
+                                     src="{{ asset('images/app-companies-preview.jpg') }}"
+                                     alt="Relaticle CRM — Custom Fields"
+                                     class="hero-preview-image w-full h-auto"
+                                     width="1200"
+                                     height="675"
+                                     loading="lazy">
+                            </div>
                             {{-- Bottom fade overlay --}}
                             <div class="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-white/60 via-white/20 to-transparent dark:from-black/60 dark:via-black/20 dark:to-transparent pointer-events-none"></div>
                         </div>
                     </div>
-                </div>
-
-                {{-- Reflection --}}
-                <div class="hidden md:block relative h-16 mt-1 overflow-hidden pointer-events-none opacity-[0.03] dark:opacity-[0.04]" aria-hidden="true">
-                    <div class="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-gray-400 to-transparent rounded-b-2xl blur-sm [transform:scaleY(-1)]"></div>
                 </div>
             </div>
 
@@ -158,28 +211,101 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        const appPreviewImage = document.getElementById('app-companies-preview-image');
-        const lightImage = "{{ asset('images/app-companies-preview.jpg') }}";
-        const darkImage = "{{ asset('images/app-companies-preview-dark.jpg') }}";
+        var tabs = document.querySelectorAll('.hero-tab');
+        var panels = document.querySelectorAll('.hero-tab-panel');
+        var indicator = document.getElementById('hero-tab-indicator');
+        var previewImages = document.querySelectorAll('.hero-preview-image');
+        var switching = false;
 
-        updateImageSource();
+        // Position the sliding indicator on active tab
+        function moveIndicator(tab) {
+            if (!indicator || !tab) return;
+            indicator.style.left = tab.offsetLeft + 'px';
+            indicator.style.width = tab.offsetWidth + 'px';
+        }
 
-        const observer = new MutationObserver(function (mutations) {
-            mutations.forEach(function (mutation) {
-                if (mutation.attributeName === 'class') {
-                    updateImageSource();
+        // Initialize indicator on first active tab
+        var firstActive = document.querySelector('.hero-tab.active');
+        if (firstActive) moveIndicator(firstActive);
+
+        // Tab click handler
+        tabs.forEach(function (tab) {
+            tab.addEventListener('click', function () {
+                if (switching) return;
+                var target = this.getAttribute('data-hero-tab');
+                var nextPanel = document.getElementById('hero-tab-panel-' + target);
+                if (!nextPanel || !nextPanel.classList.contains('hidden')) return;
+
+                switching = true;
+
+                // Update tab text styles
+                tabs.forEach(function (t) {
+                    t.classList.remove('active', 'text-gray-800', 'dark:text-white');
+                    t.classList.add('text-gray-400', 'dark:text-gray-500');
+                });
+                this.classList.add('active', 'text-gray-800', 'dark:text-white');
+                this.classList.remove('text-gray-400', 'dark:text-gray-500');
+
+                // Slide indicator
+                moveIndicator(this);
+
+                // Find current visible panel
+                var currentPanel = null;
+                panels.forEach(function (p) {
+                    if (!p.classList.contains('hidden')) currentPanel = p;
+                });
+
+                // Animate out current panel
+                if (currentPanel) {
+                    currentPanel.classList.add('is-leaving');
+                    currentPanel.addEventListener('animationend', function handler() {
+                        currentPanel.removeEventListener('animationend', handler);
+                        currentPanel.classList.add('hidden');
+                        currentPanel.classList.remove('is-leaving');
+
+                        // Animate in next panel
+                        nextPanel.classList.remove('hidden');
+                        nextPanel.classList.add('is-entering');
+                        nextPanel.addEventListener('animationend', function handler2() {
+                            nextPanel.removeEventListener('animationend', handler2);
+                            nextPanel.classList.remove('is-entering');
+                            switching = false;
+                        });
+                    });
+                } else {
+                    nextPanel.classList.remove('hidden');
+                    nextPanel.classList.add('is-entering');
+                    nextPanel.addEventListener('animationend', function handler3() {
+                        nextPanel.removeEventListener('animationend', handler3);
+                        nextPanel.classList.remove('is-entering');
+                        switching = false;
+                    });
                 }
             });
         });
 
-        observer.observe(document.documentElement, {attributes: true});
+        // Reposition indicator on resize
+        window.addEventListener('resize', function () {
+            var active = document.querySelector('.hero-tab.active');
+            if (active) moveIndicator(active);
+        });
 
-        function updateImageSource() {
-            if (document.documentElement.classList.contains('dark')) {
-                appPreviewImage.src = darkImage;
-            } else {
-                appPreviewImage.src = lightImage;
-            }
+        // Dark mode image switching
+        function updateAllImages() {
+            var isDark = document.documentElement.classList.contains('dark');
+            previewImages.forEach(function (img) {
+                img.src = isDark ? img.dataset.darkSrc : img.dataset.lightSrc;
+            });
         }
+
+        updateAllImages();
+
+        new MutationObserver(function (mutations) {
+            mutations.forEach(function (mutation) {
+                if (mutation.attributeName === 'class') {
+                    updateAllImages();
+                }
+            });
+        }).observe(document.documentElement, { attributes: true });
     });
 </script>
