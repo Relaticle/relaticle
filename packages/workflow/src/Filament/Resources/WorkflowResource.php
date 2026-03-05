@@ -198,15 +198,25 @@ class WorkflowResource extends Resource
                 'trigger_type',
                 Group::make('creator.name')->label('Created By'),
             ])
-            ->emptyStateHeading('No workflows yet')
+            ->emptyState(function () {
+                $templates = \Relaticle\Workflow\Models\WorkflowTemplate::active()
+                    ->orderBy('sort_order')
+                    ->orderBy('name')
+                    ->limit(8)
+                    ->get();
+
+                if ($templates->isEmpty()) {
+                    return null;
+                }
+
+                return view('workflow::filament.template-empty-state', [
+                    'templates' => $templates,
+                    'createUrl' => static::getUrl('create'),
+                ]);
+            })
+            ->emptyStateHeading('No workflows found')
             ->emptyStateDescription('Create your first workflow to automate tasks, send notifications, and streamline your CRM processes.')
             ->emptyStateIcon('heroicon-o-bolt')
-            ->emptyStateActions([
-                Action::make('create_workflow')
-                    ->label('Create Workflow')
-                    ->icon('heroicon-o-plus')
-                    ->url(static::getUrl('create')),
-            ])
             ->defaultSort('created_at', 'desc')
             ->recordUrl(fn (Workflow $record): string => static::getUrl('builder', ['record' => $record]))
             ->actions([

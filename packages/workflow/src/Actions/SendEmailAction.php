@@ -6,6 +6,7 @@ namespace Relaticle\Workflow\Actions;
 
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\ViewField;
 use Illuminate\Support\Facades\Mail;
 use Relaticle\Workflow\Mail\WorkflowNotification;
 
@@ -88,16 +89,22 @@ class SendEmailAction extends BaseAction
                 ->label('Recipient Email')
                 ->email()
                 ->required()
-                ->placeholder('recipient@example.com'),
+                ->placeholder('recipient@example.com')
+                ->live(onBlur: true),
             TextInput::make('subject')
                 ->label('Subject')
                 ->required()
-                ->placeholder('Notification subject'),
+                ->placeholder('Notification subject')
+                ->live(onBlur: true),
             Textarea::make('body')
                 ->label('Email Body')
                 ->required()
                 ->rows(5)
-                ->placeholder('Email content...'),
+                ->placeholder('Email content...')
+                ->live(onBlur: true),
+            ViewField::make('email_preview')
+                ->label('Preview')
+                ->view('workflow::forms.email-preview'),
         ];
     }
 
