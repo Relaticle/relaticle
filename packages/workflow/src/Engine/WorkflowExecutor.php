@@ -579,8 +579,8 @@ class WorkflowExecutor
         $config = $node->config ?? [];
         $result = $this->evaluateConditionConfig($config, $context);
 
-        $takenLabel = $result ? 'does match' : 'does not match';
-        $skippedLabel = $result ? 'does not match' : 'does match';
+        $takenLabel = $result ? 'Yes' : 'No';
+        $skippedLabel = $result ? 'No' : 'Yes';
 
         // Follow the taken branch
         $takenEdge = $walker->getEdgeByLabel($node, $takenLabel);
@@ -601,6 +601,71 @@ class WorkflowExecutor
         }
     }
 
+
+    /**
+     * Execute a filter node — continue only if condition passes, otherwise stop.
+     */
+    private function executeFilterNode(
+        WorkflowNode $node,
+        GraphWalker $walker,
+        WorkflowRun $run,
+        array $context,
+        \SplQueue $queue,
+    ): void {
+        $config = $node->config ?? [];
+        $result = $this->evaluateConditionConfig($config, $context);
+
+        if ($result) {
+            $this->createStep($run, $node, StepStatus::Completed);
+            $this->enqueueNextNodes($walker, $node, $queue);
+        } else {
+            $this->createStep($run, $node, StepStatus::Skipped);
+            // Filter stops the workflow for this record — don't enqueue next nodes
+        }
+    }
+
+    /**
+     * Execute a switch node — route to branch matching the field value.
+     */
+    private function executeSwitchNode(
+        WorkflowNode $node,
+        GraphWalker $walker,
+        WorkflowRun $run,
+        array $context,
+        \SplQueue $queue,
+    ): void {
+        $config = $node->config ?? [];
+        $field = $config['field'] ?? '';
+        $fieldValue = (string) data_get($context, $field, '');
+        $cases = $config['cases'] ?? [];
+        $hasDefault = $config['hasDefault'] ?? true;
+
+        // Find matching case
+        $matchedLabel = null;
+        foreach ($cases as $case) {
+            if (strcasecmp((string) ($case['value'] ?? ''), $fieldValue) === 0) {
+                $matchedLabel = $case['label'] ?? $case['value'] ?? '';
+                break;
+            }
+        }
+
+        if ($matchedLabel === null && $hasDefault) {
+            $matchedLabel = 'Default';
+        }
+
+        $this->createStep($run, $node, StepStatus::Completed);
+
+        // Route to the edge with the matching label
+        if ($matchedLabel !== null) {
+            $edge = $walker->getEdgeByLabel($node, $matchedLabel);
+            if ($edge !== null) {
+                $target = $this->findNodeById($walker, $edge->target_node_id);
+                if ($target !== null) {
+                    $queue->enqueue($target);
+                }
+            }
+        }
+    }
 
     /**
      * BFS-walk a skipped branch and mark all reachable nodes as Skipped.
@@ -696,6 +761,8 @@ class WorkflowExecutor
         match ($node->type) {
             NodeType::Action => $this->executeActionNode($node, $walker, $run, $context, $queue),
             NodeType::Condition => $this->executeConditionNode($node, $walker, $run, $context, $queue, $processedNodeIds),
+            NodeType::Filter => $this->executeFilterNode($node, $walker, $run, $context, $queue),
+            NodeType::Switch => $this->executeSwitchNode($node, $walker, $run, $context, $queue),
             NodeType::Delay => (function () use ($run, $node, $context, $walker, $queue) {
                 $this->handleDelayPause($run, $node, $context);
                 // In dry-run mode, delay doesn't pause — continue to next nodes

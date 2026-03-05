@@ -26,6 +26,39 @@ function hexToRgb(hex) {
     } : { r: 100, g: 100, b: 100 }; // Neutral mid-gray fallback for invalid hex values
 }
 
+/**
+ * Extract variable references ({{...}}) from a config object and return human-readable labels.
+ */
+export function extractUsedInputs(config) {
+    if (!config) return [];
+    const refs = new Set();
+    const walk = (obj) => {
+        if (typeof obj === 'string') {
+            const matches = obj.matchAll(/\{\{\s*(.+?)\s*\}\}/g);
+            for (const m of matches) {
+                const path = m[1];
+                // Simplify: "trigger.record.name" → "Trigger → name"
+                if (path.startsWith('trigger.record.')) {
+                    refs.add('Trigger → ' + path.split('.').pop());
+                } else if (path.startsWith('steps.')) {
+                    const parts = path.split('.');
+                    refs.add(parts[1] + ' → ' + parts.pop());
+                } else if (path === 'now' || path === 'today') {
+                    refs.add(path);
+                } else {
+                    refs.add(path.split('.').pop());
+                }
+            }
+        } else if (Array.isArray(obj)) {
+            obj.forEach(walk);
+        } else if (obj && typeof obj === 'object') {
+            Object.values(obj).forEach(walk);
+        }
+    };
+    walk(config);
+    return [...refs];
+}
+
 export function createNodeHTML(data, options) {
     const { color, icon, label, summary, description, category } = options;
     const displaySummary = summary || '';
@@ -62,6 +95,12 @@ export function createNodeHTML(data, options) {
         ? '<div class="wf-validation-badge wf-warning-badge" title="Warning">&#x26A0;</div>'
         : '';
 
+    // Used inputs footer
+    const usedInputs = extractUsedInputs(data.config);
+    const inputsFooter = usedInputs.length > 0
+        ? `<div class="wf-block-inputs">${usedInputs.slice(0, 3).map(v => `<span class="wf-var-pill">${v}</span>`).join('')}${usedInputs.length > 3 ? `<span class="wf-var-pill wf-var-more">+${usedInputs.length - 3}</span>` : ''}</div>`
+        : '';
+
     return `
         <div class="wf-block" style="--block-color: ${color}; position: relative;">
             ${statusBadge}
@@ -78,6 +117,7 @@ export function createNodeHTML(data, options) {
                 }
                 ${descHtml}
             </div>
+            ${inputsFooter}
         </div>
     `;
 }

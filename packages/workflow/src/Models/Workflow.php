@@ -33,6 +33,7 @@ class Workflow extends Model
         'last_triggered_at',
         'tenant_id',
         'creator_id',
+        'folder',
     ];
 
     protected $casts = [

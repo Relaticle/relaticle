@@ -16,7 +16,7 @@ it('returns block connection rules for all node types', function () {
     expect($trigger['maxOutgoing'])->toBe(1);
     expect($trigger['maxIncoming'])->toBe(0);
     expect($trigger['isRoot'])->toBeTrue();
-    expect($trigger['allowedTargets'])->toBe(['action', 'condition', 'delay', 'loop']);
+    expect($trigger['allowedTargets'])->toBe(['action', 'condition', 'filter', 'switch', 'delay', 'loop']);
     expect($trigger['allowedSources'])->toBe([]);
 
     // Stop: terminal, 0 outgoing
@@ -28,7 +28,7 @@ it('returns block connection rules for all node types', function () {
     // Condition: 2 outgoing with labels
     $condition = $manifest['blocks']['condition'];
     expect($condition['maxOutgoing'])->toBe(2);
-    expect($condition['edgeLabels'])->toBe(['does match', 'does not match']);
+    expect($condition['edgeLabels'])->toBe(['Yes', 'No']);
 });
 
 it('returns action metadata with required configs', function () {

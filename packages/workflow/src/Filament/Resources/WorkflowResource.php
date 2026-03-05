@@ -18,6 +18,7 @@ use Filament\Actions\EditAction;
 use Filament\Actions\RestoreAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Grouping\Group;
@@ -47,6 +48,10 @@ class WorkflowResource extends Resource
             Textarea::make('description')
                 ->maxLength(1000)
                 ->columnSpanFull(),
+            TextInput::make('folder')
+                ->label('Folder')
+                ->placeholder('e.g. Sales, Marketing, Onboarding...')
+                ->maxLength(100),
             Select::make('trigger_type')
                 ->options([
                     TriggerType::RecordEvent->value => 'Record Event',
@@ -134,6 +139,22 @@ class WorkflowResource extends Resource
                         WorkflowStatus::Paused => 'warning',
                         WorkflowStatus::Archived => 'danger',
                     }),
+                ToggleColumn::make('is_active')
+                    ->label('Active')
+                    ->onColor('success')
+                    ->offColor('gray')
+                    ->updateStateUsing(function (Workflow $record, bool $state) {
+                        $record->update([
+                            'status' => $state ? WorkflowStatus::Live : WorkflowStatus::Paused,
+                        ]);
+                        return $state;
+                    })
+                    ->getStateUsing(fn (Workflow $record): bool => $record->status === WorkflowStatus::Live),
+                TextColumn::make('folder')
+                    ->label('Folder')
+                    ->placeholder('—')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('creator.name')
                     ->label('Created By')
                     ->sortable()
@@ -161,9 +182,18 @@ class WorkflowResource extends Resource
                         TriggerType::Manual->value => 'Manual',
                         TriggerType::Webhook->value => 'Webhook',
                     ]),
+                SelectFilter::make('folder')
+                    ->options(fn () => Workflow::query()
+                        ->whereNotNull('folder')
+                        ->distinct()
+                        ->pluck('folder', 'folder')
+                        ->toArray()
+                    )
+                    ->placeholder('All folders'),
                 TrashedFilter::make(),
             ])
             ->groups([
+                Group::make('folder')->label('Folder')->getTitleFromRecordUsing(fn (Workflow $record) => $record->folder ?: 'Uncategorized'),
                 'status',
                 'trigger_type',
                 Group::make('creator.name')->label('Created By'),

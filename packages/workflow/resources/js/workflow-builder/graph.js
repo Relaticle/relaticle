@@ -249,7 +249,7 @@ export function createGraph(container, minimapContainer) {
 
         const sourcePortId = edge.getSourcePortId();
         const isYes = sourcePortId === 'out-yes';
-        const label = isYes ? 'does match' : 'does not match';
+        const label = isYes ? 'Yes' : 'No';
 
         edge.setLabels([{
             attrs: {

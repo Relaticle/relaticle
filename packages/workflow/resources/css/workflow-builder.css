@@ -576,6 +576,53 @@
     color: #c5cdd8;
 }
 
+/* --- Variable Pills (visual data flow on node cards) --- */
+.wf-block-inputs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 5px 10px 6px;
+    border-top: 1px solid #f1f5f9;
+    background: #fafbfc;
+    border-radius: 0 0 10px 10px;
+}
+
+.dark .wf-block-inputs {
+    border-top-color: #1e293b;
+    background: #0c1525;
+}
+
+.wf-var-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    padding: 1px 6px;
+    font-size: 10px;
+    font-weight: 500;
+    color: #6366f1;
+    background: #eef2ff;
+    border-radius: 4px;
+    white-space: nowrap;
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dark .wf-var-pill {
+    color: #a5b4fc;
+    background: #1e1b4b;
+}
+
+.wf-var-more {
+    color: #94a3b8;
+    background: #f1f5f9;
+}
+
+.dark .wf-var-more {
+    color: #64748b;
+    background: #1e293b;
+}
+
 /* Validation error pulse */
 .wf-block[data-validation-error] .wf-block-icon-box {
     animation: wf-error-pulse 2s infinite;

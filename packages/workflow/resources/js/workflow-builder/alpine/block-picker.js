@@ -28,6 +28,8 @@ import {
     ICON_MEGAPHONE,
     ICON_PARTY,
     ICON_BRACES,
+    ICON_FILTER,
+    ICON_GIT_BRANCH,
 } from '../icons.js';
 
 const COLORS = {
@@ -92,70 +94,72 @@ export function blockPickerData() {
     return {
         categories: [
             {
-                name: 'Triggers',
+                name: 'When something happens...',
                 blocks: [
-                    { type: 'trigger', label: 'Trigger', description: 'Start your workflow', icon: ICON_TRIGGER, color: COLORS.trigger },
+                    { type: 'trigger', label: 'Trigger', description: 'Choose what starts this workflow', icon: ICON_TRIGGER, color: COLORS.trigger },
                 ],
             },
             {
-                name: 'Records',
+                name: 'Work with records',
                 blocks: [
-                    { type: 'action', label: 'Create Record', description: 'Create a new record', actionType: 'create_record', icon: ICON_FILE_PLUS, color: COLORS.record },
-                    { type: 'action', label: 'Update Record', description: 'Update an existing record', actionType: 'update_record', icon: ICON_FILE_PEN, color: COLORS.record },
-                    { type: 'action', label: 'Find Records', description: 'Search for matching records', actionType: 'find_record', icon: ICON_FILE_SEARCH, color: COLORS.record },
-                    { type: 'action', label: 'Delete Record', description: 'Delete a record', actionType: 'delete_record', icon: ICON_FILE_X, color: COLORS.record },
+                    { type: 'action', label: 'Create Record', description: 'Add a new person, company, or deal', actionType: 'create_record', icon: ICON_FILE_PLUS, color: COLORS.record },
+                    { type: 'action', label: 'Update Record', description: 'Change fields on an existing record', actionType: 'update_record', icon: ICON_FILE_PEN, color: COLORS.record },
+                    { type: 'action', label: 'Find Records', description: 'Search for records matching your criteria', actionType: 'find_record', icon: ICON_FILE_SEARCH, color: COLORS.record },
+                    { type: 'action', label: 'Delete Record', description: 'Remove a record permanently', actionType: 'delete_record', icon: ICON_FILE_X, color: COLORS.record },
                 ],
             },
             {
-                name: 'AI',
+                name: 'Use AI',
                 blocks: [
-                    { type: 'action', label: 'Prompt Completion', description: 'Generate AI text from a prompt', actionType: 'prompt_completion', icon: ICON_MESSAGE, color: COLORS.ai },
-                    { type: 'action', label: 'Summarize Record', description: 'Summarize record data with AI', actionType: 'summarize', icon: ICON_FILE_TEXT, color: COLORS.ai },
-                    { type: 'action', label: 'Classify Record', description: 'Classify text into categories', actionType: 'classify', icon: ICON_TAG, color: COLORS.ai },
+                    { type: 'action', label: 'Ask AI', description: 'Get AI-generated text from a prompt you write', actionType: 'prompt_completion', icon: ICON_MESSAGE, color: COLORS.ai },
+                    { type: 'action', label: 'Summarize', description: 'Let AI create a short summary of a record', actionType: 'summarize', icon: ICON_FILE_TEXT, color: COLORS.ai },
+                    { type: 'action', label: 'Classify', description: 'Have AI sort items into categories you define', actionType: 'classify', icon: ICON_TAG, color: COLORS.ai },
                 ],
             },
             {
-                name: 'Communication',
+                name: 'Send notifications',
                 blocks: [
-                    { type: 'action', label: 'Send Email', description: 'Send an email notification', actionType: 'send_email', icon: ICON_MAIL, color: COLORS.communication },
-                    { type: 'action', label: 'Broadcast Message', description: 'Send a message to multiple recipients', actionType: 'broadcast_message', icon: ICON_MEGAPHONE, color: COLORS.communication },
+                    { type: 'action', label: 'Send Email', description: 'Send an email to anyone with a custom message', actionType: 'send_email', icon: ICON_MAIL, color: COLORS.communication },
+                    { type: 'action', label: 'Broadcast', description: 'Notify your whole team at once', actionType: 'broadcast_message', icon: ICON_MEGAPHONE, color: COLORS.communication },
                 ],
             },
             {
-                name: 'Integration',
+                name: 'Connect to other apps',
                 blocks: [
-                    { type: 'action', label: 'Send Webhook', description: 'Send data to an external URL', actionType: 'send_webhook', icon: ICON_WEBHOOK, color: COLORS.integration },
-                    { type: 'action', label: 'HTTP Request', description: 'Make an HTTP API call', actionType: 'http_request', icon: ICON_GLOBE, color: COLORS.integration },
+                    { type: 'action', label: 'Send to Webhook', description: 'Push data to another app via URL', actionType: 'send_webhook', icon: ICON_WEBHOOK, color: COLORS.integration },
+                    { type: 'action', label: 'HTTP Request', description: 'Call any API and use the response', actionType: 'http_request', icon: ICON_GLOBE, color: COLORS.integration },
                 ],
             },
             {
-                name: 'Conditions',
+                name: 'Make decisions',
                 blocks: [
-                    { type: 'condition', label: 'If / Else', description: 'Branch based on a condition', icon: ICON_CONDITION, color: COLORS.condition },
+                    { type: 'filter', label: 'Filter', description: 'Continue only if a condition is met — otherwise stop', icon: ICON_FILTER, color: COLORS.condition },
+                    { type: 'condition', label: 'If / Else', description: 'Take two different paths based on a condition', icon: ICON_CONDITION, color: COLORS.condition },
+                    { type: 'switch', label: 'Switch', description: 'Branch into multiple paths based on a field value', icon: ICON_GIT_BRANCH, color: '#8b5cf6' },
                 ],
             },
             {
-                name: 'Timing',
+                name: 'Control timing',
                 blocks: [
-                    { type: 'delay', label: 'Delay', description: 'Wait before continuing', icon: ICON_DELAY, color: COLORS.delay },
+                    { type: 'delay', label: 'Wait', description: 'Pause the workflow for a set amount of time', icon: ICON_DELAY, color: COLORS.delay },
                 ],
             },
             {
-                name: 'Utilities',
+                name: 'Calculate & transform',
                 blocks: [
-                    { type: 'action', label: 'Formula', description: 'Calculate a value using an expression', actionType: 'formula', icon: ICON_CALCULATOR, color: COLORS.utility },
-                    { type: 'action', label: 'Aggregate', description: 'Aggregate values from records', actionType: 'aggregate', icon: ICON_BAR_CHART, color: COLORS.utility },
-                    { type: 'action', label: 'Adjust Time', description: 'Add or subtract time from a date', actionType: 'adjust_time', icon: ICON_CLOCK_UP, color: COLORS.utility },
-                    { type: 'action', label: 'Random Number', description: 'Generate a random number', actionType: 'random_number', icon: ICON_DICE, color: COLORS.utility },
-                    { type: 'action', label: 'Parse JSON', description: 'Parse a JSON string into data', actionType: 'parse_json', icon: ICON_BRACES, color: COLORS.utility },
-                    { type: 'action', label: 'Celebration', description: 'Mark a milestone achievement', actionType: 'celebration', icon: ICON_PARTY, color: COLORS.utility },
+                    { type: 'action', label: 'Formula', description: 'Calculate a value from your data', actionType: 'formula', icon: ICON_CALCULATOR, color: COLORS.utility },
+                    { type: 'action', label: 'Aggregate', description: 'Sum, average, or count across records', actionType: 'aggregate', icon: ICON_BAR_CHART, color: COLORS.utility },
+                    { type: 'action', label: 'Adjust Date', description: 'Add or subtract time from a date', actionType: 'adjust_time', icon: ICON_CLOCK_UP, color: COLORS.utility },
+                    { type: 'action', label: 'Random Number', description: 'Pick a random number in a range', actionType: 'random_number', icon: ICON_DICE, color: COLORS.utility },
+                    { type: 'action', label: 'Parse JSON', description: 'Extract structured data from a JSON string', actionType: 'parse_json', icon: ICON_BRACES, color: COLORS.utility },
+                    { type: 'action', label: 'Celebration', description: 'Mark a milestone with a fun celebration', actionType: 'celebration', icon: ICON_PARTY, color: COLORS.utility },
                 ],
             },
             {
-                name: 'Flow',
+                name: 'Control flow',
                 blocks: [
-                    { type: 'loop', label: 'Loop', description: 'Iterate over a collection', icon: ICON_LOOP, color: COLORS.loop },
-                    { type: 'stop', label: 'Stop', description: 'End the workflow', icon: ICON_STOP, color: COLORS.stop },
+                    { type: 'loop', label: 'Loop', description: 'Repeat steps for each item in a list', icon: ICON_LOOP, color: COLORS.loop },
+                    { type: 'stop', label: 'Stop', description: 'End the workflow here', icon: ICON_STOP, color: COLORS.stop },
                 ],
             },
         ],
@@ -170,6 +174,8 @@ const SHAPE_MAP = {
     trigger: 'workflow-trigger',
     action: 'workflow-action',
     condition: 'workflow-condition',
+    filter: 'workflow-filter',
+    switch: 'workflow-switch',
     delay: 'workflow-delay',
     loop: 'workflow-loop',
     stop: 'workflow-stop',
@@ -260,6 +266,8 @@ export function addBlockToGraph(graph, block, sourceNodeId, sourcePortId, positi
         formula: {},
         parse_json: {},
         condition: { match: 'all', conditions: [] },
+        filter: { match: 'all', conditions: [] },
+        switch: { field: '', cases: [], hasDefault: true },
         loop: {},
     };
 
@@ -311,7 +319,7 @@ export function addBlockToGraph(graph, block, sourceNodeId, sourcePortId, positi
 
         if (sourceData.type === 'condition') {
             const isYes = portId === 'out-yes';
-            const labelText = isYes ? 'does match' : 'does not match';
+            const labelText = isYes ? 'Yes' : 'No';
             edgeConfig.labels = [{
                 attrs: {
                     label: { text: labelText, fill: '#94a3b8', fontSize: 11, fontWeight: 500 },

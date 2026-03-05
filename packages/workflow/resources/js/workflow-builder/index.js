@@ -13,6 +13,8 @@ import { registerConditionNode } from './nodes/ConditionNode.js';
 import { registerDelayNode } from './nodes/DelayNode.js';
 import { registerLoopNode } from './nodes/LoopNode.js';
 import { registerStopNode } from './nodes/StopNode.js';
+import { registerFilterNode } from './nodes/FilterNode.js';
+import { registerSwitchNode } from './nodes/SwitchNode.js';
 import { validateAllNodes, clearValidationErrors } from './config-panel.js';
 import { organizeLayout } from './toolbar.js';
 import { configPanelComponent } from './alpine/config-panel.js';
@@ -45,6 +47,8 @@ const SHAPE_MAP = {
     trigger: 'workflow-trigger',
     action: 'workflow-action',
     condition: 'workflow-condition',
+    filter: 'workflow-filter',
+    switch: 'workflow-switch',
     delay: 'workflow-delay',
     loop: 'workflow-loop',
     stop: 'workflow-stop',
@@ -190,6 +194,8 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
             registerDelayNode();
             registerLoopNode();
             registerStopNode();
+            registerFilterNode();
+            registerSwitchNode();
 
             // Create graph
             const container = document.getElementById('workflow-canvas');
@@ -535,7 +541,7 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
                         // Add condition labels for auto-connected condition edges
                         if (sourceNode.getData()?.type === 'condition') {
                             const isYes = sourcePort === 'out-yes';
-                            const labelText = isYes ? 'does match' : 'does not match';
+                            const labelText = isYes ? 'Yes' : 'No';
                             autoEdgeConfig.labels = [{
                                 attrs: {
                                     label: { text: labelText, fill: '#94a3b8', fontSize: 11, fontWeight: 500 },
@@ -629,8 +635,7 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
                         const isYes = lower === 'yes' || lower === 'does match';
                         let labelConfig = [];
                         if (label) {
-                            // Normalize legacy "Yes"/"No" labels to Attio-style
-                            const displayLabel = isYes ? 'does match' : 'does not match';
+                            const displayLabel = isYes ? 'Yes' : 'No';
                             labelConfig = [{
                                 attrs: {
                                     label: {

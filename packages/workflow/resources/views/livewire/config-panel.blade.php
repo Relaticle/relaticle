@@ -51,16 +51,33 @@
         </div>
 
         <div class="wf-panel-body">
-            <form wire:submit="saveConfig">
+            <form wire:submit="saveConfig"
+                  x-data="{ saving: false, saved: false, autoSaveTimer: null }"
+                  x-init="
+                      $el.addEventListener('change', () => {
+                          clearTimeout(autoSaveTimer);
+                          saving = true; saved = false;
+                          autoSaveTimer = setTimeout(() => { $wire.saveConfig().then(() => { saving = false; saved = true; setTimeout(() => saved = false, 2000); }); }, 600);
+                      });
+                  "
+            >
                 {{-- Inputs section header --}}
                 <h4 class="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider m-0 mb-3">Inputs</h4>
 
                 {{ $this->form }}
 
-                <div class="mt-5 pt-4 border-t border-gray-100 dark:border-gray-700 flex gap-2">
+                <div class="mt-5 pt-4 border-t border-gray-100 dark:border-gray-700 flex items-center gap-3">
                     <button type="submit" class="wf-publish-btn text-[13px] px-5 py-2">
                         Save
                     </button>
+                    <span x-show="saving" x-cloak class="text-xs text-slate-400 flex items-center gap-1">
+                        <svg class="animate-spin w-3 h-3" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" stroke-dasharray="31.4 31.4" stroke-linecap="round"/></svg>
+                        Saving...
+                    </span>
+                    <span x-show="saved" x-cloak x-transition.opacity.duration.300ms class="text-xs text-green-500 flex items-center gap-1">
+                        <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                        Saved
+                    </span>
                 </div>
             </form>
         </div>
