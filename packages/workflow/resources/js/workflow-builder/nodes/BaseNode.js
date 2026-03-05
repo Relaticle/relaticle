@@ -91,7 +91,7 @@ export const portConfigs = {
             out: {
                 position: 'bottom',
                 attrs: {
-                    circle: { r: 6, magnet: true, stroke: '#94a3b8', strokeWidth: 1.5, fill: '#fff' },
+                    circle: { r: 4, magnet: true, stroke: '#cbd5e1', strokeWidth: 1, fill: '#fff' },
                 },
             },
         },
@@ -102,13 +102,13 @@ export const portConfigs = {
             in: {
                 position: 'top',
                 attrs: {
-                    circle: { r: 6, magnet: true, stroke: '#94a3b8', strokeWidth: 1.5, fill: '#fff' },
+                    circle: { r: 4, magnet: true, stroke: '#cbd5e1', strokeWidth: 1, fill: '#fff' },
                 },
             },
             out: {
                 position: 'bottom',
                 attrs: {
-                    circle: { r: 6, magnet: true, stroke: '#94a3b8', strokeWidth: 1.5, fill: '#fff' },
+                    circle: { r: 4, magnet: true, stroke: '#cbd5e1', strokeWidth: 1, fill: '#fff' },
                 },
             },
         },
@@ -122,7 +122,7 @@ export const portConfigs = {
             in: {
                 position: 'top',
                 attrs: {
-                    circle: { r: 6, magnet: true, stroke: '#94a3b8', strokeWidth: 1.5, fill: '#fff' },
+                    circle: { r: 4, magnet: true, stroke: '#cbd5e1', strokeWidth: 1, fill: '#fff' },
                 },
             },
         },
@@ -133,7 +133,7 @@ export const portConfigs = {
             in: {
                 position: 'top',
                 attrs: {
-                    circle: { r: 6, magnet: true, stroke: '#94a3b8', strokeWidth: 1.5, fill: '#fff' },
+                    circle: { r: 4, magnet: true, stroke: '#cbd5e1', strokeWidth: 1, fill: '#fff' },
                 },
             },
             'out-yes': {

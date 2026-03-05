@@ -523,50 +523,143 @@
         </div>
 
         {{-- Test Run Results Modal --}}
-        <div x-show="testRunResults" x-cloak class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40" @click.self="testRunResults = null">
-            <div class="bg-white dark:bg-slate-800 rounded-xl shadow-2xl w-full max-w-lg max-h-[80vh] flex flex-col overflow-hidden" @click.stop>
-                <div class="flex items-center justify-between px-5 py-3.5 border-b border-slate-200 dark:border-slate-700">
-                    <div class="flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-500"><polygon points="6 3 20 12 6 21 6 3"/></svg>
-                        <h3 class="text-sm font-semibold text-slate-900 dark:text-white m-0">Test Run Results</h3>
-                    </div>
-                    <div class="flex items-center gap-2">
+        {{-- Test Run Slideover --}}
+        <div x-show="testRunResults" x-cloak class="fixed inset-0 z-[9999] flex" @click.self="testRunResults = null">
+            <div class="absolute inset-0 bg-black/20" @click="testRunResults = null"></div>
+            <div class="ml-auto relative w-full max-w-md h-full bg-white dark:bg-slate-800 shadow-2xl flex flex-col"
+                 x-show="testRunResults"
+                 x-transition:enter="transition ease-out duration-200"
+                 x-transition:enter-start="translate-x-full"
+                 x-transition:enter-end="translate-x-0"
+                 x-transition:leave="transition ease-in duration-150"
+                 x-transition:leave-start="translate-x-0"
+                 x-transition:leave-end="translate-x-full"
+                 @click.stop>
+
+                {{-- Header --}}
+                <div class="flex items-center justify-between px-5 py-3.5 border-b border-slate-200 dark:border-slate-700 shrink-0">
+                    <div class="flex items-center gap-2.5">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-500"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+                        <h3 class="text-sm font-semibold text-slate-900 dark:text-white m-0">Test Run</h3>
                         <span class="text-xs px-2 py-0.5 rounded-full font-medium"
                             :class="testRunResults?.status === 'completed' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'"
-                            x-text="testRunResults?.status"></span>
-                        <button type="button" @click="testRunResults = null" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 bg-transparent border-0 cursor-pointer p-1">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                        </button>
+                            x-text="testRunResults?.status === 'completed' ? 'Passed' : 'Failed'"></span>
+                    </div>
+                    <button type="button" @click="testRunResults = null" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 bg-transparent border-0 cursor-pointer p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>
+                </div>
+
+                {{-- Summary bar --}}
+                <div class="px-5 py-2.5 bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700 shrink-0">
+                    <div class="flex items-center gap-4 text-xs text-slate-500 dark:text-slate-400">
+                        <span class="flex items-center gap-1">
+                            <span class="w-2 h-2 rounded-full bg-green-500"></span>
+                            Executed: <span class="font-medium text-slate-700 dark:text-slate-300" x-text="(testRunResults?.steps || []).filter(s => s.status === 'completed' && !s.dry_run_skipped).length"></span>
+                        </span>
+                        <span class="flex items-center gap-1">
+                            <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+                            Simulated: <span class="font-medium text-slate-700 dark:text-slate-300" x-text="(testRunResults?.steps || []).filter(s => s.dry_run_skipped).length"></span>
+                        </span>
+                        <span class="flex items-center gap-1">
+                            <span class="w-2 h-2 rounded-full bg-red-500"></span>
+                            Failed: <span class="font-medium text-slate-700 dark:text-slate-300" x-text="(testRunResults?.steps || []).filter(s => s.status === 'failed').length"></span>
+                        </span>
                     </div>
                 </div>
-                <div class="overflow-y-auto flex-1 px-5 py-3">
-                    <template x-if="testRunResults?.error && !testRunResults?.steps?.length">
+
+                {{-- Info banner --}}
+                <div class="px-5 py-2 bg-blue-50 dark:bg-blue-900/20 border-b border-blue-100 dark:border-blue-800/30 shrink-0">
+                    <p class="text-xs text-blue-600 dark:text-blue-400 m-0">
+                        <strong>Test mode:</strong> Actions that modify data (emails, record updates, webhooks) are simulated — no real changes were made.
+                    </p>
+                </div>
+
+                {{-- Global error --}}
+                <template x-if="testRunResults?.error && !testRunResults?.steps?.length">
+                    <div class="px-5 py-3 shrink-0">
                         <div class="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded-lg p-3" x-text="testRunResults.error"></div>
-                    </template>
+                    </div>
+                </template>
+
+                {{-- Steps --}}
+                <div class="overflow-y-auto flex-1 px-5 py-3">
                     <template x-for="(step, idx) in (testRunResults?.steps || [])" :key="idx">
-                        <div class="py-2.5 border-b border-slate-100 dark:border-slate-700/50 last:border-0">
-                            <div class="flex items-center gap-2 mb-1">
-                                <span class="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-white shrink-0"
-                                    :class="{
-                                        'bg-green-500': step.status === 'completed' && !step.dry_run_skipped,
-                                        'bg-blue-400': step.dry_run_skipped,
-                                        'bg-red-500': step.status === 'failed',
-                                        'bg-gray-400': step.status === 'skipped',
-                                    }" x-text="idx + 1"></span>
-                                <span class="text-sm font-medium text-slate-800 dark:text-slate-200" x-text="step.action_label"></span>
-                                <template x-if="step.dry_run_skipped">
-                                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 font-medium">SKIPPED (side effect)</span>
-                                </template>
-                                <template x-if="step.status === 'skipped'">
-                                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400 font-medium">SKIPPED</span>
-                                </template>
+                        <div class="mb-2.5">
+                            <div class="rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden"
+                                 :class="{ 'border-red-300 dark:border-red-700': step.status === 'failed' }">
+
+                                {{-- Step header --}}
+                                <button type="button"
+                                    class="w-full flex items-center gap-2.5 px-3 py-2.5 bg-transparent border-0 cursor-pointer text-left hover:bg-slate-50 dark:hover:bg-slate-700/50"
+                                    @click="step._expanded = !step._expanded">
+
+                                    <span class="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-white shrink-0"
+                                        :class="{
+                                            'bg-green-500': step.status === 'completed' && !step.dry_run_skipped,
+                                            'bg-amber-400': step.dry_run_skipped,
+                                            'bg-red-500': step.status === 'failed',
+                                            'bg-gray-400': step.status === 'skipped',
+                                        }" x-text="idx + 1"></span>
+
+                                    <div class="flex-1 min-w-0">
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-sm font-medium text-slate-800 dark:text-slate-200 truncate" x-text="step.action_label"></span>
+                                            <template x-if="step.dry_run_skipped">
+                                                <span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 font-medium shrink-0">Simulated</span>
+                                            </template>
+                                            <template x-if="step.status === 'failed'">
+                                                <span class="text-[10px] px-1.5 py-0.5 rounded bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400 font-medium shrink-0">Error</span>
+                                            </template>
+                                        </div>
+                                        <div class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5" x-text="step.node_type + (step.action_type ? ' → ' + step.action_type : '')"></div>
+                                    </div>
+
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                         class="text-slate-400 shrink-0 transition-transform duration-150"
+                                         :class="{ 'rotate-180': step._expanded }">
+                                        <polyline points="6 9 12 15 18 9"></polyline>
+                                    </svg>
+                                </button>
+
+                                {{-- Expanded details --}}
+                                <div x-show="step._expanded" x-collapse class="border-t border-slate-100 dark:border-slate-700">
+                                    {{-- Input data --}}
+                                    <template x-if="step.input && Object.keys(step.input).length">
+                                        <div class="px-3 py-2 border-b border-slate-100 dark:border-slate-700/50">
+                                            <div class="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">Input</div>
+                                            <pre class="text-xs bg-slate-50 dark:bg-slate-900 rounded p-2 overflow-x-auto m-0 text-slate-600 dark:text-slate-400 max-h-32 overflow-y-auto" x-text="JSON.stringify(step.input, null, 2)"></pre>
+                                        </div>
+                                    </template>
+
+                                    {{-- Output data --}}
+                                    <template x-if="step.output && Object.keys(step.output).length">
+                                        <div class="px-3 py-2 border-b border-slate-100 dark:border-slate-700/50">
+                                            <div class="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">
+                                                <span x-text="step.dry_run_skipped ? 'Would produce' : 'Output'"></span>
+                                            </div>
+                                            <pre class="text-xs bg-slate-50 dark:bg-slate-900 rounded p-2 overflow-x-auto m-0 text-slate-600 dark:text-slate-400 max-h-32 overflow-y-auto" x-text="JSON.stringify(Object.fromEntries(Object.entries(step.output).filter(([k]) => !k.startsWith('_'))), null, 2)"></pre>
+                                        </div>
+                                    </template>
+
+                                    {{-- Error --}}
+                                    <template x-if="step.error">
+                                        <div class="px-3 py-2">
+                                            <div class="text-[10px] font-semibold text-red-400 uppercase tracking-wider mb-1">Error</div>
+                                            <div class="text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded p-2" x-text="step.error"></div>
+                                        </div>
+                                    </template>
+
+                                    {{-- Simulated explanation --}}
+                                    <template x-if="step.dry_run_skipped && !step.error">
+                                        <div class="px-3 py-2">
+                                            <div class="text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/10 rounded p-2">
+                                                This action was simulated — in a real run, it would execute and modify data.
+                                            </div>
+                                        </div>
+                                    </template>
+                                </div>
                             </div>
-                            <template x-if="step.output && !step.dry_run_skipped">
-                                <pre class="text-xs bg-slate-50 dark:bg-slate-900 rounded p-2 mt-1 overflow-x-auto m-0 text-slate-600 dark:text-slate-400" x-text="JSON.stringify(step.output, null, 2)"></pre>
-                            </template>
-                            <template x-if="step.error">
-                                <div class="text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded p-2 mt-1" x-text="step.error"></div>
-                            </template>
                         </div>
                     </template>
                 </div>

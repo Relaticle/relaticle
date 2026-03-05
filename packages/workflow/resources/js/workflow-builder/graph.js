@@ -92,10 +92,19 @@ export function createGraph(container, minimapContainer) {
             },
         },
         connecting: {
-            router: 'manhattan',
+            router: {
+                name: 'manhattan',
+                args: {
+                    padding: 10,
+                    step: 10,
+                    startDirections: ['bottom'],
+                    endDirections: ['top'],
+                    excludeTerminals: ['source', 'target'],
+                },
+            },
             connector: {
                 name: 'rounded',
-                args: { radius: 8 },
+                args: { radius: 10 },
             },
             anchor: 'center',
             connectionPoint: 'anchor',
@@ -107,12 +116,13 @@ export function createGraph(container, minimapContainer) {
                 return graph.createEdge({
                     attrs: {
                         line: {
-                            stroke: '#94a3b8',
+                            stroke: '#cbd5e1',
                             strokeWidth: 1.5,
                             targetMarker: {
                                 name: 'block',
-                                width: 10,
-                                height: 6,
+                                width: 8,
+                                height: 5,
+                                fill: '#cbd5e1',
                             },
                         },
                     },
@@ -362,7 +372,7 @@ export function exitRunView(graph) {
 
     // Reset edge styling
     graph.getEdges().forEach(edge => {
-        edge.attr('line/stroke', '#94a3b8');
+        edge.attr('line/stroke', '#cbd5e1');
         edge.attr('line/strokeWidth', 1.5);
         edge.attr('line/strokeDasharray', null);
     });
