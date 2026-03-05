@@ -28,7 +28,7 @@ function hexToRgb(hex) {
 
 export function createNodeHTML(data, options) {
     const { color, icon, label, summary, description, category } = options;
-    const displaySummary = summary || 'Click to configure';
+    const displaySummary = summary || '';
     const descHtml = description
         ? `<span class="wf-block-desc">${description}</span>`
         : '';
@@ -72,7 +72,10 @@ export function createNodeHTML(data, options) {
                 ${categoryPill}
             </div>
             <div class="wf-block-body">
-                <span class="wf-block-summary">${displaySummary}</span>
+                ${displaySummary
+                    ? `<span class="wf-block-summary">${displaySummary}</span>`
+                    : `<span class="wf-block-summary wf-block-no-desc">No description</span>`
+                }
                 ${descHtml}
             </div>
         </div>

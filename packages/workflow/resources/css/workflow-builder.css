@@ -453,7 +453,8 @@
     width: 100%;
     background: #fff;
     border: 1px solid #e2e8f0;
-    border-radius: 12px;
+    border-left: 3px solid var(--block-color, #94a3b8);
+    border-radius: 10px;
     overflow: hidden;
     cursor: pointer;
     transition: box-shadow 0.15s, border-color 0.15s;
@@ -464,33 +465,36 @@
 .wf-block:hover {
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
     border-color: #cbd5e1;
+    border-left-color: var(--block-color, #94a3b8);
 }
 
 .dark .wf-block {
     background: #1e293b;
     border-color: #334155;
+    border-left-color: var(--block-color, #475569);
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .dark .wf-block:hover {
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
     border-color: #475569;
+    border-left-color: var(--block-color, #475569);
 }
 
 .wf-block-header {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 10px 14px 6px;
+    gap: 9px;
+    padding: 10px 12px 5px 10px;
 }
 
 .wf-block-icon-box {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 36px;
-    height: 36px;
-    border-radius: 8px;
+    width: 32px;
+    height: 32px;
+    border-radius: 7px;
     color: #fff;
     flex-shrink: 0;
 }
@@ -518,26 +522,25 @@
 .wf-block-category {
     font-size: 10px;
     font-weight: 500;
-    padding: 2px 8px;
-    border-radius: 10px;
+    padding: 1px 0;
     white-space: nowrap;
     flex-shrink: 0;
-    background: #f1f5f9;
-    color: #64748b;
-    letter-spacing: 0.02em;
+    background: none;
+    color: #94a3b8;
+    letter-spacing: 0.01em;
 }
 
 .dark .wf-block-category {
-    background: #334155;
-    color: #94a3b8;
+    background: none;
+    color: #64748b;
 }
 
 .wf-block-body {
-    padding: 4px 14px 10px;
+    padding: 3px 12px 10px 10px;
 }
 
 .wf-block-summary {
-    font-size: 13px;
+    font-size: 12px;
     color: #64748b;
     white-space: nowrap;
     overflow: hidden;
@@ -545,8 +548,17 @@
     display: block;
 }
 
+.wf-block-no-desc {
+    color: #c1ccd8;
+    font-style: italic;
+}
+
 .dark .wf-block-summary {
     color: #94a3b8;
+}
+
+.dark .wf-block-no-desc {
+    color: #475569;
 }
 
 .wf-block-desc {
@@ -598,13 +610,17 @@
 
 /* Selected state */
 .x6-node-selected .wf-block {
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+    border-color: #93c5fd;
+    border-left-color: var(--block-color, #3b82f6);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    background: #f0f9ff;
 }
 
 .dark .x6-node-selected .wf-block {
-    border-color: #60a5fa;
-    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.25);
+    border-color: #1e40af;
+    border-left-color: var(--block-color, #60a5fa);
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
+    background: #0c1a2e;
 }
 
 /* Dark mode edge labels */
