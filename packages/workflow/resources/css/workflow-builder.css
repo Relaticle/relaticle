@@ -720,36 +720,7 @@
 .wf-error-badge { background: #ef4444; }
 .wf-warning-badge { background: #f59e0b; }
 
-/* --- Block Picker --- */
-.wf-picker {
-    position: fixed;
-    width: 320px;
-    max-height: min(400px, calc(100vh - 100px));
-    background: #fff;
-    border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
-    z-index: 100;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-}
-
-.dark .wf-picker {
-    background: #1e293b;
-    border-color: #334155;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
-}
-
-.wf-picker-search {
-    padding: 10px;
-    border-bottom: 1px solid #e2e8f0;
-    flex-shrink: 0;
-}
-
-.dark .wf-picker-search {
-    border-bottom-color: #334155;
-}
+/* --- Block Picker (in right sidebar) --- */
 
 .wf-picker-input {
     width: 100%;
@@ -1463,20 +1434,13 @@
     transform: translateX(0);
 }
 
-/* --- Block Picker Fade-in --- */
-.wf-picker {
-    animation: wf-pickerIn 0.15s ease;
+/* --- Block Picker Item Highlight --- */
+.wf-picker-item-hl {
+    background: #f1f5f9;
 }
 
-@keyframes wf-pickerIn {
-    from {
-        opacity: 0;
-        transform: scale(0.95) translateY(-4px);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1) translateY(0);
-    }
+.dark .wf-picker-item-hl {
+    background: #334155;
 }
 
 /* --- Node Selected State (Enhanced) --- */

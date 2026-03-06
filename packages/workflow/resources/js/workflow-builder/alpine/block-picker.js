@@ -199,13 +199,13 @@ export function addBlockToGraph(graph, block, sourceNodeId, sourcePortId, positi
     let y = position?.y ?? 200;
 
     if (sourceNodeId) {
-        // Connected placement: below the source node
+        // Connected placement: below the source node, center-aligned
         const sourceNode = graph.getCellById(sourceNodeId);
         if (sourceNode) {
             const pos = sourceNode.getPosition();
             const size = sourceNode.getSize();
-            x = pos.x;
-            y = pos.y + size.height + 80;
+            x = pos.x; // Keep same X for vertical alignment
+            y = pos.y + size.height + 120; // 120px vertical spacing
         }
     } else if (!position) {
         // Orphan placement: find the lowest existing node and place below it
@@ -221,7 +221,7 @@ export function addBlockToGraph(graph, block, sourceNodeId, sourcePortId, positi
                     x = pos.x;
                 }
             }
-            y = maxY + 80;
+            y = maxY + 120;
         }
     }
 
@@ -240,6 +240,7 @@ export function addBlockToGraph(graph, block, sourceNodeId, sourcePortId, positi
         shape,
         x,
         y,
+        zIndex: 10,
         data,
     });
 
@@ -315,6 +316,7 @@ export function addBlockToGraph(graph, block, sourceNodeId, sourcePortId, positi
             id: edgeId,
             source: { cell: sourceNodeId, port: portId },
             target: { cell: nodeId, port: 'in' },
+            zIndex: -1,
         };
 
         if (sourceData.type === 'condition') {
@@ -336,6 +338,10 @@ export function addBlockToGraph(graph, block, sourceNodeId, sourcePortId, positi
         }
 
         graph.addEdge(edgeConfig);
+        // Reorder SVG so edges render behind nodes
+        import('../graph.js').then(({ ensureEdgesBehindNodes }) => {
+            requestAnimationFrame(() => ensureEdgesBehindNodes(graph));
+        });
     }
 
     return node;

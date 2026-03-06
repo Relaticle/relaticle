@@ -139,7 +139,7 @@
                     </div>
                     <h2 class="text-lg font-semibold text-slate-700 dark:text-slate-200 m-0 mb-2 pointer-events-auto">Start building your workflow</h2>
                     <p class="text-sm text-slate-400 m-0 mb-5 pointer-events-auto">Double-click the canvas or use the + button to add your first block.</p>
-                    <button type="button" class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-blue-500 hover:bg-blue-600 border-none rounded-lg cursor-pointer transition-colors pointer-events-auto" @click="openBlockPicker(null, $el.parentElement.getBoundingClientRect().left + $el.parentElement.getBoundingClientRect().width / 2, $el.parentElement.getBoundingClientRect().top + $el.parentElement.getBoundingClientRect().height / 2)">
+                    <button type="button" class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-blue-500 hover:bg-blue-600 border-none rounded-lg cursor-pointer transition-colors pointer-events-auto" @click="openBlockPicker()">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                         Add Trigger
                     </button>
@@ -170,7 +170,7 @@
                     </div>
                     <div class="wf-toolbar-divider"></div>
                     <div class="wf-toolbar-group">
-                        <button type="button" class="wf-tool-btn" @click="(() => { const c = document.getElementById('workflow-canvas'); const r = c.getBoundingClientRect(); openBlockPicker(null, r.left + r.width / 2, r.top + r.height / 2); })()" title="Add Block">
+                        <button type="button" class="wf-tool-btn" @click="openBlockPicker()" title="Add Block">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                         </button>
                         <button type="button" class="wf-tool-btn" @click="organizeBlocks()" title="Auto-organize">
@@ -190,7 +190,7 @@
             </div>
 
             {{-- Right Panel --}}
-            <div class="wf-panel" :class="{ 'wf-panel-open': panelOpen }">
+            <div class="wf-panel" :class="{ 'wf-panel-open': panelOpen || blockPickerOpen }">
                 {{-- Config Panel (shown when a node is selected) --}}
                 <div
                     x-show="panelView === 'config'"
@@ -275,6 +275,50 @@
                                 x-show="workflowStatus === 'live' || workflowStatus === 'paused'"
                             >Archive Workflow</button>
                         </div>
+                    </div>
+                </div>
+
+                {{-- Block Picker Panel (shown when + is clicked) --}}
+                <div x-show="blockPickerOpen" x-cloak class="wf-panel-content">
+                    <div class="wf-panel-header">
+                        <div>
+                            <h3 class="m-0">Next step</h3>
+                            <p class="text-[11px] text-slate-400 dark:text-slate-500 m-0 mt-0.5">Set the next block in the workflow</p>
+                        </div>
+                        <button type="button" @click="blockPickerOpen = false" class="wf-panel-close">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        </button>
+                    </div>
+                    <div class="px-3 py-2 border-b border-slate-100 dark:border-slate-700">
+                        <input
+                            type="text"
+                            x-model="blockPickerSearch"
+                            placeholder="Search blocks..."
+                            class="wf-picker-input"
+                            x-ref="pickerSearchInput"
+                            @keydown="pickerKeydown($event)"
+                        >
+                    </div>
+                    <div class="wf-panel-body" style="padding: 6px;">
+                        <template x-for="category in filteredCategories" :key="category.name">
+                            <div class="wf-picker-category">
+                                <div class="wf-picker-category-name" x-text="category.name"></div>
+                                <template x-for="block in category.blocks" :key="block.type + (block.actionType || '')">
+                                    <button
+                                        type="button"
+                                        :class="['wf-picker-item', block.type + (block.actionType || '') === blockPickerHighlightKey ? 'wf-picker-item-hl' : '']"
+                                        @click="addBlock(block)"
+                                        @mouseenter="blockPickerHighlightKey = block.type + (block.actionType || '')"
+                                    >
+                                        <span class="wf-picker-icon" :style="'background:' + block.color + '; color: #fff'" x-html="block.icon"></span>
+                                        <span class="flex flex-col min-w-0">
+                                            <span class="text-[13px] font-medium leading-snug" x-text="block.label"></span>
+                                            <span class="text-[11px] text-slate-400 dark:text-slate-500 truncate" x-text="block.description"></span>
+                                        </span>
+                                    </button>
+                                </template>
+                            </div>
+                        </template>
                     </div>
                 </div>
 
@@ -386,46 +430,7 @@
             </div>
         </div>
 
-        {{-- Block Picker Popover --}}
-        <div
-            x-show="blockPickerOpen"
-            x-transition
-            class="wf-picker"
-            :style="'left:' + blockPickerPos.x + 'px; top:' + blockPickerPos.y + 'px'"
-            @click.outside="blockPickerOpen = false"
-        >
-            <div class="wf-picker-search">
-                <input
-                    type="text"
-                    x-model="blockPickerSearch"
-                    placeholder="Search blocks..."
-                    class="wf-picker-input"
-                    x-ref="pickerSearchInput"
-                    @keydown="pickerKeydown($event)"
-                >
-            </div>
-            <div class="wf-picker-categories">
-                <template x-for="category in filteredCategories" :key="category.name">
-                    <div class="wf-picker-category">
-                        <div class="wf-picker-category-name" x-text="category.name"></div>
-                        <template x-for="block in category.blocks" :key="block.type + (block.actionType || '')">
-                            <button
-                                type="button"
-                                :class="['wf-picker-item', block.type + (block.actionType || '') === blockPickerHighlightKey ? 'wf-picker-item-hl' : '']"
-                                @click="addBlock(block)"
-                                @mouseenter="blockPickerHighlightKey = block.type + (block.actionType || '')"
-                            >
-                                <span class="wf-picker-icon" :style="'background:' + block.color + '; color: #fff'" x-html="block.icon"></span>
-                                <span class="flex flex-col min-w-0">
-                                    <span class="text-[13px] font-medium leading-snug" x-text="block.label"></span>
-                                    <span class="text-[11px] text-slate-400 dark:text-slate-500 truncate" x-text="block.description"></span>
-                                </span>
-                            </button>
-                        </template>
-                    </div>
-                </template>
-            </div>
-        </div>
+        {{-- Block Picker Popover is now integrated into the right panel --}}
 
         {{-- Edge Add Button --}}
         <button
@@ -435,7 +440,7 @@
             :style="'left:' + edgeAddBtn.x + 'px; top:' + edgeAddBtn.y + 'px'"
             @mouseenter="_edgeAddHover = true"
             @mouseleave="_edgeAddHover = false; edgeAddBtn.visible = false"
-            @click="openBlockPicker(null, edgeAddBtn.x, edgeAddBtn.y); _insertOnEdge = edgeAddBtn.edgeId"
+            @click="_insertOnEdge = edgeAddBtn.edgeId; openBlockPicker()"
             title="Insert block"
         >
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>

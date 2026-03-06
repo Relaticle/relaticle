@@ -6,7 +6,7 @@
  */
 
 import '../../css/workflow-builder.css';
-import { createGraph, enterRunView, exitRunView } from './graph.js';
+import { createGraph, enterRunView, exitRunView, ensureEdgesBehindNodes } from './graph.js';
 import { registerTriggerNode } from './nodes/TriggerNode.js';
 import { registerActionNode } from './nodes/ActionNode.js';
 import { registerConditionNode } from './nodes/ConditionNode.js';
@@ -91,10 +91,9 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
         testRunning: false,
         testRunResults: null,
 
-        // Block picker state
+        // Block picker state (sidebar)
         blockPickerOpen: false,
         blockPickerSearch: '',
-        blockPickerPos: { x: 0, y: 0 },
         blockPickerSourceNode: null,
         blockPickerHighlightKey: '',
 
@@ -292,8 +291,8 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
             });
 
             // Open block picker from canvas double-click
-            window.addEventListener('wf:open-picker', (e) => {
-                this.openBlockPicker(null, e.detail.x, e.detail.y);
+            window.addEventListener('wf:open-picker', () => {
+                this.openBlockPicker();
             });
 
             // Mode toggle shortcuts
@@ -316,7 +315,10 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
             });
 
             // Track node count for empty canvas onboarding
-            graph.on('cell:added', () => { this.hasNodes = graph.getNodes().length > 0; });
+            graph.on('cell:added', () => {
+                this.hasNodes = graph.getNodes().length > 0;
+                ensureEdgesBehindNodes(graph);
+            });
             graph.on('cell:removed', () => { this.hasNodes = graph.getNodes().length > 0; });
 
             // Track dirty state (suppressed during canvas load)
@@ -446,17 +448,16 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
 
         // ── Block Picker ─────────────────────────────────────
 
-        openBlockPicker(sourceNodeId, x, y) {
+        openBlockPicker(sourceNodeId) {
             this.blockPickerSourceNode = sourceNodeId || null;
-            // Clamp position so the picker stays within the viewport
-            const pickerHeight = 400;
-            const clampedY = (y + pickerHeight > window.innerHeight)
-                ? Math.max(60, window.innerHeight - pickerHeight - 20)
-                : y;
-            this.blockPickerPos = { x, y: clampedY };
             this.blockPickerSearch = '';
             this.blockPickerHighlightKey = '';
             this.blockPickerOpen = true;
+            // Close config panel if open
+            if (this.panelView === 'config') {
+                this.panelOpen = false;
+                this.panelView = null;
+            }
             this.$nextTick(() => {
                 this.$refs.pickerSearchInput?.focus();
             });
@@ -499,23 +500,56 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
                 return;
             }
 
-            const sourceNodeId = this.blockPickerSourceNode;
-            const pos = !sourceNodeId && this.blockPickerPos
-                ? graph.pageToLocal(this.blockPickerPos.x, this.blockPickerPos.y)
-                : null;
-            const newNode = addBlockToGraph(graph, block, sourceNodeId, null, pos);
+            // Sequential placement: find the last node and place below it, aligned
+            const nodes = graph.getNodes();
+            const VERTICAL_SPACING = 120;
+            let sourceNodeId = this.blockPickerSourceNode;
+
+            if (nodes.length === 0) {
+                // First node: place at canvas center (convert page coords to graph coords)
+                const container = document.getElementById('workflow-canvas');
+                const rect = container ? container.getBoundingClientRect() : { left: 0, top: 0, width: 600, height: 400 };
+                const centerPage = { x: rect.left + rect.width / 2, y: rect.top + rect.height / 3 };
+                const graphPt = graph.pageToLocal(centerPage.x, centerPage.y);
+                const newNode = addBlockToGraph(graph, block, null, null, { x: graphPt.x - 140, y: graphPt.y });
+                this.blockPickerOpen = false;
+                return;
+            }
+
+            // Find the bottommost node
+            let bottomNode = null;
+            let maxBottom = -Infinity;
+            for (const n of nodes) {
+                const pos = n.getPosition();
+                const size = n.getSize();
+                const bottom = pos.y + size.height;
+                if (bottom > maxBottom) {
+                    maxBottom = bottom;
+                    bottomNode = n;
+                }
+            }
+
+            // Auto-connect to the bottommost node if no explicit source
+            if (!sourceNodeId && bottomNode) {
+                const bottomData = bottomNode.getData() || {};
+                if (bottomData.type !== 'stop') {
+                    sourceNodeId = bottomNode.id;
+                }
+            }
+
+            // Let addBlockToGraph handle positioning relative to sourceNodeId
+            const newNode = addBlockToGraph(graph, block, sourceNodeId, null, null);
             this.blockPickerOpen = false;
 
-            // Auto-connect: if no explicit source and exactly one node has an unconnected output, connect to it
-            if (!sourceNodeId && newNode) {
+            // Auto-connect if no sourceNodeId was set but there's a node with a free output
+            if (!sourceNodeId && newNode && nodes.length > 0) {
                 const newNodeData = newNode.getData() || {};
                 if (newNodeData.type !== 'trigger') {
                     const allEdges = graph.getEdges();
-                    const nodesWithFreeOutput = graph.getNodes().filter(n => {
+                    const nodesWithFreeOutput = nodes.filter(n => {
                         if (n.id === newNode.id) return false;
                         const data = n.getData() || {};
                         if (data.type === 'stop') return false;
-
                         const hasOutgoing = allEdges.some(e => {
                             const source = e.getSourceCell();
                             return source && source.id === n.id;
@@ -529,6 +563,7 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
                         const autoEdgeConfig = {
                             source: { cell: sourceNode.id, port: sourcePort },
                             target: { cell: newNode.id, port: 'in' },
+                            zIndex: -1,
                             attrs: {
                                 line: {
                                     stroke: '#94a3b8',
@@ -538,7 +573,6 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
                             },
                         };
 
-                        // Add condition labels for auto-connected condition edges
                         if (sourceNode.getData()?.type === 'condition') {
                             const isYes = sourcePort === 'out-yes';
                             const labelText = isYes ? 'Yes' : 'No';
@@ -585,8 +619,9 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
             const newNode = addBlockToGraph(graph, block, null, null, pos);
             if (!newNode) return;
 
-            graph.addEdge({ source: { cell: sourceId, port: sourcePortId || 'out' }, target: { cell: newNode.id, port: 'in' } });
-            graph.addEdge({ source: { cell: newNode.id, port: 'out' }, target: { cell: targetId, port: targetPortId || 'in' } });
+            graph.addEdge({ source: { cell: sourceId, port: sourcePortId || 'out' }, target: { cell: newNode.id, port: 'in' }, zIndex: -1 });
+            graph.addEdge({ source: { cell: newNode.id, port: 'out' }, target: { cell: targetId, port: targetPortId || 'in' }, zIndex: -1 });
+            requestAnimationFrame(() => ensureEdgesBehindNodes(graph));
 
             this.edgeAddBtn.visible = false;
             this.blockPickerOpen = false;
@@ -619,6 +654,7 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
                             shape: SHAPE_MAP[node.type] || 'workflow-action',
                             x: node.position_x || 100,
                             y: node.position_y || 100,
+                            zIndex: 10,
                             data: {
                                 type: node.type,
                                 nodeId: node.node_id,
@@ -662,6 +698,7 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
                             id: edge.edge_id,
                             source: edge.source_node_id,
                             target: edge.target_node_id,
+                            zIndex: -1,
                             labels: labelConfig,
                             attrs: {
                                 line: {
@@ -675,6 +712,10 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
 
                     // Fit to view
                     graph.zoomToFit({ padding: 60, maxScale: 1.5 });
+
+                    // Ensure edges render behind nodes (SVG paint order)
+                    // Called after zoomToFit to avoid X6 re-rendering undoing the order
+                    requestAnimationFrame(() => ensureEdgesBehindNodes(graph));
                 }
 
                 if (data.canvas_data?.zoom) {
