@@ -116,7 +116,7 @@ export function registerActionNode() {
             const actionType = data.config?.action_type || data.actionType;
             const meta = ACTION_META[actionType] || {};
             const config = data.config || {};
-            const color = meta.color || '#3b82f6';
+            const color = meta.color || '#8b5cf6';
             const icon = meta.icon || ICON_RECORD;
             const label = meta.label || (actionType ? actionType.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) : 'Action');
 

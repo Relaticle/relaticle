@@ -191,7 +191,7 @@ class WorkflowConfigPanel extends Component implements HasActions, HasForms
     public function getCategoryColor(): string
     {
         return match ($this->nodeType) {
-            'trigger' => 'green',
+            'trigger' => 'purple',
             'condition' => 'amber',
             'filter' => 'amber',
             'switch' => 'purple',
@@ -203,7 +203,7 @@ class WorkflowConfigPanel extends Component implements HasActions, HasForms
                 'Communication' => 'green',
                 'Integration' => 'purple',
                 'Flow Control' => 'orange',
-                default => 'blue',
+                default => 'purple',
             },
         };
     }

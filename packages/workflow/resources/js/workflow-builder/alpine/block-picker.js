@@ -33,8 +33,8 @@ import {
 } from '../icons.js';
 
 const COLORS = {
-    trigger: '#22c55e',
-    action: '#3b82f6',
+    trigger: '#8b5cf6',
+    action: '#8b5cf6',
     condition: '#f59e0b',
     delay: '#6b7280',
     loop: '#8b5cf6',
