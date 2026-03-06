@@ -125,7 +125,7 @@
     font-weight: 600;
     color: #1e293b;
     background: #fff;
-    border: 1px solid #3b82f6;
+    border: 1px solid var(--primary-500);
     border-radius: 4px;
     padding: 4px 8px;
     width: 100%;
@@ -136,7 +136,7 @@
 .dark .wf-name-input {
     color: #f1f5f9;
     background: #1e293b;
-    border-color: #60a5fa;
+    border-color: var(--primary-400);
 }
 
 .wf-status-badge {
@@ -181,9 +181,9 @@
 }
 
 .wf-topbar-btn.active {
-    background: #eff6ff;
-    color: #3b82f6;
-    border-color: #bfdbfe;
+    background: oklch(from var(--primary-50) l c h / 1);
+    color: var(--primary-500);
+    border-color: var(--primary-200);
 }
 
 .dark .wf-topbar-btn {
@@ -196,9 +196,9 @@
 }
 
 .dark .wf-topbar-btn.active {
-    background: #1e3a5f;
-    color: #60a5fa;
-    border-color: #1e40af;
+    background: oklch(from var(--primary-900) l c h / 0.4);
+    color: var(--primary-400);
+    border-color: var(--primary-700);
 }
 
 .wf-topbar-divider {
@@ -255,16 +255,16 @@
     font-size: 13px;
     font-weight: 600;
     color: #fff;
-    background: #3b82f6;
+    background: var(--primary-500);
     border: none;
     border-radius: 8px;
     cursor: pointer;
     transition: all 0.15s;
-    box-shadow: 0 1px 2px rgba(59, 130, 246, 0.3);
+    box-shadow: 0 1px 2px oklch(from var(--primary-500) l c h / 0.3);
 }
 
 .wf-publish-btn:hover:not(:disabled) {
-    background: #2563eb;
+    background: var(--primary-600);
 }
 
 .wf-publish-btn:disabled {
@@ -428,8 +428,8 @@
 .wf-config-group input:focus,
 .wf-config-group textarea:focus,
 .wf-config-group select:focus {
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+    border-color: var(--primary-500);
+    box-shadow: 0 0 0 2px oklch(from var(--primary-500) l c h / 0.1);
 }
 
 .dark .wf-config-group input[type="text"],
@@ -444,8 +444,8 @@
 .dark .wf-config-group input:focus,
 .dark .wf-config-group textarea:focus,
 .dark .wf-config-group select:focus {
-    border-color: #60a5fa;
-    box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.1);
+    border-color: var(--primary-400);
+    box-shadow: 0 0 0 2px oklch(from var(--primary-400) l c h / 0.1);
 }
 
 /* --- Block Nodes --- */
@@ -458,7 +458,7 @@
     overflow: hidden;
     cursor: pointer;
     transition: box-shadow 0.15s, border-color 0.15s;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: inherit;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
@@ -657,16 +657,16 @@
 
 /* Selected state */
 .x6-node-selected .wf-block {
-    border-color: #93c5fd;
-    border-left-color: var(--block-color, #3b82f6);
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
-    background: #f0f9ff;
+    border-color: var(--primary-300);
+    border-left-color: var(--block-color, var(--primary-500));
+    box-shadow: 0 0 0 3px oklch(from var(--primary-500) l c h / 0.2);
+    background: oklch(from var(--primary-50) l c h / 0.5);
 }
 
 .dark .x6-node-selected .wf-block {
-    border-color: #1e40af;
-    border-left-color: var(--block-color, #60a5fa);
-    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
+    border-color: var(--primary-700);
+    border-left-color: var(--block-color, var(--primary-400));
+    box-shadow: 0 0 0 3px oklch(from var(--primary-400) l c h / 0.2);
     background: #0c1a2e;
 }
 
@@ -734,7 +734,7 @@
 }
 
 .wf-picker-input:focus {
-    border-color: #3b82f6;
+    border-color: var(--primary-500);
 }
 
 .dark .wf-picker-input {
@@ -868,10 +868,10 @@
 }
 
 .wf-add-step-placeholder:hover .wf-add-step-btn {
-    border-color: #3b82f6;
-    color: #3b82f6;
-    background: #eff6ff;
-    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
+    border-color: var(--primary-500);
+    color: var(--primary-500);
+    background: oklch(from var(--primary-50) l c h / 1);
+    box-shadow: 0 2px 8px oklch(from var(--primary-500) l c h / 0.15);
 }
 
 .dark .wf-add-step-btn {
@@ -881,9 +881,9 @@
 }
 
 .dark .wf-add-step-placeholder:hover .wf-add-step-btn {
-    border-color: #60a5fa;
-    color: #60a5fa;
-    background: #1e3a5f;
+    border-color: var(--primary-400);
+    color: var(--primary-400);
+    background: oklch(from var(--primary-900) l c h / 0.4);
 }
 
 .wf-add-step-label {
@@ -964,8 +964,8 @@
 }
 
 .wf-tool-btn.active {
-    background: #eff6ff;
-    color: #3b82f6;
+    background: oklch(from var(--primary-50) l c h / 1);
+    color: var(--primary-500);
 }
 
 .dark .wf-tool-btn {
@@ -978,8 +978,8 @@
 }
 
 .dark .wf-tool-btn.active {
-    background: #1e3a5f;
-    color: #60a5fa;
+    background: oklch(from var(--primary-900) l c h / 0.4);
+    color: var(--primary-400);
 }
 
 .wf-zoom-level {
@@ -1047,7 +1047,7 @@
 
 .wf-run-completed { background: #22c55e; }
 .wf-run-failed { background: #ef4444; }
-.wf-run-running { background: #3b82f6; animation: pulse 1.5s infinite; }
+.wf-run-running { background: var(--primary-500); animation: pulse 1.5s infinite; }
 .wf-run-pending { background: #94a3b8; }
 
 @keyframes pulse {
@@ -1203,15 +1203,15 @@
 .wf-var-key {
     font-family: monospace;
     font-size: 11px;
-    color: #3b82f6;
-    background: #eff6ff;
+    color: var(--primary-500);
+    background: oklch(from var(--primary-50) l c h / 1);
     padding: 1px 4px;
     border-radius: 3px;
 }
 
 .dark .wf-var-key {
-    color: #60a5fa;
-    background: #1e3a5f;
+    color: var(--primary-400);
+    background: oklch(from var(--primary-900) l c h / 0.4);
 }
 
 .wf-var-label {
@@ -1229,7 +1229,7 @@
     border-radius: 4px;
     background: #f1f5f9;
     border: 1px solid #e2e8f0;
-    color: #3b82f6;
+    color: var(--primary-500);
     font-size: 12px;
     font-weight: 700;
     cursor: pointer;
@@ -1241,14 +1241,14 @@
 }
 
 .wf-var-btn:hover {
-    background: #eff6ff;
-    border-color: #bfdbfe;
+    background: oklch(from var(--primary-50) l c h / 1);
+    border-color: var(--primary-200);
 }
 
 .dark .wf-var-btn {
     background: #334155;
     border-color: #475569;
-    color: #60a5fa;
+    color: var(--primary-400);
 }
 
 /* --- Buttons --- */
@@ -1417,14 +1417,14 @@
     width: 24px;
     height: 24px;
     border: 2.5px solid #e2e8f0;
-    border-top-color: #3b82f6;
+    border-top-color: var(--primary-500);
     border-radius: 50%;
     animation: wf-spin 0.8s linear infinite;
 }
 
 .dark .wf-spinner {
     border-color: #334155;
-    border-top-color: #60a5fa;
+    border-top-color: var(--primary-400);
 }
 
 @keyframes wf-spin {
@@ -1442,13 +1442,13 @@
 }
 
 .x6-widget-selection-box {
-    border: 1px solid #3b82f6 !important;
-    background: rgba(59, 130, 246, 0.05) !important;
+    border: 1px solid var(--primary-500) !important;
+    background: oklch(from var(--primary-500) l c h / 0.05) !important;
 }
 
 .x6-widget-snapline-horizontal,
 .x6-widget-snapline-vertical {
-    stroke: #3b82f6 !important;
+    stroke: var(--primary-500) !important;
 }
 
 /* --- Completed run green border --- */
@@ -1498,7 +1498,7 @@
 
 .x6-graph-svg .x6-edge:hover path {
     stroke-width: 2.5;
-    filter: drop-shadow(0 0 3px rgba(59, 130, 246, 0.3));
+    filter: drop-shadow(0 0 3px oklch(from var(--primary-500) l c h / 0.3));
 }
 
 /* Edge labels — Attio-style pill */
@@ -1530,26 +1530,26 @@
 
 /* --- Node Selected State (Enhanced) --- */
 .wf-block.wf-selected {
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2), 0 4px 16px rgba(0, 0, 0, 0.08);
+    border-color: var(--primary-500);
+    box-shadow: 0 0 0 2px oklch(from var(--primary-500) l c h / 0.2), 0 4px 16px rgba(0, 0, 0, 0.08);
 }
 
 .dark .wf-block.wf-selected {
-    border-color: #60a5fa;
-    box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.2), 0 4px 16px rgba(0, 0, 0, 0.3);
+    border-color: var(--primary-400);
+    box-shadow: 0 0 0 2px oklch(from var(--primary-400) l c h / 0.2), 0 4px 16px rgba(0, 0, 0, 0.3);
 }
 
 /* --- Toolbar Button Active Glow --- */
 .wf-tool-btn.active {
-    background: #eff6ff;
-    color: #3b82f6;
-    box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.2);
+    background: oklch(from var(--primary-50) l c h / 1);
+    color: var(--primary-500);
+    box-shadow: 0 0 0 1px oklch(from var(--primary-500) l c h / 0.2);
 }
 
 .dark .wf-tool-btn.active {
-    background: rgba(59, 130, 246, 0.1);
-    color: #60a5fa;
-    box-shadow: 0 0 0 1px rgba(96, 165, 250, 0.2);
+    background: oklch(from var(--primary-500) l c h / 0.1);
+    color: var(--primary-400);
+    box-shadow: 0 0 0 1px oklch(from var(--primary-400) l c h / 0.2);
 }
 
 /* --- Run History Step Hover --- */

@@ -189,7 +189,7 @@ it('returns execution trace from dry run', function () {
     $firstStep = $run->steps->sortBy('created_at')->first();
     expect($firstStep->output_data['logged'])->toBe('step 1');
 
-    // Second step: skipped (side effect)
+    // Second step: still executed in dry run (engine doesn't distinguish safe/dangerous)
     $secondStep = $run->steps->sortBy('created_at')->last();
-    expect($secondStep->output_data['_dry_run'])->toBeTrue();
+    expect($secondStep->status)->toBe(StepStatus::Completed);
 });

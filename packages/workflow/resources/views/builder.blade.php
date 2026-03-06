@@ -39,7 +39,7 @@
                         type="button"
                         class="px-3.5 h-full text-[13px] font-medium bg-transparent border-0 border-b-2 border-solid cursor-pointer transition-all whitespace-nowrap flex items-center gap-1.5"
                         :class="panelView !== 'runs' && panelView !== 'settings'
-                            ? 'text-blue-500 dark:text-blue-400 border-b-blue-500 dark:border-b-blue-400'
+                            ? 'text-primary-500 dark:text-primary-400 border-b-primary-500 dark:border-b-primary-400'
                             : 'text-slate-500 dark:text-slate-400 border-b-transparent hover:text-slate-700 dark:hover:text-slate-200'"
                         @click="closePanel()"
                     ><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg>Editor</button>
@@ -47,7 +47,7 @@
                         type="button"
                         class="px-3.5 h-full text-[13px] font-medium bg-transparent border-0 border-b-2 border-solid cursor-pointer transition-all whitespace-nowrap flex items-center gap-1.5"
                         :class="panelView === 'runs'
-                            ? 'text-blue-500 dark:text-blue-400 border-b-blue-500 dark:border-b-blue-400'
+                            ? 'text-primary-500 dark:text-primary-400 border-b-primary-500 dark:border-b-primary-400'
                             : 'text-slate-500 dark:text-slate-400 border-b-transparent hover:text-slate-700 dark:hover:text-slate-200'"
                         @click="togglePanel('runs')"
                     ><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 3 20 12 6 21 6 3"/></svg>Runs <span
@@ -59,7 +59,7 @@
                         type="button"
                         class="px-3.5 h-full text-[13px] font-medium bg-transparent border-0 border-b-2 border-solid cursor-pointer transition-all whitespace-nowrap flex items-center gap-1.5"
                         :class="panelView === 'settings'
-                            ? 'text-blue-500 dark:text-blue-400 border-b-blue-500 dark:border-b-blue-400'
+                            ? 'text-primary-500 dark:text-primary-400 border-b-primary-500 dark:border-b-primary-400'
                             : 'text-slate-500 dark:text-slate-400 border-b-transparent hover:text-slate-700 dark:hover:text-slate-200'"
                         @click="togglePanel('settings')"
                     ><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>Settings</button>
@@ -139,7 +139,7 @@
                     </div>
                     <h2 class="text-lg font-semibold text-slate-700 dark:text-slate-200 m-0 mb-2 pointer-events-auto">Start building your workflow</h2>
                     <p class="text-sm text-slate-400 m-0 mb-5 pointer-events-auto">Double-click the canvas or use the + button to add your first block.</p>
-                    <button type="button" class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-blue-500 hover:bg-blue-600 border-none rounded-lg cursor-pointer transition-colors pointer-events-auto" @click="openBlockPicker()">
+                    <button type="button" class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-primary-500 hover:bg-primary-600 border-none rounded-lg cursor-pointer transition-colors pointer-events-auto" @click="openBlockPicker()">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                         Add Trigger
                     </button>
@@ -213,7 +213,7 @@
                         <div class="mb-6">
                             <h4 class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide m-0 mb-2.5">Description</h4>
                             <textarea
-                                class="w-full p-2 text-[13px] text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md outline-none resize-y font-[inherit] focus:border-blue-500"
+                                class="w-full p-2 text-[13px] text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md outline-none resize-y font-[inherit] focus:border-primary-500"
                                 x-model="workflowDescription"
                                 @blur="saveDescription()"
                                 placeholder="Add a workflow description..."
@@ -238,7 +238,7 @@
                                     x-model="maxStepsPerRun"
                                     min="1"
                                     max="1000"
-                                    class="w-20 text-[13px] text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md px-2 py-1 outline-none focus:border-blue-500"
+                                    class="w-20 text-[13px] text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md px-2 py-1 outline-none focus:border-primary-500"
                                     @blur="saveSettings()"
                                 >
                             </div>
@@ -255,7 +255,7 @@
                                 <button
                                     type="button"
                                     @click="notifyOnFailure = !notifyOnFailure; saveSettings()"
-                                    :class="notifyOnFailure ? 'bg-blue-500' : 'bg-slate-300 dark:bg-slate-600'"
+                                    :class="notifyOnFailure ? 'bg-primary-500' : 'bg-slate-300 dark:bg-slate-600'"
                                     class="relative w-10 h-5 rounded-full transition-colors flex-shrink-0 border-0 cursor-pointer"
                                 >
                                     <span
@@ -346,7 +346,7 @@
                                         </span>
                                     </template>
                                     <template x-if="runningCount > 0">
-                                        <span class="px-2 py-0.5 text-[11px] font-medium rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">
+                                        <span class="px-2 py-0.5 text-[11px] font-medium rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300">
                                             Running <span x-text="runningCount"></span>
                                         </span>
                                     </template>
@@ -435,7 +435,7 @@
         {{-- Edge Add Button --}}
         <button
             type="button"
-            class="fixed w-6 h-6 flex items-center justify-center bg-white dark:bg-slate-800 border-[1.5px] border-blue-500 dark:border-blue-400 rounded-full text-blue-500 dark:text-blue-400 cursor-pointer z-50 -translate-x-1/2 -translate-y-1/2 shadow-md transition-all hover:bg-blue-500 hover:text-white hover:scale-110"
+            class="fixed w-6 h-6 flex items-center justify-center bg-white dark:bg-slate-800 border-[1.5px] border-primary-500 dark:border-primary-400 rounded-full text-primary-500 dark:text-primary-400 cursor-pointer z-50 -translate-x-1/2 -translate-y-1/2 shadow-md transition-all hover:bg-primary-500 hover:text-white hover:scale-110"
             x-show="edgeAddBtn.visible"
             :style="'left:' + edgeAddBtn.x + 'px; top:' + edgeAddBtn.y + 'px'"
             @mouseenter="_edgeAddHover = true"
@@ -505,7 +505,7 @@
                       :class="{
                           'bg-green-500/20 text-green-300': stepPopover?.step?.status === 'completed',
                           'bg-red-500/20 text-red-300': stepPopover?.step?.status === 'failed',
-                          'bg-blue-500/20 text-blue-300': stepPopover?.step?.status === 'running',
+                          'bg-primary-500/20 text-primary-300': stepPopover?.step?.status === 'running',
                           'bg-gray-500/20 text-gray-300': stepPopover?.step?.status === 'skipped' || stepPopover?.step?.status === 'pending',
                       }"
                       x-text="stepPopover?.step?.status"></span>
@@ -561,7 +561,7 @@
                 {{-- Header --}}
                 <div class="flex items-center justify-between px-5 py-3.5 border-b border-slate-200 dark:border-slate-700 shrink-0">
                     <div class="flex items-center gap-2.5">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-500"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary-500"><polygon points="6 3 20 12 6 21 6 3"/></svg>
                         <h3 class="text-sm font-semibold text-slate-900 dark:text-white m-0">Test Run</h3>
                         <span class="text-xs px-2 py-0.5 rounded-full font-medium"
                             :class="testRunResults?.status === 'completed' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'"
@@ -591,8 +591,8 @@
                 </div>
 
                 {{-- Info banner --}}
-                <div class="px-5 py-2 bg-blue-50 dark:bg-blue-900/20 border-b border-blue-100 dark:border-blue-800/30 shrink-0">
-                    <p class="text-xs text-blue-600 dark:text-blue-400 m-0">
+                <div class="px-5 py-2 bg-primary-50 dark:bg-primary-900/20 border-b border-primary-100 dark:border-primary-800/30 shrink-0">
+                    <p class="text-xs text-primary-600 dark:text-primary-400 m-0">
                         <strong>Test mode:</strong> Actions that modify data (emails, record updates, webhooks) are simulated — no real changes were made.
                     </p>
                 </div>

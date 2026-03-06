@@ -180,7 +180,7 @@
                         <template x-for="(v, i) in mentionFiltered" :key="v.key">
                             <button type="button"
                                     class="wf-var-item w-full"
-                                    :class="{ 'bg-blue-50 dark:bg-blue-900/30': i === mentionIdx }"
+                                    :class="{ 'bg-primary-50 dark:bg-primary-900/30': i === mentionIdx }"
                                     @click="insertMention(v)"
                                     @mouseenter="mentionIdx = i"
                             >

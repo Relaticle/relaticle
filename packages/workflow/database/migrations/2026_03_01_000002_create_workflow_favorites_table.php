@@ -14,7 +14,8 @@ return new class extends Migration
 
         Schema::create($prefix . 'workflow_favorites', function (Blueprint $table) use ($prefix) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
+            $table->string('user_id')->index();
+            $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete();
             $table->string('workflow_id', 26);
             $table->foreign('workflow_id')->references('id')->on($prefix . 'workflows')->cascadeOnDelete();
             $table->timestamp('created_at')->nullable();

@@ -22,6 +22,10 @@ return new class extends Migration
         $prefix = config('workflow.table_prefix', '');
 
         Schema::table($prefix . 'workflows', function (Blueprint $table) {
+            $table->dropIndex(['folder']);
+        });
+
+        Schema::table($prefix . 'workflows', function (Blueprint $table) {
             $table->dropColumn('folder');
         });
     }

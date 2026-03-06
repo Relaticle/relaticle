@@ -14,8 +14,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\ViewField;
 use Filament\Forms\Concerns\InteractsWithForms;
-use Filament\Schemas\Components\Wizard;
-use Filament\Schemas\Components\Wizard\Step;
+use Filament\Schemas\Components\Section;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Schemas\Schema;
 use Livewire\Attributes\On;
@@ -325,149 +324,142 @@ class WorkflowConfigPanel extends Component implements HasActions, HasForms
     protected function getTriggerFormSchema(): array
     {
         return [
-            Wizard::make([
-                Step::make('When?')
-                    ->icon('heroicon-o-bolt')
-                    ->description('What starts this workflow')
-                    ->schema([
-                        Select::make('event')
-                            ->label('When does this start?')
-                            ->options([
-                                'record_created' => 'A record is created',
-                                'record_updated' => 'A record is updated',
-                                'record_deleted' => 'A record is deleted',
-                                'manual' => 'When I click Run',
-                                'webhook' => 'Data arrives from outside',
-                                'scheduled' => 'On a schedule',
-                            ])
-                            ->placeholder('Choose what starts this workflow...')
-                            ->helperText('Pick the event that should kick off this workflow.')
-                            ->live(),
-                    ]),
-                Step::make('Which record?')
-                    ->icon('heroicon-o-rectangle-stack')
-                    ->description('Choose the record type')
-                    ->schema([
-                        Select::make('entity_type')
-                            ->label('Which record type?')
-                            ->options([
-                                'people' => 'People',
-                                'companies' => 'Companies',
-                                'opportunities' => 'Opportunities',
-                                'tasks' => 'Tasks',
-                                'notes' => 'Notes',
-                            ])
-                            ->placeholder('Choose a record type...')
-                            ->visible(fn (callable $get): bool => in_array($get('event'), ['record_created', 'record_updated', 'record_deleted']))
-                            ->helperText('Which type of record should trigger this workflow?'),
-                        TextInput::make('webhook_url')
-                            ->label('Your webhook URL')
-                            ->disabled()
-                            ->visible(fn (callable $get): bool => $get('event') === 'webhook')
-                            ->default(fn () => $this->workflowId ? url("/workflow/api/workflows/{$this->workflowId}/webhook") : '')
-                            ->helperText('Share this URL with the app that should trigger this workflow.')
-                            ->suffixAction(
-                                Action::make('copy')
-                                    ->icon('heroicon-o-clipboard')
-                                    ->action(function ($state, $livewire) {
-                                        $livewire->js("navigator.clipboard.writeText(" . json_encode($state) . ")");
-                                    })
-                            ),
-                    ])
-                    ->visible(fn (callable $get): bool => in_array($get('event'), ['record_created', 'record_updated', 'record_deleted', 'webhook'])),
-                Step::make('Details')
-                    ->icon('heroicon-o-adjustments-horizontal')
-                    ->description('Configure schedule or filters')
-                    ->schema([
-                        Select::make('cron_preset')
-                            ->label('How often?')
-                            ->options([
-                                '*/5 * * * *' => 'Every 5 minutes',
-                                '*/15 * * * *' => 'Every 15 minutes',
-                                '*/30 * * * *' => 'Every 30 minutes',
-                                '0 * * * *' => 'Every hour',
-                                '0 9 * * *' => 'Every day at 9:00 AM',
-                                '0 9 * * 1-5' => 'Every weekday at 9:00 AM',
-                                '0 9 * * 1' => 'Every Monday at 9:00 AM',
-                                '0 9 1 * *' => '1st of every month at 9:00 AM',
-                                'custom_interval' => 'Custom interval...',
-                                'custom' => 'Custom cron expression...',
-                            ])
-                            ->placeholder('Pick a schedule...')
-                            ->visible(fn (callable $get): bool => $get('event') === 'scheduled')
-                            ->helperText('Choose how frequently this workflow should run automatically.')
-                            ->live()
-                            ->afterStateUpdated(function ($state, callable $set) {
-                                if ($state !== 'custom' && $state !== 'custom_interval') {
-                                    $set('cron_expression', $state);
-                                }
-                            }),
-                        TextInput::make('custom_interval_value')
-                            ->label('Run every')
-                            ->numeric()
-                            ->minValue(1)
-                            ->maxValue(60)
-                            ->default(1)
-                            ->placeholder('1')
-                            ->visible(fn (callable $get): bool => $get('event') === 'scheduled' && $get('cron_preset') === 'custom_interval')
-                            ->live()
-                            ->afterStateUpdated(function ($state, callable $get, callable $set) {
-                                $unit = $get('custom_interval_unit') ?? 'hours';
-                                $val = max(1, (int) ($state ?? 1));
-                                $set('cron_expression', self::buildCronFromInterval($val, $unit, $get('custom_interval_time') ?? '09:00', $get('custom_interval_day') ?? '1'));
-                            }),
-                        Select::make('custom_interval_unit')
-                            ->label('Time unit')
-                            ->options([
-                                'minutes' => 'Minutes',
-                                'hours' => 'Hours',
-                                'days' => 'Days',
-                                'weeks' => 'Weeks',
-                            ])
-                            ->default('hours')
-                            ->visible(fn (callable $get): bool => $get('event') === 'scheduled' && $get('cron_preset') === 'custom_interval')
-                            ->live()
-                            ->afterStateUpdated(function ($state, callable $get, callable $set) {
-                                $val = max(1, (int) ($get('custom_interval_value') ?? 1));
-                                $set('cron_expression', self::buildCronFromInterval($val, $state ?? 'hours', $get('custom_interval_time') ?? '09:00', $get('custom_interval_day') ?? '1'));
-                            }),
-                        TextInput::make('custom_interval_time')
-                            ->label('At what time?')
-                            ->type('time')
-                            ->default('09:00')
-                            ->visible(fn (callable $get): bool => $get('event') === 'scheduled' && $get('cron_preset') === 'custom_interval' && in_array($get('custom_interval_unit'), ['days', 'weeks']))
-                            ->live()
-                            ->afterStateUpdated(function ($state, callable $get, callable $set) {
-                                $val = max(1, (int) ($get('custom_interval_value') ?? 1));
-                                $unit = $get('custom_interval_unit') ?? 'days';
-                                $set('cron_expression', self::buildCronFromInterval($val, $unit, $state ?? '09:00', $get('custom_interval_day') ?? '1'));
-                            }),
-                        Select::make('custom_interval_day')
-                            ->label('On which day?')
-                            ->options([
-                                '1' => 'Monday',
-                                '2' => 'Tuesday',
-                                '3' => 'Wednesday',
-                                '4' => 'Thursday',
-                                '5' => 'Friday',
-                                '6' => 'Saturday',
-                                '0' => 'Sunday',
-                            ])
-                            ->default('1')
-                            ->visible(fn (callable $get): bool => $get('event') === 'scheduled' && $get('cron_preset') === 'custom_interval' && $get('custom_interval_unit') === 'weeks')
-                            ->live()
-                            ->afterStateUpdated(function ($state, callable $get, callable $set) {
-                                $val = max(1, (int) ($get('custom_interval_value') ?? 1));
-                                $set('cron_expression', self::buildCronFromInterval($val, 'weeks', $get('custom_interval_time') ?? '09:00', $state ?? '1'));
-                            }),
-                        TextInput::make('cron_expression')
-                            ->label('Cron expression')
-                            ->placeholder('*/5 * * * *')
-                            ->visible(fn (callable $get): bool => $get('event') === 'scheduled' && $get('cron_preset') === 'custom')
-                            ->helperText('Use cron syntax: minute hour day month weekday. Example: "0 9 * * 1-5" runs at 9 AM on weekdays.'),
-                    ])
-                    ->visible(fn (callable $get): bool => $get('event') === 'scheduled'),
-            ])->skippable()->columnSpanFull(),
+            Select::make('event')
+                ->label('When does this start?')
+                ->options([
+                    'record_created' => 'A record is created',
+                    'record_updated' => 'A record is updated',
+                    'record_deleted' => 'A record is deleted',
+                    'manual' => 'When I click Run',
+                    'webhook' => 'Data arrives from outside',
+                    'scheduled' => 'On a schedule',
+                ])
+                ->placeholder('Choose what starts this workflow...')
+                ->helperText('Pick the event that should kick off this workflow.')
+                ->live()
+                ->columnSpanFull(),
+
+            // Record event fields
+            Select::make('entity_type')
+                ->label('Which record type?')
+                ->options([
+                    'people' => 'People',
+                    'companies' => 'Companies',
+                    'opportunities' => 'Opportunities',
+                    'tasks' => 'Tasks',
+                    'notes' => 'Notes',
+                ])
+                ->placeholder('Choose a record type...')
+                ->visible(fn (callable $get): bool => in_array($get('event'), ['record_created', 'record_updated', 'record_deleted']))
+                ->helperText('Which type of record should trigger this workflow?'),
+
+            // Webhook fields
+            TextInput::make('webhook_url')
+                ->label('Your webhook URL')
+                ->disabled()
+                ->visible(fn (callable $get): bool => $get('event') === 'webhook')
+                ->default(fn () => $this->workflowId ? url("/workflow/api/workflows/{$this->workflowId}/webhook") : '')
+                ->helperText('Share this URL with the app that should trigger this workflow.')
+                ->columnSpanFull()
+                ->suffixAction(
+                    Action::make('copy')
+                        ->icon('heroicon-o-clipboard')
+                        ->action(function ($state, $livewire) {
+                            $livewire->js("navigator.clipboard.writeText(" . json_encode($state) . ")");
+                        })
+                ),
+
+            // Schedule fields
+            Section::make('Schedule')
+                ->schema([
+                    Select::make('cron_preset')
+                        ->label('How often?')
+                        ->options([
+                            '*/5 * * * *' => 'Every 5 minutes',
+                            '*/15 * * * *' => 'Every 15 minutes',
+                            '*/30 * * * *' => 'Every 30 minutes',
+                            '0 * * * *' => 'Every hour',
+                            '0 9 * * *' => 'Every day at 9:00 AM',
+                            '0 9 * * 1-5' => 'Every weekday at 9:00 AM',
+                            '0 9 * * 1' => 'Every Monday at 9:00 AM',
+                            '0 9 1 * *' => '1st of every month at 9:00 AM',
+                            'custom_interval' => 'Custom interval...',
+                            'custom' => 'Custom cron expression...',
+                        ])
+                        ->placeholder('Pick a schedule...')
+                        ->helperText('Choose how frequently this workflow should run automatically.')
+                        ->live()
+                        ->afterStateUpdated(function ($state, callable $set) {
+                            if ($state !== 'custom' && $state !== 'custom_interval') {
+                                $set('cron_expression', $state);
+                            }
+                        }),
+                    TextInput::make('custom_interval_value')
+                        ->label('Run every')
+                        ->numeric()
+                        ->minValue(1)
+                        ->maxValue(60)
+                        ->default(1)
+                        ->placeholder('1')
+                        ->visible(fn (callable $get): bool => $get('cron_preset') === 'custom_interval')
+                        ->live()
+                        ->afterStateUpdated(function ($state, callable $get, callable $set) {
+                            $unit = $get('custom_interval_unit') ?? 'hours';
+                            $val = max(1, (int) ($state ?? 1));
+                            $set('cron_expression', self::buildCronFromInterval($val, $unit, $get('custom_interval_time') ?? '09:00', $get('custom_interval_day') ?? '1'));
+                        }),
+                    Select::make('custom_interval_unit')
+                        ->label('Time unit')
+                        ->options([
+                            'minutes' => 'Minutes',
+                            'hours' => 'Hours',
+                            'days' => 'Days',
+                            'weeks' => 'Weeks',
+                        ])
+                        ->default('hours')
+                        ->visible(fn (callable $get): bool => $get('cron_preset') === 'custom_interval')
+                        ->live()
+                        ->afterStateUpdated(function ($state, callable $get, callable $set) {
+                            $val = max(1, (int) ($get('custom_interval_value') ?? 1));
+                            $set('cron_expression', self::buildCronFromInterval($val, $state ?? 'hours', $get('custom_interval_time') ?? '09:00', $get('custom_interval_day') ?? '1'));
+                        }),
+                    TextInput::make('custom_interval_time')
+                        ->label('At what time?')
+                        ->type('time')
+                        ->default('09:00')
+                        ->visible(fn (callable $get): bool => $get('cron_preset') === 'custom_interval' && in_array($get('custom_interval_unit'), ['days', 'weeks']))
+                        ->live()
+                        ->afterStateUpdated(function ($state, callable $get, callable $set) {
+                            $val = max(1, (int) ($get('custom_interval_value') ?? 1));
+                            $unit = $get('custom_interval_unit') ?? 'days';
+                            $set('cron_expression', self::buildCronFromInterval($val, $unit, $state ?? '09:00', $get('custom_interval_day') ?? '1'));
+                        }),
+                    Select::make('custom_interval_day')
+                        ->label('On which day?')
+                        ->options([
+                            '1' => 'Monday',
+                            '2' => 'Tuesday',
+                            '3' => 'Wednesday',
+                            '4' => 'Thursday',
+                            '5' => 'Friday',
+                            '6' => 'Saturday',
+                            '0' => 'Sunday',
+                        ])
+                        ->default('1')
+                        ->visible(fn (callable $get): bool => $get('cron_preset') === 'custom_interval' && $get('custom_interval_unit') === 'weeks')
+                        ->live()
+                        ->afterStateUpdated(function ($state, callable $get, callable $set) {
+                            $val = max(1, (int) ($get('custom_interval_value') ?? 1));
+                            $set('cron_expression', self::buildCronFromInterval($val, 'weeks', $get('custom_interval_time') ?? '09:00', $state ?? '1'));
+                        }),
+                    TextInput::make('cron_expression')
+                        ->label('Cron expression')
+                        ->placeholder('*/5 * * * *')
+                        ->visible(fn (callable $get): bool => $get('cron_preset') === 'custom')
+                        ->helperText('Use cron syntax: minute hour day month weekday. Example: "0 9 * * 1-5" runs at 9 AM on weekdays.'),
+                ])
+                ->visible(fn (callable $get): bool => $get('event') === 'scheduled')
+                ->columnSpanFull(),
         ];
     }
 
