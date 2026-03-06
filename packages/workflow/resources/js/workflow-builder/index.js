@@ -97,6 +97,9 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
         blockPickerSourceNode: null,
         blockPickerHighlightKey: '',
 
+        // Add-step placeholder
+        addStepPlaceholder: { visible: false, x: 0, y: 0, sourceNodeId: null },
+
         // Spread mixins
         ...topBar,
         ...blockPicker,
@@ -223,6 +226,9 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
                     }
                     return;
                 }
+
+                // Close block picker when selecting a node — config panel takes over
+                this.blockPickerOpen = false;
 
                 this.selectedNode = e.detail.data;
                 this.nodeData = e.detail.data;
@@ -360,6 +366,11 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
             graph.on('scale', ({ sx }) => {
                 this.zoomLevel = sx;
             });
+
+            // Add-step placeholder position tracking
+            window.addEventListener('wf:placeholder-update', (e) => {
+                this.addStepPlaceholder = e.detail;
+            });
         },
 
         // ── Panel Management ─────────────────────────────────
@@ -453,10 +464,15 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
             this.blockPickerSearch = '';
             this.blockPickerHighlightKey = '';
             this.blockPickerOpen = true;
-            // Close config panel if open
-            if (this.panelView === 'config') {
-                this.panelOpen = false;
-                this.panelView = null;
+            // Close any other panel view — block picker takes over the sidebar
+            this.panelOpen = false;
+            this.panelView = null;
+            this.selectedNode = null;
+            this.selectedNodeId = null;
+            const graph = window.__wfGraph;
+            if (graph) graph.cleanSelection();
+            if (window.Livewire) {
+                window.Livewire.dispatch('node-deselected');
             }
             this.$nextTick(() => {
                 this.$refs.pickerSearchInput?.focus();

@@ -819,6 +819,91 @@
     flex-shrink: 0;
 }
 
+/* --- Add Step Placeholder (dashed + at bottom of chain) --- */
+.wf-add-step-placeholder {
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    transform: translateX(-50%);
+    z-index: 15;
+    cursor: pointer;
+    pointer-events: auto;
+}
+
+.wf-add-step-line {
+    width: 1.5px;
+    height: 24px;
+    background: repeating-linear-gradient(
+        to bottom,
+        #94a3b8 0px,
+        #94a3b8 4px,
+        transparent 4px,
+        transparent 8px
+    );
+}
+
+.dark .wf-add-step-line {
+    background: repeating-linear-gradient(
+        to bottom,
+        #475569 0px,
+        #475569 4px,
+        transparent 4px,
+        transparent 8px
+    );
+}
+
+.wf-add-step-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px dashed #94a3b8;
+    background: #fff;
+    color: #94a3b8;
+    transition: all 0.2s;
+}
+
+.wf-add-step-placeholder:hover .wf-add-step-btn {
+    border-color: #3b82f6;
+    color: #3b82f6;
+    background: #eff6ff;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
+}
+
+.dark .wf-add-step-btn {
+    background: #1e293b;
+    border-color: #475569;
+    color: #64748b;
+}
+
+.dark .wf-add-step-placeholder:hover .wf-add-step-btn {
+    border-color: #60a5fa;
+    color: #60a5fa;
+    background: #1e3a5f;
+}
+
+.wf-add-step-label {
+    margin-top: 4px;
+    font-size: 11px;
+    font-weight: 500;
+    color: #94a3b8;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.15s;
+}
+
+.wf-add-step-placeholder:hover .wf-add-step-label {
+    opacity: 1;
+}
+
+.dark .wf-add-step-label {
+    color: #64748b;
+}
+
 /* --- Bottom Toolbar --- */
 .wf-toolbar-bottom {
     position: absolute;
