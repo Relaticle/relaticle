@@ -15,7 +15,8 @@ return new class extends Migration
         Schema::create($prefix . 'workflows', function (Blueprint $table) use ($prefix) {
             $table->ulid('id')->primary();
             $table->string('tenant_id')->nullable()->index();
-            $table->foreignId('creator_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->string('creator_id')->nullable()->index();
+            $table->foreign('creator_id')->references('id')->on('users')->nullOnDelete();
             $table->string('name');
             $table->text('description')->nullable();
             $table->string('trigger_type');

@@ -83,6 +83,11 @@ class DeleteRecordAction extends BaseAction
         return 'Delete Record';
     }
 
+    public static function hasSideEffects(): bool
+    {
+        return true;
+    }
+
     public static function category(): string
     {
         return 'Records';

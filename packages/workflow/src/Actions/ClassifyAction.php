@@ -160,6 +160,11 @@ class ClassifyAction extends BaseAction
         return 'Classify record';
     }
 
+    public static function hasSideEffects(): bool
+    {
+        return true;
+    }
+
     public static function category(): string
     {
         return 'AI';

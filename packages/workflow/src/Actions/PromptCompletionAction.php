@@ -94,6 +94,11 @@ class PromptCompletionAction extends BaseAction
         return 'Prompt completion';
     }
 
+    public static function hasSideEffects(): bool
+    {
+        return true;
+    }
+
     public static function category(): string
     {
         return 'AI';

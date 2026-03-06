@@ -39,7 +39,7 @@
                         type="button"
                         class="px-3.5 h-full text-[13px] font-medium bg-transparent border-0 border-b-2 border-solid cursor-pointer transition-all whitespace-nowrap flex items-center gap-1.5"
                         :class="panelView !== 'runs' && panelView !== 'settings'
-                            ? 'text-blue-500 dark:text-blue-400 border-b-blue-500 dark:border-b-blue-400'
+                            ? 'text-primary-500 dark:text-primary-400 border-b-primary-500 dark:border-b-primary-400'
                             : 'text-slate-500 dark:text-slate-400 border-b-transparent hover:text-slate-700 dark:hover:text-slate-200'"
                         @click="closePanel()"
                     ><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg>Editor</button>
@@ -47,7 +47,7 @@
                         type="button"
                         class="px-3.5 h-full text-[13px] font-medium bg-transparent border-0 border-b-2 border-solid cursor-pointer transition-all whitespace-nowrap flex items-center gap-1.5"
                         :class="panelView === 'runs'
-                            ? 'text-blue-500 dark:text-blue-400 border-b-blue-500 dark:border-b-blue-400'
+                            ? 'text-primary-500 dark:text-primary-400 border-b-primary-500 dark:border-b-primary-400'
                             : 'text-slate-500 dark:text-slate-400 border-b-transparent hover:text-slate-700 dark:hover:text-slate-200'"
                         @click="togglePanel('runs')"
                     ><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 3 20 12 6 21 6 3"/></svg>Runs <span
@@ -59,7 +59,7 @@
                         type="button"
                         class="px-3.5 h-full text-[13px] font-medium bg-transparent border-0 border-b-2 border-solid cursor-pointer transition-all whitespace-nowrap flex items-center gap-1.5"
                         :class="panelView === 'settings'
-                            ? 'text-blue-500 dark:text-blue-400 border-b-blue-500 dark:border-b-blue-400'
+                            ? 'text-primary-500 dark:text-primary-400 border-b-primary-500 dark:border-b-primary-400'
                             : 'text-slate-500 dark:text-slate-400 border-b-transparent hover:text-slate-700 dark:hover:text-slate-200'"
                         @click="togglePanel('settings')"
                     ><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>Settings</button>
@@ -76,6 +76,16 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
                     <span x-text="saving ? 'Saving...' : 'Save'"></span>
                     <span x-show="isDirty" class="absolute top-1 right-1 w-1.5 h-1.5 bg-amber-400 rounded-full"></span>
+                </button>
+                <button
+                    type="button"
+                    class="wf-topbar-btn"
+                    @click="runTestRun()"
+                    :disabled="testRunning"
+                    title="Test this workflow without side effects"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+                    <span x-text="testRunning ? 'Testing...' : 'Test Run'"></span>
                 </button>
                 <button
                     type="button"
@@ -129,7 +139,7 @@
                     </div>
                     <h2 class="text-lg font-semibold text-slate-700 dark:text-slate-200 m-0 mb-2 pointer-events-auto">Start building your workflow</h2>
                     <p class="text-sm text-slate-400 m-0 mb-5 pointer-events-auto">Double-click the canvas or use the + button to add your first block.</p>
-                    <button type="button" class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-blue-500 hover:bg-blue-600 border-none rounded-lg cursor-pointer transition-colors pointer-events-auto" @click="openBlockPicker(null, $el.parentElement.getBoundingClientRect().left + $el.parentElement.getBoundingClientRect().width / 2, $el.parentElement.getBoundingClientRect().top + $el.parentElement.getBoundingClientRect().height / 2)">
+                    <button type="button" class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-primary-500 hover:bg-primary-600 border-none rounded-lg cursor-pointer transition-colors pointer-events-auto" @click="openBlockPicker()">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                         Add Trigger
                     </button>
@@ -160,7 +170,7 @@
                     </div>
                     <div class="wf-toolbar-divider"></div>
                     <div class="wf-toolbar-group">
-                        <button type="button" class="wf-tool-btn" @click="(() => { const c = document.getElementById('workflow-canvas'); const r = c.getBoundingClientRect(); openBlockPicker(null, r.left + r.width / 2, r.top + r.height / 2); })()" title="Add Block">
+                        <button type="button" class="wf-tool-btn" @click="openBlockPicker()" title="Add Block">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                         </button>
                         <button type="button" class="wf-tool-btn" @click="organizeBlocks()" title="Auto-organize">
@@ -180,7 +190,7 @@
             </div>
 
             {{-- Right Panel --}}
-            <div class="wf-panel" :class="{ 'wf-panel-open': panelOpen }">
+            <div class="wf-panel" :class="{ 'wf-panel-open': panelOpen || blockPickerOpen }">
                 {{-- Config Panel (shown when a node is selected) --}}
                 <div
                     x-show="panelView === 'config'"
@@ -188,12 +198,6 @@
                     x-on:config-panel-close.window="deselectNode()"
                     class="wf-panel-content"
                 >
-                    <div class="wf-panel-header">
-                        <h3 x-text="(selectedNode?.type ? selectedNode.type.charAt(0).toUpperCase() + selectedNode.type.slice(1) : 'Node') + ' Settings'"></h3>
-                        <button type="button" @click="deselectNode()" class="wf-panel-close" title="Close panel">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                        </button>
-                    </div>
                     @livewire('workflow-config-panel', ['workflowId' => $workflowId])
                 </div>
 
@@ -209,7 +213,7 @@
                         <div class="mb-6">
                             <h4 class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide m-0 mb-2.5">Description</h4>
                             <textarea
-                                class="w-full p-2 text-[13px] text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md outline-none resize-y font-[inherit] focus:border-blue-500"
+                                class="w-full p-2 text-[13px] text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md outline-none resize-y font-[inherit] focus:border-primary-500"
                                 x-model="workflowDescription"
                                 @blur="saveDescription()"
                                 placeholder="Add a workflow description..."
@@ -234,7 +238,7 @@
                                     x-model="maxStepsPerRun"
                                     min="1"
                                     max="1000"
-                                    class="w-20 text-[13px] text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md px-2 py-1 outline-none focus:border-blue-500"
+                                    class="w-20 text-[13px] text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md px-2 py-1 outline-none focus:border-primary-500"
                                     @blur="saveSettings()"
                                 >
                             </div>
@@ -251,7 +255,7 @@
                                 <button
                                     type="button"
                                     @click="notifyOnFailure = !notifyOnFailure; saveSettings()"
-                                    :class="notifyOnFailure ? 'bg-blue-500' : 'bg-slate-300 dark:bg-slate-600'"
+                                    :class="notifyOnFailure ? 'bg-primary-500' : 'bg-slate-300 dark:bg-slate-600'"
                                     class="relative w-10 h-5 rounded-full transition-colors flex-shrink-0 border-0 cursor-pointer"
                                 >
                                     <span
@@ -271,6 +275,50 @@
                                 x-show="workflowStatus === 'live' || workflowStatus === 'paused'"
                             >Archive Workflow</button>
                         </div>
+                    </div>
+                </div>
+
+                {{-- Block Picker Panel (shown when + is clicked) --}}
+                <div x-show="blockPickerOpen" x-cloak class="wf-panel-content">
+                    <div class="wf-panel-header">
+                        <div>
+                            <h3 class="m-0">Add a step</h3>
+                            <p class="text-[11px] text-slate-400 dark:text-slate-500 m-0 mt-0.5">Choose what happens next in this workflow</p>
+                        </div>
+                        <button type="button" @click="blockPickerOpen = false" class="wf-panel-close">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        </button>
+                    </div>
+                    <div class="px-3 py-2 border-b border-slate-100 dark:border-slate-700">
+                        <input
+                            type="text"
+                            x-model="blockPickerSearch"
+                            placeholder="Search blocks..."
+                            class="wf-picker-input"
+                            x-ref="pickerSearchInput"
+                            @keydown="pickerKeydown($event)"
+                        >
+                    </div>
+                    <div class="wf-panel-body" style="padding: 6px;">
+                        <template x-for="category in filteredCategories" :key="category.name">
+                            <div class="wf-picker-category">
+                                <div class="wf-picker-category-name" x-text="category.name"></div>
+                                <template x-for="block in category.blocks" :key="block.type + (block.actionType || '')">
+                                    <button
+                                        type="button"
+                                        :class="['wf-picker-item', block.type + (block.actionType || '') === blockPickerHighlightKey ? 'wf-picker-item-hl' : '']"
+                                        @click="addBlock(block)"
+                                        @mouseenter="blockPickerHighlightKey = block.type + (block.actionType || '')"
+                                    >
+                                        <span class="wf-picker-icon" :style="'background:' + block.color + '; color: #fff'" x-html="block.icon"></span>
+                                        <span class="flex flex-col min-w-0">
+                                            <span class="text-[13px] font-medium leading-snug" x-text="block.label"></span>
+                                            <span class="text-[11px] text-slate-400 dark:text-slate-500 truncate" x-text="block.description"></span>
+                                        </span>
+                                    </button>
+                                </template>
+                            </div>
+                        </template>
                     </div>
                 </div>
 
@@ -298,7 +346,7 @@
                                         </span>
                                     </template>
                                     <template x-if="runningCount > 0">
-                                        <span class="px-2 py-0.5 text-[11px] font-medium rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">
+                                        <span class="px-2 py-0.5 text-[11px] font-medium rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300">
                                             Running <span x-text="runningCount"></span>
                                         </span>
                                     </template>
@@ -382,58 +430,38 @@
             </div>
         </div>
 
-        {{-- Block Picker Popover --}}
-        <div
-            x-show="blockPickerOpen"
-            x-transition
-            class="wf-picker"
-            :style="'left:' + blockPickerPos.x + 'px; top:' + blockPickerPos.y + 'px'"
-            @click.outside="blockPickerOpen = false"
-        >
-            <div class="wf-picker-search">
-                <input
-                    type="text"
-                    x-model="blockPickerSearch"
-                    placeholder="Search blocks..."
-                    class="wf-picker-input"
-                    x-ref="pickerSearchInput"
-                >
-            </div>
-            <div class="wf-picker-categories">
-                <template x-for="category in filteredCategories" :key="category.name">
-                    <div class="wf-picker-category">
-                        <div class="wf-picker-category-name" x-text="category.name"></div>
-                        <template x-for="block in category.blocks" :key="block.type + (block.actionType || '')">
-                            <button
-                                type="button"
-                                class="wf-picker-item"
-                                @click="addBlock(block)"
-                            >
-                                <span class="wf-picker-icon" :style="'background:' + block.color + '; color: #fff'" x-html="block.icon"></span>
-                                <span class="flex flex-col min-w-0">
-                                    <span class="text-[13px] font-medium" x-text="block.label"></span>
-                                    <span class="text-[11px] text-slate-400 dark:text-slate-500 truncate" x-text="block.description"></span>
-                                </span>
-                            </button>
-                        </template>
-                    </div>
-                </template>
-            </div>
-        </div>
+        {{-- Block Picker Popover is now integrated into the right panel --}}
 
         {{-- Edge Add Button --}}
         <button
             type="button"
-            class="fixed w-6 h-6 flex items-center justify-center bg-white dark:bg-slate-800 border-[1.5px] border-blue-500 dark:border-blue-400 rounded-full text-blue-500 dark:text-blue-400 cursor-pointer z-50 -translate-x-1/2 -translate-y-1/2 shadow-md transition-all hover:bg-blue-500 hover:text-white hover:scale-110"
+            class="fixed w-6 h-6 flex items-center justify-center bg-white dark:bg-slate-800 border-[1.5px] border-primary-500 dark:border-primary-400 rounded-full text-primary-500 dark:text-primary-400 cursor-pointer z-50 -translate-x-1/2 -translate-y-1/2 shadow-md transition-all hover:bg-primary-500 hover:text-white hover:scale-110"
             x-show="edgeAddBtn.visible"
             :style="'left:' + edgeAddBtn.x + 'px; top:' + edgeAddBtn.y + 'px'"
             @mouseenter="_edgeAddHover = true"
             @mouseleave="_edgeAddHover = false; edgeAddBtn.visible = false"
-            @click="openBlockPicker(null, edgeAddBtn.x, edgeAddBtn.y); _insertOnEdge = edgeAddBtn.edgeId"
+            @click="_insertOnEdge = edgeAddBtn.edgeId; openBlockPicker()"
             title="Insert block"
         >
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         </button>
+
+        {{-- Add Step Placeholder (dashed + button below last node) --}}
+        <div
+            x-show="addStepPlaceholder.visible && hasNodes && !blockPickerOpen"
+            x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0 scale-90"
+            x-transition:enter-end="opacity-100 scale-100"
+            class="wf-add-step-placeholder"
+            :style="'left:' + addStepPlaceholder.x + 'px; top:' + addStepPlaceholder.y + 'px'"
+            @click="openBlockPicker(addStepPlaceholder.sourceNodeId)"
+        >
+            <div class="wf-add-step-line"></div>
+            <div class="wf-add-step-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </div>
+            <span class="wf-add-step-label">Add a step</span>
+        </div>
 
         {{-- Variable Picker Popover --}}
         <div
@@ -477,7 +505,7 @@
                       :class="{
                           'bg-green-500/20 text-green-300': stepPopover?.step?.status === 'completed',
                           'bg-red-500/20 text-red-300': stepPopover?.step?.status === 'failed',
-                          'bg-blue-500/20 text-blue-300': stepPopover?.step?.status === 'running',
+                          'bg-primary-500/20 text-primary-300': stepPopover?.step?.status === 'running',
                           'bg-gray-500/20 text-gray-300': stepPopover?.step?.status === 'skipped' || stepPopover?.step?.status === 'pending',
                       }"
                       x-text="stepPopover?.step?.status"></span>
@@ -513,6 +541,150 @@
             <div x-show="stepPopover?.step?.error_message" class="text-red-400 text-xs">
                 <h5 class="font-semibold uppercase mb-1">Error</h5>
                 <p x-text="stepPopover?.step?.error_message" class="m-0"></p>
+            </div>
+        </div>
+
+        {{-- Test Run Results Modal --}}
+        {{-- Test Run Slideover --}}
+        <div x-show="testRunResults" x-cloak class="fixed inset-0 z-[9999] flex" @click.self="testRunResults = null">
+            <div class="absolute inset-0 bg-black/20" @click="testRunResults = null"></div>
+            <div class="ml-auto relative w-full max-w-md h-full bg-white dark:bg-slate-800 shadow-2xl flex flex-col"
+                 x-show="testRunResults"
+                 x-transition:enter="transition ease-out duration-200"
+                 x-transition:enter-start="translate-x-full"
+                 x-transition:enter-end="translate-x-0"
+                 x-transition:leave="transition ease-in duration-150"
+                 x-transition:leave-start="translate-x-0"
+                 x-transition:leave-end="translate-x-full"
+                 @click.stop>
+
+                {{-- Header --}}
+                <div class="flex items-center justify-between px-5 py-3.5 border-b border-slate-200 dark:border-slate-700 shrink-0">
+                    <div class="flex items-center gap-2.5">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary-500"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+                        <h3 class="text-sm font-semibold text-slate-900 dark:text-white m-0">Test Run</h3>
+                        <span class="text-xs px-2 py-0.5 rounded-full font-medium"
+                            :class="testRunResults?.status === 'completed' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'"
+                            x-text="testRunResults?.status === 'completed' ? 'Passed' : 'Failed'"></span>
+                    </div>
+                    <button type="button" @click="testRunResults = null" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 bg-transparent border-0 cursor-pointer p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>
+                </div>
+
+                {{-- Summary bar --}}
+                <div class="px-5 py-2.5 bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700 shrink-0">
+                    <div class="flex items-center gap-4 text-xs text-slate-500 dark:text-slate-400">
+                        <span class="flex items-center gap-1">
+                            <span class="w-2 h-2 rounded-full bg-green-500"></span>
+                            Executed: <span class="font-medium text-slate-700 dark:text-slate-300" x-text="(testRunResults?.steps || []).filter(s => s.status === 'completed' && !s.dry_run_skipped).length"></span>
+                        </span>
+                        <span class="flex items-center gap-1">
+                            <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+                            Simulated: <span class="font-medium text-slate-700 dark:text-slate-300" x-text="(testRunResults?.steps || []).filter(s => s.dry_run_skipped).length"></span>
+                        </span>
+                        <span class="flex items-center gap-1">
+                            <span class="w-2 h-2 rounded-full bg-red-500"></span>
+                            Failed: <span class="font-medium text-slate-700 dark:text-slate-300" x-text="(testRunResults?.steps || []).filter(s => s.status === 'failed').length"></span>
+                        </span>
+                    </div>
+                </div>
+
+                {{-- Info banner --}}
+                <div class="px-5 py-2 bg-primary-50 dark:bg-primary-900/20 border-b border-primary-100 dark:border-primary-800/30 shrink-0">
+                    <p class="text-xs text-primary-600 dark:text-primary-400 m-0">
+                        <strong>Test mode:</strong> Actions that modify data (emails, record updates, webhooks) are simulated — no real changes were made.
+                    </p>
+                </div>
+
+                {{-- Global error --}}
+                <template x-if="testRunResults?.error && !testRunResults?.steps?.length">
+                    <div class="px-5 py-3 shrink-0">
+                        <div class="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded-lg p-3" x-text="testRunResults.error"></div>
+                    </div>
+                </template>
+
+                {{-- Steps --}}
+                <div class="overflow-y-auto flex-1 px-5 py-3">
+                    <template x-for="(step, idx) in (testRunResults?.steps || [])" :key="idx">
+                        <div class="mb-2.5">
+                            <div class="rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden"
+                                 :class="{ 'border-red-300 dark:border-red-700': step.status === 'failed' }">
+
+                                {{-- Step header --}}
+                                <button type="button"
+                                    class="w-full flex items-center gap-2.5 px-3 py-2.5 bg-transparent border-0 cursor-pointer text-left hover:bg-slate-50 dark:hover:bg-slate-700/50"
+                                    @click="step._expanded = !step._expanded">
+
+                                    <span class="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-white shrink-0"
+                                        :class="{
+                                            'bg-green-500': step.status === 'completed' && !step.dry_run_skipped,
+                                            'bg-amber-400': step.dry_run_skipped,
+                                            'bg-red-500': step.status === 'failed',
+                                            'bg-gray-400': step.status === 'skipped',
+                                        }" x-text="idx + 1"></span>
+
+                                    <div class="flex-1 min-w-0">
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-sm font-medium text-slate-800 dark:text-slate-200 truncate" x-text="step.action_label"></span>
+                                            <template x-if="step.dry_run_skipped">
+                                                <span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 font-medium shrink-0">Simulated</span>
+                                            </template>
+                                            <template x-if="step.status === 'failed'">
+                                                <span class="text-[10px] px-1.5 py-0.5 rounded bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400 font-medium shrink-0">Error</span>
+                                            </template>
+                                        </div>
+                                        <div class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5" x-text="step.node_type + (step.action_type ? ' → ' + step.action_type : '')"></div>
+                                    </div>
+
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                         class="text-slate-400 shrink-0 transition-transform duration-150"
+                                         :class="{ 'rotate-180': step._expanded }">
+                                        <polyline points="6 9 12 15 18 9"></polyline>
+                                    </svg>
+                                </button>
+
+                                {{-- Expanded details --}}
+                                <div x-show="step._expanded" x-collapse class="border-t border-slate-100 dark:border-slate-700">
+                                    {{-- Input data --}}
+                                    <template x-if="step.input && Object.keys(step.input).length">
+                                        <div class="px-3 py-2 border-b border-slate-100 dark:border-slate-700/50">
+                                            <div class="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">Input</div>
+                                            <pre class="text-xs bg-slate-50 dark:bg-slate-900 rounded p-2 overflow-x-auto m-0 text-slate-600 dark:text-slate-400 max-h-32 overflow-y-auto" x-text="JSON.stringify(step.input, null, 2)"></pre>
+                                        </div>
+                                    </template>
+
+                                    {{-- Output data --}}
+                                    <template x-if="step.output && Object.keys(step.output).length">
+                                        <div class="px-3 py-2 border-b border-slate-100 dark:border-slate-700/50">
+                                            <div class="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">
+                                                <span x-text="step.dry_run_skipped ? 'Would produce' : 'Output'"></span>
+                                            </div>
+                                            <pre class="text-xs bg-slate-50 dark:bg-slate-900 rounded p-2 overflow-x-auto m-0 text-slate-600 dark:text-slate-400 max-h-32 overflow-y-auto" x-text="JSON.stringify(Object.fromEntries(Object.entries(step.output).filter(([k]) => !k.startsWith('_'))), null, 2)"></pre>
+                                        </div>
+                                    </template>
+
+                                    {{-- Error --}}
+                                    <template x-if="step.error">
+                                        <div class="px-3 py-2">
+                                            <div class="text-[10px] font-semibold text-red-400 uppercase tracking-wider mb-1">Error</div>
+                                            <div class="text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded p-2" x-text="step.error"></div>
+                                        </div>
+                                    </template>
+
+                                    {{-- Simulated explanation --}}
+                                    <template x-if="step.dry_run_skipped && !step.error">
+                                        <div class="px-3 py-2">
+                                            <div class="text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/10 rounded p-2">
+                                                This action was simulated — in a real run, it would execute and modify data.
+                                            </div>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
             </div>
         </div>
 

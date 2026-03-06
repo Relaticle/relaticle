@@ -58,6 +58,7 @@ class LoopAction extends BaseAction
     {
         return [
             'collection' => ['type' => 'string', 'label' => 'Collection Path', 'required' => true],
+            'max_iterations' => ['type' => 'number', 'label' => 'Max Iterations', 'required' => false],
         ];
     }
 
@@ -71,6 +72,13 @@ class LoopAction extends BaseAction
                 ->placeholder('Select a field...')
                 ->helperText('Select the array field to iterate over')
                 ->options(fn (?Component $livewire) => static::getFieldOptions($livewire, null)),
+            \Filament\Forms\Components\TextInput::make('max_iterations')
+                ->label('Max Iterations')
+                ->numeric()
+                ->minValue(1)
+                ->maxValue(10000)
+                ->placeholder((string) config('workflow.max_loop_iterations', 500))
+                ->helperText('Maximum number of iterations before the loop stops. Leave empty to use the system default.'),
         ];
     }
 

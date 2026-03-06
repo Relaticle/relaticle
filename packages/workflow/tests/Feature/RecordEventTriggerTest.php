@@ -196,6 +196,89 @@ it('dispatches job for generic update without field filter', function () {
     });
 });
 
+it('dispatches job when field changes from specific value', function () {
+    WorkflowModel::create([
+        'name' => 'On Status From Draft',
+        'trigger_type' => TriggerType::RecordEvent,
+        'trigger_config' => [
+            'model' => TestCompany::class,
+            'event' => 'updated',
+            'field' => 'status',
+            'from_value' => 'draft',
+            'value' => 'active',
+        ],
+        'status' => 'live',
+    ]);
+
+    $company = TestCompany::create([
+        'name' => 'Acme Corp',
+        'status' => 'draft',
+    ]);
+
+    Queue::fake();
+
+    $company->update(['status' => 'active']);
+
+    Queue::assertPushed(ExecuteWorkflowJob::class, function (ExecuteWorkflowJob $job) {
+        return $job->workflow->name === 'On Status From Draft';
+    });
+});
+
+it('does not dispatch when from_value does not match', function () {
+    WorkflowModel::create([
+        'name' => 'On Status From Draft Only',
+        'trigger_type' => TriggerType::RecordEvent,
+        'trigger_config' => [
+            'model' => TestCompany::class,
+            'event' => 'updated',
+            'field' => 'status',
+            'from_value' => 'draft',
+            'value' => 'active',
+        ],
+        'status' => 'live',
+    ]);
+
+    $company = TestCompany::create([
+        'name' => 'Acme Corp',
+        'status' => 'paused',
+    ]);
+
+    Queue::fake();
+
+    // Changing from 'paused' to 'active' — should NOT trigger because from_value is 'draft'
+    $company->update(['status' => 'active']);
+
+    Queue::assertNotPushed(ExecuteWorkflowJob::class);
+});
+
+it('includes changed fields in context for update events', function () {
+    WorkflowModel::create([
+        'name' => 'With Changes Context',
+        'trigger_type' => TriggerType::RecordEvent,
+        'trigger_config' => [
+            'model' => TestCompany::class,
+            'event' => 'updated',
+        ],
+        'status' => 'live',
+    ]);
+
+    $company = TestCompany::create([
+        'name' => 'Acme Corp',
+        'status' => 'draft',
+    ]);
+
+    Queue::fake();
+
+    $company->update(['status' => 'active', 'name' => 'New Name']);
+
+    Queue::assertPushed(ExecuteWorkflowJob::class, function (ExecuteWorkflowJob $job) {
+        return isset($job->context['changes'])
+            && isset($job->context['changes']['status'])
+            && $job->context['changes']['status']['from'] === 'draft'
+            && $job->context['changes']['status']['to'] === 'active';
+    });
+});
+
 it('does not dispatch when field changes but value does not match', function () {
     WorkflowModel::create([
         'name' => 'On Status Active',

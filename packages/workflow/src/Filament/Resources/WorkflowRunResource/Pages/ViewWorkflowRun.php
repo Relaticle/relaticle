@@ -10,4 +10,11 @@ use Relaticle\Workflow\Filament\Resources\WorkflowRunResource;
 class ViewWorkflowRun extends ViewRecord
 {
     protected static string $resource = WorkflowRunResource::class;
+
+    protected function mutateRecord(\Illuminate\Database\Eloquent\Model $record): \Illuminate\Database\Eloquent\Model
+    {
+        $record->load('steps.node');
+
+        return $record;
+    }
 }

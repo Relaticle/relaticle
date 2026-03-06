@@ -45,6 +45,11 @@ class SendWebhookAction extends BaseAction
         return 'Send Webhook';
     }
 
+    public static function hasSideEffects(): bool
+    {
+        return true;
+    }
+
     public static function category(): string
     {
         return 'Integration';

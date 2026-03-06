@@ -30,6 +30,8 @@ import {
     PartyPopper,
     Braces,
     Sparkles,
+    Filter,
+    GitBranch,
 } from 'lucide';
 
 /**
@@ -82,3 +84,5 @@ export const ICON_MEGAPHONE    = renderIcon(Megaphone);
 export const ICON_PARTY        = renderIcon(PartyPopper);
 export const ICON_BRACES       = renderIcon(Braces);
 export const ICON_SPARKLES     = renderIcon(Sparkles);
+export const ICON_FILTER       = renderIcon(Filter);
+export const ICON_GIT_BRANCH   = renderIcon(GitBranch);

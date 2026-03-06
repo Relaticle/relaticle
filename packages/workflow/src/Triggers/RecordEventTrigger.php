@@ -41,7 +41,8 @@ class RecordEventTrigger implements WorkflowTrigger
      *
      * For "updated" events with a field/value filter, checks that:
      *  1. The specified field was actually changed
-     *  2. The new value matches the target value
+     *  2. The new value matches the target value (if specified)
+     *  3. The old value matches the from_value (if specified)
      *
      * @param  Workflow  $workflow  The workflow to evaluate
      * @param  Model  $model  The Eloquent model that triggered the event
@@ -61,8 +62,16 @@ class RecordEventTrigger implements WorkflowTrigger
                 return false;
             }
 
-            // If a target value is specified, the new value must match
-            if (isset($config['value'])) {
+            // If a "from" value is specified, the original value must match
+            if (isset($config['from_value']) && $config['from_value'] !== '') {
+                $originalValue = (string) $model->getOriginal($field);
+                if ($originalValue !== (string) $config['from_value']) {
+                    return false;
+                }
+            }
+
+            // If a "to" value is specified, the new value must match
+            if (isset($config['value']) && $config['value'] !== '') {
                 return (string) $model->getAttribute($field) === (string) $config['value'];
             }
         }
@@ -79,11 +88,31 @@ class RecordEventTrigger implements WorkflowTrigger
      */
     public function buildContext(Model $model, string $event): array
     {
-        return [
+        $context = [
             'record' => $model->toArray(),
             'event' => $event,
             'model_class' => get_class($model),
             'model_id' => $model->getKey(),
         ];
+
+        // For update events, include changed fields info
+        if ($event === 'updated') {
+            $changes = $model->getChanges();
+            $changedFields = [];
+
+            foreach ($changes as $field => $newValue) {
+                if ($field === 'updated_at') {
+                    continue;
+                }
+                $changedFields[$field] = [
+                    'from' => $model->getOriginal($field),
+                    'to' => $newValue,
+                ];
+            }
+
+            $context['changes'] = $changedFields;
+        }
+
+        return $context;
     }
 }

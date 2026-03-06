@@ -154,6 +154,11 @@ class SummarizeAction extends BaseAction
         return 'Summarize record';
     }
 
+    public static function hasSideEffects(): bool
+    {
+        return true;
+    }
+
     public static function category(): string
     {
         return 'AI';

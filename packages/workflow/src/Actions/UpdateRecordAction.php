@@ -117,6 +117,11 @@ class UpdateRecordAction extends BaseAction
         return 'Update Record';
     }
 
+    public static function hasSideEffects(): bool
+    {
+        return true;
+    }
+
     public static function category(): string
     {
         return 'Records';

@@ -6,13 +6,15 @@
  */
 
 import '../../css/workflow-builder.css';
-import { createGraph, enterRunView, exitRunView } from './graph.js';
+import { createGraph, enterRunView, exitRunView, ensureEdgesBehindNodes } from './graph.js';
 import { registerTriggerNode } from './nodes/TriggerNode.js';
 import { registerActionNode } from './nodes/ActionNode.js';
 import { registerConditionNode } from './nodes/ConditionNode.js';
 import { registerDelayNode } from './nodes/DelayNode.js';
 import { registerLoopNode } from './nodes/LoopNode.js';
 import { registerStopNode } from './nodes/StopNode.js';
+import { registerFilterNode } from './nodes/FilterNode.js';
+import { registerSwitchNode } from './nodes/SwitchNode.js';
 import { validateAllNodes, clearValidationErrors } from './config-panel.js';
 import { organizeLayout } from './toolbar.js';
 import { configPanelComponent } from './alpine/config-panel.js';
@@ -45,6 +47,8 @@ const SHAPE_MAP = {
     trigger: 'workflow-trigger',
     action: 'workflow-action',
     condition: 'workflow-condition',
+    filter: 'workflow-filter',
+    switch: 'workflow-switch',
     delay: 'workflow-delay',
     loop: 'workflow-loop',
     stop: 'workflow-stop',
@@ -83,11 +87,18 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
         stepPopover: null,
         totalRunCount: 0,
 
-        // Block picker state
+        // Test run state
+        testRunning: false,
+        testRunResults: null,
+
+        // Block picker state (sidebar)
         blockPickerOpen: false,
         blockPickerSearch: '',
-        blockPickerPos: { x: 0, y: 0 },
         blockPickerSourceNode: null,
+        blockPickerHighlightKey: '',
+
+        // Add-step placeholder
+        addStepPlaceholder: { visible: false, x: 0, y: 0, sourceNodeId: null },
 
         // Spread mixins
         ...topBar,
@@ -173,6 +184,10 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
                 .filter(cat => cat.blocks.length > 0);
         },
 
+        get flatPickerBlocks() {
+            return this.filteredCategories.flatMap(cat => cat.blocks);
+        },
+
         init() {
             // Register X6 node shapes
             registerTriggerNode();
@@ -181,6 +196,8 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
             registerDelayNode();
             registerLoopNode();
             registerStopNode();
+            registerFilterNode();
+            registerSwitchNode();
 
             // Create graph
             const container = document.getElementById('workflow-canvas');
@@ -209,6 +226,9 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
                     }
                     return;
                 }
+
+                // Close block picker when selecting a node — config panel takes over
+                this.blockPickerOpen = false;
 
                 this.selectedNode = e.detail.data;
                 this.nodeData = e.detail.data;
@@ -277,8 +297,8 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
             });
 
             // Open block picker from canvas double-click
-            window.addEventListener('wf:open-picker', (e) => {
-                this.openBlockPicker(null, e.detail.x, e.detail.y);
+            window.addEventListener('wf:open-picker', () => {
+                this.openBlockPicker();
             });
 
             // Mode toggle shortcuts
@@ -301,7 +321,10 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
             });
 
             // Track node count for empty canvas onboarding
-            graph.on('cell:added', () => { this.hasNodes = graph.getNodes().length > 0; });
+            graph.on('cell:added', () => {
+                this.hasNodes = graph.getNodes().length > 0;
+                ensureEdgesBehindNodes(graph);
+            });
             graph.on('cell:removed', () => { this.hasNodes = graph.getNodes().length > 0; });
 
             // Track dirty state (suppressed during canvas load)
@@ -342,6 +365,11 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
             // Track zoom level
             graph.on('scale', ({ sx }) => {
                 this.zoomLevel = sx;
+            });
+
+            // Add-step placeholder position tracking
+            window.addEventListener('wf:placeholder-update', (e) => {
+                this.addStepPlaceholder = e.detail;
             });
         },
 
@@ -431,19 +459,50 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
 
         // ── Block Picker ─────────────────────────────────────
 
-        openBlockPicker(sourceNodeId, x, y) {
+        openBlockPicker(sourceNodeId) {
             this.blockPickerSourceNode = sourceNodeId || null;
-            // Clamp position so the picker stays within the viewport
-            const pickerHeight = 400;
-            const clampedY = (y + pickerHeight > window.innerHeight)
-                ? Math.max(60, window.innerHeight - pickerHeight - 20)
-                : y;
-            this.blockPickerPos = { x, y: clampedY };
             this.blockPickerSearch = '';
+            this.blockPickerHighlightKey = '';
             this.blockPickerOpen = true;
+            // Close any other panel view — block picker takes over the sidebar
+            this.panelOpen = false;
+            this.panelView = null;
+            this.selectedNode = null;
+            this.selectedNodeId = null;
+            const graph = window.__wfGraph;
+            if (graph) graph.cleanSelection();
+            if (window.Livewire) {
+                window.Livewire.dispatch('node-deselected');
+            }
             this.$nextTick(() => {
                 this.$refs.pickerSearchInput?.focus();
             });
+        },
+
+        pickerKeydown(event) {
+            const flat = this.flatPickerBlocks;
+            if (event.key === 'Escape') {
+                this.blockPickerOpen = false;
+                return;
+            }
+            if (flat.length === 0) return;
+            const keyOf = b => b.type + (b.actionType || '');
+            const currentIdx = flat.findIndex(b => keyOf(b) === this.blockPickerHighlightKey);
+            if (event.key === 'ArrowDown') {
+                event.preventDefault();
+                const nextIdx = currentIdx < flat.length - 1 ? currentIdx + 1 : 0;
+                this.blockPickerHighlightKey = keyOf(flat[nextIdx]);
+                this.$nextTick(() => document.querySelector('.wf-picker-item-hl')?.scrollIntoView({ block: 'nearest' }));
+            } else if (event.key === 'ArrowUp') {
+                event.preventDefault();
+                const prevIdx = currentIdx > 0 ? currentIdx - 1 : flat.length - 1;
+                this.blockPickerHighlightKey = keyOf(flat[prevIdx]);
+                this.$nextTick(() => document.querySelector('.wf-picker-item-hl')?.scrollIntoView({ block: 'nearest' }));
+            } else if (event.key === 'Enter' && this.blockPickerHighlightKey) {
+                event.preventDefault();
+                const block = flat.find(b => keyOf(b) === this.blockPickerHighlightKey);
+                if (block) this.addBlock(block);
+            }
         },
 
         addBlock(block) {
@@ -457,23 +516,56 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
                 return;
             }
 
-            const sourceNodeId = this.blockPickerSourceNode;
-            const pos = !sourceNodeId && this.blockPickerPos
-                ? graph.pageToLocal(this.blockPickerPos.x, this.blockPickerPos.y)
-                : null;
-            const newNode = addBlockToGraph(graph, block, sourceNodeId, null, pos);
+            // Sequential placement: find the last node and place below it, aligned
+            const nodes = graph.getNodes();
+            const VERTICAL_SPACING = 120;
+            let sourceNodeId = this.blockPickerSourceNode;
+
+            if (nodes.length === 0) {
+                // First node: place at canvas center (convert page coords to graph coords)
+                const container = document.getElementById('workflow-canvas');
+                const rect = container ? container.getBoundingClientRect() : { left: 0, top: 0, width: 600, height: 400 };
+                const centerPage = { x: rect.left + rect.width / 2, y: rect.top + rect.height / 3 };
+                const graphPt = graph.pageToLocal(centerPage.x, centerPage.y);
+                const newNode = addBlockToGraph(graph, block, null, null, { x: graphPt.x - 140, y: graphPt.y });
+                this.blockPickerOpen = false;
+                return;
+            }
+
+            // Find the bottommost node
+            let bottomNode = null;
+            let maxBottom = -Infinity;
+            for (const n of nodes) {
+                const pos = n.getPosition();
+                const size = n.getSize();
+                const bottom = pos.y + size.height;
+                if (bottom > maxBottom) {
+                    maxBottom = bottom;
+                    bottomNode = n;
+                }
+            }
+
+            // Auto-connect to the bottommost node if no explicit source
+            if (!sourceNodeId && bottomNode) {
+                const bottomData = bottomNode.getData() || {};
+                if (bottomData.type !== 'stop') {
+                    sourceNodeId = bottomNode.id;
+                }
+            }
+
+            // Let addBlockToGraph handle positioning relative to sourceNodeId
+            const newNode = addBlockToGraph(graph, block, sourceNodeId, null, null);
             this.blockPickerOpen = false;
 
-            // Auto-connect: if no explicit source and exactly one node has an unconnected output, connect to it
-            if (!sourceNodeId && newNode) {
+            // Auto-connect if no sourceNodeId was set but there's a node with a free output
+            if (!sourceNodeId && newNode && nodes.length > 0) {
                 const newNodeData = newNode.getData() || {};
                 if (newNodeData.type !== 'trigger') {
                     const allEdges = graph.getEdges();
-                    const nodesWithFreeOutput = graph.getNodes().filter(n => {
+                    const nodesWithFreeOutput = nodes.filter(n => {
                         if (n.id === newNode.id) return false;
                         const data = n.getData() || {};
                         if (data.type === 'stop') return false;
-
                         const hasOutgoing = allEdges.some(e => {
                             const source = e.getSourceCell();
                             return source && source.id === n.id;
@@ -487,6 +579,7 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
                         const autoEdgeConfig = {
                             source: { cell: sourceNode.id, port: sourcePort },
                             target: { cell: newNode.id, port: 'in' },
+                            zIndex: -1,
                             attrs: {
                                 line: {
                                     stroke: '#94a3b8',
@@ -496,10 +589,9 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
                             },
                         };
 
-                        // Add condition labels for auto-connected condition edges
                         if (sourceNode.getData()?.type === 'condition') {
                             const isYes = sourcePort === 'out-yes';
-                            const labelText = isYes ? 'does match' : 'does not match';
+                            const labelText = isYes ? 'Yes' : 'No';
                             autoEdgeConfig.labels = [{
                                 attrs: {
                                     label: { text: labelText, fill: '#94a3b8', fontSize: 11, fontWeight: 500 },
@@ -543,8 +635,9 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
             const newNode = addBlockToGraph(graph, block, null, null, pos);
             if (!newNode) return;
 
-            graph.addEdge({ source: { cell: sourceId, port: sourcePortId || 'out' }, target: { cell: newNode.id, port: 'in' } });
-            graph.addEdge({ source: { cell: newNode.id, port: 'out' }, target: { cell: targetId, port: targetPortId || 'in' } });
+            graph.addEdge({ source: { cell: sourceId, port: sourcePortId || 'out' }, target: { cell: newNode.id, port: 'in' }, zIndex: -1 });
+            graph.addEdge({ source: { cell: newNode.id, port: 'out' }, target: { cell: targetId, port: targetPortId || 'in' }, zIndex: -1 });
+            requestAnimationFrame(() => ensureEdgesBehindNodes(graph));
 
             this.edgeAddBtn.visible = false;
             this.blockPickerOpen = false;
@@ -577,6 +670,7 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
                             shape: SHAPE_MAP[node.type] || 'workflow-action',
                             x: node.position_x || 100,
                             y: node.position_y || 100,
+                            zIndex: 10,
                             data: {
                                 type: node.type,
                                 nodeId: node.node_id,
@@ -593,8 +687,7 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
                         const isYes = lower === 'yes' || lower === 'does match';
                         let labelConfig = [];
                         if (label) {
-                            // Normalize legacy "Yes"/"No" labels to Attio-style
-                            const displayLabel = isYes ? 'does match' : 'does not match';
+                            const displayLabel = isYes ? 'Yes' : 'No';
                             labelConfig = [{
                                 attrs: {
                                     label: {
@@ -621,6 +714,7 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
                             id: edge.edge_id,
                             source: edge.source_node_id,
                             target: edge.target_node_id,
+                            zIndex: -1,
                             labels: labelConfig,
                             attrs: {
                                 line: {
@@ -634,6 +728,10 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
 
                     // Fit to view
                     graph.zoomToFit({ padding: 60, maxScale: 1.5 });
+
+                    // Ensure edges render behind nodes (SVG paint order)
+                    // Called after zoomToFit to avoid X6 re-rendering undoing the order
+                    requestAnimationFrame(() => ensureEdgesBehindNodes(graph));
                 }
 
                 if (data.canvas_data?.zoom) {
@@ -721,6 +819,46 @@ function workflowBuilderFactory(workflowId, initialStatus, initialName) {
                 showToast('Failed to save. Your changes are preserved.', 'error');
             } finally {
                 this.saving = false;
+            }
+        },
+
+        async runTestRun() {
+            if (this.testRunning) return;
+
+            // Save first if dirty
+            if (this.isDirty) {
+                await this.saveCanvas();
+            }
+
+            this.testRunning = true;
+            this.testRunResults = null;
+
+            try {
+                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
+                const response = await fetch(`/workflow/api/workflows/${this.workflowId}/test-run`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                    },
+                    body: JSON.stringify({ context: {} }),
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    this.testRunResults = data;
+                    showToast(`Test run ${data.status}: ${(data.steps || []).length} step(s) traced.`, data.status === 'completed' ? 'success' : 'error');
+                } else {
+                    this.testRunResults = { status: 'failed', error: data.error || 'Test run failed', steps: [] };
+                    showToast(data.error || 'Test run failed.', 'error');
+                }
+            } catch (err) {
+                console.error('Test run failed:', err);
+                this.testRunResults = { status: 'failed', error: err.message, steps: [] };
+                showToast('Test run failed.', 'error');
+            } finally {
+                this.testRunning = false;
             }
         },
 

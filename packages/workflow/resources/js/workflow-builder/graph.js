@@ -75,6 +75,24 @@ function wouldCreateCycle(graph, sourceId, targetId) {
 }
 
 /**
+ * Reorder SVG DOM children so edges render behind nodes.
+ * SVG uses paint order (later elements render on top), so edges must come first.
+ */
+export function ensureEdgesBehindNodes(graph) {
+    const stage = graph.container?.querySelector('.x6-graph-svg-stage');
+    if (!stage) return;
+
+    const children = Array.from(stage.children);
+    const edges = children.filter(el => el.classList.contains('x6-edge'));
+    if (edges.length === 0) return;
+
+    // Move all edge elements to the beginning of the stage group
+    const firstNonEdge = children.find(el => !el.classList.contains('x6-edge'));
+    if (!firstNonEdge) return;
+    edges.forEach(el => stage.insertBefore(el, firstNonEdge));
+}
+
+/**
  * Create and configure the X6 graph instance.
  */
 export function createGraph(container, minimapContainer) {
@@ -82,6 +100,7 @@ export function createGraph(container, minimapContainer) {
         container,
         width: container.offsetWidth,
         height: container.offsetHeight,
+        sorting: 'none',
         grid: {
             visible: true,
             size: 20,
@@ -92,13 +111,21 @@ export function createGraph(container, minimapContainer) {
             },
         },
         connecting: {
-            router: 'manhattan',
+            router: {
+                name: 'manhattan',
+                args: {
+                    padding: 20,
+                    step: 10,
+                    startDirections: ['bottom'],
+                    endDirections: ['top'],
+                },
+            },
             connector: {
                 name: 'rounded',
-                args: { radius: 8 },
+                args: { radius: 10 },
             },
             anchor: 'center',
-            connectionPoint: 'anchor',
+            connectionPoint: 'boundary',
             allowBlank: false,
             allowLoop: false,
             allowMulti: true,
@@ -107,16 +134,17 @@ export function createGraph(container, minimapContainer) {
                 return graph.createEdge({
                     attrs: {
                         line: {
-                            stroke: '#94a3b8',
+                            stroke: '#cbd5e1',
                             strokeWidth: 1.5,
                             targetMarker: {
                                 name: 'block',
-                                width: 10,
-                                height: 6,
+                                width: 8,
+                                height: 5,
+                                fill: '#cbd5e1',
                             },
                         },
                     },
-                    zIndex: 0,
+                    zIndex: -1,
                 });
             },
             validateConnection({ sourceCell, targetCell, sourcePort, targetPort }) {
@@ -230,6 +258,66 @@ export function createGraph(container, minimapContainer) {
         }));
     });
 
+    // Update "add step" placeholder position after node changes
+    const updatePlaceholder = () => {
+        requestAnimationFrame(() => {
+            const nodes = graph.getNodes();
+            if (nodes.length === 0) {
+                window.dispatchEvent(new CustomEvent('wf:placeholder-update', { detail: { visible: false } }));
+                return;
+            }
+
+            // Find the bottommost node that has a free output (no outgoing edges)
+            const edges = graph.getEdges();
+            let bottomFreeNode = null;
+            let maxBottom = -Infinity;
+
+            for (const n of nodes) {
+                const data = n.getData() || {};
+                if (data.type === 'stop') continue;
+                const hasOutgoing = edges.some(e => {
+                    const src = e.getSourceCell();
+                    return src && src.id === n.id;
+                });
+                if (hasOutgoing) continue;
+
+                const pos = n.getPosition();
+                const size = n.getSize();
+                const bottom = pos.y + size.height;
+                if (bottom > maxBottom) {
+                    maxBottom = bottom;
+                    bottomFreeNode = n;
+                }
+            }
+
+            if (!bottomFreeNode) {
+                window.dispatchEvent(new CustomEvent('wf:placeholder-update', { detail: { visible: false } }));
+                return;
+            }
+
+            const pos = bottomFreeNode.getPosition();
+            const size = bottomFreeNode.getSize();
+            const centerX = pos.x + size.width / 2;
+            const belowY = pos.y + size.height + 60;
+
+            // Convert graph coords to page coords
+            const pagePt = graph.localToPage({ x: centerX, y: belowY });
+
+            window.dispatchEvent(new CustomEvent('wf:placeholder-update', {
+                detail: { visible: true, x: pagePt.x, y: pagePt.y, sourceNodeId: bottomFreeNode.id },
+            }));
+        });
+    };
+
+    graph.on('cell:added', updatePlaceholder);
+    graph.on('cell:removed', updatePlaceholder);
+    graph.on('node:moved', updatePlaceholder);
+    graph.on('node:resized', updatePlaceholder);
+    graph.on('edge:connected', updatePlaceholder);
+    graph.on('edge:removed', updatePlaceholder);
+    graph.on('scale', updatePlaceholder);
+    graph.on('translate', updatePlaceholder);
+
     // Color-code edges from condition nodes
     graph.on('edge:connected', ({ edge }) => {
         const sourceNode = edge.getSourceNode();
@@ -239,7 +327,7 @@ export function createGraph(container, minimapContainer) {
 
         const sourcePortId = edge.getSourcePortId();
         const isYes = sourcePortId === 'out-yes';
-        const label = isYes ? 'does match' : 'does not match';
+        const label = isYes ? 'Yes' : 'No';
 
         edge.setLabels([{
             attrs: {
@@ -362,7 +450,7 @@ export function exitRunView(graph) {
 
     // Reset edge styling
     graph.getEdges().forEach(edge => {
-        edge.attr('line/stroke', '#94a3b8');
+        edge.attr('line/stroke', '#cbd5e1');
         edge.attr('line/strokeWidth', 1.5);
         edge.attr('line/strokeDasharray', null);
     });

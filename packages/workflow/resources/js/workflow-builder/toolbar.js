@@ -71,7 +71,7 @@ function simpleVerticalLayout(graph) {
 
     const startX = 300;
     let currentY = 60;
-    const spacing = 100;
+    const spacing = 60;
 
     nodes.forEach(node => {
         node.position(startX, currentY, { transition: { duration: 300 } });

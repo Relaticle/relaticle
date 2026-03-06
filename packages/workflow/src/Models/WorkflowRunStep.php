@@ -22,6 +22,7 @@ class WorkflowRunStep extends Model
         'error_message',
         'started_at',
         'completed_at',
+        'duration_ms',
     ];
 
     protected $casts = [
@@ -30,6 +31,7 @@ class WorkflowRunStep extends Model
         'output_data' => 'array',
         'started_at' => 'datetime',
         'completed_at' => 'datetime',
+        'duration_ms' => 'integer',
     ];
 
     public function getTable(): string

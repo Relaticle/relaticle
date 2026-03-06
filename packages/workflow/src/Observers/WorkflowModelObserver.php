@@ -43,7 +43,18 @@ class WorkflowModelObserver
      */
     protected function handleEvent(Model $model, string $event): void
     {
-        $workflows = $this->trigger->getMatchingWorkflows($model, $event);
+        try {
+            $workflows = $this->trigger->getMatchingWorkflows($model, $event);
+        } catch (\Illuminate\Database\QueryException $e) {
+            // Workflows table may not exist yet (e.g. during fresh migrations or testing).
+            // Roll back any aborted transaction state (PostgreSQL requires this).
+            try {
+                \Illuminate\Support\Facades\DB::rollBack();
+            } catch (\Throwable) {
+            }
+
+            return;
+        }
 
         foreach ($workflows as $workflow) {
             if ($this->trigger->shouldTrigger($workflow, $model, $event)) {

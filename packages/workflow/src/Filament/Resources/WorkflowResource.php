@@ -18,6 +18,7 @@ use Filament\Actions\EditAction;
 use Filament\Actions\RestoreAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Grouping\Group;
@@ -47,6 +48,10 @@ class WorkflowResource extends Resource
             Textarea::make('description')
                 ->maxLength(1000)
                 ->columnSpanFull(),
+            TextInput::make('folder')
+                ->label('Folder')
+                ->placeholder('e.g. Sales, Marketing, Onboarding...')
+                ->maxLength(100),
             Select::make('trigger_type')
                 ->options([
                     TriggerType::RecordEvent->value => 'Record Event',
@@ -108,7 +113,7 @@ class WorkflowResource extends Resource
                     ->action(fn (Workflow $record) => $record->toggleFavorite(auth()->user()))
                     ->width('40px'),
                 TextColumn::make('name')
-                    ->description(fn (Workflow $record): string => $record->description ?? 'No description')
+                    ->description(fn (Workflow $record): ?string => $record->description ?: null)
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('trigger_type')
@@ -122,12 +127,34 @@ class WorkflowResource extends Resource
                     }),
                 TextColumn::make('status')
                     ->badge()
+                    ->formatStateUsing(fn (WorkflowStatus $state): string => match ($state) {
+                        WorkflowStatus::Draft => 'Draft',
+                        WorkflowStatus::Live => 'Live',
+                        WorkflowStatus::Paused => 'Paused',
+                        WorkflowStatus::Archived => 'Archived',
+                    })
                     ->color(fn (WorkflowStatus $state): string => match ($state) {
                         WorkflowStatus::Draft => 'gray',
                         WorkflowStatus::Live => 'success',
                         WorkflowStatus::Paused => 'warning',
                         WorkflowStatus::Archived => 'danger',
                     }),
+                ToggleColumn::make('is_active')
+                    ->label('Active')
+                    ->onColor('success')
+                    ->offColor('gray')
+                    ->updateStateUsing(function (Workflow $record, bool $state) {
+                        $record->update([
+                            'status' => $state ? WorkflowStatus::Live : WorkflowStatus::Paused,
+                        ]);
+                        return $state;
+                    })
+                    ->getStateUsing(fn (Workflow $record): bool => $record->status === WorkflowStatus::Live),
+                TextColumn::make('folder')
+                    ->label('Folder')
+                    ->placeholder('—')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('creator.name')
                     ->label('Created By')
                     ->sortable()
@@ -155,13 +182,41 @@ class WorkflowResource extends Resource
                         TriggerType::Manual->value => 'Manual',
                         TriggerType::Webhook->value => 'Webhook',
                     ]),
+                SelectFilter::make('folder')
+                    ->options(fn () => Workflow::query()
+                        ->whereNotNull('folder')
+                        ->distinct()
+                        ->pluck('folder', 'folder')
+                        ->toArray()
+                    )
+                    ->placeholder('All folders'),
                 TrashedFilter::make(),
             ])
             ->groups([
+                Group::make('folder')->label('Folder')->getTitleFromRecordUsing(fn (Workflow $record) => $record->folder ?: 'Uncategorized'),
                 'status',
                 'trigger_type',
                 Group::make('creator.name')->label('Created By'),
             ])
+            ->emptyState(function () {
+                $templates = \Relaticle\Workflow\Models\WorkflowTemplate::active()
+                    ->orderBy('sort_order')
+                    ->orderBy('name')
+                    ->limit(8)
+                    ->get();
+
+                if ($templates->isEmpty()) {
+                    return null;
+                }
+
+                return view('workflow::filament.template-empty-state', [
+                    'templates' => $templates,
+                    'createUrl' => static::getUrl('create'),
+                ]);
+            })
+            ->emptyStateHeading('No workflows found')
+            ->emptyStateDescription('Create your first workflow to automate tasks, send notifications, and streamline your CRM processes.')
+            ->emptyStateIcon('heroicon-o-bolt')
             ->defaultSort('created_at', 'desc')
             ->recordUrl(fn (Workflow $record): string => static::getUrl('builder', ['record' => $record]))
             ->actions([

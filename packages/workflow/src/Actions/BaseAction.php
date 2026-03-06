@@ -31,6 +31,15 @@ abstract class BaseAction implements WorkflowAction
     }
 
     /**
+     * Whether this action has side effects (sends emails, creates records, makes HTTP calls, etc.).
+     * Actions with side effects are skipped during dry-run mode.
+     */
+    public static function hasSideEffects(): bool
+    {
+        return false;
+    }
+
+    /**
      * Get the Filament form components for configuring this action.
      *
      * @return array<\Filament\Forms\Components\Field>

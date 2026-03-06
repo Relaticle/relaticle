@@ -27,6 +27,8 @@ class WorkflowExecutor
 {
     private bool $isPaused = false;
 
+    private bool $dryRun = false;
+
     private ?array $registeredActionsCache = null;
 
     public function __construct(
@@ -34,6 +36,24 @@ class WorkflowExecutor
         private readonly ConditionEvaluator $conditionEvaluator,
         private readonly VariableResolver $variableResolver,
     ) {}
+
+    /**
+     * Execute a workflow in test/debug mode — real E2E execution with all actions
+     * firing normally. Only delays are skipped (executed instantly) so you don't
+     * have to wait. The run is marked as a test run for identification.
+     *
+     * @param  array<string, mixed>  $context
+     */
+    public function dryRun(Workflow $workflow, array $context): WorkflowRun
+    {
+        $this->dryRun = true;
+
+        try {
+            return $this->execute($workflow, $context);
+        } finally {
+            $this->dryRun = false;
+        }
+    }
 
     /**
      * Execute a workflow with the given context.
@@ -75,7 +95,7 @@ class WorkflowExecutor
             $this->failRun($run, $e->getMessage());
         }
 
-        $run->load('steps');
+        $run->load('steps.node');
 
         return $run;
     }
@@ -102,7 +122,7 @@ class WorkflowExecutor
 
         if ($updated === 0) {
             // Already resumed by another process, or not in Paused state
-            $run->load('steps');
+            $run->load('steps.node');
             return $run->fresh();
         }
 
@@ -160,7 +180,7 @@ class WorkflowExecutor
             $this->failRun($run, $e->getMessage());
         }
 
-        $run->load('steps');
+        $run->load('steps.node');
 
         return $run;
     }
@@ -298,12 +318,17 @@ class WorkflowExecutor
 
             /** @var WorkflowAction $action */
             $action = new $actionClass();
+
             $output = $action->execute($resolvedConfig, $context);
 
+            $completedAt = Carbon::now();
             $step->update([
                 'status' => StepStatus::Completed,
                 'output_data' => $output,
-                'completed_at' => Carbon::now(),
+                'completed_at' => $completedAt,
+                'duration_ms' => $step->started_at
+                    ? (int) $step->started_at->diffInMilliseconds($completedAt)
+                    : null,
             ]);
 
             // Propagate step output into context for downstream steps
@@ -314,10 +339,14 @@ class WorkflowExecutor
 
             $this->enqueueNextNodes($walker, $node, $queue);
         } catch (\Throwable $e) {
+            $failedAt = Carbon::now();
             $step->update([
                 'status' => StepStatus::Failed,
                 'error_message' => $e->getMessage(),
-                'completed_at' => Carbon::now(),
+                'completed_at' => $failedAt,
+                'duration_ms' => $step->started_at
+                    ? (int) $step->started_at->diffInMilliseconds($failedAt)
+                    : null,
             ]);
 
             throw $e;
@@ -347,6 +376,11 @@ class WorkflowExecutor
             'output_data' => $output,
             'completed_at' => Carbon::now(),
         ]);
+
+        // In dry-run mode, don't actually pause or dispatch jobs — just continue
+        if ($this->dryRun) {
+            return;
+        }
 
         // Pause the run and signal the BFS loop to stop
         $run->update(['status' => WorkflowRunStatus::Paused]);
@@ -407,9 +441,18 @@ class WorkflowExecutor
             $items = [];
         }
 
-        $maxIterations = (int) config('workflow.max_loop_iterations', 500);
+        $globalLimit = (int) config('workflow.max_loop_iterations', 500);
+        $nodeLimit = isset($resolvedConfig['max_iterations']) && $resolvedConfig['max_iterations'] !== null && $resolvedConfig['max_iterations'] !== ''
+            ? (int) $resolvedConfig['max_iterations']
+            : $globalLimit;
+        $maxIterations = min($nodeLimit, $globalLimit);
+
         if (count($items) > $maxIterations) {
-            throw new \RuntimeException("Loop exceeds maximum of {$maxIterations} iterations (has " . count($items) . ').');
+            \Illuminate\Support\Facades\Log::warning("Workflow loop limited: collection has " . count($items) . " items but max_iterations is {$maxIterations}. Truncating.", [
+                'workflow_run_id' => $run->id,
+                'node_id' => $node->node_id,
+            ]);
+            $items = array_slice($items, 0, $maxIterations);
         }
 
         // Get the downstream nodes of the loop
@@ -536,8 +579,8 @@ class WorkflowExecutor
         $config = $node->config ?? [];
         $result = $this->evaluateConditionConfig($config, $context);
 
-        $takenLabel = $result ? 'does match' : 'does not match';
-        $skippedLabel = $result ? 'does not match' : 'does match';
+        $takenLabel = $result ? 'Yes' : 'No';
+        $skippedLabel = $result ? 'No' : 'Yes';
 
         // Follow the taken branch
         $takenEdge = $walker->getEdgeByLabel($node, $takenLabel);
@@ -558,6 +601,71 @@ class WorkflowExecutor
         }
     }
 
+
+    /**
+     * Execute a filter node — continue only if condition passes, otherwise stop.
+     */
+    private function executeFilterNode(
+        WorkflowNode $node,
+        GraphWalker $walker,
+        WorkflowRun $run,
+        array $context,
+        \SplQueue $queue,
+    ): void {
+        $config = $node->config ?? [];
+        $result = $this->evaluateConditionConfig($config, $context);
+
+        if ($result) {
+            $this->createStep($run, $node, StepStatus::Completed);
+            $this->enqueueNextNodes($walker, $node, $queue);
+        } else {
+            $this->createStep($run, $node, StepStatus::Skipped);
+            // Filter stops the workflow for this record — don't enqueue next nodes
+        }
+    }
+
+    /**
+     * Execute a switch node — route to branch matching the field value.
+     */
+    private function executeSwitchNode(
+        WorkflowNode $node,
+        GraphWalker $walker,
+        WorkflowRun $run,
+        array $context,
+        \SplQueue $queue,
+    ): void {
+        $config = $node->config ?? [];
+        $field = $config['field'] ?? '';
+        $fieldValue = (string) data_get($context, $field, '');
+        $cases = $config['cases'] ?? [];
+        $hasDefault = $config['hasDefault'] ?? true;
+
+        // Find matching case
+        $matchedLabel = null;
+        foreach ($cases as $case) {
+            if (strcasecmp((string) ($case['value'] ?? ''), $fieldValue) === 0) {
+                $matchedLabel = $case['label'] ?? $case['value'] ?? '';
+                break;
+            }
+        }
+
+        if ($matchedLabel === null && $hasDefault) {
+            $matchedLabel = 'Default';
+        }
+
+        $this->createStep($run, $node, StepStatus::Completed);
+
+        // Route to the edge with the matching label
+        if ($matchedLabel !== null) {
+            $edge = $walker->getEdgeByLabel($node, $matchedLabel);
+            if ($edge !== null) {
+                $target = $this->findNodeById($walker, $edge->target_node_id);
+                if ($target !== null) {
+                    $queue->enqueue($target);
+                }
+            }
+        }
+    }
 
     /**
      * BFS-walk a skipped branch and mark all reachable nodes as Skipped.
@@ -653,7 +761,15 @@ class WorkflowExecutor
         match ($node->type) {
             NodeType::Action => $this->executeActionNode($node, $walker, $run, $context, $queue),
             NodeType::Condition => $this->executeConditionNode($node, $walker, $run, $context, $queue, $processedNodeIds),
-            NodeType::Delay => $this->handleDelayPause($run, $node, $context),
+            NodeType::Filter => $this->executeFilterNode($node, $walker, $run, $context, $queue),
+            NodeType::Switch => $this->executeSwitchNode($node, $walker, $run, $context, $queue),
+            NodeType::Delay => (function () use ($run, $node, $context, $walker, $queue) {
+                $this->handleDelayPause($run, $node, $context);
+                // In dry-run mode, delay doesn't pause — continue to next nodes
+                if ($this->dryRun) {
+                    $this->enqueueNextNodes($walker, $node, $queue);
+                }
+            })(),
             NodeType::Loop => $this->executeLoopNode($node, $walker, $run, $context, $processedNodeIds),
             NodeType::Stop => null,
             default => $this->enqueueNextNodes($walker, $node, $queue),
