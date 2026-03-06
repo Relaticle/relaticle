@@ -108,7 +108,6 @@ export function createNodeHTML(data, options) {
             <div class="wf-block-header">
                 <span class="wf-block-icon-box" style="background: ${color}">${icon}</span>
                 <span class="wf-block-label">${label}</span>
-                ${categoryPill}
             </div>
             <div class="wf-block-body">
                 ${displaySummary
@@ -131,7 +130,7 @@ export const portConfigs = {
             out: {
                 position: 'bottom',
                 attrs: {
-                    circle: { r: 4, magnet: true, stroke: '#cbd5e1', strokeWidth: 1, fill: '#fff' },
+                    circle: { r: 5, magnet: true, stroke: '#cbd5e1', strokeWidth: 1, fill: '#fff' },
                 },
             },
         },
@@ -142,13 +141,13 @@ export const portConfigs = {
             in: {
                 position: 'top',
                 attrs: {
-                    circle: { r: 4, magnet: true, stroke: '#cbd5e1', strokeWidth: 1, fill: '#fff' },
+                    circle: { r: 5, magnet: true, stroke: '#cbd5e1', strokeWidth: 1, fill: '#fff' },
                 },
             },
             out: {
                 position: 'bottom',
                 attrs: {
-                    circle: { r: 4, magnet: true, stroke: '#cbd5e1', strokeWidth: 1, fill: '#fff' },
+                    circle: { r: 5, magnet: true, stroke: '#cbd5e1', strokeWidth: 1, fill: '#fff' },
                 },
             },
         },
@@ -162,7 +161,7 @@ export const portConfigs = {
             in: {
                 position: 'top',
                 attrs: {
-                    circle: { r: 4, magnet: true, stroke: '#cbd5e1', strokeWidth: 1, fill: '#fff' },
+                    circle: { r: 5, magnet: true, stroke: '#cbd5e1', strokeWidth: 1, fill: '#fff' },
                 },
             },
         },
@@ -173,20 +172,20 @@ export const portConfigs = {
             in: {
                 position: 'top',
                 attrs: {
-                    circle: { r: 4, magnet: true, stroke: '#cbd5e1', strokeWidth: 1, fill: '#fff' },
+                    circle: { r: 5, magnet: true, stroke: '#cbd5e1', strokeWidth: 1, fill: '#fff' },
                 },
             },
             'out-yes': {
                 position: { name: 'absolute', args: { x: '25%', y: '100%' } },
                 attrs: {
-                    circle: { r: 6, magnet: true, stroke: '#22c55e', strokeWidth: 1.5, fill: '#fff' },
+                    circle: { r: 7, magnet: true, stroke: '#22c55e', strokeWidth: 1.5, fill: '#fff' },
                 },
                 label: { position: 'bottom' },
             },
             'out-no': {
                 position: { name: 'absolute', args: { x: '75%', y: '100%' } },
                 attrs: {
-                    circle: { r: 6, magnet: true, stroke: '#ef4444', strokeWidth: 1.5, fill: '#fff' },
+                    circle: { r: 7, magnet: true, stroke: '#ef4444', strokeWidth: 1.5, fill: '#fff' },
                 },
                 label: { position: 'bottom' },
             },

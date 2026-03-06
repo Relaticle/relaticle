@@ -219,17 +219,17 @@
     padding: 6px 14px;
     font-size: 13px;
     font-weight: 500;
-    color: #334155;
+    color: var(--primary-600);
     background: #fff;
-    border: 1px solid #d1d5db;
+    border: 1px solid var(--primary-300);
     border-radius: 6px;
     cursor: pointer;
     transition: all 0.15s;
 }
 
 .wf-save-btn:hover:not(:disabled) {
-    background: #f9fafb;
-    border-color: #9ca3af;
+    background: oklch(from var(--primary-50) l c h / 1);
+    border-color: var(--primary-400);
 }
 
 .wf-save-btn:disabled {
@@ -238,13 +238,13 @@
 }
 
 .dark .wf-save-btn {
-    color: #e2e8f0;
-    background: #334155;
-    border-color: #475569;
+    color: var(--primary-400);
+    background: transparent;
+    border-color: var(--primary-700);
 }
 
 .dark .wf-save-btn:hover:not(:disabled) {
-    background: #3b4a63;
+    background: oklch(from var(--primary-900) l c h / 0.3);
 }
 
 .wf-publish-btn {
@@ -454,7 +454,7 @@
     background: #fff;
     border: 1px solid #e2e8f0;
     border-left: 3px solid var(--block-color, #94a3b8);
-    border-radius: 10px;
+    border-radius: 8px;
     overflow: hidden;
     cursor: pointer;
     transition: box-shadow 0.15s, border-color 0.15s;
@@ -484,8 +484,8 @@
 .wf-block-header {
     display: flex;
     align-items: center;
-    gap: 9px;
-    padding: 10px 12px 5px 10px;
+    gap: 10px;
+    padding: 10px 12px 5px 12px;
 }
 
 .wf-block-icon-box {
@@ -528,6 +528,7 @@
     background: none;
     color: #94a3b8;
     letter-spacing: 0.01em;
+    display: none; /* Hide the redundant category label on node cards */
 }
 
 .dark .wf-block-category {
@@ -536,7 +537,7 @@
 }
 
 .wf-block-body {
-    padding: 3px 12px 10px 10px;
+    padding: 3px 12px 10px 12px;
 }
 
 .wf-block-summary {
@@ -584,7 +585,7 @@
     padding: 5px 10px 6px;
     border-top: 1px solid #f1f5f9;
     background: #fafbfc;
-    border-radius: 0 0 10px 10px;
+    border-radius: 0 0 8px 8px;
 }
 
 .dark .wf-block-inputs {
@@ -750,11 +751,11 @@
 }
 
 .wf-picker-category-name {
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: #94a3b8;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: none;
+    letter-spacing: 0;
+    color: #64748b;
     padding: 10px 8px 4px;
     margin-top: 4px;
     position: sticky;
@@ -937,7 +938,7 @@
     width: 1px;
     height: 20px;
     background: #e2e8f0;
-    margin: 0 4px;
+    margin: 0 6px;
 }
 
 .dark .wf-toolbar-divider {
@@ -948,8 +949,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 32px;
-    height: 32px;
+    width: 34px;
+    height: 34px;
     border-radius: 6px;
     background: transparent;
     border: none;
@@ -1431,6 +1432,16 @@
     to { transform: rotate(360deg); }
 }
 
+/* Enhanced connection ports — larger and more visible on hover */
+.x6-port-body {
+    transition: all 0.15s ease;
+}
+
+.x6-node:hover .x6-port-body circle {
+    r: 6;
+    stroke-width: 1.5;
+}
+
 /* --- X6 Overrides --- */
 .x6-graph-svg {
     background-image: radial-gradient(circle, #d1d5db 1px, transparent 1px);
@@ -1470,7 +1481,7 @@
 
 /* --- Config Panel Section Headers --- */
 .wf-config-section {
-    margin-bottom: 20px;
+    margin-bottom: 24px;
 }
 
 .wf-config-section-title {

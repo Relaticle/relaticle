@@ -27,7 +27,7 @@ export function registerTriggerNode() {
             const div = document.createElement('div');
             div.setAttribute('data-test', 'workflow-node');
             div.innerHTML = createNodeHTML(data, {
-                color: '#22c55e',
+                color: '#8b5cf6',
                 icon: ICON_TRIGGER,
                 label: 'Trigger',
                 category: 'Trigger',

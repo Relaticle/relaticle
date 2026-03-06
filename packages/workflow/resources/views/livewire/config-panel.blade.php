@@ -194,8 +194,8 @@
                 </div>
 
                 <div class="mt-5 pt-4 border-t border-gray-100 dark:border-gray-700 flex items-center gap-3">
-                    <button type="submit" class="wf-publish-btn text-[13px] px-5 py-2">
-                        Save
+                    <button type="submit" class="wf-btn-sm text-[13px] px-4 py-1.5">
+                        Apply
                     </button>
                     <span x-show="saving" x-cloak class="text-xs text-slate-400 flex items-center gap-1">
                         <svg class="animate-spin w-3 h-3" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" stroke-dasharray="31.4 31.4" stroke-linecap="round"/></svg>
