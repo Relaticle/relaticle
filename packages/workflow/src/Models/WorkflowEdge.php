@@ -7,6 +7,7 @@ namespace Relaticle\Workflow\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Str;
 
 class WorkflowEdge extends Model
 {
@@ -24,6 +25,15 @@ class WorkflowEdge extends Model
     protected $casts = [
         'condition_config' => 'array',
     ];
+
+    protected static function booted(): void
+    {
+        static::creating(function (self $edge) {
+            if (empty($edge->edge_id)) {
+                $edge->edge_id = 'e-' . Str::ulid()->toBase32();
+            }
+        });
+    }
 
     public function getTable(): string
     {

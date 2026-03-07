@@ -65,9 +65,9 @@ beforeEach(function () {
     }));
 });
 
-it('executes safe actions normally in dry run', function () {
+it('executes safe actions in real execution', function () {
     $workflow = WorkflowModel::create([
-        'name' => 'Dry Run Safe',
+        'name' => 'Real Execution Safe',
         'trigger_type' => TriggerType::Manual,
     ]);
 
@@ -82,19 +82,18 @@ it('executes safe actions normally in dry run', function () {
     $workflow->edges()->create(['edge_id' => 'e1', 'source_node_id' => $trigger->id, 'target_node_id' => $action->id]);
 
     $executor = app(WorkflowExecutor::class);
-    $run = $executor->dryRun($workflow, []);
+    $run = $executor->execute($workflow, []);
 
     expect($run->status)->toBe(WorkflowRunStatus::Completed);
 
     $step = $run->steps->first(fn ($s) => $s->node->type === NodeType::Action);
     expect($step->status)->toBe(StepStatus::Completed);
     expect($step->output_data['logged'])->toBe('hello');
-    expect($step->output_data)->not->toHaveKey('_dry_run');
 });
 
-it('executes all actions including side-effect actions in test run', function () {
+it('executes all actions including side-effect actions for real', function () {
     $workflow = WorkflowModel::create([
-        'name' => 'Test Run E2E',
+        'name' => 'Real Execution E2E',
         'trigger_type' => TriggerType::Manual,
     ]);
 
@@ -109,21 +108,19 @@ it('executes all actions including side-effect actions in test run', function ()
     $workflow->edges()->create(['edge_id' => 'e1', 'source_node_id' => $trigger->id, 'target_node_id' => $action->id]);
 
     $executor = app(WorkflowExecutor::class);
-    $run = $executor->dryRun($workflow, []);
+    $run = $executor->execute($workflow, []);
 
     expect($run->status)->toBe(WorkflowRunStatus::Completed);
 
     $step = $run->steps->first(fn ($s) => $s->node->type === NodeType::Action);
     expect($step->status)->toBe(StepStatus::Completed);
-    // Test run executes everything for real — no simulation
     expect($step->output_data['executed'])->toBeTrue();
     expect($step->output_data['danger'])->toBe('real side effect happened');
-    expect($step->output_data)->not->toHaveKey('_dry_run');
 });
 
-it('continues through delay nodes in dry run', function () {
+it('pauses at delay nodes in real execution', function () {
     $workflow = WorkflowModel::create([
-        'name' => 'Dry Run Delay',
+        'name' => 'Real Execution Delay',
         'trigger_type' => TriggerType::Manual,
     ]);
 
@@ -144,21 +141,20 @@ it('continues through delay nodes in dry run', function () {
     $workflow->edges()->create(['edge_id' => 'e2', 'source_node_id' => $delay->id, 'target_node_id' => $action->id]);
 
     $executor = app(WorkflowExecutor::class);
-    $run = $executor->dryRun($workflow, []);
+    $run = $executor->execute($workflow, []);
 
-    // Should complete (not pause)
-    expect($run->status)->toBe(WorkflowRunStatus::Completed);
+    // Real execution pauses at delay nodes and dispatches a delayed job to resume
+    expect($run->status)->toBe(WorkflowRunStatus::Paused);
 
-    // Should have both delay and action steps
-    expect($run->steps)->toHaveCount(2);
-
-    $actionStep = $run->steps->first(fn ($s) => $s->node->type === NodeType::Action);
-    expect($actionStep->output_data['logged'])->toBe('after delay');
+    // Delay step is recorded before pausing
+    $delayStep = $run->steps->first(fn ($s) => $s->node->type === NodeType::Delay);
+    expect($delayStep)->not->toBeNull();
+    expect($delayStep->status)->toBe(StepStatus::Completed);
 });
 
-it('returns execution trace from dry run', function () {
+it('returns execution trace from real execution', function () {
     $workflow = WorkflowModel::create([
-        'name' => 'Dry Run Trace',
+        'name' => 'Execution Trace',
         'trigger_type' => TriggerType::Manual,
     ]);
 
@@ -180,7 +176,7 @@ it('returns execution trace from dry run', function () {
     $workflow->edges()->create(['edge_id' => 'e2', 'source_node_id' => $safe->id, 'target_node_id' => $dangerous->id]);
 
     $executor = app(WorkflowExecutor::class);
-    $run = $executor->dryRun($workflow, []);
+    $run = $executor->execute($workflow, []);
 
     expect($run->status)->toBe(WorkflowRunStatus::Completed);
     expect($run->steps)->toHaveCount(2);
@@ -189,7 +185,8 @@ it('returns execution trace from dry run', function () {
     $firstStep = $run->steps->sortBy('created_at')->first();
     expect($firstStep->output_data['logged'])->toBe('step 1');
 
-    // Second step: still executed in dry run (engine doesn't distinguish safe/dangerous)
+    // Second step: also executed for real
     $secondStep = $run->steps->sortBy('created_at')->last();
     expect($secondStep->status)->toBe(StepStatus::Completed);
+    expect($secondStep->output_data['executed'])->toBeTrue();
 });

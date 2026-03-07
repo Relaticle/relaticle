@@ -577,11 +577,11 @@
                     <div class="flex items-center gap-4 text-xs text-slate-500 dark:text-slate-400">
                         <span class="flex items-center gap-1">
                             <span class="w-2 h-2 rounded-full bg-green-500"></span>
-                            Executed: <span class="font-medium text-slate-700 dark:text-slate-300" x-text="(testRunResults?.steps || []).filter(s => s.status === 'completed' && !s.dry_run_skipped).length"></span>
+                            Executed: <span class="font-medium text-slate-700 dark:text-slate-300" x-text="(testRunResults?.steps || []).filter(s => s.status === 'completed').length"></span>
                         </span>
                         <span class="flex items-center gap-1">
-                            <span class="w-2 h-2 rounded-full bg-amber-400"></span>
-                            Simulated: <span class="font-medium text-slate-700 dark:text-slate-300" x-text="(testRunResults?.steps || []).filter(s => s.dry_run_skipped).length"></span>
+                            <span class="w-2 h-2 rounded-full bg-gray-400"></span>
+                            Skipped: <span class="font-medium text-slate-700 dark:text-slate-300" x-text="(testRunResults?.steps || []).filter(s => s.status === 'skipped').length"></span>
                         </span>
                         <span class="flex items-center gap-1">
                             <span class="w-2 h-2 rounded-full bg-red-500"></span>
@@ -593,7 +593,7 @@
                 {{-- Info banner --}}
                 <div class="px-5 py-2 bg-primary-50 dark:bg-primary-900/20 border-b border-primary-100 dark:border-primary-800/30 shrink-0">
                     <p class="text-xs text-primary-600 dark:text-primary-400 m-0">
-                        <strong>Test mode:</strong> Actions that modify data (emails, record updates, webhooks) are simulated — no real changes were made.
+                        <strong>Test run:</strong> All actions were executed for real. Review the results below.
                     </p>
                 </div>
 
@@ -618,8 +618,7 @@
 
                                     <span class="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-white shrink-0"
                                         :class="{
-                                            'bg-green-500': step.status === 'completed' && !step.dry_run_skipped,
-                                            'bg-amber-400': step.dry_run_skipped,
+                                            'bg-green-500': step.status === 'completed',
                                             'bg-red-500': step.status === 'failed',
                                             'bg-gray-400': step.status === 'skipped',
                                         }" x-text="idx + 1"></span>
@@ -627,9 +626,6 @@
                                     <div class="flex-1 min-w-0">
                                         <div class="flex items-center gap-2">
                                             <span class="text-sm font-medium text-slate-800 dark:text-slate-200 truncate" x-text="step.action_label"></span>
-                                            <template x-if="step.dry_run_skipped">
-                                                <span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 font-medium shrink-0">Simulated</span>
-                                            </template>
                                             <template x-if="step.status === 'failed'">
                                                 <span class="text-[10px] px-1.5 py-0.5 rounded bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400 font-medium shrink-0">Error</span>
                                             </template>
@@ -657,9 +653,7 @@
                                     {{-- Output data --}}
                                     <template x-if="step.output && Object.keys(step.output).length">
                                         <div class="px-3 py-2 border-b border-slate-100 dark:border-slate-700/50">
-                                            <div class="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">
-                                                <span x-text="step.dry_run_skipped ? 'Would produce' : 'Output'"></span>
-                                            </div>
+                                            <div class="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">Output</div>
                                             <pre class="text-xs bg-slate-50 dark:bg-slate-900 rounded p-2 overflow-x-auto m-0 text-slate-600 dark:text-slate-400 max-h-32 overflow-y-auto" x-text="JSON.stringify(Object.fromEntries(Object.entries(step.output).filter(([k]) => !k.startsWith('_'))), null, 2)"></pre>
                                         </div>
                                     </template>
@@ -672,14 +666,6 @@
                                         </div>
                                     </template>
 
-                                    {{-- Simulated explanation --}}
-                                    <template x-if="step.dry_run_skipped && !step.error">
-                                        <div class="px-3 py-2">
-                                            <div class="text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/10 rounded p-2">
-                                                This action was simulated — in a real run, it would execute and modify data.
-                                            </div>
-                                        </div>
-                                    </template>
                                 </div>
                             </div>
                         </div>

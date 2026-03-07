@@ -33,9 +33,9 @@ class WorkflowApiController extends Controller
     }
 
     /**
-     * Execute a workflow in dry-run/test mode (no side effects).
+     * Execute a workflow in test mode (real execution).
      *
-     * Returns a step-by-step execution trace showing what would happen.
+     * Returns a step-by-step execution trace showing what happened.
      */
     public function testRun(Request $request, string $workflowId, WorkflowExecutor $executor): JsonResponse
     {
@@ -43,7 +43,7 @@ class WorkflowApiController extends Controller
         $context = $request->input('context', []);
 
         try {
-            $run = $executor->dryRun($workflow, $context);
+            $run = $executor->execute($workflow, $context);
 
             $steps = $run->steps->map(fn ($step) => [
                 'node_id' => $step->node->node_id ?? null,
@@ -56,7 +56,6 @@ class WorkflowApiController extends Controller
                 'input' => $step->input_data,
                 'output' => $step->output_data,
                 'error' => $step->error_message,
-                'dry_run_skipped' => (bool) ($step->output_data['_dry_run'] ?? false),
             ]);
 
             return response()->json([
@@ -64,12 +63,10 @@ class WorkflowApiController extends Controller
                 'status' => $run->status->value,
                 'steps' => $steps,
                 'error' => $run->error_message,
-                'is_dry_run' => true,
             ]);
         } catch (\Throwable $e) {
             return response()->json([
                 'error' => $e->getMessage(),
-                'is_dry_run' => true,
             ], 500);
         }
     }
