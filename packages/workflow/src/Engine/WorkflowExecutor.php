@@ -27,8 +27,6 @@ class WorkflowExecutor
 {
     private bool $isPaused = false;
 
-    private bool $dryRun = false;
-
     private ?array $registeredActionsCache = null;
 
     public function __construct(
@@ -36,24 +34,6 @@ class WorkflowExecutor
         private readonly ConditionEvaluator $conditionEvaluator,
         private readonly VariableResolver $variableResolver,
     ) {}
-
-    /**
-     * Execute a workflow in test/debug mode — real E2E execution with all actions
-     * firing normally. Only delays are skipped (executed instantly) so you don't
-     * have to wait. The run is marked as a test run for identification.
-     *
-     * @param  array<string, mixed>  $context
-     */
-    public function dryRun(Workflow $workflow, array $context): WorkflowRun
-    {
-        $this->dryRun = true;
-
-        try {
-            return $this->execute($workflow, $context);
-        } finally {
-            $this->dryRun = false;
-        }
-    }
 
     /**
      * Execute a workflow with the given context.
@@ -376,11 +356,6 @@ class WorkflowExecutor
             'output_data' => $output,
             'completed_at' => Carbon::now(),
         ]);
-
-        // In dry-run mode, don't actually pause or dispatch jobs — just continue
-        if ($this->dryRun) {
-            return;
-        }
 
         // Pause the run and signal the BFS loop to stop
         $run->update(['status' => WorkflowRunStatus::Paused]);
@@ -763,13 +738,7 @@ class WorkflowExecutor
             NodeType::Condition => $this->executeConditionNode($node, $walker, $run, $context, $queue, $processedNodeIds),
             NodeType::Filter => $this->executeFilterNode($node, $walker, $run, $context, $queue),
             NodeType::Switch => $this->executeSwitchNode($node, $walker, $run, $context, $queue),
-            NodeType::Delay => (function () use ($run, $node, $context, $walker, $queue) {
-                $this->handleDelayPause($run, $node, $context);
-                // In dry-run mode, delay doesn't pause — continue to next nodes
-                if ($this->dryRun) {
-                    $this->enqueueNextNodes($walker, $node, $queue);
-                }
-            })(),
+            NodeType::Delay => $this->handleDelayPause($run, $node, $context),
             NodeType::Loop => $this->executeLoopNode($node, $walker, $run, $context, $processedNodeIds),
             NodeType::Stop => null,
             default => $this->enqueueNextNodes($walker, $node, $queue),
