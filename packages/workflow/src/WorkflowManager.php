@@ -18,6 +18,7 @@ use Relaticle\Workflow\Actions\DelayAction;
 use Relaticle\Workflow\Actions\FindRecordAction;
 use Relaticle\Workflow\Actions\FormulaAction;
 use Relaticle\Workflow\Actions\HttpRequestAction;
+use Relaticle\Workflow\Actions\LogMessageAction;
 use Relaticle\Workflow\Actions\LoopAction;
 use Relaticle\Workflow\Actions\ParseJsonAction;
 use Relaticle\Workflow\Actions\PromptCompletionAction;
@@ -80,6 +81,7 @@ class WorkflowManager
             'broadcast_message' => BroadcastMessageAction::class,
             'celebration' => CelebrationAction::class,
             'parse_json' => ParseJsonAction::class,
+            'log_message' => LogMessageAction::class,
         ], $this->actions);
     }
 

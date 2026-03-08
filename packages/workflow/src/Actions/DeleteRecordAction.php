@@ -31,7 +31,6 @@ class DeleteRecordAction extends BaseAction
     {
         $source = $config['record_source'] ?? 'trigger';
         $tenantId = $context['_workflow']->tenant_id ?? ($context['_workflow']['tenant_id'] ?? null);
-
         if ($source === 'trigger') {
             $record = $context['trigger']['record'] ?? null;
 
@@ -40,7 +39,8 @@ class DeleteRecordAction extends BaseAction
                 $modelClass = $context['trigger']['model_class'];
                 $query = $modelClass::query();
                 if ($tenantId) {
-                    $query->where('tenant_id', $tenantId);
+                    $scopeCol = $this->resolveEntityScopeColumn($modelClass);
+                    $query->where($scopeCol, $tenantId);
                 }
                 return $query->find($context['trigger']['model_id']);
             }
@@ -66,7 +66,8 @@ class DeleteRecordAction extends BaseAction
                 if ($entity) {
                     $query = $entity->modelClass::query();
                     if ($tenantId) {
-                        $query->where('tenant_id', $tenantId);
+                        $scopeCol = $this->resolveEntityScopeColumn($entity->modelClass);
+                        $query->where($scopeCol, $tenantId);
                     }
                     return $query->find($stepOutput['id']);
                 }

@@ -37,7 +37,7 @@ class WorkflowTemplateSeeder extends Seeder
                     'trigger_config' => ['event' => 'created'],
                     'nodes' => [
                         ['node_id' => 'trigger-1', 'type' => 'trigger', 'position_x' => 400, 'position_y' => 80],
-                        ['node_id' => 'action-1', 'type' => 'action', 'action_type' => 'send_email', 'config' => ['subject' => 'Welcome!', 'body' => 'Thanks for joining us.'], 'position_x' => 400, 'position_y' => 260],
+                        ['node_id' => 'action-1', 'type' => 'action', 'action_type' => 'send_email', 'config' => ['to' => '{{trigger.record.email}}', 'subject' => 'Welcome!', 'body' => 'Thanks for joining us, {{trigger.record.name}}.'], 'position_x' => 400, 'position_y' => 260],
                     ],
                     'edges' => [
                         ['edge_id' => 'e1', 'source' => 'trigger-1', 'target' => 'action-1'],
@@ -54,7 +54,7 @@ class WorkflowTemplateSeeder extends Seeder
                     'trigger_config' => ['event' => 'created'],
                     'nodes' => [
                         ['node_id' => 'trigger-1', 'type' => 'trigger', 'position_x' => 400, 'position_y' => 80],
-                        ['node_id' => 'action-1', 'type' => 'action', 'action_type' => 'update_record', 'config' => ['field' => 'owner_id', 'value' => '{{round_robin}}'], 'position_x' => 400, 'position_y' => 260],
+                        ['node_id' => 'action-1', 'type' => 'action', 'action_type' => 'update_record', 'config' => ['record_source' => 'trigger', 'field_mappings' => [['field' => 'creation_source', 'value' => 'system']]], 'position_x' => 400, 'position_y' => 260],
                     ],
                     'edges' => [
                         ['edge_id' => 'e1', 'source' => 'trigger-1', 'target' => 'action-1'],
@@ -72,7 +72,7 @@ class WorkflowTemplateSeeder extends Seeder
                     'nodes' => [
                         ['node_id' => 'trigger-1', 'type' => 'trigger', 'position_x' => 400, 'position_y' => 80],
                         ['node_id' => 'delay-1', 'type' => 'delay', 'config' => ['duration' => 3, 'unit' => 'days'], 'position_x' => 400, 'position_y' => 260],
-                        ['node_id' => 'action-1', 'type' => 'action', 'action_type' => 'send_email', 'config' => ['subject' => 'Following up', 'body' => 'Just checking in — anything we can help with?'], 'position_x' => 400, 'position_y' => 440],
+                        ['node_id' => 'action-1', 'type' => 'action', 'action_type' => 'send_email', 'config' => ['to' => '{{trigger.record.email}}', 'subject' => 'Following up', 'body' => 'Just checking in — anything we can help with?'], 'position_x' => 400, 'position_y' => 440],
                     ],
                     'edges' => [
                         ['edge_id' => 'e1', 'source' => 'trigger-1', 'target' => 'delay-1'],
@@ -109,8 +109,8 @@ class WorkflowTemplateSeeder extends Seeder
                     'trigger_config' => ['event' => 'created'],
                     'nodes' => [
                         ['node_id' => 'trigger-1', 'type' => 'trigger', 'position_x' => 400, 'position_y' => 80],
-                        ['node_id' => 'action-1', 'type' => 'action', 'action_type' => 'classify', 'config' => ['field' => 'company_size'], 'position_x' => 400, 'position_y' => 260],
-                        ['node_id' => 'action-2', 'type' => 'action', 'action_type' => 'update_record', 'config' => ['field' => 'tags'], 'position_x' => 400, 'position_y' => 440],
+                        ['node_id' => 'action-1', 'type' => 'action', 'action_type' => 'classify', 'config' => ['input' => '{{trigger.record.name}}', 'categories' => ['small', 'medium', 'enterprise']], 'position_x' => 400, 'position_y' => 260],
+                        ['node_id' => 'action-2', 'type' => 'action', 'action_type' => 'update_record', 'config' => ['record_source' => 'trigger', 'field_mappings' => [['field' => 'creation_source', 'value' => '{{steps.action-1.output.category}}']]], 'position_x' => 400, 'position_y' => 440],
                     ],
                     'edges' => [
                         ['edge_id' => 'e1', 'source' => 'trigger-1', 'target' => 'action-1'],
@@ -128,9 +128,9 @@ class WorkflowTemplateSeeder extends Seeder
                     'trigger_config' => ['cron' => '0 8 * * 1'],
                     'nodes' => [
                         ['node_id' => 'trigger-1', 'type' => 'trigger', 'position_x' => 400, 'position_y' => 80],
-                        ['node_id' => 'action-1', 'type' => 'action', 'action_type' => 'find_record', 'config' => ['filter' => 'stale_30_days'], 'position_x' => 400, 'position_y' => 260],
-                        ['node_id' => 'loop-1', 'type' => 'loop', 'config' => ['collection' => 'steps.action-1.output.records'], 'position_x' => 400, 'position_y' => 440],
-                        ['node_id' => 'action-2', 'type' => 'action', 'action_type' => 'update_record', 'config' => ['field' => 'status', 'value' => 'archived'], 'position_x' => 400, 'position_y' => 620],
+                        ['node_id' => 'action-1', 'type' => 'action', 'action_type' => 'find_record', 'config' => ['entity_type' => 'opportunities', 'filters' => [['field' => 'updated_at', 'operator' => 'less_than', 'value' => '{{30_days_ago}}']]], 'position_x' => 400, 'position_y' => 260],
+                        ['node_id' => 'loop-1', 'type' => 'loop', 'config' => ['collection' => '{{steps.action-1.output.records}}', 'limit' => 100], 'position_x' => 400, 'position_y' => 440],
+                        ['node_id' => 'action-2', 'type' => 'action', 'action_type' => 'update_record', 'config' => ['record_source' => 'trigger', 'field_mappings' => [['field' => 'creation_source', 'value' => 'system']]], 'position_x' => 400, 'position_y' => 620],
                     ],
                     'edges' => [
                         ['edge_id' => 'e1', 'source' => 'trigger-1', 'target' => 'action-1'],
@@ -149,9 +149,9 @@ class WorkflowTemplateSeeder extends Seeder
                     'trigger_config' => ['cron' => '0 9 * * *'],
                     'nodes' => [
                         ['node_id' => 'trigger-1', 'type' => 'trigger', 'position_x' => 400, 'position_y' => 80],
-                        ['node_id' => 'action-1', 'type' => 'action', 'action_type' => 'find_record', 'config' => ['filter' => 'birthday_today'], 'position_x' => 400, 'position_y' => 260],
-                        ['node_id' => 'loop-1', 'type' => 'loop', 'config' => ['collection' => 'steps.action-1.output.records'], 'position_x' => 400, 'position_y' => 440],
-                        ['node_id' => 'action-2', 'type' => 'action', 'action_type' => 'send_email', 'config' => ['subject' => 'Happy Birthday!', 'body' => 'Wishing you a wonderful day!'], 'position_x' => 400, 'position_y' => 620],
+                        ['node_id' => 'action-1', 'type' => 'action', 'action_type' => 'find_record', 'config' => ['entity_type' => 'people', 'filters' => [['field' => 'name', 'operator' => 'is_not_empty']]], 'position_x' => 400, 'position_y' => 260],
+                        ['node_id' => 'loop-1', 'type' => 'loop', 'config' => ['collection' => '{{steps.action-1.output.records}}', 'limit' => 50], 'position_x' => 400, 'position_y' => 440],
+                        ['node_id' => 'action-2', 'type' => 'action', 'action_type' => 'send_email', 'config' => ['to' => '{{loop.item.email}}', 'subject' => 'Happy Birthday!', 'body' => 'Wishing you a wonderful day, {{loop.item.name}}!'], 'position_x' => 400, 'position_y' => 620],
                     ],
                     'edges' => [
                         ['edge_id' => 'e1', 'source' => 'trigger-1', 'target' => 'action-1'],
@@ -170,9 +170,9 @@ class WorkflowTemplateSeeder extends Seeder
                     'trigger_config' => ['cron' => '0 9 * * 1'],
                     'nodes' => [
                         ['node_id' => 'trigger-1', 'type' => 'trigger', 'position_x' => 400, 'position_y' => 80],
-                        ['node_id' => 'action-1', 'type' => 'action', 'action_type' => 'find_record', 'config' => ['filter' => 'stale_7_days'], 'position_x' => 400, 'position_y' => 260],
+                        ['node_id' => 'action-1', 'type' => 'action', 'action_type' => 'find_record', 'config' => ['entity_type' => 'opportunities', 'filters' => [['field' => 'updated_at', 'operator' => 'less_than', 'value' => '{{7_days_ago}}']]], 'position_x' => 400, 'position_y' => 260],
                         ['node_id' => 'condition-1', 'type' => 'condition', 'config' => ['conditions' => [['field' => 'steps.action-1.output.count', 'operator' => 'greater_than', 'value' => '0']], 'match' => 'all'], 'position_x' => 400, 'position_y' => 440],
-                        ['node_id' => 'action-2', 'type' => 'action', 'action_type' => 'send_email', 'config' => ['subject' => 'Stale deals require attention', 'body' => 'There are deals that need your attention.'], 'position_x' => 250, 'position_y' => 620],
+                        ['node_id' => 'action-2', 'type' => 'action', 'action_type' => 'send_email', 'config' => ['to' => '{{trigger.record.email}}', 'subject' => 'Stale deals require attention', 'body' => 'There are deals that need your attention.'], 'position_x' => 250, 'position_y' => 620],
                     ],
                     'edges' => [
                         ['edge_id' => 'e1', 'source' => 'trigger-1', 'target' => 'action-1'],
@@ -210,8 +210,8 @@ class WorkflowTemplateSeeder extends Seeder
                     'trigger_config' => ['event' => 'created'],
                     'nodes' => [
                         ['node_id' => 'trigger-1', 'type' => 'trigger', 'position_x' => 400, 'position_y' => 80],
-                        ['node_id' => 'action-1', 'type' => 'action', 'action_type' => 'summarize', 'config' => [], 'position_x' => 400, 'position_y' => 260],
-                        ['node_id' => 'action-2', 'type' => 'action', 'action_type' => 'update_record', 'config' => ['field' => 'summary'], 'position_x' => 400, 'position_y' => 440],
+                        ['node_id' => 'action-1', 'type' => 'action', 'action_type' => 'summarize', 'config' => ['input' => '{{trigger.record.name}} - {{trigger.record.description}}', 'max_length' => 200], 'position_x' => 400, 'position_y' => 260],
+                        ['node_id' => 'action-2', 'type' => 'action', 'action_type' => 'update_record', 'config' => ['record_source' => 'trigger', 'field_mappings' => [['field' => 'creation_source', 'value' => 'system']]], 'position_x' => 400, 'position_y' => 440],
                     ],
                     'edges' => [
                         ['edge_id' => 'e1', 'source' => 'trigger-1', 'target' => 'action-1'],
@@ -230,8 +230,8 @@ class WorkflowTemplateSeeder extends Seeder
                     'nodes' => [
                         ['node_id' => 'trigger-1', 'type' => 'trigger', 'position_x' => 400, 'position_y' => 80],
                         ['node_id' => 'condition-1', 'type' => 'condition', 'config' => ['conditions' => [['field' => 'trigger.record.stage', 'operator' => 'equals', 'value' => 'negotiation']], 'match' => 'all'], 'position_x' => 400, 'position_y' => 260],
-                        ['node_id' => 'action-1', 'type' => 'action', 'action_type' => 'send_email', 'config' => ['subject' => 'Deal moved to negotiation', 'body' => 'Great progress!'], 'position_x' => 250, 'position_y' => 440],
-                        ['node_id' => 'action-2', 'type' => 'action', 'action_type' => 'send_email', 'config' => ['subject' => 'Deal stage changed', 'body' => 'A deal has been updated.'], 'position_x' => 550, 'position_y' => 440],
+                        ['node_id' => 'action-1', 'type' => 'action', 'action_type' => 'send_email', 'config' => ['to' => '{{trigger.record.email}}', 'subject' => 'Deal moved to negotiation', 'body' => 'Great progress on {{trigger.record.name}}!'], 'position_x' => 250, 'position_y' => 440],
+                        ['node_id' => 'action-2', 'type' => 'action', 'action_type' => 'send_email', 'config' => ['to' => '{{trigger.record.email}}', 'subject' => 'Deal stage changed', 'body' => 'A deal has been updated: {{trigger.record.name}}.'], 'position_x' => 550, 'position_y' => 440],
                     ],
                     'edges' => [
                         ['edge_id' => 'e1', 'source' => 'trigger-1', 'target' => 'condition-1'],

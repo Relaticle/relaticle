@@ -37,8 +37,7 @@ class FindRecordAction extends BaseAction
         // Scope to workflow tenant
         $workflow = $context['_workflow'] ?? null;
         if ($workflow && $workflow->tenant_id) {
-            $tenancyConfig = app(WorkflowManager::class)->getTenancyConfig();
-            $scopeColumn = $tenancyConfig['scopeColumn'] ?? 'tenant_id';
+            $scopeColumn = $this->resolveEntityScopeColumn($modelClass);
             $query->where($scopeColumn, $workflow->tenant_id);
         }
 

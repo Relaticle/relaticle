@@ -58,8 +58,11 @@ class CreateRecordAction extends BaseAction
         if ($workflow) {
             $tenancyConfig = app(WorkflowManager::class)->getTenancyConfig();
             $scopeColumn = $tenancyConfig['scopeColumn'] ?? 'tenant_id';
-            $attributes[$scopeColumn] = $workflow->tenant_id ?? ($attributes[$scopeColumn] ?? null);
-            $attributes['created_by'] = $workflow->creator_id ?? ($attributes['created_by'] ?? null);
+            // Entity tables may use a different column (e.g. team_id) than workflows (tenant_id).
+            // Try the configured scope column first; if the entity table doesn't have it, fall back to team_id.
+            $entityScopeColumn = $this->resolveEntityScopeColumn($modelClass, $scopeColumn);
+            $attributes[$entityScopeColumn] = $workflow->tenant_id ?? ($attributes[$entityScopeColumn] ?? null);
+            $attributes['creator_id'] = $workflow->creator_id ?? ($attributes['creator_id'] ?? null);
         }
 
         // Set creation source to SYSTEM for workflow-created records

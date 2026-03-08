@@ -66,6 +66,43 @@ abstract class BaseAction implements WorkflowAction
     }
 
     /**
+     * Resolve the correct scope column for an entity table.
+     *
+     * The workflow system uses tenant_id on its own tables, but entity tables
+     * (people, companies, etc.) may use a different column like team_id.
+     * This method checks the entity's actual table schema and returns the
+     * appropriate column name.
+     *
+     * @param  class-string  $modelClass
+     * @param  string  $defaultColumn  The configured tenancy scope column
+     */
+    protected function resolveEntityScopeColumn(string $modelClass, string $defaultColumn = 'tenant_id'): string
+    {
+        try {
+            /** @var \Illuminate\Database\Eloquent\Model $instance */
+            $instance = new $modelClass;
+            $table = $instance->getTable();
+            $columns = \Illuminate\Support\Facades\Schema::getColumnListing($table);
+
+            // If the entity table has the configured scope column, use it
+            if (in_array($defaultColumn, $columns, true)) {
+                return $defaultColumn;
+            }
+
+            // Common alternatives
+            foreach (['team_id', 'tenant_id', 'organization_id'] as $alt) {
+                if (in_array($alt, $columns, true)) {
+                    return $alt;
+                }
+            }
+        } catch (\Throwable) {
+            // Fall through to default
+        }
+
+        return $defaultColumn;
+    }
+
+    /**
      * Get field options from the workflow context for form selects.
      *
      * @param  Component|null  $livewire

@@ -79,7 +79,8 @@ class ScheduledTrigger implements WorkflowTrigger
 
         $query = $modelClass::where('updated_at', '<', $threshold);
         if ($tenantId) {
-            $query->where('tenant_id', $tenantId);
+            $scopeColumn = $this->resolveEntityScopeColumn($modelClass);
+            $query->where($scopeColumn, $tenantId);
         }
 
         return $query->exists();
@@ -119,9 +120,34 @@ class ScheduledTrigger implements WorkflowTrigger
 
         $query = $modelClass::whereDate($field, $targetDate);
         if ($tenantId) {
-            $query->where('tenant_id', $tenantId);
+            $scopeColumn = $this->resolveEntityScopeColumn($modelClass);
+            $query->where($scopeColumn, $tenantId);
         }
 
         return $query->exists();
+    }
+
+    /**
+     * Resolve the correct scope column for an entity table.
+     */
+    private function resolveEntityScopeColumn(string $modelClass, string $default = 'tenant_id'): string
+    {
+        try {
+            $instance = new $modelClass;
+            $columns = \Illuminate\Support\Facades\Schema::getColumnListing($instance->getTable());
+
+            if (in_array($default, $columns, true)) {
+                return $default;
+            }
+
+            foreach (['team_id', 'tenant_id', 'organization_id'] as $alt) {
+                if (in_array($alt, $columns, true)) {
+                    return $alt;
+                }
+            }
+        } catch (\Throwable) {
+        }
+
+        return $default;
     }
 }
