@@ -38,14 +38,14 @@ return [
     ],
 
     'google' => [
-        'enabled' => env('GOOGLE_ENABLED', false),
+        'enabled' => env('GOOGLE_ENABLED', true),
         'client_id' => env('GOOGLE_CLIENT_ID'),
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),
         'redirect' => env('GOOGLE_REDIRECT_URI'),
     ],
 
     'github' => [
-        'enabled' => env('GITHUB_ENABLED', false),
+        'enabled' => env('GITHUB_ENABLED', true),
         'client_id' => env('GITHUB_CLIENT_ID'),
         'client_secret' => env('GITHUB_CLIENT_SECRET'),
         'redirect' => '/auth/callback/github',
