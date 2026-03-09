@@ -11,6 +11,11 @@ parameters:
             identifier: argument.type
             message: '#(Closure\(App\\Models\\CustomField|Relaticle\\CustomFields\\Models\\CustomField)(Option|Value|Section)?#'
 
+        # Filament v5.3+ parent::getEloquentQuery() returns Builder<Model> but subclass docblocks declare specific model types
+        -
+            identifier: return.type
+            message: '#getEloquentQuery\(\) should return .+ but returns .+Builder<Illuminate\\Database\\Eloquent\\Model>#'
+
     stubFiles:
         - stubs/Mailcoach.stub
 
