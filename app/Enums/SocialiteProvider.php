@@ -36,7 +36,8 @@ enum SocialiteProvider: string
                 && filled(config('services.oidc.base_url')),
 
             default =>
-                filled(config("services.{$this->value}.client_id"))
+                config("services.{$this->value}.enabled", true)
+                && filled(config("services.{$this->value}.client_id"))
                 && filled(config("services.{$this->value}.client_secret")),
         };
     }
