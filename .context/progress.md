@@ -243,3 +243,28 @@
 - PHP file overhead (~15 lines per file for namespace, imports, class declaration) limits net line count reduction when extracting base classes -- the primary benefit is DRY handle() logic and consistency, not raw line count
 - Abstract base classes trigger Pest arch tests for `toBeFinal()` and `not->toBeAbstract()` -- must be added to ignoring lists alongside other base classes (BaseImporter, BaseExporter, etc.)
 - Pre-existing test failures unchanged (12 total): ResolvesEntitySchema (7), CustomFieldsApiTest (1), InstallCommandTest (3), ApiTeamScopingTest (1)
+
+## US-010: Clean up low-severity issues
+- Added route name `custom-fields.index` to the custom-fields GET endpoint in `routes/api.php`
+- Added `casts()` method to `PersonalAccessToken` with `expires_at` as `datetime` and `abilities` as `json`
+- Replaced manual regex `preg_match('/^[0-9A-Za-z]{26}$/', ...)` with `Str::isUlid()` for X-Team-Id header validation in `SetApiTeamContext` middleware
+- Extracted inline validation from `CustomFieldsController::index()` into `IndexCustomFieldsRequest` FormRequest -- follows existing naming pattern (`Index` + entity + `Request`)
+- Moved Filament notification logic from `UpdateTask` action to new `TaskAssignmentNotifier` service class -- `UpdateTask` now has zero Filament imports, receives notifier via constructor injection
+- Replaced hardcoded `/docs/api` URL in `api-tokens.blade.php` with `config('scribe.docs_url')` -- references the Scribe config as the single source of truth for API docs URL
+
+### Files changed
+- `routes/api.php` (added `->name('custom-fields.index')`)
+- `app/Models/PersonalAccessToken.php` (added `casts()` method)
+- `app/Http/Middleware/SetApiTeamContext.php` (replaced regex with `Str::isUlid()`)
+- `app/Http/Requests/Api/V1/IndexCustomFieldsRequest.php` (new -- FormRequest with entity_type and per_page validation)
+- `app/Http/Controllers/Api/V1/CustomFieldsController.php` (type-hint changed to `IndexCustomFieldsRequest`, removed inline validation)
+- `app/Actions/Task/UpdateTask.php` (removed Filament imports, uses `TaskAssignmentNotifier` via DI)
+- `app/Services/TaskAssignmentNotifier.php` (new -- extracted Filament notification logic)
+- `resources/views/filament/pages/api-tokens.blade.php` (replaced hardcoded URL with `config('scribe.docs_url')`)
+
+### Learnings for future iterations:
+- `Str::isUlid()` is a first-party Laravel helper that validates ULID format -- prefer it over hand-rolled regex patterns
+- When extracting Filament-dependent code from action classes, use a dedicated service class rather than events/listeners to keep things simple -- the service encapsulates the Filament dependency while keeping the action layer framework-agnostic
+- `PersonalAccessToken` parent class (Sanctum) already has `abilities` cast as `json` and `expires_at` as `datetime`, but explicitly declaring them in the child `casts()` method makes the behavior visible and ensures it survives parent changes
+- FormRequest classes for index/list endpoints follow the `Index` + entity + `Request` naming convention (e.g., `IndexCustomFieldsRequest`) -- distinct from `Store`/`Update` prefixes for write operations
+- Pre-existing test failures unchanged (12 total): ResolvesEntitySchema (7), CustomFieldsApiTest (1), InstallCommandTest (3), ApiTeamScopingTest (1)

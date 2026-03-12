@@ -16,6 +16,7 @@ use App\Models\User;
 use Closure;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Relaticle\CustomFields\Services\TenantContextService;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -82,7 +83,7 @@ final readonly class SetApiTeamContext
 
         $teamId = $request->header('X-Team-Id');
 
-        if (is_string($teamId) && preg_match('/^[0-9A-Za-z]{26}$/', $teamId)) {
+        if (is_string($teamId) && Str::isUlid($teamId)) {
             return Team::query()->find($teamId);
         }
 

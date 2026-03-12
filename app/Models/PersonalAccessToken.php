@@ -17,6 +17,17 @@ class PersonalAccessToken extends SanctumPersonalAccessToken
         'team_id',
     ];
 
+    /**
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'abilities' => 'json',
+            'expires_at' => 'datetime',
+        ];
+    }
+
     protected static function booted(): void
     {
         static::updating(function (PersonalAccessToken $token): void {

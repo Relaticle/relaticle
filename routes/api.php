@@ -28,5 +28,5 @@ Route::prefix('v1')
         Route::apiResource('tasks', TasksController::class);
         Route::apiResource('notes', NotesController::class);
 
-        Route::get('custom-fields', [CustomFieldsController::class, 'index']);
+        Route::get('custom-fields', [CustomFieldsController::class, 'index'])->name('custom-fields.index');
     });
