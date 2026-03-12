@@ -20,8 +20,6 @@
             <div class="text-center max-w-3xl">
                 <h1 class="hero-enter hero-enter-2 font-display text-[2rem] sm:text-5xl md:text-[3.5rem] lg:text-6xl font-bold text-gray-950 dark:text-white leading-[1.08] tracking-[-0.03em] text-balance">
                     The <span class="relative inline-block">
-                        <span class="absolute -left-10 top-1/2 -translate-y-1/2 text-primary/25 dark:text-primary/35 text-base hidden sm:inline">───</span>
-                        <span class="absolute -right-10 top-1/2 -translate-y-1/2 text-primary/25 dark:text-primary/35 text-base hidden sm:inline">───</span>
                         Open-Source
                         <span class="absolute -bottom-1 left-0 right-0 h-[3px] bg-gradient-to-r from-primary/20 via-primary/40 to-primary/20 dark:from-primary/30 dark:via-primary/50 dark:to-primary/30 rounded-full" aria-hidden="true"></span>
                     </span> CRM<br class="hidden sm:block"/>
