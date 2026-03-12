@@ -6,6 +6,10 @@ use App\Filament\Exports\BaseExporter;
 use App\Filament\Imports\BaseImporter;
 use App\Filament\Pages\Import\ImportPage;
 use App\Livewire\BaseLivewireComponent;
+use App\Mcp\Tools\BaseCreateTool;
+use App\Mcp\Tools\BaseDeleteTool;
+use App\Mcp\Tools\BaseListTool;
+use App\Mcp\Tools\BaseUpdateTool;
 use App\Models\PersonalAccessToken;
 
 arch()->preset()->php();
@@ -38,6 +42,10 @@ arch('avoid open for extension')
         BaseLivewireComponent::class,
         BaseImporter::class,
         BaseExporter::class,
+        BaseListTool::class,
+        BaseCreateTool::class,
+        BaseUpdateTool::class,
+        BaseDeleteTool::class,
         ImportPage::class,
         PersonalAccessToken::class,
     ]);
@@ -51,6 +59,10 @@ arch('ensure no extends')
         BaseLivewireComponent::class,
         BaseImporter::class,
         BaseExporter::class,
+        BaseListTool::class,
+        BaseCreateTool::class,
+        BaseUpdateTool::class,
+        BaseDeleteTool::class,
         ImportPage::class,
     ]);
 

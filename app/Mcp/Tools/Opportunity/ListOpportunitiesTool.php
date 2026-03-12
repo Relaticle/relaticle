@@ -6,52 +6,44 @@ namespace App\Mcp\Tools\Opportunity;
 
 use App\Actions\Opportunity\ListOpportunities;
 use App\Http\Resources\V1\OpportunityResource;
-use App\Mcp\Tools\Concerns\ChecksTokenAbility;
-use App\Models\User;
+use App\Mcp\Tools\BaseListTool;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\Request;
-use Laravel\Mcp\Response;
 use Laravel\Mcp\Server\Attributes\Description;
-use Laravel\Mcp\Server\Tool;
 use Laravel\Mcp\Server\Tools\Annotations\IsIdempotent;
 use Laravel\Mcp\Server\Tools\Annotations\IsReadOnly;
 
 #[Description('List opportunities (deals) in the CRM with optional search and pagination.')]
 #[IsReadOnly]
 #[IsIdempotent]
-final class ListOpportunitiesTool extends Tool
+final class ListOpportunitiesTool extends BaseListTool
 {
-    use ChecksTokenAbility;
+    protected function actionClass(): string
+    {
+        return ListOpportunities::class;
+    }
 
-    public function schema(JsonSchema $schema): array
+    protected function resourceClass(): string
+    {
+        return OpportunityResource::class;
+    }
+
+    protected function searchFilterName(): string
+    {
+        return 'name';
+    }
+
+    protected function additionalSchema(JsonSchema $schema): array
     {
         return [
-            'search' => $schema->string()->description('Search opportunities by name.'),
             'company_id' => $schema->string()->description('Filter by company ID.'),
-            'per_page' => $schema->integer()->description('Results per page (default 15, max 100).')->default(15),
-            'page' => $schema->integer()->description('Page number.')->default(1),
         ];
     }
 
-    public function handle(Request $request, ListOpportunities $action): Response
+    protected function additionalFilters(Request $request): array
     {
-        $this->ensureTokenCan('read');
-
-        /** @var User $user */
-        $user = auth()->user();
-
-        $opportunities = $action->execute(
-            user: $user,
-            perPage: (int) $request->get('per_page', 15),
-            filters: array_filter([
-                'name' => $request->get('search'),
-                'company_id' => $request->get('company_id'),
-            ]),
-            page: $request->get('page') ? (int) $request->get('page') : null,
-        );
-
-        return Response::text(
-            OpportunityResource::collection($opportunities)->toJson(JSON_PRETTY_PRINT)
-        );
+        return [
+            'company_id' => $request->get('company_id'),
+        ];
     }
 }

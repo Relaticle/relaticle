@@ -6,52 +6,44 @@ namespace App\Mcp\Tools\People;
 
 use App\Actions\People\ListPeople;
 use App\Http\Resources\V1\PeopleResource;
-use App\Mcp\Tools\Concerns\ChecksTokenAbility;
-use App\Models\User;
+use App\Mcp\Tools\BaseListTool;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\Request;
-use Laravel\Mcp\Response;
 use Laravel\Mcp\Server\Attributes\Description;
-use Laravel\Mcp\Server\Tool;
 use Laravel\Mcp\Server\Tools\Annotations\IsIdempotent;
 use Laravel\Mcp\Server\Tools\Annotations\IsReadOnly;
 
 #[Description('List people (contacts) in the CRM with optional search and pagination.')]
 #[IsReadOnly]
 #[IsIdempotent]
-final class ListPeopleTool extends Tool
+final class ListPeopleTool extends BaseListTool
 {
-    use ChecksTokenAbility;
+    protected function actionClass(): string
+    {
+        return ListPeople::class;
+    }
 
-    public function schema(JsonSchema $schema): array
+    protected function resourceClass(): string
+    {
+        return PeopleResource::class;
+    }
+
+    protected function searchFilterName(): string
+    {
+        return 'name';
+    }
+
+    protected function additionalSchema(JsonSchema $schema): array
     {
         return [
-            'search' => $schema->string()->description('Search people by name.'),
             'company_id' => $schema->string()->description('Filter by company ID.'),
-            'per_page' => $schema->integer()->description('Results per page (default 15, max 100).')->default(15),
-            'page' => $schema->integer()->description('Page number.')->default(1),
         ];
     }
 
-    public function handle(Request $request, ListPeople $action): Response
+    protected function additionalFilters(Request $request): array
     {
-        $this->ensureTokenCan('read');
-
-        /** @var User $user */
-        $user = auth()->user();
-
-        $people = $action->execute(
-            user: $user,
-            perPage: (int) $request->get('per_page', 15),
-            filters: array_filter([
-                'name' => $request->get('search'),
-                'company_id' => $request->get('company_id'),
-            ]),
-            page: $request->get('page') ? (int) $request->get('page') : null,
-        );
-
-        return Response::text(
-            PeopleResource::collection($people)->toJson(JSON_PRETTY_PRINT)
-        );
+        return [
+            'company_id' => $request->get('company_id'),
+        ];
     }
 }
