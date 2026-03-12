@@ -61,14 +61,6 @@
                     Start for free
                 </a>
 
-                <div class="md:hidden">
-                    <button id="mobile-menu-button"
-                            class="p-2 text-gray-500 hover:text-primary transition-colors duration-200"
-                            aria-label="Toggle mobile menu">
-                        <x-ri-menu-line class="h-5 w-5 sm:h-6 sm:w-6"/>
-                    </button>
-                </div>
-
             </div>
         </div>
     </div>

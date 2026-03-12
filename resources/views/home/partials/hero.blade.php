@@ -96,7 +96,7 @@
                 {{-- Mockup with layered glow border --}}
                 <div class="relative z-10 mt-5 [perspective:2000px]">
                     {{-- Left vertical line — tabs to mockup --}}
-                    <div class="hidden md:block absolute -top-[110px] lefta-0 w-px h-[120px] bg-gradient-to-b from-transparent via-gray-200/60 to-gray-200 dark:via-white/[0.04] dark:to-white/[0.08] pointer-events-none" aria-hidden="true"></div>
+                    <div class="hidden md:block absolute -top-[110px] left-0 w-px h-[120px] bg-gradient-to-b from-transparent via-gray-200/60 to-gray-200 dark:via-white/[0.04] dark:to-white/[0.08] pointer-events-none" aria-hidden="true"></div>
                     {{-- Right vertical line — tabs to mockup --}}
                     <div class="hidden md:block absolute -top-[110px] right-0 w-px h-[120px] bg-gradient-to-b from-transparent via-gray-200/60 to-gray-200 dark:via-white/[0.04] dark:to-white/[0.08] pointer-events-none" aria-hidden="true"></div>
                     {{-- Layer 3: Wide ambient glow --}}
