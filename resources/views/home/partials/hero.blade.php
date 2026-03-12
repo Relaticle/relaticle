@@ -55,11 +55,9 @@
 
                 {{-- Multi-color glow behind mockup --}}
                 <div class="absolute -inset-6 md:-inset-12 -z-10 pointer-events-none" aria-hidden="true">
-                    <div class="absolute top-[-5%] left-[5%] w-[50%] h-[65%] rounded-full bg-primary/[0.07] dark:bg-primary/[0.14] blur-[80px] animate-[gradient-shift_20s_ease-in-out_infinite]"></div>
-                    <div class="absolute top-[0%] right-[5%] w-[45%] h-[55%] rounded-full bg-violet-500/[0.05] dark:bg-violet-500/[0.10] blur-[80px] animate-[gradient-shift_25s_ease-in-out_infinite_reverse]"></div>
-                    <div class="absolute bottom-[-5%] left-[15%] w-[55%] h-[50%] rounded-full bg-indigo-500/[0.04] dark:bg-indigo-400/[0.08] blur-[80px] animate-[gradient-shift_22s_ease-in-out_infinite]"></div>
-                    <div class="absolute bottom-[0%] right-[10%] w-[35%] h-[40%] rounded-full bg-primary/[0.03] dark:bg-primary/[0.07] blur-[80px]"></div>
+                    <div class="absolute top-[0%] left-[15%] w-[70%] h-[60%] rounded-full bg-primary/[0.04] dark:bg-primary/[0.08] blur-[120px]"></div>
                 </div>
+
 
                 {{-- ── Decorative framing lines ── --}}
                 {{-- Center vertical line dropping into tabs --}}
