@@ -19,12 +19,19 @@
             {{-- ── Heading ── --}}
             <div class="text-center max-w-3xl">
                 <h1 class="hero-enter hero-enter-2 font-display text-[2rem] sm:text-5xl md:text-[3.5rem] lg:text-6xl font-bold leading-[1.08] tracking-[-0.03em] text-balance">
-                    <span class="text-gray-950 dark:text-white">The Open-</span><span class="bg-gradient-to-r from-primary-600 via-primary-500 to-primary-700 dark:from-primary-400 dark:via-primary-300 dark:to-primary-500 bg-clip-text text-transparent">Source</span> <span class="relative inline-block">
+                    <span class="text-gray-950 dark:text-white">The Open-</span><span class="relative inline-block">
+                        <span class="bg-gradient-to-r from-primary-600 via-primary-500 to-primary-700 dark:from-primary-400 dark:via-primary-300 dark:to-primary-500 bg-clip-text text-transparent">Source</span>
+                        <span class="absolute -bottom-1 left-0 right-0 h-[3px] bg-gradient-to-r from-primary/20 via-primary/40 to-primary/20 dark:from-primary/30 dark:via-primary/50 dark:to-primary/30 rounded-full" aria-hidden="true"></span>
+                    </span> <span class="relative inline-block px-1">
                         <span class="text-gray-950 dark:text-white">CRM</span>
-                        <span class="absolute -left-2 top-0 w-1.5 h-1.5 bg-primary/50 dark:bg-primary/60 rounded-full" aria-hidden="true"></span>
-                        <span class="absolute -right-2 top-0 w-1.5 h-1.5 bg-primary/50 dark:bg-primary/60 rounded-full" aria-hidden="true"></span>
-                        <span class="absolute -left-2 bottom-0 w-1.5 h-1.5 bg-primary/50 dark:bg-primary/60 rounded-full" aria-hidden="true"></span>
-                        <span class="absolute -right-2 bottom-0 w-1.5 h-1.5 bg-primary/50 dark:bg-primary/60 rounded-full" aria-hidden="true"></span>
+                        {{-- Corner dots with glow --}}
+                        <span class="absolute -left-3 -top-1 w-2 h-2 bg-primary dark:bg-primary-400 rounded-full shadow-[0_0_8px_rgba(var(--color-primary-500-rgb),0.4)]" aria-hidden="true"></span>
+                        <span class="absolute -right-3 -top-1 w-2 h-2 bg-primary dark:bg-primary-400 rounded-full shadow-[0_0_8px_rgba(var(--color-primary-500-rgb),0.4)]" aria-hidden="true"></span>
+                        <span class="absolute -left-3 -bottom-1 w-2 h-2 bg-primary dark:bg-primary-400 rounded-full shadow-[0_0_8px_rgba(var(--color-primary-500-rgb),0.4)]" aria-hidden="true"></span>
+                        <span class="absolute -right-3 -bottom-1 w-2 h-2 bg-primary dark:bg-primary-400 rounded-full shadow-[0_0_8px_rgba(var(--color-primary-500-rgb),0.4)]" aria-hidden="true"></span>
+                        {{-- Connecting lines --}}
+                        <span class="absolute -left-3 -top-1 -right-3 h-px bg-primary/15 dark:bg-primary/25" aria-hidden="true"></span>
+                        <span class="absolute -left-3 -bottom-1 -right-3 h-px bg-primary/15 dark:bg-primary/25" aria-hidden="true"></span>
                     </span><br class="hidden sm:block"/>
                     <span class="relative inline-block mt-1">
                         <span class="relative z-10 text-gray-950 dark:text-white">Built for AI Agents</span>
