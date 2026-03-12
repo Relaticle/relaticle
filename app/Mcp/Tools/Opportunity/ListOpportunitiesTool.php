@@ -40,27 +40,15 @@ final class ListOpportunitiesTool extends Tool
         /** @var User $user */
         $user = auth()->user();
 
-        $query = [];
-
-        if ($search = $request->get('search')) {
-            $query['filter']['name'] = $search;
-        }
-
-        if ($companyId = $request->get('company_id')) {
-            $query['filter']['company_id'] = $companyId;
-        }
-
-        if ($page = $request->get('page')) {
-            $query['page'] = $page;
-        }
-
-        if ($perPage = $request->get('per_page')) {
-            $query['per_page'] = $perPage;
-        }
-
-        request()->merge($query);
-
-        $opportunities = $action->execute($user, (int) $request->get('per_page', 15));
+        $opportunities = $action->execute(
+            user: $user,
+            perPage: (int) $request->get('per_page', 15),
+            filters: array_filter([
+                'name' => $request->get('search'),
+                'company_id' => $request->get('company_id'),
+            ]),
+            page: $request->get('page') ? (int) $request->get('page') : null,
+        );
 
         return Response::text(
             OpportunityResource::collection($opportunities)->toJson(JSON_PRETTY_PRINT)

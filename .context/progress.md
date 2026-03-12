@@ -3,6 +3,7 @@
 - **Testing with real tokens**: Use `$user->createToken('name', ['ability'])->plainTextToken` with `$this->withToken($token)` for API tests that need ability enforcement. `Sanctum::actingAs()` in v4 creates Mockery mocks that don't work with `instanceof PersonalAccessToken` checks.
 - **MCP testing with tokens**: Use `$user->createToken('name', ['ability'])` then `$user->withAccessToken($token->accessToken)` before `RelaticleServer::actingAs($user)` to set a real token on the user for MCP tool tests.
 - **Token detection pattern**: Check `$token instanceof PersonalAccessToken && $token->getKey()` to only enforce abilities on real persisted tokens. This skips TransientToken (session auth), Mockery mocks (tests), and null tokens.
+- **Decoupled List actions**: List actions accept explicit `$perPage`, `$useCursor`, `$filters`, `$page`, and optional `$request` parameters. API controllers pass `request: $request` for full QueryBuilder integration; MCP tools pass explicit `filters:` array (no `request()->merge()`). When no `$request` is provided, a synthetic `new Request(['filter' => $filters])` is built for Spatie QueryBuilder.
 
 ## US-001: Enforce Sanctum token abilities on API and MCP routes
 - Created `EnsureTokenHasAbility` middleware that maps HTTP methods to required abilities (GET->read, POST->create, PUT/PATCH->update, DELETE->delete)
@@ -78,3 +79,37 @@
 - `JsonApiResource` response wraps in `{ "data": { "id", "type", "attributes" } }` format -- tests should assert on `data.attributes` path
 - `Arr::only()` in actions is defense-in-depth: Form Requests validate input, model `$fillable` guards mass assignment, and now actions whitelist too -- prevents future drift if someone adds a column to `$fillable` without thinking about API exposure
 - Pre-existing PHPStan errors (5 total): all `ResolvesEntitySchema.php` `toCollection()` on null -- unchanged from previous stories
+
+## US-004: Decouple List actions from global request and fix Octane safety
+- Refactored all 5 List actions (ListCompanies, ListPeople, ListOpportunities, ListTasks, ListNotes) to accept explicit `$perPage`, `$useCursor`, `$filters`, `$page`, and `$request` parameters instead of reading from the global `request()` helper
+- Updated all 5 MCP List tools to pass parameters directly to actions -- eliminated all `request()->merge()` calls
+- Updated all 5 API controllers to pass the HTTP request and extracted pagination params explicitly
+- Spatie QueryBuilder now receives an explicit `$request` parameter via `QueryBuilder::for($query, $request)` instead of reading from the global request singleton
+- Fixed `SetApiTeamContext::terminate()` to call `auth()->guard('web')->forgetUser()` before clearing tenant context -- prevents Octane state leakage of the authenticated user across requests
+- Fixed N+1 query on `$token->team` in `SetApiTeamContext::resolveTeam()` -- replaced lazy-loaded relationship with direct `Team::query()->find($token->team_id)`
+
+### Files changed
+- `app/Actions/Company/ListCompanies.php` (new signature with explicit params)
+- `app/Actions/People/ListPeople.php` (new signature with explicit params)
+- `app/Actions/Opportunity/ListOpportunities.php` (new signature with explicit params)
+- `app/Actions/Task/ListTasks.php` (new signature with explicit params)
+- `app/Actions/Note/ListNotes.php` (new signature with explicit params)
+- `app/Mcp/Tools/Company/ListCompaniesTool.php` (removed `request()->merge()`)
+- `app/Mcp/Tools/People/ListPeopleTool.php` (removed `request()->merge()`)
+- `app/Mcp/Tools/Opportunity/ListOpportunitiesTool.php` (removed `request()->merge()`)
+- `app/Mcp/Tools/Task/ListTasksTool.php` (removed `request()->merge()`)
+- `app/Mcp/Tools/Note/ListNotesTool.php` (removed `request()->merge()`)
+- `app/Http/Controllers/Api/V1/CompaniesController.php` (pass explicit params + request)
+- `app/Http/Controllers/Api/V1/PeopleController.php` (pass explicit params + request)
+- `app/Http/Controllers/Api/V1/OpportunitiesController.php` (pass explicit params + request)
+- `app/Http/Controllers/Api/V1/TasksController.php` (pass explicit params + request)
+- `app/Http/Controllers/Api/V1/NotesController.php` (pass explicit params + request)
+- `app/Http/Middleware/SetApiTeamContext.php` (terminate: forgetUser; resolveTeam: direct query)
+
+### Learnings for future iterations:
+- Spatie QueryBuilder's `::for()` method accepts an optional `?Request $request` parameter -- pass it explicitly to avoid coupling to the global request singleton
+- `new Request(['filter' => $filters])` creates a synthetic Illuminate Request with query parameters that Spatie QueryBuilder can read -- useful for MCP/CLI contexts where there's no HTTP request
+- `$query->paginate($perPage, ['*'], 'page', $page)` -- the 4th positional arg overrides the page number, bypassing the paginator's default of reading from the request
+- `auth()->guard('web')->forgetUser()` is the correct way to clear the web guard user set by `setUser()` -- without this, Octane would leak the authenticated user to the next request
+- `$token->team` triggers a lazy-loaded relationship query each time -- use `Team::query()->find($token->team_id)` to make the query explicit and avoid potential N+1
+- Pre-existing test failures (12 total): ResolvesEntitySchema (7), CustomFieldsApiTest (1), InstallCommandTest (3), ApiTeamScopingTest `/api/user` (1, from US-003 UserResource change) -- all unrelated to this work

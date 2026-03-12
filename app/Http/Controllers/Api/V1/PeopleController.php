@@ -34,7 +34,12 @@ final readonly class PeopleController
         /** @var User $user */
         $user = $request->user();
 
-        return PeopleResource::collection($action->execute($user));
+        return PeopleResource::collection($action->execute(
+            user: $user,
+            perPage: (int) $request->query('per_page', '15'),
+            useCursor: $request->has('cursor'),
+            request: $request,
+        ));
     }
 
     #[ResponseFromApiResource(PeopleResource::class, People::class, status: 201)]

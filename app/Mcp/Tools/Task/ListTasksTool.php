@@ -39,23 +39,12 @@ final class ListTasksTool extends Tool
         /** @var User $user */
         $user = auth()->user();
 
-        $query = [];
-
-        if ($search = $request->get('search')) {
-            $query['filter']['title'] = $search;
-        }
-
-        if ($page = $request->get('page')) {
-            $query['page'] = $page;
-        }
-
-        if ($perPage = $request->get('per_page')) {
-            $query['per_page'] = $perPage;
-        }
-
-        request()->merge($query);
-
-        $tasks = $action->execute($user, (int) $request->get('per_page', 15));
+        $tasks = $action->execute(
+            user: $user,
+            perPage: (int) $request->get('per_page', 15),
+            filters: array_filter(['title' => $request->get('search')]),
+            page: $request->get('page') ? (int) $request->get('page') : null,
+        );
 
         return Response::text(
             TaskResource::collection($tasks)->toJson(JSON_PRETTY_PRINT)

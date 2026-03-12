@@ -33,7 +33,12 @@ final readonly class TasksController
         /** @var User $user */
         $user = $request->user();
 
-        return TaskResource::collection($action->execute($user));
+        return TaskResource::collection($action->execute(
+            user: $user,
+            perPage: (int) $request->query('per_page', '15'),
+            useCursor: $request->has('cursor'),
+            request: $request,
+        ));
     }
 
     #[ResponseFromApiResource(TaskResource::class, Task::class, status: 201)]

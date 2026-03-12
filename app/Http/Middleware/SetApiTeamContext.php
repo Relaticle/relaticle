@@ -63,6 +63,8 @@ final readonly class SetApiTeamContext
 
     public function terminate(): void
     {
+        auth()->guard('web')->forgetUser();
+
         TenantContextService::setTenantId(null);
 
         foreach (self::SCOPED_MODELS as $model) {
@@ -75,7 +77,7 @@ final readonly class SetApiTeamContext
         $token = $user->currentAccessToken();
 
         if ($token instanceof PersonalAccessToken && is_string($token->team_id)) {
-            return $token->team;
+            return Team::query()->find($token->team_id);
         }
 
         $teamId = $request->header('X-Team-Id');
