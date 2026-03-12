@@ -39,3 +39,5 @@ api.json
 /resources/views/scribe
 /storage/app/scribe
 /tests/Feature/Scribe
+
+.context

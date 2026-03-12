@@ -17,6 +17,13 @@ class PersonalAccessToken extends SanctumPersonalAccessToken
         'team_id',
     ];
 
+    protected static function booted(): void
+    {
+        static::updating(function (PersonalAccessToken $token): void {
+            throw_if($token->isDirty('team_id') && $token->getOriginal('team_id') !== null, \LogicException::class, 'The team_id attribute cannot be changed after it has been set.');
+        });
+    }
+
     /** @return BelongsTo<Team, $this> */
     public function team(): BelongsTo
     {
