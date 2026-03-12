@@ -5,6 +5,9 @@
 - **Token detection pattern**: Check `$token instanceof PersonalAccessToken && $token->getKey()` to only enforce abilities on real persisted tokens. This skips TransientToken (session auth), Mockery mocks (tests), and null tokens.
 - **Decoupled List actions**: List actions accept explicit `$perPage`, `$useCursor`, `$filters`, `$page`, and optional `$request` parameters. API controllers pass `request: $request` for full QueryBuilder integration; MCP tools pass explicit `filters:` array (no `request()->merge()`). When no `$request` is provided, a synthetic `new Request(['filter' => $filters])` is built for Spatie QueryBuilder.
 - **Creating tokens with team_id**: Use `$user->tokens()->create(['name' => ..., 'token' => hash('sha256', $raw), 'abilities' => [...], 'team_id' => $team->id])` then compose `"{$token->id}|{$raw}"` for the plain text token. This is necessary because `createToken()` doesn't accept `team_id` directly.
+- **MCP validation error messages**: MCP `assertHasErrors(['field_name'])` uses `str_contains()` on the full error text. Laravel formats dot-notation fields with spaces: `custom_fields.cf_amount` becomes "custom fields.cf amount" in messages. Use a substring like `'cf amount'` for matching.
+- **PostgreSQL whereJsonContains with arrays**: `whereJsonContains('col', ['name' => 'required'])` doesn't match `[{"name":"required"}]` in PostgreSQL -- use `whereJsonContains('col', [['name' => 'required']])` to wrap the element in an array for proper `@>` containment.
+- **Custom field validation_rules format mismatch**: The `validation_rules` JSON column has two incompatible formats in use: `[{"name":"required"}]` (array of objects, used in `resolveCustomFields` query) and `{"required":true}` (keyed object, used in `ValidationService::getCapabilityRules`). Neither format satisfies both code paths, so `required` enforcement for custom fields is a known gap.
 
 ## US-001: Enforce Sanctum token abilities on API and MCP routes
 - Created `EnsureTokenHasAbility` middleware that maps HTTP methods to required abilities (GET->read, POST->create, PUT/PATCH->update, DELETE->delete)
@@ -177,3 +180,36 @@
 - Opportunity `contact` relationship points to `People` model with `contact_id` -- the JSON:API type is `'people'` not `'contacts'`
 - Spatie QueryBuilder rejects disallowed filters/sorts with HTTP 400 (not 422) -- use `assertStatus(400)` not `assertUnprocessable()`
 - Pre-existing PHPStan errors unchanged (5 total): all `ResolvesEntitySchema.php` `toCollection()` on null
+
+## US-008: Add missing MCP tool features and tests
+- Added `assigned_to_me` boolean parameter to `ListTasksTool` -- passes through to the existing `assigned_to_me` callback filter in `ListTasks` action
+- Added `notable_type` and `notable_id` parameters to `ListNotesTool` -- filters notes by related entity type (company/people/opportunity) and ID via polymorphic `noteables` pivot table
+- Added `notable_type` and `notable_id` callback filters to `ListNotes` action using `whereHas` on the morph relationships
+- Added separate `mcp` rate limiter at 120 requests/minute in `AppServiceProvider` (previously shared `api` limiter at 60/min)
+- Updated `routes/ai.php` to use `throttle:mcp` instead of `throttle:api`
+- Fixed `CustomFieldValidationService::resolveCustomFields()` PostgreSQL `whereJsonContains` query -- wrapped element in array for proper `@>` containment
+- Added 35 new tests in `McpToolFeaturesTest.php` covering:
+  - **assigned_to_me filter** (2 tests): filters tasks assigned to current user, returns all when not set
+  - **notable_type/notable_id filtering** (4 tests): filter by type (company/people), filter by ID, combined type+ID
+  - **creation_source=MCP** (5 tests): verified for all 5 entities (Company, People, Opportunity, Task, Note)
+  - **Required-field validation** (9 tests): empty name/title rejection + max 255 length for all entities
+  - **Custom field create** (5 tests): text custom field passed through create for all entities
+  - **Custom field update** (5 tests): text custom field passed through update for all entities
+  - **Custom field validation rejection** (5 tests): non-numeric value rejected for number field on all entities
+
+### Files changed
+- `app/Mcp/Tools/Task/ListTasksTool.php` (added `assigned_to_me` schema param, pass through filters)
+- `app/Mcp/Tools/Note/ListNotesTool.php` (added `notable_type`, `notable_id` schema params, pass through filters)
+- `app/Actions/Note/ListNotes.php` (added `notable_type` and `notable_id` callback filters using `whereHas`)
+- `app/Providers/AppServiceProvider.php` (added `mcp` rate limiter at 120/min)
+- `routes/ai.php` (changed `throttle:api` to `throttle:mcp`)
+- `app/Services/CustomFieldValidationService.php` (fixed `whereJsonContains` for PostgreSQL array containment)
+- `tests/Feature/Mcp/McpToolFeaturesTest.php` (new -- 35 tests, 62 assertions)
+
+### Learnings for future iterations:
+- `whereHas('companies')` on the Note model filters via the `noteables` pivot table automatically -- simpler and more reliable than manual `whereExists` subqueries
+- Spatie QueryBuilder callback filters with `mixed $value` type hint are safer than `string $value` since the framework may pass various types
+- MCP `assertHasErrors(['message'])` uses `str_contains` on the error text -- dot-notation field names like `custom_fields.cf_amount` become "custom fields.cf amount" with spaces in Laravel's error messages
+- `CustomFieldValidationService::resolveCustomFields` uses `whereJsonContains` to find required fields, but PostgreSQL's `@>` operator needs `[{"name":"required"}]` (array wrapper) not `{"name":"required"}` (bare object) when checking array containment
+- The custom fields package's `ValidationService::getCapabilityRules` expects keyed object format (`{"required":true}`) while `resolveCustomFields` queries for array-of-objects format (`[{"name":"required"}]`) -- this format mismatch means `required` custom field enforcement is a known gap
+- Pre-existing test failures unchanged: ResolvesEntitySchema (7), CustomFieldsApiTest (1), ApiTeamScopingTest (1)

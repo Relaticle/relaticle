@@ -27,6 +27,8 @@ final class ListNotesTool extends Tool
     {
         return [
             'search' => $schema->string()->description('Search notes by title.'),
+            'notable_type' => $schema->string()->description('Filter by related entity type: company, people, or opportunity.'),
+            'notable_id' => $schema->string()->description('Filter by related entity ID (use with notable_type for best results).'),
             'per_page' => $schema->integer()->description('Results per page (default 15, max 100).')->default(15),
             'page' => $schema->integer()->description('Page number.')->default(1),
         ];
@@ -39,10 +41,16 @@ final class ListNotesTool extends Tool
         /** @var User $user */
         $user = auth()->user();
 
+        $filters = array_filter([
+            'title' => $request->get('search'),
+            'notable_type' => $request->get('notable_type'),
+            'notable_id' => $request->get('notable_id'),
+        ]);
+
         $notes = $action->execute(
             user: $user,
             perPage: (int) $request->get('per_page', 15),
-            filters: array_filter(['title' => $request->get('search')]),
+            filters: $filters,
             page: $request->get('page') ? (int) $request->get('page') : null,
         );
 

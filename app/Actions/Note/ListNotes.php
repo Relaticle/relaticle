@@ -8,6 +8,7 @@ use App\Models\Note;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\CursorPaginator;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
@@ -35,6 +36,26 @@ final readonly class ListNotes
         $query = QueryBuilder::for(Note::query()->withCustomFieldValues(), $request)
             ->allowedFilters([
                 AllowedFilter::partial('title'),
+                AllowedFilter::callback('notable_type', function (Builder $query, mixed $value): void {
+                    $relationMap = [
+                        'company' => 'companies',
+                        'people' => 'people',
+                        'opportunity' => 'opportunities',
+                    ];
+
+                    $relation = $relationMap[$value] ?? null;
+
+                    if ($relation) {
+                        $query->whereHas($relation);
+                    }
+                }),
+                AllowedFilter::callback('notable_id', function (Builder $query, mixed $value): void {
+                    $query->where(function (Builder $q) use ($value): void {
+                        $q->whereHas('companies', fn (Builder $sub) => $sub->where('noteables.noteable_id', $value))
+                            ->orWhereHas('people', fn (Builder $sub) => $sub->where('noteables.noteable_id', $value))
+                            ->orWhereHas('opportunities', fn (Builder $sub) => $sub->where('noteables.noteable_id', $value));
+                    });
+                }),
             ])
             ->allowedFields(['id', 'title', 'creator_id', 'created_at', 'updated_at'])
             ->allowedIncludes(['creator', 'companies', 'people', 'opportunities'])

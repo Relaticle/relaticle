@@ -27,6 +27,7 @@ final class ListTasksTool extends Tool
     {
         return [
             'search' => $schema->string()->description('Search tasks by title.'),
+            'assigned_to_me' => $schema->boolean()->description('Filter tasks assigned to the current user.'),
             'per_page' => $schema->integer()->description('Results per page (default 15, max 100).')->default(15),
             'page' => $schema->integer()->description('Page number.')->default(1),
         ];
@@ -39,10 +40,15 @@ final class ListTasksTool extends Tool
         /** @var User $user */
         $user = auth()->user();
 
+        $filters = array_filter([
+            'title' => $request->get('search'),
+            'assigned_to_me' => $request->get('assigned_to_me') ? '1' : null,
+        ]);
+
         $tasks = $action->execute(
             user: $user,
             perPage: (int) $request->get('per_page', 15),
-            filters: array_filter(['title' => $request->get('search')]),
+            filters: $filters,
             page: $request->get('page') ? (int) $request->get('page') : null,
         );
 

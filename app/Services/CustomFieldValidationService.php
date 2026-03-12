@@ -77,14 +77,14 @@ final readonly class CustomFieldValidationService
 
         if ($submittedCodes === []) {
             return $baseQuery
-                ->whereJsonContains('validation_rules', ['name' => 'required'])
+                ->whereJsonContains('validation_rules', [['name' => 'required']])
                 ->get();
         }
 
         return $baseQuery
             ->where(function (Builder $query) use ($submittedCodes): void {
                 $query->whereIn('code', $submittedCodes)
-                    ->orWhereJsonContains('validation_rules', ['name' => 'required']);
+                    ->orWhereJsonContains('validation_rules', [['name' => 'required']]);
             })
             ->get();
     }
