@@ -19,9 +19,11 @@
             {{-- ── Heading ── --}}
             <div class="text-center max-w-3xl">
                 <h1 class="hero-enter hero-enter-2 font-display text-[2rem] sm:text-5xl md:text-[3.5rem] lg:text-6xl font-bold text-gray-950 dark:text-white leading-[1.08] tracking-[-0.03em] text-balance">
-                    The <span class="relative inline-block">
+                    The <span class="relative inline-block pb-2">
                         Open-Source
-                        <span class="absolute -bottom-1 left-0 right-0 h-[3px] bg-gradient-to-r from-primary/20 via-primary/40 to-primary/20 dark:from-primary/30 dark:via-primary/50 dark:to-primary/30 rounded-full" aria-hidden="true"></span>
+                        <svg class="absolute -bottom-1 left-0 w-full" height="8" viewBox="0 0 300 8" preserveAspectRatio="none" aria-hidden="true">
+                            <path d="M0,4 Q75,0 150,4 T300,4" stroke="currentColor" stroke-width="2.5" fill="none" class="text-primary/60 dark:text-primary/70"/>
+                        </svg>
                     </span> CRM<br class="hidden sm:block"/>
                     <span class="relative inline-block mt-1">
                         <span class="relative z-10 text-gray-950 dark:text-white">Built for AI Agents</span>
