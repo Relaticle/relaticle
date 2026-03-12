@@ -22,7 +22,7 @@
                     The <span class="relative inline-block pb-2">
                         Open-Source
                         <svg class="absolute -bottom-1 left-0 w-full" height="8" viewBox="0 0 300 8" preserveAspectRatio="none" aria-hidden="true">
-                            <path d="M0,4 Q75,0 150,4 T300,4" stroke-width="2.5" fill="none" style="stroke: color-mix(in oklab, oklch(0.42 0.24 287.23) 60%, transparent);"/>
+                            <path d="M0,4 Q75,0 150,4 T300,4" stroke-width="2.5" fill="none" stroke-linecap="round" style="stroke: color-mix(in oklab, oklch(0.42 0.24 287.23) 60%, transparent);"/>
                         </svg>
                     </span> CRM<br class="hidden sm:block"/>
                     <span class="text-gray-950 dark:text-white">Built for AI Agents</span>
