@@ -154,3 +154,26 @@
 - `RateLimiter::for('api', fn () => Limit::perMinute(N))` can be overridden in tests to use a low threshold for fast rate limit testing
 - Soft-delete tests were only present for Companies in the API -- People, Notes, Tasks, Opportunities had no API soft-delete coverage despite all using `SoftDeletes` trait
 - Pre-existing PHPStan errors unchanged (5 total): all `ResolvesEntitySchema.php` `toCollection()` on null
+
+## US-007: Fill entity-level test parity gaps
+- Replicated Companies test patterns across People, Opportunities, Tasks, and Notes -- added ~70 new tests across 4 files
+- **Filtering tests**: Added for each allowed filter per entity -- People (name, company_id), Opportunities (name, company_id), Tasks (title), Notes (title)
+- **Sorting tests**: Added ascending/descending sort tests for each entity's primary field (name or title)
+- **Pagination tests**: Added 4 pagination tests per entity (per_page, second page, max cap, empty page beyond results)
+- **Disallowed filter/sort tests**: Added rejection tests for `filter[team_id]` and `sort=team_id` to all 4 entities
+- **Validation boundary tests**: Added 4 tests per entity (max 255, non-string, array, exact 255 boundary)
+- **Mass assignment protection tests**: Added 3 tests per entity (team_id ignored on create, creator_id ignored on create, team_id ignored on update)
+- **Relationship include tests beyond 'creator'**: People (company, multiple), Opportunities (company, contact, multiple), Tasks (assignees, multiple), Notes (companies, multiple)
+
+### Files changed
+- `tests/Feature/Api/V1/PeopleApiTest.php` (expanded from 296 to ~430 lines -- added 17 new tests)
+- `tests/Feature/Api/V1/OpportunitiesApiTest.php` (expanded from 260 to ~470 lines -- added 21 new tests)
+- `tests/Feature/Api/V1/TasksApiTest.php` (expanded from 226 to ~420 lines -- added 19 new tests)
+- `tests/Feature/Api/V1/NotesApiTest.php` (expanded from 226 to ~420 lines -- added 19 new tests)
+
+### Learnings for future iterations:
+- `Note::companies()` is a `MorphedByMany` relationship via 'noteable' pivot -- attach companies with `$note->companies()->attach($company)` before testing the include
+- `Task::assignees()` is a `BelongsToMany` relationship -- attach users with `$task->assignees()->attach($user)` before testing the include
+- Opportunity `contact` relationship points to `People` model with `contact_id` -- the JSON:API type is `'people'` not `'contacts'`
+- Spatie QueryBuilder rejects disallowed filters/sorts with HTTP 400 (not 422) -- use `assertStatus(400)` not `assertUnprocessable()`
+- Pre-existing PHPStan errors unchanged (5 total): all `ResolvesEntitySchema.php` `toCollection()` on null

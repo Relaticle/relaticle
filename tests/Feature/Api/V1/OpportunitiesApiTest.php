@@ -239,6 +239,67 @@ describe('includes', function (): void {
             );
     });
 
+    it('can include company on show endpoint', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $company = Company::factory()->for($this->team)->create();
+        $opportunity = Opportunity::factory()->for($this->team)->create(['company_id' => $company->id]);
+
+        $this->getJson("/api/v1/opportunities/{$opportunity->id}?include=company")
+            ->assertOk()
+            ->assertJson(fn (AssertableJson $json) => $json
+                ->has('data.relationships.company.data', fn (AssertableJson $json) => $json
+                    ->whereType('id', 'string')
+                    ->where('type', 'companies')
+                )
+                ->has('included.0', fn (AssertableJson $json) => $json
+                    ->whereType('id', 'string')
+                    ->where('type', 'companies')
+                    ->has('attributes')
+                    ->etc()
+                )
+                ->etc()
+            );
+    });
+
+    it('can include contact on show endpoint', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $person = People::factory()->for($this->team)->create();
+        $opportunity = Opportunity::factory()->for($this->team)->create(['contact_id' => $person->id]);
+
+        $this->getJson("/api/v1/opportunities/{$opportunity->id}?include=contact")
+            ->assertOk()
+            ->assertJson(fn (AssertableJson $json) => $json
+                ->has('data.relationships.contact.data', fn (AssertableJson $json) => $json
+                    ->whereType('id', 'string')
+                    ->where('type', 'people')
+                )
+                ->has('included.0', fn (AssertableJson $json) => $json
+                    ->whereType('id', 'string')
+                    ->where('type', 'people')
+                    ->has('attributes')
+                    ->etc()
+                )
+                ->etc()
+            );
+    });
+
+    it('can include multiple relations', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $company = Company::factory()->for($this->team)->create();
+        $opportunity = Opportunity::factory()->for($this->team)->create(['company_id' => $company->id]);
+
+        $this->getJson("/api/v1/opportunities/{$opportunity->id}?include=creator,company")
+            ->assertOk()
+            ->assertJson(fn (AssertableJson $json) => $json
+                ->has('data.relationships.creator')
+                ->has('data.relationships.company')
+                ->etc()
+            );
+    });
+
     it('does not include relations when not requested', function (): void {
         Sanctum::actingAs($this->user);
 
@@ -255,5 +316,213 @@ describe('includes', function (): void {
 
         $this->getJson('/api/v1/opportunities?include=secret')
             ->assertStatus(400);
+    });
+});
+
+describe('filtering and sorting', function (): void {
+    it('can filter opportunities by name', function (): void {
+        Sanctum::actingAs($this->user);
+
+        Opportunity::factory()->for($this->team)->create(['name' => 'Enterprise Deal']);
+        Opportunity::factory()->for($this->team)->create(['name' => 'Small Contract']);
+
+        $response = $this->getJson('/api/v1/opportunities?filter[name]=Enterprise');
+
+        $response->assertOk();
+
+        $names = collect($response->json('data'))->pluck('attributes.name');
+        expect($names)->toContain('Enterprise Deal');
+        expect($names)->not->toContain('Small Contract');
+    });
+
+    it('can filter opportunities by company_id', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $company = Company::factory()->for($this->team)->create();
+        $matched = Opportunity::factory()->for($this->team)->create(['company_id' => $company->id]);
+        $unmatched = Opportunity::factory()->for($this->team)->create();
+
+        $response = $this->getJson("/api/v1/opportunities?filter[company_id]={$company->id}");
+
+        $response->assertOk();
+
+        $ids = collect($response->json('data'))->pluck('id');
+        expect($ids)->toContain($matched->id);
+        expect($ids)->not->toContain($unmatched->id);
+    });
+
+    it('can sort opportunities by name ascending', function (): void {
+        Sanctum::actingAs($this->user);
+
+        Opportunity::factory()->for($this->team)->create(['name' => 'Zulu Deal']);
+        Opportunity::factory()->for($this->team)->create(['name' => 'Alpha Deal']);
+
+        $response = $this->getJson('/api/v1/opportunities?sort=name');
+
+        $response->assertOk();
+
+        $names = collect($response->json('data'))->pluck('attributes.name')->values();
+        $alphaIndex = $names->search('Alpha Deal');
+        $zuluIndex = $names->search('Zulu Deal');
+        expect($alphaIndex)->toBeLessThan($zuluIndex);
+    });
+
+    it('can sort opportunities by name descending', function (): void {
+        Sanctum::actingAs($this->user);
+
+        Opportunity::factory()->for($this->team)->create(['name' => 'Alpha Deal']);
+        Opportunity::factory()->for($this->team)->create(['name' => 'Zulu Deal']);
+
+        $response = $this->getJson('/api/v1/opportunities?sort=-name');
+
+        $response->assertOk();
+
+        $names = collect($response->json('data'))->pluck('attributes.name')->values();
+        $zuluIndex = $names->search('Zulu Deal');
+        $alphaIndex = $names->search('Alpha Deal');
+        expect($zuluIndex)->toBeLessThan($alphaIndex);
+    });
+
+    it('rejects disallowed filter fields', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $this->getJson('/api/v1/opportunities?filter[team_id]=fake')
+            ->assertStatus(400);
+    });
+
+    it('rejects disallowed sort fields', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $this->getJson('/api/v1/opportunities?sort=team_id')
+            ->assertStatus(400);
+    });
+});
+
+describe('pagination', function (): void {
+    it('paginates with per_page parameter', function (): void {
+        Sanctum::actingAs($this->user);
+
+        Opportunity::factory(5)->for($this->team)->create();
+
+        $this->getJson('/api/v1/opportunities?per_page=2')
+            ->assertOk()
+            ->assertJsonCount(2, 'data');
+    });
+
+    it('returns second page of results', function (): void {
+        Sanctum::actingAs($this->user);
+
+        Opportunity::factory(5)->for($this->team)->create();
+
+        $page1 = $this->getJson('/api/v1/opportunities?per_page=3&page=1');
+        $page2 = $this->getJson('/api/v1/opportunities?per_page=3&page=2');
+
+        $page1->assertOk()->assertJsonCount(3, 'data');
+        $page2->assertOk();
+
+        $page1Ids = collect($page1->json('data'))->pluck('id');
+        $page2Ids = collect($page2->json('data'))->pluck('id');
+        expect($page1Ids->intersect($page2Ids))->toBeEmpty();
+    });
+
+    it('caps per_page at maximum allowed value', function (): void {
+        Sanctum::actingAs($this->user);
+
+        Opportunity::factory(5)->for($this->team)->create();
+
+        $response = $this->getJson('/api/v1/opportunities?per_page=500');
+        $response->assertOk();
+
+        expect($response->json('data'))->toBeArray();
+    });
+
+    it('returns empty data array for page beyond results', function (): void {
+        Sanctum::actingAs($this->user);
+
+        Opportunity::factory(2)->for($this->team)->create();
+
+        $this->getJson('/api/v1/opportunities?page=999')
+            ->assertOk()
+            ->assertJsonCount(0, 'data');
+    });
+});
+
+describe('mass assignment protection', function (): void {
+    it('ignores team_id in create request', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $otherTeam = Team::factory()->create();
+
+        $this->postJson('/api/v1/opportunities', [
+            'name' => 'Test Deal',
+            'team_id' => $otherTeam->id,
+        ])
+            ->assertCreated();
+
+        $opportunity = Opportunity::query()->where('name', 'Test Deal')->first();
+        expect($opportunity->team_id)->toBe($this->team->id);
+    });
+
+    it('ignores creator_id in create request', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $otherUser = User::factory()->create();
+
+        $this->postJson('/api/v1/opportunities', [
+            'name' => 'Test Deal',
+            'creator_id' => $otherUser->id,
+        ])
+            ->assertCreated();
+
+        $opportunity = Opportunity::query()->where('name', 'Test Deal')->first();
+        expect($opportunity->creator_id)->toBe($this->user->id);
+    });
+
+    it('ignores team_id in update request', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $opportunity = Opportunity::factory()->for($this->team)->create();
+        $otherTeam = Team::factory()->create();
+
+        $this->putJson("/api/v1/opportunities/{$opportunity->id}", [
+            'name' => 'Updated',
+            'team_id' => $otherTeam->id,
+        ])
+            ->assertOk();
+
+        expect($opportunity->refresh()->team_id)->toBe($this->team->id);
+    });
+});
+
+describe('input validation', function (): void {
+    it('rejects name exceeding 255 characters', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $this->postJson('/api/v1/opportunities', ['name' => str_repeat('a', 256)])
+            ->assertUnprocessable()
+            ->assertInvalid(['name']);
+    });
+
+    it('rejects non-string name', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $this->postJson('/api/v1/opportunities', ['name' => 12345])
+            ->assertUnprocessable()
+            ->assertInvalid(['name']);
+    });
+
+    it('rejects array as name', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $this->postJson('/api/v1/opportunities', ['name' => ['nested' => 'value']])
+            ->assertUnprocessable()
+            ->assertInvalid(['name']);
+    });
+
+    it('accepts name at exactly 255 characters', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $this->postJson('/api/v1/opportunities', ['name' => str_repeat('a', 255)])
+            ->assertCreated();
     });
 });
