@@ -4,6 +4,7 @@
 - **MCP testing with tokens**: Use `$user->createToken('name', ['ability'])` then `$user->withAccessToken($token->accessToken)` before `RelaticleServer::actingAs($user)` to set a real token on the user for MCP tool tests.
 - **Token detection pattern**: Check `$token instanceof PersonalAccessToken && $token->getKey()` to only enforce abilities on real persisted tokens. This skips TransientToken (session auth), Mockery mocks (tests), and null tokens.
 - **Decoupled List actions**: List actions accept explicit `$perPage`, `$useCursor`, `$filters`, `$page`, and optional `$request` parameters. API controllers pass `request: $request` for full QueryBuilder integration; MCP tools pass explicit `filters:` array (no `request()->merge()`). When no `$request` is provided, a synthetic `new Request(['filter' => $filters])` is built for Spatie QueryBuilder.
+- **Creating tokens with team_id**: Use `$user->tokens()->create(['name' => ..., 'token' => hash('sha256', $raw), 'abilities' => [...], 'team_id' => $team->id])` then compose `"{$token->id}|{$raw}"` for the plain text token. This is necessary because `createToken()` doesn't accept `team_id` directly.
 
 ## US-001: Enforce Sanctum token abilities on API and MCP routes
 - Created `EnsureTokenHasAbility` middleware that maps HTTP methods to required abilities (GET->read, POST->create, PUT/PATCH->update, DELETE->delete)
@@ -133,3 +134,23 @@
 - MCP prompts access the user via `$request->user()` (same as resources), while MCP tools use `auth()->user()` -- different patterns for the same auth context
 - Rector's `SimplifyUselessVariableRector` will inline the last assignment + return into a single `return` statement -- let rector handle it rather than fighting it
 - Pre-existing test failures unchanged (12 total): ResolvesEntitySchema (7), CustomFieldsApiTest (1), InstallCommandTest (3), ApiTeamScopingTest (1)
+
+## US-006: Fill critical test coverage gaps
+- Added 19 new tests in `CriticalCoverageTest.php` covering 6 critical untested paths:
+  - **Expired token rejection** (1 test): token with `expires_at` in the past returns 401
+  - **Token-based team scoping** (2 tests): token with `team_id` resolves correct team context using real tokens (not `Sanctum::actingAs`); token `team_id` takes priority over `X-Team-Id` header
+  - **Soft-delete visibility** (8 tests): soft-deleted records excluded from list and show endpoints for People, Notes, Tasks, Opportunities (Companies already had coverage)
+  - **ForceJsonResponse middleware** (2 tests): JSON response returned without `Accept` header for both successful requests and validation errors
+  - **Rate limiting** (1 test): returns 429 after exceeding threshold (uses `RateLimiter::for()` override for fast testing)
+  - **Non-existent UUID** (5 tests): returns 404 for non-existent ULID across all 5 entity types
+
+### Files changed
+- `tests/Feature/Api/V1/CriticalCoverageTest.php` (new -- 19 tests, 30 assertions)
+
+### Learnings for future iterations:
+- `createToken()` doesn't accept `team_id` -- create tokens via `$user->tokens()->create([...])` with a raw hash and compose `"{$token->id}|{$raw}"` for the plain text token
+- `ForceJsonResponse` middleware runs AFTER `auth:sanctum` but BEFORE `SubstituteBindings` -- unauthenticated requests without `Accept` header get redirected (302) not 401, because auth middleware runs first
+- However, `SubstituteBindings` 404s still render as HTML because the exception handler checks `$request->expectsJson()` before `ForceJsonResponse` has run -- route model binding failures bypass the middleware
+- `RateLimiter::for('api', fn () => Limit::perMinute(N))` can be overridden in tests to use a low threshold for fast rate limit testing
+- Soft-delete tests were only present for Companies in the API -- People, Notes, Tasks, Opportunities had no API soft-delete coverage despite all using `SoftDeletes` trait
+- Pre-existing PHPStan errors unchanged (5 total): all `ResolvesEntitySchema.php` `toCollection()` on null
