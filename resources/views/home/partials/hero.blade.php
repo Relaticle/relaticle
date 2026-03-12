@@ -22,13 +22,10 @@
                     The <span class="relative inline-block pb-2">
                         Open-Source
                         <svg class="absolute -bottom-1 left-0 w-full" height="8" viewBox="0 0 300 8" preserveAspectRatio="none" aria-hidden="true">
-                            <path d="M0,4 Q75,0 150,4 T300,4" stroke="currentColor" stroke-width="2.5" fill="none" class="text-primary/60 dark:text-primary/70"/>
+                            <path d="M0,4 Q75,0 150,4 T300,4" stroke-width="2.5" fill="none" style="stroke: color-mix(in oklab, oklch(0.42 0.24 287.23) 60%, transparent);"/>
                         </svg>
                     </span> CRM<br class="hidden sm:block"/>
-                    <span class="relative inline-block mt-1">
-                        <span class="relative z-10 text-gray-950 dark:text-white">Built for AI Agents</span>
-                        <span class="absolute bottom-2 sm:left-0 right-1/4 w-1/2 sm:w-full h-3 bg-primary/10 dark:bg-primary/20 sm:dark:bg-primary/30 -rotate-1 z-0" aria-hidden="true"></span>
-                    </span>
+                    <span class="text-gray-950 dark:text-white">Built for AI Agents</span>
                 </h1>
 
                 <p class="hero-enter hero-enter-3 mt-5 sm:mt-6 text-[15px] sm:text-lg text-gray-500 dark:text-gray-400 max-w-xl mx-auto leading-relaxed tracking-[-0.01em]">
