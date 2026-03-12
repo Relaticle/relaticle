@@ -9,6 +9,8 @@ use App\Models\Note;
 use App\Models\Opportunity;
 use App\Models\People;
 use App\Models\Task;
+use App\Models\User;
+use Illuminate\Support\Facades\Cache;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\Server\Attributes\Description;
@@ -17,38 +19,48 @@ use Laravel\Mcp\Server\Prompt;
 #[Description('Get an overview of the CRM data for the current team, including record counts and recent activity.')]
 final class CrmOverviewPrompt extends Prompt
 {
+    private const int CACHE_TTL = 60;
+
     public function handle(Request $request): Response
     {
-        $counts = [
-            'companies' => Company::query()->count(),
-            'people' => People::query()->count(),
-            'opportunities' => Opportunity::query()->count(),
-            'tasks' => Task::query()->count(),
-            'notes' => Note::query()->count(),
-        ];
+        /** @var User $user */
+        $user = $request->user();
+        $teamId = $user->currentTeam->getKey();
+        $cacheKey = "crm_overview_{$teamId}";
 
-        $recentCompanies = Company::query()
-            ->latest()
-            ->take(5)
-            ->pluck('name')
-            ->implode(', ');
+        $overview = Cache::remember($cacheKey, self::CACHE_TTL, function (): string {
+            $counts = [
+                'companies' => Company::query()->count(),
+                'people' => People::query()->count(),
+                'opportunities' => Opportunity::query()->count(),
+                'tasks' => Task::query()->count(),
+                'notes' => Note::query()->count(),
+            ];
 
-        $recentPeople = People::query()
-            ->latest()
-            ->take(5)
-            ->pluck('name')
-            ->implode(', ');
+            $recentCompanies = Company::query()
+                ->latest()
+                ->take(5)
+                ->pluck('name')
+                ->implode(', ');
 
-        $overview = "CRM Overview for current team:\n\n";
-        $overview .= "Record Counts:\n";
+            $recentPeople = People::query()
+                ->latest()
+                ->take(5)
+                ->pluck('name')
+                ->implode(', ');
 
-        foreach ($counts as $entity => $count) {
-            $overview .= "  - {$entity}: {$count}\n";
-        }
+            $text = "CRM Overview for current team:\n\n";
+            $text .= "Record Counts:\n";
 
-        $overview .= "\nRecent Companies: {$recentCompanies}\n";
-        $overview .= "Recent People: {$recentPeople}\n";
-        $overview .= "\nUse the available tools to search, create, update, or delete CRM records.";
+            foreach ($counts as $entity => $count) {
+                $text .= "  - {$entity}: {$count}\n";
+            }
+
+            $text .= "\nRecent Companies: {$recentCompanies}\n";
+            $text .= "Recent People: {$recentPeople}\n";
+
+            return $text."\nUse the available tools to search, create, update, or delete CRM records.";
+        });
 
         return Response::text($overview);
     }

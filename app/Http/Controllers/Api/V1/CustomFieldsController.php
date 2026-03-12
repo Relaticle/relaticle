@@ -20,10 +20,13 @@ final readonly class CustomFieldsController
 {
     private const array ENTITY_TYPES = ['company', 'people', 'opportunity', 'task', 'note'];
 
+    private const int MAX_PER_PAGE = 100;
+
     public function index(Request $request): AnonymousResourceCollection
     {
         $request->validate([
             'entity_type' => ['sometimes', 'string', Rule::in(self::ENTITY_TYPES)],
+            'per_page' => ['sometimes', 'integer', 'min:1', 'max:'.self::MAX_PER_PAGE],
         ]);
 
         /** @var User $user */
@@ -41,6 +44,9 @@ final readonly class CustomFieldsController
             $query->where('entity_type', $request->query('entity_type'));
         }
 
-        return CustomFieldResource::collection($query->get());
+        $perPage = (int) $request->query('per_page', '15');
+        $perPage = max(1, min($perPage, self::MAX_PER_PAGE));
+
+        return CustomFieldResource::collection($query->paginate($perPage));
     }
 }

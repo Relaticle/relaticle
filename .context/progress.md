@@ -113,3 +113,23 @@
 - `auth()->guard('web')->forgetUser()` is the correct way to clear the web guard user set by `setUser()` -- without this, Octane would leak the authenticated user to the next request
 - `$token->team` triggers a lazy-loaded relationship query each time -- use `Team::query()->find($token->team_id)` to make the query explicit and avoid potential N+1
 - Pre-existing test failures (12 total): ResolvesEntitySchema (7), CustomFieldsApiTest (1), InstallCommandTest (3), ApiTeamScopingTest `/api/user` (1, from US-003 UserResource change) -- all unrelated to this work
+
+## US-005: Add pagination and caching to unbounded endpoints
+- Added pagination to `CustomFieldsController::index()` -- uses `paginate()` instead of `get()`, with `per_page` query param (default 15, max 100) and validation
+- Added 60-second caching to `ResolvesEntitySchema::resolveCustomFields()` -- cache key: `custom_fields_schema_{teamId}_{entityType}`
+- Added 60-second caching to `CrmOverviewPrompt::handle()` -- cache key: `crm_overview_{teamId}`, wraps all 7 queries in a single `Cache::remember()` call
+- Updated 6 existing tests to use `per_page=100` since seeded data exceeds the default page size
+- Added 5 new pagination tests: default pagination, per_page parameter, max cap validation, non-integer rejection, page navigation
+
+### Files changed
+- `app/Http/Controllers/Api/V1/CustomFieldsController.php` (added `paginate()`, `per_page` validation, `MAX_PER_PAGE` constant)
+- `app/Mcp/Resources/Concerns/ResolvesEntitySchema.php` (added `Cache::remember()` with 60s TTL)
+- `app/Mcp/Prompts/CrmOverviewPrompt.php` (wrapped queries in `Cache::remember()` with 60s TTL, added user/team resolution)
+- `tests/Feature/Api/V1/CustomFieldsApiTest.php` (5 new pagination tests, updated 6 existing tests for pagination compatibility)
+
+### Learnings for future iterations:
+- When switching from `get()` to `paginate()`, existing tests that search for specific records need `per_page=100` (or similar) to ensure all results are visible -- seeded data from factories/seeders can exceed the default page size
+- `Cache::remember($key, 60, fn() => ...)` uses seconds (not minutes) as TTL -- pass an integer for seconds or use `now()->addMinutes(1)` for clarity
+- MCP prompts access the user via `$request->user()` (same as resources), while MCP tools use `auth()->user()` -- different patterns for the same auth context
+- Rector's `SimplifyUselessVariableRector` will inline the last assignment + return into a single `return` statement -- let rector handle it rather than fighting it
+- Pre-existing test failures unchanged (12 total): ResolvesEntitySchema (7), CustomFieldsApiTest (1), InstallCommandTest (3), ApiTeamScopingTest (1)
