@@ -18,14 +18,17 @@
 
             {{-- ── Heading ── --}}
             <div class="text-center max-w-3xl">
-                <h1 class="hero-enter hero-enter-2 font-display text-[2rem] sm:text-5xl md:text-[3.5rem] lg:text-6xl font-bold text-gray-950 dark:text-white leading-[1.08] tracking-[-0.03em] text-balance">
-                    The Open-Source CRM<br class="hidden sm:block"/>
+                <h1 class="hero-enter hero-enter-2 font-display text-[2rem] sm:text-5xl md:text-[3.5rem] lg:text-6xl font-bold leading-[1.08] tracking-[-0.03em] text-balance">
+                    <span class="text-gray-950 dark:text-white">The Open-</span><span class="bg-gradient-to-r from-primary-600 via-primary-500 to-primary-700 dark:from-primary-400 dark:via-primary-300 dark:to-primary-500 bg-clip-text text-transparent">Source</span> <span class="relative inline-block">
+                        <span class="text-gray-950 dark:text-white">CRM</span>
+                        <span class="absolute -left-2 top-0 w-1.5 h-1.5 bg-primary/50 dark:bg-primary/60 rounded-full" aria-hidden="true"></span>
+                        <span class="absolute -right-2 top-0 w-1.5 h-1.5 bg-primary/50 dark:bg-primary/60 rounded-full" aria-hidden="true"></span>
+                        <span class="absolute -left-2 bottom-0 w-1.5 h-1.5 bg-primary/50 dark:bg-primary/60 rounded-full" aria-hidden="true"></span>
+                        <span class="absolute -right-2 bottom-0 w-1.5 h-1.5 bg-primary/50 dark:bg-primary/60 rounded-full" aria-hidden="true"></span>
+                    </span><br class="hidden sm:block"/>
                     <span class="relative inline-block mt-1">
-                        {{-- Accent line --}}
-                        <span class="absolute -bottom-[2px] left-[8%] right-[6%] h-[2px] rounded-full bg-gradient-to-r from-transparent via-primary/20 to-transparent dark:via-primary/35 pointer-events-none" aria-hidden="true"></span>
-
-                        {{-- Text --}}
-                        <span class="relative z-10 text-primary dark:text-primary-400">Built for AI Agents</span>
+                        <span class="relative z-10 text-gray-950 dark:text-white">Built for AI Agents</span>
+                        <span class="absolute bottom-2 sm:left-0 right-1/4 w-1/2 sm:w-full h-3 bg-primary/10 dark:bg-primary/20 sm:dark:bg-primary/30 -rotate-1 z-0" aria-hidden="true"></span>
                     </span>
                 </h1>
 
