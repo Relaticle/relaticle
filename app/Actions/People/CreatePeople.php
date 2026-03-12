@@ -7,6 +7,7 @@ namespace App\Actions\People;
 use App\Enums\CreationSource;
 use App\Models\People;
 use App\Models\User;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
 final readonly class CreatePeople
@@ -18,10 +19,11 @@ final readonly class CreatePeople
     {
         abort_unless($user->can('create', People::class), 403);
 
-        $data['creation_source'] = $source;
-        $data['creator_id'] = $user->getKey();
-        $data['team_id'] = $user->currentTeam->getKey();
+        $attributes = Arr::only($data, ['name', 'company_id', 'custom_fields']);
+        $attributes['creation_source'] = $source;
+        $attributes['creator_id'] = $user->getKey();
+        $attributes['team_id'] = $user->currentTeam->getKey();
 
-        return DB::transaction(fn (): People => People::query()->create($data));
+        return DB::transaction(fn (): People => People::query()->create($attributes));
     }
 }

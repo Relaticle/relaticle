@@ -30,3 +30,51 @@
 - Pre-existing failures in `ResolvesEntitySchema.php` (`toCollection()` on null) and `CustomFieldsApiTest` -- not related to this work
 - MCP test infrastructure (`RelaticleServer::actingAs`) bypasses middleware -- ability checking must be done in tool handle() methods
 - `MissingAbilityException` from Sanctum renders as 403 automatically in API routes; in MCP tools it propagates as an exception (tests use `->throws()`)
+
+## US-002: Fix production dependency and migration issues
+- Moved `laravel/mcp` from transitive dev dependency to explicit `require` in `composer.json` (`"^0.5"`)
+- Added `->index()` on `team_id` column in `personal_access_tokens` migration (PostgreSQL doesn't auto-index FK referencing columns)
+- Added `updating` event on `PersonalAccessToken` to prevent `team_id` changes after initial assignment (allows null->value, blocks value->different_value)
+- Added `.context` to `.gitignore`
+- 4 new tests covering team_id immutability: set-when-null, block-change, block-nullify, allow-other-attributes
+
+### Files changed
+- `composer.json` (added `laravel/mcp` to `require`)
+- `database/migrations/2026_02_20_212853_add_team_id_to_personal_access_tokens_table.php` (added `->index()`)
+- `app/Models/PersonalAccessToken.php` (added `booted()` with `updating` event)
+- `tests/Feature/PersonalAccessToken/TeamIdImmutabilityTest.php` (new)
+- `.gitignore` (added `.context`)
+
+### Learnings for future iterations:
+- `laravel/mcp` was only available transitively through `laravel/boost` (require-dev) -- production `composer install --no-dev` would miss it entirely
+- PostgreSQL does NOT auto-create indexes on foreign key referencing columns (unlike MySQL) -- always add `->index()` explicitly
+- Rector has `ThrowIfRector` that converts `if (condition) { throw ... }` to `throw_if()` -- let rector handle this pattern
+- `PersonalAccessToken` creation flow uses `createToken()` then `fill(['team_id' => ...])->save()` -- immutability must allow null->value transition
+- Pre-existing test failures (11 total): `ResolvesEntitySchema.php` toCollection() on null (7), `CustomFieldsApiTest` (1), `InstallCommandTest` (3) -- all unrelated to this work
+
+## US-003: Harden mass assignment and data exposure
+- Added `Arr::only()` field whitelisting to all 10 Create/Update actions (Company, People, Opportunity, Task, Note) as defense-in-depth against mass assignment
+- Updated `/api/user` endpoint to return `UserResource` (JSON:API format) instead of raw model -- exposes only `name` and `email`
+- Changed `CreationSource::API` badge color from `'info'` to `'purple'` to distinguish it from `CreationSource::WEB`
+- 3 new tests verifying `/api/user` response shape, attribute whitelist, and excluded sensitive fields
+
+### Files changed
+- `app/Actions/Company/CreateCompany.php` (added `Arr::only()`)
+- `app/Actions/Company/UpdateCompany.php` (added `Arr::only()`)
+- `app/Actions/People/CreatePeople.php` (added `Arr::only()`)
+- `app/Actions/People/UpdatePeople.php` (added `Arr::only()`)
+- `app/Actions/Opportunity/CreateOpportunity.php` (added `Arr::only()`)
+- `app/Actions/Opportunity/UpdateOpportunity.php` (added `Arr::only()`)
+- `app/Actions/Task/CreateTask.php` (added `Arr::only()`)
+- `app/Actions/Task/UpdateTask.php` (added `Arr::only()`)
+- `app/Actions/Note/CreateNote.php` (added `Arr::only()`)
+- `app/Actions/Note/UpdateNote.php` (added `Arr::only()`)
+- `routes/api.php` (wrapped `/api/user` in `UserResource`)
+- `app/Enums/CreationSource.php` (changed API color to `'purple'`)
+- `tests/Feature/Api/V1/UserEndpointTest.php` (new)
+
+### Learnings for future iterations:
+- `UsesCustomFields` trait dynamically merges `custom_fields` into `$fillable` -- models like Note/Opportunity may only list `creation_source` explicitly in `$fillable` but accept other fields via the trait's `saving` event interception
+- `JsonApiResource` response wraps in `{ "data": { "id", "type", "attributes" } }` format -- tests should assert on `data.attributes` path
+- `Arr::only()` in actions is defense-in-depth: Form Requests validate input, model `$fillable` guards mass assignment, and now actions whitelist too -- prevents future drift if someone adds a column to `$fillable` without thinking about API exposure
+- Pre-existing PHPStan errors (5 total): all `ResolvesEntitySchema.php` `toCollection()` on null -- unchanged from previous stories

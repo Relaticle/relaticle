@@ -6,6 +6,7 @@ namespace App\Actions\Opportunity;
 
 use App\Models\Opportunity;
 use App\Models\User;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
 final readonly class UpdateOpportunity
@@ -17,8 +18,10 @@ final readonly class UpdateOpportunity
     {
         abort_unless($user->can('update', $opportunity), 403);
 
-        return DB::transaction(function () use ($opportunity, $data): Opportunity {
-            $opportunity->update($data);
+        $attributes = Arr::only($data, ['name', 'company_id', 'contact_id', 'custom_fields']);
+
+        return DB::transaction(function () use ($opportunity, $attributes): Opportunity {
+            $opportunity->update($attributes);
 
             return $opportunity->refresh();
         });

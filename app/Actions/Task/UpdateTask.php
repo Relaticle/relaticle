@@ -10,6 +10,7 @@ use App\Models\User;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
 final readonly class UpdateTask
@@ -23,8 +24,10 @@ final readonly class UpdateTask
     {
         abort_unless($user->can('update', $task), 403);
 
-        return DB::transaction(function () use ($task, $data): Task {
-            $task->update($data);
+        $attributes = Arr::only($data, ['title', 'custom_fields']);
+
+        return DB::transaction(function () use ($task, $attributes): Task {
+            $task->update($attributes);
 
             $this->notifyNewAssignees($task);
 

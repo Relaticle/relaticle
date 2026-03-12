@@ -6,6 +6,7 @@ namespace App\Actions\Note;
 
 use App\Models\Note;
 use App\Models\User;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
 final readonly class UpdateNote
@@ -17,8 +18,10 @@ final readonly class UpdateNote
     {
         abort_unless($user->can('update', $note), 403);
 
-        return DB::transaction(function () use ($note, $data): Note {
-            $note->update($data);
+        $attributes = Arr::only($data, ['title', 'custom_fields']);
+
+        return DB::transaction(function () use ($note, $attributes): Note {
+            $note->update($attributes);
 
             return $note->refresh();
         });

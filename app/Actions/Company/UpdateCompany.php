@@ -6,6 +6,7 @@ namespace App\Actions\Company;
 
 use App\Models\Company;
 use App\Models\User;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
 final readonly class UpdateCompany
@@ -17,8 +18,10 @@ final readonly class UpdateCompany
     {
         abort_unless($user->can('update', $company), 403);
 
-        return DB::transaction(function () use ($company, $data): Company {
-            $company->update($data);
+        $attributes = Arr::only($data, ['name', 'custom_fields']);
+
+        return DB::transaction(function () use ($company, $attributes): Company {
+            $company->update($attributes);
 
             return $company->refresh();
         });
