@@ -7,6 +7,7 @@ namespace App\Mcp\Tools\People;
 use App\Actions\People\CreatePeople;
 use App\Enums\CreationSource;
 use App\Http\Resources\V1\PeopleResource;
+use App\Mcp\Tools\Concerns\ChecksTokenAbility;
 use App\Mcp\Tools\Concerns\ValidatesCustomFields;
 use App\Models\User;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
@@ -19,6 +20,7 @@ use Laravel\Mcp\Server\Tool;
 #[Description('Create a new person (contact) in the CRM. Use the crm-schema resource to discover available custom fields.')]
 final class CreatePeopleTool extends Tool
 {
+    use ChecksTokenAbility;
     use ValidatesCustomFields;
 
     public function schema(JsonSchema $schema): array
@@ -32,6 +34,8 @@ final class CreatePeopleTool extends Tool
 
     public function handle(Request $request, CreatePeople $action): Response
     {
+        $this->ensureTokenCan('create');
+
         /** @var User $user */
         $user = auth()->user();
         $teamId = $user->currentTeam->getKey();

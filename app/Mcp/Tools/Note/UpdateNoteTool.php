@@ -6,6 +6,7 @@ namespace App\Mcp\Tools\Note;
 
 use App\Actions\Note\UpdateNote;
 use App\Http\Resources\V1\NoteResource;
+use App\Mcp\Tools\Concerns\ChecksTokenAbility;
 use App\Mcp\Tools\Concerns\ValidatesCustomFields;
 use App\Models\Note;
 use App\Models\User;
@@ -21,6 +22,7 @@ use Laravel\Mcp\Server\Tools\Annotations\IsIdempotent;
 #[IsIdempotent]
 final class UpdateNoteTool extends Tool
 {
+    use ChecksTokenAbility;
     use ValidatesCustomFields;
 
     public function schema(JsonSchema $schema): array
@@ -34,6 +36,8 @@ final class UpdateNoteTool extends Tool
 
     public function handle(Request $request, UpdateNote $action): Response
     {
+        $this->ensureTokenCan('update');
+
         /** @var User $user */
         $user = auth()->user();
 

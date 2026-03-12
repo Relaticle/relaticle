@@ -6,6 +6,7 @@ namespace App\Mcp\Tools\Opportunity;
 
 use App\Actions\Opportunity\ListOpportunities;
 use App\Http\Resources\V1\OpportunityResource;
+use App\Mcp\Tools\Concerns\ChecksTokenAbility;
 use App\Models\User;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\Request;
@@ -20,6 +21,8 @@ use Laravel\Mcp\Server\Tools\Annotations\IsReadOnly;
 #[IsIdempotent]
 final class ListOpportunitiesTool extends Tool
 {
+    use ChecksTokenAbility;
+
     public function schema(JsonSchema $schema): array
     {
         return [
@@ -32,6 +35,8 @@ final class ListOpportunitiesTool extends Tool
 
     public function handle(Request $request, ListOpportunities $action): Response
     {
+        $this->ensureTokenCan('read');
+
         /** @var User $user */
         $user = auth()->user();
 

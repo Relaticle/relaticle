@@ -7,6 +7,7 @@ namespace App\Mcp\Tools\Opportunity;
 use App\Actions\Opportunity\CreateOpportunity;
 use App\Enums\CreationSource;
 use App\Http\Resources\V1\OpportunityResource;
+use App\Mcp\Tools\Concerns\ChecksTokenAbility;
 use App\Mcp\Tools\Concerns\ValidatesCustomFields;
 use App\Models\User;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
@@ -19,6 +20,7 @@ use Laravel\Mcp\Server\Tool;
 #[Description('Create a new opportunity (deal) in the CRM. Use the crm-schema resource to discover available custom fields.')]
 final class CreateOpportunityTool extends Tool
 {
+    use ChecksTokenAbility;
     use ValidatesCustomFields;
 
     public function schema(JsonSchema $schema): array
@@ -33,6 +35,8 @@ final class CreateOpportunityTool extends Tool
 
     public function handle(Request $request, CreateOpportunity $action): Response
     {
+        $this->ensureTokenCan('create');
+
         /** @var User $user */
         $user = auth()->user();
         $teamId = $user->currentTeam->getKey();

@@ -7,6 +7,7 @@ namespace App\Mcp\Tools\Task;
 use App\Actions\Task\CreateTask;
 use App\Enums\CreationSource;
 use App\Http\Resources\V1\TaskResource;
+use App\Mcp\Tools\Concerns\ChecksTokenAbility;
 use App\Mcp\Tools\Concerns\ValidatesCustomFields;
 use App\Models\User;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
@@ -18,6 +19,7 @@ use Laravel\Mcp\Server\Tool;
 #[Description('Create a new task in the CRM. Use the crm-schema resource to discover available custom fields.')]
 final class CreateTaskTool extends Tool
 {
+    use ChecksTokenAbility;
     use ValidatesCustomFields;
 
     public function schema(JsonSchema $schema): array
@@ -30,6 +32,8 @@ final class CreateTaskTool extends Tool
 
     public function handle(Request $request, CreateTask $action): Response
     {
+        $this->ensureTokenCan('create');
+
         /** @var User $user */
         $user = auth()->user();
 

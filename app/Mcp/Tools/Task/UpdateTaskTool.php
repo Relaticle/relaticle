@@ -6,6 +6,7 @@ namespace App\Mcp\Tools\Task;
 
 use App\Actions\Task\UpdateTask;
 use App\Http\Resources\V1\TaskResource;
+use App\Mcp\Tools\Concerns\ChecksTokenAbility;
 use App\Mcp\Tools\Concerns\ValidatesCustomFields;
 use App\Models\Task;
 use App\Models\User;
@@ -21,6 +22,7 @@ use Laravel\Mcp\Server\Tools\Annotations\IsIdempotent;
 #[IsIdempotent]
 final class UpdateTaskTool extends Tool
 {
+    use ChecksTokenAbility;
     use ValidatesCustomFields;
 
     public function schema(JsonSchema $schema): array
@@ -34,6 +36,8 @@ final class UpdateTaskTool extends Tool
 
     public function handle(Request $request, UpdateTask $action): Response
     {
+        $this->ensureTokenCan('update');
+
         /** @var User $user */
         $user = auth()->user();
 

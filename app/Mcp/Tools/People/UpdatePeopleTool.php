@@ -6,6 +6,7 @@ namespace App\Mcp\Tools\People;
 
 use App\Actions\People\UpdatePeople;
 use App\Http\Resources\V1\PeopleResource;
+use App\Mcp\Tools\Concerns\ChecksTokenAbility;
 use App\Mcp\Tools\Concerns\ValidatesCustomFields;
 use App\Models\People;
 use App\Models\User;
@@ -22,6 +23,7 @@ use Laravel\Mcp\Server\Tools\Annotations\IsIdempotent;
 #[IsIdempotent]
 final class UpdatePeopleTool extends Tool
 {
+    use ChecksTokenAbility;
     use ValidatesCustomFields;
 
     public function schema(JsonSchema $schema): array
@@ -36,6 +38,8 @@ final class UpdatePeopleTool extends Tool
 
     public function handle(Request $request, UpdatePeople $action): Response
     {
+        $this->ensureTokenCan('update');
+
         /** @var User $user */
         $user = auth()->user();
         $teamId = $user->currentTeam->getKey();

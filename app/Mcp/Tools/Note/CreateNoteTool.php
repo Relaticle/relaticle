@@ -7,6 +7,7 @@ namespace App\Mcp\Tools\Note;
 use App\Actions\Note\CreateNote;
 use App\Enums\CreationSource;
 use App\Http\Resources\V1\NoteResource;
+use App\Mcp\Tools\Concerns\ChecksTokenAbility;
 use App\Mcp\Tools\Concerns\ValidatesCustomFields;
 use App\Models\User;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
@@ -18,6 +19,7 @@ use Laravel\Mcp\Server\Tool;
 #[Description('Create a new note in the CRM. Use the crm-schema resource to discover available custom fields.')]
 final class CreateNoteTool extends Tool
 {
+    use ChecksTokenAbility;
     use ValidatesCustomFields;
 
     public function schema(JsonSchema $schema): array
@@ -30,6 +32,8 @@ final class CreateNoteTool extends Tool
 
     public function handle(Request $request, CreateNote $action): Response
     {
+        $this->ensureTokenCan('create');
+
         /** @var User $user */
         $user = auth()->user();
 

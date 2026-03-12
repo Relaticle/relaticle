@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Mcp\Tools\Note;
 
 use App\Actions\Note\DeleteNote;
+use App\Mcp\Tools\Concerns\ChecksTokenAbility;
 use App\Models\Note;
 use App\Models\User;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
@@ -19,6 +20,8 @@ use Laravel\Mcp\Server\Tools\Annotations\IsDestructive;
 #[IsDestructive]
 final class DeleteNoteTool extends Tool
 {
+    use ChecksTokenAbility;
+
     public function schema(JsonSchema $schema): array
     {
         return [
@@ -28,6 +31,8 @@ final class DeleteNoteTool extends Tool
 
     public function handle(Request $request, DeleteNote $action): Response
     {
+        $this->ensureTokenCan('delete');
+
         /** @var User $user */
         $user = auth()->user();
 

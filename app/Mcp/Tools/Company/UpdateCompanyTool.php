@@ -6,6 +6,7 @@ namespace App\Mcp\Tools\Company;
 
 use App\Actions\Company\UpdateCompany;
 use App\Http\Resources\V1\CompanyResource;
+use App\Mcp\Tools\Concerns\ChecksTokenAbility;
 use App\Mcp\Tools\Concerns\ValidatesCustomFields;
 use App\Models\Company;
 use App\Models\User;
@@ -21,6 +22,7 @@ use Laravel\Mcp\Server\Tools\Annotations\IsIdempotent;
 #[IsIdempotent]
 final class UpdateCompanyTool extends Tool
 {
+    use ChecksTokenAbility;
     use ValidatesCustomFields;
 
     public function schema(JsonSchema $schema): array
@@ -34,6 +36,8 @@ final class UpdateCompanyTool extends Tool
 
     public function handle(Request $request, UpdateCompany $action): Response
     {
+        $this->ensureTokenCan('update');
+
         /** @var User $user */
         $user = auth()->user();
 

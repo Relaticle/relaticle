@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\V1\NotesController;
 use App\Http\Controllers\Api\V1\OpportunitiesController;
 use App\Http\Controllers\Api\V1\PeopleController;
 use App\Http\Controllers\Api\V1\TasksController;
+use App\Http\Middleware\EnsureTokenHasAbility;
 use App\Http\Middleware\ForceJsonResponse;
 use App\Http\Middleware\SetApiTeamContext;
 use Illuminate\Http\Request;
@@ -18,7 +19,7 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 Route::prefix('v1')
-    ->middleware(['auth:sanctum', 'throttle:api', ForceJsonResponse::class, SetApiTeamContext::class])
+    ->middleware(['auth:sanctum', 'throttle:api', ForceJsonResponse::class, EnsureTokenHasAbility::class, SetApiTeamContext::class])
     ->group(function (): void {
         Route::apiResource('companies', CompaniesController::class);
         Route::apiResource('people', PeopleController::class);

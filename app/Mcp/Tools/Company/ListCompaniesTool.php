@@ -6,6 +6,7 @@ namespace App\Mcp\Tools\Company;
 
 use App\Actions\Company\ListCompanies;
 use App\Http\Resources\V1\CompanyResource;
+use App\Mcp\Tools\Concerns\ChecksTokenAbility;
 use App\Models\User;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\Request;
@@ -20,6 +21,8 @@ use Laravel\Mcp\Server\Tools\Annotations\IsReadOnly;
 #[IsIdempotent]
 final class ListCompaniesTool extends Tool
 {
+    use ChecksTokenAbility;
+
     public function schema(JsonSchema $schema): array
     {
         return [
@@ -31,6 +34,8 @@ final class ListCompaniesTool extends Tool
 
     public function handle(Request $request, ListCompanies $action): Response
     {
+        $this->ensureTokenCan('read');
+
         /** @var User $user */
         $user = auth()->user();
 
