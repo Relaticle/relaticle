@@ -189,9 +189,6 @@ final class TaskResource extends Resource
             });
     }
 
-    /**
-     * @return Builder<Task>
-     */
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()

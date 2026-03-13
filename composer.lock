@@ -74,23 +74,23 @@
         },
         {
             "name": "ashallendesign/favicon-fetcher",
-            "version": "v3.10.0",
+            "version": "v3.11.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ash-jc-allen/favicon-fetcher.git",
-                "reference": "567f12994a5d780b2b9d1be3b568ba5b36d07dd0"
+                "reference": "75393d3c2227f1e93f22179acb49958fb7850a6a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ash-jc-allen/favicon-fetcher/zipball/567f12994a5d780b2b9d1be3b568ba5b36d07dd0",
-                "reference": "567f12994a5d780b2b9d1be3b568ba5b36d07dd0",
+                "url": "https://api.github.com/repos/ash-jc-allen/favicon-fetcher/zipball/75393d3c2227f1e93f22179acb49958fb7850a6a",
+                "reference": "75393d3c2227f1e93f22179acb49958fb7850a6a",
                 "shasum": ""
             },
             "require": {
                 "guzzlehttp/guzzle": "^7.4",
-                "illuminate/cache": "^9.0|^10.0|^11.0|^12.0",
-                "illuminate/filesystem": "^9.0|^10.0|^11.0|^12.0",
-                "illuminate/http": "^9.0|^10.0|^11.0|^12.0",
+                "illuminate/cache": "^9.0|^10.0|^11.0|^12.0|^13.0",
+                "illuminate/filesystem": "^9.0|^10.0|^11.0|^12.0|^13.0",
+                "illuminate/http": "^9.0|^10.0|^11.0|^12.0|^13.0",
                 "nesbot/carbon": "^2.0|^3.0",
                 "php": "^8.1",
                 "symfony/dom-crawler": "^6.3 || ^7.0"
@@ -98,7 +98,7 @@
             "require-dev": {
                 "larastan/larastan": "^2.0|^3.0",
                 "mockery/mockery": "^1.0",
-                "orchestra/testbench": "^7.0|^8.0|^9.0",
+                "orchestra/testbench": "^7.0|^8.0|^9.0|^10.0|^11.0",
                 "phpunit/phpunit": "^9.0|^10.0|^11.0"
             },
             "type": "library",
@@ -134,7 +134,7 @@
             ],
             "support": {
                 "issues": "https://github.com/ash-jc-allen/favicon-fetcher/issues",
-                "source": "https://github.com/ash-jc-allen/favicon-fetcher/tree/v3.10.0"
+                "source": "https://github.com/ash-jc-allen/favicon-fetcher/tree/v3.11.0"
             },
             "funding": [
                 {
@@ -142,7 +142,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-10-17T19:29:52+00:00"
+            "time": "2026-03-13T12:43:31+00:00"
         },
         {
             "name": "asmit/resized-column",
@@ -2066,16 +2066,16 @@
         },
         {
             "name": "giggsey/libphonenumber-for-php-lite",
-            "version": "9.0.25",
+            "version": "9.0.26",
             "source": {
                 "type": "git",
                 "url": "https://github.com/giggsey/libphonenumber-for-php-lite.git",
-                "reference": "3288e55938d2fc13883883ec34a860d5c7fb9eae"
+                "reference": "7677b7645fcbd34482fcb3a96d4085f92d28ef98"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/giggsey/libphonenumber-for-php-lite/zipball/3288e55938d2fc13883883ec34a860d5c7fb9eae",
-                "reference": "3288e55938d2fc13883883ec34a860d5c7fb9eae",
+                "url": "https://api.github.com/repos/giggsey/libphonenumber-for-php-lite/zipball/7677b7645fcbd34482fcb3a96d4085f92d28ef98",
+                "reference": "7677b7645fcbd34482fcb3a96d4085f92d28ef98",
                 "shasum": ""
             },
             "require": {
@@ -2140,7 +2140,7 @@
                 "issues": "https://github.com/giggsey/libphonenumber-for-php-lite/issues",
                 "source": "https://github.com/giggsey/libphonenumber-for-php-lite"
             },
-            "time": "2026-02-26T09:06:21+00:00"
+            "time": "2026-03-13T10:52:10+00:00"
         },
         {
             "name": "graham-campbell/result-type",
