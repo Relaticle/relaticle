@@ -15,8 +15,8 @@ final class AiSummary extends Model
 {
     /** @use HasFactory<Factory<self>> */
     use HasFactory;
-    use HasTeam;
 
+    use HasTeam;
     use HasUlids;
 
     /**
