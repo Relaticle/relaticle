@@ -13,6 +13,7 @@ use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
@@ -27,6 +28,7 @@ use Relaticle\CustomFields\Models\CustomFieldValue;
 use Relaticle\CustomFields\Support\SafeValueConverter;
 use Relaticle\ImportWizard\Data\ColumnData;
 use Relaticle\ImportWizard\Data\EntityLink;
+use Relaticle\ImportWizard\Data\ImportField;
 use Relaticle\ImportWizard\Data\MatchableField;
 use Relaticle\ImportWizard\Data\RelationshipMatch;
 use Relaticle\ImportWizard\Enums\DateFormat;
@@ -114,7 +116,7 @@ final class ExecuteImportJob implements ShouldQueue
         $customFieldFormatMap = $this->buildCustomFieldFormatMap($fieldMappings);
 
         $matchField = $this->resolveMatchField($importer, $fieldMappings);
-        $matchSourceColumn = $matchField instanceof \Relaticle\ImportWizard\Data\MatchableField
+        $matchSourceColumn = $matchField instanceof MatchableField
             ? $this->findMatchSourceColumn($matchField, $fieldMappings)
             : null;
 
@@ -221,7 +223,7 @@ final class ExecuteImportJob implements ShouldQueue
         $effectiveMatchedId = $row->matched_id;
 
         if ($effectiveAction === RowMatchAction::Create
-            && $matchField instanceof \Relaticle\ImportWizard\Data\MatchableField
+            && $matchField instanceof MatchableField
             && $matchSourceColumn !== null
         ) {
             $cachedRecordId = $this->lookupMatchableValueCache($row, $matchField, $matchSourceColumn);
@@ -271,7 +273,7 @@ final class ExecuteImportJob implements ShouldQueue
                 $record->forceFill($prepared);
                 $record->save();
 
-                if ($isCreate && $matchField instanceof \Relaticle\ImportWizard\Data\MatchableField && $matchSourceColumn !== null) {
+                if ($isCreate && $matchField instanceof MatchableField && $matchSourceColumn !== null) {
                     $this->registerInMatchableValueCache($row, $matchField, $matchSourceColumn, (string) $record->getKey());
                 }
 
@@ -306,7 +308,7 @@ final class ExecuteImportJob implements ShouldQueue
         /** @phpstan-ignore return.type (App\Models\CustomField extends vendor class at runtime via model swapping) */
         return CustomField::query()
             ->withoutGlobalScopes()
-            ->with(['options' => fn (\Illuminate\Database\Eloquent\Relations\HasMany $q) => $q->withoutGlobalScopes()])
+            ->with(['options' => fn (HasMany $q) => $q->withoutGlobalScopes()])
             ->where('tenant_id', $this->teamId)
             ->where('entity_type', $importer->entityName())
             ->where('type', '!=', 'record')
@@ -690,7 +692,7 @@ final class ExecuteImportJob implements ShouldQueue
     private function allowedAttributeKeys(BaseImporter $importer): array
     {
         $keys = collect($importer->allFields())
-            ->reject(fn (\Relaticle\ImportWizard\Data\ImportField $field): bool => $field->key === 'id')
+            ->reject(fn (ImportField $field): bool => $field->key === 'id')
             ->pluck('key')
             ->merge(['team_id', 'creator_id', 'creation_source'])
             ->merge(
@@ -729,7 +731,7 @@ final class ExecuteImportJob implements ShouldQueue
         $mappedFieldKeys = $fieldMappings->pluck('target')->all();
         $matchField = $importer->getMatchFieldForMappedColumns($mappedFieldKeys);
 
-        if (! $matchField instanceof \Relaticle\ImportWizard\Data\MatchableField || $matchField->isCreate()) {
+        if (! $matchField instanceof MatchableField || $matchField->isCreate()) {
             return null;
         }
 

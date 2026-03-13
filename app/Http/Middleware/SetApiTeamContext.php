@@ -15,6 +15,7 @@ use App\Models\Team;
 use App\Models\User;
 use Closure;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Relaticle\CustomFields\Services\TenantContextService;
@@ -22,7 +23,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 final readonly class SetApiTeamContext
 {
-    /** @var list<class-string<\Illuminate\Database\Eloquent\Model>> */
+    /** @var list<class-string<Model>> */
     private const array SCOPED_MODELS = [
         User::class,
         Company::class,

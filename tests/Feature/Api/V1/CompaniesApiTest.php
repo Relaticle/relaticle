@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Enums\CreationSource;
+use App\Http\Resources\V1\CompanyResource;
 use App\Models\Company;
 use App\Models\CustomField;
 use App\Models\CustomFieldSection;
@@ -10,6 +11,8 @@ use App\Models\Team;
 use App\Models\User;
 use Illuminate\Testing\Fluent\AssertableJson;
 use Laravel\Sanctum\Sanctum;
+use Relaticle\CustomFields\Models\CustomFieldValue;
+use Relaticle\CustomFields\Services\TenantContextService;
 
 beforeEach(function () {
     $this->user = User::factory()->withPersonalTeam()->create();
@@ -380,21 +383,21 @@ describe('custom fields', function (): void {
             'validation_rules' => [],
         ]);
 
-        \Relaticle\CustomFields\Services\TenantContextService::withTenant(
+        TenantContextService::withTenant(
             $this->team->getKey(),
             fn () => $company->saveCustomFields(['orphan_field' => 'test value']),
         );
 
         // Simulate an orphaned value by injecting a CustomFieldValue with a null customField relation
         $company->load('customFieldValues.customField');
-        $orphanedValue = new \Relaticle\CustomFields\Models\CustomFieldValue;
+        $orphanedValue = new CustomFieldValue;
         $orphanedValue->setRelation('customField', null);
         $company->setRelation(
             'customFieldValues',
             $company->customFieldValues->push($orphanedValue),
         );
 
-        $resource = new \App\Http\Resources\V1\CompanyResource($company);
+        $resource = new CompanyResource($company);
         $attributes = $resource->toAttributes(request());
 
         expect($attributes['custom_fields'])

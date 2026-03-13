@@ -8,6 +8,7 @@ use App\Models\Task;
 use App\Models\Team;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\Sequence;
+use Illuminate\Support\Facades\Date;
 
 /**
  * @extends Factory<Task>
@@ -20,8 +21,8 @@ final class TaskFactory extends Factory
     {
         return [
             'title' => $this->faker->sentence(3),
-            'created_at' => \Illuminate\Support\Facades\Date::now(),
-            'updated_at' => \Illuminate\Support\Facades\Date::now(),
+            'created_at' => Date::now(),
+            'updated_at' => Date::now(),
             'team_id' => Team::factory(),
         ];
     }

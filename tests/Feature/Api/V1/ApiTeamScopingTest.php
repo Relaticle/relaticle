@@ -71,10 +71,11 @@ describe('/api/user endpoint', function (): void {
         $this->getJson('/api/user')
             ->assertOk()
             ->assertJson(fn (AssertableJson $json) => $json
-                ->where('id', $this->user->id)
-                ->where('name', $this->user->name)
-                ->where('email', $this->user->email)
-                ->missing('password')
+                ->where('data.id', (string) $this->user->id)
+                ->where('data.type', 'users')
+                ->where('data.attributes.name', $this->user->name)
+                ->where('data.attributes.email', $this->user->email)
+                ->missing('data.attributes.password')
                 ->etc()
             );
     });

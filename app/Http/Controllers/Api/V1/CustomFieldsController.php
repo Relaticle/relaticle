@@ -8,6 +8,7 @@ use App\Http\Requests\Api\V1\IndexCustomFieldsRequest;
 use App\Http\Resources\V1\CustomFieldResource;
 use App\Models\CustomField;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 /**
@@ -28,7 +29,7 @@ final readonly class CustomFieldsController
             ->withoutGlobalScopes()
             ->where('tenant_id', $teamId)
             ->active()
-            ->with(['options' => fn (\Illuminate\Database\Eloquent\Relations\HasMany $q) => $q->withoutGlobalScopes()]);
+            ->with(['options' => fn (HasMany $q) => $q->withoutGlobalScopes()]);
 
         if ($request->has('entity_type')) {
             $query->where('entity_type', $request->query('entity_type'));

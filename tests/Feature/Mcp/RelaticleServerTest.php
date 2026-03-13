@@ -21,6 +21,7 @@ use App\Mcp\Tools\Task\ListTasksTool;
 use App\Models\Company;
 use App\Models\People;
 use App\Models\User;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 beforeEach(function () {
     $this->user = User::factory()->withPersonalTeam()->create();
@@ -218,11 +219,11 @@ it('throws when updating non-existent company', function (): void {
             'id' => 'non-existent-id',
             'name' => 'Ghost',
         ]);
-})->throws(\Illuminate\Database\Eloquent\ModelNotFoundException::class);
+})->throws(ModelNotFoundException::class);
 
 it('throws when deleting non-existent company', function (): void {
     RelaticleServer::actingAs($this->user)
         ->tool(DeleteCompanyTool::class, [
             'id' => 'non-existent-id',
         ]);
-})->throws(\Illuminate\Database\Eloquent\ModelNotFoundException::class);
+})->throws(ModelNotFoundException::class);

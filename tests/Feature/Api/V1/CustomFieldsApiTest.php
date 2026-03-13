@@ -46,7 +46,7 @@ it('can list custom fields with expected structure', function (): void {
         'sort_order' => 1,
         'active' => true,
         'validation_rules' => [
-            ['name' => 'required', 'parameters' => []],
+            'required' => true,
         ],
     ]);
 
