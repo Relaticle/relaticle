@@ -135,6 +135,7 @@ final class Team extends JetstreamTeam implements HasAvatar
                 return $slug;
             })
             ->saveSlugsTo('slug')
+            ->preventOverwrite()
             ->doNotGenerateSlugsOnUpdate();
     }
 
@@ -144,7 +145,7 @@ final class Team extends JetstreamTeam implements HasAvatar
             return true;
         }
 
-        $query = self::where($this->slugOptions->slugField, $slug)
+        $query = self::query()->where($this->slugOptions->slugField, $slug)
             ->withoutGlobalScopes();
 
         if ($this->exists) {
