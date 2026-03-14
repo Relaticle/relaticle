@@ -148,3 +148,37 @@ it('has `:dataset` filter', function (string $filter): void {
     livewire(ManageTasks::class)
         ->assertTableFilterExists($filter);
 })->with(['assigned_to_me', 'assignees', 'creation_source', 'trashed']);
+
+it('sets creator_id and team_id via observer when creating a task', function (): void {
+    livewire(ManageTasks::class)
+        ->callAction('create', data: [
+            'title' => 'Observer Test Task',
+        ])
+        ->assertHasNoActionErrors();
+
+    $task = Task::query()->where('title', 'Observer Test Task')->first();
+
+    expect($task->creator_id)->toBe($this->user->id)
+        ->and($task->team_id)->toBe($this->team->id);
+});
+
+it('authorizes team member to view and update own team task', function (): void {
+    $record = Task::factory()->for($this->team)->create();
+
+    expect($this->user->can('view', $record))->toBeTrue()
+        ->and($this->user->can('update', $record))->toBeTrue()
+        ->and($this->user->can('delete', $record))->toBeTrue();
+});
+
+it('denies non-team-member from viewing another team task', function (): void {
+    $otherUser = User::factory()->withTeam()->create();
+    $otherTeam = $otherUser->currentTeam;
+
+    $this->actingAs($otherUser);
+    $record = Task::factory()->for($otherTeam)->create();
+    $this->actingAs($this->user);
+
+    expect($this->user->can('view', $record))->toBeFalse()
+        ->and($this->user->can('update', $record))->toBeFalse()
+        ->and($this->user->can('delete', $record))->toBeFalse();
+});
