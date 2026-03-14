@@ -63,7 +63,8 @@
         "pestphp/pest": "^4.0",
         "pestphp/pest-plugin-laravel": "^4.0",
         "pestphp/pest-plugin-type-coverage": "^4.0",
-        "rector/rector": "^2.0"
+        "rector/rector": "^2.0",
+        "spatie/pest-plugin-route-testing": "^1.1"
     },
     "autoload": {
         "psr-4": {
