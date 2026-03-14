@@ -42,9 +42,10 @@ final class Team extends JetstreamTeam implements HasAvatar
         'login', 'logout', 'register', 'signin', 'signout', 'signup',
         'auth', 'oauth', 'sso', 'callback',
         'forgot-password', 'reset-password', 'verify-email', 'confirm-password',
+        'two-factor-challenge',
 
         // Administration
-        'admin', 'administrator', 'dashboard', 'console', 'root', 'super',
+        'admin', 'administrator', 'dashboard', 'console', 'root', 'super', 'sysadmin',
 
         // Account & billing
         'account', 'billing', 'checkout', 'invoices', 'plan', 'plans',
@@ -52,6 +53,7 @@ final class Team extends JetstreamTeam implements HasAvatar
 
         // Teams & orgs
         'teams', 'team', 'org', 'organization', 'workspace', 'invitations', 'invite',
+        'team-invitations',
 
         // App routes
         'companies', 'people', 'tasks', 'opportunities', 'notes',
@@ -64,7 +66,7 @@ final class Team extends JetstreamTeam implements HasAvatar
         'discord',
 
         // API & developer
-        'api', 'graphql', 'webhooks', 'developer', 'developers', 'connect',
+        'api', 'graphql', 'webhooks', 'developer', 'developers', 'connect', 'user',
 
         // Marketing & public
         'home', 'welcome', 'features', 'demo', 'enterprise', 'pro',
@@ -74,7 +76,7 @@ final class Team extends JetstreamTeam implements HasAvatar
         'mail', 'email', 'contact', 'feedback', 'abuse', 'report',
 
         // Infrastructure & framework
-        'filament', 'livewire', 'storage', 'imports',
+        'filament', 'livewire', 'storage', 'imports', 'horizon',
         'up', 'health', 'status', 'metrics',
         'static', 'assets', 'cdn', 'public', 'uploads',
         'www', 'ftp', 'ssh', 'dns', 'ns1', 'ns2',
@@ -134,6 +136,22 @@ final class Team extends JetstreamTeam implements HasAvatar
             })
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate();
+    }
+
+    protected function otherRecordExistsWithSlug(string $slug): bool
+    {
+        if (in_array($slug, self::RESERVED_SLUGS, true)) {
+            return true;
+        }
+
+        $query = self::where($this->slugOptions->slugField, $slug)
+            ->withoutGlobalScopes();
+
+        if ($this->exists) {
+            $query->where($this->getKeyName(), '!=', $this->getKey());
+        }
+
+        return $query->exists();
     }
 
     public function isPersonalTeam(): bool
