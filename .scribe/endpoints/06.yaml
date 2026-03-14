@@ -1,0 +1,82 @@
+name: 'Custom Fields'
+description: |-
+
+  List custom field definitions configured for your workspace.
+endpoints:
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/v1/custom-fields
+    metadata:
+      custom: []
+      groupName: 'Custom Fields'
+      groupDescription: |-
+
+        List custom field definitions configured for your workspace.
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_API_TOKEN}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      entity_type:
+        custom: []
+        name: entity_type
+        description: ''
+        required: false
+        example: opportunity
+        type: string
+        enumValues:
+          - company
+          - people
+          - opportunity
+          - task
+          - note
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      per_page:
+        custom: []
+        name: per_page
+        description: 'Must be at least 1. Must not be greater than 100.'
+        required: false
+        example: 16
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      entity_type: opportunity
+      per_page: 16
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: '{"data":[],"links":{"first":"https:\/\/relaticle.test\/api\/v1\/custom-fields?page=1","last":"https:\/\/relaticle.test\/api\/v1\/custom-fields?page=1","prev":null,"next":null},"meta":{"current_page":1,"from":null,"last_page":1,"links":[{"url":null,"label":"&laquo; Previous","page":null,"active":false},{"url":"https:\/\/relaticle.test\/api\/v1\/custom-fields?page=1","label":"1","page":1,"active":true},{"url":null,"label":"Next &raquo;","page":null,"active":false}],"path":"https:\/\/relaticle.test\/api\/v1\/custom-fields","per_page":15,"to":null,"total":0}}'
+        headers:
+          cache-control: 'no-cache, private'
+          content-type: application/vnd.api+json
+          x-ratelimit-limit: '60'
+          x-ratelimit-remaining: '59'
+          access-control-allow-origin: '*'
+        description: null
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer f8keDPhbg6vEaVc53aZ46d1'
+    controller: null
+    method: null
+    route: null

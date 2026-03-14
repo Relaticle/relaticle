@@ -124,43 +124,43 @@
                         {{-- Screenshot panels — each with unique animation --}}
                         <div class="relative overflow-hidden">
                             <div id="hero-tab-panel-companies" class="hero-tab-panel" data-animation="fade-up">
-                                <img data-light-src="{{ asset('images/app-companies-preview.jpg') }}"
-                                     data-dark-src="{{ asset('images/app-companies-preview-dark.jpg') }}"
-                                     src="{{ asset('images/app-companies-preview.jpg') }}"
+                                <img data-light-src="{{ asset('images/app-companies-preview.png') }}"
+                                     data-dark-src="{{ asset('images/app-companies-preview-dark.png') }}"
+                                     src="{{ asset('images/app-companies-preview.png') }}"
                                      alt="Relaticle CRM — Companies"
                                      class="hero-preview-image w-full h-auto"
-                                     width="1200"
-                                     height="675"
+                                     width="1440"
+                                     height="900"
                                      loading="eager">
                             </div>
                             <div id="hero-tab-panel-pipeline" class="hero-tab-panel hidden" data-animation="slide-right">
-                                <img data-light-src="{{ asset('images/app-companies-preview.jpg') }}"
-                                     data-dark-src="{{ asset('images/app-companies-preview-dark.jpg') }}"
-                                     src="{{ asset('images/app-companies-preview.jpg') }}"
+                                <img data-light-src="{{ asset('images/app-pipeline-preview.png') }}"
+                                     data-dark-src="{{ asset('images/app-pipeline-preview-dark.png') }}"
+                                     src="{{ asset('images/app-pipeline-preview.png') }}"
                                      alt="Relaticle CRM — Pipeline"
                                      class="hero-preview-image w-full h-auto"
-                                     width="1200"
-                                     height="675"
+                                     width="1440"
+                                     height="900"
                                      loading="lazy">
                             </div>
                             <div id="hero-tab-panel-ai-agent" class="hero-tab-panel hidden" data-animation="scale-in">
-                                <img data-light-src="{{ asset('images/app-companies-preview.jpg') }}"
-                                     data-dark-src="{{ asset('images/app-companies-preview-dark.jpg') }}"
-                                     src="{{ asset('images/app-companies-preview.jpg') }}"
+                                <img data-light-src="{{ asset('images/app-companies-preview.png') }}"
+                                     data-dark-src="{{ asset('images/app-companies-preview-dark.png') }}"
+                                     src="{{ asset('images/app-companies-preview.png') }}"
                                      alt="Relaticle CRM — AI Agent"
                                      class="hero-preview-image w-full h-auto"
-                                     width="1200"
-                                     height="675"
+                                     width="1440"
+                                     height="900"
                                      loading="lazy">
                             </div>
                             <div id="hero-tab-panel-custom-fields" class="hero-tab-panel hidden" data-animation="slide-left">
-                                <img data-light-src="{{ asset('images/app-companies-preview.jpg') }}"
-                                     data-dark-src="{{ asset('images/app-companies-preview-dark.jpg') }}"
-                                     src="{{ asset('images/app-companies-preview.jpg') }}"
+                                <img data-light-src="{{ asset('images/app-custom-fields-preview.png') }}"
+                                     data-dark-src="{{ asset('images/app-custom-fields-preview-dark.png') }}"
+                                     src="{{ asset('images/app-custom-fields-preview.png') }}"
                                      alt="Relaticle CRM — Custom Fields"
                                      class="hero-preview-image w-full h-auto"
-                                     width="1200"
-                                     height="675"
+                                     width="1440"
+                                     height="900"
                                      loading="lazy">
                             </div>
                             {{-- Bottom fade overlay --}}
