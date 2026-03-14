@@ -6,6 +6,7 @@ use App\Enums\CreationSource;
 use App\Models\Task;
 use App\Models\Team;
 use App\Models\User;
+use Illuminate\Support\Str;
 use Illuminate\Testing\Fluent\AssertableJson;
 use Laravel\Sanctum\Sanctum;
 
@@ -205,6 +206,36 @@ describe('includes', function (): void {
             );
     });
 
+    it('can include assignees on show endpoint', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $task = Task::factory()->for($this->team)->create();
+        $task->assignees()->attach($this->user);
+
+        $this->getJson("/api/v1/tasks/{$task->id}?include=assignees")
+            ->assertOk()
+            ->assertJson(fn (AssertableJson $json) => $json
+                ->has('data.relationships.assignees.data')
+                ->has('included')
+                ->etc()
+            );
+    });
+
+    it('can include multiple relations', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $task = Task::factory()->for($this->team)->create();
+        $task->assignees()->attach($this->user);
+
+        $this->getJson("/api/v1/tasks/{$task->id}?include=creator,assignees")
+            ->assertOk()
+            ->assertJson(fn (AssertableJson $json) => $json
+                ->has('data.relationships.creator')
+                ->has('data.relationships.assignees')
+                ->etc()
+            );
+    });
+
     it('does not include relations when not requested', function (): void {
         Sanctum::actingAs($this->user);
 
@@ -221,5 +252,230 @@ describe('includes', function (): void {
 
         $this->getJson('/api/v1/tasks?include=secret')
             ->assertStatus(400);
+    });
+});
+
+describe('filtering and sorting', function (): void {
+    it('can filter tasks by title', function (): void {
+        Sanctum::actingAs($this->user);
+
+        Task::factory()->for($this->team)->create(['title' => 'Fix login bug']);
+        Task::factory()->for($this->team)->create(['title' => 'Deploy to staging']);
+
+        $response = $this->getJson('/api/v1/tasks?filter[title]=login');
+
+        $response->assertOk();
+
+        $titles = collect($response->json('data'))->pluck('attributes.title');
+        expect($titles)->toContain('Fix login bug');
+        expect($titles)->not->toContain('Deploy to staging');
+    });
+
+    it('can sort tasks by title ascending', function (): void {
+        Sanctum::actingAs($this->user);
+
+        Task::factory()->for($this->team)->create(['title' => 'Zulu Task']);
+        Task::factory()->for($this->team)->create(['title' => 'Alpha Task']);
+
+        $response = $this->getJson('/api/v1/tasks?sort=title');
+
+        $response->assertOk();
+
+        $titles = collect($response->json('data'))->pluck('attributes.title')->values();
+        $alphaIndex = $titles->search('Alpha Task');
+        $zuluIndex = $titles->search('Zulu Task');
+        expect($alphaIndex)->toBeLessThan($zuluIndex);
+    });
+
+    it('can sort tasks by title descending', function (): void {
+        Sanctum::actingAs($this->user);
+
+        Task::factory()->for($this->team)->create(['title' => 'Alpha Task']);
+        Task::factory()->for($this->team)->create(['title' => 'Zulu Task']);
+
+        $response = $this->getJson('/api/v1/tasks?sort=-title');
+
+        $response->assertOk();
+
+        $titles = collect($response->json('data'))->pluck('attributes.title')->values();
+        $zuluIndex = $titles->search('Zulu Task');
+        $alphaIndex = $titles->search('Alpha Task');
+        expect($zuluIndex)->toBeLessThan($alphaIndex);
+    });
+
+    it('rejects disallowed filter fields', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $this->getJson('/api/v1/tasks?filter[team_id]=fake')
+            ->assertStatus(400);
+    });
+
+    it('rejects disallowed sort fields', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $this->getJson('/api/v1/tasks?sort=team_id')
+            ->assertStatus(400);
+    });
+});
+
+describe('pagination', function (): void {
+    it('paginates with per_page parameter', function (): void {
+        Sanctum::actingAs($this->user);
+
+        Task::factory(5)->for($this->team)->create();
+
+        $this->getJson('/api/v1/tasks?per_page=2')
+            ->assertOk()
+            ->assertJsonCount(2, 'data');
+    });
+
+    it('returns second page of results', function (): void {
+        Sanctum::actingAs($this->user);
+
+        Task::factory(5)->for($this->team)->create();
+
+        $page1 = $this->getJson('/api/v1/tasks?per_page=3&page=1');
+        $page2 = $this->getJson('/api/v1/tasks?per_page=3&page=2');
+
+        $page1->assertOk()->assertJsonCount(3, 'data');
+        $page2->assertOk();
+
+        $page1Ids = collect($page1->json('data'))->pluck('id');
+        $page2Ids = collect($page2->json('data'))->pluck('id');
+        expect($page1Ids->intersect($page2Ids))->toBeEmpty();
+    });
+
+    it('caps per_page at maximum allowed value', function (): void {
+        Sanctum::actingAs($this->user);
+
+        Task::factory(5)->for($this->team)->create();
+
+        $response = $this->getJson('/api/v1/tasks?per_page=500');
+        $response->assertOk();
+
+        expect($response->json('data'))->toBeArray();
+    });
+
+    it('returns empty data array for page beyond results', function (): void {
+        Sanctum::actingAs($this->user);
+
+        Task::factory(2)->for($this->team)->create();
+
+        $this->getJson('/api/v1/tasks?page=999')
+            ->assertOk()
+            ->assertJsonCount(0, 'data');
+    });
+});
+
+describe('mass assignment protection', function (): void {
+    it('ignores team_id in create request', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $otherTeam = Team::factory()->create();
+
+        $this->postJson('/api/v1/tasks', [
+            'title' => 'Test Task',
+            'team_id' => $otherTeam->id,
+        ])
+            ->assertCreated();
+
+        $task = Task::query()->where('title', 'Test Task')->first();
+        expect($task->team_id)->toBe($this->team->id);
+    });
+
+    it('ignores creator_id in create request', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $otherUser = User::factory()->create();
+
+        $this->postJson('/api/v1/tasks', [
+            'title' => 'Test Task',
+            'creator_id' => $otherUser->id,
+        ])
+            ->assertCreated();
+
+        $task = Task::query()->where('title', 'Test Task')->first();
+        expect($task->creator_id)->toBe($this->user->id);
+    });
+
+    it('ignores team_id in update request', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $task = Task::factory()->for($this->team)->create();
+        $otherTeam = Team::factory()->create();
+
+        $this->putJson("/api/v1/tasks/{$task->id}", [
+            'title' => 'Updated',
+            'team_id' => $otherTeam->id,
+        ])
+            ->assertOk();
+
+        expect($task->refresh()->team_id)->toBe($this->team->id);
+    });
+});
+
+describe('input validation', function (): void {
+    it('rejects title exceeding 255 characters', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $this->postJson('/api/v1/tasks', ['title' => str_repeat('a', 256)])
+            ->assertUnprocessable()
+            ->assertInvalid(['title']);
+    });
+
+    it('rejects non-string title', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $this->postJson('/api/v1/tasks', ['title' => 12345])
+            ->assertUnprocessable()
+            ->assertInvalid(['title']);
+    });
+
+    it('rejects array as title', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $this->postJson('/api/v1/tasks', ['title' => ['nested' => 'value']])
+            ->assertUnprocessable()
+            ->assertInvalid(['title']);
+    });
+
+    it('accepts title at exactly 255 characters', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $this->postJson('/api/v1/tasks', ['title' => str_repeat('a', 255)])
+            ->assertCreated();
+    });
+});
+
+describe('soft deletes', function (): void {
+    it('excludes soft-deleted tasks from list', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $task = Task::factory()->for($this->team)->create();
+        $deleted = Task::factory()->for($this->team)->create();
+        $deleted->delete();
+
+        $ids = collect($this->getJson('/api/v1/tasks')->json('data'))->pluck('id');
+        expect($ids)->toContain($task->id);
+        expect($ids)->not->toContain($deleted->id);
+    });
+
+    it('cannot show a soft-deleted task', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $task = Task::factory()->for($this->team)->create();
+        $task->delete();
+
+        $this->getJson("/api/v1/tasks/{$task->id}")
+            ->assertNotFound();
+    });
+});
+
+describe('non-existent record', function (): void {
+    it('returns 404 for non-existent task', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $this->getJson('/api/v1/tasks/'.Str::ulid())
+            ->assertNotFound();
     });
 });

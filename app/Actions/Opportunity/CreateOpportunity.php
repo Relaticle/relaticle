@@ -7,6 +7,7 @@ namespace App\Actions\Opportunity;
 use App\Enums\CreationSource;
 use App\Models\Opportunity;
 use App\Models\User;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
 final readonly class CreateOpportunity
@@ -18,10 +19,9 @@ final readonly class CreateOpportunity
     {
         abort_unless($user->can('create', Opportunity::class), 403);
 
-        $data['creation_source'] = $source;
-        $data['creator_id'] = $user->getKey();
-        $data['team_id'] = $user->currentTeam->getKey();
+        $attributes = Arr::only($data, ['name', 'company_id', 'contact_id', 'custom_fields']);
+        $attributes['creation_source'] = $source;
 
-        return DB::transaction(fn (): Opportunity => Opportunity::query()->create($data));
+        return DB::transaction(fn (): Opportunity => Opportunity::query()->create($attributes));
     }
 }

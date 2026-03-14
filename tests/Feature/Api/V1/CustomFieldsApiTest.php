@@ -46,11 +46,11 @@ it('can list custom fields with expected structure', function (): void {
         'sort_order' => 1,
         'active' => true,
         'validation_rules' => [
-            ['name' => 'required', 'parameters' => []],
+            'required' => true,
         ],
     ]);
 
-    $response = $this->getJson('/api/v1/custom-fields');
+    $response = $this->getJson('/api/v1/custom-fields?per_page=100');
 
     $response->assertOk()
         ->assertJsonCount($this->seededCount + 1, 'data');
@@ -84,7 +84,7 @@ it('returns required as false when field has no required rule', function (): voi
         'validation_rules' => [],
     ]);
 
-    $response = $this->getJson('/api/v1/custom-fields');
+    $response = $this->getJson('/api/v1/custom-fields?per_page=100');
 
     $response->assertOk();
 
@@ -132,7 +132,7 @@ it('can filter by entity_type', function (): void {
         'validation_rules' => [],
     ]);
 
-    $response = $this->getJson('/api/v1/custom-fields?entity_type=company');
+    $response = $this->getJson('/api/v1/custom-fields?entity_type=company&per_page=100');
 
     $response->assertOk();
 
@@ -184,7 +184,7 @@ it('does not return custom fields from other teams', function (): void {
         'validation_rules' => [],
     ]);
 
-    $response = $this->getJson('/api/v1/custom-fields');
+    $response = $this->getJson('/api/v1/custom-fields?per_page=100');
 
     $response->assertOk();
 
@@ -213,7 +213,7 @@ it('includes options for select fields', function (): void {
         ['name' => 'Inactive', 'sort_order' => 2, 'tenant_id' => $this->team->id],
     ]);
 
-    $response = $this->getJson('/api/v1/custom-fields');
+    $response = $this->getJson('/api/v1/custom-fields?per_page=100');
 
     $response->assertOk();
 
@@ -224,6 +224,107 @@ it('includes options for select fields', function (): void {
         ->and($fieldData['attributes']['options'])->toHaveCount(2)
         ->and($fieldData['attributes']['options'][0]['label'])->toBe('Active')
         ->and($fieldData['attributes']['options'][0])->toHaveKey('value');
+});
+
+it('paginates results by default', function (): void {
+    Sanctum::actingAs($this->user);
+
+    foreach (range(1, 20) as $i) {
+        CustomField::create([
+            'tenant_id' => $this->team->id,
+            'custom_field_section_id' => $this->section->id,
+            'entity_type' => 'company',
+            'code' => "cf_field_{$i}",
+            'name' => "Field {$i}",
+            'type' => 'text',
+            'sort_order' => $i,
+            'active' => true,
+            'validation_rules' => [],
+        ]);
+    }
+
+    $response = $this->getJson('/api/v1/custom-fields');
+
+    $response->assertOk()
+        ->assertJsonStructure(['data', 'links', 'meta'])
+        ->assertJsonPath('meta.per_page', 15);
+
+    expect($response->json('data'))->toHaveCount(min(15, $this->seededCount + 20));
+});
+
+it('respects per_page parameter', function (): void {
+    Sanctum::actingAs($this->user);
+
+    foreach (range(1, 10) as $i) {
+        CustomField::create([
+            'tenant_id' => $this->team->id,
+            'custom_field_section_id' => $this->section->id,
+            'entity_type' => 'company',
+            'code' => "cf_page_field_{$i}",
+            'name' => "Page Field {$i}",
+            'type' => 'text',
+            'sort_order' => $i,
+            'active' => true,
+            'validation_rules' => [],
+        ]);
+    }
+
+    $response = $this->getJson('/api/v1/custom-fields?per_page=5');
+
+    $response->assertOk()
+        ->assertJsonPath('meta.per_page', 5);
+
+    expect($response->json('data'))->toHaveCount(5);
+});
+
+it('caps per_page at 100', function (): void {
+    Sanctum::actingAs($this->user);
+
+    $response = $this->getJson('/api/v1/custom-fields?per_page=200');
+
+    $response->assertUnprocessable();
+});
+
+it('rejects non-integer per_page', function (): void {
+    Sanctum::actingAs($this->user);
+
+    $response = $this->getJson('/api/v1/custom-fields?per_page=abc');
+
+    $response->assertUnprocessable();
+});
+
+it('supports page navigation', function (): void {
+    Sanctum::actingAs($this->user);
+
+    foreach (range(1, 5) as $i) {
+        CustomField::create([
+            'tenant_id' => $this->team->id,
+            'custom_field_section_id' => $this->section->id,
+            'entity_type' => 'company',
+            'code' => "cf_nav_field_{$i}",
+            'name' => "Nav Field {$i}",
+            'type' => 'text',
+            'sort_order' => $i,
+            'active' => true,
+            'validation_rules' => [],
+        ]);
+    }
+
+    $totalFields = $this->seededCount + 5;
+
+    $page1 = $this->getJson('/api/v1/custom-fields?per_page=3');
+    $page1->assertOk()
+        ->assertJsonPath('meta.per_page', 3)
+        ->assertJsonPath('meta.current_page', 1)
+        ->assertJsonPath('meta.total', $totalFields);
+
+    expect($page1->json('data'))->toHaveCount(3);
+
+    $page2 = $this->getJson('/api/v1/custom-fields?per_page=3&page=2');
+    $page2->assertOk()
+        ->assertJsonPath('meta.current_page', 2);
+
+    expect($page2->json('data'))->toHaveCount(min(3, $totalFields - 3));
 });
 
 it('excludes inactive custom fields', function (): void {
@@ -253,7 +354,7 @@ it('excludes inactive custom fields', function (): void {
         'validation_rules' => [],
     ]);
 
-    $response = $this->getJson('/api/v1/custom-fields');
+    $response = $this->getJson('/api/v1/custom-fields?per_page=100');
 
     $response->assertOk();
 

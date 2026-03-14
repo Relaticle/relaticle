@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Enums\CreationSource;
 use App\Mcp\Servers\RelaticleServer;
 use App\Mcp\Tools\Company\CreateCompanyTool;
 use App\Mcp\Tools\Company\DeleteCompanyTool;
@@ -124,6 +125,6 @@ describe('validation', function () {
             ->assertOk();
 
         $company = Company::query()->where('name', 'Source Test Corp')->first();
-        expect($company->creation_source)->toBe(\App\Enums\CreationSource::MCP);
+        expect($company->creation_source)->toBe(CreationSource::MCP);
     });
 });

@@ -15,13 +15,25 @@ use App\Models\Team;
 use App\Models\User;
 use Closure;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Relaticle\CustomFields\Services\TenantContextService;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * Sets the team context for API/MCP requests using the token's team_id,
+ * X-Team-Id header, or user's current team as fallback.
+ *
+ * WARNING: Not Octane-safe. This middleware uses addGlobalScope() on static
+ * model state and clearBootedModels() in terminate(). Under Octane, if
+ * terminate() fails to run, scopes from the previous request leak into the
+ * next request — potentially exposing cross-tenant data. The auth guard state
+ * (setUser/forgetUser) has the same leakage risk. Safe under FPM only.
+ */
 final readonly class SetApiTeamContext
 {
-    /** @var list<class-string<\Illuminate\Database\Eloquent\Model>> */
+    /** @var list<class-string<Model>> */
     private const array SCOPED_MODELS = [
         User::class,
         Company::class,
@@ -46,7 +58,11 @@ final readonly class SetApiTeamContext
             return response()->json(['message' => 'You do not belong to this team.'], 403);
         }
 
-        $user->switchTeam($team);
+        // Set team in memory only — do NOT call switchTeam() which persists
+        // current_team_id to the database, corrupting the web panel's team state
+        // when API calls target a different team than the active web session.
+        $user->forceFill(['current_team_id' => $team->getKey()]);
+        $user->setRelation('currentTeam', $team);
 
         TenantContextService::setTenantId($team->getKey());
 
@@ -63,6 +79,8 @@ final readonly class SetApiTeamContext
 
     public function terminate(): void
     {
+        auth()->guard('web')->forgetUser();
+
         TenantContextService::setTenantId(null);
 
         foreach (self::SCOPED_MODELS as $model) {
@@ -75,12 +93,12 @@ final readonly class SetApiTeamContext
         $token = $user->currentAccessToken();
 
         if ($token instanceof PersonalAccessToken && is_string($token->team_id)) {
-            return $token->team;
+            return Team::query()->find($token->team_id);
         }
 
         $teamId = $request->header('X-Team-Id');
 
-        if (is_string($teamId) && preg_match('/^[0-9A-Za-z]{26}$/', $teamId)) {
+        if (is_string($teamId) && Str::isUlid($teamId)) {
             return Team::query()->find($teamId);
         }
 

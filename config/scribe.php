@@ -2,12 +2,17 @@
 
 declare(strict_types=1);
 
+use App\Scribe\Strategies\GetFromSpatieQueryBuilder;
 use Knuckles\Scribe\Config\AuthIn;
 use Knuckles\Scribe\Config\Defaults;
 use Knuckles\Scribe\Extracting\Strategies;
 
 use function Knuckles\Scribe\Config\configureStrategy;
 use function Knuckles\Scribe\Config\removeStrategies;
+
+if (! class_exists(AuthIn::class)) {
+    return [];
+}
 
 // Only the most common configs are shown. See the https://scribe.knuckles.wtf/laravel/reference/config for all.
 
@@ -231,7 +236,7 @@ return [
         'urlParameters' => [...Defaults::URL_PARAMETERS_STRATEGIES],
         'queryParameters' => [
             ...Defaults::QUERY_PARAMETERS_STRATEGIES,
-            \App\Scribe\Strategies\GetFromSpatieQueryBuilder::class,
+            GetFromSpatieQueryBuilder::class,
         ],
         'bodyParameters' => [...Defaults::BODY_PARAMETERS_STRATEGIES],
         'responses' => configureStrategy(

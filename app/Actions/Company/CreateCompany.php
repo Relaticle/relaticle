@@ -7,6 +7,7 @@ namespace App\Actions\Company;
 use App\Enums\CreationSource;
 use App\Models\Company;
 use App\Models\User;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
 final readonly class CreateCompany
@@ -18,10 +19,9 @@ final readonly class CreateCompany
     {
         abort_unless($user->can('create', Company::class), 403);
 
-        $data['creation_source'] = $source;
-        $data['creator_id'] = $user->getKey();
-        $data['team_id'] = $user->currentTeam->getKey();
+        $attributes = Arr::only($data, ['name', 'custom_fields']);
+        $attributes['creation_source'] = $source;
 
-        return DB::transaction(fn (): Company => Company::query()->create($data));
+        return DB::transaction(fn (): Company => Company::query()->create($attributes));
     }
 }

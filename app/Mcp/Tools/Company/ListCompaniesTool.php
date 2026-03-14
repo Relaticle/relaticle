@@ -6,54 +6,28 @@ namespace App\Mcp\Tools\Company;
 
 use App\Actions\Company\ListCompanies;
 use App\Http\Resources\V1\CompanyResource;
-use App\Models\User;
-use Illuminate\Contracts\JsonSchema\JsonSchema;
-use Laravel\Mcp\Request;
-use Laravel\Mcp\Response;
+use App\Mcp\Tools\BaseListTool;
 use Laravel\Mcp\Server\Attributes\Description;
-use Laravel\Mcp\Server\Tool;
 use Laravel\Mcp\Server\Tools\Annotations\IsIdempotent;
 use Laravel\Mcp\Server\Tools\Annotations\IsReadOnly;
 
 #[Description('List companies in the CRM with optional search and pagination.')]
 #[IsReadOnly]
 #[IsIdempotent]
-final class ListCompaniesTool extends Tool
+final class ListCompaniesTool extends BaseListTool
 {
-    public function schema(JsonSchema $schema): array
+    protected function actionClass(): string
     {
-        return [
-            'search' => $schema->string()->description('Search companies by name.'),
-            'per_page' => $schema->integer()->description('Results per page (default 15, max 100).')->default(15),
-            'page' => $schema->integer()->description('Page number.')->default(1),
-        ];
+        return ListCompanies::class;
     }
 
-    public function handle(Request $request, ListCompanies $action): Response
+    protected function resourceClass(): string
     {
-        /** @var User $user */
-        $user = auth()->user();
+        return CompanyResource::class;
+    }
 
-        $query = [];
-
-        if ($search = $request->get('search')) {
-            $query['filter']['name'] = $search;
-        }
-
-        if ($page = $request->get('page')) {
-            $query['page'] = $page;
-        }
-
-        if ($perPage = $request->get('per_page')) {
-            $query['per_page'] = $perPage;
-        }
-
-        request()->merge($query);
-
-        $companies = $action->execute($user, (int) $request->get('per_page', 15));
-
-        return Response::text(
-            CompanyResource::collection($companies)->toJson(JSON_PRETTY_PRINT)
-        );
+    protected function searchFilterName(): string
+    {
+        return 'name';
     }
 }

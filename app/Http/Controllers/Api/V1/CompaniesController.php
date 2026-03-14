@@ -33,7 +33,12 @@ final readonly class CompaniesController
         /** @var User $user */
         $user = $request->user();
 
-        return CompanyResource::collection($action->execute($user));
+        return CompanyResource::collection($action->execute(
+            user: $user,
+            perPage: (int) $request->query('per_page', '15'),
+            useCursor: $request->has('cursor'),
+            request: $request,
+        ));
     }
 
     #[ResponseFromApiResource(CompanyResource::class, Company::class, status: 201)]

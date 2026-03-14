@@ -7,6 +7,7 @@ namespace App\Actions\Note;
 use App\Enums\CreationSource;
 use App\Models\Note;
 use App\Models\User;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
 final readonly class CreateNote
@@ -18,10 +19,9 @@ final readonly class CreateNote
     {
         abort_unless($user->can('create', Note::class), 403);
 
-        $data['creation_source'] = $source;
-        $data['creator_id'] = $user->getKey();
-        $data['team_id'] = $user->currentTeam->getKey();
+        $attributes = Arr::only($data, ['title', 'custom_fields']);
+        $attributes['creation_source'] = $source;
 
-        return DB::transaction(fn (): Note => Note::query()->create($data));
+        return DB::transaction(fn (): Note => Note::query()->create($attributes));
     }
 }

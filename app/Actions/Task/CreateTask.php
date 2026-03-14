@@ -7,6 +7,7 @@ namespace App\Actions\Task;
 use App\Enums\CreationSource;
 use App\Models\Task;
 use App\Models\User;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
 final readonly class CreateTask
@@ -18,10 +19,9 @@ final readonly class CreateTask
     {
         abort_unless($user->can('create', Task::class), 403);
 
-        $data['creation_source'] = $source;
-        $data['creator_id'] = $user->getKey();
-        $data['team_id'] = $user->currentTeam->getKey();
+        $attributes = Arr::only($data, ['title', 'custom_fields']);
+        $attributes['creation_source'] = $source;
 
-        return DB::transaction(fn (): Task => Task::query()->create($data));
+        return DB::transaction(fn (): Task => Task::query()->create($attributes));
     }
 }

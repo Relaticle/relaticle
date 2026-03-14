@@ -9,6 +9,11 @@ use Filament\Forms\Components\Select;
 use Filament\Pages\Dashboard\Actions\FilterAction;
 use Filament\Pages\Dashboard as BaseDashboard;
 use Filament\Pages\Dashboard\Concerns\HasFiltersAction;
+use Filament\Widgets\WidgetConfiguration;
+use Relaticle\SystemAdmin\Filament\Widgets\PlatformGrowthStatsWidget;
+use Relaticle\SystemAdmin\Filament\Widgets\RecordDistributionChartWidget;
+use Relaticle\SystemAdmin\Filament\Widgets\SignupTrendChartWidget;
+use Relaticle\SystemAdmin\Filament\Widgets\TopTeamsTableWidget;
 
 final class Dashboard extends BaseDashboard
 {
@@ -16,11 +21,26 @@ final class Dashboard extends BaseDashboard
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-home';
 
+    protected static string|\UnitEnum|null $navigationGroup = 'Dashboards';
+
+    protected static ?string $navigationLabel = 'Growth';
+
     protected ?string $heading = 'Relaticle Admin';
 
     protected ?string $subheading = 'Platform growth and adoption metrics.';
 
-    protected static ?string $navigationLabel = 'Dashboard';
+    /**
+     * @return array<class-string | WidgetConfiguration>
+     */
+    public function getWidgets(): array
+    {
+        return [
+            PlatformGrowthStatsWidget::class,
+            SignupTrendChartWidget::class,
+            RecordDistributionChartWidget::class,
+            TopTeamsTableWidget::class,
+        ];
+    }
 
     public function getColumns(): array
     {

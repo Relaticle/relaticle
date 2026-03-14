@@ -1,7 +1,7 @@
 {
     "name": "laravel/laravel",
     "type": "project",
-    "description": "The Open-Source CRM Built for AI Agents",
+    "description": "The Next-Generation Open-Source CRM Platform",
     "keywords": [
         "crm",
         "laravel",
@@ -14,7 +14,6 @@
     "license": "AGPL-3.0",
     "require": {
         "php": "^8.4",
-        "andreiio/blade-remix-icon": "^3.9",
         "ashallendesign/favicon-fetcher": "^3.8",
         "asmit/resized-column": "^2.1",
         "blade-ui-kit/blade-heroicons": "^2.6",
@@ -24,6 +23,7 @@
         "laravel/framework": "^12.0",
         "laravel/horizon": "^5.29",
         "laravel/jetstream": "^5.2",
+        "laravel/mcp": "^0.5",
         "laravel/sanctum": "^4.0",
         "laravel/socialite": "^5.16",
         "laravel/tinker": "^2.9",
@@ -45,7 +45,6 @@
         "spatie/laravel-query-builder": "^6.4",
         "spatie/laravel-settings": "^3.3",
         "spatie/laravel-sitemap": "^7.3",
-        "spatie/schema-org": "^4.0",
         "spatie/security-advisories-health-check": "^1.3",
         "spatie/simple-excel": "^3.8",
         "symfony/http-client": "^7.2",

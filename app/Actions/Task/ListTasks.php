@@ -9,19 +9,31 @@ use App\Models\User;
 use Illuminate\Contracts\Pagination\CursorPaginator;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Request;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
 final readonly class ListTasks
 {
-    /** @return CursorPaginator<int, Task>|LengthAwarePaginator<int, Task> */
-    public function execute(User $user, ?int $perPage = null): CursorPaginator|LengthAwarePaginator
-    {
+    /**
+     * @param  array<string, mixed>  $filters
+     * @return CursorPaginator<int, Task>|LengthAwarePaginator<int, Task>
+     */
+    public function execute(
+        User $user,
+        int $perPage = 15,
+        bool $useCursor = false,
+        array $filters = [],
+        ?int $page = null,
+        ?Request $request = null,
+    ): CursorPaginator|LengthAwarePaginator {
         abort_unless($user->can('viewAny', Task::class), 403);
 
-        $perPage = max(1, min($perPage ?? (int) (request()->query('per_page', '15')), 100));
+        $perPage = max(1, min($perPage, 100));
 
-        $query = QueryBuilder::for(Task::query()->withCustomFieldValues())
+        $request ??= new Request(['filter' => $filters]);
+
+        $query = QueryBuilder::for(Task::query()->withCustomFieldValues(), $request)
             ->allowedFilters([
                 AllowedFilter::partial('title'),
                 AllowedFilter::callback('assigned_to_me', function (Builder $query) use ($user): void {
@@ -33,10 +45,10 @@ final readonly class ListTasks
             ->allowedSorts(['title', 'created_at', 'updated_at'])
             ->defaultSort('-created_at');
 
-        if (request()->has('cursor')) {
+        if ($useCursor) {
             return $query->cursorPaginate($perPage);
         }
 
-        return $query->paginate($perPage);
+        return $query->paginate($perPage, ['*'], 'page', $page);
     }
 }

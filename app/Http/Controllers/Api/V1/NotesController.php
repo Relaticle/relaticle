@@ -33,7 +33,12 @@ final readonly class NotesController
         /** @var User $user */
         $user = $request->user();
 
-        return NoteResource::collection($action->execute($user));
+        return NoteResource::collection($action->execute(
+            user: $user,
+            perPage: (int) $request->query('per_page', '15'),
+            useCursor: $request->has('cursor'),
+            request: $request,
+        ));
     }
 
     #[ResponseFromApiResource(NoteResource::class, Note::class, status: 201)]

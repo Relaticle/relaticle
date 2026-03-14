@@ -7,6 +7,7 @@ namespace App\Mcp\Resources\Concerns;
 use App\Models\CustomField;
 use App\Models\User;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 
 trait ResolvesEntitySchema
 {
@@ -15,15 +16,20 @@ trait ResolvesEntitySchema
      */
     protected function resolveCustomFields(User $user, string $entityType): array
     {
-        $fields = CustomField::query()
-            ->withoutGlobalScopes()
-            ->where('tenant_id', $user->currentTeam->getKey())
-            ->where('entity_type', $entityType)
-            ->where('active', true)
-            ->select('code', 'name', 'type', 'validation_rules')
-            ->get();
+        $teamId = $user->currentTeam->getKey();
+        $cacheKey = "custom_fields_schema_{$teamId}_{$entityType}";
 
-        return $this->formatCustomFields($fields);
+        return Cache::remember($cacheKey, 60, function () use ($teamId, $entityType): array {
+            $fields = CustomField::query()
+                ->withoutGlobalScopes()
+                ->where('tenant_id', $teamId)
+                ->where('entity_type', $entityType)
+                ->active()
+                ->select('code', 'name', 'type', 'validation_rules')
+                ->get();
+
+            return $this->formatCustomFields($fields);
+        });
     }
 
     /**
@@ -35,8 +41,7 @@ trait ResolvesEntitySchema
         $result = [];
 
         foreach ($fields as $field) {
-            $required = $field->validation_rules
-                ->toCollection()
+            $required = ($field->validation_rules ?? collect())
                 ->contains('name', 'required');
 
             $result[$field->code] = [
