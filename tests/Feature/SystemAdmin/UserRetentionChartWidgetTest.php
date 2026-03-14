@@ -50,11 +50,14 @@ it('classifies new active vs returning users correctly', function () {
             'created_at' => now()->subDays(1),
         ]));
 
-    $component = livewire(UserRetentionChartWidget::class)
-        ->assertOk();
+    $component = livewire(UserRetentionChartWidget::class)->assertOk();
 
-    $instance = $component->instance();
-    $chartData = (new ReflectionMethod($instance, 'getData'))->invoke($instance);
+    $html = $component->html();
+
+    preg_match('/cachedData: JSON\.parse\(\'(.+?)\'\)/s', $html, $matches);
+
+    $chartData = json_decode(str_replace('\u0022', '"', $matches[1]), associative: true);
+
     $datasetsByLabel = collect($chartData['datasets'])->keyBy('label');
 
     $newActiveData = $datasetsByLabel['New Active']['data'] ?? [];
