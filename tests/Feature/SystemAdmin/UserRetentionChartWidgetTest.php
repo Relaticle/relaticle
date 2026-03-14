@@ -9,6 +9,8 @@ use Filament\Facades\Filament;
 use Relaticle\SystemAdmin\Filament\Widgets\UserRetentionChartWidget;
 use Relaticle\SystemAdmin\Models\SystemAdministrator;
 
+mutates(UserRetentionChartWidget::class);
+
 beforeEach(function () {
     $this->admin = SystemAdministrator::factory()->create();
     $this->actingAs($this->admin, 'sysadmin');

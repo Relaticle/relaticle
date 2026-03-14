@@ -17,6 +17,8 @@ use Laravel\Jetstream\Events\TeamUpdated;
 
 uses(RefreshDatabase::class);
 
+mutates(Team::class);
+
 test('team has many people', function () {
     $team = Team::factory()->create();
     $people = People::factory()->create([

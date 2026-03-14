@@ -2,12 +2,15 @@
 
 declare(strict_types=1);
 
+use App\Filament\Resources\NoteResource;
 use App\Filament\Resources\NoteResource\Pages\ManageNotes;
 use App\Models\Note;
 use App\Models\User;
 use Filament\Actions\Testing\TestAction;
 use Filament\Facades\Filament;
 use Illuminate\Database\Eloquent\Model;
+
+mutates(NoteResource::class);
 
 beforeEach(function () {
     $this->user = User::factory()->withTeam()->create();

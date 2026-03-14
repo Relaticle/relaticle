@@ -3,11 +3,15 @@
 declare(strict_types=1);
 
 use App\Enums\SocialiteProvider;
+use App\Http\Controllers\Auth\CallbackController;
+use App\Http\Controllers\Auth\RedirectController;
 use App\Models\User;
 use App\Models\UserSocialAccount;
 use Laravel\Socialite\Contracts\User as SocialiteUser;
 use Laravel\Socialite\Facades\Socialite;
 use Laravel\Socialite\Two\AbstractProvider;
+
+mutates(CallbackController::class, RedirectController::class);
 
 test('redirect to socialite provider', function () {
     $response = $this->get(route('auth.socialite.redirect', ['provider' => SocialiteProvider::GOOGLE->value]));

@@ -10,6 +10,8 @@ use Filament\Facades\Filament;
 use Relaticle\SystemAdmin\Filament\Widgets\ActivationRateWidget;
 use Relaticle\SystemAdmin\Models\SystemAdministrator;
 
+mutates(ActivationRateWidget::class);
+
 beforeEach(function () {
     $this->admin = SystemAdministrator::factory()->create();
     $this->actingAs($this->admin, 'sysadmin');

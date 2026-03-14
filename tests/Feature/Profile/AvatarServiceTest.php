@@ -5,6 +5,8 @@ declare(strict_types=1);
 use App\Services\AvatarService;
 use Illuminate\Contracts\Cache\Repository as Cache;
 
+mutates(AvatarService::class);
+
 beforeEach(function () {
     $this->cache = Mockery::mock(Cache::class);
     $this->cache->shouldReceive('remember')->andReturnUsing(function ($key, $ttl, $callback) {

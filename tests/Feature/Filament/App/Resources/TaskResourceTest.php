@@ -2,12 +2,15 @@
 
 declare(strict_types=1);
 
+use App\Filament\Resources\TaskResource;
 use App\Filament\Resources\TaskResource\Pages\ManageTasks;
 use App\Models\Task;
 use App\Models\User;
 use Filament\Actions\Testing\TestAction;
 use Filament\Facades\Filament;
 use Illuminate\Database\Eloquent\Model;
+
+mutates(TaskResource::class);
 
 beforeEach(function () {
     $this->user = User::factory()->withTeam()->create();
