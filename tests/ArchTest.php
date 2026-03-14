@@ -6,6 +6,11 @@ use App\Filament\Exports\BaseExporter;
 use App\Filament\Imports\BaseImporter;
 use App\Filament\Pages\Import\ImportPage;
 use App\Livewire\BaseLivewireComponent;
+use App\Mcp\Tools\BaseCreateTool;
+use App\Mcp\Tools\BaseDeleteTool;
+use App\Mcp\Tools\BaseListTool;
+use App\Mcp\Tools\BaseUpdateTool;
+use App\Models\PersonalAccessToken;
 
 arch()->preset()->php();
 
@@ -21,6 +26,8 @@ arch()->preset()
         'Relaticle\Admin\AdminPanelProvider',
         'App\Enums\EnumValues',
         'App\Enums\CustomFields\CustomFieldTrait',
+        'App\Http\Requests\Api\V1\Concerns\ValidatesCustomFields',
+        'App\Mcp',
     ]);
 
 arch('strict types')
@@ -35,7 +42,12 @@ arch('avoid open for extension')
         BaseLivewireComponent::class,
         BaseImporter::class,
         BaseExporter::class,
+        BaseListTool::class,
+        BaseCreateTool::class,
+        BaseUpdateTool::class,
+        BaseDeleteTool::class,
         ImportPage::class,
+        PersonalAccessToken::class,
     ]);
 
 arch('ensure no extends')
@@ -47,6 +59,10 @@ arch('ensure no extends')
         BaseLivewireComponent::class,
         BaseImporter::class,
         BaseExporter::class,
+        BaseListTool::class,
+        BaseCreateTool::class,
+        BaseUpdateTool::class,
+        BaseDeleteTool::class,
         ImportPage::class,
     ]);
 
@@ -60,10 +76,12 @@ arch('avoid mutation')
         'App\Filament',
         'App\Health',
         'App\Http\Requests',
+        'App\Http\Resources',
         'App\Jobs',
         'App\Listeners',
         'App\Livewire',
         'App\Mail',
+        'App\Mcp',
         'App\Models',
         'App\Data',
         'App\Notifications',
@@ -71,6 +89,7 @@ arch('avoid mutation')
         'App\View',
         'App\Services\Favicon\Drivers',
         'App\Providers\Filament',
+        'App\Scribe',
     ]);
 
 arch('avoid inheritance')
@@ -82,14 +101,17 @@ arch('avoid inheritance')
         'App\Exceptions',
         'App\Filament',
         'App\Http\Requests',
+        'App\Http\Resources',
         'App\Jobs',
         'App\Data',
         'App\Livewire',
         'App\Mail',
         'App\Health',
+        'App\Mcp',
         'App\Models',
         'App\Notifications',
         'App\Providers',
+        'App\Scribe',
         'App\View',
     ]);
 
@@ -115,6 +137,13 @@ arch('SystemAdmin module must not depend on main app namespace')
     ->ignoring([
         'App\Models',
         'App\Enums',
+    ]);
+
+arch('API controllers must not use Eloquent query methods directly')
+    ->expect('App\Http\Controllers\Api\V1')
+    ->not
+    ->toUse([
+        'Illuminate\Support\Facades\DB',
     ]);
 
 arch('must not use custom-fields package models directly')
