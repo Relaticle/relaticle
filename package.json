@@ -19,6 +19,7 @@
     },
     "dependencies": {
         "@tailwindcss/vite": "^4.1.18",
+        "motion": "^12.34.3",
         "shiki": "^3.22.0"
     }
 }
