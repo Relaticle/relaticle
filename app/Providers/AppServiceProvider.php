@@ -28,7 +28,7 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\View\View;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\SystemAdmin\Models\SystemAdministrator;
-
+use Illuminate\Support\Facades\Event;
 final class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -50,6 +50,9 @@ final class AppServiceProvider extends ServiceProvider
         $this->configureFilament();
         $this->configureGitHubStars();
         $this->configureLivewire();
+        Event::listen(function (\SocialiteProviders\Manager\SocialiteWasCalled $event) {
+            $event->extendSocialite('oidc', \SocialiteProviders\OIDC\Provider::class);
+        });
     }
 
     private function configurePolicies(): void

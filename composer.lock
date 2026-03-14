@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9d47f81087f1d24bdb42aac7643c9f37",
+    "content-hash": "878d893b5e6f65403c609b9c3c1ed824",
     "packages": [
         {
             "name": "anourvalar/eloquent-serialize",
@@ -2738,6 +2738,74 @@
                 "source": "https://github.com/kirschbaum-development/eloquent-power-joins/tree/4.2.11"
             },
             "time": "2025-12-17T00:37:48+00:00"
+        },
+        {
+            "name": "kovah/laravel-socialite-oidc",
+            "version": "v0.6.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Kovah/laravel-socialite-oidc.git",
+                "reference": "cc668336f60f4457efc2ebec512d2f519f4ca9ce"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Kovah/laravel-socialite-oidc/zipball/cc668336f60f4457efc2ebec512d2f519f4ca9ce",
+                "reference": "cc668336f60f4457efc2ebec512d2f519f4ca9ce",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "firebase/php-jwt": "^6.4|^7.0",
+                "illuminate/http": "^9.0 | ^10.0 | ^11.0 | ^12.0",
+                "illuminate/support": "^9.0 | ^10.0 | ^11.0 | ^12.0",
+                "php": "^8.1",
+                "socialiteproviders/manager": "^4.0"
+            },
+            "conflict": {
+                "jp-gauthier/socialiteproviders-oidc": "*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "SocialiteProviders\\OIDC\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "JPG Dev",
+                    "homepage": "https://jpgdev.com"
+                },
+                {
+                    "name": "Kevin Woblick",
+                    "email": "contact@woblick.dev",
+                    "homepage": "https://woblick.dev",
+                    "role": "Developer"
+                }
+            ],
+            "description": "OpenID Connect OAuth2 Provider for Laravel Socialite",
+            "homepage": "https://github.com/kovah/laravel-socialite-oidc",
+            "keywords": [
+                "laravel",
+                "oauth",
+                "oidc",
+                "provider",
+                "socialite"
+            ],
+            "support": {
+                "issues": "https://github.com/Kovah/laravel-socialite-oidc/issues",
+                "source": "https://github.com/Kovah/laravel-socialite-oidc/tree/v0.6.0"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/sponsors/kovah",
+                    "type": "github"
+                }
+            ],
+            "time": "2026-01-16T19:15:26+00:00"
         },
         {
             "name": "laravel/fortify",
@@ -7656,6 +7724,80 @@
                 }
             ],
             "time": "2026-03-12T15:45:34+00:00"
+        },
+        {
+            "name": "socialiteproviders/manager",
+            "version": "v4.8.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/SocialiteProviders/Manager.git",
+                "reference": "8180ec14bef230ec2351cff993d5d2d7ca470ef4"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/SocialiteProviders/Manager/zipball/8180ec14bef230ec2351cff993d5d2d7ca470ef4",
+                "reference": "8180ec14bef230ec2351cff993d5d2d7ca470ef4",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/support": "^8.0 || ^9.0 || ^10.0 || ^11.0 || ^12.0",
+                "laravel/socialite": "^5.5",
+                "php": "^8.1"
+            },
+            "require-dev": {
+                "mockery/mockery": "^1.2",
+                "phpunit/phpunit": "^9.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "SocialiteProviders\\Manager\\ServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "SocialiteProviders\\Manager\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Andy Wendt",
+                    "email": "andy@awendt.com"
+                },
+                {
+                    "name": "Anton Komarev",
+                    "email": "a.komarev@cybercog.su"
+                },
+                {
+                    "name": "Miguel Piedrafita",
+                    "email": "soy@miguelpiedrafita.com"
+                },
+                {
+                    "name": "atymic",
+                    "email": "atymicq@gmail.com",
+                    "homepage": "https://atymic.dev"
+                }
+            ],
+            "description": "Easily add new or override built-in providers in Laravel Socialite.",
+            "homepage": "https://socialiteproviders.com",
+            "keywords": [
+                "laravel",
+                "manager",
+                "oauth",
+                "providers",
+                "socialite"
+            ],
+            "support": {
+                "issues": "https://github.com/socialiteproviders/manager/issues",
+                "source": "https://github.com/socialiteproviders/manager"
+            },
+            "time": "2025-02-24T19:33:30+00:00"
         },
         {
             "name": "spatie/browsershot",

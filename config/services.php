@@ -38,17 +38,36 @@ return [
     ],
 
     'google' => [
+        'enabled' => env('GOOGLE_ENABLED', true),
         'client_id' => env('GOOGLE_CLIENT_ID'),
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),
         'redirect' => env('GOOGLE_REDIRECT_URI'),
     ],
 
     'github' => [
+        'enabled' => env('GITHUB_ENABLED', true),
         'client_id' => env('GITHUB_CLIENT_ID'),
         'client_secret' => env('GITHUB_CLIENT_SECRET'),
         'redirect' => '/auth/callback/github',
     ],
+    'oidc' => [
+        'enabled' => env('OIDC_ENABLED', false),
+        'display_name' => env('OIDC_DISPLAY_NAME', 'OIDC'),
+        'icon' => env('OIDC_ICON', 'oidc'),
+        'base_url' => env('OIDC_ISSUER'),
 
+        'client_id' => env('OIDC_CLIENT_ID'),
+        'client_secret' => env('OIDC_CLIENT_SECRET'),
+
+        'redirect' => env('OIDC_REDIRECT_URI', default: '/auth/callback/oidc'),
+
+        // Optional: Enable JWT signature verification (default: false)
+        'verify_jwt' => env('OIDC_VERIFY_JWT', false),
+        // Optional: Provide a specific public key for JWT verification
+        // If not provided, the key will be fetched from the OIDC provider's JWKS endpoint
+        'jwt_public_key' => env('OIDC_JWT_PUBLIC_KEY', default: null),
+        'scopes' => env('OIDC_SCOPES', 'openid profile email'),
+    ],
     'fathom' => [
         'site_id' => env('FATHOM_ANALYTICS_SITE_ID'),
     ],
