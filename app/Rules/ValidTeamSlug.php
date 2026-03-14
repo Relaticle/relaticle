@@ -7,6 +7,7 @@ namespace App\Rules;
 use App\Models\Team;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Translation\PotentiallyTranslatedString;
 
 final readonly class ValidTeamSlug implements ValidationRule
 {
@@ -15,7 +16,7 @@ final readonly class ValidTeamSlug implements ValidationRule
     ) {}
 
     /**
-     * @param  Closure(string, ?string=): \Illuminate\Translation\PotentiallyTranslatedString  $fail
+     * @param  Closure(string, ?string=): PotentiallyTranslatedString  $fail
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
