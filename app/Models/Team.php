@@ -66,7 +66,7 @@ final class Team extends JetstreamTeam implements HasAvatar
         'discord',
 
         // API & developer
-        'api', 'graphql', 'webhooks', 'developer', 'developers', 'connect', 'user',
+        'api', 'graphql', 'mcp', 'webhooks', 'developer', 'developers', 'connect', 'user',
 
         // Marketing & public
         'home', 'welcome', 'features', 'demo', 'enterprise', 'pro',
