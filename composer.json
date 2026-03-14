@@ -112,7 +112,7 @@
         "test:lint": "pint --test",
         "test:refactor": "rector --dry-run",
         "test:types": "phpstan analyse",
-        "test:arch": "pest --filter=arch",
+        "test:arch": "pest --filter=arch --exclude-testsuite=Browser",
         "test:type-coverage": "pest --type-coverage --min=100",
         "test:pest": "pest --parallel --exclude-testsuite=Browser",
         "test:pest:shard": "pest --parallel --shard=${SHARD} --exclude-testsuite=Browser",
