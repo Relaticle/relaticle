@@ -220,4 +220,4 @@ jobs:
           php artisan key:generate
 
       - name: Browser Tests
-        run: composer test:browser
+        run: pest tests/Browser/ --configuration phpunit.ci.xml
