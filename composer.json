@@ -116,7 +116,7 @@
         "test:type-coverage": "pest --type-coverage --min=100",
         "test:pest": "pest --parallel --exclude-testsuite=Browser",
         "test:pest:shard": "pest --parallel --shard=${SHARD} --exclude-testsuite=Browser",
-        "test:pest:ci": "pest --compact --parallel --configuration phpunit.ci.xml --shard=${SHARD} --exclude-testsuite=Browser",
+        "test:pest:ci": "pest --compact --configuration phpunit.ci.xml --shard=${SHARD} --exclude-testsuite=Browser",
         "test:browser": "pest tests/Browser/",
         "test": [
             "@test:lint",
