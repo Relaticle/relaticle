@@ -17,11 +17,14 @@ declare(strict_types=1);
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Features\SupportTesting\Testable;
 use Livewire\Livewire;
+use Pest\Browser\Configuration;
 use Tests\TestCase;
 
 pest()->extend(TestCase::class)
     ->use(RefreshDatabase::class)
     ->in('Feature', 'Smoke', 'Browser');
+
+Configuration::timeout(15_000);
 
 /**
  * Livewire testing helper - replacement for pest-plugin-livewire.

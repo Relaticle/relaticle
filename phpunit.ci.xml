@@ -46,5 +46,10 @@
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="SESSION_DRIVER" value="array"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
+        <env name="BROADCAST_CONNECTION" value="log"/>
+        <env name="PUSHER_APP_KEY" value="test-key"/>
+        <env name="PUSHER_APP_SECRET" value="test-secret"/>
+        <env name="PUSHER_APP_ID" value="test-id"/>
+        <env name="PUSHER_APP_CLUSTER" value="mt1"/>
     </php>
 </phpunit>
