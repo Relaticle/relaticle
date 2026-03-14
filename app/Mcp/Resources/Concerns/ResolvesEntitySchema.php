@@ -24,7 +24,7 @@ trait ResolvesEntitySchema
                 ->withoutGlobalScopes()
                 ->where('tenant_id', $teamId)
                 ->where('entity_type', $entityType)
-                ->where('active', true)
+                ->active()
                 ->select('code', 'name', 'type', 'validation_rules')
                 ->get();
 

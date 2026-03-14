@@ -7,6 +7,7 @@ use App\Models\Company;
 use App\Models\People;
 use App\Models\Team;
 use App\Models\User;
+use Illuminate\Support\Str;
 use Illuminate\Testing\Fluent\AssertableJson;
 use Laravel\Sanctum\Sanctum;
 
@@ -510,5 +511,38 @@ describe('input validation', function (): void {
         ])
             ->assertUnprocessable()
             ->assertInvalid(['company_id']);
+    });
+});
+
+describe('soft deletes', function (): void {
+    it('excludes soft-deleted people from list', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $person = People::factory()->for($this->team)->create();
+        $deleted = People::factory()->for($this->team)->create();
+        $deleted->delete();
+
+        $ids = collect($this->getJson('/api/v1/people')->json('data'))->pluck('id');
+        expect($ids)->toContain($person->id);
+        expect($ids)->not->toContain($deleted->id);
+    });
+
+    it('cannot show a soft-deleted person', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $person = People::factory()->for($this->team)->create();
+        $person->delete();
+
+        $this->getJson("/api/v1/people/{$person->id}")
+            ->assertNotFound();
+    });
+});
+
+describe('non-existent record', function (): void {
+    it('returns 404 for non-existent person', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $this->getJson('/api/v1/people/'.Str::ulid())
+            ->assertNotFound();
     });
 });

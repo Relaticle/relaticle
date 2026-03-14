@@ -21,6 +21,16 @@ use Illuminate\Support\Str;
 use Relaticle\CustomFields\Services\TenantContextService;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * Sets the team context for API/MCP requests using the token's team_id,
+ * X-Team-Id header, or user's current team as fallback.
+ *
+ * WARNING: Not Octane-safe. This middleware uses addGlobalScope() on static
+ * model state and clearBootedModels() in terminate(). Under Octane, if
+ * terminate() fails to run, scopes from the previous request leak into the
+ * next request — potentially exposing cross-tenant data. The auth guard state
+ * (setUser/forgetUser) has the same leakage risk. Safe under FPM only.
+ */
 final readonly class SetApiTeamContext
 {
     /** @var list<class-string<Model>> */
@@ -48,7 +58,11 @@ final readonly class SetApiTeamContext
             return response()->json(['message' => 'You do not belong to this team.'], 403);
         }
 
-        $user->switchTeam($team);
+        // Set team in memory only — do NOT call switchTeam() which persists
+        // current_team_id to the database, corrupting the web panel's team state
+        // when API calls target a different team than the active web session.
+        $user->forceFill(['current_team_id' => $team->getKey()]);
+        $user->setRelation('currentTeam', $team);
 
         TenantContextService::setTenantId($team->getKey());
 

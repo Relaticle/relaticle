@@ -7,7 +7,7 @@ use Illuminate\Testing\Fluent\AssertableJson;
 use Laravel\Sanctum\Sanctum;
 
 it('requires authentication', function (): void {
-    $this->getJson('/api/user')->assertUnauthorized();
+    $this->getJson('/api/v1/user')->assertUnauthorized();
 });
 
 it('returns user resource with correct shape', function (): void {
@@ -18,7 +18,7 @@ it('returns user resource with correct shape', function (): void {
 
     Sanctum::actingAs($user);
 
-    $this->getJson('/api/user')
+    $this->getJson('/api/v1/user')
         ->assertOk()
         ->assertJson(fn (AssertableJson $json) => $json
             ->has('data', fn (AssertableJson $json) => $json
@@ -47,7 +47,7 @@ it('does not expose internal fields in response', function (): void {
 
     Sanctum::actingAs($user);
 
-    $response = $this->getJson('/api/user')->assertOk();
+    $response = $this->getJson('/api/v1/user')->assertOk();
 
     $attributes = $response->json('data.attributes');
 

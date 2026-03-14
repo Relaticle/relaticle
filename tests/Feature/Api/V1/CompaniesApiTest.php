@@ -9,6 +9,7 @@ use App\Models\CustomField;
 use App\Models\CustomFieldSection;
 use App\Models\Team;
 use App\Models\User;
+use Illuminate\Support\Str;
 use Illuminate\Testing\Fluent\AssertableJson;
 use Laravel\Sanctum\Sanctum;
 use Relaticle\CustomFields\Models\CustomFieldValue;
@@ -632,5 +633,14 @@ describe('input validation', function (): void {
 
         $this->postJson('/api/v1/companies', ['name' => str_repeat('a', 255)])
             ->assertCreated();
+    });
+});
+
+describe('non-existent record', function (): void {
+    it('returns 404 for non-existent company', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $this->getJson('/api/v1/companies/'.Str::ulid())
+            ->assertNotFound();
     });
 });

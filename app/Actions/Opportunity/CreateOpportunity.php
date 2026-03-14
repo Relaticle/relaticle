@@ -21,8 +21,6 @@ final readonly class CreateOpportunity
 
         $attributes = Arr::only($data, ['name', 'company_id', 'contact_id', 'custom_fields']);
         $attributes['creation_source'] = $source;
-        $attributes['creator_id'] = $user->getKey();
-        $attributes['team_id'] = $user->currentTeam->getKey();
 
         return DB::transaction(fn (): Opportunity => Opportunity::query()->create($attributes));
     }

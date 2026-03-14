@@ -14,6 +14,7 @@ use Filament\Schemas\Components\Actions;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\Width;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 use Laravel\Jetstream\Jetstream;
@@ -142,16 +143,20 @@ final class CreateApiToken extends BaseLivewireComponent
         $expiresAt = $expiration > 0 ? now()->addDays($expiration) : null;
 
         /** @var NewAccessToken $token */
-        $token = $user->createToken(
-            $state['name'],
-            Jetstream::validPermissions($state['permissions'] ?? []),
-        );
+        $token = DB::transaction(function () use ($user, $state, $teamId, $expiresAt): NewAccessToken {
+            $token = $user->createToken(
+                $state['name'],
+                Jetstream::validPermissions($state['permissions'] ?? []),
+            );
 
-        // Sanctum's createToken() does not accept extra attributes, so we update after creation
-        $token->accessToken->fill([
-            'team_id' => $teamId,
-            'expires_at' => $expiresAt,
-        ])->save();
+            // Sanctum's createToken() does not accept extra attributes, so we update after creation
+            $token->accessToken->fill([
+                'team_id' => $teamId,
+                'expires_at' => $expiresAt,
+            ])->save();
+
+            return $token;
+        });
 
         $this->plainTextToken = explode('|', $token->plainTextToken, 2)[1];
 

@@ -30,6 +30,16 @@ class PersonalAccessToken extends SanctumPersonalAccessToken
 
     protected static function booted(): void
     {
+        static::creating(function (PersonalAccessToken $token): void {
+            if ($token->team_id && $token->tokenable instanceof User) {
+                abort_unless(
+                    $token->tokenable->belongsToTeam(Team::find($token->team_id)),
+                    403,
+                    'Token team_id must belong to the tokenable user.',
+                );
+            }
+        });
+
         static::updating(function (PersonalAccessToken $token): void {
             throw_if($token->isDirty('team_id') && $token->getOriginal('team_id') !== null, \LogicException::class, 'The team_id attribute cannot be changed after it has been set.');
         });

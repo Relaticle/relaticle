@@ -15,13 +15,13 @@ use App\Http\Resources\V1\UserResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/user', function (Request $request) {
-    return new UserResource($request->user());
-})->middleware('auth:sanctum');
-
 Route::prefix('v1')
-    ->middleware(['auth:sanctum', 'throttle:api', ForceJsonResponse::class, EnsureTokenHasAbility::class, SetApiTeamContext::class])
+    ->middleware(['auth:sanctum', ForceJsonResponse::class, EnsureTokenHasAbility::class, SetApiTeamContext::class])
     ->group(function (): void {
+        Route::get('user', function (Request $request) {
+            return new UserResource($request->user());
+        });
+
         Route::apiResource('companies', CompaniesController::class);
         Route::apiResource('people', PeopleController::class);
         Route::apiResource('opportunities', OpportunitiesController::class);

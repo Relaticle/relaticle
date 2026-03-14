@@ -7,6 +7,7 @@ use App\Models\Company;
 use App\Models\Note;
 use App\Models\Team;
 use App\Models\User;
+use Illuminate\Support\Str;
 use Illuminate\Testing\Fluent\AssertableJson;
 use Laravel\Sanctum\Sanctum;
 
@@ -446,5 +447,38 @@ describe('input validation', function (): void {
 
         $this->postJson('/api/v1/notes', ['title' => str_repeat('a', 255)])
             ->assertCreated();
+    });
+});
+
+describe('soft deletes', function (): void {
+    it('excludes soft-deleted notes from list', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $note = Note::factory()->for($this->team)->create();
+        $deleted = Note::factory()->for($this->team)->create();
+        $deleted->delete();
+
+        $ids = collect($this->getJson('/api/v1/notes')->json('data'))->pluck('id');
+        expect($ids)->toContain($note->id);
+        expect($ids)->not->toContain($deleted->id);
+    });
+
+    it('cannot show a soft-deleted note', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $note = Note::factory()->for($this->team)->create();
+        $note->delete();
+
+        $this->getJson("/api/v1/notes/{$note->id}")
+            ->assertNotFound();
+    });
+});
+
+describe('non-existent record', function (): void {
+    it('returns 404 for non-existent note', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $this->getJson('/api/v1/notes/'.Str::ulid())
+            ->assertNotFound();
     });
 });

@@ -21,8 +21,6 @@ final readonly class CreateNote
 
         $attributes = Arr::only($data, ['title', 'custom_fields']);
         $attributes['creation_source'] = $source;
-        $attributes['creator_id'] = $user->getKey();
-        $attributes['team_id'] = $user->currentTeam->getKey();
 
         return DB::transaction(fn (): Note => Note::query()->create($attributes));
     }

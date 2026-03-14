@@ -8,6 +8,7 @@ use App\Models\Opportunity;
 use App\Models\People;
 use App\Models\Team;
 use App\Models\User;
+use Illuminate\Support\Str;
 use Illuminate\Testing\Fluent\AssertableJson;
 use Laravel\Sanctum\Sanctum;
 
@@ -524,5 +525,38 @@ describe('input validation', function (): void {
 
         $this->postJson('/api/v1/opportunities', ['name' => str_repeat('a', 255)])
             ->assertCreated();
+    });
+});
+
+describe('soft deletes', function (): void {
+    it('excludes soft-deleted opportunities from list', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $opportunity = Opportunity::factory()->for($this->team)->create();
+        $deleted = Opportunity::factory()->for($this->team)->create();
+        $deleted->delete();
+
+        $ids = collect($this->getJson('/api/v1/opportunities')->json('data'))->pluck('id');
+        expect($ids)->toContain($opportunity->id);
+        expect($ids)->not->toContain($deleted->id);
+    });
+
+    it('cannot show a soft-deleted opportunity', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $opportunity = Opportunity::factory()->for($this->team)->create();
+        $opportunity->delete();
+
+        $this->getJson("/api/v1/opportunities/{$opportunity->id}")
+            ->assertNotFound();
+    });
+});
+
+describe('non-existent record', function (): void {
+    it('returns 404 for non-existent opportunity', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $this->getJson('/api/v1/opportunities/'.Str::ulid())
+            ->assertNotFound();
     });
 });

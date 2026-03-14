@@ -21,8 +21,6 @@ final readonly class CreateCompany
 
         $attributes = Arr::only($data, ['name', 'custom_fields']);
         $attributes['creation_source'] = $source;
-        $attributes['creator_id'] = $user->getKey();
-        $attributes['team_id'] = $user->currentTeam->getKey();
 
         return DB::transaction(fn (): Company => Company::query()->create($attributes));
     }
