@@ -56,7 +56,7 @@
 ## Objections
 | Objection | Response |
 |-----------|----------|
-| "Is it production-ready?" | 900+ tests, CI/CD, used by real teams. Managed hosting at app.relaticle.com. |
+| "Is it production-ready?" | 1,100+ tests, CI/CD, used by real teams. Managed hosting at app.relaticle.com. |
 | "Can it scale?" | Built on Laravel 12 + PostgreSQL 17, same stack powering millions of users at other companies |
 | "What about support?" | Active Discord community, GitHub discussions, documentation, managed hosting includes support |
 
@@ -97,7 +97,7 @@
 **Metrics:**
 - 20 MCP tools (vs HubSpot's 9)
 - 22 custom field types
-- 900+ automated tests
+- 1,100+ automated tests
 - 5 entity types with full CRUD
 **Customers:** Early-stage, growing community
 **Testimonials:** (gathering)

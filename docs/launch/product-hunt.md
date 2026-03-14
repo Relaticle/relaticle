@@ -23,7 +23,7 @@ Relaticle is a self-hosted, open-source CRM built from the ground up for AI agen
 ### Key numbers
 - 20 MCP tools (vs HubSpot's 9)
 - 22 custom field types
-- 900+ automated tests
+- 1,100+ automated tests
 - 5 entity types with full CRUD
 
 ## Maker's First Comment
@@ -36,7 +36,7 @@ So I built one.
 
 Relaticle ships with a production MCP server (20 tools), a REST API, and 22 custom field types. Your AI agent can create contacts, update deals, log notes, and query CRM data — all through the standard MCP protocol.
 
-The entire thing is AGPL-3.0 open source. No per-seat pricing. Deploy it on your infrastructure or use our managed hosting at app.relaticle.com.
+The entire thing is AGPL-3.0 open source. No per-seat pricing. Deploy it on your infrastructure or use our managed hosting at [app.relaticle.com](https://app.relaticle.com?utm_source=producthunt&utm_medium=social&utm_campaign=wave1).
 
 I'd love to hear what you think. What would you want an AI agent to do with your CRM?
 

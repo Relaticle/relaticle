@@ -29,7 +29,7 @@
                 </h1>
 
                 <p class="hero-enter hero-enter-3 mt-5 sm:mt-6 text-[15px] sm:text-lg text-gray-500 dark:text-gray-400 max-w-xl mx-auto leading-relaxed tracking-[-0.01em]">
-                    MCP-native. Self-hosted. 20 tools for any AI to operate your CRM.<br class="hidden sm:block"/>
+                    MCP-native. Self-hosted. 20 tools for any AI to search, create, and update your CRM data.<br class="hidden sm:block"/>
                     Full control over your data and your AI.
                 </p>
             </div>

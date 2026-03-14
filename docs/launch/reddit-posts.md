@@ -4,7 +4,7 @@
 
 ## Post 1: r/selfhosted
 
-**Title:** Relaticle — open-source CRM with MCP server for AI agents (self-hosted, Docker)
+**Title:** Relaticle — open-source CRM with MCP server for AI agents (self-hosted, Docker Compose)
 
 **Body:**
 
@@ -18,23 +18,24 @@ I've been building an open-source CRM called Relaticle that I wanted to share. T
 - REST API with Sanctum auth, JSON:API format
 - 22 custom field types (no code changes needed)
 - Multi-team support with role-based permissions
+- No per-seat pricing — self-host and own your data
 
 **Tech stack:**
 - Laravel 12, PHP 8.4, PostgreSQL 17
 - Filament 5 admin panel
-- Docker deployment
+- Docker Compose deployment
 
 **Self-hosting details:**
-- Standard Docker Compose setup
+- Standard Docker Compose setup — clone, configure .env, `docker compose up`
 - PostgreSQL + Redis
 - Works behind reverse proxy (Traefik, Caddy, nginx)
-- 900+ automated tests
+- 1,100+ automated tests
 
 **License:** AGPL-3.0
 
 **Links:**
 - GitHub: github.com/relaticle/relaticle
-- Managed hosting (free tier): app.relaticle.com
+- Managed hosting (free tier): https://app.relaticle.com?utm_source=reddit&utm_medium=social&utm_campaign=wave1
 - API docs: /docs endpoint with Scalar UI
 
 Happy to answer any questions about the architecture or deployment.
@@ -43,7 +44,7 @@ Happy to answer any questions about the architecture or deployment.
 
 ## Post 2: r/opensource
 
-**Title:** Relaticle: open-source CRM built for AI agents (AGPL-3.0, Laravel 12)
+**Title:** Relaticle: AGPL-3.0 open-source CRM built for AI agents (Laravel 12, 1,100+ tests)
 
 **Body:**
 
@@ -68,9 +69,13 @@ We chose AGPL because we believe CRM data is sensitive and the software managing
 - Star and fork: github.com/relaticle/relaticle
 - Report issues on GitHub
 - Join the Discord for discussion
-- PRs welcome — we have 900+ tests and CI
+- PRs welcome — we have 1,100+ tests and CI
 
 Looking for feedback, feature requests, and contributors.
+
+**Links:**
+- GitHub: https://github.com/relaticle/relaticle
+- Managed hosting (free tier): https://app.relaticle.com?utm_source=reddit&utm_medium=social&utm_campaign=wave1
 
 ---
 
@@ -98,10 +103,10 @@ I wanted to share the architecture of Relaticle, an open-source CRM I've been bu
 
 6. **API docs** — Scribe + Scalar UI. Custom strategy auto-documents Spatie QueryBuilder parameters.
 
-**Stack:** Laravel 12, Filament 5, Livewire 4, PHP 8.4, PostgreSQL 17, 900+ tests.
+**Stack:** Laravel 12, Filament 5, Livewire 4, PHP 8.4, PostgreSQL 17, 1,100+ tests (Pest).
 
 **Links:**
-- GitHub: github.com/relaticle/relaticle
+- GitHub: https://github.com/relaticle/relaticle
 - AGPL-3.0 license
 
 Happy to dive into any of these patterns if you're interested.

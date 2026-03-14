@@ -283,7 +283,7 @@
                         <x-ri-arrow-right-line class="h-3.5 w-3.5 transition-transform duration-300 group-hover/cta:translate-x-1"/>
                     </a>
                     <div class="mt-3 flex items-center gap-3 text-[10px] text-gray-400 dark:text-gray-500">
-                        <span>No credit card</span><span>&middot;</span><span>900+ tests</span><span>&middot;</span><span>AGPL-3.0</span>
+                        <span>No credit card</span><span>&middot;</span><span>1,100+ tests</span><span>&middot;</span><span>AGPL-3.0</span>
                     </div>
                 </div>
             </div>

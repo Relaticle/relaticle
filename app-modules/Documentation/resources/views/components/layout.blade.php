@@ -32,4 +32,28 @@
         </div>
     </div>
 
+    @php
+        $breadcrumbItems = [
+            \Spatie\SchemaOrg\Schema::listItem()
+                ->position(1)
+                ->name('Home')
+                ->item(url('/')),
+            \Spatie\SchemaOrg\Schema::listItem()
+                ->position(2)
+                ->name('Documentation')
+                ->item(route('documentation.index')),
+        ];
+
+        if (! empty($documentTitle)) {
+            $breadcrumbItems[] = \Spatie\SchemaOrg\Schema::listItem()
+                ->position(3)
+                ->name($documentTitle)
+                ->item(url()->current());
+        }
+
+        $breadcrumbs = \Spatie\SchemaOrg\Schema::breadcrumbList()
+            ->itemListElement($breadcrumbItems);
+    @endphp
+
+    {!! $breadcrumbs->toScript() !!}
 </x-guest-layout>

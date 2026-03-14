@@ -1,8 +1,8 @@
 # GitHub Release Notes — v3.1.0
 
-## Relaticle v3.1.0 — Agent-Native CRM
+## Relaticle v3.1.0 — The Open-Source CRM Built for AI Agents
 
-Relaticle is now agent-native. This release introduces a production MCP server, REST API, and positions Relaticle as the open-source CRM built for AI agents.
+This release introduces a production MCP server, REST API, and aligns Relaticle with its new positioning: the open-source CRM built for AI agents.
 
 ### MCP Server (20 Tools)
 - Full CRUD for all 5 entity types: companies, people, opportunities, tasks, notes
@@ -38,6 +38,11 @@ Relaticle is now agent-native. This release introduces a production MCP server, 
 - Landing page copy updated for agent-native positioning
 
 ### Technical
-- 900+ automated tests (58 new API + MCP tests)
+- 1,100+ automated tests (58 new API + MCP tests)
 - Laravel 12, Filament 5, PHP 8.4, PostgreSQL 17
 - Spatie QueryBuilder v6 for declarative API filtering/sorting
+- Landing page serves markdown to AI crawlers via spatie/laravel-markdown-response
+
+---
+
+Full changelog: https://relaticle.com/changelog?utm_source=github&utm_medium=social&utm_campaign=wave1

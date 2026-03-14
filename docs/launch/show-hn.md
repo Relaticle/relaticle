@@ -15,13 +15,14 @@ Relaticle is an open-source CRM (AGPL-3.0) with a production MCP server that let
 - REST API with JSON:API format, Spatie QueryBuilder, Sanctum auth
 - 22 custom field types (entity relationships, conditional visibility, per-field encryption)
 - Multi-team isolation with 5-layer authorization
-- 900+ automated tests
+- 1,100+ automated tests (Pest)
 
 **Technical details:**
 - Shared Actions pattern -- `CreateCompany`, `ListPeople`, etc. called by both API controllers and MCP tools
 - Team-scoped API tokens (like GitHub PATs) -- tokens are permanently bound to a team
 - Custom field schema exposed as MCP resources so agents can discover what fields exist
-- Built on Laravel 12, Filament 5, PostgreSQL 17
+- Landing page serves markdown to AI crawlers via spatie/laravel-markdown-response -- `Accept: text/markdown` returns clean markdown, no HTML scraping needed
+- Built on Laravel 12, Filament 5, PostgreSQL 17, PHP 8.4
 
 GitHub: https://github.com/relaticle/relaticle
-Try free: https://app.relaticle.com
+Live instance: https://app.relaticle.com?utm_source=hackernews&utm_medium=social&utm_campaign=wave1
