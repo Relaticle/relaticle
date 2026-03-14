@@ -43,6 +43,7 @@
         "spatie/laravel-markdown-response": "^1.1",
         "spatie/laravel-medialibrary": "^11.12",
         "spatie/laravel-prefixed-ids": "^1.4",
+        "spatie/laravel-query-builder": "^6.4",
         "spatie/laravel-settings": "^3.3",
         "spatie/laravel-sitemap": "^7.3",
         "spatie/laravel-sluggable": "^3.8",
