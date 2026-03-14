@@ -34,3 +34,5 @@ boost.json
 /.junie
 /.playwright-mcp
 /docs
+polyscope.json
+/bin/setup-preview.sh
