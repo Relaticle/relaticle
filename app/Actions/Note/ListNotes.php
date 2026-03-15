@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Actions\Note;
 
+use App\Mcp\Filters\CustomFieldFilter;
+use App\Mcp\Schema\CustomFieldFilterSchema;
 use App\Models\Note;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\CursorPaginator;
@@ -32,6 +34,7 @@ final readonly class ListNotes
         $perPage = max(1, min($perPage, 100));
 
         $request ??= new Request(['filter' => $filters]);
+        $filterSchema = new CustomFieldFilterSchema;
 
         $query = QueryBuilder::for(Note::query()->withCustomFieldValues(), $request)
             ->allowedFilters([
@@ -56,10 +59,14 @@ final readonly class ListNotes
                             ->orWhereHas('opportunities', fn (Builder $sub) => $sub->where('noteables.noteable_id', $value));
                     });
                 }),
+                AllowedFilter::custom('custom_fields', new CustomFieldFilter('note')),
             ])
             ->allowedFields(['id', 'title', 'creator_id', 'created_at', 'updated_at'])
             ->allowedIncludes(['creator', 'companies', 'people', 'opportunities'])
-            ->allowedSorts(['title', 'created_at', 'updated_at'])
+            ->allowedSorts([
+                'title', 'created_at', 'updated_at',
+                ...$filterSchema->allowedSorts($user, 'note'),
+            ])
             ->defaultSort('-created_at');
 
         if ($useCursor) {
