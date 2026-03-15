@@ -74,7 +74,7 @@
                                 'Multi-team workspaces',
                             ] as $feature)
                                 <li class="flex items-start gap-2.5 text-sm text-gray-600 dark:text-gray-400">
-                                    <x-ri-check-line class="w-4 h-4 text-emerald-500 shrink-0 mt-0.5"/>
+                                    <x-ri-check-line class="w-4 h-4 text-primary dark:text-primary-400 shrink-0 mt-0.5"/>
                                     {{ $feature }}
                                 </li>
                             @endforeach
@@ -136,7 +136,7 @@
                                 'Multi-team workspaces',
                             ] as $feature)
                                 <li class="flex items-start gap-2.5 text-sm text-gray-600 dark:text-gray-400">
-                                    <x-ri-check-line class="w-4 h-4 text-emerald-500 shrink-0 mt-0.5"/>
+                                    <x-ri-check-line class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0 mt-0.5"/>
                                     {{ $feature }}
                                 </li>
                             @endforeach
