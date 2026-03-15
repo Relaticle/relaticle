@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Actions\Task;
 
+use App\Mcp\Filters\CustomFieldFilter;
+use App\Mcp\Schema\CustomFieldFilterSchema;
 use App\Models\Task;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\CursorPaginator;
@@ -32,6 +34,7 @@ final readonly class ListTasks
         $perPage = max(1, min($perPage, 100));
 
         $request ??= new Request(['filter' => $filters]);
+        $filterSchema = new CustomFieldFilterSchema;
 
         $query = QueryBuilder::for(Task::query()->withCustomFieldValues(), $request)
             ->allowedFilters([
@@ -39,10 +42,14 @@ final readonly class ListTasks
                 AllowedFilter::callback('assigned_to_me', function (Builder $query) use ($user): void {
                     $query->whereHas('assignees', fn (Builder $q) => $q->where('users.id', $user->getKey()));
                 }),
+                AllowedFilter::custom('custom_fields', new CustomFieldFilter('task')),
             ])
             ->allowedFields(['id', 'title', 'creator_id', 'created_at', 'updated_at'])
             ->allowedIncludes(['creator', 'assignees', 'companies', 'people', 'opportunities'])
-            ->allowedSorts(['title', 'created_at', 'updated_at'])
+            ->allowedSorts([
+                'title', 'created_at', 'updated_at',
+                ...$filterSchema->allowedSorts($user, 'task'),
+            ])
             ->defaultSort('-created_at');
 
         if ($useCursor) {

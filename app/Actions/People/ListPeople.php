@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Actions\People;
 
+use App\Mcp\Filters\CustomFieldFilter;
+use App\Mcp\Schema\CustomFieldFilterSchema;
 use App\Models\People;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\CursorPaginator;
@@ -31,15 +33,20 @@ final readonly class ListPeople
         $perPage = max(1, min($perPage, 100));
 
         $request ??= new Request(['filter' => $filters]);
+        $filterSchema = new CustomFieldFilterSchema;
 
         $query = QueryBuilder::for(People::query()->withCustomFieldValues(), $request)
             ->allowedFilters([
                 AllowedFilter::partial('name'),
                 AllowedFilter::exact('company_id'),
+                AllowedFilter::custom('custom_fields', new CustomFieldFilter('people')),
             ])
             ->allowedFields(['id', 'name', 'company_id', 'creator_id', 'created_at', 'updated_at'])
             ->allowedIncludes(['creator', 'company'])
-            ->allowedSorts(['name', 'created_at', 'updated_at'])
+            ->allowedSorts([
+                'name', 'created_at', 'updated_at',
+                ...$filterSchema->allowedSorts($user, 'people'),
+            ])
             ->defaultSort('-created_at');
 
         if ($useCursor) {

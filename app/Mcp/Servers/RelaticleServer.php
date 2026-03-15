@@ -6,6 +6,7 @@ namespace App\Mcp\Servers;
 
 use App\Mcp\Prompts\CrmOverviewPrompt;
 use App\Mcp\Resources\CompanySchemaResource;
+use App\Mcp\Resources\CrmSummaryResource;
 use App\Mcp\Resources\NoteSchemaResource;
 use App\Mcp\Resources\OpportunitySchemaResource;
 use App\Mcp\Resources\PeopleSchemaResource;
@@ -75,6 +76,7 @@ final class RelaticleServer extends Server
         OpportunitySchemaResource::class,
         TaskSchemaResource::class,
         NoteSchemaResource::class,
+        CrmSummaryResource::class,
     ];
 
     /** @var array<int, class-string<Prompt>> */

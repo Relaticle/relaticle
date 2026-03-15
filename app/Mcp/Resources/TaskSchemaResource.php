@@ -32,8 +32,9 @@ final class TaskSchemaResource extends Resource
                 'title' => ['type' => 'string', 'required' => true],
             ],
             'custom_fields' => $this->resolveCustomFields($user, 'task'),
+            'filterable_fields' => $this->resolveFilterableFields($user, 'task'),
             'relationships' => ['assignees', 'companies', 'people', 'opportunities'],
-            'usage' => 'Pass custom field values in the "custom_fields" object using field codes as keys.',
+            'usage' => 'Pass custom field values in the "custom_fields" object using field codes as keys. Use "filter" param in list tools to filter by custom field values with operators.',
         ];
 
         return Response::text(json_encode($schema, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR));

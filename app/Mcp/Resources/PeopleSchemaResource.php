@@ -33,8 +33,9 @@ final class PeopleSchemaResource extends Resource
                 'company_id' => ['type' => 'string', 'required' => false, 'description' => 'Links to a company'],
             ],
             'custom_fields' => $this->resolveCustomFields($user, 'people'),
+            'filterable_fields' => $this->resolveFilterableFields($user, 'people'),
             'relationships' => ['company', 'opportunities', 'tasks', 'notes'],
-            'usage' => 'Pass custom field values in the "custom_fields" object using field codes as keys.',
+            'usage' => 'Pass custom field values in the "custom_fields" object using field codes as keys. Use "filter" param in list tools to filter by custom field values with operators.',
         ];
 
         return Response::text(json_encode($schema, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR));
