@@ -1,4 +1,5 @@
 .DS_Store
+.superpowers
 /.phpunit.cache
 .scribe
 /node_modules

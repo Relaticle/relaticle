@@ -18,7 +18,7 @@
         @vite(['app-modules/Documentation/resources/js/documentation.js', 'app-modules/Documentation/resources/css/documentation.css'])
     @endpushonce
 
-    <div class="py-16 md:py-24 bg-white dark:bg-black relative">
+    <div class="pt-32 pb-24 md:pt-40 md:pb-32 bg-white dark:bg-black relative">
         <!-- Subtle background elements -->
         <div class="absolute inset-0 bg-grid-pattern opacity-[0.01] dark:opacity-[0.02]"></div>
         <div class="absolute top-24 left-24 w-36 h-36 md:w-96 md:h-96 bg-primary/5 dark:bg-primary/10 rounded-full blur-3xl"></div>

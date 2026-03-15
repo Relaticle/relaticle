@@ -1,0 +1,135 @@
+<x-guest-layout
+    title="Pricing - Relaticle"
+    description="Relaticle pricing. Free forever — self-hosted or cloud. No per-seat pricing. No usage limits."
+    ogTitle="Pricing - Relaticle"
+>
+    <section class="relative pt-32 pb-24 md:pt-40 md:pb-32 bg-white dark:bg-black overflow-hidden">
+        <div class="absolute inset-0 bg-[linear-gradient(to_right,rgba(0,0,0,0.015)_1px,transparent_1px),linear-gradient(to_bottom,rgba(0,0,0,0.015)_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,rgba(255,255,255,0.025)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.025)_1px,transparent_1px)] bg-[size:3rem_3rem] [mask-image:radial-gradient(ellipse_70%_50%_at_50%_50%,black_30%,transparent_100%)]"></div>
+
+        <div class="relative max-w-5xl mx-auto px-6 lg:px-8">
+
+            {{-- Header --}}
+            <div class="text-center max-w-2xl mx-auto mb-16">
+                <h1 class="font-display text-4xl sm:text-5xl font-bold text-gray-950 dark:text-white tracking-[-0.03em] leading-[1.1]">
+                    No per-seat pricing. Ever.
+                </h1>
+                <p class="mt-5 text-base md:text-lg text-gray-500 dark:text-gray-400 leading-relaxed">
+                    Unlimited users. Unlimited data. Self-host for free forever, or let us run it for you.
+                </p>
+            </div>
+
+            {{-- Pricing cards --}}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+
+                {{-- Cloud (primary) --}}
+                <div class="rounded-2xl border-2 border-primary/30 dark:border-primary/20 bg-white dark:bg-white/[0.02] p-8 flex flex-col relative overflow-hidden">
+
+                    <div class="mb-6">
+                        <h2 class="font-display text-xl font-semibold text-gray-900 dark:text-white">Cloud</h2>
+                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Managed hosting with automatic updates and backups</p>
+                    </div>
+
+                    <div class="mb-8">
+                        <div class="flex items-baseline gap-1">
+                            <span class="text-4xl font-bold text-gray-950 dark:text-white tracking-tight">$0</span>
+                            <span class="text-sm text-gray-400 dark:text-gray-500">/mo</span>
+                        </div>
+                        <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">Generous free tier. Always.</p>
+                    </div>
+
+                    <ul class="space-y-3 mb-8 flex-1">
+                        @foreach([
+                            'Unlimited users and data',
+                            'MCP server with 20 tools',
+                            'REST API with full CRUD',
+                            '22 custom field types',
+                            'Multi-team workspaces',
+                            'Zero-downtime updates',
+                            'Automatic daily backups',
+                            'No server maintenance',
+                            'Priority email support',
+                        ] as $feature)
+                            <li class="flex items-start gap-2.5 text-sm text-gray-600 dark:text-gray-400">
+                                <x-ri-check-line class="w-4 h-4 text-emerald-500 shrink-0 mt-0.5"/>
+                                {{ $feature }}
+                            </li>
+                        @endforeach
+                    </ul>
+
+                    <x-marketing.button href="{{ route('register') }}" icon-trailing="ri-arrow-right-line">
+                        Start for free
+                    </x-marketing.button>
+                </div>
+
+                {{-- Self-Hosted --}}
+                <div class="rounded-2xl border border-gray-200/80 dark:border-white/[0.06] bg-white dark:bg-white/[0.02] p-8 flex flex-col">
+                    <div class="mb-6">
+                        <h2 class="font-display text-xl font-semibold text-gray-900 dark:text-white">Self-Hosted</h2>
+                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Your server, your data, your rules</p>
+                    </div>
+
+                    <div class="mb-8">
+                        <div class="flex items-baseline gap-1">
+                            <span class="text-4xl font-bold text-gray-950 dark:text-white tracking-tight">Free</span>
+                            <span class="text-sm text-gray-400 dark:text-gray-500">forever</span>
+                        </div>
+                        <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">AGPL-3.0 open source</p>
+                    </div>
+
+                    <ul class="space-y-3 mb-8 flex-1">
+                        @foreach([
+                            'Unlimited users and data',
+                            'MCP server with 20 tools',
+                            'REST API with full CRUD',
+                            '22 custom field types',
+                            'Multi-team workspaces',
+                            'Full source code access',
+                            'Docker Compose deployment',
+                            'Data never leaves your server',
+                            'Community support (Discord)',
+                        ] as $feature)
+                            <li class="flex items-start gap-2.5 text-sm text-gray-600 dark:text-gray-400">
+                                <x-ri-check-line class="w-4 h-4 text-emerald-500 shrink-0 mt-0.5"/>
+                                {{ $feature }}
+                            </li>
+                        @endforeach
+                    </ul>
+
+                    <x-marketing.button variant="secondary" href="https://github.com/relaticle/relaticle" icon="ri-github-fill" external>
+                        View on GitHub
+                    </x-marketing.button>
+                </div>
+            </div>
+
+            {{-- Trust signals --}}
+            <div class="mt-12 max-w-3xl mx-auto">
+                <div class="rounded-xl border border-gray-200/80 dark:border-white/[0.06] bg-gray-50/50 dark:bg-white/[0.015] overflow-hidden">
+                    <div class="grid grid-cols-2 md:grid-cols-4 divide-x divide-gray-200/60 dark:divide-white/[0.04]">
+                        @foreach([['1,100+', 'Automated Tests'], ['20', 'MCP Tools'], ['22', 'Field Types'], ['5-Layer', 'Authorization']] as $index => [$value, $label])
+                            <div class="px-6 py-5 text-center @if($index >= 2) border-t border-gray-200/60 dark:border-white/[0.04] md:border-t-0 @endif">
+                                <div class="text-lg font-semibold text-gray-900 dark:text-white tracking-tight">{{ $value }}</div>
+                                <div class="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5 uppercase tracking-wider font-medium">{{ $label }}</div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+
+            {{-- Help CTA --}}
+            <div class="mt-8 max-w-3xl mx-auto text-center">
+                <div class="rounded-2xl border border-gray-200/80 dark:border-white/[0.06] bg-white dark:bg-white/[0.02] p-8 flex flex-col sm:flex-row items-center gap-6">
+                    <div class="flex-1 text-left">
+                        <h3 class="font-display text-lg font-semibold text-gray-900 dark:text-white">Need help choosing?</h3>
+                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
+                            Not sure which option fits? Have questions about deployment or migration? We're happy to help.
+                        </p>
+                    </div>
+                    <x-marketing.button variant="secondary" href="{{ route('contact') }}" class="shrink-0">
+                        Get in touch
+                    </x-marketing.button>
+                </div>
+            </div>
+
+        </div>
+    </section>
+</x-guest-layout>
