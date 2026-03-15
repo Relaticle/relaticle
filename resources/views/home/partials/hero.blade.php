@@ -15,9 +15,18 @@
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         <div class="flex flex-col items-center gap-8 md:gap-10">
 
+            {{-- ── Badge ── --}}
+            <div class="hero-enter hero-enter-1 flex justify-center">
+                <a href="{{ route('documentation.show', 'mcp') }}"
+                   class="group inline-flex items-center gap-2 rounded-full border border-primary/20 dark:border-primary/30 bg-primary/[0.04] dark:bg-primary/[0.08] px-4 py-1.5 text-xs font-medium text-primary-700 dark:text-primary-300 transition-all duration-200 hover:bg-primary/[0.08] dark:hover:bg-primary/[0.12] hover:border-primary/30 dark:hover:border-primary/40">
+                    <x-ri-sparkling-line class="h-3.5 w-3.5"/>
+                    <span>Now with 20 MCP tools for AI agents</span>
+                    <x-ri-arrow-right-s-line class="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5"/>
+                </a>
+            </div>
 
             {{-- ── Heading ── --}}
-            <div class="text-center max-w-3xl">
+            <div class="text-center max-w-3xl -mt-2">
                 <h1 class="hero-enter hero-enter-2 font-display text-[2rem] sm:text-5xl md:text-[3.5rem] lg:text-6xl font-bold text-gray-950 dark:text-white leading-[1.08] tracking-[-0.03em] text-balance">
                     The <span class="relative inline-block pb-2">
                         Open-Source
@@ -29,8 +38,8 @@
                 </h1>
 
                 <p class="hero-enter hero-enter-3 mt-5 sm:mt-6 text-[15px] sm:text-lg text-gray-500 dark:text-gray-400 max-w-xl mx-auto leading-relaxed tracking-[-0.01em]">
-                    MCP-native. Self-hosted. 20 tools for any AI to search, create, and update your CRM data.<br class="hidden sm:block"/>
-                    Full control over your data and your AI.
+                    The open-source CRM that works with your AI, not against it.<br class="hidden sm:block"/>
+                    Self-hosted. Full control over your data.
                 </p>
             </div>
 

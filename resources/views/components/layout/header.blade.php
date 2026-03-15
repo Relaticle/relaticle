@@ -1,7 +1,7 @@
 <header
     id="main-header"
-    class="fixed w-full top-0 z-50"
-    style="background: transparent; border-bottom: 1px solid transparent; transition: background 0.4s ease, border-bottom 0.4s ease, backdrop-filter 0.4s ease;">
+    class="fixed w-full top-0 z-50 bg-transparent dark:bg-black/95 dark:backdrop-blur-md"
+    style="border-bottom: 1px solid transparent; transition: background 0.4s ease, border-bottom 0.4s ease, backdrop-filter 0.4s ease;">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between h-16 md:h-20" id="header-container">
 
@@ -97,11 +97,11 @@
                 navPill.style.gap = '4px';
                 navLinks.style.gap = '4px';
             } else {
-                // Default state — transparent, tight
-                header.style.background = 'transparent';
-                header.style.backdropFilter = 'none';
-                header.style.webkitBackdropFilter = 'none';
-                header.style.borderBottom = '1px solid transparent';
+                // Default state — transparent in light, solid in dark
+                header.style.background = isDark() ? 'rgba(0,0,0,0.95)' : 'transparent';
+                header.style.backdropFilter = isDark() ? 'blur(16px)' : 'none';
+                header.style.webkitBackdropFilter = isDark() ? 'blur(16px)' : 'none';
+                header.style.borderBottom = isDark() ? '1px solid rgba(255,255,255,0.05)' : '1px solid transparent';
 
                 navPill.style.background = 'transparent';
                 navPill.style.border = '1px solid transparent';
