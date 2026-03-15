@@ -177,30 +177,9 @@
         var firstActive = document.querySelector('.hero-tab.active');
         if (firstActive) moveIndicator(firstActive);
 
-        // Chat action sequence animation (Motion library)
-        var chatEase = [0.22, 1, 0.36, 1];
-
-        function animateChat() {
-            var messages = document.querySelectorAll('#mcp-chat .mcp-msg');
-            messages.forEach(function (msg) {
-                msg.style.opacity = '0';
-                msg.style.transform = 'translateY(16px)';
-            });
-            if (typeof animate === 'function') {
-                animate('#mcp-chat .mcp-msg',
-                    { opacity: [0, 1], y: [16, 0] },
-                    { delay: stagger(0.12, { start: 0.2 }), duration: 0.5, ease: chatEase }
-                );
-            }
-        }
-
-        function resetChat() {
-            var messages = document.querySelectorAll('#mcp-chat .mcp-msg');
-            messages.forEach(function (msg) {
-                msg.style.opacity = '0';
-                msg.style.transform = 'translateY(16px)';
-            });
-        }
+        // animateChat/resetChat defined in hero-agent-preview component
+        function animateChat() { if (window.mcpChatAnimate) window.mcpChatAnimate(); }
+        function resetChat() { if (window.mcpChatReset) window.mcpChatReset(); }
 
         tabs.forEach(function (tab) {
             tab.addEventListener('click', function () {
