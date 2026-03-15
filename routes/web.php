@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Http\Controllers\Auth\CallbackController;
 use App\Http\Controllers\Auth\RedirectController;
+use App\Http\Controllers\ContactController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PrivacyPolicyController;
 use App\Http\Controllers\TermsOfServiceController;
@@ -42,7 +43,11 @@ Route::middleware(ProvideMarkdownResponse::class)->group(function (): void {
     Route::get('/', HomeController::class);
     Route::get('/terms-of-service', TermsOfServiceController::class)->name('terms.show');
     Route::get('/privacy-policy', PrivacyPolicyController::class)->name('policy.show');
+    Route::get('/pricing', fn () => view('pricing'))->name('pricing');
 });
+
+Route::get('/contact', [ContactController::class, 'show'])->name('contact');
+Route::post('/contact', [ContactController::class, 'store'])->middleware('throttle:5,1');
 
 Route::get('/dashboard', fn () => redirect()->to(url()->getAppUrl()))->name('dashboard');
 
