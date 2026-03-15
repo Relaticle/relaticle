@@ -19,10 +19,10 @@
             </p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-2">
 
             {{-- Agent-Native Infrastructure — 2col 2row --}}
-            <div class="{{ $cardBase }} p-8 md:col-span-2 lg:col-span-2 lg:row-span-2 overflow-hidden">
+            <div class="{{ $cardBase }} p-6 md:col-span-2 lg:col-span-2 lg:row-span-2 overflow-hidden flex flex-col">
                 <h3 class="font-display text-xl font-semibold text-gray-900 dark:text-white mb-2 inline-flex items-center gap-2">
                     <x-ri-git-merge-line class="w-4 h-4 text-primary dark:text-primary-400"/>
                     Agent-Native Infrastructure
@@ -31,12 +31,14 @@
                     Connect any AI agent through the MCP server with 20 tools, or build custom integrations with the REST API. Full CRUD, custom field support, and schema discovery built in.
                 </p>
 
-                <div class="mt-6 rounded-lg bg-gray-50 dark:bg-gray-800/80 p-5 overflow-hidden">
+                <div class="mt-4 rounded-lg bg-gray-50 dark:bg-gray-800/80 p-5 overflow-hidden flex-1 flex flex-col justify-center">
                     <style>
                         #flow-desktop .fn, #flow-mobile .fn { opacity: 0; }
+                        @media (min-width: 1024px) { #flow-mobile { display: none !important; } }
+                        @media (max-width: 1023px) { #flow-desktop { display: none !important; } }
                     </style>
 
-                    <div id="flow-mobile" class="flex flex-col items-center gap-2 sm:hidden">
+                    <div id="flow-mobile" class="flex flex-col items-center gap-2">
                         <div class="flex items-center gap-2 flex-wrap justify-center">
                             @foreach([['ri-claude-fill', 'text-[#D4763C]', 'Claude'], ['ri-openai-fill', 'text-gray-900 dark:text-gray-200', 'ChatGPT'], ['ri-gemini-fill', 'text-blue-500', 'Gemini']] as [$icon, $color, $name])
                                 <div class="fn flex items-center gap-2 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-1.5">
@@ -66,7 +68,7 @@
                         </div>
                     </div>
 
-                    <div id="flow-desktop" class="hidden sm:block relative">
+                    <div id="flow-desktop" class="relative">
                         <svg class="absolute inset-0 w-full h-full pointer-events-none z-0" viewBox="0 0 613 188" preserveAspectRatio="none">
                             <defs>
                                 <linearGradient id="cg" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -204,7 +206,7 @@
             </div>
 
             {{-- Sales Opportunities --}}
-            <div id="card-sales" class="{{ $cardBase }} p-6 overflow-hidden">
+            <div id="card-sales" class="{{ $cardBase }} p-6 md:col-span-2 lg:col-span-1 overflow-hidden">
                 <h3 class="{{ $cardTitle }} inline-flex items-center gap-2">
                     <x-ri-funds-line class="w-3.5 h-3.5 text-primary dark:text-primary-400"/>
                     Sales Opportunities
@@ -226,9 +228,9 @@
             </div>
 
             {{-- Task Management — 2col --}}
-            <div id="card-tasks" class="{{ $cardBase }} p-8 md:col-span-2 lg:col-span-2 overflow-hidden">
-                <div class="flex flex-col sm:flex-row sm:gap-8">
-                    <div class="sm:flex-1">
+            <div id="card-tasks" class="{{ $cardBase }} p-6 md:col-span-2 lg:col-span-2 overflow-hidden">
+                <div class="flex flex-col md:flex-row md:gap-6">
+                    <div class="md:flex-1">
                         <h3 class="font-display text-xl font-semibold text-gray-900 dark:text-white mb-2 inline-flex items-center gap-2">
                             <x-ri-layout-masonry-line class="w-4 h-4 text-primary dark:text-primary-400"/>
                             Task Management
@@ -237,7 +239,7 @@
                             Create, assign, and track tasks linked to contacts, companies, and deals. Your AI agent can create follow-ups automatically.
                         </p>
                     </div>
-                    <div class="mt-5 sm:mt-0 sm:flex-1 rounded-lg bg-gray-50 dark:bg-gray-800 p-4 space-y-3">
+                    <div class="mt-4 md:mt-0 md:flex-1 rounded-lg bg-gray-50 dark:bg-gray-800 p-4 space-y-3">
                         @foreach([
                             [true, 'Send proposal to', '@Acme', 'bg-primary/10 text-primary-700 dark:text-primary-300'],
                             [false, 'Follow up with', '@Sarah', 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'],
@@ -259,7 +261,6 @@
             @foreach([
                 ['ri-team-line', 'Team Collaboration', 'Multi-workspace support with role-based permissions and 5-layer authorization. Every team member sees exactly what they should.'],
                 ['ri-download-cloud-2-line', 'Import & Export', 'Migrate from any CRM with CSV imports. Column mapping, validation, and error handling included. Export anytime — your data is yours.'],
-                ['ri-quill-pen-line', 'Notes & Activity Log', 'Capture notes linked to any record. Your AI agent can log meeting notes automatically. Search and retrieve context instantly.'],
             ] as [$icon, $title, $desc])
                 <div class="{{ $cardBase }} p-6">
                     <h3 class="{{ $cardTitle }} inline-flex items-center gap-2">
@@ -270,18 +271,26 @@
                 </div>
             @endforeach
 
+            {{-- Notes & Activity Log — spans full width on tablet to avoid orphan gap --}}
+            <div class="{{ $cardBase }} p-6 md:col-span-2 lg:col-span-1">
+                <h3 class="{{ $cardTitle }} inline-flex items-center gap-2">
+                    <x-ri-quill-pen-line class="w-3.5 h-3.5 text-primary dark:text-primary-400"/>
+                    Notes & Activity Log
+                </h3>
+                <p class="{{ $cardDesc }}">Capture notes linked to any record. Your AI agent can log meeting notes automatically. Search and retrieve context instantly.</p>
+            </div>
+
             {{-- CTA Card --}}
             <div class="relative {{ $cardBase }} p-6 flex flex-col justify-between md:col-span-2 lg:col-span-1 overflow-hidden">
                 <div class="absolute -bottom-8 -right-8 w-32 h-32 bg-primary/10 dark:bg-primary/15 rounded-full blur-2xl"></div>
                 <div class="relative">
-                    <h3 class="font-display text-lg font-semibold text-gray-900 dark:text-white mb-2">Ready to start?</h3>
-                    <p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">Give your AI agents a CRM they can actually use.</p>
+                    <h3 class="{{ $cardTitle }}">Ready to start?</h3>
+                    <p class="{{ $cardDesc }}">Give your AI agents a CRM they can actually use.</p>
                 </div>
                 <div class="relative mt-5">
-                    <a href="{{ route('register') }}" class="group/cta inline-flex items-center gap-2 bg-primary hover:bg-primary-600 text-white font-medium px-5 py-2.5 rounded-lg text-sm transition-all duration-300">
-                        <span>Start for free</span>
-                        <x-ri-arrow-right-line class="h-3.5 w-3.5 transition-transform duration-300 group-hover/cta:translate-x-1"/>
-                    </a>
+                    <x-marketing.button size="sm" href="{{ route('register') }}">
+                        Start for free
+                    </x-marketing.button>
                     <div class="mt-3 flex items-center gap-3 text-[10px] text-gray-400 dark:text-gray-500">
                         <span>No credit card</span><span>&middot;</span><span>1,100+ tests</span><span>&middot;</span><span>AGPL-3.0</span>
                     </div>

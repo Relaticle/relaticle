@@ -28,24 +28,13 @@
             </p>
 
             <div class="flex flex-col sm:flex-row items-center justify-center gap-3 mb-6">
-                <a href="{{ route('register') }}"
-                   class="group relative flex h-11 items-center gap-2.5 rounded-xl bg-primary px-7 text-sm font-semibold text-white shadow-[0_1px_2px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.12)] hover:shadow-[0_4px_16px_var(--color-primary-500)/25] hover:brightness-110 transition-all duration-300">
-                    <span>Start for free</span>
-                    <x-ri-arrow-right-line class="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-0.5"/>
-                </a>
-                <a href="https://github.com/relaticle/relaticle" target="_blank"
-                   class="group flex h-11 items-center gap-2.5 rounded-xl border border-gray-200 bg-white px-7 text-sm font-semibold text-gray-700 shadow-[0_1px_2px_rgba(0,0,0,0.04)] hover:shadow-[0_2px_8px_rgba(0,0,0,0.06)] hover:border-gray-300 transition-all duration-300 dark:border-white/[0.08] dark:bg-white/[0.03] dark:text-white dark:hover:bg-white/[0.06] dark:hover:border-white/[0.15]">
-                    <x-ri-github-fill class="h-4 w-4"/>
-                    <span>GitHub</span>
-                </a>
-            </div>
+                <x-marketing.button href="{{ route('register') }}">
+                    Start for free
+                </x-marketing.button>
 
-            <div class="flex items-center justify-center gap-1 text-[13px] text-gray-500 dark:text-gray-400">
-                <x-ri-checkbox-circle-line class="h-3.5 w-3.5 text-green-500 dark:text-green-400 flex-shrink-0"/>
-                <span>No credit card</span>
-                <span class="mx-1.5 text-gray-300 dark:text-gray-600">&middot;</span>
-                <x-ri-checkbox-circle-line class="h-3.5 w-3.5 text-green-500 dark:text-green-400 flex-shrink-0"/>
-                <span>Deploy in 5 minutes</span>
+                <x-marketing.button variant="secondary" href="{{ route('contact') }}">
+                    Get in touch
+                </x-marketing.button>
             </div>
         </div>
     </div>
