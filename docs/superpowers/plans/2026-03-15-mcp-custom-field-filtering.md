@@ -16,6 +16,37 @@
 
 ## Chunk 1: Database Migration & CustomFieldFilter
 
+### Task 0: Add missing cases to CustomFieldType enum
+
+**Files:**
+- Modify: `app/Enums/CustomFieldType.php`
+
+The enum docblock says "Maps to the field types available in the relaticle/custom-fields package" but is missing `FILE_UPLOAD` and `RECORD` cases. These are needed for type-safe exclusion in the filter schema.
+
+- [ ] **Step 1: Add missing enum cases**
+
+Add to `app/Enums/CustomFieldType.php` after the `MULTI_SELECT` case:
+
+```php
+    case FILE_UPLOAD = 'file-upload';
+    case RECORD = 'record';
+```
+
+- [ ] **Step 2: Run phpstan to verify no breakage**
+
+```bash
+vendor/bin/phpstan analyse app/Enums/CustomFieldType.php
+```
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add app/Enums/CustomFieldType.php
+git commit -m "chore: add FILE_UPLOAD and RECORD cases to CustomFieldType enum"
+```
+
+---
+
 ### Task 1: Add performance indexes migration
 
 **Files:**
@@ -534,8 +565,8 @@ use App\Enums\CustomFieldType;
 final readonly class CustomFieldFilterSchema
 {
     private const array EXCLUDED_TYPES = [
-        'file-upload',
-        'record',
+        CustomFieldType::FILE_UPLOAD->value,
+        CustomFieldType::RECORD->value,
         CustomFieldType::TEXTAREA->value,
         CustomFieldType::RICH_EDITOR->value,
         CustomFieldType::MARKDOWN_EDITOR->value,
