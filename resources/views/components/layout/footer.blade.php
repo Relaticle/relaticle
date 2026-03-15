@@ -9,8 +9,7 @@
                     <x-brand.logo-lockup size="md" class="text-black dark:text-white" />
                 </a>
                 <p class="text-gray-500 dark:text-gray-400 text-sm leading-relaxed max-w-md">
-                    The Next-Generation Open-Source CRM Platform designed to streamline your customer relationships.
-                    Built with modern technologies for businesses of all sizes.
+                    The open-source CRM built for AI agents. Self-hosted with a production MCP server, REST API, and 22 custom field types.
                 </p>
 
                 <!-- Social links - Simplified -->
@@ -47,6 +46,12 @@
                         </a>
                     </li>
                     <li>
+                        <a href="{{ route('pricing') }}"
+                           class="text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-primary-400 text-sm transition-colors">
+                            Pricing
+                        </a>
+                    </li>
+                    <li>
                         <a href="{{ route('documentation.index') }}"
                            class="text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-primary-400 text-sm transition-colors">
                             Documentation
@@ -80,7 +85,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="mailto:manuk.minasyan1@gmail.com"
+                        <a href="{{ route('contact') }}"
                            class="text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-primary-400 text-sm transition-colors">
                             Contact Us
                         </a>
