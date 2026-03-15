@@ -34,8 +34,9 @@ final class OpportunitySchemaResource extends Resource
                 'contact_id' => ['type' => 'string', 'required' => false, 'description' => 'Links to a person'],
             ],
             'custom_fields' => $this->resolveCustomFields($user, 'opportunity'),
+            'filterable_fields' => $this->resolveFilterableFields($user, 'opportunity'),
             'relationships' => ['company', 'contact', 'tasks', 'notes'],
-            'usage' => 'Pass custom field values in the "custom_fields" object using field codes as keys.',
+            'usage' => 'Pass custom field values in the "custom_fields" object using field codes as keys. Use "filter" param in list tools to filter by custom field values with operators (eq, gt, gte, lt, lte, contains, in, has_any).',
         ];
 
         return Response::text(json_encode($schema, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR));

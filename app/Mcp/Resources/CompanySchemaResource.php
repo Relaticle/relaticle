@@ -32,8 +32,9 @@ final class CompanySchemaResource extends Resource
                 'name' => ['type' => 'string', 'required' => true],
             ],
             'custom_fields' => $this->resolveCustomFields($user, 'company'),
+            'filterable_fields' => $this->resolveFilterableFields($user, 'company'),
             'relationships' => ['people', 'opportunities', 'tasks', 'notes'],
-            'usage' => 'Pass custom field values in the "custom_fields" object using field codes as keys. Example: {"name": "Acme", "custom_fields": {"icp": true, "domains": ["https://acme.com"]}}',
+            'usage' => 'Pass custom field values in the "custom_fields" object using field codes as keys. Use "filter" param in list tools to filter by custom field values with operators (eq, gt, gte, lt, lte, contains, in, has_any). Example: {"name": "Acme", "custom_fields": {"icp": true}}',
         ];
 
         return Response::text(json_encode($schema, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR));

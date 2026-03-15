@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Mcp\Resources\Concerns;
 
+use App\Mcp\Schema\CustomFieldFilterSchema;
 use App\Models\CustomField;
 use App\Models\User;
 use Illuminate\Support\Collection;
@@ -30,6 +31,14 @@ trait ResolvesEntitySchema
 
             return $this->formatCustomFields($fields);
         });
+    }
+
+    /**
+     * @return array<string, array<string, mixed>>
+     */
+    protected function resolveFilterableFields(User $user, string $entityType): array
+    {
+        return (new CustomFieldFilterSchema)->build($user, $entityType);
     }
 
     /**
