@@ -30,7 +30,10 @@
     <link rel="shortcut icon" href="/favicon.ico" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <meta name="apple-mobile-web-app-title" content="Relaticle" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
     <link rel="manifest" href="/site.webmanifest" />
+    <link rel="preload" as="image" href="{{ asset('images/app-companies-preview.webp') }}" type="image/webp" />
 
     <!-- Dark mode FOUC prevention (must run synchronously before paint) -->
     <script>

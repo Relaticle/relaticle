@@ -24,7 +24,7 @@
                             Documentation
                         </a>
                         <a href="{{ route('discord') }}" target="_blank" class="flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary-400 transition-colors">
-                            <x-ri-discord-line class="w-4 h-4"/>
+                            <x-ri-discord-fill class="w-4 h-4"/>
                             Join Discord community
                         </a>
                         <a href="https://github.com/relaticle/relaticle" target="_blank" class="flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary-400 transition-colors">

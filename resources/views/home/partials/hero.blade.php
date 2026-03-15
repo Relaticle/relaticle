@@ -112,7 +112,8 @@
                                          class="hero-preview-image w-full h-auto"
                                          width="1440"
                                          height="900"
-                                         loading="eager">
+                                         loading="eager"
+                                         fetchpriority="high">
                                 </picture>
                             </div>
                             <div id="hero-tab-panel-pipeline" class="hero-tab-panel hidden" data-animation="slide-right">

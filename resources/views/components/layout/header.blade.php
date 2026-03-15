@@ -26,7 +26,7 @@
                     </a>
                     <a href="{{ route('discord') }}" target="_blank"
                        class="px-4 py-1.5 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white text-[13px] font-medium transition-colors flex items-center gap-1.5">
-                        <x-ri-discord-line class="w-4 h-4"/>
+                        <x-ri-discord-fill class="w-4 h-4"/>
                         <span>Discord</span>
                         <x-ri-arrow-right-up-line class="h-3 w-3 text-gray-400 dark:text-gray-600"/>
                     </a>
