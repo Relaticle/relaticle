@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Actions\Opportunity;
 
+use App\Mcp\Filters\CustomFieldFilter;
+use App\Mcp\Schema\CustomFieldFilterSchema;
 use App\Models\Opportunity;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\CursorPaginator;
@@ -31,15 +33,20 @@ final readonly class ListOpportunities
         $perPage = max(1, min($perPage, 100));
 
         $request ??= new Request(['filter' => $filters]);
+        $filterSchema = new CustomFieldFilterSchema;
 
         $query = QueryBuilder::for(Opportunity::query()->withCustomFieldValues(), $request)
             ->allowedFilters([
                 AllowedFilter::partial('name'),
                 AllowedFilter::exact('company_id'),
+                AllowedFilter::custom('custom_fields', new CustomFieldFilter('opportunity')),
             ])
             ->allowedFields(['id', 'name', 'company_id', 'contact_id', 'creator_id', 'created_at', 'updated_at'])
             ->allowedIncludes(['creator', 'company', 'contact'])
-            ->allowedSorts(['name', 'created_at', 'updated_at'])
+            ->allowedSorts([
+                'name', 'created_at', 'updated_at',
+                ...$filterSchema->allowedSorts($user, 'opportunity'),
+            ])
             ->defaultSort('-created_at');
 
         if ($useCursor) {
