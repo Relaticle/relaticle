@@ -28,6 +28,12 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\View\View;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\SystemAdmin\Models\SystemAdministrator;
+use SocialiteProviders\Auth0\Provider as Auth0Provider;
+use SocialiteProviders\Authentik\Provider as AuthentikProvider;
+use SocialiteProviders\Azure\Provider as AzureProvider;
+use SocialiteProviders\Keycloak\Provider as KeycloakProvider;
+use SocialiteProviders\Manager\SocialiteWasCalled;
+use SocialiteProviders\Okta\Provider as OktaProvider;
 
 final class AppServiceProvider extends ServiceProvider
 {
@@ -50,6 +56,7 @@ final class AppServiceProvider extends ServiceProvider
         $this->configureFilament();
         $this->configureGitHubStars();
         $this->configureLivewire();
+        $this->configureSocialiteProviders();
     }
 
     private function configurePolicies(): void
@@ -152,6 +159,17 @@ final class AppServiceProvider extends ServiceProvider
             }
 
             return $action;
+        });
+    }
+
+    private function configureSocialiteProviders(): void
+    {
+        Facades\Event::listen(function (SocialiteWasCalled $event): void {
+            $event->extendSocialite('keycloak', KeycloakProvider::class);
+            $event->extendSocialite('okta', OktaProvider::class);
+            $event->extendSocialite('azure', AzureProvider::class);
+            $event->extendSocialite('authentik', AuthentikProvider::class);
+            $event->extendSocialite('auth0', Auth0Provider::class);
         });
     }
 
