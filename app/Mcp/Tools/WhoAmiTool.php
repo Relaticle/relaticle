@@ -40,7 +40,7 @@ final class WhoAmiTool extends Tool
             $tokenAbilities = $token->abilities;
         }
 
-        $teamMembers = $team->allUsers()->map(fn (User $member) => [
+        $teamMembers = $team->allUsers()->map(fn (User $member): array => [
             'id' => $member->id,
             'name' => $member->name,
             'email' => $member->email,

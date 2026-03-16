@@ -10,6 +10,7 @@ use App\Mcp\Tools\Opportunity\ListOpportunitiesTool;
 use App\Mcp\Tools\Opportunity\UpdateOpportunityTool;
 use App\Models\Company;
 use App\Models\Opportunity;
+use App\Models\People;
 use App\Models\Scopes\TeamScope;
 use App\Models\Team;
 use App\Models\User;
@@ -58,6 +59,22 @@ it('can delete an opportunity via MCP tool', function (): void {
         ->assertSee('has been deleted');
 
     expect($opportunity->refresh()->trashed())->toBeTrue();
+});
+
+it('can filter opportunities by contact_id', function (): void {
+    $person = People::factory()->for($this->team)->create();
+    $matchingOpp = Opportunity::factory()->for($this->team)->create([
+        'contact_id' => $person->id,
+    ]);
+    $otherOpp = Opportunity::factory()->for($this->team)->create();
+
+    RelaticleServer::actingAs($this->user)
+        ->tool(ListOpportunitiesTool::class, [
+            'contact_id' => $person->id,
+        ])
+        ->assertOk()
+        ->assertSee($matchingOpp->name)
+        ->assertDontSee($otherOpp->name);
 });
 
 describe('team scoping', function () {

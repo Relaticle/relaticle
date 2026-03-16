@@ -64,7 +64,7 @@ abstract class BaseAttachTool extends Tool
 
         $validated = $request->validate($rules);
 
-        $relationshipData = collect($validated)->except('id')->filter(fn ($v) => is_array($v));
+        $relationshipData = collect($validated)->except('id')->filter(fn (mixed $v): bool => is_array($v));
         abort_if($relationshipData->isEmpty(), 422, 'At least one relationship array must be provided.');
 
         $modelClass = $this->modelClass();

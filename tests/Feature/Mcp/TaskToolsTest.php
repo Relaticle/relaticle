@@ -108,6 +108,21 @@ it('can attach assignees to a task', function (): void {
     expect($task->refresh()->assignees)->toHaveCount(1);
 });
 
+it('can filter tasks by company_id', function (): void {
+    $company = Company::factory()->for($this->team)->create();
+    $linkedTask = Task::factory()->for($this->team)->create(['title' => 'Linked Task']);
+    $linkedTask->companies()->attach($company);
+    $unlinkedTask = Task::factory()->for($this->team)->create(['title' => 'Unlinked Task']);
+
+    RelaticleServer::actingAs($this->user)
+        ->tool(ListTasksTool::class, [
+            'company_id' => $company->id,
+        ])
+        ->assertOk()
+        ->assertSee('Linked Task')
+        ->assertDontSee('Unlinked Task');
+});
+
 describe('team scoping', function () {
     beforeEach(function () {
         Task::addGlobalScope(new TeamScope);

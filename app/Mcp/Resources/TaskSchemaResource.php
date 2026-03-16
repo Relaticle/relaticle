@@ -34,6 +34,25 @@ final class TaskSchemaResource extends Resource
             'custom_fields' => $this->resolveCustomFields($user, 'task'),
             'filterable_fields' => $this->resolveFilterableFields($user, 'task'),
             'relationships' => ['assignees', 'companies', 'people', 'opportunities'],
+            'writable_relationships' => [
+                'company_ids' => [
+                    'type' => 'array of string IDs',
+                    'description' => 'Link task to companies on create/update. Omit to leave unchanged, pass [] to remove all.',
+                ],
+                'people_ids' => [
+                    'type' => 'array of string IDs',
+                    'description' => 'Link task to people on create/update. Omit to leave unchanged, pass [] to remove all.',
+                ],
+                'opportunity_ids' => [
+                    'type' => 'array of string IDs',
+                    'description' => 'Link task to opportunities on create/update. Omit to leave unchanged, pass [] to remove all.',
+                ],
+                'assignee_ids' => [
+                    'type' => 'array of user IDs',
+                    'description' => 'Assign team members to this task. Use whoami tool to discover valid user IDs.',
+                ],
+            ],
+            'tools_hint' => 'Use attach-task-to-entities and detach-task-from-entities tools for post-creation relationship management.',
             'aggregate_includes' => [
                 'assigneesCount' => 'Count of assigned users',
                 'companiesCount' => 'Count of related companies',

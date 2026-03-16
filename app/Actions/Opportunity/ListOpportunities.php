@@ -40,6 +40,7 @@ final readonly class ListOpportunities
             ->allowedFilters(
                 AllowedFilter::partial('name'),
                 AllowedFilter::exact('company_id'),
+                AllowedFilter::exact('contact_id'),
                 AllowedFilter::custom('custom_fields', new CustomFieldFilter('opportunity')),
             )
             ->allowedFields('id', 'name', 'company_id', 'contact_id', 'creator_id', 'created_at', 'updated_at')
