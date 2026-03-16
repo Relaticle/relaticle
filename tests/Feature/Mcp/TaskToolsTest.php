@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Mcp\Servers\RelaticleServer;
+use App\Mcp\Tools\Task\AttachTaskToEntitiesTool;
 use App\Mcp\Tools\Task\CreateTaskTool;
 use App\Mcp\Tools\Task\DeleteTaskTool;
 use App\Mcp\Tools\Task\GetTaskTool;
@@ -92,6 +93,19 @@ it('can delete a task via MCP tool', function (): void {
         ->assertSee('has been deleted');
 
     expect($task->refresh()->trashed())->toBeTrue();
+});
+
+it('can attach assignees to a task', function (): void {
+    $task = Task::factory()->for($this->team)->create();
+
+    RelaticleServer::actingAs($this->user)
+        ->tool(AttachTaskToEntitiesTool::class, [
+            'id' => $task->id,
+            'assignee_ids' => [$this->user->id],
+        ])
+        ->assertOk();
+
+    expect($task->refresh()->assignees)->toHaveCount(1);
 });
 
 describe('team scoping', function () {

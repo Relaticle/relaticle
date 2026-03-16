@@ -3,8 +3,10 @@
 declare(strict_types=1);
 
 use App\Mcp\Servers\RelaticleServer;
+use App\Mcp\Tools\Note\AttachNoteToEntitiesTool;
 use App\Mcp\Tools\Note\CreateNoteTool;
 use App\Mcp\Tools\Note\DeleteNoteTool;
+use App\Mcp\Tools\Note\DetachNoteFromEntitiesTool;
 use App\Mcp\Tools\Note\GetNoteTool;
 use App\Mcp\Tools\Note\ListNotesTool;
 use App\Mcp\Tools\Note\UpdateNoteTool;
@@ -104,6 +106,51 @@ it('can delete a note via MCP tool', function (): void {
         ->assertSee('has been deleted');
 
     expect($note->refresh()->trashed())->toBeTrue();
+});
+
+it('can attach a note to a company', function (): void {
+    $note = Note::factory()->for($this->team)->create();
+    $company = Company::factory()->for($this->team)->create();
+
+    RelaticleServer::actingAs($this->user)
+        ->tool(AttachNoteToEntitiesTool::class, [
+            'id' => $note->id,
+            'company_ids' => [$company->id],
+        ])
+        ->assertOk();
+
+    expect($note->refresh()->companies)->toHaveCount(1);
+});
+
+it('can detach a note from a company', function (): void {
+    $note = Note::factory()->for($this->team)->create();
+    $company = Company::factory()->for($this->team)->create();
+    $note->companies()->attach($company);
+
+    RelaticleServer::actingAs($this->user)
+        ->tool(DetachNoteFromEntitiesTool::class, [
+            'id' => $note->id,
+            'company_ids' => [$company->id],
+        ])
+        ->assertOk();
+
+    expect($note->refresh()->companies)->toHaveCount(0);
+});
+
+it('attach does not remove existing links', function (): void {
+    $note = Note::factory()->for($this->team)->create();
+    $company1 = Company::factory()->for($this->team)->create();
+    $company2 = Company::factory()->for($this->team)->create();
+    $note->companies()->attach($company1);
+
+    RelaticleServer::actingAs($this->user)
+        ->tool(AttachNoteToEntitiesTool::class, [
+            'id' => $note->id,
+            'company_ids' => [$company2->id],
+        ])
+        ->assertOk();
+
+    expect($note->refresh()->companies)->toHaveCount(2);
 });
 
 describe('team scoping', function () {

@@ -16,8 +16,10 @@ use App\Mcp\Tools\Company\DeleteCompanyTool;
 use App\Mcp\Tools\Company\GetCompanyTool;
 use App\Mcp\Tools\Company\ListCompaniesTool;
 use App\Mcp\Tools\Company\UpdateCompanyTool;
+use App\Mcp\Tools\Note\AttachNoteToEntitiesTool;
 use App\Mcp\Tools\Note\CreateNoteTool;
 use App\Mcp\Tools\Note\DeleteNoteTool;
+use App\Mcp\Tools\Note\DetachNoteFromEntitiesTool;
 use App\Mcp\Tools\Note\GetNoteTool;
 use App\Mcp\Tools\Note\ListNotesTool;
 use App\Mcp\Tools\Note\UpdateNoteTool;
@@ -31,8 +33,10 @@ use App\Mcp\Tools\People\DeletePeopleTool;
 use App\Mcp\Tools\People\GetPeopleTool;
 use App\Mcp\Tools\People\ListPeopleTool;
 use App\Mcp\Tools\People\UpdatePeopleTool;
+use App\Mcp\Tools\Task\AttachTaskToEntitiesTool;
 use App\Mcp\Tools\Task\CreateTaskTool;
 use App\Mcp\Tools\Task\DeleteTaskTool;
+use App\Mcp\Tools\Task\DetachTaskFromEntitiesTool;
 use App\Mcp\Tools\Task\GetTaskTool;
 use App\Mcp\Tools\Task\ListTasksTool;
 use App\Mcp\Tools\Task\UpdateTaskTool;
@@ -74,11 +78,15 @@ final class RelaticleServer extends Server
         CreateTaskTool::class,
         UpdateTaskTool::class,
         DeleteTaskTool::class,
+        AttachTaskToEntitiesTool::class,
+        DetachTaskFromEntitiesTool::class,
         ListNotesTool::class,
         GetNoteTool::class,
         CreateNoteTool::class,
         UpdateNoteTool::class,
         DeleteNoteTool::class,
+        AttachNoteToEntitiesTool::class,
+        DetachNoteFromEntitiesTool::class,
     ];
 
     /** @var array<int, class-string<Server\Resource>> */
