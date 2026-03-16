@@ -10,13 +10,20 @@ use Laravel\Socialite\Facades\Socialite;
 use Laravel\Socialite\Two\AbstractProvider;
 
 test('redirect to socialite provider', function () {
+    config()->set('services.google.enabled', true);
+    config()->set('services.google.client_id', 'test-id');
+    config()->set('services.google.client_secret', 'test-secret');
+
     $response = $this->get(route('auth.socialite.redirect', ['provider' => SocialiteProvider::Google->value]));
 
     $response->assertRedirect();
 });
 
 test('callback from socialite provider creates new user when user does not exist', function () {
-    // Mock the Socialite facade
+    config()->set('services.google.enabled', true);
+    config()->set('services.google.client_id', 'test-id');
+    config()->set('services.google.client_secret', 'test-secret');
+
     $socialiteUser = Mockery::mock(SocialiteUser::class);
     $socialiteUser->shouldReceive('getId')->andReturn('123456789');
     $socialiteUser->shouldReceive('getName')->andReturn('Test User');
@@ -52,7 +59,10 @@ test('callback from socialite provider creates new user when user does not exist
 });
 
 test('callback from socialite provider logs in existing user when social account exists', function () {
-    // Create a user and social account
+    config()->set('services.google.enabled', true);
+    config()->set('services.google.client_id', 'test-id');
+    config()->set('services.google.client_secret', 'test-secret');
+
     $user = User::factory()->withTeam()->create([
         'email' => 'existing@example.com',
         'name' => 'Existing User',
@@ -89,7 +99,10 @@ test('callback from socialite provider logs in existing user when social account
 });
 
 test('callback from socialite provider links social account to existing user when email matches', function () {
-    // Create a user without a social account
+    config()->set('services.google.enabled', true);
+    config()->set('services.google.client_id', 'test-id');
+    config()->set('services.google.client_secret', 'test-secret');
+
     $user = User::factory()->withTeam()->create([
         'email' => 'existing@example.com',
         'name' => 'Existing User',
@@ -120,7 +133,10 @@ test('callback from socialite provider links social account to existing user whe
 });
 
 test('callback from socialite provider handles error gracefully', function () {
-    // Mock the Socialite facade to throw an exception
+    config()->set('services.google.enabled', true);
+    config()->set('services.google.client_id', 'test-id');
+    config()->set('services.google.client_secret', 'test-secret');
+
     $provider = Mockery::mock(AbstractProvider::class);
     $provider->shouldReceive('user')->andThrow(new Exception('Socialite error'));
 
@@ -137,7 +153,10 @@ test('callback from socialite provider handles error gracefully', function () {
 });
 
 test('callback from socialite provider handles missing code parameter', function () {
-    // Make the request to the callback route without a code parameter
+    config()->set('services.google.enabled', true);
+    config()->set('services.google.client_id', 'test-id');
+    config()->set('services.google.client_secret', 'test-secret');
+
     $response = $this->get(route('auth.socialite.callback', ['provider' => SocialiteProvider::Google->value]));
 
     // Assert that the user is redirected to the login page with an error
@@ -207,4 +226,68 @@ test('enabledProviders() returns only enabled providers', function () {
     expect($providers)->toContain(SocialiteProvider::Google)
         ->toContain(SocialiteProvider::Keycloak)
         ->not->toContain(SocialiteProvider::GitHub);
+});
+
+test('redirect returns 404 for disabled provider', function () {
+    config()->set('services.google.enabled', false);
+
+    $response = $this->get(route('auth.socialite.redirect', ['provider' => SocialiteProvider::Google->value]));
+
+    $response->assertNotFound();
+});
+
+test('callback returns 404 for disabled provider', function () {
+    config()->set('services.google.enabled', false);
+
+    $response = $this->get(route('auth.socialite.callback', ['provider' => SocialiteProvider::Google->value, 'code' => 'test-code']));
+
+    $response->assertNotFound();
+});
+
+test('redirect to keycloak provider when enabled', function () {
+    config()->set('services.keycloak.enabled', true);
+    config()->set('services.keycloak.client_id', 'test-id');
+    config()->set('services.keycloak.client_secret', 'test-secret');
+    config()->set('services.keycloak.base_url', 'https://keycloak.example.com');
+    config()->set('services.keycloak.realms', 'master');
+    config()->set('services.keycloak.redirect', '/auth/callback/keycloak');
+
+    $response = $this->get(route('auth.socialite.redirect', ['provider' => SocialiteProvider::Keycloak->value]));
+
+    $response->assertRedirect();
+    expect($response->headers->get('Location'))->toContain('keycloak.example.com');
+});
+
+test('callback from keycloak provider creates new user', function () {
+    config()->set('services.keycloak.enabled', true);
+    config()->set('services.keycloak.client_id', 'test-id');
+    config()->set('services.keycloak.client_secret', 'test-secret');
+    config()->set('services.keycloak.base_url', 'https://keycloak.example.com');
+
+    $socialiteUser = Mockery::mock(SocialiteUser::class);
+    $socialiteUser->shouldReceive('getId')->andReturn('kc-user-123');
+    $socialiteUser->shouldReceive('getName')->andReturn('Keycloak User');
+    $socialiteUser->shouldReceive('getEmail')->andReturn('keycloak@example.com');
+
+    $provider = Mockery::mock(AbstractProvider::class);
+    $provider->shouldReceive('user')->andReturn($socialiteUser);
+
+    Socialite::shouldReceive('driver')
+        ->with(SocialiteProvider::Keycloak->value)
+        ->andReturn($provider);
+
+    $response = $this->get(route('auth.socialite.callback', ['provider' => SocialiteProvider::Keycloak->value, 'code' => 'test-code']));
+
+    $this->assertDatabaseHas('users', [
+        'email' => 'keycloak@example.com',
+        'name' => 'Keycloak User',
+    ]);
+
+    $this->assertDatabaseHas('user_social_accounts', [
+        'provider_name' => SocialiteProvider::Keycloak->value,
+        'provider_id' => 'kc-user-123',
+    ]);
+
+    $this->assertAuthenticated();
+    $response->assertRedirect(url()->getAppUrl());
 });

@@ -13,6 +13,10 @@ final readonly class RedirectController
 {
     public function __invoke(SocialiteProvider $provider): RedirectResponse
     {
+        if (! $provider->enabled()) {
+            abort(404);
+        }
+
         /** @var AbstractProvider $driver */
         $driver = Socialite::driver($provider->value);
 
