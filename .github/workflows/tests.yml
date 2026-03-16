@@ -206,6 +206,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
+      - name: Prepare Laravel
+        run: |
+          cp .env.ci .env
+          php artisan key:generate
+
       - name: Install NPM dependencies
         run: npm ci
 
@@ -214,11 +219,6 @@ jobs:
 
       - name: Install Playwright
         run: npx playwright install --with-deps chromium
-
-      - name: Prepare Laravel
-        run: |
-          cp .env.ci .env
-          php artisan key:generate
 
       - name: Browser Tests
         run: vendor/bin/pest tests/Browser/ --configuration phpunit.ci.xml

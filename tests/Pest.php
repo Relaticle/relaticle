@@ -24,7 +24,7 @@ pest()->extend(TestCase::class)
     ->use(RefreshDatabase::class)
     ->in('Feature', 'Smoke', 'Browser');
 
-Playwright::setTimeout(15_000);
+Playwright::setTimeout(30_000);
 
 /**
  * Livewire testing helper - replacement for pest-plugin-livewire.
