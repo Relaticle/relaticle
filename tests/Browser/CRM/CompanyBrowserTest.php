@@ -13,12 +13,12 @@ it('can create a company through the browser', function (): void {
     $team = $user->ownedTeams()->first();
 
     $this->visit('/app/login')
-        ->type('data.email', $user->email)
-        ->type('data.password', 'password')
+        ->type('[id="data.email"]', $user->email)
+        ->type('[id="data.password"]', 'password')
         ->press('Sign in')
         ->assertPathIs("/app/{$team->slug}/companies")
         ->press('New company')
-        ->type('data.name', 'Browser Test Corp')
+        ->type('[id="data.name"]', 'Browser Test Corp')
         ->press('Create')
         ->assertSee('Browser Test Corp');
 

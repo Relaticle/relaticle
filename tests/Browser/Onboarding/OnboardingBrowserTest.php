@@ -10,13 +10,13 @@ mutates(Register::class, CreateTeam::class);
 
 it('new user can register and complete onboarding', function (): void {
     $this->visit('/app/register')
-        ->type('data.name', 'Onboarding Tester')
-        ->type('data.email', 'onboard-browser@example.com')
-        ->type('data.password', 'Password123!')
-        ->type('data.passwordConfirmation', 'Password123!')
+        ->type('[id="data.name"]', 'Onboarding Tester')
+        ->type('[id="data.email"]', 'onboard-browser@example.com')
+        ->type('[id="data.password"]', 'Password123!')
+        ->type('[id="data.passwordConfirmation"]', 'Password123!')
         ->press('Sign up')
         ->assertSee('Create your workspace')
-        ->type('data.name', 'My First Workspace')
+        ->type('[id="data.name"]', 'My First Workspace')
         ->press('Register')
         ->assertPathContains('/app/my-first-workspace/companies');
 
