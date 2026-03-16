@@ -194,7 +194,8 @@ final class OpportunitiesBoard extends BoardPage
                     ->relationship('contact', 'name')
                     ->multiple(),
             ])
-            ->filtersFormWidth(Width::Medium);
+            ->filtersFormWidth(Width::Medium)
+            ->headerToolbar();
     }
 
     /**

@@ -173,7 +173,8 @@ final class TasksBoard extends BoardPage
                     ->relationship('assignees', 'name')
                     ->multiple(),
             ])
-            ->filtersFormWidth(Width::Medium);
+            ->filtersFormWidth(Width::Medium)
+            ->headerToolbar();
     }
 
     /**
