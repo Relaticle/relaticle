@@ -7,8 +7,10 @@ namespace App\Mcp\Tools\Task;
 use App\Actions\Task\CreateTask;
 use App\Http\Resources\V1\TaskResource;
 use App\Mcp\Tools\BaseCreateTool;
+use App\Models\Team;
 use App\Models\User;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
+use Illuminate\Validation\Rule;
 use Laravel\Mcp\Server\Attributes\Description;
 
 #[Description('Create a new task in the CRM. Use the crm-schema resource to discover available custom fields.')]
@@ -33,13 +35,30 @@ final class CreateTaskTool extends BaseCreateTool
     {
         return [
             'title' => $schema->string()->description('The task title.')->required(),
+            'company_ids' => $schema->array()->description('Company IDs to link this task to.'),
+            'people_ids' => $schema->array()->description('People IDs to link this task to.'),
+            'opportunity_ids' => $schema->array()->description('Opportunity IDs to link this task to.'),
+            'assignee_ids' => $schema->array()->description('User IDs to assign this task to. Use whoami tool to discover valid user IDs.'),
         ];
     }
 
     protected function entityRules(User $user): array
     {
+        /** @var Team $team */
+        $team = $user->currentTeam;
+        $teamId = $team->getKey();
+        $teamMemberIds = $team->allUsers()->pluck('id')->all();
+
         return [
             'title' => ['required', 'string', 'max:255'],
+            'company_ids' => ['sometimes', 'array'],
+            'company_ids.*' => ['string', Rule::exists('companies', 'id')->where('team_id', $teamId)],
+            'people_ids' => ['sometimes', 'array'],
+            'people_ids.*' => ['string', Rule::exists('people', 'id')->where('team_id', $teamId)],
+            'opportunity_ids' => ['sometimes', 'array'],
+            'opportunity_ids.*' => ['string', Rule::exists('opportunities', 'id')->where('team_id', $teamId)],
+            'assignee_ids' => ['sometimes', 'array'],
+            'assignee_ids.*' => ['string', Rule::in($teamMemberIds)],
         ];
     }
 }

@@ -3,10 +3,12 @@
 declare(strict_types=1);
 
 use App\Mcp\Servers\RelaticleServer;
+use App\Mcp\Tools\Task\CreateTaskTool;
 use App\Mcp\Tools\Task\DeleteTaskTool;
 use App\Mcp\Tools\Task\GetTaskTool;
 use App\Mcp\Tools\Task\ListTasksTool;
 use App\Mcp\Tools\Task\UpdateTaskTool;
+use App\Models\Company;
 use App\Models\Scopes\TeamScope;
 use App\Models\Task;
 use App\Models\Team;
@@ -20,6 +22,40 @@ beforeEach(function () {
 
 afterEach(function () {
     Task::clearBootedModels();
+});
+
+it('can create a task with assignees and company', function (): void {
+    $company = Company::factory()->for($this->team)->create();
+
+    RelaticleServer::actingAs($this->user)
+        ->tool(CreateTaskTool::class, [
+            'title' => 'Follow Up',
+            'company_ids' => [$company->id],
+            'assignee_ids' => [$this->user->id],
+        ])
+        ->assertOk()
+        ->assertSee('Follow Up');
+
+    $task = Task::query()->where('title', 'Follow Up')->firstOrFail();
+    expect($task->companies)->toHaveCount(1)
+        ->and($task->assignees)->toHaveCount(1)
+        ->and($task->assignees->first()->id)->toBe($this->user->id);
+});
+
+it('can update task assignees', function (): void {
+    $task = Task::factory()->for($this->team)->create();
+    $member = User::factory()->create();
+    $this->team->users()->attach($member);
+
+    RelaticleServer::actingAs($this->user)
+        ->tool(UpdateTaskTool::class, [
+            'id' => $task->id,
+            'assignee_ids' => [$member->id],
+        ])
+        ->assertOk();
+
+    expect($task->refresh()->assignees)->toHaveCount(1)
+        ->and($task->assignees->first()->id)->toBe($member->id);
 });
 
 it('can get a task by ID', function (): void {

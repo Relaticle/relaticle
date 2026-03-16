@@ -19,9 +19,27 @@ final readonly class CreateNote
     {
         abort_unless($user->can('create', Note::class), 403);
 
+        $companyIds = Arr::pull($data, 'company_ids');
+        $peopleIds = Arr::pull($data, 'people_ids');
+        $opportunityIds = Arr::pull($data, 'opportunity_ids');
+
         $attributes = Arr::only($data, ['title', 'custom_fields']);
         $attributes['creation_source'] = $source;
 
-        return DB::transaction(fn (): Note => Note::query()->create($attributes));
+        return DB::transaction(function () use ($attributes, $companyIds, $peopleIds, $opportunityIds): Note {
+            $note = Note::query()->create($attributes);
+
+            if ($companyIds !== null) {
+                $note->companies()->sync($companyIds);
+            }
+            if ($peopleIds !== null) {
+                $note->people()->sync($peopleIds);
+            }
+            if ($opportunityIds !== null) {
+                $note->opportunities()->sync($opportunityIds);
+            }
+
+            return $note;
+        });
     }
 }
