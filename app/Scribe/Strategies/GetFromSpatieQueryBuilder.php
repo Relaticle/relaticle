@@ -137,7 +137,7 @@ final class GetFromSpatieQueryBuilder extends Strategy
      */
     private function extractSorts(string $source, array &$params): void
     {
-        if (preg_match("/allowedSorts\(\[([^\]]+)\]/", $source, $match)) {
+        if (preg_match("/allowedSorts\(((?:[^()]*|\((?:[^()]*|\([^()]*\))*\))*)\)/s", $source, $match)) {
             preg_match_all("/'([^']+)'/", $match[1], $sortMatches);
             $sorts = $sortMatches[1];
 
@@ -158,7 +158,7 @@ final class GetFromSpatieQueryBuilder extends Strategy
      */
     private function extractIncludes(string $source, array &$params): void
     {
-        if (preg_match("/allowedIncludes\(\[([^\]]+)\]/", $source, $match)) {
+        if (preg_match("/allowedIncludes\(((?:[^()]*|\((?:[^()]*|\([^()]*\))*\))*)\)/s", $source, $match)) {
             preg_match_all("/'([^']+)'/", $match[1], $includeMatches);
             $includes = $includeMatches[1];
 

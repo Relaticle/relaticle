@@ -34,6 +34,11 @@ final class NoteSchemaResource extends Resource
             'custom_fields' => $this->resolveCustomFields($user, 'note'),
             'filterable_fields' => $this->resolveFilterableFields($user, 'note'),
             'relationships' => ['companies', 'people', 'opportunities'],
+            'aggregate_includes' => [
+                'companiesCount' => 'Count of related companies',
+                'peopleCount' => 'Count of related people',
+                'opportunitiesCount' => 'Count of related opportunities',
+            ],
             'usage' => 'Pass custom field values in the "custom_fields" object using field codes as keys.',
         ];
 

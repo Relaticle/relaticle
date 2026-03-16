@@ -44,9 +44,9 @@ it('sorts opportunities by custom field value ascending', function (): void {
         Opportunity::query()->where('team_id', $this->team->getKey())->withCustomFieldValues(),
         $request,
     )
-        ->allowedSorts([
+        ->allowedSorts(
             AllowedSort::custom('amount', new CustomFieldSort('opportunity')),
-        ])
+        )
         ->get();
 
     $names = $results->pluck('name')->values();
@@ -78,9 +78,9 @@ it('sorts opportunities by custom field value descending', function (): void {
         Opportunity::query()->where('team_id', $this->team->getKey())->withCustomFieldValues(),
         $request,
     )
-        ->allowedSorts([
+        ->allowedSorts(
             AllowedSort::custom('amount', new CustomFieldSort('opportunity')),
-        ])
+        )
         ->get();
 
     $names = $results->pluck('name')->values();

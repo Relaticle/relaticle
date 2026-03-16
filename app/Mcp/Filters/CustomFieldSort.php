@@ -25,7 +25,7 @@ final readonly class CustomFieldSort implements Sort
     {
         $field = $this->resolveField($property);
 
-        if (! $field) {
+        if (! $field instanceof CustomField) {
             return;
         }
 

@@ -34,6 +34,12 @@ final class TaskSchemaResource extends Resource
             'custom_fields' => $this->resolveCustomFields($user, 'task'),
             'filterable_fields' => $this->resolveFilterableFields($user, 'task'),
             'relationships' => ['assignees', 'companies', 'people', 'opportunities'],
+            'aggregate_includes' => [
+                'assigneesCount' => 'Count of assigned users',
+                'companiesCount' => 'Count of related companies',
+                'peopleCount' => 'Count of related people',
+                'opportunitiesCount' => 'Count of related opportunities',
+            ],
             'usage' => 'Pass custom field values in the "custom_fields" object using field codes as keys. Use "filter" param in list tools to filter by custom field values with operators.',
         ];
 
