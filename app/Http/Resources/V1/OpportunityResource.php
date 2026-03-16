@@ -27,6 +27,8 @@ final class OpportunityResource extends JsonApiResource
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'custom_fields' => $this->formatCustomFields($this->resource),
+            'tasks_count' => $this->whenHas('tasks_count'),
+            'notes_count' => $this->whenHas('notes_count'),
         ];
     }
 

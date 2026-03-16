@@ -13,6 +13,7 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Spatie\QueryBuilder\AllowedFilter;
+use Spatie\QueryBuilder\AllowedInclude;
 use Spatie\QueryBuilder\QueryBuilder;
 
 final readonly class ListNotes
@@ -37,7 +38,7 @@ final readonly class ListNotes
         $filterSchema = new CustomFieldFilterSchema;
 
         $query = QueryBuilder::for(Note::query()->withCustomFieldValues(), $request)
-            ->allowedFilters([
+            ->allowedFilters(
                 AllowedFilter::partial('title'),
                 AllowedFilter::callback('notable_type', function (Builder $query, mixed $value): void {
                     $relationMap = [
@@ -60,13 +61,18 @@ final readonly class ListNotes
                     });
                 }),
                 AllowedFilter::custom('custom_fields', new CustomFieldFilter('note')),
-            ])
-            ->allowedFields(['id', 'title', 'creator_id', 'created_at', 'updated_at'])
-            ->allowedIncludes(['creator', 'companies', 'people', 'opportunities'])
-            ->allowedSorts([
+            )
+            ->allowedFields('id', 'title', 'creator_id', 'created_at', 'updated_at')
+            ->allowedIncludes(
+                'creator', 'companies', 'people', 'opportunities',
+                AllowedInclude::count('companiesCount', 'companies'),
+                AllowedInclude::count('peopleCount', 'people'),
+                AllowedInclude::count('opportunitiesCount', 'opportunities'),
+            )
+            ->allowedSorts(
                 'title', 'created_at', 'updated_at',
                 ...$filterSchema->allowedSorts($user, 'note'),
-            ])
+            )
             ->defaultSort('-created_at');
 
         if ($useCursor) {

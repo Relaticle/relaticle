@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "71516f2798657ed4d6eaa128ffbeffbc",
+    "content-hash": "43b0244a1a9cbfb7fe0739ebfdfa75a9",
     "packages": [
         {
             "name": "andreiio/blade-remix-icon",
@@ -7879,16 +7879,16 @@
         },
         {
             "name": "relaticle/flowforge",
-            "version": "v4.0.6",
+            "version": "v4.0.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/relaticle/flowforge.git",
-                "reference": "3df9303e689cf79d4c078985706a714e9a0ebee5"
+                "reference": "ae4a00328ab4c32d46d503b3d4ee1c82b8716fae"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/relaticle/flowforge/zipball/3df9303e689cf79d4c078985706a714e9a0ebee5",
-                "reference": "3df9303e689cf79d4c078985706a714e9a0ebee5",
+                "url": "https://api.github.com/repos/relaticle/flowforge/zipball/ae4a00328ab4c32d46d503b3d4ee1c82b8716fae",
+                "reference": "ae4a00328ab4c32d46d503b3d4ee1c82b8716fae",
                 "shasum": ""
             },
             "require": {
@@ -7963,7 +7963,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-03-15T19:29:01+00:00"
+            "time": "2026-03-16T15:31:00+00:00"
         },
         {
             "name": "ryangjchandler/blade-capture-directive",
@@ -9806,32 +9806,32 @@
         },
         {
             "name": "spatie/laravel-query-builder",
-            "version": "6.4.4",
+            "version": "7.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/spatie/laravel-query-builder.git",
-                "reference": "ab9c4c369fc913d6c020a0f6776f3c82f3e523fb"
+                "reference": "8ec7246a4c162499381a6e1ddb58a6f0debd8926"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/spatie/laravel-query-builder/zipball/ab9c4c369fc913d6c020a0f6776f3c82f3e523fb",
-                "reference": "ab9c4c369fc913d6c020a0f6776f3c82f3e523fb",
+                "url": "https://api.github.com/repos/spatie/laravel-query-builder/zipball/8ec7246a4c162499381a6e1ddb58a6f0debd8926",
+                "reference": "8ec7246a4c162499381a6e1ddb58a6f0debd8926",
                 "shasum": ""
             },
             "require": {
-                "illuminate/database": "^10.0|^11.0|^12.0|^13.0",
-                "illuminate/http": "^10.0|^11.0|^12.0|^13.0",
-                "illuminate/support": "^10.0|^11.0|^12.0|^13.0",
-                "php": "^8.2",
+                "illuminate/database": "^12.0|^13.0",
+                "illuminate/http": "^12.0|^13.0",
+                "illuminate/support": "^12.0|^13.0",
+                "php": "^8.3",
                 "spatie/laravel-package-tools": "^1.11"
             },
             "require-dev": {
                 "ext-json": "*",
-                "larastan/larastan": "^2.7 || ^3.3",
+                "larastan/larastan": "^3.3",
                 "mockery/mockery": "^1.4",
-                "orchestra/testbench": "^7.0|^8.0|^10.0|^11.0",
-                "pestphp/pest": "^2.0|^3.7|^4.0",
-                "phpunit/phpunit": "^10.0|^11.5.3|^12.0",
+                "orchestra/testbench": "^10.0|^11.0",
+                "pestphp/pest": "^4.0",
+                "phpunit/phpunit": "^12.0",
                 "spatie/invade": "^2.0"
             },
             "type": "library",
@@ -9876,7 +9876,7 @@
                     "type": "custom"
                 }
             ],
-            "time": "2026-03-08T13:45:05+00:00"
+            "time": "2026-03-16T10:22:07+00:00"
         },
         {
             "name": "spatie/laravel-settings",
@@ -17818,9 +17818,7 @@
     ],
     "aliases": [],
     "minimum-stability": "beta",
-    "stability-flags": {
-        "relaticle/flowforge": 20
-    },
+    "stability-flags": {},
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {

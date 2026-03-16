@@ -48,9 +48,9 @@ it('filters by custom field equality', function (): void {
     ]);
 
     $results = QueryBuilder::for(Opportunity::query()->withCustomFieldValues(), $request)
-        ->allowedFilters([
+        ->allowedFilters(
             AllowedFilter::custom('custom_fields', new CustomFieldFilter('opportunity')),
-        ])
+        )
         ->get();
 
     expect($results)->toHaveCount(1)
@@ -82,9 +82,9 @@ it('filters by currency field with gte operator', function (): void {
     ]);
 
     $results = QueryBuilder::for(Opportunity::query()->withCustomFieldValues(), $request)
-        ->allowedFilters([
+        ->allowedFilters(
             AllowedFilter::custom('custom_fields', new CustomFieldFilter('opportunity')),
-        ])
+        )
         ->get();
 
     expect($results)->toHaveCount(1)
@@ -105,9 +105,9 @@ it('silently ignores unknown field codes', function (): void {
     ]);
 
     $results = QueryBuilder::for(Opportunity::query()->withCustomFieldValues(), $request)
-        ->allowedFilters([
+        ->allowedFilters(
             AllowedFilter::custom('custom_fields', new CustomFieldFilter('opportunity')),
-        ])
+        )
         ->get();
 
     expect($results)->toHaveCount($countBefore + 1);
@@ -125,9 +125,9 @@ it('rejects more than 10 filter conditions', function (): void {
     ]);
 
     QueryBuilder::for(Opportunity::query()->withCustomFieldValues(), $request)
-        ->allowedFilters([
+        ->allowedFilters(
             AllowedFilter::custom('custom_fields', new CustomFieldFilter('opportunity')),
-        ])
+        )
         ->get();
 })->throws(HttpException::class);
 
@@ -143,9 +143,9 @@ it('handles empty filter object as no-op', function (): void {
     ]);
 
     $results = QueryBuilder::for(Opportunity::query()->withCustomFieldValues(), $request)
-        ->allowedFilters([
+        ->allowedFilters(
             AllowedFilter::custom('custom_fields', new CustomFieldFilter('opportunity')),
-        ])
+        )
         ->get();
 
     expect($results)->toHaveCount($countBefore + 3);

@@ -44,10 +44,12 @@ final readonly class CustomFieldFilter implements Filter
         $fields = $this->resolveFields($fieldCodes);
 
         foreach ($value as $fieldCode => $operators) {
-            if (! is_array($operators) || ! isset($fields[$fieldCode])) {
+            if (! is_array($operators)) {
                 continue;
             }
-
+            if (! isset($fields[$fieldCode])) {
+                continue;
+            }
             $field = $fields[$fieldCode];
             $valueColumn = CustomFieldValue::getValueColumn($field->type);
 

@@ -12,6 +12,7 @@ use Illuminate\Contracts\Pagination\CursorPaginator;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
 use Spatie\QueryBuilder\AllowedFilter;
+use Spatie\QueryBuilder\AllowedInclude;
 use Spatie\QueryBuilder\QueryBuilder;
 
 final readonly class ListPeople
@@ -36,17 +37,21 @@ final readonly class ListPeople
         $filterSchema = new CustomFieldFilterSchema;
 
         $query = QueryBuilder::for(People::query()->withCustomFieldValues(), $request)
-            ->allowedFilters([
+            ->allowedFilters(
                 AllowedFilter::partial('name'),
                 AllowedFilter::exact('company_id'),
                 AllowedFilter::custom('custom_fields', new CustomFieldFilter('people')),
-            ])
-            ->allowedFields(['id', 'name', 'company_id', 'creator_id', 'created_at', 'updated_at'])
-            ->allowedIncludes(['creator', 'company'])
-            ->allowedSorts([
+            )
+            ->allowedFields('id', 'name', 'company_id', 'creator_id', 'created_at', 'updated_at')
+            ->allowedIncludes(
+                'creator', 'company',
+                AllowedInclude::count('tasksCount', 'tasks'),
+                AllowedInclude::count('notesCount', 'notes'),
+            )
+            ->allowedSorts(
                 'name', 'created_at', 'updated_at',
                 ...$filterSchema->allowedSorts($user, 'people'),
-            ])
+            )
             ->defaultSort('-created_at');
 
         if ($useCursor) {

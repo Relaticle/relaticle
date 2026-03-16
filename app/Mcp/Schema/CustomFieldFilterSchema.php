@@ -8,6 +8,7 @@ use App\Enums\CustomFieldType;
 use App\Mcp\Filters\CustomFieldSort;
 use App\Models\CustomField;
 use App\Models\User;
+use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Spatie\QueryBuilder\AllowedSort;
@@ -126,7 +127,7 @@ final readonly class CustomFieldFilterSchema
             ->where('tenant_id', $teamId)
             ->where('entity_type', $entityType)
             ->whereNotIn('type', self::EXCLUDED_TYPES)
-            ->where(fn ($q) => $q->whereNull('settings->encrypted')->orWhere('settings->encrypted', false))
+            ->where(fn (Builder $q) => $q->whereNull('settings->encrypted')->orWhere('settings->encrypted', false))
             ->active()
             ->select('id', 'code', 'name', 'type')
             ->get());
