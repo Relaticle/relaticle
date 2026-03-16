@@ -22,8 +22,8 @@ final class NewContactSubmissionMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: "New contact: {$this->data['name']}",
             replyTo: [$this->data['email']],
+            subject: "New contact: {$this->data['name']}",
         );
     }
 

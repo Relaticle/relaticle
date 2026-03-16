@@ -10,7 +10,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\View\View;
 
-final class ContactController
+final readonly class ContactController
 {
     public function show(): View
     {
@@ -24,6 +24,6 @@ final class ContactController
 
         Mail::to(config('mail.from.address'))->send(new NewContactSubmissionMail($data));
 
-        return redirect()->route('contact')->with('success', 'Thanks for reaching out! We\'ll get back to you soon.');
+        return to_route('contact')->with('success', 'Thanks for reaching out! We\'ll get back to you soon.');
     }
 }
