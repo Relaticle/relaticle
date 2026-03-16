@@ -145,7 +145,6 @@ jobs:
   browser-tests:
     runs-on: ubuntu-latest
     name: Browser Tests
-    continue-on-error: true
 
     services:
       postgres:
