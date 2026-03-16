@@ -20,6 +20,7 @@ it('can create a new team through the browser', function (): void {
         ->navigate('/app/new')
         ->assertSee('Create your workspace')
         ->type('[id="form.name"]', 'Second Workspace')
+        ->type('[id="form.slug"]', 'second-workspace')
         ->press('Create Team')
         ->assertPathContains('/app/second-workspace/companies');
 

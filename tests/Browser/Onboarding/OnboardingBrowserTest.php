@@ -14,9 +14,10 @@ it('new user can register and complete onboarding', function (): void {
         ->type('[id="form.email"]', 'onboard-browser@gmail.com')
         ->type('[id="form.password"]', 'Password123!')
         ->type('[id="form.passwordConfirmation"]', 'Password123!')
-        ->click('button.fi-btn')
+        ->press('Sign up')
         ->assertSee('Create your workspace')
         ->type('[id="form.name"]', 'My First Workspace')
+        ->type('[id="form.slug"]', 'my-first-workspace')
         ->press('Create Team')
         ->assertPathContains('/app/my-first-workspace/companies');
 
