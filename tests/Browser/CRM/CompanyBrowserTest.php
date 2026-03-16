@@ -18,7 +18,7 @@ it('can create a company through the browser', function (): void {
         ->click('button.fi-btn')
         ->assertPathIs("/app/{$team->slug}/companies")
         ->press('New company')
-        ->type('[id="form.name"]', 'Browser Test Corp')
+        ->type('[id="mountedActionSchema0.name"]', 'Browser Test Corp')
         ->press('Create')
         ->assertSee('Browser Test Corp');
 
