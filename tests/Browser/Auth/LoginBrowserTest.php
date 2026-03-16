@@ -12,8 +12,8 @@ it('user can log in and reach the dashboard', function (): void {
     $team = $user->ownedTeams()->first();
 
     $this->visit('/app/login')
-        ->type('[id="data.email"]', $user->email)
-        ->type('[id="data.password"]', 'password')
+        ->type('[id="form.email"]', $user->email)
+        ->type('[id="form.password"]', 'password')
         ->press('Sign in')
         ->assertPathIs("/app/{$team->slug}/companies");
 });

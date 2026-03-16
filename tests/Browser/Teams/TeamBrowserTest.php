@@ -13,13 +13,13 @@ it('can create a new team through the browser', function (): void {
     $team = $user->ownedTeams()->first();
 
     $this->visit('/app/login')
-        ->type('[id="data.email"]', $user->email)
-        ->type('[id="data.password"]', 'password')
+        ->type('[id="form.email"]', $user->email)
+        ->type('[id="form.password"]', 'password')
         ->press('Sign in')
         ->assertPathIs("/app/{$team->slug}/companies")
         ->navigate('/app/new')
         ->assertSee('Create your workspace')
-        ->type('[id="data.name"]', 'Second Workspace')
+        ->type('[id="form.name"]', 'Second Workspace')
         ->press('Register')
         ->assertPathContains('/app/second-workspace/companies');
 
