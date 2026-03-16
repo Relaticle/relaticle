@@ -52,11 +52,7 @@ it('classifies new active vs returning users correctly', function () {
 
     $component = livewire(UserRetentionChartWidget::class)->assertOk();
 
-    $html = $component->html();
-
-    preg_match('/cachedData: JSON\.parse\(\'(.+?)\'\)/s', $html, $matches);
-
-    $chartData = json_decode(str_replace('\u0022', '"', $matches[1]), associative: true);
+    $chartData = invade($component->instance())->getData();
 
     $datasetsByLabel = collect($chartData['datasets'])->keyBy('label');
 
