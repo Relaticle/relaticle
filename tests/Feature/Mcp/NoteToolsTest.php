@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Mcp\Servers\RelaticleServer;
 use App\Mcp\Tools\Note\DeleteNoteTool;
+use App\Mcp\Tools\Note\GetNoteTool;
 use App\Mcp\Tools\Note\ListNotesTool;
 use App\Mcp\Tools\Note\UpdateNoteTool;
 use App\Models\Note;
@@ -19,6 +20,15 @@ beforeEach(function () {
 
 afterEach(function () {
     Note::clearBootedModels();
+});
+
+it('can get a note by ID', function (): void {
+    $note = Note::factory()->for($this->team)->create(['title' => 'Meeting Notes']);
+
+    RelaticleServer::actingAs($this->user)
+        ->tool(GetNoteTool::class, ['id' => $note->id])
+        ->assertOk()
+        ->assertSee('Meeting Notes');
 });
 
 it('can update a note via MCP tool', function (): void {
@@ -86,6 +96,17 @@ describe('team scoping', function () {
 
         RelaticleServer::actingAs($this->user)
             ->tool(DeleteNoteTool::class, [
+                'id' => $otherNote->id,
+            ]);
+    })->throws(ModelNotFoundException::class);
+
+    it('cannot get a note from another team', function (): void {
+        $otherNote = Note::withoutEvents(fn () => Note::factory()->create([
+            'team_id' => Team::factory()->create()->id,
+        ]));
+
+        RelaticleServer::actingAs($this->user)
+            ->tool(GetNoteTool::class, [
                 'id' => $otherNote->id,
             ]);
     })->throws(ModelNotFoundException::class);

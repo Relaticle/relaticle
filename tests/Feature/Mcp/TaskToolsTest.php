@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Mcp\Servers\RelaticleServer;
 use App\Mcp\Tools\Task\DeleteTaskTool;
+use App\Mcp\Tools\Task\GetTaskTool;
 use App\Mcp\Tools\Task\ListTasksTool;
 use App\Mcp\Tools\Task\UpdateTaskTool;
 use App\Models\Scopes\TeamScope;
@@ -19,6 +20,15 @@ beforeEach(function () {
 
 afterEach(function () {
     Task::clearBootedModels();
+});
+
+it('can get a task by ID', function (): void {
+    $task = Task::factory()->for($this->team)->create(['title' => 'Follow Up Call']);
+
+    RelaticleServer::actingAs($this->user)
+        ->tool(GetTaskTool::class, ['id' => $task->id])
+        ->assertOk()
+        ->assertSee('Follow Up Call');
 });
 
 it('can update a task via MCP tool', function (): void {
@@ -86,6 +96,17 @@ describe('team scoping', function () {
 
         RelaticleServer::actingAs($this->user)
             ->tool(DeleteTaskTool::class, [
+                'id' => $otherTask->id,
+            ]);
+    })->throws(ModelNotFoundException::class);
+
+    it('cannot get a task from another team', function (): void {
+        $otherTask = Task::withoutEvents(fn () => Task::factory()->create([
+            'team_id' => Team::factory()->create()->id,
+        ]));
+
+        RelaticleServer::actingAs($this->user)
+            ->tool(GetTaskTool::class, [
                 'id' => $otherTask->id,
             ]);
     })->throws(ModelNotFoundException::class);

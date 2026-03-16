@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Mcp\Servers\RelaticleServer;
 use App\Mcp\Tools\People\CreatePeopleTool;
 use App\Mcp\Tools\People\DeletePeopleTool;
+use App\Mcp\Tools\People\GetPeopleTool;
 use App\Mcp\Tools\People\ListPeopleTool;
 use App\Mcp\Tools\People\UpdatePeopleTool;
 use App\Models\Company;
@@ -21,6 +22,15 @@ beforeEach(function () {
 
 afterEach(function () {
     People::clearBootedModels();
+});
+
+it('can get a person by ID', function (): void {
+    $person = People::factory()->for($this->team)->create(['name' => 'Jane Doe']);
+
+    RelaticleServer::actingAs($this->user)
+        ->tool(GetPeopleTool::class, ['id' => $person->id])
+        ->assertOk()
+        ->assertSee('Jane Doe');
 });
 
 it('can update a person via MCP tool', function (): void {
@@ -83,6 +93,15 @@ describe('team scoping', function () {
 
         RelaticleServer::actingAs($this->user)
             ->tool(DeletePeopleTool::class, [
+                'id' => $otherPerson->id,
+            ]);
+    })->throws(ModelNotFoundException::class);
+
+    it('cannot get a person from another team', function (): void {
+        $otherPerson = People::withoutEvents(fn () => People::factory()->for(Team::factory())->create());
+
+        RelaticleServer::actingAs($this->user)
+            ->tool(GetPeopleTool::class, [
                 'id' => $otherPerson->id,
             ]);
     })->throws(ModelNotFoundException::class);

@@ -13,22 +13,27 @@ use App\Mcp\Resources\PeopleSchemaResource;
 use App\Mcp\Resources\TaskSchemaResource;
 use App\Mcp\Tools\Company\CreateCompanyTool;
 use App\Mcp\Tools\Company\DeleteCompanyTool;
+use App\Mcp\Tools\Company\GetCompanyTool;
 use App\Mcp\Tools\Company\ListCompaniesTool;
 use App\Mcp\Tools\Company\UpdateCompanyTool;
 use App\Mcp\Tools\Note\CreateNoteTool;
 use App\Mcp\Tools\Note\DeleteNoteTool;
+use App\Mcp\Tools\Note\GetNoteTool;
 use App\Mcp\Tools\Note\ListNotesTool;
 use App\Mcp\Tools\Note\UpdateNoteTool;
 use App\Mcp\Tools\Opportunity\CreateOpportunityTool;
 use App\Mcp\Tools\Opportunity\DeleteOpportunityTool;
+use App\Mcp\Tools\Opportunity\GetOpportunityTool;
 use App\Mcp\Tools\Opportunity\ListOpportunitiesTool;
 use App\Mcp\Tools\Opportunity\UpdateOpportunityTool;
 use App\Mcp\Tools\People\CreatePeopleTool;
 use App\Mcp\Tools\People\DeletePeopleTool;
+use App\Mcp\Tools\People\GetPeopleTool;
 use App\Mcp\Tools\People\ListPeopleTool;
 use App\Mcp\Tools\People\UpdatePeopleTool;
 use App\Mcp\Tools\Task\CreateTaskTool;
 use App\Mcp\Tools\Task\DeleteTaskTool;
+use App\Mcp\Tools\Task\GetTaskTool;
 use App\Mcp\Tools\Task\ListTasksTool;
 use App\Mcp\Tools\Task\UpdateTaskTool;
 use Laravel\Mcp\Server;
@@ -48,22 +53,27 @@ final class RelaticleServer extends Server
     /** @var array<int, class-string<Tool>> */
     protected array $tools = [
         ListCompaniesTool::class,
+        GetCompanyTool::class,
         CreateCompanyTool::class,
         UpdateCompanyTool::class,
         DeleteCompanyTool::class,
         ListPeopleTool::class,
+        GetPeopleTool::class,
         CreatePeopleTool::class,
         UpdatePeopleTool::class,
         DeletePeopleTool::class,
         ListOpportunitiesTool::class,
+        GetOpportunityTool::class,
         CreateOpportunityTool::class,
         UpdateOpportunityTool::class,
         DeleteOpportunityTool::class,
         ListTasksTool::class,
+        GetTaskTool::class,
         CreateTaskTool::class,
         UpdateTaskTool::class,
         DeleteTaskTool::class,
         ListNotesTool::class,
+        GetNoteTool::class,
         CreateNoteTool::class,
         UpdateNoteTool::class,
         DeleteNoteTool::class,

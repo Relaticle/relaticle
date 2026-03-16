@@ -6,6 +6,7 @@ use App\Enums\CreationSource;
 use App\Mcp\Servers\RelaticleServer;
 use App\Mcp\Tools\Company\CreateCompanyTool;
 use App\Mcp\Tools\Company\DeleteCompanyTool;
+use App\Mcp\Tools\Company\GetCompanyTool;
 use App\Mcp\Tools\Company\ListCompaniesTool;
 use App\Mcp\Tools\Company\UpdateCompanyTool;
 use App\Models\Company;
@@ -21,6 +22,15 @@ beforeEach(function () {
 
 afterEach(function () {
     Company::clearBootedModels();
+});
+
+it('can get a company by ID', function (): void {
+    $company = Company::factory()->for($this->team)->create(['name' => 'Acme Corp']);
+
+    RelaticleServer::actingAs($this->user)
+        ->tool(GetCompanyTool::class, ['id' => $company->id])
+        ->assertOk()
+        ->assertSee('Acme Corp');
 });
 
 describe('team scoping', function () {
@@ -62,6 +72,17 @@ describe('team scoping', function () {
 
         RelaticleServer::actingAs($this->user)
             ->tool(DeleteCompanyTool::class, [
+                'id' => $otherCompany->id,
+            ]);
+    })->throws(ModelNotFoundException::class);
+
+    it('cannot get a company from another team', function (): void {
+        $otherCompany = Company::withoutEvents(fn () => Company::factory()->create([
+            'team_id' => Team::factory()->create()->id,
+        ]));
+
+        RelaticleServer::actingAs($this->user)
+            ->tool(GetCompanyTool::class, [
                 'id' => $otherCompany->id,
             ]);
     })->throws(ModelNotFoundException::class);
