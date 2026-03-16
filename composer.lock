@@ -7879,16 +7879,16 @@
         },
         {
             "name": "relaticle/flowforge",
-            "version": "v4.0.7",
+            "version": "v4.0.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/relaticle/flowforge.git",
-                "reference": "ae4a00328ab4c32d46d503b3d4ee1c82b8716fae"
+                "reference": "d4d2d6e77d018695c6082df7085d41717ba90363"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/relaticle/flowforge/zipball/ae4a00328ab4c32d46d503b3d4ee1c82b8716fae",
-                "reference": "ae4a00328ab4c32d46d503b3d4ee1c82b8716fae",
+                "url": "https://api.github.com/repos/relaticle/flowforge/zipball/d4d2d6e77d018695c6082df7085d41717ba90363",
+                "reference": "d4d2d6e77d018695c6082df7085d41717ba90363",
                 "shasum": ""
             },
             "require": {
@@ -7963,7 +7963,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-03-16T15:31:00+00:00"
+            "time": "2026-03-16T20:05:49+00:00"
         },
         {
             "name": "ryangjchandler/blade-capture-directive",
