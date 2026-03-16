@@ -14,7 +14,7 @@ it('new user can register and complete onboarding', function (): void {
         ->type('[id="form.email"]', 'onboard-browser@example.com')
         ->type('[id="form.password"]', 'Password123!')
         ->type('[id="form.passwordConfirmation"]', 'Password123!')
-        ->press('Sign up')
+        ->click('button.fi-btn')
         ->assertSee('Create your workspace')
         ->type('[id="form.name"]', 'My First Workspace')
         ->press('Register')

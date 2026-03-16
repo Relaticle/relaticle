@@ -15,7 +15,7 @@ it('can navigate the import wizard and upload a CSV file', function (): void {
     $this->visit('/app/login')
         ->type('[id="form.email"]', $user->email)
         ->type('[id="form.password"]', 'password')
-        ->press('Sign in')
+        ->click('button.fi-btn')
         ->assertPathIs("/app/{$team->slug}/companies")
         // Navigate to the import page via the Filament page route
         ->navigate("/app/{$team->slug}/companies/import")
