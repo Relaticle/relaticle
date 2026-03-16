@@ -38,15 +38,59 @@ return [
     ],
 
     'google' => [
+        'enabled' => env('GOOGLE_ENABLED', true),
         'client_id' => env('GOOGLE_CLIENT_ID'),
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),
         'redirect' => env('GOOGLE_REDIRECT_URI'),
     ],
 
     'github' => [
+        'enabled' => env('GITHUB_ENABLED', true),
         'client_id' => env('GITHUB_CLIENT_ID'),
         'client_secret' => env('GITHUB_CLIENT_SECRET'),
         'redirect' => '/auth/callback/github',
+    ],
+
+    'keycloak' => [
+        'enabled' => env('KEYCLOAK_ENABLED', false),
+        'display_name' => env('KEYCLOAK_DISPLAY_NAME', 'Keycloak'),
+        'client_id' => env('KEYCLOAK_CLIENT_ID'),
+        'client_secret' => env('KEYCLOAK_CLIENT_SECRET'),
+        'base_url' => env('KEYCLOAK_BASE_URL'),
+        'realms' => env('KEYCLOAK_REALM', 'master'),
+        'redirect' => env('KEYCLOAK_REDIRECT_URI', '/auth/callback/keycloak'),
+    ],
+
+    'okta' => [
+        'enabled' => env('OKTA_ENABLED', false),
+        'client_id' => env('OKTA_CLIENT_ID'),
+        'client_secret' => env('OKTA_CLIENT_SECRET'),
+        'base_url' => env('OKTA_BASE_URL'),
+        'redirect' => env('OKTA_REDIRECT_URI', '/auth/callback/okta'),
+    ],
+
+    'azure' => [
+        'enabled' => env('AZURE_ENABLED', false),
+        'client_id' => env('AZURE_CLIENT_ID'),
+        'client_secret' => env('AZURE_CLIENT_SECRET'),
+        'tenant' => env('AZURE_TENANT', 'common'),
+        'redirect' => env('AZURE_REDIRECT_URI', '/auth/callback/azure'),
+    ],
+
+    'authentik' => [
+        'enabled' => env('AUTHENTIK_ENABLED', false),
+        'client_id' => env('AUTHENTIK_CLIENT_ID'),
+        'client_secret' => env('AUTHENTIK_CLIENT_SECRET'),
+        'base_url' => env('AUTHENTIK_BASE_URL'),
+        'redirect' => env('AUTHENTIK_REDIRECT_URI', '/auth/callback/authentik'),
+    ],
+
+    'auth0' => [
+        'enabled' => env('AUTH0_ENABLED', false),
+        'client_id' => env('AUTH0_CLIENT_ID'),
+        'client_secret' => env('AUTH0_CLIENT_SECRET'),
+        'base_url' => env('AUTH0_BASE_URL'),
+        'redirect' => env('AUTH0_REDIRECT_URI', '/auth/callback/auth0'),
     ],
 
     'fathom' => [
