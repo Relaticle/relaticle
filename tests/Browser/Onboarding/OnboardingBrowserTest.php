@@ -14,6 +14,8 @@ it('new user without teams is directed to create a workspace', function (): void
         ->type('[id="form.email"]', $user->email)
         ->type('[id="form.password"]', 'password')
         ->click('button.fi-btn')
+        ->assertPathIs('/app/new')
+        ->navigate('/app/new')
         ->assertSee('Create your workspace')
         ->type('[id="form.name"]', 'My First Workspace')
         ->type('[id="form.slug"]', 'my-first-workspace')
