@@ -110,51 +110,6 @@
 .hero-enter-5 { animation-delay: 500ms; }
 .hero-enter-6 { animation-delay: 650ms; }
 
-/* ── Hero tab panel animations ── */
-/* Each tab has a unique entrance */
-
-@keyframes tab-fade-up {
-    from { opacity: 0; transform: translateY(16px); }
-    to   { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes tab-slide-right {
-    from { opacity: 0; transform: translateX(-20px); }
-    to   { opacity: 1; transform: translateX(0); }
-}
-
-@keyframes tab-scale-in {
-    from { opacity: 0; transform: scale(0.97); }
-    to   { opacity: 1; transform: scale(1); }
-}
-
-@keyframes tab-slide-left {
-    from { opacity: 0; transform: translateX(20px); }
-    to   { opacity: 1; transform: translateX(0); }
-}
-
-.hero-tab-panel[data-animation="fade-up"].is-entering {
-    animation: tab-fade-up 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-.hero-tab-panel[data-animation="slide-right"].is-entering {
-    animation: tab-slide-right 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-.hero-tab-panel[data-animation="scale-in"].is-entering {
-    animation: tab-scale-in 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-.hero-tab-panel[data-animation="slide-left"].is-entering {
-    animation: tab-slide-left 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-.hero-tab-panel.is-leaving {
-    animation: tab-fade-out 0.2s ease-out forwards;
-}
-
-@keyframes tab-fade-out {
-    from { opacity: 1; }
-    to   { opacity: 0; }
-}
-
 /* Tab active indicator slide */
 .hero-tab-indicator {
     transition: left 0.35s cubic-bezier(0.16, 1, 0.3, 1),
@@ -166,11 +121,6 @@
     .hero-enter {
         opacity: 1;
         animation: none;
-    }
-    .hero-tab-panel.is-entering,
-    .hero-tab-panel.is-leaving {
-        animation: none;
-        opacity: 1;
     }
     .hero-tab-indicator {
         transition: none;

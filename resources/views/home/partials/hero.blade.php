@@ -101,8 +101,8 @@
                         </div>
 
                         {{-- Tab panels --}}
-                        <div class="relative overflow-hidden">
-                            <div id="hero-tab-panel-companies" class="hero-tab-panel" data-animation="fade-up">
+                        <div id="hero-tab-container" class="relative overflow-hidden">
+                            <div id="hero-tab-panel-companies" class="hero-tab-panel">
                                 <picture>
                                     <source data-light-srcset="{{ asset('images/app-companies-preview.webp') }}" data-dark-srcset="{{ asset('images/app-companies-preview-dark.webp') }}" srcset="{{ asset('images/app-companies-preview.webp') }}" type="image/webp">
                                     <img data-light-src="{{ asset('images/app-companies-preview.png') }}"
@@ -116,7 +116,7 @@
                                          fetchpriority="high">
                                 </picture>
                             </div>
-                            <div id="hero-tab-panel-pipeline" class="hero-tab-panel hidden" data-animation="slide-right">
+                            <div id="hero-tab-panel-pipeline" class="hero-tab-panel hidden">
                                 <picture>
                                     <source data-light-srcset="{{ asset('images/app-pipeline-preview.webp') }}" data-dark-srcset="{{ asset('images/app-pipeline-preview-dark.webp') }}" srcset="{{ asset('images/app-pipeline-preview.webp') }}" type="image/webp">
                                     <img data-light-src="{{ asset('images/app-pipeline-preview.png') }}"
@@ -131,11 +131,11 @@
                             </div>
 
                             {{-- AI Agent tab --}}
-                            <div id="hero-tab-panel-ai-agent" class="hero-tab-panel hidden" data-animation="scale-in">
+                            <div id="hero-tab-panel-ai-agent" class="hero-tab-panel hidden">
                                 @include('home.partials.hero-agent-preview')
                             </div>
 
-                            <div id="hero-tab-panel-custom-fields" class="hero-tab-panel hidden" data-animation="slide-left">
+                            <div id="hero-tab-panel-custom-fields" class="hero-tab-panel hidden">
                                 <picture>
                                     <source data-light-srcset="{{ asset('images/app-custom-fields-preview.webp') }}" data-dark-srcset="{{ asset('images/app-custom-fields-preview-dark.webp') }}" srcset="{{ asset('images/app-custom-fields-preview.webp') }}" type="image/webp">
                                     <img data-light-src="{{ asset('images/app-custom-fields-preview.png') }}"
@@ -163,10 +163,16 @@
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         var tabs = document.querySelectorAll('.hero-tab');
-        var panels = document.querySelectorAll('.hero-tab-panel');
+        var tabOrder = ['companies', 'pipeline', 'ai-agent', 'custom-fields'];
         var indicator = document.getElementById('hero-tab-indicator');
+        var container = document.getElementById('hero-tab-container');
         var previewImages = document.querySelectorAll('.hero-preview-image');
         var switching = false;
+        var currentTab = 'companies';
+        var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        var ease = [0.16, 1, 0.3, 1];
+        var duration = 0.35;
+        var slideDistance = 40;
 
         function moveIndicator(tab) {
             if (!indicator || !tab) return;
@@ -177,18 +183,74 @@
         var firstActive = document.querySelector('.hero-tab.active');
         if (firstActive) moveIndicator(firstActive);
 
-        // animateChat/resetChat defined in hero-agent-preview component
         function animateChat() { if (window.mcpChatAnimate) window.mcpChatAnimate(); }
         function resetChat() { if (window.mcpChatReset) window.mcpChatReset(); }
 
+        function getPanel(name) {
+            return document.getElementById('hero-tab-panel-' + name);
+        }
+
+        function switchPanel(target) {
+            if (switching || target === currentTab) return;
+            switching = true;
+
+            var currentPanel = getPanel(currentTab);
+            var nextPanel = getPanel(target);
+            if (!currentPanel || !nextPanel) { switching = false; return; }
+
+            var direction = tabOrder.indexOf(target) > tabOrder.indexOf(currentTab) ? 1 : -1;
+
+            if (target === 'ai-agent') resetChat();
+
+            // Position next panel absolutely so both coexist during crossfade
+            nextPanel.classList.remove('hidden');
+            nextPanel.style.position = 'absolute';
+            nextPanel.style.top = '0';
+            nextPanel.style.left = '0';
+            nextPanel.style.right = '0';
+
+            if (reducedMotion) {
+                currentPanel.classList.add('hidden');
+                currentPanel.style.opacity = '';
+                currentPanel.style.transform = '';
+                nextPanel.style.position = '';
+                nextPanel.style.top = '';
+                nextPanel.style.left = '';
+                nextPanel.style.right = '';
+                nextPanel.style.opacity = '';
+                nextPanel.style.transform = '';
+                currentTab = target;
+                switching = false;
+                if (target === 'ai-agent') animateChat();
+                return;
+            }
+
+            // Crossfade: both animate simultaneously
+            animate(currentPanel, {
+                opacity: [1, 0],
+                x: [0, -direction * slideDistance]
+            }, { duration: duration, ease: ease });
+
+            animate(nextPanel, {
+                opacity: [0, 1],
+                x: [direction * slideDistance, 0]
+            }, { duration: duration, ease: ease }).then(function () {
+                currentPanel.classList.add('hidden');
+                currentPanel.style.opacity = '';
+                currentPanel.style.transform = '';
+                nextPanel.style.position = '';
+                nextPanel.style.top = '';
+                nextPanel.style.left = '';
+                nextPanel.style.right = '';
+                currentTab = target;
+                switching = false;
+                if (target === 'ai-agent') animateChat();
+            });
+        }
+
         tabs.forEach(function (tab) {
             tab.addEventListener('click', function () {
-                if (switching) return;
                 var target = this.getAttribute('data-hero-tab');
-                var nextPanel = document.getElementById('hero-tab-panel-' + target);
-                if (!nextPanel || !nextPanel.classList.contains('hidden')) return;
-
-                switching = true;
 
                 tabs.forEach(function (t) {
                     t.classList.remove('active', 'text-gray-800', 'dark:text-white');
@@ -198,43 +260,7 @@
                 this.classList.remove('text-gray-400', 'dark:text-gray-500');
 
                 moveIndicator(this);
-
-                // Reset chat state before switching
-                if (target === 'ai-agent') {
-                    resetChat();
-                }
-
-                var currentPanel = null;
-                panels.forEach(function (p) {
-                    if (!p.classList.contains('hidden')) currentPanel = p;
-                });
-
-                if (currentPanel) {
-                    currentPanel.classList.add('is-leaving');
-                    currentPanel.addEventListener('animationend', function handler() {
-                        currentPanel.removeEventListener('animationend', handler);
-                        currentPanel.classList.add('hidden');
-                        currentPanel.classList.remove('is-leaving');
-
-                        nextPanel.classList.remove('hidden');
-                        nextPanel.classList.add('is-entering');
-                        nextPanel.addEventListener('animationend', function handler2() {
-                            nextPanel.removeEventListener('animationend', handler2);
-                            nextPanel.classList.remove('is-entering');
-                            switching = false;
-                            if (target === 'ai-agent') animateChat();
-                        });
-                    });
-                } else {
-                    nextPanel.classList.remove('hidden');
-                    nextPanel.classList.add('is-entering');
-                    nextPanel.addEventListener('animationend', function handler3() {
-                        nextPanel.removeEventListener('animationend', handler3);
-                        nextPanel.classList.remove('is-entering');
-                        switching = false;
-                        if (target === 'ai-agent') animateChat();
-                    });
-                }
+                switchPanel(target);
             });
         });
 
