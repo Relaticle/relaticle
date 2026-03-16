@@ -36,6 +36,7 @@ use App\Mcp\Tools\Task\DeleteTaskTool;
 use App\Mcp\Tools\Task\GetTaskTool;
 use App\Mcp\Tools\Task\ListTasksTool;
 use App\Mcp\Tools\Task\UpdateTaskTool;
+use App\Mcp\Tools\WhoAmiTool;
 use Laravel\Mcp\Server;
 use Laravel\Mcp\Server\Attributes\Instructions;
 use Laravel\Mcp\Server\Attributes\Name;
@@ -52,6 +53,7 @@ final class RelaticleServer extends Server
 
     /** @var array<int, class-string<Tool>> */
     protected array $tools = [
+        WhoAmiTool::class,
         ListCompaniesTool::class,
         GetCompanyTool::class,
         CreateCompanyTool::class,
