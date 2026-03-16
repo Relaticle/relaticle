@@ -10,7 +10,7 @@ use Laravel\Socialite\Facades\Socialite;
 use Laravel\Socialite\Two\AbstractProvider;
 
 test('redirect to socialite provider', function () {
-    $response = $this->get(route('auth.socialite.redirect', ['provider' => SocialiteProvider::GOOGLE->value]));
+    $response = $this->get(route('auth.socialite.redirect', ['provider' => SocialiteProvider::Google->value]));
 
     $response->assertRedirect();
 });
@@ -26,11 +26,11 @@ test('callback from socialite provider creates new user when user does not exist
     $provider->shouldReceive('user')->andReturn($socialiteUser);
 
     Socialite::shouldReceive('driver')
-        ->with(SocialiteProvider::GOOGLE->value)
+        ->with(SocialiteProvider::Google->value)
         ->andReturn($provider);
 
     // Make the request to the callback route with required code parameter
-    $response = $this->get(route('auth.socialite.callback', ['provider' => SocialiteProvider::GOOGLE->value, 'code' => 'test-code']));
+    $response = $this->get(route('auth.socialite.callback', ['provider' => SocialiteProvider::Google->value, 'code' => 'test-code']));
 
     // Assert that a new user was created
     $this->assertDatabaseHas('users', [
@@ -40,7 +40,7 @@ test('callback from socialite provider creates new user when user does not exist
 
     // Assert that a social account was created
     $this->assertDatabaseHas('user_social_accounts', [
-        'provider_name' => SocialiteProvider::GOOGLE->value,
+        'provider_name' => SocialiteProvider::Google->value,
         'provider_id' => '123456789',
     ]);
 
@@ -60,7 +60,7 @@ test('callback from socialite provider logs in existing user when social account
 
     UserSocialAccount::factory()->create([
         'user_id' => $user->id,
-        'provider_name' => SocialiteProvider::GOOGLE->value,
+        'provider_name' => SocialiteProvider::Google->value,
         'provider_id' => '123456789',
     ]);
 
@@ -74,11 +74,11 @@ test('callback from socialite provider logs in existing user when social account
     $provider->shouldReceive('user')->andReturn($socialiteUser);
 
     Socialite::shouldReceive('driver')
-        ->with(SocialiteProvider::GOOGLE->value)
+        ->with(SocialiteProvider::Google->value)
         ->andReturn($provider);
 
     // Make the request to the callback route with required code parameter
-    $response = $this->get(route('auth.socialite.callback', ['provider' => SocialiteProvider::GOOGLE->value, 'code' => 'test-code']));
+    $response = $this->get(route('auth.socialite.callback', ['provider' => SocialiteProvider::Google->value, 'code' => 'test-code']));
 
     // Assert that the user is authenticated
     $this->assertAuthenticated();
@@ -105,11 +105,11 @@ test('callback from socialite provider links social account to existing user whe
     $provider->shouldReceive('user')->andReturn($socialiteUser);
 
     Socialite::shouldReceive('driver')
-        ->with(SocialiteProvider::GOOGLE->value)
+        ->with(SocialiteProvider::Google->value)
         ->andReturn($provider);
 
     // Make the request to the callback route with required code parameter
-    $response = $this->get(route('auth.socialite.callback', ['provider' => SocialiteProvider::GOOGLE->value, 'code' => 'test-code']));
+    $response = $this->get(route('auth.socialite.callback', ['provider' => SocialiteProvider::Google->value, 'code' => 'test-code']));
 
     // Check if the response is a redirect to the dashboard
     $response->assertRedirect();
@@ -125,11 +125,11 @@ test('callback from socialite provider handles error gracefully', function () {
     $provider->shouldReceive('user')->andThrow(new Exception('Socialite error'));
 
     Socialite::shouldReceive('driver')
-        ->with(SocialiteProvider::GOOGLE->value)
+        ->with(SocialiteProvider::Google->value)
         ->andReturn($provider);
 
     // Make the request to the callback route with required code parameter
-    $response = $this->get(route('auth.socialite.callback', ['provider' => SocialiteProvider::GOOGLE->value, 'code' => 'test-code']));
+    $response = $this->get(route('auth.socialite.callback', ['provider' => SocialiteProvider::Google->value, 'code' => 'test-code']));
 
     // Assert that the user is redirected to the login page with an error
     $response->assertRedirect(route('login'));
@@ -138,7 +138,7 @@ test('callback from socialite provider handles error gracefully', function () {
 
 test('callback from socialite provider handles missing code parameter', function () {
     // Make the request to the callback route without a code parameter
-    $response = $this->get(route('auth.socialite.callback', ['provider' => SocialiteProvider::GOOGLE->value]));
+    $response = $this->get(route('auth.socialite.callback', ['provider' => SocialiteProvider::Google->value]));
 
     // Assert that the user is redirected to the login page with an error
     $response->assertRedirect(route('login'));
@@ -147,4 +147,64 @@ test('callback from socialite provider handles missing code parameter', function
 
     $errors = session('errors')->getBag('default');
     expect($errors->first('login'))->toBe('Authorization was cancelled or failed. Please try again.');
+});
+
+test('provider enabled() returns false when credentials are missing', function () {
+    config()->set('services.keycloak.enabled', true);
+    config()->set('services.keycloak.client_id', null);
+    config()->set('services.keycloak.client_secret', 'secret');
+    config()->set('services.keycloak.base_url', 'https://keycloak.example.com');
+
+    expect(SocialiteProvider::Keycloak->enabled())->toBeFalse();
+});
+
+test('provider enabled() returns false when explicitly disabled', function () {
+    config()->set('services.google.enabled', false);
+    config()->set('services.google.client_id', 'id');
+    config()->set('services.google.client_secret', 'secret');
+
+    expect(SocialiteProvider::Google->enabled())->toBeFalse();
+});
+
+test('provider enabled() returns true when configured and enabled', function () {
+    config()->set('services.keycloak.enabled', true);
+    config()->set('services.keycloak.client_id', 'id');
+    config()->set('services.keycloak.client_secret', 'secret');
+    config()->set('services.keycloak.base_url', 'https://keycloak.example.com');
+
+    expect(SocialiteProvider::Keycloak->enabled())->toBeTrue();
+});
+
+test('provider enabled() defaults to true for Google and GitHub', function () {
+    config()->set('services.google.client_id', 'id');
+    config()->set('services.google.client_secret', 'secret');
+
+    expect(SocialiteProvider::Google->enabled())->toBeTrue();
+});
+
+test('provider enabled() defaults to false for SSO providers', function () {
+    config()->set('services.keycloak.client_id', 'id');
+    config()->set('services.keycloak.client_secret', 'secret');
+    config()->set('services.keycloak.base_url', 'https://keycloak.example.com');
+
+    expect(SocialiteProvider::Keycloak->enabled())->toBeFalse();
+});
+
+test('enabledProviders() returns only enabled providers', function () {
+    config()->set('services.google.enabled', true);
+    config()->set('services.google.client_id', 'id');
+    config()->set('services.google.client_secret', 'secret');
+
+    config()->set('services.github.enabled', false);
+
+    config()->set('services.keycloak.enabled', true);
+    config()->set('services.keycloak.client_id', 'id');
+    config()->set('services.keycloak.client_secret', 'secret');
+    config()->set('services.keycloak.base_url', 'https://keycloak.example.com');
+
+    $providers = SocialiteProvider::enabledProviders();
+
+    expect($providers)->toContain(SocialiteProvider::Google)
+        ->toContain(SocialiteProvider::Keycloak)
+        ->not->toContain(SocialiteProvider::GitHub);
 });
