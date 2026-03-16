@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Auth;
 
 use App\Contracts\User\CreatesNewSocialUsers;
+use App\Enums\SocialiteProvider;
 use App\Models\User;
 use App\Models\UserSocialAccount;
 use Filament\Notifications\Notification;
@@ -24,6 +25,12 @@ final readonly class CallbackController
         string $provider,
         CreatesNewSocialUsers $creator
     ): RedirectResponse {
+        $providerEnum = SocialiteProvider::tryFrom($provider);
+
+        if (! $providerEnum || ! $providerEnum->enabled()) {
+            abort(404);
+        }
+
         if (! $request->has('code')) {
             return $this->handleError('Authorization was cancelled or failed. Please try again.');
         }
