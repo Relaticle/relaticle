@@ -38,6 +38,13 @@ boost.json
 /.junie
 /.playwright-mcp
 /docs
+api.json
+.scribe/
+/public/vendor/scribe
+/resources/views/scribe
+/storage/app/scribe
+/tests/Feature/Scribe
 .context
 polyscope.json
 /bin/setup-preview.sh
+.gstack/
