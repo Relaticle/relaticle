@@ -77,7 +77,7 @@ final readonly class SetApiTeamContext
         return $next($request);
     }
 
-    public function terminate(): void
+    public function terminate(Request $request, Response $response): void
     {
         auth()->guard('web')->forgetUser();
 
