@@ -77,12 +77,10 @@ final readonly class SetApiTeamContext
         return $next($request);
     }
 
-    public function terminate(Request $request, Response $response): void
+    public function terminate(): void
     {
         auth()->guard('web')->forgetUser();
-
         TenantContextService::setTenantId(null);
-
         foreach (self::SCOPED_MODELS as $model) {
             $model::clearBootedModels();
         }
