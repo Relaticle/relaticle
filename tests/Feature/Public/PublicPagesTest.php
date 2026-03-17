@@ -118,12 +118,18 @@ describe('Social authentication routes', function () {
     });
 
     it('accepts github as a provider for redirect', function () {
+        config()->set('services.github.client_id', 'test-id');
+        config()->set('services.github.client_secret', 'test-secret');
+
         $response = $this->get('/auth/redirect/github');
 
         $response->assertStatus(302); // Redirect to GitHub
     });
 
     it('accepts google as a provider for redirect', function () {
+        config()->set('services.google.client_id', 'test-id');
+        config()->set('services.google.client_secret', 'test-secret');
+
         $response = $this->get('/auth/redirect/google');
 
         $response->assertStatus(302); // Redirect to Google

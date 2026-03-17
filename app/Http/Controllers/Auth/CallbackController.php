@@ -27,9 +27,7 @@ final readonly class CallbackController
     ): RedirectResponse {
         $providerEnum = SocialiteProvider::tryFrom($provider);
 
-        if (! $providerEnum || ! $providerEnum->enabled()) {
-            abort(404);
-        }
+        abort_if(! $providerEnum || ! $providerEnum->enabled(), 404);
 
         if (! $request->has('code')) {
             return $this->handleError('Authorization was cancelled or failed. Please try again.');
