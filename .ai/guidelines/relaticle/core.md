@@ -43,6 +43,7 @@ Do not add new PHPStan errors to the baseline without approval. All parameters a
 - Use `mutates(ClassName::class)` in test files to declare which source classes each test covers
 - Run mutation testing per-class: `php -d xdebug.mode=coverage vendor/bin/pest --mutate --class='App\MyClass' tests/path/`
 - No enforced `--min` threshold — use mutation testing as a code review tool, not a CI gate
+- Use `$this->travelTo()` in tests that depend on day-of-week or weekly intervals to avoid flaky boundary failures
 
 ## Custom Fields
 
