@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Actions\Task;
 
+use App\Mcp\Filters\CustomFieldFilter;
+use App\Mcp\Schema\CustomFieldFilterSchema;
 use App\Models\Task;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\CursorPaginator;
@@ -11,6 +13,7 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Spatie\QueryBuilder\AllowedFilter;
+use Spatie\QueryBuilder\AllowedInclude;
 use Spatie\QueryBuilder\QueryBuilder;
 
 final readonly class ListTasks
@@ -32,17 +35,37 @@ final readonly class ListTasks
         $perPage = max(1, min($perPage, 100));
 
         $request ??= new Request(['filter' => $filters]);
+        $filterSchema = new CustomFieldFilterSchema;
 
         $query = QueryBuilder::for(Task::query()->withCustomFieldValues(), $request)
-            ->allowedFilters([
+            ->allowedFilters(
                 AllowedFilter::partial('title'),
                 AllowedFilter::callback('assigned_to_me', function (Builder $query) use ($user): void {
                     $query->whereHas('assignees', fn (Builder $q) => $q->where('users.id', $user->getKey()));
                 }),
-            ])
-            ->allowedFields(['id', 'title', 'creator_id', 'created_at', 'updated_at'])
-            ->allowedIncludes(['creator', 'assignees', 'companies', 'people', 'opportunities'])
-            ->allowedSorts(['title', 'created_at', 'updated_at'])
+                AllowedFilter::callback('company_id', function (Builder $query, mixed $value): void {
+                    $query->whereHas('companies', fn (Builder $q) => $q->where('companies.id', $value));
+                }),
+                AllowedFilter::callback('people_id', function (Builder $query, mixed $value): void {
+                    $query->whereHas('people', fn (Builder $q) => $q->where('people.id', $value));
+                }),
+                AllowedFilter::callback('opportunity_id', function (Builder $query, mixed $value): void {
+                    $query->whereHas('opportunities', fn (Builder $q) => $q->where('opportunities.id', $value));
+                }),
+                AllowedFilter::custom('custom_fields', new CustomFieldFilter('task')),
+            )
+            ->allowedFields('id', 'title', 'creator_id', 'created_at', 'updated_at')
+            ->allowedIncludes(
+                'creator', 'assignees', 'companies', 'people', 'opportunities',
+                AllowedInclude::count('assigneesCount', 'assignees'),
+                AllowedInclude::count('companiesCount', 'companies'),
+                AllowedInclude::count('peopleCount', 'people'),
+                AllowedInclude::count('opportunitiesCount', 'opportunities'),
+            )
+            ->allowedSorts(
+                'title', 'created_at', 'updated_at',
+                ...$filterSchema->allowedSorts($user, 'task'),
+            )
             ->defaultSort('-created_at');
 
         if ($useCursor) {

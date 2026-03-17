@@ -7,6 +7,7 @@ use App\Http\Resources\V1\CompanyResource;
 use App\Models\Company;
 use App\Models\CustomField;
 use App\Models\CustomFieldSection;
+use App\Models\People;
 use App\Models\Team;
 use App\Models\User;
 use Illuminate\Support\Str;
@@ -235,6 +236,21 @@ describe('includes', function (): void {
             ->assertOk();
 
         expect($response->json('data.relationships'))->toBeNull();
+    });
+
+    it('can include relationship counts', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $company = Company::factory()->for($this->team)->create();
+        People::factory(3)->for($this->team)->create(['company_id' => $company->id]);
+
+        $response = $this->getJson('/api/v1/companies?include=peopleCount');
+
+        $response->assertOk();
+
+        $companyData = collect($response->json('data'))
+            ->firstWhere('id', $company->id);
+        expect($companyData['attributes']['people_count'])->toBe(3);
     });
 
     it('rejects disallowed includes on list endpoint', function (): void {

@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace App\Actions\Opportunity;
 
+use App\Mcp\Filters\CustomFieldFilter;
+use App\Mcp\Schema\CustomFieldFilterSchema;
 use App\Models\Opportunity;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\CursorPaginator;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
 use Spatie\QueryBuilder\AllowedFilter;
+use Spatie\QueryBuilder\AllowedInclude;
 use Spatie\QueryBuilder\QueryBuilder;
 
 final readonly class ListOpportunities
@@ -31,15 +34,25 @@ final readonly class ListOpportunities
         $perPage = max(1, min($perPage, 100));
 
         $request ??= new Request(['filter' => $filters]);
+        $filterSchema = new CustomFieldFilterSchema;
 
         $query = QueryBuilder::for(Opportunity::query()->withCustomFieldValues(), $request)
-            ->allowedFilters([
+            ->allowedFilters(
                 AllowedFilter::partial('name'),
                 AllowedFilter::exact('company_id'),
-            ])
-            ->allowedFields(['id', 'name', 'company_id', 'contact_id', 'creator_id', 'created_at', 'updated_at'])
-            ->allowedIncludes(['creator', 'company', 'contact'])
-            ->allowedSorts(['name', 'created_at', 'updated_at'])
+                AllowedFilter::exact('contact_id'),
+                AllowedFilter::custom('custom_fields', new CustomFieldFilter('opportunity')),
+            )
+            ->allowedFields('id', 'name', 'company_id', 'contact_id', 'creator_id', 'created_at', 'updated_at')
+            ->allowedIncludes(
+                'creator', 'company', 'contact',
+                AllowedInclude::count('tasksCount', 'tasks'),
+                AllowedInclude::count('notesCount', 'notes'),
+            )
+            ->allowedSorts(
+                'name', 'created_at', 'updated_at',
+                ...$filterSchema->allowedSorts($user, 'opportunity'),
+            )
             ->defaultSort('-created_at');
 
         if ($useCursor) {

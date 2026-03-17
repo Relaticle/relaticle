@@ -250,6 +250,20 @@ describe('includes', function (): void {
         expect($response->json('data.relationships'))->toBeNull();
     });
 
+    it('can include relationship counts', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $note = Note::factory()->for($this->team)->create();
+
+        $response = $this->getJson('/api/v1/notes?include=companiesCount');
+
+        $response->assertOk();
+
+        $noteData = collect($response->json('data'))
+            ->firstWhere('id', $note->id);
+        expect($noteData['attributes']['companies_count'])->toBe(0);
+    });
+
     it('rejects disallowed includes on list endpoint', function (): void {
         Sanctum::actingAs($this->user);
 

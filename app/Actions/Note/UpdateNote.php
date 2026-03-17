@@ -20,8 +20,18 @@ final readonly class UpdateNote
 
         $attributes = Arr::only($data, ['title', 'custom_fields']);
 
-        return DB::transaction(function () use ($note, $attributes): Note {
+        return DB::transaction(function () use ($note, $attributes, $data): Note {
             $note->update($attributes);
+
+            if (array_key_exists('company_ids', $data)) {
+                $note->companies()->sync($data['company_ids']);
+            }
+            if (array_key_exists('people_ids', $data)) {
+                $note->people()->sync($data['people_ids']);
+            }
+            if (array_key_exists('opportunity_ids', $data)) {
+                $note->opportunities()->sync($data['opportunity_ids']);
+            }
 
             return $note->refresh();
         });

@@ -27,6 +27,9 @@ final class NoteResource extends JsonApiResource
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'custom_fields' => $this->formatCustomFields($this->resource),
+            'companies_count' => $this->whenHas('companies_count'),
+            'people_count' => $this->whenHas('people_count'),
+            'opportunities_count' => $this->whenHas('opportunities_count'),
         ];
     }
 

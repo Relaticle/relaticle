@@ -19,9 +19,31 @@ final readonly class CreateTask
     {
         abort_unless($user->can('create', Task::class), 403);
 
+        $companyIds = Arr::pull($data, 'company_ids');
+        $peopleIds = Arr::pull($data, 'people_ids');
+        $opportunityIds = Arr::pull($data, 'opportunity_ids');
+        $assigneeIds = Arr::pull($data, 'assignee_ids');
+
         $attributes = Arr::only($data, ['title', 'custom_fields']);
         $attributes['creation_source'] = $source;
 
-        return DB::transaction(fn (): Task => Task::query()->create($attributes));
+        return DB::transaction(function () use ($attributes, $companyIds, $peopleIds, $opportunityIds, $assigneeIds): Task {
+            $task = Task::query()->create($attributes);
+
+            if ($companyIds !== null) {
+                $task->companies()->sync($companyIds);
+            }
+            if ($peopleIds !== null) {
+                $task->people()->sync($peopleIds);
+            }
+            if ($opportunityIds !== null) {
+                $task->opportunities()->sync($opportunityIds);
+            }
+            if ($assigneeIds !== null) {
+                $task->assignees()->sync($assigneeIds);
+            }
+
+            return $task;
+        });
     }
 }

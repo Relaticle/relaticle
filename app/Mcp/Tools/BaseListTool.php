@@ -7,6 +7,7 @@ namespace App\Mcp\Tools;
 use App\Mcp\Tools\Concerns\ChecksTokenAbility;
 use App\Models\User;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
+use Illuminate\Http\Request as HttpRequest;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
@@ -46,6 +47,9 @@ abstract class BaseListTool extends Tool
             ['search' => $schema->string()->description("Search by {$this->searchFilterName()}.")],
             $this->additionalSchema($schema),
             [
+                'filter' => $schema->object()->description('Filter by custom field values. Keys are field codes, values are operator objects (eq, gt, gte, lt, lte, contains, in, has_any).'),
+                'sort' => $schema->object()->description('Sort by field. Properties: field (string), direction (asc|desc).'),
+                'include' => $schema->array()->description('Related records to expand in response.'),
                 'per_page' => $schema->integer()->description('Results per page (default 15, max 100).')->default(15),
                 'page' => $schema->integer()->description('Page number.')->default(1),
             ],
@@ -59,17 +63,14 @@ abstract class BaseListTool extends Tool
         /** @var User $user */
         $user = auth()->user();
 
-        $filters = array_filter(array_merge(
-            [$this->searchFilterName() => $request->get('search')],
-            $this->additionalFilters($request),
-        ));
+        $httpRequest = $this->buildHttpRequest($request);
 
         $action = app()->make($this->actionClass());
         $results = $action->execute(
             user: $user,
             perPage: (int) $request->get('per_page', 15),
-            filters: $filters,
             page: $request->get('page') ? (int) $request->get('page') : null,
+            request: $httpRequest,
         );
 
         /** @var class-string<JsonResource> $resourceClass */
@@ -78,5 +79,40 @@ abstract class BaseListTool extends Tool
         return Response::text(
             $resourceClass::collection($results)->toJson(JSON_PRETTY_PRINT)
         );
+    }
+
+    private function buildHttpRequest(Request $mcpRequest): HttpRequest
+    {
+        $input = [];
+
+        $nativeFilters = array_filter(array_merge(
+            [$this->searchFilterName() => $mcpRequest->get('search')],
+            $this->additionalFilters($mcpRequest),
+        ));
+
+        if ($nativeFilters !== []) {
+            $input['filter'] = $nativeFilters;
+        }
+
+        $customFieldFilters = $mcpRequest->get('filter');
+
+        if (is_array($customFieldFilters) && $customFieldFilters !== []) {
+            $input['filter']['custom_fields'] = $customFieldFilters;
+        }
+
+        $sort = $mcpRequest->get('sort');
+
+        if (is_array($sort) && isset($sort['field'])) {
+            $direction = ($sort['direction'] ?? 'asc') === 'desc' ? '-' : '';
+            $input['sort'] = $direction.$sort['field'];
+        }
+
+        $include = $mcpRequest->get('include');
+
+        if (is_array($include) && $include !== []) {
+            $input['include'] = implode(',', $include);
+        }
+
+        return new HttpRequest($input);
     }
 }

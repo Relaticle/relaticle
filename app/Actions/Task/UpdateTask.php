@@ -27,8 +27,21 @@ final readonly class UpdateTask
 
         $attributes = Arr::only($data, ['title', 'custom_fields']);
 
-        return DB::transaction(function () use ($task, $attributes): Task {
+        return DB::transaction(function () use ($task, $attributes, $data): Task {
             $task->update($attributes);
+
+            if (array_key_exists('company_ids', $data)) {
+                $task->companies()->sync($data['company_ids']);
+            }
+            if (array_key_exists('people_ids', $data)) {
+                $task->people()->sync($data['people_ids']);
+            }
+            if (array_key_exists('opportunity_ids', $data)) {
+                $task->opportunities()->sync($data['opportunity_ids']);
+            }
+            if (array_key_exists('assignee_ids', $data)) {
+                $task->assignees()->sync($data['assignee_ids']);
+            }
 
             $this->notifier->notifyNewAssignees($task);
 

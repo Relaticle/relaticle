@@ -312,6 +312,20 @@ describe('includes', function (): void {
         expect($response->json('data.relationships'))->toBeNull();
     });
 
+    it('can include relationship counts', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $opportunity = Opportunity::factory()->for($this->team)->create();
+
+        $response = $this->getJson('/api/v1/opportunities?include=tasksCount');
+
+        $response->assertOk();
+
+        $oppData = collect($response->json('data'))
+            ->firstWhere('id', $opportunity->id);
+        expect($oppData['attributes']['tasks_count'])->toBe(0);
+    });
+
     it('rejects disallowed includes on list endpoint', function (): void {
         Sanctum::actingAs($this->user);
 

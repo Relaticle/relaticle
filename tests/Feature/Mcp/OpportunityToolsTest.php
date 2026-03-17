@@ -5,10 +5,12 @@ declare(strict_types=1);
 use App\Mcp\Servers\RelaticleServer;
 use App\Mcp\Tools\Opportunity\CreateOpportunityTool;
 use App\Mcp\Tools\Opportunity\DeleteOpportunityTool;
+use App\Mcp\Tools\Opportunity\GetOpportunityTool;
 use App\Mcp\Tools\Opportunity\ListOpportunitiesTool;
 use App\Mcp\Tools\Opportunity\UpdateOpportunityTool;
 use App\Models\Company;
 use App\Models\Opportunity;
+use App\Models\People;
 use App\Models\Scopes\TeamScope;
 use App\Models\Team;
 use App\Models\User;
@@ -21,6 +23,15 @@ beforeEach(function () {
 
 afterEach(function () {
     Opportunity::clearBootedModels();
+});
+
+it('can get an opportunity by ID', function (): void {
+    $opportunity = Opportunity::factory()->for($this->team)->create(['name' => 'Big Deal']);
+
+    RelaticleServer::actingAs($this->user)
+        ->tool(GetOpportunityTool::class, ['id' => $opportunity->id])
+        ->assertOk()
+        ->assertSee('Big Deal');
 });
 
 it('can update an opportunity via MCP tool', function (): void {
@@ -48,6 +59,22 @@ it('can delete an opportunity via MCP tool', function (): void {
         ->assertSee('has been deleted');
 
     expect($opportunity->refresh()->trashed())->toBeTrue();
+});
+
+it('can filter opportunities by contact_id', function (): void {
+    $person = People::factory()->for($this->team)->create();
+    $matchingOpp = Opportunity::factory()->for($this->team)->create([
+        'contact_id' => $person->id,
+    ]);
+    $otherOpp = Opportunity::factory()->for($this->team)->create();
+
+    RelaticleServer::actingAs($this->user)
+        ->tool(ListOpportunitiesTool::class, [
+            'contact_id' => $person->id,
+        ])
+        ->assertOk()
+        ->assertSee($matchingOpp->name)
+        ->assertDontSee($otherOpp->name);
 });
 
 describe('team scoping', function () {
@@ -88,6 +115,17 @@ describe('team scoping', function () {
 
         RelaticleServer::actingAs($this->user)
             ->tool(DeleteOpportunityTool::class, [
+                'id' => $otherOpportunity->id,
+            ]);
+    })->throws(ModelNotFoundException::class);
+
+    it('cannot get an opportunity from another team', function (): void {
+        $otherOpportunity = Opportunity::withoutEvents(fn () => Opportunity::factory()->create([
+            'team_id' => Team::factory()->create()->id,
+        ]));
+
+        RelaticleServer::actingAs($this->user)
+            ->tool(GetOpportunityTool::class, [
                 'id' => $otherOpportunity->id,
             ]);
     })->throws(ModelNotFoundException::class);
