@@ -7,6 +7,8 @@ use App\Models\User;
 use Illuminate\Support\Str;
 use Laravel\Jetstream\Features;
 
+mutates(User::class);
+
 test('api token permissions can be updated', function () {
     $this->actingAs($user = User::factory()->withTeam()->create());
 

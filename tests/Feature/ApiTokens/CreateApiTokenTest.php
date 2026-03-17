@@ -8,6 +8,8 @@ use App\Models\User;
 use Illuminate\Support\Str;
 use Laravel\Jetstream\Features;
 
+mutates(User::class);
+
 test('api tokens can be created with team and expiration', function () {
     $this->actingAs($user = User::factory()->withTeam()->create());
 
