@@ -116,7 +116,7 @@
                                          fetchpriority="high">
                                 </picture>
                             </div>
-                            <div x-ref="panel-pipeline" class="col-start-1 row-start-1 hidden">
+                            <div x-ref="panel-pipeline" class="col-start-1 row-start-1 invisible">
                                 <picture>
                                     <source data-light-srcset="{{ asset('images/app-pipeline-preview.webp') }}" data-dark-srcset="{{ asset('images/app-pipeline-preview-dark.webp') }}" srcset="{{ asset('images/app-pipeline-preview.webp') }}" type="image/webp">
                                     <img data-light-src="{{ asset('images/app-pipeline-preview.png') }}"
@@ -131,11 +131,11 @@
                             </div>
 
                             {{-- AI Agent tab --}}
-                            <div x-ref="panel-ai-agent" class="col-start-1 row-start-1 hidden">
+                            <div x-ref="panel-ai-agent" class="col-start-1 row-start-1 invisible">
                                 @include('home.partials.hero-agent-preview')
                             </div>
 
-                            <div x-ref="panel-custom-fields" class="col-start-1 row-start-1 hidden">
+                            <div x-ref="panel-custom-fields" class="col-start-1 row-start-1 invisible">
                                 <picture>
                                     <source data-light-srcset="{{ asset('images/app-custom-fields-preview.webp') }}" data-dark-srcset="{{ asset('images/app-custom-fields-preview-dark.webp') }}" srcset="{{ asset('images/app-custom-fields-preview.webp') }}" type="image/webp">
                                     <img data-light-src="{{ asset('images/app-custom-fields-preview.png') }}"
@@ -184,6 +184,19 @@
                 indicator.style.width = tab.offsetWidth + 'px';
             },
 
+            showPanel(panel) {
+                panel.classList.remove('invisible');
+                panel.style.zIndex = '1';
+            },
+
+            hidePanel(panel) {
+                panel.classList.add('invisible');
+                panel.style.opacity = '';
+                panel.style.transform = '';
+                panel.style.willChange = '';
+                panel.style.zIndex = '';
+            },
+
             cancelPanelAnimations() {
                 var self = this;
                 this.tabOrder.forEach(function(name) {
@@ -195,6 +208,7 @@
                     panel.style.opacity = '';
                     panel.style.transform = '';
                     panel.style.willChange = '';
+                    panel.style.zIndex = '';
                 });
             },
 
@@ -218,7 +232,7 @@
                     var panel = self.$refs['panel-' + name];
                     if (!panel) return;
                     if (name !== target && name !== previousTab) {
-                        panel.classList.add('hidden');
+                        self.hidePanel(panel);
                     }
                 });
 
@@ -226,10 +240,10 @@
                 var nextPanel = this.$refs['panel-' + target];
                 if (!currentPanel || !nextPanel) return;
 
-                nextPanel.classList.remove('hidden');
+                this.showPanel(nextPanel);
 
                 if (this.reducedMotion) {
-                    currentPanel.classList.add('hidden');
+                    this.hidePanel(currentPanel);
                     if (target === 'ai-agent') {
                         this.$dispatch('hero-chat-animate');
                     }
@@ -249,10 +263,7 @@
                     x: [direction * this.slideDistance, 0]
                 }, { duration: this.duration, ease: this.ease }).then(function() {
                     if (self.activeTab !== target) return;
-                    currentPanel.classList.add('hidden');
-                    currentPanel.style.opacity = '';
-                    currentPanel.style.transform = '';
-                    currentPanel.style.willChange = '';
+                    self.hidePanel(currentPanel);
                     nextPanel.style.willChange = '';
                     if (target === 'ai-agent') {
                         self.$dispatch('hero-chat-animate');
