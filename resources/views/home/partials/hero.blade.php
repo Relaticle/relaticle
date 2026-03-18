@@ -100,9 +100,9 @@
                             </div>
                         </div>
 
-                        {{-- Tab panels --}}
-                        <div id="hero-tab-container" class="relative overflow-hidden">
-                            <div x-ref="panel-companies">
+                        {{-- Tab panels — grid stacking for Safari-smooth crossfade --}}
+                        <div class="relative grid overflow-hidden">
+                            <div x-ref="panel-companies" class="col-start-1 row-start-1">
                                 <picture>
                                     <source data-light-srcset="{{ asset('images/app-companies-preview.webp') }}" data-dark-srcset="{{ asset('images/app-companies-preview-dark.webp') }}" srcset="{{ asset('images/app-companies-preview.webp') }}" type="image/webp">
                                     <img data-light-src="{{ asset('images/app-companies-preview.png') }}"
@@ -116,7 +116,7 @@
                                          fetchpriority="high">
                                 </picture>
                             </div>
-                            <div x-ref="panel-pipeline" class="hidden">
+                            <div x-ref="panel-pipeline" class="col-start-1 row-start-1 hidden">
                                 <picture>
                                     <source data-light-srcset="{{ asset('images/app-pipeline-preview.webp') }}" data-dark-srcset="{{ asset('images/app-pipeline-preview-dark.webp') }}" srcset="{{ asset('images/app-pipeline-preview.webp') }}" type="image/webp">
                                     <img data-light-src="{{ asset('images/app-pipeline-preview.png') }}"
@@ -131,11 +131,11 @@
                             </div>
 
                             {{-- AI Agent tab --}}
-                            <div x-ref="panel-ai-agent" class="hidden">
+                            <div x-ref="panel-ai-agent" class="col-start-1 row-start-1 hidden">
                                 @include('home.partials.hero-agent-preview')
                             </div>
 
-                            <div x-ref="panel-custom-fields" class="hidden">
+                            <div x-ref="panel-custom-fields" class="col-start-1 row-start-1 hidden">
                                 <picture>
                                     <source data-light-srcset="{{ asset('images/app-custom-fields-preview.webp') }}" data-dark-srcset="{{ asset('images/app-custom-fields-preview-dark.webp') }}" srcset="{{ asset('images/app-custom-fields-preview.webp') }}" type="image/webp">
                                     <img data-light-src="{{ asset('images/app-custom-fields-preview.png') }}"
@@ -194,10 +194,7 @@
                     }
                     panel.style.opacity = '';
                     panel.style.transform = '';
-                    panel.style.position = '';
-                    panel.style.top = '';
-                    panel.style.left = '';
-                    panel.style.right = '';
+                    panel.style.willChange = '';
                 });
             },
 
@@ -239,10 +236,8 @@
                     return;
                 }
 
-                nextPanel.style.position = 'absolute';
-                nextPanel.style.top = '0';
-                nextPanel.style.left = '0';
-                nextPanel.style.right = '0';
+                currentPanel.style.willChange = 'transform, opacity';
+                nextPanel.style.willChange = 'transform, opacity';
 
                 animate(currentPanel, {
                     opacity: [1, 0],
@@ -257,10 +252,8 @@
                     currentPanel.classList.add('hidden');
                     currentPanel.style.opacity = '';
                     currentPanel.style.transform = '';
-                    nextPanel.style.position = '';
-                    nextPanel.style.top = '';
-                    nextPanel.style.left = '';
-                    nextPanel.style.right = '';
+                    currentPanel.style.willChange = '';
+                    nextPanel.style.willChange = '';
                     if (target === 'ai-agent') {
                         self.$dispatch('hero-chat-animate');
                     }
