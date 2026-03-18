@@ -98,17 +98,17 @@
 
                 animate(root.querySelector('.mcp-input'), { opacity: [0, 1] }, { duration: 0.3, ease: ease });
 
-                animate(users[0], { opacity: [0, 1], x: [12, 0] }, { delay: 0.2, duration: 0.4, ease: ease });
+                animate(users[0], { opacity: [0, 1], transform: ['translateX(12px)', 'translateX(0px)'] }, { delay: 0.2, duration: 0.4, ease: ease });
 
                 animate(agents[0], { opacity: [0, 1] }, { delay: 0.7, duration: 0.3, ease: ease });
-                animate(root.querySelector('.mcp-agent-text'), { opacity: [0, 1], y: [8, 0] }, { delay: 0.8, duration: 0.4, ease: ease });
-                animate(root.querySelector('.mcp-card'), { opacity: [0, 1], y: [12, 0] }, { delay: 1.0, duration: 0.5, ease: ease });
+                animate(root.querySelector('.mcp-agent-text'), { opacity: [0, 1], transform: ['translateY(8px)', 'translateY(0px)'] }, { delay: 0.8, duration: 0.4, ease: ease });
+                animate(root.querySelector('.mcp-card'), { opacity: [0, 1], transform: ['translateY(12px)', 'translateY(0px)'] }, { delay: 1.0, duration: 0.5, ease: ease });
 
-                animate(users[1], { opacity: [0, 1], x: [12, 0] }, { delay: 1.4, duration: 0.4, ease: ease });
+                animate(users[1], { opacity: [0, 1], transform: ['translateX(12px)', 'translateX(0px)'] }, { delay: 1.4, duration: 0.4, ease: ease });
 
                 animate(agents[1], { opacity: [0, 1] }, { delay: 1.9, duration: 0.3, ease: ease });
                 animate(root.querySelectorAll('.mcp-deal'),
-                    { opacity: [0, 1], x: [-8, 0] },
+                    { opacity: [0, 1], transform: ['translateX(-8px)', 'translateX(0px)'] },
                     { delay: stagger(0.1, { start: 2.1 }), duration: 0.35, ease: ease }
                 );
             }

@@ -253,14 +253,17 @@
                 currentPanel.style.willChange = 'transform, opacity';
                 nextPanel.style.willChange = 'transform, opacity';
 
+                var outX = -direction * this.slideDistance;
+                var inX = direction * this.slideDistance;
+
                 animate(currentPanel, {
                     opacity: [1, 0],
-                    x: [0, -direction * this.slideDistance]
+                    transform: ['translateX(0px)', 'translateX(' + outX + 'px)']
                 }, { duration: this.duration, ease: this.ease });
 
                 animate(nextPanel, {
                     opacity: [0, 1],
-                    x: [direction * this.slideDistance, 0]
+                    transform: ['translateX(' + inX + 'px)', 'translateX(0px)']
                 }, { duration: this.duration, ease: this.ease }).then(function() {
                     if (self.activeTab !== target) return;
                     self.hidePanel(currentPanel);
