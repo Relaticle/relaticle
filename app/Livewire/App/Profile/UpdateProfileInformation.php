@@ -113,14 +113,14 @@ final class UpdateProfileInformation extends BaseLivewireComponent
             return false;
         }
 
-        $notification = app(VerifyEmailChange::class);
+        $notification = resolve(VerifyEmailChange::class);
         $notification->url = Filament::getVerifyEmailChangeUrl($user, $newEmail);
 
         $verificationSignature = Query::new($notification->url)->get('signature');
 
         cache()->put($verificationSignature, true, ttl: now()->addHour());
 
-        $user->notify(app(NoticeOfEmailChangeRequest::class, [
+        $user->notify(resolve(NoticeOfEmailChangeRequest::class, [
             'blockVerificationUrl' => Filament::getBlockEmailChangeVerificationUrl($user, $newEmail, $verificationSignature),
             'newEmail' => $newEmail,
         ]));
