@@ -6,6 +6,7 @@ namespace App\Livewire\App\Teams;
 
 use App\Livewire\BaseLivewireComponent;
 use App\Models\Team;
+use App\Models\TeamInvitation;
 use Filament\Actions\Action;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -13,8 +14,8 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Mail;
-use Laravel\Jetstream\Mail\TeamInvitation;
-use Laravel\Jetstream\TeamInvitation as TeamInvitationModel;
+use Illuminate\Support\Facades\URL;
+use Laravel\Jetstream\Mail\TeamInvitation as TeamInvitationMail;
 
 final class PendingTeamInvitations extends BaseLivewireComponent implements Tables\Contracts\HasTable
 {
@@ -34,10 +35,30 @@ final class PendingTeamInvitations extends BaseLivewireComponent implements Tabl
             ->columns([
                 Tables\Columns\Layout\Split::make([
                     Tables\Columns\TextColumn::make('email'),
+                    Tables\Columns\TextColumn::make('expires_at')
+                        ->label(__('Expires'))
+                        ->state(function (TeamInvitation $record): string {
+                            if ($record->isExpired()) {
+                                return __('Expired');
+                            }
+
+                            return $record->expires_at->diffForHumans();
+                        }),
                 ]),
             ])
             ->paginated(false)
             ->recordActions([
+                Action::make('extendTeamInvitation')
+                    ->label(__('teams.actions.extend_team_invitation'))
+                    ->color('warning')
+                    ->requiresConfirmation()
+                    ->visible(fn () => Gate::check('updateTeamMember', $this->team))
+                    ->action(fn (Model $record) => $this->extendTeamInvitation($record)),
+                Action::make('copyInviteLink')
+                    ->label(__('teams.actions.copy_invite_link'))
+                    ->color('gray')
+                    ->visible(fn () => Gate::check('updateTeamMember', $this->team))
+                    ->action(fn (Model $record) => $this->copyInviteLink($record)),
                 Action::make('resendTeamInvitation')
                     ->label(__('teams.actions.resend_team_invitation'))
                     ->color('primary')
@@ -53,10 +74,30 @@ final class PendingTeamInvitations extends BaseLivewireComponent implements Tabl
             ]);
     }
 
+    public function extendTeamInvitation(Model $invitation): void
+    {
+        $expiryDays = (int) config('jetstream.invitation_expiry_days', 7);
+
+        $invitation->update([
+            'expires_at' => now()->addDays($expiryDays),
+        ]);
+
+        $this->sendNotification(__('teams.notifications.team_invitation_extended.success'));
+    }
+
+    public function copyInviteLink(Model $invitation): void
+    {
+        $url = URL::signedRoute('team-invitations.accept', ['invitation' => $invitation]);
+
+        $this->js("navigator.clipboard.writeText('{$url}')");
+
+        $this->sendNotification(__('teams.notifications.invite_link_copied.success'));
+    }
+
     public function resendTeamInvitation(Model $invitation): void
     {
-        /** @var TeamInvitationModel $invitation */
-        Mail::to($invitation->email)->send(new TeamInvitation($invitation));
+        /** @var \Laravel\Jetstream\TeamInvitation $invitation */
+        Mail::to($invitation->email)->send(new TeamInvitationMail($invitation));
 
         $this->sendNotification(__('teams.notifications.team_invitation_sent.success'));
     }

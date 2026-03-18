@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\AcceptTeamInvitationController;
 use App\Http\Controllers\Auth\CallbackController;
 use App\Http\Controllers\Auth\RedirectController;
 use App\Http\Controllers\HomeController;
@@ -9,7 +10,6 @@ use App\Http\Controllers\PrivacyPolicyController;
 use App\Http\Controllers\TermsOfServiceController;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Support\Facades\Route;
-use Laravel\Jetstream\Http\Controllers\TeamInvitationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -44,7 +44,7 @@ Route::get('/privacy-policy', PrivacyPolicyController::class)->name('policy.show
 
 Route::get('/dashboard', fn () => redirect()->to(url()->getAppUrl()))->name('dashboard');
 
-Route::get('/team-invitations/{invitation}', [TeamInvitationController::class, 'accept'])
+Route::get('/team-invitations/{invitation}', AcceptTeamInvitationController::class)
     ->middleware(['signed', 'verified', 'auth', AuthenticateSession::class])
     ->name('team-invitations.accept');
 

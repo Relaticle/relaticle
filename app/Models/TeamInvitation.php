@@ -25,6 +25,7 @@ final class TeamInvitation extends JetstreamTeamInvitation
     protected $fillable = [
         'email',
         'role',
+        'expires_at',
     ];
 
     /**
@@ -33,5 +34,24 @@ final class TeamInvitation extends JetstreamTeamInvitation
     public function team(): BelongsTo
     {
         return $this->belongsTo(Team::class);
+    }
+
+    public function isExpired(): bool
+    {
+        if ($this->expires_at === null) {
+            return true;
+        }
+
+        return $this->expires_at->isPast();
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'expires_at' => 'datetime',
+        ];
     }
 }
