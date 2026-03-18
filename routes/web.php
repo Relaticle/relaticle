@@ -11,6 +11,7 @@ use App\Http\Controllers\TermsOfServiceController;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Support\Facades\Route;
 use Laravel\Jetstream\Http\Controllers\TeamInvitationController;
+use Spatie\Honeypot\ProtectAgainstSpam;
 use Spatie\MarkdownResponse\Middleware\ProvideMarkdownResponse;
 
 /*
@@ -44,10 +45,9 @@ Route::middleware(ProvideMarkdownResponse::class)->group(function (): void {
     Route::get('/terms-of-service', TermsOfServiceController::class)->name('terms.show');
     Route::get('/privacy-policy', PrivacyPolicyController::class)->name('policy.show');
     Route::get('/pricing', fn () => view('pricing'))->name('pricing');
+    Route::get('/contact', [ContactController::class, 'show'])->name('contact');
+    Route::post('/contact', [ContactController::class, 'store'])->middleware(['throttle:5,1', ProtectAgainstSpam::class]);
 });
-
-Route::get('/contact', [ContactController::class, 'show'])->name('contact');
-Route::post('/contact', [ContactController::class, 'store'])->middleware('throttle:5,1');
 
 Route::get('/dashboard', fn () => redirect()->to(url()->getAppUrl()))->name('dashboard');
 

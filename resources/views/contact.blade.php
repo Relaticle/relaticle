@@ -37,13 +37,17 @@
                 {{-- Right: form --}}
                 <div class="lg:col-span-3">
                     @if(session('success'))
-                        <div class="rounded-xl border border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-900/20 p-6 text-center">
-                            <x-ri-checkbox-circle-fill class="w-8 h-8 text-emerald-500 mx-auto mb-3"/>
-                            <p class="text-base font-semibold text-emerald-800 dark:text-emerald-300">{{ session('success') }}</p>
+                        <div class="rounded-xl border border-gray-200 dark:border-white/[0.08] bg-white dark:bg-white/[0.03] p-10 text-center">
+                            <div class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+                                <x-ri-check-line class="w-6 h-6 text-primary"/>
+                            </div>
+                            <h3 class="text-lg font-semibold text-gray-950 dark:text-white">Message sent</h3>
+                            <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">{{ session('success') }}</p>
                         </div>
                     @else
                         <form method="POST" action="{{ route('contact') }}" class="space-y-6">
                             @csrf
+                            <x-honeypot />
 
                             <x-marketing.input label="Name" :required="true" type="text" name="name" id="name" required :value="old('name')" placeholder="Your name"/>
 

@@ -22,7 +22,7 @@ final readonly class ContactController
         /** @var array{name: string, email: string, company: ?string, message: string} $data */
         $data = $request->validated();
 
-        Mail::to(config('mail.from.address'))->send(new NewContactSubmissionMail($data));
+        Mail::to(config('relaticle.contact.email'))->send(new NewContactSubmissionMail($data));
 
         return to_route('contact')->with('success', 'Thanks for reaching out! We\'ll get back to you soon.');
     }
