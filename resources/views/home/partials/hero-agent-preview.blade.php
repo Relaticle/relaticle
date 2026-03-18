@@ -1,4 +1,7 @@
-<div id="mcp-chat" class="bg-white dark:bg-neutral-950 flex flex-col min-h-[300px] sm:min-h-[400px] md:min-h-[500px]">
+<div x-data="heroChat()"
+     @hero-chat-reset.window="resetChat()"
+     @hero-chat-animate.window="animateChat()"
+     class="bg-white dark:bg-neutral-950 flex flex-col min-h-[300px] sm:min-h-[400px] md:min-h-[500px]">
 
     {{-- Messages --}}
     <div class="flex-1 p-4 sm:p-6 md:px-8 md:py-6 space-y-5">
@@ -72,44 +75,43 @@
 </div>
 
 <script>
-    (function () {
-        var ease = [0.22, 1, 0.36, 1];
-        var all = '.mcp-user, .mcp-agent, .mcp-agent-text, .mcp-card, .mcp-deal, .mcp-input';
+    function heroChat() {
+        return {
+            ease: [0.22, 1, 0.36, 1],
+            selectors: '.mcp-user, .mcp-agent, .mcp-agent-text, .mcp-card, .mcp-deal, .mcp-input',
 
-        window.mcpChatReset = function () {
-            document.querySelectorAll('#mcp-chat ' + all).forEach(function (el) {
-                el.style.opacity = '0';
-            });
+            resetChat() {
+                this.$root.querySelectorAll(this.selectors).forEach(function(el) {
+                    el.style.opacity = '0';
+                });
+            },
+
+            animateChat() {
+                this.resetChat();
+
+                if (typeof animate !== 'function') return;
+
+                var root = this.$root;
+                var ease = this.ease;
+                var users = root.querySelectorAll('.mcp-user');
+                var agents = root.querySelectorAll('.mcp-agent');
+
+                animate(root.querySelector('.mcp-input'), { opacity: [0, 1] }, { duration: 0.3, ease: ease });
+
+                animate(users[0], { opacity: [0, 1], x: [12, 0] }, { delay: 0.2, duration: 0.4, ease: ease });
+
+                animate(agents[0], { opacity: [0, 1] }, { delay: 0.7, duration: 0.3, ease: ease });
+                animate(root.querySelector('.mcp-agent-text'), { opacity: [0, 1], y: [8, 0] }, { delay: 0.8, duration: 0.4, ease: ease });
+                animate(root.querySelector('.mcp-card'), { opacity: [0, 1], y: [12, 0] }, { delay: 1.0, duration: 0.5, ease: ease });
+
+                animate(users[1], { opacity: [0, 1], x: [12, 0] }, { delay: 1.4, duration: 0.4, ease: ease });
+
+                animate(agents[1], { opacity: [0, 1] }, { delay: 1.9, duration: 0.3, ease: ease });
+                animate(root.querySelectorAll('.mcp-deal'),
+                    { opacity: [0, 1], x: [-8, 0] },
+                    { delay: stagger(0.1, { start: 2.1 }), duration: 0.35, ease: ease }
+                );
+            }
         };
-
-        window.mcpChatAnimate = function () {
-            window.mcpChatReset();
-
-            if (typeof animate !== 'function') return;
-
-            var users = document.querySelectorAll('#mcp-chat .mcp-user');
-            var agents = document.querySelectorAll('#mcp-chat .mcp-agent');
-
-            // Input bar fades in first
-            animate('#mcp-chat .mcp-input', { opacity: [0, 1] }, { duration: 0.3, ease: ease });
-
-            // User 1 slides in
-            animate(users[0], { opacity: [0, 1], x: [12, 0] }, { delay: 0.2, duration: 0.4, ease: ease });
-
-            // Agent 1 — brief thinking pause, then text + card
-            animate(agents[0], { opacity: [0, 1] }, { delay: 0.7, duration: 0.3, ease: ease });
-            animate('#mcp-chat .mcp-agent-text', { opacity: [0, 1], y: [8, 0] }, { delay: 0.8, duration: 0.4, ease: ease });
-            animate('#mcp-chat .mcp-card', { opacity: [0, 1], y: [12, 0] }, { delay: 1.0, duration: 0.5, ease: ease });
-
-            // User 2
-            animate(users[1], { opacity: [0, 1], x: [12, 0] }, { delay: 1.4, duration: 0.4, ease: ease });
-
-            // Agent 2 — thinking pause, then deal rows stagger in
-            animate(agents[1], { opacity: [0, 1] }, { delay: 1.9, duration: 0.3, ease: ease });
-            animate('#mcp-chat .mcp-deal',
-                { opacity: [0, 1], x: [-8, 0] },
-                { delay: stagger(0.1, { start: 2.1 }), duration: 0.35, ease: ease }
-            );
-        };
-    })();
+    }
 </script>

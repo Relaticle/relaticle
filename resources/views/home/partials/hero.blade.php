@@ -1,4 +1,4 @@
-<section class="relative pt-32 pb-20 md:pt-40 md:pb-32 bg-white dark:bg-black overflow-hidden">
+<section x-data="heroTabs()" x-init="init()" @resize.window="positionIndicator()" class="relative pt-32 pb-20 md:pt-40 md:pb-32 bg-white dark:bg-black overflow-hidden">
 
     {{-- Background system — layered depth --}}
     <div class="absolute inset-0 bg-[linear-gradient(to_right,rgba(0,0,0,0.015)_1px,transparent_1px),linear-gradient(to_bottom,rgba(0,0,0,0.015)_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,rgba(255,255,255,0.025)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.025)_1px,transparent_1px)] bg-[size:3rem_3rem] [mask-image:radial-gradient(ellipse_70%_50%_at_50%_50%,black_30%,transparent_100%)]"></div>
@@ -60,20 +60,20 @@
                 <div id="hero-tabs" class="relative z-10 flex items-stretch">
                     <div class="absolute bottom-0 left-0 right-0 h-px bg-gray-200 dark:bg-white/[0.08] pointer-events-none" aria-hidden="true"></div>
                     <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-[100vw] h-px pointer-events-none bg-[repeating-linear-gradient(to_right,theme(colors.gray.200)_0,theme(colors.gray.200)_10px,transparent_10px,transparent_18px)] dark:bg-[repeating-linear-gradient(to_right,rgba(255,255,255,0.08)_0,rgba(255,255,255,0.08)_10px,transparent_10px,transparent_18px)]" aria-hidden="true"></div>
-                    <div id="hero-tab-indicator" class="hero-tab-indicator absolute bottom-0 h-px bg-primary/80 rounded-full pointer-events-none" aria-hidden="true"></div>
-                    <button type="button" data-hero-tab="companies" class="hero-tab active relative flex-1 py-2.5 sm:py-3 text-xs sm:text-sm font-medium whitespace-nowrap text-gray-800 dark:text-white transition-colors duration-200 cursor-pointer">
+                    <div x-ref="indicator" class="absolute bottom-0 h-px bg-primary/80 rounded-full pointer-events-none transition-[left,width] duration-200" aria-hidden="true"></div>
+                    <button type="button" x-ref="tab-companies" x-on:click="switchTab('companies')" :class="tabClasses('companies')" class="relative flex-1 py-2.5 sm:py-3 text-xs sm:text-sm font-medium whitespace-nowrap transition-colors duration-200 cursor-pointer">
                         Companies
                     </button>
                     <div class="w-px self-stretch my-0 bg-gray-200 dark:bg-white/[0.08]" aria-hidden="true"></div>
-                    <button type="button" data-hero-tab="pipeline" class="hero-tab relative flex-1 py-2.5 sm:py-3 text-xs sm:text-sm font-medium whitespace-nowrap text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-200 cursor-pointer">
+                    <button type="button" x-ref="tab-pipeline" x-on:click="switchTab('pipeline')" :class="tabClasses('pipeline')" class="relative flex-1 py-2.5 sm:py-3 text-xs sm:text-sm font-medium whitespace-nowrap transition-colors duration-200 cursor-pointer">
                         Pipeline
                     </button>
                     <div class="w-px self-stretch my-0 bg-gray-200 dark:bg-white/[0.08]" aria-hidden="true"></div>
-                    <button type="button" data-hero-tab="ai-agent" class="hero-tab relative flex-1 py-2.5 sm:py-3 text-xs sm:text-sm font-medium whitespace-nowrap text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-200 cursor-pointer">
+                    <button type="button" x-ref="tab-ai-agent" x-on:click="switchTab('ai-agent')" :class="tabClasses('ai-agent')" class="relative flex-1 py-2.5 sm:py-3 text-xs sm:text-sm font-medium whitespace-nowrap transition-colors duration-200 cursor-pointer">
                         AI Agent
                     </button>
                     <div class="w-px self-stretch my-0 bg-gray-200 dark:bg-white/[0.08]" aria-hidden="true"></div>
-                    <button type="button" data-hero-tab="custom-fields" class="hero-tab relative flex-1 py-2.5 sm:py-3 text-xs sm:text-sm font-medium whitespace-nowrap text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-200 cursor-pointer">
+                    <button type="button" x-ref="tab-custom-fields" x-on:click="switchTab('custom-fields')" :class="tabClasses('custom-fields')" class="relative flex-1 py-2.5 sm:py-3 text-xs sm:text-sm font-medium whitespace-nowrap transition-colors duration-200 cursor-pointer">
                         <span class="sm:hidden">Fields</span><span class="hidden sm:inline">Custom Fields</span>
                     </button>
                 </div>
@@ -102,7 +102,7 @@
 
                         {{-- Tab panels --}}
                         <div id="hero-tab-container" class="relative overflow-hidden">
-                            <div id="hero-tab-panel-companies" class="hero-tab-panel">
+                            <div x-ref="panel-companies">
                                 <picture>
                                     <source data-light-srcset="{{ asset('images/app-companies-preview.webp') }}" data-dark-srcset="{{ asset('images/app-companies-preview-dark.webp') }}" srcset="{{ asset('images/app-companies-preview.webp') }}" type="image/webp">
                                     <img data-light-src="{{ asset('images/app-companies-preview.png') }}"
@@ -116,7 +116,7 @@
                                          fetchpriority="high">
                                 </picture>
                             </div>
-                            <div id="hero-tab-panel-pipeline" class="hero-tab-panel hidden">
+                            <div x-ref="panel-pipeline" class="hidden">
                                 <picture>
                                     <source data-light-srcset="{{ asset('images/app-pipeline-preview.webp') }}" data-dark-srcset="{{ asset('images/app-pipeline-preview-dark.webp') }}" srcset="{{ asset('images/app-pipeline-preview.webp') }}" type="image/webp">
                                     <img data-light-src="{{ asset('images/app-pipeline-preview.png') }}"
@@ -131,11 +131,11 @@
                             </div>
 
                             {{-- AI Agent tab --}}
-                            <div id="hero-tab-panel-ai-agent" class="hero-tab-panel hidden">
+                            <div x-ref="panel-ai-agent" class="hidden">
                                 @include('home.partials.hero-agent-preview')
                             </div>
 
-                            <div id="hero-tab-panel-custom-fields" class="hero-tab-panel hidden">
+                            <div x-ref="panel-custom-fields" class="hidden">
                                 <picture>
                                     <source data-light-srcset="{{ asset('images/app-custom-fields-preview.webp') }}" data-dark-srcset="{{ asset('images/app-custom-fields-preview-dark.webp') }}" srcset="{{ asset('images/app-custom-fields-preview.webp') }}" type="image/webp">
                                     <img data-light-src="{{ asset('images/app-custom-fields-preview.png') }}"
@@ -161,132 +161,138 @@
 </section>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        var tabs = document.querySelectorAll('.hero-tab');
-        var tabOrder = ['companies', 'pipeline', 'ai-agent', 'custom-fields'];
-        var indicator = document.getElementById('hero-tab-indicator');
-        var container = document.getElementById('hero-tab-container');
-        var previewImages = document.querySelectorAll('.hero-preview-image');
-        var switching = false;
-        var currentTab = 'companies';
-        var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        var ease = [0.16, 1, 0.3, 1];
-        var duration = 0.35;
-        var slideDistance = 40;
+    function heroTabs() {
+        return {
+            activeTab: 'companies',
+            tabOrder: ['companies', 'pipeline', 'ai-agent', 'custom-fields'],
+            reducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+            ease: [0.16, 1, 0.3, 1],
+            duration: 0.35,
+            slideDistance: 40,
 
-        function moveIndicator(tab) {
-            if (!indicator || !tab) return;
-            indicator.style.left = tab.offsetLeft + 'px';
-            indicator.style.width = tab.offsetWidth + 'px';
-        }
+            init() {
+                this.positionIndicator();
+                this.updateImages();
+                this.observeDarkMode();
+            },
 
-        var firstActive = document.querySelector('.hero-tab.active');
-        if (firstActive) moveIndicator(firstActive);
+            positionIndicator() {
+                var tab = this.$refs['tab-' + this.activeTab];
+                var indicator = this.$refs.indicator;
+                if (!tab || !indicator) return;
+                indicator.style.left = tab.offsetLeft + 'px';
+                indicator.style.width = tab.offsetWidth + 'px';
+            },
 
-        function animateChat() { if (window.mcpChatAnimate) window.mcpChatAnimate(); }
-        function resetChat() { if (window.mcpChatReset) window.mcpChatReset(); }
-
-        function getPanel(name) {
-            return document.getElementById('hero-tab-panel-' + name);
-        }
-
-        function switchPanel(target) {
-            if (switching || target === currentTab) return;
-            switching = true;
-
-            var currentPanel = getPanel(currentTab);
-            var nextPanel = getPanel(target);
-            if (!currentPanel || !nextPanel) { switching = false; return; }
-
-            var direction = tabOrder.indexOf(target) > tabOrder.indexOf(currentTab) ? 1 : -1;
-
-            if (target === 'ai-agent') resetChat();
-
-            // Position next panel absolutely so both coexist during crossfade
-            nextPanel.classList.remove('hidden');
-            nextPanel.style.position = 'absolute';
-            nextPanel.style.top = '0';
-            nextPanel.style.left = '0';
-            nextPanel.style.right = '0';
-
-            if (reducedMotion) {
-                currentPanel.classList.add('hidden');
-                currentPanel.style.opacity = '';
-                currentPanel.style.transform = '';
-                nextPanel.style.position = '';
-                nextPanel.style.top = '';
-                nextPanel.style.left = '';
-                nextPanel.style.right = '';
-                nextPanel.style.opacity = '';
-                nextPanel.style.transform = '';
-                currentTab = target;
-                switching = false;
-                if (target === 'ai-agent') animateChat();
-                return;
-            }
-
-            // Crossfade: both animate simultaneously
-            animate(currentPanel, {
-                opacity: [1, 0],
-                x: [0, -direction * slideDistance]
-            }, { duration: duration, ease: ease });
-
-            animate(nextPanel, {
-                opacity: [0, 1],
-                x: [direction * slideDistance, 0]
-            }, { duration: duration, ease: ease }).then(function () {
-                currentPanel.classList.add('hidden');
-                currentPanel.style.opacity = '';
-                currentPanel.style.transform = '';
-                nextPanel.style.position = '';
-                nextPanel.style.top = '';
-                nextPanel.style.left = '';
-                nextPanel.style.right = '';
-                currentTab = target;
-                switching = false;
-                if (target === 'ai-agent') animateChat();
-            });
-        }
-
-        tabs.forEach(function (tab) {
-            tab.addEventListener('click', function () {
-                var target = this.getAttribute('data-hero-tab');
-
-                tabs.forEach(function (t) {
-                    t.classList.remove('active', 'text-gray-800', 'dark:text-white');
-                    t.classList.add('text-gray-400', 'dark:text-gray-500');
+            cancelPanelAnimations() {
+                var self = this;
+                this.tabOrder.forEach(function(name) {
+                    var panel = self.$refs['panel-' + name];
+                    if (!panel) return;
+                    if (panel.getAnimations) {
+                        panel.getAnimations().forEach(function(a) { a.cancel(); });
+                    }
+                    panel.style.opacity = '';
+                    panel.style.transform = '';
+                    panel.style.position = '';
+                    panel.style.top = '';
+                    panel.style.left = '';
+                    panel.style.right = '';
                 });
-                this.classList.add('active', 'text-gray-800', 'dark:text-white');
-                this.classList.remove('text-gray-400', 'dark:text-gray-500');
+            },
 
-                moveIndicator(this);
-                switchPanel(target);
-            });
-        });
+            switchTab(target) {
+                if (target === this.activeTab) return;
 
-        window.addEventListener('resize', function () {
-            var active = document.querySelector('.hero-tab.active');
-            if (active) moveIndicator(active);
-        });
+                var previousTab = this.activeTab;
+                var direction = this.tabOrder.indexOf(target) > this.tabOrder.indexOf(previousTab) ? 1 : -1;
+                var self = this;
 
-        function updateAllImages() {
-            var isDark = document.documentElement.classList.contains('dark');
-            previewImages.forEach(function (img) {
-                img.src = isDark ? img.dataset.darkSrc : img.dataset.lightSrc;
-            });
-            document.querySelectorAll('picture source[data-light-srcset]').forEach(function (source) {
-                source.srcset = isDark ? source.dataset.darkSrcset : source.dataset.lightSrcset;
-            });
-        }
+                this.activeTab = target;
+                this.positionIndicator();
 
-        updateAllImages();
-
-        new MutationObserver(function (mutations) {
-            mutations.forEach(function (mutation) {
-                if (mutation.attributeName === 'class') {
-                    updateAllImages();
+                if (target === 'ai-agent') {
+                    this.$dispatch('hero-chat-reset');
                 }
-            });
-        }).observe(document.documentElement, { attributes: true });
-    });
+
+                this.cancelPanelAnimations();
+
+                this.tabOrder.forEach(function(name) {
+                    var panel = self.$refs['panel-' + name];
+                    if (!panel) return;
+                    if (name !== target && name !== previousTab) {
+                        panel.classList.add('hidden');
+                    }
+                });
+
+                var currentPanel = this.$refs['panel-' + previousTab];
+                var nextPanel = this.$refs['panel-' + target];
+                if (!currentPanel || !nextPanel) return;
+
+                nextPanel.classList.remove('hidden');
+
+                if (this.reducedMotion) {
+                    currentPanel.classList.add('hidden');
+                    if (target === 'ai-agent') {
+                        this.$dispatch('hero-chat-animate');
+                    }
+                    return;
+                }
+
+                nextPanel.style.position = 'absolute';
+                nextPanel.style.top = '0';
+                nextPanel.style.left = '0';
+                nextPanel.style.right = '0';
+
+                animate(currentPanel, {
+                    opacity: [1, 0],
+                    x: [0, -direction * this.slideDistance]
+                }, { duration: this.duration, ease: this.ease });
+
+                animate(nextPanel, {
+                    opacity: [0, 1],
+                    x: [direction * this.slideDistance, 0]
+                }, { duration: this.duration, ease: this.ease }).then(function() {
+                    if (self.activeTab !== target) return;
+                    currentPanel.classList.add('hidden');
+                    currentPanel.style.opacity = '';
+                    currentPanel.style.transform = '';
+                    nextPanel.style.position = '';
+                    nextPanel.style.top = '';
+                    nextPanel.style.left = '';
+                    nextPanel.style.right = '';
+                    if (target === 'ai-agent') {
+                        self.$dispatch('hero-chat-animate');
+                    }
+                });
+            },
+
+            tabClasses(tab) {
+                return this.activeTab === tab
+                    ? 'text-gray-800 dark:text-white'
+                    : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300';
+            },
+
+            updateImages() {
+                var isDark = document.documentElement.classList.contains('dark');
+                this.$root.querySelectorAll('.hero-preview-image').forEach(function(img) {
+                    img.src = isDark ? img.dataset.darkSrc : img.dataset.lightSrc;
+                });
+                this.$root.querySelectorAll('picture source[data-light-srcset]').forEach(function(source) {
+                    source.srcset = isDark ? source.dataset.darkSrcset : source.dataset.lightSrcset;
+                });
+            },
+
+            observeDarkMode() {
+                var self = this;
+                new MutationObserver(function(mutations) {
+                    mutations.forEach(function(mutation) {
+                        if (mutation.attributeName === 'class') {
+                            self.updateImages();
+                        }
+                    });
+                }).observe(document.documentElement, { attributes: true });
+            }
+        };
+    }
 </script>
