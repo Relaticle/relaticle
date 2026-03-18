@@ -8,13 +8,18 @@ use App\Actions\Fortify\UpdateUserProfileInformation as UpdateUserProfileInforma
 use App\Livewire\BaseLivewireComponent;
 use DanHarrin\LivewireRateLimiting\Exceptions\TooManyRequestsException;
 use Filament\Actions\Action;
+use Filament\Auth\Notifications\NoticeOfEmailChangeRequest;
+use Filament\Auth\Notifications\VerifyEmailChange;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Actions;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Notification as NotificationFacade;
+use League\Uri\Components\Query;
 
 final class UpdateProfileInformation extends BaseLivewireComponent
 {
@@ -77,9 +82,57 @@ final class UpdateProfileInformation extends BaseLivewireComponent
 
         $data = $this->form->getState();
 
+        if (Filament::hasEmailChangeVerification() && array_key_exists('email', $data)) {
+            $this->handleEmailChangeVerification($data);
+        }
+
         resolve(UpdateUserProfileInformationAction::class)->update($this->authUser(), $data);
 
         $this->sendNotification();
+    }
+
+    /**
+     * Intercept email changes and route them through Filament's verification flow.
+     *
+     * Instead of immediately overwriting the email (which causes lockout if the user
+     * doesn't own the new address), this sends a verification link to the new email
+     * and a block link to the old email. The actual email swap only happens when
+     * the verification link is clicked.
+     *
+     * @param  array<string, mixed>  $data
+     */
+    private function handleEmailChangeVerification(array &$data): void
+    {
+        $user = $this->authUser();
+        $newEmail = $data['email'];
+
+        if ($user->email === $newEmail) {
+            return;
+        }
+
+        $notification = app(VerifyEmailChange::class);
+        $notification->url = Filament::getVerifyEmailChangeUrl($user, $newEmail);
+
+        $verificationSignature = Query::new($notification->url)->get('signature');
+
+        cache()->put($verificationSignature, true, ttl: now()->addHour());
+
+        $user->notify(app(NoticeOfEmailChangeRequest::class, [
+            'blockVerificationUrl' => Filament::getBlockEmailChangeVerificationUrl($user, $newEmail, $verificationSignature),
+            'newEmail' => $newEmail,
+        ]));
+
+        NotificationFacade::route('mail', $newEmail)
+            ->notify($notification);
+
+        Notification::make()
+            ->success()
+            ->title(__('filament-panels::auth/pages/edit-profile.notifications.email_change_verification_sent.title', ['email' => $newEmail]))
+            ->body(__('filament-panels::auth/pages/edit-profile.notifications.email_change_verification_sent.body', ['email' => $newEmail]))
+            ->send();
+
+        $data['email'] = $user->email;
+        $this->data['email'] = $user->email;
     }
 
     public function render(): View
