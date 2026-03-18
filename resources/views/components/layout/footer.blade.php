@@ -9,7 +9,7 @@
                     <x-brand.logo-lockup size="md" class="text-black dark:text-white" />
                 </a>
                 <p class="text-gray-500 dark:text-gray-400 text-sm leading-relaxed max-w-md">
-                    The open-source CRM built for AI agents. Self-hosted with a production MCP server, REST API, and 22 custom field types.
+                    The open-source CRM built for AI agents. Self-hosted. No per-seat pricing. Yours to own.
                 </p>
 
                 <!-- Social links - Simplified -->
