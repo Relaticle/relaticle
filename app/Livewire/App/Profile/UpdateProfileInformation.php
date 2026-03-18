@@ -17,6 +17,7 @@ use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Actions;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Illuminate\Contracts\Translation\HasLocalePreference;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Notification as NotificationFacade;
 use League\Uri\Components\Query;
@@ -83,7 +84,11 @@ final class UpdateProfileInformation extends BaseLivewireComponent
         $data = $this->form->getState();
 
         if (Filament::hasEmailChangeVerification() && array_key_exists('email', $data)) {
-            $this->handleEmailChangeVerification($data);
+            $emailIntercepted = $this->sendEmailChangeVerification($data);
+
+            if ($emailIntercepted) {
+                return;
+            }
         }
 
         resolve(UpdateUserProfileInformationAction::class)->update($this->authUser(), $data);
@@ -92,22 +97,20 @@ final class UpdateProfileInformation extends BaseLivewireComponent
     }
 
     /**
-     * Intercept email changes and route them through Filament's verification flow.
+     * Send email change verification instead of immediately overwriting the email.
      *
-     * Instead of immediately overwriting the email (which causes lockout if the user
-     * doesn't own the new address), this sends a verification link to the new email
-     * and a block link to the old email. The actual email swap only happens when
-     * the verification link is clicked.
+     * Returns true if the email change was intercepted (different email submitted),
+     * in which case the caller should skip the normal save + notification flow.
      *
      * @param  array<string, mixed>  $data
      */
-    private function handleEmailChangeVerification(array &$data): void
+    private function sendEmailChangeVerification(array &$data): bool
     {
         $user = $this->authUser();
         $newEmail = $data['email'];
 
         if ($user->email === $newEmail) {
-            return;
+            return false;
         }
 
         $notification = app(VerifyEmailChange::class);
@@ -122,6 +125,10 @@ final class UpdateProfileInformation extends BaseLivewireComponent
             'newEmail' => $newEmail,
         ]));
 
+        if ($user instanceof HasLocalePreference) {
+            $notification->locale($user->preferredLocale());
+        }
+
         NotificationFacade::route('mail', $newEmail)
             ->notify($notification);
 
@@ -131,8 +138,9 @@ final class UpdateProfileInformation extends BaseLivewireComponent
             ->body(__('filament-panels::auth/pages/edit-profile.notifications.email_change_verification_sent.body', ['email' => $newEmail]))
             ->send();
 
-        $data['email'] = $user->email;
         $this->data['email'] = $user->email;
+
+        return true;
     }
 
     public function render(): View

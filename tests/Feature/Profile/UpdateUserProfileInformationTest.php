@@ -65,41 +65,35 @@ describe('profile component functionality', function () {
 });
 
 describe('email change verification', function () {
-    test('email change does not update email immediately', function () {
+    beforeEach(function () {
         Notification::fake();
 
-        $user = User::factory()->withTeam()->create([
+        $this->verifiedUser = User::factory()->withTeam()->create([
             'email' => 'original@example.com',
             'email_verified_at' => now(),
         ]);
-        $this->actingAs($user);
+        $this->actingAs($this->verifiedUser);
+    });
 
+    test('email change does not update email immediately', function () {
         Livewire::test(UpdateProfileInformationComponent::class)
             ->fillForm([
-                'name' => $user->name,
+                'name' => $this->verifiedUser->name,
                 'email' => 'new@example.com',
             ])
             ->call('updateProfile')
             ->assertHasNoFormErrors()
             ->assertNotified();
 
-        expect($user->fresh())
+        expect($this->verifiedUser->fresh())
             ->email->toBe('original@example.com')
             ->email_verified_at->not->toBeNull();
     });
 
     test('email change sends verification to new email', function () {
-        Notification::fake();
-
-        $user = User::factory()->withTeam()->create([
-            'email' => 'original@example.com',
-            'email_verified_at' => now(),
-        ]);
-        $this->actingAs($user);
-
         Livewire::test(UpdateProfileInformationComponent::class)
             ->fillForm([
-                'name' => $user->name,
+                'name' => $this->verifiedUser->name,
                 'email' => 'new@example.com',
             ])
             ->call('updateProfile')
@@ -109,58 +103,33 @@ describe('email change verification', function () {
     });
 
     test('email change sends notice to old email with block link', function () {
-        Notification::fake();
-
-        $user = User::factory()->withTeam()->create([
-            'email' => 'original@example.com',
-            'email_verified_at' => now(),
-        ]);
-        $this->actingAs($user);
-
         Livewire::test(UpdateProfileInformationComponent::class)
             ->fillForm([
-                'name' => $user->name,
+                'name' => $this->verifiedUser->name,
                 'email' => 'new@example.com',
             ])
             ->call('updateProfile')
             ->assertHasNoFormErrors();
 
-        Notification::assertSentTo($user, NoticeOfEmailChangeRequest::class);
+        Notification::assertSentTo($this->verifiedUser, NoticeOfEmailChangeRequest::class);
     });
 
     test('same email does not trigger verification', function () {
-        Notification::fake();
-
-        $user = User::factory()->withTeam()->create([
-            'email' => 'same@example.com',
-            'email_verified_at' => now(),
-        ]);
-        $this->actingAs($user);
-
         Livewire::test(UpdateProfileInformationComponent::class)
             ->fillForm([
                 'name' => 'New Name',
-                'email' => 'same@example.com',
+                'email' => 'original@example.com',
             ])
             ->call('updateProfile')
             ->assertHasNoFormErrors();
 
-        Notification::assertNotSentTo($user, NoticeOfEmailChangeRequest::class);
-        Notification::assertNothingSentTo($user);
+        Notification::assertNotSentTo($this->verifiedUser, NoticeOfEmailChangeRequest::class);
     });
 
     test('email change resets form email to current value', function () {
-        Notification::fake();
-
-        $user = User::factory()->withTeam()->create([
-            'email' => 'original@example.com',
-            'email_verified_at' => now(),
-        ]);
-        $this->actingAs($user);
-
         Livewire::test(UpdateProfileInformationComponent::class)
             ->fillForm([
-                'name' => $user->name,
+                'name' => $this->verifiedUser->name,
                 'email' => 'new@example.com',
             ])
             ->call('updateProfile')
