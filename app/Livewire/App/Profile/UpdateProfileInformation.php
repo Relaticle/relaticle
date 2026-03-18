@@ -83,11 +83,9 @@ final class UpdateProfileInformation extends BaseLivewireComponent
         $data = $this->form->getState();
 
         if (Filament::hasEmailChangeVerification() && array_key_exists('email', $data)) {
-            $emailIntercepted = $this->sendEmailChangeVerification($data);
+            $this->sendEmailChangeVerification($data);
 
-            if ($emailIntercepted) {
-                return;
-            }
+            $data['email'] = $this->authUser()->email;
         }
 
         resolve(UpdateUserProfileInformationAction::class)->update($this->authUser(), $data);
@@ -96,20 +94,15 @@ final class UpdateProfileInformation extends BaseLivewireComponent
     }
 
     /**
-     * Send email change verification instead of immediately overwriting the email.
-     *
-     * Returns true if the email change was intercepted (different email submitted),
-     * in which case the caller should skip the normal save + notification flow.
-     *
      * @param  array<string, mixed>  $data
      */
-    private function sendEmailChangeVerification(array &$data): bool
+    private function sendEmailChangeVerification(array $data): void
     {
         $user = $this->authUser();
         $newEmail = $data['email'];
 
         if ($user->email === $newEmail) {
-            return false;
+            return;
         }
 
         $notification = resolve(VerifyEmailChange::class);
@@ -134,8 +127,6 @@ final class UpdateProfileInformation extends BaseLivewireComponent
             ->send();
 
         $this->data['email'] = $user->email;
-
-        return true;
     }
 
     public function render(): View

@@ -124,6 +124,7 @@ describe('email change verification', function () {
             ->assertHasNoFormErrors();
 
         Notification::assertNotSentTo($this->verifiedUser, NoticeOfEmailChangeRequest::class);
+        Notification::assertSentOnDemandTimes(VerifyEmailChange::class, 0);
     });
 
     test('email change resets form email to current value', function () {
@@ -136,6 +137,21 @@ describe('email change verification', function () {
             ->assertFormSet([
                 'email' => 'original@example.com',
             ]);
+    });
+
+    test('name change is saved even when email change is deferred', function () {
+        Livewire::test(UpdateProfileInformationComponent::class)
+            ->fillForm([
+                'name' => 'Updated Name',
+                'email' => 'new@example.com',
+            ])
+            ->call('updateProfile')
+            ->assertHasNoFormErrors()
+            ->assertNotified();
+
+        expect($this->verifiedUser->fresh())
+            ->name->toBe('Updated Name')
+            ->email->toBe('original@example.com');
     });
 });
 
@@ -227,6 +243,7 @@ describe('photo upload', function () {
 
         expect($user->fresh())
             ->name->toBe('Updated Name')
+            ->email->toBe('photo-test@example.com')
             ->profile_photo_path->not->toBeNull();
     });
 });
