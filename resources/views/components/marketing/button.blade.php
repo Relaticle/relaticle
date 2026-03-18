@@ -23,7 +23,7 @@
 
 <{{ $tag }} {{ $attributes
     ->class([
-        'inline-flex items-center justify-center gap-2 font-medium transition-all duration-200',
+        'inline-flex items-center justify-center gap-2 cursor-pointer font-medium transition-all duration-200',
         $sizes[$size] ?? $sizes['base'],
         $variants[$variant] ?? $variants['primary'],
     ])

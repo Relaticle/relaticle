@@ -53,7 +53,7 @@
 
                             <x-marketing.textarea label="How can we help?" :required="true" name="message" id="message" rows="5" required placeholder="Tell us about your project, team size, and any specific requirements...">{{ old('message') }}</x-marketing.textarea>
 
-                            <x-marketing.button type="submit" icon-trailing="ri-arrow-right-line">
+                            <x-marketing.button type="submit">
                                 Send message
                             </x-marketing.button>
                         </form>
