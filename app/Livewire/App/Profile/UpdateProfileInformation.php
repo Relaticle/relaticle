@@ -17,7 +17,6 @@ use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Actions;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
-use Illuminate\Contracts\Translation\HasLocalePreference;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Notification as NotificationFacade;
 use League\Uri\Components\Query;
@@ -124,10 +123,6 @@ final class UpdateProfileInformation extends BaseLivewireComponent
             'blockVerificationUrl' => Filament::getBlockEmailChangeVerificationUrl($user, $newEmail, $verificationSignature),
             'newEmail' => $newEmail,
         ]));
-
-        if ($user instanceof HasLocalePreference) {
-            $notification->locale($user->preferredLocale());
-        }
 
         NotificationFacade::route('mail', $newEmail)
             ->notify($notification);
