@@ -30,18 +30,17 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
 
                 {{-- Cloud (primary) --}}
-                <div class="relative rounded-2xl border-2 border-primary/30 dark:border-primary/20 bg-white dark:bg-white/[0.02] p-8 flex flex-col overflow-hidden">
+                <div class="relative rounded-2xl border border-primary/20 dark:border-primary/15 bg-white dark:bg-white/[0.02] flex flex-col overflow-hidden shadow-[0_4px_32px_-8px_rgba(124,58,237,0.08)] dark:shadow-[0_4px_32px_-8px_rgba(124,58,237,0.15)]">
+                    <div class="h-1 bg-gradient-to-r from-primary via-purple-500 to-pink-500"></div>
+                    <div class="flex-1 flex flex-col p-8">
 
                     {{-- Recommended badge --}}
-                    <div class="absolute top-5 right-5">
+                    <div class="absolute top-6 right-5">
                         <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary/[0.08] dark:bg-primary/[0.15] text-[10px] font-semibold uppercase tracking-wider text-primary-700 dark:text-primary-300">
                             <x-ri-star-fill class="w-3 h-3"/>
                             Recommended
                         </span>
                     </div>
-
-                    {{-- Subtle glow --}}
-                    <div class="absolute -top-20 -right-20 w-48 h-48 bg-primary/[0.06] dark:bg-primary/[0.10] rounded-full blur-3xl pointer-events-none" aria-hidden="true"></div>
 
                     <div class="relative mb-6">
                         <div class="flex items-center gap-2.5">
@@ -101,10 +100,13 @@
                     <x-marketing.button href="{{ route('register') }}">
                         Start for free
                     </x-marketing.button>
+                    </div>
                 </div>
 
                 {{-- Self-Hosted --}}
-                <div class="relative rounded-2xl border border-gray-200/80 dark:border-white/[0.06] bg-white dark:bg-white/[0.02] p-8 flex flex-col">
+                <div class="relative rounded-2xl border border-gray-200/80 dark:border-white/[0.06] bg-white dark:bg-white/[0.02] flex flex-col overflow-hidden shadow-[0_2px_16px_-6px_rgba(0,0,0,0.05)] dark:shadow-none">
+                    <div class="h-1 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-white/10 dark:via-white/20 dark:to-white/10"></div>
+                    <div class="flex-1 flex flex-col p-8">
                     <div class="mb-6">
                         <div class="flex items-center gap-2.5">
                             <div class="flex items-center justify-center w-9 h-9 rounded-xl bg-gray-100 dark:bg-white/[0.06]">
@@ -163,6 +165,7 @@
                     <x-marketing.button variant="secondary" href="https://github.com/relaticle/relaticle" icon="ri-github-fill" external>
                         View on GitHub
                     </x-marketing.button>
+                    </div>
                 </div>
             </div>
 
