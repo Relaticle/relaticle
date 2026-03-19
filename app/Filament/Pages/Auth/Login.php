@@ -6,28 +6,27 @@ namespace App\Filament\Pages\Auth;
 
 use App\Concerns\DetectsTeamInvitation;
 use Filament\Actions\Action;
+use Filament\Schemas\Components\Html;
+use Filament\Schemas\Components\RenderHook;
+use Filament\Schemas\Schema;
 use Filament\Support\Enums\Size;
-use Illuminate\Contracts\Support\Htmlable;
+use Filament\View\PanelsRenderHook;
 use Illuminate\Support\HtmlString;
 
 final class Login extends \Filament\Auth\Pages\Login
 {
     use DetectsTeamInvitation;
 
-    public function getSubheading(): string|Htmlable|null
+    public function content(Schema $schema): Schema
     {
-        $parentSubheading = parent::getSubheading();
-        $invitationSubheading = $this->getTeamInvitationSubheading();
-
-        if ($invitationSubheading !== null && $parentSubheading !== null) {
-            $parentHtml = $parentSubheading instanceof Htmlable
-                ? $parentSubheading->toHtml()
-                : e($parentSubheading);
-
-            return new HtmlString($invitationSubheading->toHtml().'<br>'.$parentHtml);
-        }
-
-        return $invitationSubheading ?? $parentSubheading;
+        return $schema
+            ->components([
+                Html::make(fn (): string => $this->getInvitationContentHtml()),
+                RenderHook::make(PanelsRenderHook::AUTH_LOGIN_FORM_BEFORE),
+                $this->getFormContentComponent(),
+                $this->getMultiFactorChallengeFormContentComponent(),
+                RenderHook::make(PanelsRenderHook::AUTH_LOGIN_FORM_AFTER),
+            ]);
     }
 
     protected function getAuthenticateFormAction(): Action
@@ -36,5 +35,18 @@ final class Login extends \Filament\Auth\Pages\Login
             ->size(Size::Medium)
             ->label(__('filament-panels::auth/pages/login.form.actions.authenticate.label'))
             ->submit('authenticate');
+    }
+
+    private function getInvitationContentHtml(): string
+    {
+        $subheading = $this->getTeamInvitationSubheading();
+
+        if ($subheading === null) {
+            return '';
+        }
+
+        return (new HtmlString(
+            '<p class="text-center text-sm text-gray-500 dark:text-gray-400">'.$subheading->toHtml().'</p>'
+        ))->toHtml();
     }
 }
