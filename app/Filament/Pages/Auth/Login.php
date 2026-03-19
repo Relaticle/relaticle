@@ -8,6 +8,7 @@ use App\Concerns\DetectsTeamInvitation;
 use Filament\Actions\Action;
 use Filament\Support\Enums\Size;
 use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Support\HtmlString;
 
 final class Login extends \Filament\Auth\Pages\Login
 {
@@ -16,18 +17,17 @@ final class Login extends \Filament\Auth\Pages\Login
     public function getSubheading(): string|Htmlable|null
     {
         $parentSubheading = parent::getSubheading();
+        $invitationSubheading = $this->getTeamInvitationSubheading();
 
-        if ($parentSubheading !== null) {
-            $subheadingText = $parentSubheading instanceof Htmlable
+        if ($invitationSubheading !== null && $parentSubheading !== null) {
+            $parentHtml = $parentSubheading instanceof Htmlable
                 ? $parentSubheading->toHtml()
-                : $parentSubheading;
+                : e($parentSubheading);
 
-            if (! str_contains($subheadingText, 'sign up')) {
-                return $parentSubheading;
-            }
+            return new HtmlString($invitationSubheading->toHtml().'<br>'.$parentHtml);
         }
 
-        return $this->getTeamInvitationSubheading() ?? $parentSubheading;
+        return $invitationSubheading ?? $parentSubheading;
     }
 
     protected function getAuthenticateFormAction(): Action

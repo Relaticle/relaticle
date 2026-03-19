@@ -8,7 +8,7 @@ use App\Models\TeamInvitation;
 use App\Models\User;
 use Illuminate\Support\Facades\URL;
 
-test('guest clicking invitation link sees team name on login page', function () {
+test('guest clicking invitation link sees team name and sign-up link on login page', function () {
     $team = Team::factory()->create(['name' => 'Acme Corp']);
 
     $invitation = TeamInvitation::factory()->create([
@@ -18,12 +18,18 @@ test('guest clicking invitation link sees team name on login page', function () 
 
     $acceptUrl = URL::signedRoute('team-invitations.accept', ['invitation' => $invitation]);
 
-    // Guest hits invite link -> auth middleware redirects to login with url.intended set
     $this->get($acceptUrl)
         ->assertRedirect();
 
     $this->get(route('filament.app.auth.login'))
-        ->assertSee('Acme Corp');
+        ->assertSee('Acme Corp')
+        ->assertSee('sign up', escape: false);
+});
+
+test('login page without invitation shows default subheading unchanged', function () {
+    $this->get(route('filament.app.auth.login'))
+        ->assertSee('sign up', escape: false)
+        ->assertDontSee('invited to join');
 });
 
 test('user registering via invitation link gets auto-verified email', function () {
