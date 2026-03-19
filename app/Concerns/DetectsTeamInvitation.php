@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Concerns;
 
 use App\Models\TeamInvitation;
+use Filament\Schemas\Components\Component;
+use Filament\Schemas\Components\Html;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\HtmlString;
 
@@ -43,5 +45,20 @@ trait DetectsTeamInvitation
                 'team' => e($invitation->team->name),
             ])
         );
+    }
+
+    protected function getTeamInvitationBannerComponent(): Component
+    {
+        $subheading = $this->getTeamInvitationSubheading();
+
+        if ($subheading === null) {
+            return Html::make('');
+        }
+
+        return Html::make(new HtmlString(
+            '<div class="rounded-xl bg-primary-50 ring-1 ring-primary-200 dark:bg-primary-950 dark:ring-primary-800 px-4 py-3 text-center text-sm">'
+            .$subheading->toHtml()
+            .'</div>'
+        ));
     }
 }

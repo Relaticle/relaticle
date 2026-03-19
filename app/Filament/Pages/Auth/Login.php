@@ -6,28 +6,25 @@ namespace App\Filament\Pages\Auth;
 
 use App\Concerns\DetectsTeamInvitation;
 use Filament\Actions\Action;
+use Filament\Schemas\Components\RenderHook;
+use Filament\Schemas\Schema;
 use Filament\Support\Enums\Size;
-use Illuminate\Contracts\Support\Htmlable;
-use Illuminate\Support\HtmlString;
+use Filament\View\PanelsRenderHook;
 
 final class Login extends \Filament\Auth\Pages\Login
 {
     use DetectsTeamInvitation;
 
-    public function getSubheading(): string|Htmlable|null
+    public function content(Schema $schema): Schema
     {
-        $parentSubheading = parent::getSubheading();
-        $invitationSubheading = $this->getTeamInvitationSubheading();
-
-        if ($invitationSubheading !== null && $parentSubheading !== null) {
-            $parentHtml = $parentSubheading instanceof Htmlable
-                ? $parentSubheading->toHtml()
-                : e($parentSubheading);
-
-            return new HtmlString($invitationSubheading->toHtml().'<br>'.$parentHtml);
-        }
-
-        return $invitationSubheading ?? $parentSubheading;
+        return $schema
+            ->components([
+                $this->getTeamInvitationBannerComponent(),
+                RenderHook::make(PanelsRenderHook::AUTH_LOGIN_FORM_BEFORE),
+                $this->getFormContentComponent(),
+                $this->getMultiFactorChallengeFormContentComponent(),
+                RenderHook::make(PanelsRenderHook::AUTH_LOGIN_FORM_AFTER),
+            ]);
     }
 
     protected function getAuthenticateFormAction(): Action
