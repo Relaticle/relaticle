@@ -27,6 +27,7 @@ test('valid invitation can be accepted', function () {
 
     expect($team->fresh()->hasUser($user))->toBeTrue();
     expect(TeamInvitation::find($invitation->id))->toBeNull();
+    expect($user->fresh()->current_team_id)->toBe($team->id);
 });
 
 test('expired invitation shows friendly expired page', function () {

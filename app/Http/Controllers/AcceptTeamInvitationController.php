@@ -49,6 +49,10 @@ final readonly class AcceptTeamInvitationController
 
         $invitation->delete();
 
+        /** @var User $user */
+        $user = $request->user();
+        $user->switchTeam($invitation->team);
+
         return redirect(config('fortify.home'))
             ->banner(__('Great! You have accepted the invitation to join the :team team.', [ // @phpstan-ignore method.notFound
                 'team' => $invitation->team->name,
