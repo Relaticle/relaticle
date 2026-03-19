@@ -36,7 +36,7 @@ final readonly class AcceptTeamInvitationController
             abort(403, __('This invitation was sent to a different email address.'));
         }
 
-        app(AddsTeamMembers::class)->add(
+        resolve(AddsTeamMembers::class)->add(
             $invitation->team->owner,
             $invitation->team,
             $invitation->email,
