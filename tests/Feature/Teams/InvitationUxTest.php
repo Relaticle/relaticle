@@ -6,7 +6,22 @@ use App\Filament\Pages\Auth\Register;
 use App\Models\Team;
 use App\Models\TeamInvitation;
 use App\Models\User;
+use Filament\Facades\Filament;
 use Illuminate\Support\Facades\URL;
+
+test('guest clicking invitation link is redirected to register page', function () {
+    $team = Team::factory()->create(['name' => 'Acme Corp']);
+
+    $invitation = TeamInvitation::factory()->create([
+        'team_id' => $team->id,
+        'email' => 'newuser@example.com',
+    ]);
+
+    $acceptUrl = URL::signedRoute('team-invitations.accept', ['invitation' => $invitation]);
+
+    $this->get($acceptUrl)
+        ->assertRedirect(Filament::getRegistrationUrl());
+});
 
 test('guest clicking invitation link sees team name and sign-up link on login page', function () {
     $team = Team::factory()->create(['name' => 'Acme Corp']);
@@ -18,8 +33,7 @@ test('guest clicking invitation link sees team name and sign-up link on login pa
 
     $acceptUrl = URL::signedRoute('team-invitations.accept', ['invitation' => $invitation]);
 
-    $this->get($acceptUrl)
-        ->assertRedirect();
+    $this->get($acceptUrl);
 
     $this->get(route('filament.app.auth.login'))
         ->assertSee('Acme Corp')
@@ -43,7 +57,7 @@ test('guest clicking invitation link sees team name and sign-in link on register
     $acceptUrl = URL::signedRoute('team-invitations.accept', ['invitation' => $invitation]);
 
     $this->get($acceptUrl)
-        ->assertRedirect();
+        ->assertRedirect(Filament::getRegistrationUrl());
 
     $this->get(route('filament.app.auth.register'))
         ->assertSee('Acme Corp')
