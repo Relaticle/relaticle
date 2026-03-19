@@ -14,11 +14,11 @@ trait DetectsTeamInvitation
     {
         $intendedUrl = session('url.intended', '');
 
-        if (! str_contains($intendedUrl, '/team-invitations/')) {
+        if (! str_contains((string) $intendedUrl, '/team-invitations/')) {
             return null;
         }
 
-        $path = parse_url($intendedUrl, PHP_URL_PATH);
+        $path = parse_url((string) $intendedUrl, PHP_URL_PATH);
 
         if (! $path) {
             return null;

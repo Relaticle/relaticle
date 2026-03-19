@@ -46,12 +46,12 @@ final class Register extends BaseRegister
      */
     protected function handleRegistration(array $data): Model
     {
-        $user = $this->getUserModel()::create($data);
+        $user = $this->getUserModel()::query()->create($data);
 
         $intendedUrl = session('url.intended', '');
 
-        if (str_contains($intendedUrl, '/team-invitations/')) {
-            $path = parse_url($intendedUrl, PHP_URL_PATH);
+        if (str_contains((string) $intendedUrl, '/team-invitations/')) {
+            $path = parse_url((string) $intendedUrl, PHP_URL_PATH);
             $segments = $path ? explode('/', trim($path, '/')) : [];
             $invitationIndex = array_search('team-invitations', $segments, true);
 
