@@ -9,25 +9,29 @@ use App\Models\TeamInvitation;
 use Filament\Actions\Action;
 use Filament\Auth\Pages\Register as BaseRegister;
 use Filament\Forms\Components\TextInput;
-use Filament\Schemas\Components\RenderHook;
-use Filament\Schemas\Schema;
 use Filament\Support\Enums\Size;
-use Filament\View\PanelsRenderHook;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\HtmlString;
 
 final class Register extends BaseRegister
 {
     use DetectsTeamInvitation;
 
-    public function content(Schema $schema): Schema
+    public function getSubheading(): string|Htmlable|null
     {
-        return $schema
-            ->components([
-                $this->getTeamInvitationBannerComponent(),
-                RenderHook::make(PanelsRenderHook::AUTH_REGISTER_FORM_BEFORE),
-                $this->getFormContentComponent(),
-                RenderHook::make(PanelsRenderHook::AUTH_REGISTER_FORM_AFTER),
-            ]);
+        $parentSubheading = parent::getSubheading();
+        $invitationSubheading = $this->getTeamInvitationSubheading();
+
+        if ($invitationSubheading !== null && $parentSubheading !== null) {
+            $parentHtml = $parentSubheading instanceof Htmlable
+                ? $parentSubheading->toHtml()
+                : e($parentSubheading);
+
+            return new HtmlString($invitationSubheading->toHtml().'<br>'.$parentHtml);
+        }
+
+        return $invitationSubheading ?? $parentSubheading;
     }
 
     protected function getEmailFormComponent(): TextInput
