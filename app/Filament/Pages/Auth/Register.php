@@ -12,6 +12,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Support\Enums\Size;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\HtmlString;
 
 final class Register extends BaseRegister
 {
@@ -19,7 +20,18 @@ final class Register extends BaseRegister
 
     public function getSubheading(): string|Htmlable|null
     {
-        return $this->getTeamInvitationSubheading() ?? parent::getSubheading();
+        $parentSubheading = parent::getSubheading();
+        $invitationSubheading = $this->getTeamInvitationSubheading();
+
+        if ($invitationSubheading !== null && $parentSubheading !== null) {
+            $parentHtml = $parentSubheading instanceof Htmlable
+                ? $parentSubheading->toHtml()
+                : e($parentSubheading);
+
+            return new HtmlString($invitationSubheading->toHtml().'<br>'.$parentHtml);
+        }
+
+        return $invitationSubheading ?? $parentSubheading;
     }
 
     protected function getEmailFormComponent(): TextInput

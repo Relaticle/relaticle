@@ -32,6 +32,30 @@ test('login page without invitation shows default subheading unchanged', functio
         ->assertDontSee('invited to join');
 });
 
+test('guest clicking invitation link sees team name and sign-in link on register page', function () {
+    $team = Team::factory()->create(['name' => 'Acme Corp']);
+
+    $invitation = TeamInvitation::factory()->create([
+        'team_id' => $team->id,
+        'email' => 'newuser@example.com',
+    ]);
+
+    $acceptUrl = URL::signedRoute('team-invitations.accept', ['invitation' => $invitation]);
+
+    $this->get($acceptUrl)
+        ->assertRedirect();
+
+    $this->get(route('filament.app.auth.register'))
+        ->assertSee('Acme Corp')
+        ->assertSee('sign in', escape: false);
+});
+
+test('register page without invitation shows default subheading unchanged', function () {
+    $this->get(route('filament.app.auth.register'))
+        ->assertSee('sign in', escape: false)
+        ->assertDontSee('invited to join');
+});
+
 test('user registering via invitation link gets auto-verified email', function () {
     $team = Team::factory()->create();
 
