@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Filament\Pages\Auth;
 
 use App\Concerns\DetectsTeamInvitation;
-use App\Models\TeamInvitation;
 use Filament\Actions\Action;
 use Filament\Auth\Pages\Register as BaseRegister;
 use Filament\Forms\Components\TextInput;
@@ -15,7 +14,6 @@ use Filament\Schemas\Schema;
 use Filament\Support\Enums\Size;
 use Filament\View\PanelsRenderHook;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\HtmlString;
 
 final class Register extends BaseRegister
 {
@@ -58,35 +56,12 @@ final class Register extends BaseRegister
     {
         $user = $this->getUserModel()::query()->create($data);
 
-        $intendedUrl = session('url.intended', '');
+        $invitation = $this->getTeamInvitationFromSession();
 
-        if (str_contains((string) $intendedUrl, '/team-invitations/')) {
-            $path = parse_url((string) $intendedUrl, PHP_URL_PATH);
-            $segments = $path ? explode('/', trim($path, '/')) : [];
-            $invitationIndex = array_search('team-invitations', $segments, true);
-
-            if ($invitationIndex !== false && isset($segments[$invitationIndex + 1])) {
-                $invitation = TeamInvitation::query()->whereKey($segments[$invitationIndex + 1])->first();
-
-                if ($invitation && $invitation->email === $data['email']) {
-                    $user->forceFill(['email_verified_at' => now()])->save();
-                }
-            }
+        if ($invitation && $invitation->email === $data['email']) {
+            $user->forceFill(['email_verified_at' => now()])->save();
         }
 
         return $user;
-    }
-
-    private function getInvitationContentHtml(): string
-    {
-        $subheading = $this->getTeamInvitationSubheading();
-
-        if ($subheading === null) {
-            return '';
-        }
-
-        return (new HtmlString(
-            '<p class="text-center text-sm text-gray-500 dark:text-gray-400">'.$subheading->toHtml().'</p>'
-        ))->toHtml();
     }
 }

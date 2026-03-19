@@ -11,7 +11,6 @@ use Filament\Schemas\Components\RenderHook;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\Size;
 use Filament\View\PanelsRenderHook;
-use Illuminate\Support\HtmlString;
 
 final class Login extends \Filament\Auth\Pages\Login
 {
@@ -35,18 +34,5 @@ final class Login extends \Filament\Auth\Pages\Login
             ->size(Size::Medium)
             ->label(__('filament-panels::auth/pages/login.form.actions.authenticate.label'))
             ->submit('authenticate');
-    }
-
-    private function getInvitationContentHtml(): string
-    {
-        $subheading = $this->getTeamInvitationSubheading();
-
-        if ($subheading === null) {
-            return '';
-        }
-
-        return (new HtmlString(
-            '<p class="text-center text-sm text-gray-500 dark:text-gray-400">'.$subheading->toHtml().'</p>'
-        ))->toHtml();
     }
 }

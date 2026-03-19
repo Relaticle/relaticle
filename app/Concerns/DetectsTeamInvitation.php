@@ -10,7 +10,7 @@ use Illuminate\Support\HtmlString;
 
 trait DetectsTeamInvitation
 {
-    protected function getTeamInvitationSubheading(): ?Htmlable
+    protected function getTeamInvitationFromSession(): ?TeamInvitation
     {
         $intendedUrl = session('url.intended', '');
 
@@ -31,8 +31,14 @@ trait DetectsTeamInvitation
             return null;
         }
 
-        $invitationId = $segments[$invitationIndex + 1];
-        $invitation = TeamInvitation::query()->whereKey($invitationId)->first();
+        return TeamInvitation::query()
+            ->whereKey($segments[$invitationIndex + 1])
+            ->first();
+    }
+
+    protected function getTeamInvitationSubheading(): ?Htmlable
+    {
+        $invitation = $this->getTeamInvitationFromSession();
 
         if (! $invitation || $invitation->isExpired()) {
             return null;
@@ -43,5 +49,16 @@ trait DetectsTeamInvitation
                 'team' => e($invitation->team->name),
             ])
         );
+    }
+
+    protected function getInvitationContentHtml(): string
+    {
+        $subheading = $this->getTeamInvitationSubheading();
+
+        if ($subheading === null) {
+            return '';
+        }
+
+        return '<p class="text-center text-sm text-gray-500 dark:text-gray-400">'.$subheading->toHtml().'</p>';
     }
 }
