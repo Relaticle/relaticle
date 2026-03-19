@@ -39,7 +39,7 @@ Do not add new PHPStan errors to the baseline without approval. All parameters a
 
 ## Testing
 
-- Focus on real-world integration tests over isolated unit tests
+- Do not write isolated unit tests for action classes, services, or similar internal code -- test them through their real entry points (API endpoints, Filament resources, Livewire components). Unit tests for internal classes create maintenance burden without catching real bugs.
 - Use `mutates(ClassName::class)` in test files to declare which source classes each test covers
 - Run mutation testing per-class: `php -d xdebug.mode=coverage vendor/bin/pest --mutate --class='App\MyClass' tests/path/`
 - No enforced `--min` threshold — use mutation testing as a code review tool, not a CI gate
