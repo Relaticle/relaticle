@@ -2,8 +2,10 @@
 
 declare(strict_types=1);
 
+use App\Filament\Pages\Auth\Register;
 use App\Models\Team;
 use App\Models\TeamInvitation;
+use App\Models\User;
 use Illuminate\Support\Facades\URL;
 
 test('guest clicking invitation link sees team name on login page', function () {
@@ -22,4 +24,76 @@ test('guest clicking invitation link sees team name on login page', function () 
 
     $this->get(route('filament.app.auth.login'))
         ->assertSee('Acme Corp');
+});
+
+test('user registering via invitation link gets auto-verified email', function () {
+    $team = Team::factory()->create();
+
+    $invitation = TeamInvitation::factory()->create([
+        'team_id' => $team->id,
+        'email' => 'newuser@gmail.com',
+    ]);
+
+    $acceptUrl = URL::signedRoute('team-invitations.accept', ['invitation' => $invitation]);
+
+    // Simulate guest hitting invite link (sets url.intended in session)
+    $this->get($acceptUrl);
+
+    // Register via Filament's Livewire component
+    livewire(Register::class)
+        ->fillForm([
+            'name' => 'New User',
+            'email' => 'newuser@gmail.com',
+            'password' => 'password',
+            'passwordConfirmation' => 'password',
+        ])
+        ->call('register')
+        ->assertHasNoFormErrors();
+
+    $user = User::where('email', 'newuser@gmail.com')->first();
+    expect($user)->not->toBeNull();
+    expect($user->hasVerifiedEmail())->toBeTrue();
+});
+
+test('user registering without invitation link does not get auto-verified', function () {
+    livewire(Register::class)
+        ->fillForm([
+            'name' => 'Normal User',
+            'email' => 'normaluser@gmail.com',
+            'password' => 'password',
+            'passwordConfirmation' => 'password',
+        ])
+        ->call('register')
+        ->assertHasNoFormErrors();
+
+    $user = User::where('email', 'normaluser@gmail.com')->first();
+    expect($user)->not->toBeNull();
+    expect($user->hasVerifiedEmail())->toBeFalse();
+});
+
+test('user registering with different email than invitation does not get auto-verified', function () {
+    $team = Team::factory()->create();
+
+    $invitation = TeamInvitation::factory()->create([
+        'team_id' => $team->id,
+        'email' => 'invited@gmail.com',
+    ]);
+
+    $acceptUrl = URL::signedRoute('team-invitations.accept', ['invitation' => $invitation]);
+
+    $this->get($acceptUrl);
+
+    livewire(Register::class)
+        ->fillForm([
+            'name' => 'Different User',
+            'email' => 'different@gmail.com',
+            'password' => 'password',
+            'passwordConfirmation' => 'password',
+        ])
+        ->call('register')
+        ->assertHasNoFormErrors();
+
+    $user = User::where('email', 'different@gmail.com')->first();
+    expect($user)->not->toBeNull();
+    expect($user->hasVerifiedEmail())->toBeFalse();
 });

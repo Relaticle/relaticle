@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace App\Filament\Pages\Auth;
 
 use App\Concerns\DetectsTeamInvitation;
+use App\Models\TeamInvitation;
 use Filament\Actions\Action;
 use Filament\Auth\Pages\Register as BaseRegister;
 use Filament\Forms\Components\TextInput;
 use Filament\Support\Enums\Size;
 use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Database\Eloquent\Model;
 
 final class Register extends BaseRegister
 {
@@ -37,5 +39,31 @@ final class Register extends BaseRegister
             ->size(Size::Medium)
             ->label(__('filament-panels::auth/pages/register.form.actions.register.label'))
             ->submit('register');
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    protected function handleRegistration(array $data): Model
+    {
+        $user = $this->getUserModel()::create($data);
+
+        $intendedUrl = session('url.intended', '');
+
+        if (str_contains($intendedUrl, '/team-invitations/')) {
+            $path = parse_url($intendedUrl, PHP_URL_PATH);
+            $segments = $path ? explode('/', trim($path, '/')) : [];
+            $invitationIndex = array_search('team-invitations', $segments, true);
+
+            if ($invitationIndex !== false && isset($segments[$invitationIndex + 1])) {
+                $invitation = TeamInvitation::query()->whereKey($segments[$invitationIndex + 1])->first();
+
+                if ($invitation && $invitation->email === $data['email']) {
+                    $user->forceFill(['email_verified_at' => now()])->save();
+                }
+            }
+        }
+
+        return $user;
     }
 }
