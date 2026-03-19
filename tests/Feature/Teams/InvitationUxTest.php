@@ -9,7 +9,7 @@ use App\Models\User;
 use Filament\Facades\Filament;
 use Illuminate\Support\Facades\URL;
 
-test('guest clicking invitation link is redirected to register page', function () {
+test('guest with no account clicking invitation link is redirected to register page', function () {
     $team = Team::factory()->create(['name' => 'Acme Corp']);
 
     $invitation = TeamInvitation::factory()->create([
@@ -21,6 +21,22 @@ test('guest clicking invitation link is redirected to register page', function (
 
     $this->get($acceptUrl)
         ->assertRedirect(Filament::getRegistrationUrl());
+});
+
+test('guest with existing account clicking invitation link is redirected to login page', function () {
+    $team = Team::factory()->create(['name' => 'Acme Corp']);
+
+    User::factory()->create(['email' => 'existing@example.com']);
+
+    $invitation = TeamInvitation::factory()->create([
+        'team_id' => $team->id,
+        'email' => 'existing@example.com',
+    ]);
+
+    $acceptUrl = URL::signedRoute('team-invitations.accept', ['invitation' => $invitation]);
+
+    $this->get($acceptUrl)
+        ->assertRedirect(Filament::getLoginUrl());
 });
 
 test('guest clicking invitation link sees team name and sign-up link on login page', function () {

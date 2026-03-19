@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use App\Models\TeamInvitation;
+use App\Models\User;
 use Filament\Facades\Filament;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Application;
@@ -22,6 +24,14 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->redirectGuestsTo(function (Request $request): string {
             if ($request->routeIs('team-invitations.accept')) {
+                $invitation = TeamInvitation::query()
+                    ->whereKey($request->route('invitation'))
+                    ->first();
+
+                if ($invitation && User::where('email', $invitation->email)->exists()) {
+                    return Filament::getLoginUrl();
+                }
+
                 return Filament::getRegistrationUrl();
             }
 
