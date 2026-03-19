@@ -1,4 +1,4 @@
-<x-filament::section aside>
+<x-filament::section aside :contained="false">
     <x-slot name="heading">
         {{ __('access-tokens.sections.manage.title') }}
     </x-slot>
