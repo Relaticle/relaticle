@@ -12,6 +12,10 @@ use Illuminate\Support\Facades\DB;
 
 final readonly class CreateTask
 {
+    public function __construct(
+        private NotifyTaskAssignees $notifyAssignees,
+    ) {}
+
     /**
      * @param  array<string, mixed>  $data
      */
@@ -27,7 +31,7 @@ final readonly class CreateTask
         $attributes = Arr::only($data, ['title', 'custom_fields']);
         $attributes['creation_source'] = $source;
 
-        return DB::transaction(function () use ($attributes, $companyIds, $peopleIds, $opportunityIds, $assigneeIds): Task {
+        $task = DB::transaction(function () use ($attributes, $companyIds, $peopleIds, $opportunityIds, $assigneeIds): Task {
             $task = Task::query()->create($attributes);
 
             if ($companyIds !== null) {
@@ -45,5 +49,9 @@ final readonly class CreateTask
 
             return $task;
         });
+
+        $this->notifyAssignees->execute($task);
+
+        return $task;
     }
 }
