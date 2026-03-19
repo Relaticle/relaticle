@@ -30,8 +30,7 @@ final readonly class AcceptTeamInvitationController
         if ($request->user()->email !== $invitation->email) {
             Log::warning('Invitation email mismatch', [
                 'invitation_id' => $invitation->id,
-                'invitation_email' => $invitation->email,
-                'user_email' => $request->user()->email,
+                'user_id' => $request->user()->id,
             ]);
 
             abort(403, __('This invitation was sent to a different email address.'));

@@ -24,9 +24,16 @@ final class CleanupExpiredInvitationsCommand extends Command
     {
         $days = (int) $this->option('days');
 
+        $cutoff = now()->subDays($days);
+
         $deleted = TeamInvitation::query()
-            ->whereNotNull('expires_at')
-            ->where('expires_at', '<', now()->subDays($days))
+            ->where(function ($query) use ($cutoff): void {
+                $query->where('expires_at', '<', $cutoff)
+                    ->orWhere(function ($query) use ($cutoff): void {
+                        $query->whereNull('expires_at')
+                            ->where('created_at', '<', $cutoff);
+                    });
+            })
             ->delete();
 
         $this->info("Purged {$deleted} expired invitation(s).");

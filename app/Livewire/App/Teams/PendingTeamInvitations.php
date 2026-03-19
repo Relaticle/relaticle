@@ -80,6 +80,8 @@ final class PendingTeamInvitations extends BaseLivewireComponent implements Tabl
 
     public function extendTeamInvitation(Model $invitation): void
     {
+        Gate::authorize('updateTeamMember', $this->team);
+
         $expiryDays = (int) config('jetstream.invitation_expiry_days', 7);
 
         $invitation->update([
@@ -91,9 +93,11 @@ final class PendingTeamInvitations extends BaseLivewireComponent implements Tabl
 
     public function copyInviteLink(Model $invitation): void
     {
+        Gate::authorize('updateTeamMember', $this->team);
+
         $url = URL::signedRoute('team-invitations.accept', ['invitation' => $invitation]);
 
-        $this->js("navigator.clipboard.writeText('{$url}')");
+        $this->js('navigator.clipboard.writeText('.json_encode($url, JSON_THROW_ON_ERROR).')');
 
         $this->sendNotification(__('teams.notifications.invite_link_copied.success'));
     }
