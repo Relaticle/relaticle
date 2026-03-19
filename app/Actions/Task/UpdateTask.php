@@ -6,14 +6,13 @@ namespace App\Actions\Task;
 
 use App\Models\Task;
 use App\Models\User;
-use App\Services\TaskAssignmentNotifier;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
 final readonly class UpdateTask
 {
     public function __construct(
-        private TaskAssignmentNotifier $notifier,
+        private NotifyTaskAssignees $notifyAssignees,
     ) {}
 
     /**
@@ -27,7 +26,9 @@ final readonly class UpdateTask
 
         $attributes = Arr::only($data, ['title', 'custom_fields']);
 
-        return DB::transaction(function () use ($task, $attributes, $data): Task {
+        $previousAssigneeIds = $task->assignees()->pluck('users.id')->all();
+
+        $task = DB::transaction(function () use ($task, $attributes, $data): Task {
             $task->update($attributes);
 
             if (array_key_exists('company_ids', $data)) {
@@ -43,9 +44,11 @@ final readonly class UpdateTask
                 $task->assignees()->sync($data['assignee_ids']);
             }
 
-            $this->notifier->notifyNewAssignees($task);
-
             return $task->refresh();
         });
+
+        $this->notifyAssignees->execute($task, $previousAssigneeIds);
+
+        return $task;
     }
 }
