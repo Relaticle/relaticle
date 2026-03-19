@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Models\TeamInvitation;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -36,8 +37,11 @@ final readonly class AcceptTeamInvitationController
             abort(403, __('This invitation was sent to a different email address.'));
         }
 
+        /** @var User $owner */
+        $owner = $invitation->team->owner;
+
         resolve(AddsTeamMembers::class)->add(
-            $invitation->team->owner,
+            $owner,
             $invitation->team,
             $invitation->email,
             $invitation->role,
@@ -46,7 +50,7 @@ final readonly class AcceptTeamInvitationController
         $invitation->delete();
 
         return redirect(config('fortify.home'))
-            ->banner(__('Great! You have accepted the invitation to join the :team team.', [
+            ->banner(__('Great! You have accepted the invitation to join the :team team.', [ // @phpstan-ignore method.notFound
                 'team' => $invitation->team->name,
             ]));
     }

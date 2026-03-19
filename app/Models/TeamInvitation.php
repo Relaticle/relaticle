@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 use Laravel\Jetstream\TeamInvitation as JetstreamTeamInvitation;
 
 final class TeamInvitation extends JetstreamTeamInvitation
@@ -42,7 +43,10 @@ final class TeamInvitation extends JetstreamTeamInvitation
             return true;
         }
 
-        return $this->expires_at->isPast();
+        /** @var Carbon $expiresAt */
+        $expiresAt = $this->expires_at;
+
+        return $expiresAt->isPast();
     }
 
     /**

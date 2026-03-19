@@ -12,6 +12,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\URL;
@@ -42,7 +43,10 @@ final class PendingTeamInvitations extends BaseLivewireComponent implements Tabl
                                 return __('Expired');
                             }
 
-                            return $record->expires_at->diffForHumans();
+                            /** @var Carbon $expiresAt */
+                            $expiresAt = $record->expires_at;
+
+                            return $expiresAt->diffForHumans();
                         }),
                 ]),
             ])
