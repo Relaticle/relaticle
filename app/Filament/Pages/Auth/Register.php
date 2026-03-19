@@ -4,13 +4,22 @@ declare(strict_types=1);
 
 namespace App\Filament\Pages\Auth;
 
+use App\Concerns\DetectsTeamInvitation;
 use Filament\Actions\Action;
 use Filament\Auth\Pages\Register as BaseRegister;
 use Filament\Forms\Components\TextInput;
 use Filament\Support\Enums\Size;
+use Illuminate\Contracts\Support\Htmlable;
 
 final class Register extends BaseRegister
 {
+    use DetectsTeamInvitation;
+
+    public function getSubheading(): string|Htmlable|null
+    {
+        return $this->getTeamInvitationSubheading() ?? parent::getSubheading();
+    }
+
     protected function getEmailFormComponent(): TextInput
     {
         return TextInput::make('email')
