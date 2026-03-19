@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\TaskResource\Pages;
 
-use App\Actions\Task\CreateTask;
+use App\Actions\Task\NotifyTaskAssignees;
 use App\Filament\Exports\TaskExporter;
 use App\Filament\Resources\TaskResource;
 use App\Models\Task;
-use App\Models\User;
 use Asmit\ResizedColumn\HasResizableColumn;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
@@ -47,11 +46,8 @@ final class ManageTasks extends ManageRecords
                 ->icon('heroicon-o-plus')
                 ->size(Size::Small)
                 ->slideOver()
-                ->using(function (array $data): Task {
-                    /** @var User $user */
-                    $user = auth()->user();
-
-                    return resolve(CreateTask::class)->execute($user, $data);
+                ->after(function (Task $record): void {
+                    resolve(NotifyTaskAssignees::class)->execute($record);
                 }),
         ];
     }
