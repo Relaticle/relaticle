@@ -37,6 +37,13 @@ Do not add new PHPStan errors to the baseline without approval. All parameters a
 
 - All scheduled commands go in `bootstrap/app.php` via `withSchedule()` — not in `routes/console.php`
 
+## Actions
+
+- All write operations (create, update, delete) must go through action classes in `app/Actions/` -- never inline business logic in controllers, MCP tools, Livewire components, or Filament resources
+- Actions are the single source of truth for business logic and side effects (notifications, syncs, etc.)
+- Filament CRUD may use native `CreateAction`/`EditAction` when the action only does `Model::create()`/`->update()` with no extra logic -- but side effects (e.g., notifications) must still be triggered via `->after()` hooks calling the appropriate action
+- When reviewing or refactoring code, extract inline business logic into action classes
+
 ## Testing
 
 - Do not write isolated unit tests for action classes, services, or similar internal code -- test them through their real entry points (API endpoints, Filament resources, Livewire components). Unit tests for internal classes create maintenance burden without catching real bugs.

@@ -156,6 +156,26 @@ arch('API controllers must not use Eloquent query methods directly')
         'Illuminate\Support\Facades\DB',
     ]);
 
+arch('API controllers must depend on actions for write operations')
+    ->expect('App\Http\Controllers\Api\V1')
+    ->toOnlyUse([
+        'App\Actions',
+        'App\Enums',
+        'App\Http\Requests',
+        'App\Http\Resources',
+        'App\Models',
+        'Illuminate',
+        'Knuckles\Scribe',
+        'response',
+    ]);
+
+arch('MCP tools must not use DB facade directly')
+    ->expect('App\Mcp\Tools')
+    ->not
+    ->toUse([
+        'Illuminate\Support\Facades\DB',
+    ]);
+
 arch('must not use custom-fields package models directly')
     ->expect([
         'App',
