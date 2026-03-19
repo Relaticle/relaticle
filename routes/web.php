@@ -45,7 +45,7 @@ Route::get('/privacy-policy', PrivacyPolicyController::class)->name('policy.show
 Route::get('/dashboard', fn () => redirect()->to(url()->getAppUrl()))->name('dashboard');
 
 Route::get('/team-invitations/{invitation}', AcceptTeamInvitationController::class)
-    ->middleware(['signed', 'verified', 'auth', AuthenticateSession::class])
+    ->middleware(['signed', 'auth', 'verified', AuthenticateSession::class])
     ->name('team-invitations.accept');
 
 // Community redirects
