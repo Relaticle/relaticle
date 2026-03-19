@@ -42,7 +42,7 @@ abstract class BaseCreateTool extends Tool
         return array_merge(
             $this->entitySchema($schema),
             [
-                'custom_fields' => $schema->object()->description('Custom field values as key-value pairs. Read the crm-schema resource to see available fields and their types.'),
+                'custom_fields' => $schema->object()->description('Custom field values as key-value pairs. IMPORTANT: You MUST first read the crm-schema resource to discover valid field codes for this entity type. Unknown field codes will be rejected. Use exact field codes from the schema (e.g. "job_title", not "jobTitle").'),
             ],
         );
     }
@@ -56,7 +56,6 @@ abstract class BaseCreateTool extends Tool
 
         $rules = array_merge(
             $this->entityRules($user),
-            ['custom_fields' => ['sometimes', 'array']],
             $this->customFieldValidationRules($user, $this->entityType(), $request->get('custom_fields')),
         );
 

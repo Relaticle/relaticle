@@ -373,7 +373,7 @@ describe('custom fields', function (): void {
             ->assertInvalid(['custom_fields.annual_revenue']);
     });
 
-    it('ignores unknown custom field codes', function (): void {
+    it('rejects unknown custom field codes', function (): void {
         Sanctum::actingAs($this->user);
 
         $this->postJson('/api/v1/companies', [
@@ -382,7 +382,8 @@ describe('custom fields', function (): void {
                 'nonexistent_field' => 'some value',
             ],
         ])
-            ->assertCreated();
+            ->assertUnprocessable()
+            ->assertInvalid(['custom_fields']);
     });
 
     it('handles orphaned custom field values gracefully', function (): void {

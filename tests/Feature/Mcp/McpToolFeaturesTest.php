@@ -438,6 +438,67 @@ describe('custom field update via MCP', function () {
 });
 
 // ---------------------------------------------------------------------------
+// Unknown custom field key rejection
+// ---------------------------------------------------------------------------
+describe('unknown custom field key rejection', function () {
+    beforeEach(function () {
+        $section = CustomFieldSection::create([
+            'tenant_id' => $this->team->id,
+            'entity_type' => 'company',
+            'name' => 'Unknown Key Test Section',
+            'code' => 'unknown_key_test',
+            'type' => 'section',
+            'sort_order' => 1,
+            'active' => true,
+        ]);
+
+        CustomField::create([
+            'tenant_id' => $this->team->id,
+            'custom_field_section_id' => $section->id,
+            'entity_type' => 'company',
+            'code' => 'valid_field',
+            'name' => 'Valid Field',
+            'type' => 'text',
+            'sort_order' => 1,
+            'active' => true,
+            'validation_rules' => [],
+        ]);
+    });
+
+    it('rejects unknown custom field key on create', function (): void {
+        RelaticleServer::actingAs($this->user)
+            ->tool(CreateCompanyTool::class, [
+                'name' => 'Unknown Key Company',
+                'custom_fields' => ['jobTitle' => 'VP of Engineering'],
+            ])
+            ->assertHasErrors(['Unknown custom field keys: jobTitle']);
+    });
+
+    it('rejects unknown custom field key on update', function (): void {
+        $company = Company::factory()->for($this->team)->create();
+
+        RelaticleServer::actingAs($this->user)
+            ->tool(UpdateCompanyTool::class, [
+                'id' => $company->id,
+                'custom_fields' => ['nonexistent' => 'some value'],
+            ])
+            ->assertHasErrors(['Unknown custom field keys: nonexistent']);
+    });
+
+    it('rejects unknown key while accepting valid key in same request', function (): void {
+        RelaticleServer::actingAs($this->user)
+            ->tool(CreateCompanyTool::class, [
+                'name' => 'Mixed Keys Company',
+                'custom_fields' => [
+                    'valid_field' => 'good value',
+                    'invalid_field' => 'bad value',
+                ],
+            ])
+            ->assertHasErrors(['Unknown custom field keys: invalid_field']);
+    });
+});
+
+// ---------------------------------------------------------------------------
 // Custom field validation rejection tests (invalid type: string to number field)
 // ---------------------------------------------------------------------------
 describe('custom field validation rejection', function () {

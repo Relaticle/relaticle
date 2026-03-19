@@ -5,14 +5,8 @@ declare(strict_types=1);
 namespace App\Mcp\Tools\Concerns;
 
 use App\Models\User;
-use App\Services\CustomFieldValidationService;
+use App\Rules\ValidCustomFields;
 
-/**
- * Provides custom field validation rules for MCP tools.
- *
- * Delegates to CustomFieldValidationService for field resolution and rule generation,
- * ensuring consistent validation across all entry points.
- */
 trait ValidatesCustomFields
 {
     /**
@@ -31,11 +25,11 @@ trait ValidatesCustomFields
             return [];
         }
 
-        return CustomFieldValidationService::rules(
-            tenantId: $teamId,
-            entityType: $entityType,
-            submittedFields: $submittedFields,
-            isUpdate: $isUpdate,
+        $rule = new ValidCustomFields($teamId, $entityType, $isUpdate);
+
+        return array_merge(
+            ['custom_fields' => ['sometimes', 'array', $rule]],
+            $rule->toRules($submittedFields),
         );
     }
 }
