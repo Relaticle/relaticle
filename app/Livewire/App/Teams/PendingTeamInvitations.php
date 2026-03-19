@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\URL;
 use Laravel\Jetstream\Mail\TeamInvitation as TeamInvitationMail;
 
@@ -104,6 +105,20 @@ final class PendingTeamInvitations extends BaseLivewireComponent implements Tabl
 
     public function resendTeamInvitation(Model $invitation): void
     {
+        Gate::authorize('updateTeamMember', $this->team);
+
+        $key = "resend-invitation:{$invitation->getKey()}";
+
+        if (RateLimiter::tooManyAttempts($key, 1)) {
+            $seconds = RateLimiter::availableIn($key);
+
+            $this->sendNotification(__('Please wait :seconds seconds before resending.', ['seconds' => $seconds]));
+
+            return;
+        }
+
+        RateLimiter::hit($key, 60);
+
         /** @var \Laravel\Jetstream\TeamInvitation $invitation */
         Mail::to($invitation->email)->send(new TeamInvitationMail($invitation));
 
