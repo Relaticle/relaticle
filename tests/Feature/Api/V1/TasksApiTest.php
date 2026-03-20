@@ -3,6 +3,9 @@
 declare(strict_types=1);
 
 use App\Enums\CreationSource;
+use App\Models\Company;
+use App\Models\Opportunity;
+use App\Models\People;
 use App\Models\Task;
 use App\Models\Team;
 use App\Models\User;
@@ -135,6 +138,43 @@ it('scopes tasks to current team', function (): void {
     $ids = collect($response->json('data'))->pluck('id');
     expect($ids)->toContain($ownTask->id);
     expect($ids)->not->toContain($otherTask->id);
+});
+
+it('can create a task with relationship ids', function (): void {
+    Sanctum::actingAs($this->user);
+
+    $company = Company::factory()->for($this->team)->create();
+    $person = People::factory()->for($this->team)->create();
+    $opportunity = Opportunity::factory()->for($this->team)->create();
+
+    $this->postJson('/api/v1/tasks', [
+        'title' => 'Linked task',
+        'company_ids' => [$company->id],
+        'people_ids' => [$person->id],
+        'opportunity_ids' => [$opportunity->id],
+        'assignee_ids' => [$this->user->id],
+    ])
+        ->assertCreated();
+
+    $task = Task::query()->where('title', 'Linked task')->first();
+    expect($task->companies)->toHaveCount(1)
+        ->and($task->people)->toHaveCount(1)
+        ->and($task->opportunities)->toHaveCount(1)
+        ->and($task->assignees)->toHaveCount(1);
+});
+
+it('rejects cross-tenant relationship ids on task create', function (): void {
+    Sanctum::actingAs($this->user);
+
+    $otherTeam = Team::factory()->create();
+    $otherCompany = Company::factory()->for($otherTeam)->create();
+
+    $this->postJson('/api/v1/tasks', [
+        'title' => 'Should fail',
+        'company_ids' => [$otherCompany->id],
+    ])
+        ->assertUnprocessable()
+        ->assertInvalid(['company_ids.0']);
 });
 
 describe('cross-tenant isolation', function (): void {
