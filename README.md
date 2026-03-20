@@ -80,9 +80,9 @@ composer test
 composer lint
 ```
 
-# Docker Deployment
+# Self-Hosting
 
-For production deployment using Docker, see [`compose.yml`](compose.yml).
+See the [Self-Hosting Guide](https://relaticle.com/documentation/self-hosting) for Docker and manual deployment instructions.
 
 # Documentation
 

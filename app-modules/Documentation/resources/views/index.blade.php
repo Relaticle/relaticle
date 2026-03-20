@@ -40,6 +40,7 @@
                 'developer' => 'ri-code-s-slash-line',
                 'api' => 'ri-terminal-box-line',
                 'mcp' => 'ri-cpu-line',
+                'self-hosting' => 'ri-server-line',
             ];
             $remaining = collect($documentTypes)->except('getting-started');
         @endphp
