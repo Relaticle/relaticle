@@ -74,7 +74,7 @@ final readonly class CustomFieldFilter implements Filter
 
             match ($operator) {
                 'eq', 'gt', 'gte', 'lt', 'lte' => $q->where($valueColumn, self::OPERATOR_MAP[$operator], $operand),
-                'contains' => $q->where($valueColumn, 'ILIKE', "%{$operand}%"),
+                'contains' => $q->where($valueColumn, 'ILIKE', '%'.str_replace(['%', '_', '\\'], ['\\%', '\\_', '\\\\'], (string) $operand).'%'),
                 'in' => $q->whereIn($valueColumn, (array) $operand),
                 'has_any' => $q->whereJsonContains($valueColumn, $operand),
                 default => null,
