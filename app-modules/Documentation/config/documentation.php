@@ -54,6 +54,11 @@ return [
             'file' => 'developer-guide.md',
             'description' => 'Installation, architecture, and contributing.',
         ],
+        'self-hosting' => [
+            'title' => 'Self-Hosting Guide',
+            'file' => 'self-hosting-guide.md',
+            'description' => 'Deploy Relaticle with Docker or manually.',
+        ],
         'api' => [
             'title' => 'API Reference',
             'file' => 'api-guide.md',

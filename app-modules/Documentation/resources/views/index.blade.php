@@ -25,6 +25,7 @@
                     'getting-started' => 'heroicon-o-rocket-launch',
                     'import' => 'heroicon-o-arrow-up-tray',
                     'developer' => 'heroicon-o-code-bracket',
+                    'self-hosting' => 'heroicon-o-server-stack',
                     'api' => 'heroicon-o-variable',
                 ];
             @endphp
