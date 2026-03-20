@@ -23,6 +23,7 @@ final class PeopleResource extends JsonApiResource
     {
         return [
             'name' => $this->name,
+            'company_id' => $this->company_id,
             'creation_source' => $this->creation_source,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

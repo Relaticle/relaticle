@@ -560,3 +560,22 @@ describe('non-existent record', function (): void {
             ->assertNotFound();
     });
 });
+
+it('includes company_id in attributes', function (): void {
+    Sanctum::actingAs($this->user);
+
+    $company = Company::factory()->for($this->team)->create();
+    $person = People::factory()->for($this->team)->create([
+        'company_id' => $company->id,
+    ]);
+
+    $this->getJson("/api/v1/people/{$person->id}")
+        ->assertOk()
+        ->assertJson(fn (AssertableJson $json) => $json
+            ->has('data.attributes', fn (AssertableJson $json) => $json
+                ->where('company_id', $company->id)
+                ->etc()
+            )
+            ->etc()
+        );
+});
