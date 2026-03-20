@@ -40,8 +40,10 @@ final readonly class ListTasks
         $query = QueryBuilder::for(Task::query()->withCustomFieldValues(), $request)
             ->allowedFilters(
                 AllowedFilter::partial('title'),
-                AllowedFilter::callback('assigned_to_me', function (Builder $query) use ($user): void {
-                    $query->whereHas('assignees', fn (Builder $q) => $q->where('users.id', $user->getKey()));
+                AllowedFilter::callback('assigned_to_me', function (Builder $query, mixed $value) use ($user): void {
+                    if (filter_var($value, FILTER_VALIDATE_BOOLEAN)) {
+                        $query->whereHas('assignees', fn (Builder $q) => $q->where('users.id', $user->getKey()));
+                    }
                 }),
                 AllowedFilter::callback('company_id', function (Builder $query, mixed $value): void {
                     $query->whereHas('companies', fn (Builder $q) => $q->where('companies.id', $value));

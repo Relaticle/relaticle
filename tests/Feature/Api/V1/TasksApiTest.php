@@ -310,6 +310,19 @@ describe('includes', function (): void {
 });
 
 describe('filtering and sorting', function (): void {
+    it('ignores assigned_to_me filter when value is false', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $unassignedTask = Task::factory()->for($this->team)->create(['title' => 'Unassigned']);
+        $assignedTask = Task::factory()->for($this->team)->create(['title' => 'Assigned']);
+        $assignedTask->assignees()->attach($this->user);
+
+        $this->getJson('/api/v1/tasks?filter[assigned_to_me]=false')
+            ->assertOk()
+            ->assertJsonFragment(['title' => 'Unassigned'])
+            ->assertJsonFragment(['title' => 'Assigned']);
+    });
+
     it('can filter tasks by title', function (): void {
         Sanctum::actingAs($this->user);
 
