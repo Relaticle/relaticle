@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Requests\Api\V1;
 
 use App\Http\Requests\Api\V1\Concerns\ValidatesCustomFields;
+use App\Models\Team;
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -25,8 +26,11 @@ final class UpdateTaskRequest extends FormRequest
     {
         /** @var User $user */
         $user = $this->user();
-        $teamId = $user->currentTeam->getKey();
-        $teamMemberIds = $user->currentTeam->allUsers()->pluck('id')->all();
+
+        /** @var Team $team */
+        $team = $user->currentTeam;
+        $teamId = $team->getKey();
+        $teamMemberIds = $team->allUsers()->pluck('id')->all();
 
         return array_merge([
             'title' => ['sometimes', 'required', 'string', 'max:255'],
