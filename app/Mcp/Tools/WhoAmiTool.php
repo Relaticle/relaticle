@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Mcp\Tools;
 
+use App\Mcp\Tools\Concerns\ChecksTokenAbility;
 use App\Models\PersonalAccessToken;
 use App\Models\Team;
 use App\Models\User;
@@ -20,6 +21,8 @@ use Laravel\Mcp\Server\Tools\Annotations\IsReadOnly;
 #[IsIdempotent]
 final class WhoAmiTool extends Tool
 {
+    use ChecksTokenAbility;
+
     public function schema(JsonSchema $schema): array
     {
         return [];
@@ -27,6 +30,8 @@ final class WhoAmiTool extends Tool
 
     public function handle(Request $request): Response
     {
+        $this->ensureTokenCan('read');
+
         /** @var User $user */
         $user = auth()->user();
 
