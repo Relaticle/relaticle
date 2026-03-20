@@ -5,6 +5,8 @@ declare(strict_types=1);
 use App\Enums\CreationSource;
 use App\Models\Company;
 use App\Models\Note;
+use App\Models\Opportunity;
+use App\Models\People;
 use App\Models\Team;
 use App\Models\User;
 use Illuminate\Support\Str;
@@ -495,4 +497,39 @@ describe('non-existent record', function (): void {
         $this->getJson('/api/v1/notes/'.Str::ulid())
             ->assertNotFound();
     });
+});
+
+it('can create a note with relationship ids', function (): void {
+    Sanctum::actingAs($this->user);
+
+    $company = Company::factory()->for($this->team)->create();
+    $person = People::factory()->for($this->team)->create();
+    $opportunity = Opportunity::factory()->for($this->team)->create();
+
+    $this->postJson('/api/v1/notes', [
+        'title' => 'Linked note',
+        'company_ids' => [$company->id],
+        'people_ids' => [$person->id],
+        'opportunity_ids' => [$opportunity->id],
+    ])
+        ->assertCreated();
+
+    $note = Note::query()->where('title', 'Linked note')->first();
+    expect($note->companies)->toHaveCount(1)
+        ->and($note->people)->toHaveCount(1)
+        ->and($note->opportunities)->toHaveCount(1);
+});
+
+it('rejects cross-tenant relationship ids on note create', function (): void {
+    Sanctum::actingAs($this->user);
+
+    $otherTeam = Team::factory()->create();
+    $otherCompany = Company::factory()->for($otherTeam)->create();
+
+    $this->postJson('/api/v1/notes', [
+        'title' => 'Should fail',
+        'company_ids' => [$otherCompany->id],
+    ])
+        ->assertUnprocessable()
+        ->assertInvalid(['company_ids.0']);
 });
