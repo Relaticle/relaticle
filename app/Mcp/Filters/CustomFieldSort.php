@@ -9,6 +9,7 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 use Relaticle\CustomFields\Models\CustomFieldValue;
 use Spatie\QueryBuilder\Sorts\Sort;
 
@@ -55,14 +56,19 @@ final readonly class CustomFieldSort implements Sort
     {
         /** @var User $user */
         $user = auth()->user();
+        $teamId = $user->currentTeam->getKey();
 
         /** @var Collection<string, CustomField> */
-        return CustomField::query()
-            ->withoutGlobalScopes()
-            ->where('tenant_id', $user->currentTeam->getKey())
-            ->where('entity_type', $this->entityType)
-            ->active()
-            ->get()
-            ->keyBy('code');
+        return Cache::remember(
+            "custom_fields_sort_{$teamId}_{$this->entityType}",
+            60,
+            fn () => CustomField::query()
+                ->withoutGlobalScopes()
+                ->where('tenant_id', $teamId)
+                ->where('entity_type', $this->entityType)
+                ->active()
+                ->get()
+                ->keyBy('code')
+        );
     }
 }
