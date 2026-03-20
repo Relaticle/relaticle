@@ -67,7 +67,7 @@
                         <ul class="space-y-3">
                             @foreach([
                                 'Unlimited users and data',
-                                'MCP server with 20 tools',
+                                'MCP server with 30 tools',
                                 'REST API with full CRUD',
                                 '22 custom field types',
                                 'Multi-team workspaces',
@@ -86,7 +86,7 @@
                                     'Zero-downtime updates',
                                     'Automatic daily backups',
                                     'No server maintenance',
-                                    'Priority email support',
+                                    'Email support',
                                 ] as $feature)
                                     <li class="flex items-start gap-2.5 text-sm text-gray-600 dark:text-gray-400">
                                         <x-ri-check-line class="w-4 h-4 text-primary dark:text-primary-400 shrink-0 mt-0.5"/>
@@ -132,7 +132,7 @@
                         <ul class="space-y-3">
                             @foreach([
                                 'Unlimited users and data',
-                                'MCP server with 20 tools',
+                                'MCP server with 30 tools',
                                 'REST API with full CRUD',
                                 '22 custom field types',
                                 'Multi-team workspaces',
@@ -174,7 +174,7 @@
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                     @foreach([
                         ['ri-shield-check-line', '1,100+', 'Automated Tests'],
-                        ['ri-robot-2-line', '20', 'MCP Tools'],
+                        ['ri-robot-2-line', '30', 'MCP Tools'],
                         ['ri-stack-line', '22', 'Field Types'],
                         ['ri-lock-line', '5-Layer', 'Authorization'],
                     ] as [$icon, $value, $label])

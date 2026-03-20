@@ -26,7 +26,7 @@
                 </h1>
 
                 <p class="mt-6 sm:mt-7 text-[15px] sm:text-lg text-gray-500 dark:text-gray-400 max-w-xl mx-auto leading-relaxed tracking-[-0.01em]">
-                    Connect any AI agent with 20 MCP tools.<br class="hidden sm:block"/>
+                    Connect any AI agent with 30 MCP tools.<br class="hidden sm:block"/>
                     Self-hosted. No per-seat pricing. Yours to own.
                 </p>
             </div>

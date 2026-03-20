@@ -15,7 +15,7 @@
                 Built for humans. Accessible to AI.
             </h2>
             <p class="mt-5 text-base md:text-lg text-gray-500 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed">
-                20 MCP tools, a REST API, and 22 custom field types. Your team and your AI agents work from the same source of truth.
+                30 MCP tools, a REST API, and 22 custom field types. Your team and your AI agents work from the same source of truth.
             </p>
         </div>
 
@@ -28,7 +28,7 @@
                     Agent-Native Infrastructure
                 </h3>
                 <p class="{{ $cardDesc }} max-w-md">
-                    Connect any AI agent through the MCP server with 20 tools, or build custom integrations with the REST API. Full CRUD, custom field support, and schema discovery built in.
+                    Connect any AI agent through the MCP server with 30 tools, or build custom integrations with the REST API. Full CRUD, custom field support, and schema discovery built in.
                 </p>
 
                 <div class="mt-4 rounded-lg bg-gray-50 dark:bg-gray-800/80 p-5 overflow-hidden flex-1 flex flex-col justify-center">
@@ -55,7 +55,7 @@
                         <div class="fn w-full bg-white dark:bg-gray-700 border border-primary/30 dark:border-primary/40 rounded-lg p-3 shadow-sm shadow-primary/5">
                             <div class="text-[10px] font-medium text-emerald-600 dark:text-emerald-400 mb-2">MCP Server · Connected</div>
                             <div class="flex gap-4 text-[11px]">
-                                <span class="text-gray-500 dark:text-gray-400"><span class="font-mono font-medium text-gray-800 dark:text-gray-200">20</span> tools</span>
+                                <span class="text-gray-500 dark:text-gray-400"><span class="font-mono font-medium text-gray-800 dark:text-gray-200">30</span> tools</span>
                                 <span class="text-gray-500 dark:text-gray-400">REST API <span class="font-mono font-medium text-gray-800 dark:text-gray-200">v1</span></span>
                                 <span class="text-gray-500 dark:text-gray-400">Schema <span class="font-mono font-medium text-emerald-600 dark:text-emerald-400">auto</span></span>
                             </div>

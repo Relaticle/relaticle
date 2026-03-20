@@ -104,7 +104,7 @@ Add this to your VS Code settings (`.vscode/mcp.json`):
 
 ## Available Tools
 
-The server provides 20 tools across five CRM entities:
+The server provides 30 tools across five CRM entities:
 
 ### Companies
 

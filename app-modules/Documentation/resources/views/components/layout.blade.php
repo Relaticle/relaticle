@@ -11,7 +11,7 @@
 
 <x-guest-layout 
     :title="!empty($documentTitle) ? $documentTitle . ' - ' . config('app.name') . ' ' . __('Documentation') : config('app.name') . ' - ' . __('Documentation')"
-    :description="!empty($documentTitle) ? $documentTitle . ' - Relaticle Documentation' : 'Documentation for Relaticle - the open-source CRM built for AI agents. Self-hosted with 20 MCP tools, REST API, and 22 custom field types.'"
+    :description="!empty($documentTitle) ? $documentTitle . ' - Relaticle Documentation' : 'Documentation for Relaticle - the open-source CRM built for AI agents. Self-hosted with 30 MCP tools, REST API, and 22 custom field types.'"
     :ogTitle="!empty($documentTitle) ? $documentTitle . ' - ' . config('app.name') . ' ' . __('Documentation') : config('app.name') . ' - Documentation'"
     :ogDescription="!empty($documentTitle) ? 'Learn about ' . $documentTitle . ' in the Relaticle documentation.' : 'Explore the Relaticle documentation. Installation, MCP server setup, REST API integration, custom fields, and more.'">
     @pushonce('header')

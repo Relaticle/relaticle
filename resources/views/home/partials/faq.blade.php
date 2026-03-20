@@ -1,14 +1,3 @@
-@php
-    $faqs = [
-        ['Is Relaticle production-ready?', 'Yes. Relaticle has 1,100+ automated tests, 5-layer authorization, 56+ MCP-specific tests, and is used in production. The codebase is continuously tested with PHPStan static analysis and Pest mutation testing.'],
-        ['What AI agents can I connect?', 'Any agent that speaks MCP (Model Context Protocol). Claude, ChatGPT, Gemini, open-source models, or your own custom agents. Relaticle\'s MCP server provides 20 tools for AI agents to read, create, update, and delete CRM data.'],
-        ['What is MCP?', 'MCP (Model Context Protocol) is an open standard that lets AI agents interact with tools and data sources. Relaticle\'s MCP server gives agents 20 tools to work with your CRM data — listing companies, creating contacts, updating opportunities, and more.'],
-        ['How is Relaticle different from HubSpot or Salesforce?', 'Relaticle is self-hosted (you own your data), open-source (AGPL-3.0), has 20 MCP tools (vs HubSpot\'s 9), and has no per-seat pricing. It\'s designed for teams who want AI agent integration without vendor lock-in.'],
-        ['How do I deploy Relaticle?', 'Deploy with Docker Compose, Laravel Forge, or any PHP 8.4+ hosting with PostgreSQL. Self-hosted means your data never leaves your server. A managed hosting option is also available at app.relaticle.com.'],
-        ['Can I customize the data model?', 'Yes. Relaticle offers 22 custom field types including text, email, phone, currency, date, select, multiselect, entity relationships, conditional visibility, and per-field encryption. No migrations or code changes needed.'],
-    ];
-@endphp
-
 <section id="faq" class="py-24 md:py-32 bg-gray-50 dark:bg-gray-950 relative overflow-hidden">
     <div class="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgb(0_0_0/0.04)_1px,transparent_0)] dark:bg-[radial-gradient(circle_at_1px_1px,rgb(255_255_255/0.035)_1px,transparent_0)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,black_25%,transparent_100%)]"></div>
 
