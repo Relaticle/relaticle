@@ -13,12 +13,12 @@ use Illuminate\Translation\PotentiallyTranslatedString;
 use Relaticle\CustomFields\Models\CustomField as BaseCustomField;
 use Relaticle\CustomFields\Services\ValidationService;
 
-final class ValidCustomFields implements ValidationRule
+final readonly class ValidCustomFields implements ValidationRule
 {
     public function __construct(
-        private readonly string $tenantId,
-        private readonly string $entityType,
-        private readonly bool $isUpdate = false,
+        private string $tenantId,
+        private string $entityType,
+        private bool $isUpdate = false,
     ) {}
 
     /**
