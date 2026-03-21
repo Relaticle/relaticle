@@ -85,16 +85,16 @@
 
 <nav class="relaticle-nav">
     <div class="relaticle-nav-left">
-        <a href="{{ url('/') }}" aria-label="Relaticle Home">
-            <img src="{{ asset('brand/logomark.svg') }}" alt="Relaticle" style="height:1.25rem;width:1.25rem;"/>
+        <a href="/" aria-label="Relaticle Home">
+            <img src="/brand/logomark.svg" alt="Relaticle" style="height:1.25rem;width:1.25rem;"/>
         </a>
         <div class="relaticle-nav-sep"></div>
         <span class="relaticle-nav-title">API Reference</span>
     </div>
     <div class="relaticle-nav-links">
-        <a href="{{ route('documentation.index') }}">Docs</a>
-        <a href="{{ route('documentation.show', 'mcp') }}">MCP</a>
-        <a href="{{ route('pricing') }}">Pricing</a>
+        <a href="/docs">Docs</a>
+        <a href="/docs/mcp">MCP</a>
+        <a href="/pricing">Pricing</a>
         <a href="https://github.com/Relaticle/relaticle" target="_blank" rel="noopener">GitHub</a>
     </div>
 </nav>
