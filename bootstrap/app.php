@@ -28,7 +28,7 @@ return Application::configure(basePath: dirname(__DIR__))
                     ->whereKey($request->route('invitation'))
                     ->first();
 
-                if ($invitation && User::where('email', $invitation->email)->exists()) {
+                if ($invitation && User::query()->where('email', $invitation->email)->exists()) {
                     return Filament::getLoginUrl();
                 }
 
