@@ -28,6 +28,7 @@ use Knuckles\Scribe\Attributes\ResponseFromApiResource;
  */
 final readonly class CompaniesController
 {
+    #[ResponseFromApiResource(CompanyResource::class, Company::class, collection: true, paginate: 15)]
     public function index(Request $request, ListCompanies $action): AnonymousResourceCollection
     {
         /** @var User $user */

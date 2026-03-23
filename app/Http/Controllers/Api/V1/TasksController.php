@@ -28,6 +28,7 @@ use Knuckles\Scribe\Attributes\ResponseFromApiResource;
  */
 final readonly class TasksController
 {
+    #[ResponseFromApiResource(TaskResource::class, Task::class, collection: true, paginate: 15)]
     public function index(Request $request, ListTasks $action): AnonymousResourceCollection
     {
         /** @var User $user */

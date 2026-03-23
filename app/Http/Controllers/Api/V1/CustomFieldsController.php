@@ -10,6 +10,7 @@ use App\Models\CustomField;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Knuckles\Scribe\Attributes\ResponseFromApiResource;
 
 /**
  * @group Custom Fields
@@ -18,6 +19,7 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
  */
 final readonly class CustomFieldsController
 {
+    #[ResponseFromApiResource(CustomFieldResource::class, CustomField::class, collection: true, paginate: 15)]
     public function index(IndexCustomFieldsRequest $request): AnonymousResourceCollection
     {
         /** @var User $user */

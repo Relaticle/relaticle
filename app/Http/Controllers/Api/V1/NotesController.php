@@ -28,6 +28,7 @@ use Knuckles\Scribe\Attributes\ResponseFromApiResource;
  */
 final readonly class NotesController
 {
+    #[ResponseFromApiResource(NoteResource::class, Note::class, collection: true, paginate: 15)]
     public function index(Request $request, ListNotes $action): AnonymousResourceCollection
     {
         /** @var User $user */

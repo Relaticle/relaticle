@@ -24,6 +24,7 @@ use Filament\Facades\Filament;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades;
 use Illuminate\Support\Facades\Gate;
@@ -136,11 +137,33 @@ final class AppServiceProvider extends ServiceProvider
             return;
         }
 
-        Scribe::beforeResponseCall(function (\Symfony\Component\HttpFoundation\Request $request): void {
-            $user = User::factory()->withPersonalTeam()->create();
-            $user->switchTeam($user->personalTeam());
-            Sanctum::actingAs($user, ['*']);
+        $makeScribeUser = function (): User {
+            $user = new User;
+            $user->forceFill(['id' => 'scribe-user-id', 'name' => 'Scribe User', 'email' => 'scribe@example.com']);
+
+            $team = new Team;
+            $team->forceFill(['id' => 'scribe-team-id', 'name' => 'Scribe Team', 'user_id' => $user->id, 'personal_team' => true]);
+            $team->setRelation('owner', $user);
+            $team->setRelation('users', collect());
+
+            $user->forceFill(['current_team_id' => $team->id]);
+            $user->setRelation('currentTeam', $team);
+
+            return $user;
+        };
+
+        Scribe::bootstrap(function (): void {
+            config()->set('scribe.generating', true);
         });
+
+        Scribe::instantiateFormRequestUsing(function (string $className) use ($makeScribeUser): FormRequest {
+            /** @var FormRequest $formRequest */
+            $formRequest = new $className;
+            $formRequest->setUserResolver(fn (): User => $makeScribeUser());
+
+            return $formRequest;
+        });
+
     }
 
     /**
