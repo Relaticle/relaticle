@@ -75,7 +75,7 @@ trait FormatsCustomFields
 
                 return [
                     'id' => (string) $optionId,
-                    'label' => $option?->name ?? (string) $optionId,
+                    'label' => $option !== null ? $option->name : (string) $optionId,
                 ];
             })
             ->all();
