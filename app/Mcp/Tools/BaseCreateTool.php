@@ -68,7 +68,7 @@ abstract class BaseCreateTool extends Tool
         $resourceClass = $this->resourceClass();
 
         return Response::text(
-            new $resourceClass($model->loadMissing('customFieldValues.customField'))->toJson(JSON_PRETTY_PRINT)
+            new $resourceClass($model->loadMissing('customFieldValues.customField.options'))->toJson(JSON_PRETTY_PRINT)
         );
     }
 }

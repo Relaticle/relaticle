@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Http\Resources\V1\Concerns;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
+use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldValue;
 
 trait FormatsCustomFields
@@ -22,8 +24,60 @@ trait FormatsCustomFields
             /** @phpstan-ignore notIdentical.alwaysTrue (orphaned values can exist when a custom field is deleted) */
             ->filter(fn (CustomFieldValue $fieldValue): bool => $fieldValue->customField !== null)
             ->mapWithKeys(fn (CustomFieldValue $fieldValue): array => [
-                $fieldValue->customField->code => $fieldValue->getValue(),
+                $fieldValue->customField->code => $this->resolveFieldValue($fieldValue),
             ])
+            ->all();
+    }
+
+    private function resolveFieldValue(CustomFieldValue $fieldValue): mixed
+    {
+        $customField = $fieldValue->customField;
+        $rawValue = $fieldValue->getValue();
+
+        if (! $customField->typeData?->dataType->isChoiceField()) {
+            return $rawValue;
+        }
+
+        if ($customField->typeData->dataType->isMultiChoiceField()) {
+            return $this->resolveMultiChoiceValue($customField, $rawValue);
+        }
+
+        return $this->resolveSingleChoiceValue($customField, $rawValue);
+    }
+
+    /**
+     * @return array{id: string, label: string}|null
+     */
+    private function resolveSingleChoiceValue(CustomField $customField, mixed $rawValue): ?array
+    {
+        if ($rawValue === null) {
+            return null;
+        }
+
+        $option = $customField->options->firstWhere('id', $rawValue);
+
+        return [
+            'id' => (string) $rawValue,
+            'label' => $option?->name ?? (string) $rawValue,
+        ];
+    }
+
+    /**
+     * @return array<int, array{id: string, label: string}>
+     */
+    private function resolveMultiChoiceValue(CustomField $customField, mixed $rawValue): array
+    {
+        $values = $rawValue instanceof Collection ? $rawValue->all() : (array) ($rawValue ?? []);
+
+        return collect($values)
+            ->map(function (mixed $optionId) use ($customField): array {
+                $option = $customField->options->firstWhere('id', $optionId);
+
+                return [
+                    'id' => (string) $optionId,
+                    'label' => $option?->name ?? (string) $optionId,
+                ];
+            })
             ->all();
     }
 }

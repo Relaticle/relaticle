@@ -50,7 +50,7 @@ final readonly class CompaniesController
 
         $company = $action->execute($user, $request->validated(), CreationSource::API);
 
-        return new CompanyResource($company->load('customFieldValues.customField'))
+        return new CompanyResource($company->load('customFieldValues.customField.options'))
             ->response()
             ->setStatusCode(201);
     }
@@ -60,7 +60,7 @@ final readonly class CompaniesController
     {
         Gate::authorize('view', $company);
 
-        $company->loadMissing('customFieldValues.customField');
+        $company->loadMissing('customFieldValues.customField.options');
 
         return new CompanyResource($company);
     }
@@ -73,7 +73,7 @@ final readonly class CompaniesController
 
         $company = $action->execute($user, $company, $request->validated());
 
-        return new CompanyResource($company->load('customFieldValues.customField'));
+        return new CompanyResource($company->load('customFieldValues.customField.options'));
     }
 
     #[Response(status: 204)]

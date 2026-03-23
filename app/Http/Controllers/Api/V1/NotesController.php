@@ -50,7 +50,7 @@ final readonly class NotesController
 
         $note = $action->execute($user, $request->validated(), CreationSource::API);
 
-        return new NoteResource($note->load('customFieldValues.customField'))
+        return new NoteResource($note->load('customFieldValues.customField.options'))
             ->response()
             ->setStatusCode(201);
     }
@@ -60,7 +60,7 @@ final readonly class NotesController
     {
         Gate::authorize('view', $note);
 
-        $note->loadMissing('customFieldValues.customField');
+        $note->loadMissing('customFieldValues.customField.options');
 
         return new NoteResource($note);
     }
@@ -73,7 +73,7 @@ final readonly class NotesController
 
         $note = $action->execute($user, $note, $request->validated());
 
-        return new NoteResource($note->load('customFieldValues.customField'));
+        return new NoteResource($note->load('customFieldValues.customField.options'));
     }
 
     #[Response(status: 204)]

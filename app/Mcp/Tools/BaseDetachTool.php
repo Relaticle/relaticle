@@ -76,7 +76,7 @@ abstract class BaseDetachTool extends Tool
 
         $this->detachRelationships($model, $validated);
 
-        $model->loadMissing('customFieldValues.customField');
+        $model->loadMissing('customFieldValues.customField.options');
         $model->loadMissing($this->relationshipsToLoad());
 
         /** @var class-string<JsonResource> $resourceClass */

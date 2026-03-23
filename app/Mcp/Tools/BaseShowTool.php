@@ -62,7 +62,7 @@ abstract class BaseShowTool extends Tool
 
         abort_unless($user->can('view', $model), 403);
 
-        $model->loadMissing('customFieldValues.customField');
+        $model->loadMissing('customFieldValues.customField.options');
 
         $requestedIncludes = $validated['include'] ?? [];
         $validIncludes = array_intersect($requestedIncludes, $this->allowedIncludes());

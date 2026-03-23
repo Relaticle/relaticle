@@ -53,7 +53,7 @@ final readonly class PeopleController
 
         $person = $action->execute($user, $request->validated(), CreationSource::API);
 
-        return new PeopleResource($person->load('customFieldValues.customField'))
+        return new PeopleResource($person->load('customFieldValues.customField.options'))
             ->response()
             ->setStatusCode(201);
     }
@@ -63,7 +63,7 @@ final readonly class PeopleController
     {
         Gate::authorize('view', $person);
 
-        $person->loadMissing('customFieldValues.customField');
+        $person->loadMissing('customFieldValues.customField.options');
 
         return new PeopleResource($person);
     }
@@ -78,7 +78,7 @@ final readonly class PeopleController
 
         $person = $action->execute($user, $person, $request->validated());
 
-        return new PeopleResource($person->load('customFieldValues.customField'));
+        return new PeopleResource($person->load('customFieldValues.customField.options'));
     }
 
     #[Response(status: 204)]

@@ -76,7 +76,7 @@ abstract class BaseAttachTool extends Tool
 
         $this->syncRelationships($model, $validated);
 
-        $model->loadMissing('customFieldValues.customField');
+        $model->loadMissing('customFieldValues.customField.options');
         $model->loadMissing($this->relationshipsToLoad());
 
         /** @var class-string<JsonResource> $resourceClass */

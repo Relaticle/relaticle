@@ -54,7 +54,7 @@ final readonly class OpportunitiesController
 
         $opportunity = $action->execute($user, $request->validated(), CreationSource::API);
 
-        return new OpportunityResource($opportunity->load('customFieldValues.customField'))
+        return new OpportunityResource($opportunity->load('customFieldValues.customField.options'))
             ->response()
             ->setStatusCode(201);
     }
@@ -64,7 +64,7 @@ final readonly class OpportunitiesController
     {
         Gate::authorize('view', $opportunity);
 
-        $opportunity->loadMissing('customFieldValues.customField');
+        $opportunity->loadMissing('customFieldValues.customField.options');
 
         return new OpportunityResource($opportunity);
     }
@@ -80,7 +80,7 @@ final readonly class OpportunitiesController
 
         $opportunity = $action->execute($user, $opportunity, $request->validated());
 
-        return new OpportunityResource($opportunity->load('customFieldValues.customField'));
+        return new OpportunityResource($opportunity->load('customFieldValues.customField.options'));
     }
 
     #[Response(status: 204)]

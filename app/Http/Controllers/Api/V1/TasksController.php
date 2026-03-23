@@ -50,7 +50,7 @@ final readonly class TasksController
 
         $task = $action->execute($user, $request->validated(), CreationSource::API);
 
-        return new TaskResource($task->load('customFieldValues.customField'))
+        return new TaskResource($task->load('customFieldValues.customField.options'))
             ->response()
             ->setStatusCode(201);
     }
@@ -60,7 +60,7 @@ final readonly class TasksController
     {
         Gate::authorize('view', $task);
 
-        $task->loadMissing('customFieldValues.customField');
+        $task->loadMissing('customFieldValues.customField.options');
 
         return new TaskResource($task);
     }
@@ -73,7 +73,7 @@ final readonly class TasksController
 
         $task = $action->execute($user, $task, $request->validated());
 
-        return new TaskResource($task->load('customFieldValues.customField'));
+        return new TaskResource($task->load('customFieldValues.customField.options'));
     }
 
     #[Response(status: 204)]
