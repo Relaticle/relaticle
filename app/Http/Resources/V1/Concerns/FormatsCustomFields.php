@@ -34,7 +34,7 @@ trait FormatsCustomFields
         $customField = $fieldValue->customField;
         $rawValue = $fieldValue->getValue();
 
-        if (! $customField->typeData?->dataType->isChoiceField()) {
+        if (! $customField->typeData->dataType->isChoiceField()) {
             return $rawValue;
         }
 
@@ -58,7 +58,7 @@ trait FormatsCustomFields
 
         return [
             'id' => (string) $rawValue,
-            'label' => $option?->name ?? (string) $rawValue,
+            'label' => $option !== null ? $option->name : (string) $rawValue,
         ];
     }
 
