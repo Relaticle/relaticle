@@ -1,4 +1,4 @@
-<section id="community" class="relative py-24 md:py-32 overflow-hidden bg-white dark:bg-black">
+<section id="community" class="relative py-24 md:py-32 overflow-hidden bg-white dark:bg-gray-950">
     <div class="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgb(0_0_0/0.04)_1px,transparent_0)] dark:bg-[radial-gradient(circle_at_1px_1px,rgb(255_255_255/0.035)_1px,transparent_0)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,black_25%,transparent_100%)]"></div>
 
     <div class="relative max-w-6xl mx-auto px-6 lg:px-8">
