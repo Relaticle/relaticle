@@ -47,6 +47,8 @@ final readonly class PeopleController
     #[BodyParam('company_id', 'string', required: false, example: null)]
     public function store(StorePeopleRequest $request, CreatePeople $action, #[CurrentUser] User $user): JsonResponse
     {
+        Gate::authorize('create', People::class);
+
         $person = $action->execute($user, $request->validated(), CreationSource::API);
 
         return (new PeopleResource($person->load('customFieldValues.customField.options')))
@@ -69,6 +71,8 @@ final readonly class PeopleController
     #[BodyParam('company_id', 'string', required: false, example: null)]
     public function update(UpdatePeopleRequest $request, People $person, UpdatePeople $action, #[CurrentUser] User $user): PeopleResource
     {
+        Gate::authorize('update', $person);
+
         $person = $action->execute($user, $person, $request->validated());
 
         return new PeopleResource($person->load('customFieldValues.customField.options'));
@@ -77,6 +81,8 @@ final readonly class PeopleController
     #[Response(status: 204)]
     public function destroy(People $person, DeletePeople $action, #[CurrentUser] User $user): HttpResponse
     {
+        Gate::authorize('delete', $person);
+
         $action->execute($user, $person);
 
         return response()->noContent();

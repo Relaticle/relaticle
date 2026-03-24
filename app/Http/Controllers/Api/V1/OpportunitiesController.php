@@ -48,6 +48,8 @@ final readonly class OpportunitiesController
     #[BodyParam('contact_id', 'string', required: false, example: null)]
     public function store(StoreOpportunityRequest $request, CreateOpportunity $action, #[CurrentUser] User $user): JsonResponse
     {
+        Gate::authorize('create', Opportunity::class);
+
         $opportunity = $action->execute($user, $request->validated(), CreationSource::API);
 
         return (new OpportunityResource($opportunity->load('customFieldValues.customField.options')))
@@ -71,6 +73,8 @@ final readonly class OpportunitiesController
     #[BodyParam('contact_id', 'string', required: false, example: null)]
     public function update(UpdateOpportunityRequest $request, Opportunity $opportunity, UpdateOpportunity $action, #[CurrentUser] User $user): OpportunityResource
     {
+        Gate::authorize('update', $opportunity);
+
         $opportunity = $action->execute($user, $opportunity, $request->validated());
 
         return new OpportunityResource($opportunity->load('customFieldValues.customField.options'));
@@ -79,6 +83,8 @@ final readonly class OpportunitiesController
     #[Response(status: 204)]
     public function destroy(Opportunity $opportunity, DeleteOpportunity $action, #[CurrentUser] User $user): HttpResponse
     {
+        Gate::authorize('delete', $opportunity);
+
         $action->execute($user, $opportunity);
 
         return response()->noContent();

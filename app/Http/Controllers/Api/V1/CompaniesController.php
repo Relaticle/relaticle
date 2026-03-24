@@ -44,6 +44,8 @@ final readonly class CompaniesController
     #[ResponseFromApiResource(CompanyResource::class, Company::class, status: 201)]
     public function store(StoreCompanyRequest $request, CreateCompany $action, #[CurrentUser] User $user): JsonResponse
     {
+        Gate::authorize('create', Company::class);
+
         $company = $action->execute($user, $request->validated(), CreationSource::API);
 
         return (new CompanyResource($company->load('customFieldValues.customField.options')))
@@ -64,6 +66,8 @@ final readonly class CompaniesController
     #[ResponseFromApiResource(CompanyResource::class, Company::class)]
     public function update(UpdateCompanyRequest $request, Company $company, UpdateCompany $action, #[CurrentUser] User $user): CompanyResource
     {
+        Gate::authorize('update', $company);
+
         $company = $action->execute($user, $company, $request->validated());
 
         return new CompanyResource($company->load('customFieldValues.customField.options'));
@@ -72,6 +76,8 @@ final readonly class CompaniesController
     #[Response(status: 204)]
     public function destroy(Company $company, DeleteCompany $action, #[CurrentUser] User $user): HttpResponse
     {
+        Gate::authorize('delete', $company);
+
         $action->execute($user, $company);
 
         return response()->noContent();

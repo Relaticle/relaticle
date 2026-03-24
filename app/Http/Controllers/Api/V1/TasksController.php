@@ -44,6 +44,8 @@ final readonly class TasksController
     #[ResponseFromApiResource(TaskResource::class, Task::class, status: 201)]
     public function store(StoreTaskRequest $request, CreateTask $action, #[CurrentUser] User $user): JsonResponse
     {
+        Gate::authorize('create', Task::class);
+
         $task = $action->execute($user, $request->validated(), CreationSource::API);
 
         return (new TaskResource($task->load('customFieldValues.customField.options')))
@@ -64,6 +66,8 @@ final readonly class TasksController
     #[ResponseFromApiResource(TaskResource::class, Task::class)]
     public function update(UpdateTaskRequest $request, Task $task, UpdateTask $action, #[CurrentUser] User $user): TaskResource
     {
+        Gate::authorize('update', $task);
+
         $task = $action->execute($user, $task, $request->validated());
 
         return new TaskResource($task->load('customFieldValues.customField.options'));
@@ -72,6 +76,8 @@ final readonly class TasksController
     #[Response(status: 204)]
     public function destroy(Task $task, DeleteTask $action, #[CurrentUser] User $user): HttpResponse
     {
+        Gate::authorize('delete', $task);
+
         $action->execute($user, $task);
 
         return response()->noContent();

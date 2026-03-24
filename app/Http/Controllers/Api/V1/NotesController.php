@@ -44,6 +44,8 @@ final readonly class NotesController
     #[ResponseFromApiResource(NoteResource::class, Note::class, status: 201)]
     public function store(StoreNoteRequest $request, CreateNote $action, #[CurrentUser] User $user): JsonResponse
     {
+        Gate::authorize('create', Note::class);
+
         $note = $action->execute($user, $request->validated(), CreationSource::API);
 
         return (new NoteResource($note->load('customFieldValues.customField.options')))
@@ -64,6 +66,8 @@ final readonly class NotesController
     #[ResponseFromApiResource(NoteResource::class, Note::class)]
     public function update(UpdateNoteRequest $request, Note $note, UpdateNote $action, #[CurrentUser] User $user): NoteResource
     {
+        Gate::authorize('update', $note);
+
         $note = $action->execute($user, $note, $request->validated());
 
         return new NoteResource($note->load('customFieldValues.customField.options'));
@@ -72,6 +76,8 @@ final readonly class NotesController
     #[Response(status: 204)]
     public function destroy(Note $note, DeleteNote $action, #[CurrentUser] User $user): HttpResponse
     {
+        Gate::authorize('delete', $note);
+
         $action->execute($user, $note);
 
         return response()->noContent();
