@@ -386,6 +386,160 @@ describe('custom fields', function (): void {
             ->assertInvalid(['custom_fields']);
     });
 
+    it('rejects invalid option ID for select custom field on create', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $field = CustomField::create([
+            'tenant_id' => $this->team->id,
+            'custom_field_section_id' => $this->section->id,
+            'entity_type' => 'company',
+            'code' => 'stage',
+            'name' => 'Stage',
+            'type' => 'select',
+            'sort_order' => 1,
+            'active' => true,
+            'validation_rules' => [],
+        ]);
+
+        $field->options()->createMany([
+            ['name' => 'Lead', 'sort_order' => 1, 'tenant_id' => $this->team->id],
+            ['name' => 'Customer', 'sort_order' => 2, 'tenant_id' => $this->team->id],
+        ]);
+
+        $this->postJson('/api/v1/companies', [
+            'name' => 'Acme Corp',
+            'custom_fields' => [
+                'stage' => 'invalid-option-id-xyz',
+            ],
+        ])
+            ->assertUnprocessable()
+            ->assertInvalid(['custom_fields.stage']);
+    });
+
+    it('accepts valid option ID for select custom field on create', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $field = CustomField::create([
+            'tenant_id' => $this->team->id,
+            'custom_field_section_id' => $this->section->id,
+            'entity_type' => 'company',
+            'code' => 'stage',
+            'name' => 'Stage',
+            'type' => 'select',
+            'sort_order' => 1,
+            'active' => true,
+            'validation_rules' => [],
+        ]);
+
+        $option = $field->options()->create([
+            'name' => 'Lead',
+            'sort_order' => 1,
+            'tenant_id' => $this->team->id,
+        ]);
+
+        $this->postJson('/api/v1/companies', [
+            'name' => 'Acme Corp',
+            'custom_fields' => [
+                'stage' => $option->id,
+            ],
+        ])
+            ->assertCreated()
+            ->assertValid();
+    });
+
+    it('rejects invalid option ID for select custom field on update', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $field = CustomField::create([
+            'tenant_id' => $this->team->id,
+            'custom_field_section_id' => $this->section->id,
+            'entity_type' => 'company',
+            'code' => 'stage',
+            'name' => 'Stage',
+            'type' => 'select',
+            'sort_order' => 1,
+            'active' => true,
+            'validation_rules' => [],
+        ]);
+
+        $field->options()->createMany([
+            ['name' => 'Lead', 'sort_order' => 1, 'tenant_id' => $this->team->id],
+            ['name' => 'Customer', 'sort_order' => 2, 'tenant_id' => $this->team->id],
+        ]);
+
+        $company = Company::factory()->for($this->team)->create();
+
+        $this->putJson("/api/v1/companies/{$company->id}", [
+            'name' => 'Updated Name',
+            'custom_fields' => [
+                'stage' => 999999,
+            ],
+        ])
+            ->assertUnprocessable()
+            ->assertInvalid(['custom_fields.stage']);
+    });
+
+    it('rejects invalid option IDs for multi-select custom field', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $field = CustomField::create([
+            'tenant_id' => $this->team->id,
+            'custom_field_section_id' => $this->section->id,
+            'entity_type' => 'company',
+            'code' => 'categories',
+            'name' => 'Categories',
+            'type' => 'multi-select',
+            'sort_order' => 1,
+            'active' => true,
+            'validation_rules' => [],
+        ]);
+
+        $validOption = $field->options()->create([
+            'name' => 'Option A',
+            'sort_order' => 1,
+            'tenant_id' => $this->team->id,
+        ]);
+
+        $this->postJson('/api/v1/companies', [
+            'name' => 'Acme Corp',
+            'custom_fields' => [
+                'categories' => [$validOption->id, 'invalid-id'],
+            ],
+        ])
+            ->assertUnprocessable()
+            ->assertInvalid(['custom_fields.categories.1']);
+    });
+
+    it('accepts valid option IDs for multi-select custom field', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $field = CustomField::create([
+            'tenant_id' => $this->team->id,
+            'custom_field_section_id' => $this->section->id,
+            'entity_type' => 'company',
+            'code' => 'categories',
+            'name' => 'Categories',
+            'type' => 'multi-select',
+            'sort_order' => 1,
+            'active' => true,
+            'validation_rules' => [],
+        ]);
+
+        $options = $field->options()->createMany([
+            ['name' => 'Option A', 'sort_order' => 1, 'tenant_id' => $this->team->id],
+            ['name' => 'Option B', 'sort_order' => 2, 'tenant_id' => $this->team->id],
+        ]);
+
+        $this->postJson('/api/v1/companies', [
+            'name' => 'Acme Corp',
+            'custom_fields' => [
+                'categories' => $options->pluck('id')->all(),
+            ],
+        ])
+            ->assertCreated()
+            ->assertValid();
+    });
+
     it('handles orphaned custom field values gracefully', function (): void {
         $company = Company::factory()->for($this->team)->create();
 

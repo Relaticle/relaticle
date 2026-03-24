@@ -53,7 +53,8 @@ final readonly class ListCompanies
                 'name', 'created_at', 'updated_at',
                 ...$filterSchema->allowedSorts($user, 'company'),
             )
-            ->defaultSort('-created_at');
+            ->defaultSort('-created_at')
+            ->orderBy('id');
 
         if ($useCursor) {
             return $query->cursorPaginate($perPage);

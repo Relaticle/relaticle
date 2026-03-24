@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Mcp\Tools;
 
 use App\Mcp\Tools\Concerns\ChecksTokenAbility;
+use App\Mcp\Tools\Concerns\SerializesRelatedModels;
 use App\Models\User;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
-use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Laravel\Mcp\Request;
@@ -21,6 +21,7 @@ use Laravel\Mcp\Server\Tools\Annotations\IsReadOnly;
 abstract class BaseShowTool extends Tool
 {
     use ChecksTokenAbility;
+    use SerializesRelatedModels;
 
     /** @return class-string<Model> */
     abstract protected function modelClass(): string;
@@ -99,18 +100,11 @@ abstract class BaseShowTool extends Tool
         }
 
         $response = json_decode($json);
+        $relationshipMap = $this->resolveRelationshipMap($resourceClass, $model);
 
         foreach ($relationIncludes as $relation) {
             if ($model->relationLoaded($relation)) {
-                $relatedData = $model->getRelation($relation);
-
-                if ($relatedData instanceof EloquentCollection) {
-                    $response->{$relation} = $relatedData->map(fn (Model $item): array => $item->toArray())->values()->all();
-                } elseif ($relatedData instanceof Model) {
-                    $response->{$relation} = $relatedData->toArray();
-                } else {
-                    $response->{$relation} = null;
-                }
+                $response->data->{$relation} = $this->serializeRelation($model, $relation, $relationshipMap);
             }
         }
 

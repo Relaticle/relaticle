@@ -52,7 +52,8 @@ final readonly class ListPeople
                 'name', 'created_at', 'updated_at',
                 ...$filterSchema->allowedSorts($user, 'people'),
             )
-            ->defaultSort('-created_at');
+            ->defaultSort('-created_at')
+            ->orderBy('id');
 
         if ($useCursor) {
             return $query->cursorPaginate($perPage);

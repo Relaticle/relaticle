@@ -5,6 +5,8 @@ declare(strict_types=1);
 use App\Enums\CreationSource;
 use App\Mcp\Servers\RelaticleServer;
 use App\Mcp\Tools\Company\CreateCompanyTool;
+use App\Mcp\Tools\Company\GetCompanyTool;
+use App\Mcp\Tools\Company\ListCompaniesTool;
 use App\Mcp\Tools\Company\UpdateCompanyTool;
 use App\Mcp\Tools\Note\CreateNoteTool;
 use App\Mcp\Tools\Note\ListNotesTool;
@@ -741,5 +743,66 @@ describe('custom field validation rejection', function () {
                 'custom_fields' => ['cf_amount' => 'not_a_number'],
             ])
             ->assertHasErrors(['cf amount']);
+    });
+});
+
+// ---------------------------------------------------------------------------
+// Relationship includes: sensitive field filtering
+// ---------------------------------------------------------------------------
+describe('relationship includes filter sensitive fields', function () {
+    it('does not leak sensitive user fields in GetCompanyTool creator include', function (): void {
+        $company = Company::factory()->for($this->team)->create([
+            'creator_id' => $this->user->id,
+        ]);
+
+        RelaticleServer::actingAs($this->user)
+            ->tool(GetCompanyTool::class, [
+                'id' => $company->id,
+                'include' => ['creator'],
+            ])
+            ->assertOk()
+            ->assertSee($this->user->name)
+            ->assertDontSee('email_verified_at')
+            ->assertDontSee('two_factor_confirmed_at')
+            ->assertDontSee('current_team_id')
+            ->assertDontSee('profile_photo_path')
+            ->assertDontSee('password');
+    });
+
+    it('does not leak sensitive fields in ListCompaniesTool with creator include', function (): void {
+        Company::factory()->for($this->team)->create([
+            'creator_id' => $this->user->id,
+        ]);
+
+        RelaticleServer::actingAs($this->user)
+            ->tool(ListCompaniesTool::class, [
+                'include' => ['creator'],
+            ])
+            ->assertOk()
+            ->assertSee($this->user->name)
+            ->assertDontSee('email_verified_at')
+            ->assertDontSee('two_factor_confirmed_at')
+            ->assertDontSee('current_team_id')
+            ->assertDontSee('profile_photo_path')
+            ->assertDontSee('password');
+    });
+
+    it('serializes related people through resource in GetCompanyTool', function (): void {
+        $company = Company::factory()->for($this->team)->create();
+        People::factory()->for($this->team)->create([
+            'name' => 'Included Person',
+            'company_id' => $company->id,
+        ]);
+
+        RelaticleServer::actingAs($this->user)
+            ->tool(GetCompanyTool::class, [
+                'id' => $company->id,
+                'include' => ['people'],
+            ])
+            ->assertOk()
+            ->assertSee('Included Person')
+            ->assertDontSee('team_id')
+            ->assertDontSee('creator_id')
+            ->assertDontSee('deleted_at');
     });
 });

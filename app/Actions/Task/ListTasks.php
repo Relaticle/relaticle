@@ -68,7 +68,8 @@ final readonly class ListTasks
                 'title', 'created_at', 'updated_at',
                 ...$filterSchema->allowedSorts($user, 'task'),
             )
-            ->defaultSort('-created_at');
+            ->defaultSort('-created_at')
+            ->orderBy('id');
 
         if ($useCursor) {
             return $query->cursorPaginate($perPage);

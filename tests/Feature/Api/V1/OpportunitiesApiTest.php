@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 use App\Enums\CreationSource;
 use App\Models\Company;
+use App\Models\CustomField;
+use App\Models\CustomFieldSection;
 use App\Models\Opportunity;
 use App\Models\People;
 use App\Models\Team;
@@ -539,6 +541,76 @@ describe('input validation', function (): void {
 
         $this->postJson('/api/v1/opportunities', ['name' => str_repeat('a', 255)])
             ->assertCreated();
+    });
+
+    it('accepts null to clear a date custom field', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $section = CustomFieldSection::create([
+            'tenant_id' => $this->team->id,
+            'entity_type' => 'opportunity',
+            'name' => 'Date Fields',
+            'code' => 'date_fields_test',
+            'type' => 'section',
+            'sort_order' => 99,
+            'active' => true,
+        ]);
+
+        CustomField::create([
+            'tenant_id' => $this->team->id,
+            'custom_field_section_id' => $section->id,
+            'entity_type' => 'opportunity',
+            'code' => 'target_close_date',
+            'name' => 'Target Close Date',
+            'type' => 'date',
+            'sort_order' => 1,
+            'active' => true,
+            'validation_rules' => [],
+        ]);
+
+        $opportunity = Opportunity::factory()->for($this->team)->create();
+
+        $this->putJson("/api/v1/opportunities/{$opportunity->id}", [
+            'name' => $opportunity->name,
+            'custom_fields' => ['target_close_date' => null],
+        ])
+            ->assertOk()
+            ->assertValid();
+    });
+
+    it('accepts null to clear a datetime custom field', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $section = CustomFieldSection::create([
+            'tenant_id' => $this->team->id,
+            'entity_type' => 'opportunity',
+            'name' => 'Timestamps',
+            'code' => 'timestamps',
+            'type' => 'section',
+            'sort_order' => 2,
+            'active' => true,
+        ]);
+
+        CustomField::create([
+            'tenant_id' => $this->team->id,
+            'custom_field_section_id' => $section->id,
+            'entity_type' => 'opportunity',
+            'code' => 'last_contacted_at',
+            'name' => 'Last Contacted At',
+            'type' => 'date-time',
+            'sort_order' => 1,
+            'active' => true,
+            'validation_rules' => [],
+        ]);
+
+        $opportunity = Opportunity::factory()->for($this->team)->create();
+
+        $this->putJson("/api/v1/opportunities/{$opportunity->id}", [
+            'name' => $opportunity->name,
+            'custom_fields' => ['last_contacted_at' => null],
+        ])
+            ->assertOk()
+            ->assertValid();
     });
 });
 

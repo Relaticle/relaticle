@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace App\Mcp\Tools;
 
 use App\Mcp\Tools\Concerns\ChecksTokenAbility;
+use App\Mcp\Tools\Concerns\SerializesRelatedModels;
 use App\Models\User;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request as HttpRequest;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -19,6 +19,7 @@ use Laravel\Mcp\Server\Tool;
 abstract class BaseListTool extends Tool
 {
     use ChecksTokenAbility;
+    use SerializesRelatedModels;
 
     /** @return class-string */
     abstract protected function actionClass(): string;
@@ -85,23 +86,29 @@ abstract class BaseListTool extends Tool
         $decoded = json_decode($collection->toJson(JSON_PRETTY_PRINT), true);
         $items = $decoded['data'] ?? array_values($decoded);
 
-        foreach ($items as $index => $item) {
-            $record = $results[$index] ?? null;
+        $relationshipMap = null;
 
-            if ($record === null) {
+        foreach ($items as $index => $item) {
+            $resultItem = $results[$index] ?? null;
+
+            if ($resultItem === null) {
                 continue;
             }
 
-            foreach ($record->getRelations() as $relation => $relatedData) {
+            $model = $resultItem instanceof JsonResource ? $resultItem->resource : $resultItem;
+
+            if (! $model instanceof Model) {
+                continue;
+            }
+
+            foreach ($model->getRelations() as $relation => $relatedData) {
                 if ($relation === 'customFieldValues') {
                     continue;
                 }
 
-                if ($relatedData instanceof EloquentCollection) {
-                    $items[$index][$relation] = $relatedData->map(fn (Model $r): array => $r->toArray())->values()->all();
-                } elseif ($relatedData instanceof Model) {
-                    $items[$index][$relation] = $relatedData->toArray();
-                }
+                $relationshipMap ??= $this->resolveRelationshipMap($resourceClass, $model);
+
+                $items[$index][$relation] = $this->serializeRelation($model, $relation, $relationshipMap);
             }
         }
 

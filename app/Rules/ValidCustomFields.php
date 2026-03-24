@@ -10,6 +10,8 @@ use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Translation\PotentiallyTranslatedString;
+use Illuminate\Validation\Rule;
+use Relaticle\CustomFields\Facades\CustomFieldsType;
 use Relaticle\CustomFields\Models\CustomField as BaseCustomField;
 use Relaticle\CustomFields\Services\ValidationService;
 
@@ -43,8 +45,11 @@ final readonly class ValidCustomFields implements ValidationRule
                 $fieldRules = $validationService->getValidationRules($customField);
 
                 if ($fieldRules !== []) {
+                    $fieldRules = $this->ensureNullableForDateFields($customField->type, $fieldRules);
                     $rules["custom_fields.{$customField->code}"] = $fieldRules;
                 }
+
+                $this->addChoiceFieldOptionRules($customField, $rules);
             }
         }
 
@@ -80,6 +85,71 @@ final readonly class ValidCustomFields implements ValidationRule
         $availableList = $knownCodes !== [] ? implode(', ', $knownCodes) : 'none';
 
         $fail("Unknown custom field keys: {$unknownList}. Available fields for this entity type: {$availableList}.");
+    }
+
+    /**
+     * Prepend 'nullable' to validation rules for date/date_time fields so null clears the value.
+     *
+     * The vendor package's ValidationService does not include 'nullable', causing
+     * the 'date' rule to reject null. We fix this at the application layer.
+     *
+     * @param  array<int, mixed>  $fieldRules
+     * @return array<int, mixed>
+     */
+    private function ensureNullableForDateFields(string $fieldType, array $fieldRules): array
+    {
+        $fieldTypeData = CustomFieldsType::getFieldType($fieldType);
+
+        if ($fieldTypeData === null || ! $fieldTypeData->dataType->isDateOrDateTime()) {
+            return $fieldRules;
+        }
+
+        if (in_array('nullable', $fieldRules, true)) {
+            return $fieldRules;
+        }
+
+        return ['nullable', ...$fieldRules];
+    }
+
+    /**
+     * Add Rule::in validation for choice fields to ensure submitted option IDs actually exist.
+     *
+     * For single-choice fields (select, radio): validates the scalar value.
+     * For multi-choice fields (multi_select, checkbox_list): validates each array element.
+     * Skips fields that accept arbitrary values (e.g., tags) or use a lookup_type.
+     *
+     * @param  array<string, array<int, mixed>>  $rules
+     */
+    private function addChoiceFieldOptionRules(BaseCustomField $customField, array &$rules): void
+    {
+        $fieldTypeData = CustomFieldsType::getFieldType($customField->type);
+
+        if ($fieldTypeData === null) {
+            return;
+        }
+
+        if (! $fieldTypeData->dataType->isChoiceField()) {
+            return;
+        }
+
+        if ($fieldTypeData->acceptsArbitraryValues) {
+            return;
+        }
+
+        if ($customField->lookup_type !== null) {
+            return;
+        }
+
+        $optionIds = $customField->options->pluck('id')->all();
+        $inRule = Rule::in($optionIds);
+
+        $ruleKey = "custom_fields.{$customField->code}";
+
+        if ($fieldTypeData->dataType->isMultiChoiceField()) {
+            $rules["{$ruleKey}.*"] = array_merge($rules["{$ruleKey}.*"] ?? [], [$inRule]);
+        } else {
+            $rules[$ruleKey] = array_merge($rules[$ruleKey] ?? [], [$inRule]);
+        }
     }
 
     /**
