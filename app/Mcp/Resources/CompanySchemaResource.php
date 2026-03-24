@@ -33,7 +33,7 @@ final class CompanySchemaResource extends Resource
             ],
             'custom_fields' => $this->resolveCustomFields($user, 'company'),
             'filterable_fields' => $this->resolveFilterableFields($user, 'company'),
-            'relationships' => ['people', 'opportunities', 'tasks', 'notes'],
+            'relationships' => ['creator', 'accountOwner', 'people', 'opportunities'],
             'aggregate_includes' => [
                 'peopleCount' => 'Count of related people',
                 'opportunitiesCount' => 'Count of related opportunities',

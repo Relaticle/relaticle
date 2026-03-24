@@ -6,6 +6,8 @@ namespace App\Actions\People;
 
 use App\Models\People;
 use App\Models\User;
+use App\Support\CustomFieldMerger;
+use App\Support\HtmlSanitizer;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
@@ -19,6 +21,9 @@ final readonly class UpdatePeople
         abort_unless($user->can('update', $people), 403);
 
         $attributes = Arr::only($data, ['name', 'company_id', 'custom_fields']);
+
+        $attributes = CustomFieldMerger::merge($people, $attributes);
+        $attributes = HtmlSanitizer::sanitizeAttributes($attributes);
 
         return DB::transaction(function () use ($people, $attributes): People {
             $people->update($attributes);

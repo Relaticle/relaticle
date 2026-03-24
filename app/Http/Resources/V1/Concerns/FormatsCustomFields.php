@@ -12,21 +12,23 @@ use Relaticle\CustomFields\Models\CustomFieldValue;
 trait FormatsCustomFields
 {
     /**
-     * @return array<string, mixed>
+     * @return array<string, mixed>|\stdClass
      */
-    protected function formatCustomFields(Model $record): array
+    protected function formatCustomFields(Model $record): array|\stdClass
     {
         if (! $record->relationLoaded('customFieldValues')) {
-            return [];
+            return new \stdClass;
         }
 
-        return $record->getRelation('customFieldValues')
+        $result = $record->getRelation('customFieldValues')
             /** @phpstan-ignore notIdentical.alwaysTrue (orphaned values can exist when a custom field is deleted) */
             ->filter(fn (CustomFieldValue $fieldValue): bool => $fieldValue->customField !== null)
             ->mapWithKeys(fn (CustomFieldValue $fieldValue): array => [
                 $fieldValue->customField->code => $this->resolveFieldValue($fieldValue),
             ])
             ->all();
+
+        return $result === [] ? new \stdClass : $result;
     }
 
     private function resolveFieldValue(CustomFieldValue $fieldValue): mixed

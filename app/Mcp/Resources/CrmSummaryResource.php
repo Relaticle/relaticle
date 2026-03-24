@@ -78,17 +78,22 @@ final class CrmSummaryResource extends Resource
             [$stageFieldId, ...$amountBindings, $teamId],
         );
 
+        $stageOptions = DB::table('custom_field_options')
+            ->where('custom_field_id', $stageFieldId)
+            ->pluck('name', 'id');
+
         $byStage = [];
         $totalPipeline = 0;
         $totalWon = 0;
 
         foreach ($rows as $row) {
-            $stage = $row->stage ?? 'Unknown';
+            $stageId = $row->stage ?? 'Unknown';
+            $stageLabel = $stageOptions[$stageId] ?? $stageId;
             $amount = (float) $row->total_amount;
-            $byStage[$stage] = ['count' => (int) $row->count, 'total_amount' => $amount];
+            $byStage[$stageLabel] = ['count' => (int) $row->count, 'total_amount' => $amount];
             $totalPipeline += $amount;
 
-            if (str_contains(strtolower($stage), 'won')) {
+            if (str_contains(strtolower($stageLabel), 'won')) {
                 $totalWon += $amount;
             }
         }

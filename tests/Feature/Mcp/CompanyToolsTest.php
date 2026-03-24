@@ -121,6 +121,31 @@ describe('pagination', function () {
 
         $page2->assertOk();
     });
+
+    it('includes pagination metadata in list responses', function (): void {
+        Company::factory(3)->for($this->team)->create();
+
+        RelaticleServer::actingAs($this->user)
+            ->tool(ListCompaniesTool::class, [
+                'per_page' => 2,
+                'page' => 1,
+            ])
+            ->assertOk()
+            ->assertSee('"meta"')
+            ->assertSee('"current_page": 1')
+            ->assertSee('"per_page": 2');
+    });
+});
+
+describe('custom fields serialization', function () {
+    it('returns empty custom_fields as object not array', function (): void {
+        $company = Company::factory()->for($this->team)->create();
+
+        RelaticleServer::actingAs($this->user)
+            ->tool(GetCompanyTool::class, ['id' => $company->id])
+            ->assertOk()
+            ->assertSee('"custom_fields": {}');
+    });
 });
 
 describe('validation', function () {

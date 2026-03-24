@@ -7,6 +7,7 @@ namespace App\Mcp\Tools;
 use App\Mcp\Tools\Concerns\ChecksTokenAbility;
 use App\Models\User;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Laravel\Mcp\Request;
@@ -58,6 +59,7 @@ abstract class BaseShowTool extends Tool
         ]);
 
         $modelClass = $this->modelClass();
+        /** @var Model $model */
         $model = $modelClass::query()->findOrFail($validated['id']);
 
         abort_unless($user->can('view', $model), 403);
@@ -67,15 +69,51 @@ abstract class BaseShowTool extends Tool
         $requestedIncludes = $validated['include'] ?? [];
         $validIncludes = array_intersect($requestedIncludes, $this->allowedIncludes());
 
-        if ($validIncludes !== []) {
-            $model->loadMissing($validIncludes);
+        $relationIncludes = [];
+        $countIncludes = [];
+
+        foreach ($validIncludes as $include) {
+            if (str_ends_with((string) $include, 'Count')) {
+                $countIncludes[] = lcfirst(substr((string) $include, 0, -5));
+            } else {
+                $relationIncludes[] = $include;
+            }
+        }
+
+        if ($relationIncludes !== []) {
+            $model->loadMissing($relationIncludes);
+        }
+
+        if ($countIncludes !== []) {
+            $model->loadCount($countIncludes);
         }
 
         /** @var class-string<JsonResource> $resourceClass */
         $resourceClass = $this->resourceClass();
 
-        return Response::text(
-            new $resourceClass($model)->toJson(JSON_PRETTY_PRINT)
-        );
+        $resource = new $resourceClass($model);
+        $json = $resource->toJson(JSON_PRETTY_PRINT);
+
+        if ($relationIncludes === []) {
+            return Response::text($json);
+        }
+
+        $response = json_decode($json);
+
+        foreach ($relationIncludes as $relation) {
+            if ($model->relationLoaded($relation)) {
+                $relatedData = $model->getRelation($relation);
+
+                if ($relatedData instanceof EloquentCollection) {
+                    $response->{$relation} = $relatedData->map(fn (Model $item): array => $item->toArray())->values()->all();
+                } elseif ($relatedData instanceof Model) {
+                    $response->{$relation} = $relatedData->toArray();
+                } else {
+                    $response->{$relation} = null;
+                }
+            }
+        }
+
+        return Response::text((string) json_encode($response, JSON_PRETTY_PRINT));
     }
 }

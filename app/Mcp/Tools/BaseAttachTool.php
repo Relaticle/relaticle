@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Mcp\Tools;
 
+use App\Mcp\Tools\Concerns\BuildsRelationshipResponse;
 use App\Mcp\Tools\Concerns\ChecksTokenAbility;
 use App\Models\User;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
@@ -15,6 +16,7 @@ use Laravel\Mcp\Server\Tool;
 
 abstract class BaseAttachTool extends Tool
 {
+    use BuildsRelationshipResponse;
     use ChecksTokenAbility;
 
     /** @return class-string<Model> */
@@ -68,7 +70,6 @@ abstract class BaseAttachTool extends Tool
         abort_if($relationshipData->isEmpty(), 422, 'At least one relationship array must be provided.');
 
         $modelClass = $this->modelClass();
-
         /** @var Model $model */
         $model = $modelClass::query()->findOrFail($validated['id']);
 
@@ -76,14 +77,6 @@ abstract class BaseAttachTool extends Tool
 
         $this->syncRelationships($model, $validated);
 
-        $model->loadMissing('customFieldValues.customField.options');
-        $model->loadMissing($this->relationshipsToLoad());
-
-        /** @var class-string<JsonResource> $resourceClass */
-        $resourceClass = $this->resourceClass();
-
-        return Response::text(
-            new $resourceClass($model)->toJson(JSON_PRETTY_PRINT)
-        );
+        return $this->buildRelationshipResponse($model);
     }
 }

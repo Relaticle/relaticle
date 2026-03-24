@@ -35,7 +35,7 @@ final class OpportunitySchemaResource extends Resource
             ],
             'custom_fields' => $this->resolveCustomFields($user, 'opportunity'),
             'filterable_fields' => $this->resolveFilterableFields($user, 'opportunity'),
-            'relationships' => ['company', 'contact', 'tasks', 'notes'],
+            'relationships' => ['creator', 'company', 'contact'],
             'aggregate_includes' => [
                 'tasksCount' => 'Count of related tasks',
                 'notesCount' => 'Count of related notes',

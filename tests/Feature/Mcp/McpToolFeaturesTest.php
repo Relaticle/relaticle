@@ -438,6 +438,174 @@ describe('custom field update via MCP', function () {
 });
 
 // ---------------------------------------------------------------------------
+// BUG-02: Partial custom_fields update must preserve omitted fields
+// ---------------------------------------------------------------------------
+describe('partial custom_fields update preserves omitted fields', function () {
+    beforeEach(function () {
+        $section = CustomFieldSection::create([
+            'tenant_id' => $this->team->id,
+            'entity_type' => 'company',
+            'name' => 'Partial Update Section',
+            'code' => 'partial_update',
+            'type' => 'section',
+            'sort_order' => 1,
+            'active' => true,
+        ]);
+
+        CustomField::create([
+            'tenant_id' => $this->team->id,
+            'custom_field_section_id' => $section->id,
+            'entity_type' => 'company',
+            'code' => 'cf_alpha',
+            'name' => 'Alpha',
+            'type' => 'text',
+            'sort_order' => 1,
+            'active' => true,
+            'validation_rules' => [],
+        ]);
+
+        CustomField::create([
+            'tenant_id' => $this->team->id,
+            'custom_field_section_id' => $section->id,
+            'entity_type' => 'company',
+            'code' => 'cf_beta',
+            'name' => 'Beta',
+            'type' => 'text',
+            'sort_order' => 2,
+            'active' => true,
+            'validation_rules' => [],
+        ]);
+
+        CustomField::create([
+            'tenant_id' => $this->team->id,
+            'custom_field_section_id' => $section->id,
+            'entity_type' => 'company',
+            'code' => 'cf_links',
+            'name' => 'Links',
+            'type' => 'link',
+            'sort_order' => 3,
+            'active' => true,
+            'validation_rules' => [],
+        ]);
+
+        CustomField::create([
+            'tenant_id' => $this->team->id,
+            'custom_field_section_id' => $section->id,
+            'entity_type' => 'company',
+            'code' => 'cf_flag',
+            'name' => 'Flag',
+            'type' => 'toggle',
+            'sort_order' => 4,
+            'active' => true,
+            'validation_rules' => [],
+        ]);
+    });
+
+    it('preserves omitted text fields when updating a subset', function (): void {
+        RelaticleServer::actingAs($this->user)
+            ->tool(CreateCompanyTool::class, [
+                'name' => 'Partial Test Corp',
+                'custom_fields' => ['cf_alpha' => 'original-alpha', 'cf_beta' => 'original-beta'],
+            ])
+            ->assertOk();
+
+        $company = Company::query()->where('name', 'Partial Test Corp')->firstOrFail();
+
+        RelaticleServer::actingAs($this->user)
+            ->tool(UpdateCompanyTool::class, [
+                'id' => $company->id,
+                'custom_fields' => ['cf_alpha' => 'updated-alpha'],
+            ])
+            ->assertOk()
+            ->assertSee('updated-alpha')
+            ->assertSee('original-beta');
+    });
+
+    it('preserves omitted link fields when updating other fields', function (): void {
+        RelaticleServer::actingAs($this->user)
+            ->tool(CreateCompanyTool::class, [
+                'name' => 'Link Preserve Corp',
+                'custom_fields' => [
+                    'cf_alpha' => 'some-text',
+                    'cf_links' => ['https://example.com', 'https://other.com'],
+                ],
+            ])
+            ->assertOk();
+
+        $company = Company::query()->where('name', 'Link Preserve Corp')->firstOrFail();
+
+        RelaticleServer::actingAs($this->user)
+            ->tool(UpdateCompanyTool::class, [
+                'id' => $company->id,
+                'custom_fields' => ['cf_alpha' => 'changed-text'],
+            ])
+            ->assertOk()
+            ->assertSee('changed-text')
+            ->assertSee('example.com')
+            ->assertSee('other.com');
+    });
+
+    it('preserves omitted toggle fields when updating other fields', function (): void {
+        RelaticleServer::actingAs($this->user)
+            ->tool(CreateCompanyTool::class, [
+                'name' => 'Toggle Preserve Corp',
+                'custom_fields' => ['cf_flag' => true, 'cf_alpha' => 'keep-me'],
+            ])
+            ->assertOk();
+
+        $company = Company::query()->where('name', 'Toggle Preserve Corp')->firstOrFail();
+
+        RelaticleServer::actingAs($this->user)
+            ->tool(UpdateCompanyTool::class, [
+                'id' => $company->id,
+                'custom_fields' => ['cf_alpha' => 'updated'],
+            ])
+            ->assertOk()
+            ->assertSee('updated')
+            ->assertSee('true');
+    });
+
+    it('preserves all custom fields when updating only core fields', function (): void {
+        RelaticleServer::actingAs($this->user)
+            ->tool(CreateCompanyTool::class, [
+                'name' => 'Core Update Corp',
+                'custom_fields' => ['cf_alpha' => 'keep-me', 'cf_beta' => 'keep-me-too'],
+            ])
+            ->assertOk();
+
+        $company = Company::query()->where('name', 'Core Update Corp')->firstOrFail();
+
+        RelaticleServer::actingAs($this->user)
+            ->tool(UpdateCompanyTool::class, [
+                'id' => $company->id,
+                'name' => 'Renamed Corp',
+            ])
+            ->assertOk()
+            ->assertSee('keep-me')
+            ->assertSee('keep-me-too');
+    });
+
+    it('can explicitly set a custom field to null without wiping others', function (): void {
+        RelaticleServer::actingAs($this->user)
+            ->tool(CreateCompanyTool::class, [
+                'name' => 'Null Test Corp',
+                'custom_fields' => ['cf_alpha' => 'has-value', 'cf_beta' => 'also-has-value'],
+            ])
+            ->assertOk();
+
+        $company = Company::query()->where('name', 'Null Test Corp')->firstOrFail();
+
+        RelaticleServer::actingAs($this->user)
+            ->tool(UpdateCompanyTool::class, [
+                'id' => $company->id,
+                'custom_fields' => ['cf_alpha' => null],
+            ])
+            ->assertOk()
+            ->assertSee('also-has-value');
+    });
+});
+
+// ---------------------------------------------------------------------------
 // Unknown custom field key rejection
 // ---------------------------------------------------------------------------
 describe('unknown custom field key rejection', function () {

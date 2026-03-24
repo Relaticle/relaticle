@@ -7,6 +7,7 @@ namespace App\Actions\Note;
 use App\Enums\CreationSource;
 use App\Models\Note;
 use App\Models\User;
+use App\Support\HtmlSanitizer;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
@@ -25,6 +26,8 @@ final readonly class CreateNote
 
         $attributes = Arr::only($data, ['title', 'custom_fields']);
         $attributes['creation_source'] = $source;
+
+        $attributes = HtmlSanitizer::sanitizeAttributes($attributes);
 
         return DB::transaction(function () use ($attributes, $companyIds, $peopleIds, $opportunityIds): Note {
             $note = Note::query()->create($attributes);

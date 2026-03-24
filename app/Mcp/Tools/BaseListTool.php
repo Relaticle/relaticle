@@ -7,6 +7,9 @@ namespace App\Mcp\Tools;
 use App\Mcp\Tools\Concerns\ChecksTokenAbility;
 use App\Models\User;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request as HttpRequest;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Laravel\Mcp\Request;
@@ -76,9 +79,44 @@ abstract class BaseListTool extends Tool
         /** @var class-string<JsonResource> $resourceClass */
         $resourceClass = $this->resourceClass();
 
-        return Response::text(
-            $resourceClass::collection($results)->toJson(JSON_PRETTY_PRINT)
-        );
+        $collection = $resourceClass::collection($results);
+
+        /** @var array<int|string, mixed> $decoded */
+        $decoded = json_decode($collection->toJson(JSON_PRETTY_PRINT), true);
+        $items = $decoded['data'] ?? array_values($decoded);
+
+        foreach ($items as $index => $item) {
+            $record = $results[$index] ?? null;
+
+            if ($record === null) {
+                continue;
+            }
+
+            foreach ($record->getRelations() as $relation => $relatedData) {
+                if ($relation === 'customFieldValues') {
+                    continue;
+                }
+
+                if ($relatedData instanceof EloquentCollection) {
+                    $items[$index][$relation] = $relatedData->map(fn (Model $r): array => $r->toArray())->values()->all();
+                } elseif ($relatedData instanceof Model) {
+                    $items[$index][$relation] = $relatedData->toArray();
+                }
+            }
+        }
+
+        $response = ['data' => $items];
+
+        if ($results instanceof LengthAwarePaginator) {
+            $response['meta'] = [
+                'current_page' => $results->currentPage(),
+                'per_page' => $results->perPage(),
+                'total' => $results->total(),
+                'last_page' => $results->lastPage(),
+            ];
+        }
+
+        return Response::text((string) json_encode($response, JSON_PRETTY_PRINT));
     }
 
     private function buildHttpRequest(Request $mcpRequest): HttpRequest

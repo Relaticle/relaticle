@@ -7,6 +7,7 @@ namespace App\Actions\Opportunity;
 use App\Enums\CreationSource;
 use App\Models\Opportunity;
 use App\Models\User;
+use App\Support\HtmlSanitizer;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
@@ -21,6 +22,8 @@ final readonly class CreateOpportunity
 
         $attributes = Arr::only($data, ['name', 'company_id', 'contact_id', 'custom_fields']);
         $attributes['creation_source'] = $source;
+
+        $attributes = HtmlSanitizer::sanitizeAttributes($attributes);
 
         return DB::transaction(fn (): Opportunity => Opportunity::query()->create($attributes));
     }

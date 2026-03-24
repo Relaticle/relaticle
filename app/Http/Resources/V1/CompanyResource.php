@@ -41,6 +41,7 @@ final class CompanyResource extends JsonApiResource
     {
         return [
             'creator' => UserResource::class,
+            'accountOwner' => UserResource::class,
             'people' => PeopleResource::class,
             'opportunities' => OpportunityResource::class,
         ];

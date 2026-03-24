@@ -33,7 +33,7 @@ final class TaskSchemaResource extends Resource
             ],
             'custom_fields' => $this->resolveCustomFields($user, 'task'),
             'filterable_fields' => $this->resolveFilterableFields($user, 'task'),
-            'relationships' => ['assignees', 'companies', 'people', 'opportunities'],
+            'relationships' => ['creator', 'assignees', 'companies', 'people', 'opportunities'],
             'writable_relationships' => [
                 'company_ids' => [
                     'type' => 'array of string IDs',

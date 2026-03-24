@@ -6,6 +6,8 @@ namespace App\Actions\Task;
 
 use App\Models\Task;
 use App\Models\User;
+use App\Support\CustomFieldMerger;
+use App\Support\HtmlSanitizer;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
@@ -25,6 +27,9 @@ final readonly class UpdateTask
         abort_unless($user->can('update', $task), 403);
 
         $attributes = Arr::only($data, ['title', 'custom_fields']);
+
+        $attributes = CustomFieldMerger::merge($task, $attributes);
+        $attributes = HtmlSanitizer::sanitizeAttributes($attributes);
 
         $previousAssigneeIds = $task->assignees()->pluck('users.id')->all();
 
