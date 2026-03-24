@@ -15,6 +15,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\Server\Tool;
+use Spatie\QueryBuilder\Exceptions\InvalidQuery;
 
 abstract class BaseListTool extends Tool
 {
@@ -69,13 +70,17 @@ abstract class BaseListTool extends Tool
 
         $httpRequest = $this->buildHttpRequest($request);
 
-        $action = app()->make($this->actionClass());
-        $results = $action->execute(
-            user: $user,
-            perPage: (int) $request->get('per_page', 15),
-            page: $request->get('page') ? (int) $request->get('page') : null,
-            request: $httpRequest,
-        );
+        try {
+            $action = app()->make($this->actionClass());
+            $results = $action->execute(
+                user: $user,
+                perPage: (int) $request->get('per_page', 15),
+                page: $request->get('page') ? (int) $request->get('page') : null,
+                request: $httpRequest,
+            );
+        } catch (InvalidQuery $e) {
+            return Response::error($e->getMessage());
+        }
 
         /** @var class-string<JsonResource> $resourceClass */
         $resourceClass = $this->resourceClass();
@@ -88,7 +93,7 @@ abstract class BaseListTool extends Tool
 
         $relationshipMap = null;
 
-        foreach ($items as $index => $item) {
+        foreach (array_keys($items) as $index) {
             $resultItem = $results[$index] ?? null;
 
             if ($resultItem === null) {
