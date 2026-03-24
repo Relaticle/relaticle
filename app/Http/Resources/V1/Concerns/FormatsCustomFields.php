@@ -72,14 +72,17 @@ trait FormatsCustomFields
         $values = $rawValue instanceof Collection ? $rawValue->all() : (array) ($rawValue ?? []);
 
         return collect($values)
+            ->filter(fn (mixed $value): bool => is_string($value) || is_numeric($value))
             ->map(function (mixed $optionId) use ($customField): array {
+                $stringId = (string) $optionId;
                 $option = $customField->options->firstWhere('id', $optionId);
 
                 return [
-                    'id' => (string) $optionId,
-                    'label' => $option !== null ? $option->name : (string) $optionId,
+                    'id' => $stringId,
+                    'label' => $option !== null ? $option->name : $stringId,
                 ];
             })
+            ->values()
             ->all();
     }
 }
