@@ -61,16 +61,16 @@
                     <div class="absolute bottom-0 left-0 right-0 h-px bg-gray-200 dark:bg-white/[0.08] pointer-events-none" aria-hidden="true"></div>
                     <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-[100vw] h-px pointer-events-none bg-[repeating-linear-gradient(to_right,theme(colors.gray.200)_0,theme(colors.gray.200)_10px,transparent_10px,transparent_18px)] dark:bg-[repeating-linear-gradient(to_right,rgba(255,255,255,0.08)_0,rgba(255,255,255,0.08)_10px,transparent_10px,transparent_18px)]" aria-hidden="true"></div>
                     <div x-ref="indicator" class="absolute bottom-0 h-px bg-primary/80 rounded-full pointer-events-none transition-[left,width] duration-200" aria-hidden="true"></div>
+                    <button type="button" x-ref="tab-ai-agent" x-on:click="switchTab('ai-agent')" :class="tabClasses('ai-agent')" class="relative flex-1 py-2.5 sm:py-3 text-xs sm:text-sm font-medium whitespace-nowrap transition-colors duration-200 cursor-pointer">
+                        AI Agent
+                    </button>
+                    <div class="w-px self-stretch my-0 bg-gray-200 dark:bg-white/[0.08]" aria-hidden="true"></div>
                     <button type="button" x-ref="tab-companies" x-on:click="switchTab('companies')" :class="tabClasses('companies')" class="relative flex-1 py-2.5 sm:py-3 text-xs sm:text-sm font-medium whitespace-nowrap transition-colors duration-200 cursor-pointer">
                         Companies
                     </button>
                     <div class="w-px self-stretch my-0 bg-gray-200 dark:bg-white/[0.08]" aria-hidden="true"></div>
                     <button type="button" x-ref="tab-pipeline" x-on:click="switchTab('pipeline')" :class="tabClasses('pipeline')" class="relative flex-1 py-2.5 sm:py-3 text-xs sm:text-sm font-medium whitespace-nowrap transition-colors duration-200 cursor-pointer">
                         Pipeline
-                    </button>
-                    <div class="w-px self-stretch my-0 bg-gray-200 dark:bg-white/[0.08]" aria-hidden="true"></div>
-                    <button type="button" x-ref="tab-ai-agent" x-on:click="switchTab('ai-agent')" :class="tabClasses('ai-agent')" class="relative flex-1 py-2.5 sm:py-3 text-xs sm:text-sm font-medium whitespace-nowrap transition-colors duration-200 cursor-pointer">
-                        AI Agent
                     </button>
                     <div class="w-px self-stretch my-0 bg-gray-200 dark:bg-white/[0.08]" aria-hidden="true"></div>
                     <button type="button" x-ref="tab-custom-fields" x-on:click="switchTab('custom-fields')" :class="tabClasses('custom-fields')" class="relative flex-1 py-2.5 sm:py-3 text-xs sm:text-sm font-medium whitespace-nowrap transition-colors duration-200 cursor-pointer">
@@ -102,7 +102,12 @@
 
                         {{-- Tab panels — grid stacking for Safari-smooth crossfade --}}
                         <div class="relative grid overflow-hidden">
-                            <div x-ref="panel-companies" class="col-start-1 row-start-1">
+                            {{-- AI Agent tab --}}
+                            <div x-ref="panel-ai-agent" class="col-start-1 row-start-1">
+                                @include('home.partials.hero-agent-preview')
+                            </div>
+
+                            <div x-ref="panel-companies" class="col-start-1 row-start-1 invisible">
                                 <picture>
                                     <source data-light-srcset="{{ asset('images/app-companies-preview.webp') }}" data-dark-srcset="{{ asset('images/app-companies-preview-dark.webp') }}" srcset="{{ asset('images/app-companies-preview.webp') }}" type="image/webp">
                                     <img data-light-src="{{ asset('images/app-companies-preview.png') }}"
@@ -112,8 +117,7 @@
                                          class="hero-preview-image w-full h-auto"
                                          width="1440"
                                          height="900"
-                                         loading="eager"
-                                         fetchpriority="high">
+                                         loading="lazy">
                                 </picture>
                             </div>
                             <div x-ref="panel-pipeline" class="col-start-1 row-start-1 invisible">
@@ -128,11 +132,6 @@
                                          height="900"
                                          loading="lazy">
                                 </picture>
-                            </div>
-
-                            {{-- AI Agent tab --}}
-                            <div x-ref="panel-ai-agent" class="col-start-1 row-start-1 invisible">
-                                @include('home.partials.hero-agent-preview')
                             </div>
 
                             <div x-ref="panel-custom-fields" class="col-start-1 row-start-1 invisible">
@@ -163,8 +162,8 @@
 <script>
     function heroTabs() {
         return {
-            activeTab: 'companies',
-            tabOrder: ['companies', 'pipeline', 'ai-agent', 'custom-fields'],
+            activeTab: 'ai-agent',
+            tabOrder: ['ai-agent', 'companies', 'pipeline', 'custom-fields'],
             reducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
             ease: [0.16, 1, 0.3, 1],
             duration: 0.35,
@@ -174,6 +173,11 @@
                 this.positionIndicator();
                 this.updateImages();
                 this.observeDarkMode();
+
+                var self = this;
+                if (this.activeTab === 'ai-agent') {
+                    setTimeout(function() { self.$dispatch('hero-chat-animate'); }, 100);
+                }
             },
 
             positionIndicator() {
