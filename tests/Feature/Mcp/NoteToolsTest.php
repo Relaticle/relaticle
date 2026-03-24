@@ -16,7 +16,6 @@ use App\Models\Opportunity;
 use App\Models\Scopes\TeamScope;
 use App\Models\Team;
 use App\Models\User;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 beforeEach(function () {
     $this->user = User::factory()->withPersonalTeam()->create();
@@ -181,8 +180,9 @@ describe('team scoping', function () {
             ->tool(UpdateNoteTool::class, [
                 'id' => $otherNote->id,
                 'title' => 'Hacked',
-            ]);
-    })->throws(ModelNotFoundException::class);
+            ])
+            ->assertHasErrors(['not found']);
+    });
 
     it('cannot delete a note from another team', function (): void {
         $otherNote = Note::withoutEvents(fn () => Note::factory()->create([
@@ -192,8 +192,9 @@ describe('team scoping', function () {
         RelaticleServer::actingAs($this->user)
             ->tool(DeleteNoteTool::class, [
                 'id' => $otherNote->id,
-            ]);
-    })->throws(ModelNotFoundException::class);
+            ])
+            ->assertHasErrors(['not found']);
+    });
 
     it('cannot get a note from another team', function (): void {
         $otherNote = Note::withoutEvents(fn () => Note::factory()->create([
@@ -203,6 +204,7 @@ describe('team scoping', function () {
         RelaticleServer::actingAs($this->user)
             ->tool(GetNoteTool::class, [
                 'id' => $otherNote->id,
-            ]);
-    })->throws(ModelNotFoundException::class);
+            ])
+            ->assertHasErrors(['not found']);
+    });
 });

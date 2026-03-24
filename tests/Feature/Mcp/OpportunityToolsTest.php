@@ -14,7 +14,6 @@ use App\Models\People;
 use App\Models\Scopes\TeamScope;
 use App\Models\Team;
 use App\Models\User;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 beforeEach(function () {
     $this->user = User::factory()->withPersonalTeam()->create();
@@ -105,8 +104,9 @@ describe('team scoping', function () {
             ->tool(UpdateOpportunityTool::class, [
                 'id' => $otherOpportunity->id,
                 'name' => 'Hacked',
-            ]);
-    })->throws(ModelNotFoundException::class);
+            ])
+            ->assertHasErrors(['not found']);
+    });
 
     it('cannot delete an opportunity from another team', function (): void {
         $otherOpportunity = Opportunity::withoutEvents(fn () => Opportunity::factory()->create([
@@ -116,8 +116,9 @@ describe('team scoping', function () {
         RelaticleServer::actingAs($this->user)
             ->tool(DeleteOpportunityTool::class, [
                 'id' => $otherOpportunity->id,
-            ]);
-    })->throws(ModelNotFoundException::class);
+            ])
+            ->assertHasErrors(['not found']);
+    });
 
     it('cannot get an opportunity from another team', function (): void {
         $otherOpportunity = Opportunity::withoutEvents(fn () => Opportunity::factory()->create([
@@ -127,8 +128,9 @@ describe('team scoping', function () {
         RelaticleServer::actingAs($this->user)
             ->tool(GetOpportunityTool::class, [
                 'id' => $otherOpportunity->id,
-            ]);
-    })->throws(ModelNotFoundException::class);
+            ])
+            ->assertHasErrors(['not found']);
+    });
 
     it('rejects company_id from another team when creating opportunity', function (): void {
         $otherTeam = Team::factory()->create();

@@ -21,7 +21,6 @@ use App\Mcp\Tools\Task\ListTasksTool;
 use App\Models\Company;
 use App\Models\People;
 use App\Models\User;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 beforeEach(function () {
     $this->user = User::factory()->withPersonalTeam()->create();
@@ -213,17 +212,19 @@ it('can read the CRM overview prompt', function (): void {
         ->assertSee('CRM Overview');
 });
 
-it('throws when updating non-existent company', function (): void {
+it('returns error when updating non-existent company', function (): void {
     RelaticleServer::actingAs($this->user)
         ->tool(UpdateCompanyTool::class, [
             'id' => 'non-existent-id',
             'name' => 'Ghost',
-        ]);
-})->throws(ModelNotFoundException::class);
+        ])
+        ->assertHasErrors(['not found']);
+});
 
-it('throws when deleting non-existent company', function (): void {
+it('returns error when deleting non-existent company', function (): void {
     RelaticleServer::actingAs($this->user)
         ->tool(DeleteCompanyTool::class, [
             'id' => 'non-existent-id',
-        ]);
-})->throws(ModelNotFoundException::class);
+        ])
+        ->assertHasErrors(['not found']);
+});

@@ -14,7 +14,6 @@ use App\Models\Scopes\TeamScope;
 use App\Models\Task;
 use App\Models\Team;
 use App\Models\User;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 beforeEach(function () {
     $this->user = User::factory()->withPersonalTeam()->create();
@@ -151,8 +150,9 @@ describe('team scoping', function () {
             ->tool(UpdateTaskTool::class, [
                 'id' => $otherTask->id,
                 'title' => 'Hacked',
-            ]);
-    })->throws(ModelNotFoundException::class);
+            ])
+            ->assertHasErrors(['not found']);
+    });
 
     it('cannot delete a task from another team', function (): void {
         $otherTask = Task::withoutEvents(fn () => Task::factory()->create([
@@ -162,8 +162,9 @@ describe('team scoping', function () {
         RelaticleServer::actingAs($this->user)
             ->tool(DeleteTaskTool::class, [
                 'id' => $otherTask->id,
-            ]);
-    })->throws(ModelNotFoundException::class);
+            ])
+            ->assertHasErrors(['not found']);
+    });
 
     it('cannot get a task from another team', function (): void {
         $otherTask = Task::withoutEvents(fn () => Task::factory()->create([
@@ -173,6 +174,7 @@ describe('team scoping', function () {
         RelaticleServer::actingAs($this->user)
             ->tool(GetTaskTool::class, [
                 'id' => $otherTask->id,
-            ]);
-    })->throws(ModelNotFoundException::class);
+            ])
+            ->assertHasErrors(['not found']);
+    });
 });

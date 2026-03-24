@@ -67,13 +67,21 @@ abstract class BaseAttachTool extends Tool
         $validated = $request->validate($rules);
 
         $relationshipData = collect($validated)->except('id')->filter(fn (mixed $v): bool => is_array($v));
-        abort_if($relationshipData->isEmpty(), 422, 'At least one relationship array must be provided.');
+
+        if ($relationshipData->isEmpty()) {
+            return Response::error('At least one relationship array must be provided.');
+        }
 
         $modelClass = $this->modelClass();
-        /** @var Model $model */
-        $model = $modelClass::query()->findOrFail($validated['id']);
+        $model = $modelClass::query()->find($validated['id']);
 
-        abort_unless($user->can('update', $model), 403);
+        if (! $model instanceof Model) {
+            return Response::error("{$this->entityLabel()} with ID [{$validated['id']}] not found.");
+        }
+
+        if ($user->cannot('update', $model)) {
+            return Response::error("You do not have permission to update this {$this->entityLabel()}.");
+        }
 
         $this->syncRelationships($model, $validated);
 

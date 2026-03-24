@@ -50,7 +50,15 @@ abstract class BaseDeleteTool extends Tool
         ]);
 
         $modelClass = $this->modelClass();
-        $model = $modelClass::query()->findOrFail($validated['id']);
+        $model = $modelClass::query()->find($validated['id']);
+
+        if (! $model instanceof Model) {
+            return Response::error("{$this->entityLabel()} with ID [{$validated['id']}] not found.");
+        }
+
+        if ($user->cannot('delete', $model)) {
+            return Response::error("You do not have permission to delete this {$this->entityLabel()}.");
+        }
 
         $action = app()->make($this->actionClass());
         $action->execute($user, $model);

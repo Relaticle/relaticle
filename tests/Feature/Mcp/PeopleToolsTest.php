@@ -13,7 +13,6 @@ use App\Models\People;
 use App\Models\Scopes\TeamScope;
 use App\Models\Team;
 use App\Models\User;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 beforeEach(function () {
     $this->user = User::factory()->withPersonalTeam()->create();
@@ -85,8 +84,9 @@ describe('team scoping', function () {
             ->tool(UpdatePeopleTool::class, [
                 'id' => $otherPerson->id,
                 'name' => 'Hacked',
-            ]);
-    })->throws(ModelNotFoundException::class);
+            ])
+            ->assertHasErrors(['not found']);
+    });
 
     it('cannot delete a person from another team', function (): void {
         $otherPerson = People::withoutEvents(fn () => People::factory()->for(Team::factory())->create());
@@ -94,8 +94,9 @@ describe('team scoping', function () {
         RelaticleServer::actingAs($this->user)
             ->tool(DeletePeopleTool::class, [
                 'id' => $otherPerson->id,
-            ]);
-    })->throws(ModelNotFoundException::class);
+            ])
+            ->assertHasErrors(['not found']);
+    });
 
     it('cannot get a person from another team', function (): void {
         $otherPerson = People::withoutEvents(fn () => People::factory()->for(Team::factory())->create());
@@ -103,8 +104,9 @@ describe('team scoping', function () {
         RelaticleServer::actingAs($this->user)
             ->tool(GetPeopleTool::class, [
                 'id' => $otherPerson->id,
-            ]);
-    })->throws(ModelNotFoundException::class);
+            ])
+            ->assertHasErrors(['not found']);
+    });
 
     it('rejects company_id from another team when creating person', function (): void {
         $otherTeam = Team::factory()->create();

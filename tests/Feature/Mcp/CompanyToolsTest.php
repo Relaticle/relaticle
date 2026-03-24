@@ -13,7 +13,6 @@ use App\Models\Company;
 use App\Models\Scopes\TeamScope;
 use App\Models\Team;
 use App\Models\User;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 beforeEach(function () {
     $this->user = User::factory()->withPersonalTeam()->create();
@@ -62,8 +61,9 @@ describe('team scoping', function () {
             ->tool(UpdateCompanyTool::class, [
                 'id' => $otherCompany->id,
                 'name' => 'Hacked',
-            ]);
-    })->throws(ModelNotFoundException::class);
+            ])
+            ->assertHasErrors(['not found']);
+    });
 
     it('cannot delete a company from another team', function (): void {
         $otherCompany = Company::withoutEvents(fn () => Company::factory()->create([
@@ -73,8 +73,9 @@ describe('team scoping', function () {
         RelaticleServer::actingAs($this->user)
             ->tool(DeleteCompanyTool::class, [
                 'id' => $otherCompany->id,
-            ]);
-    })->throws(ModelNotFoundException::class);
+            ])
+            ->assertHasErrors(['not found']);
+    });
 
     it('cannot get a company from another team', function (): void {
         $otherCompany = Company::withoutEvents(fn () => Company::factory()->create([
@@ -84,8 +85,9 @@ describe('team scoping', function () {
         RelaticleServer::actingAs($this->user)
             ->tool(GetCompanyTool::class, [
                 'id' => $otherCompany->id,
-            ]);
-    })->throws(ModelNotFoundException::class);
+            ])
+            ->assertHasErrors(['not found']);
+    });
 
     it('excludes soft-deleted companies from list', function (): void {
         $deleted = Company::factory()->for($this->team)->create(['name' => 'Deleted Corp']);

@@ -60,10 +60,15 @@ abstract class BaseShowTool extends Tool
         ]);
 
         $modelClass = $this->modelClass();
-        /** @var Model $model */
-        $model = $modelClass::query()->findOrFail($validated['id']);
+        $model = $modelClass::query()->find($validated['id']);
 
-        abort_unless($user->can('view', $model), 403);
+        if (! $model instanceof Model) {
+            return Response::error("{$this->entityLabel()} with ID [{$validated['id']}] not found.");
+        }
+
+        if ($user->cannot('view', $model)) {
+            return Response::error("You do not have permission to view this {$this->entityLabel()}.");
+        }
 
         $model->loadMissing('customFieldValues.customField.options');
 

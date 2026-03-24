@@ -71,7 +71,16 @@ abstract class BaseUpdateTool extends Tool
         $validated = $request->validate($rules);
 
         $modelClass = $this->modelClass();
-        $model = $modelClass::query()->findOrFail($validated['id']);
+        $model = $modelClass::query()->find($validated['id']);
+
+        if (! $model instanceof Model) {
+            return Response::error("{$this->entityLabel()} with ID [{$validated['id']}] not found.");
+        }
+
+        if ($user->cannot('update', $model)) {
+            return Response::error("You do not have permission to update this {$this->entityLabel()}.");
+        }
+
         unset($validated['id']);
 
         $action = app()->make($this->actionClass());
