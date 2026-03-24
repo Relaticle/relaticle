@@ -13,11 +13,6 @@ final class StoreOpportunityRequest extends FormRequest
 {
     use ValidatesCustomFields;
 
-    public function authorize(): bool
-    {
-        return true;
-    }
-
     /**
      * @return array<string, array<int, mixed>>
      */
@@ -31,7 +26,6 @@ final class StoreOpportunityRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'company_id' => ['nullable', 'string', Rule::exists('companies', 'id')->where('team_id', $teamId)],
             'contact_id' => ['nullable', 'string', Rule::exists('people', 'id')->where('team_id', $teamId)],
-            'custom_fields' => ['nullable', 'array'],
         ], $this->customFieldRules());
     }
 

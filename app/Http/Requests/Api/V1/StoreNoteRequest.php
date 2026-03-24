@@ -13,11 +13,6 @@ final class StoreNoteRequest extends FormRequest
 {
     use ValidatesCustomFields;
 
-    public function authorize(): bool
-    {
-        return true;
-    }
-
     /**
      * @return array<string, array<int, mixed>>
      */
@@ -35,7 +30,6 @@ final class StoreNoteRequest extends FormRequest
             'people_ids.*' => ['string', Rule::exists('people', 'id')->where('team_id', $teamId)],
             'opportunity_ids' => ['nullable', 'array'],
             'opportunity_ids.*' => ['string', Rule::exists('opportunities', 'id')->where('team_id', $teamId)],
-            'custom_fields' => ['nullable', 'array'],
         ], $this->customFieldRules());
     }
 

@@ -13,11 +13,6 @@ final class IndexCustomFieldsRequest extends FormRequest
 
     private const int MAX_PER_PAGE = 100;
 
-    public function authorize(): bool
-    {
-        return true;
-    }
-
     /**
      * @return array<string, array<int, mixed>>
      */

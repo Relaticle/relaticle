@@ -14,11 +14,6 @@ final class UpdateTaskRequest extends FormRequest
 {
     use ValidatesCustomFields;
 
-    public function authorize(): bool
-    {
-        return true;
-    }
-
     /**
      * @return array<string, array<int, mixed>>
      */
@@ -42,7 +37,6 @@ final class UpdateTaskRequest extends FormRequest
             'opportunity_ids.*' => ['string', Rule::exists('opportunities', 'id')->where('team_id', $teamId)],
             'assignee_ids' => ['nullable', 'array'],
             'assignee_ids.*' => ['string', Rule::in($teamMemberIds)],
-            'custom_fields' => ['nullable', 'array'],
         ], $this->customFieldRules());
     }
 

@@ -11,11 +11,6 @@ final class StoreCompanyRequest extends FormRequest
 {
     use ValidatesCustomFields;
 
-    public function authorize(): bool
-    {
-        return true;
-    }
-
     /**
      * @return array<string, array<int, mixed>>
      */
@@ -23,7 +18,6 @@ final class StoreCompanyRequest extends FormRequest
     {
         return array_merge([
             'name' => ['required', 'string', 'max:255'],
-            'custom_fields' => ['nullable', 'array'],
         ], $this->customFieldRules());
     }
 
