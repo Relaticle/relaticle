@@ -16,13 +16,17 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\View\View;
 use Laravel\Jetstream\Jetstream;
+use Livewire\Attributes\On;
 
 final class ManageApiTokens extends BaseLivewireComponent implements HasTable
 {
     use InteractsWithTable;
 
-    /** @var array<string> */
-    protected $listeners = ['tokenCreated' => '$refresh'];
+    #[On('tokenCreated')]
+    public function refreshTokenList(): void
+    {
+        // Filament table auto-refreshes on Livewire re-render
+    }
 
     public function table(Table $table): Table
     {
