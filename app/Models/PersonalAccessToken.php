@@ -24,6 +24,7 @@ class PersonalAccessToken extends SanctumPersonalAccessToken
     {
         return [
             'abilities' => 'json',
+            'last_used_at' => 'datetime',
             'expires_at' => 'datetime',
         ];
     }
