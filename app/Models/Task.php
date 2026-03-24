@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Enums\CreationSource;
+use App\Models\Concerns\BelongsToTeamCreator;
 use App\Models\Concerns\HasCreator;
 use App\Models\Concerns\HasTeam;
 use App\Models\Concerns\InvalidatesRelatedAiSummaries;
@@ -33,6 +34,7 @@ use Spatie\EloquentSortable\SortableTrait;
 #[ObservedBy(TaskObserver::class)]
 final class Task extends Model implements HasCustomFields
 {
+    use BelongsToTeamCreator;
     use HasCreator;
 
     /** @use HasFactory<TaskFactory> */

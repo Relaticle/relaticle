@@ -7,20 +7,9 @@ namespace App\Observers;
 use App\Enums\CustomFields\CompanyField;
 use App\Jobs\FetchFaviconForCompany;
 use App\Models\Company;
-use App\Models\User;
 
 final readonly class CompanyObserver
 {
-    public function creating(Company $company): void
-    {
-        if (auth()->check()) {
-            /** @var User $user */
-            $user = auth()->user();
-            $company->creator_id ??= $user->getKey();
-            $company->team_id ??= $user->currentTeam->getKey();
-        }
-    }
-
     public function saved(Company $company): void
     {
         $company->invalidateAiSummary();

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Enums\CreationSource;
+use App\Models\Concerns\BelongsToTeamCreator;
 use App\Models\Concerns\HasCreator;
 use App\Models\Concerns\HasTeam;
 use App\Models\Concerns\InvalidatesRelatedAiSummaries;
@@ -27,6 +28,7 @@ use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 #[ObservedBy(NoteObserver::class)]
 final class Note extends Model implements HasCustomFields
 {
+    use BelongsToTeamCreator;
     use HasCreator;
 
     /** @use HasFactory<NoteFactory> */
