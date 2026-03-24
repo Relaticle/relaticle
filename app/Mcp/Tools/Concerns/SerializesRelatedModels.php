@@ -45,6 +45,13 @@ trait SerializesRelatedModels
             /** @var array<string, mixed> $attributes */
             $attributes = $resource->toAttributes(request());
 
+            // Strip unloaded aggregate counts (whenHas returns MissingValue -> {})
+            $attributes = array_filter(
+                $attributes,
+                fn (mixed $value, string $key): bool => ! str_ends_with($key, '_count') || $model->hasAttribute($key),
+                ARRAY_FILTER_USE_BOTH,
+            );
+
             return [
                 'id' => $model->getKey(),
                 ...$attributes,

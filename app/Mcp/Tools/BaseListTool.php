@@ -81,10 +81,10 @@ abstract class BaseListTool extends Tool
         $resourceClass = $this->resourceClass();
 
         $collection = $resourceClass::collection($results);
-
-        /** @var array<int|string, mixed> $decoded */
-        $decoded = json_decode($collection->toJson(JSON_PRETTY_PRINT), true);
-        $items = $decoded['data'] ?? array_values($decoded);
+        $decoded = json_decode($collection->toJson(JSON_PRETTY_PRINT));
+        $items = isset($decoded->data) && is_array($decoded->data)
+            ? $decoded->data
+            : (is_array($decoded) ? $decoded : []);
 
         $relationshipMap = null;
 
@@ -108,14 +108,14 @@ abstract class BaseListTool extends Tool
 
                 $relationshipMap ??= $this->resolveRelationshipMap($resourceClass, $model);
 
-                $items[$index][$relation] = $this->serializeRelation($model, $relation, $relationshipMap);
+                $items[$index]->{$relation} = $this->serializeRelation($model, $relation, $relationshipMap);
             }
         }
 
-        $response = ['data' => $items];
+        $response = (object) ['data' => $items];
 
         if ($results instanceof LengthAwarePaginator) {
-            $response['meta'] = [
+            $response->meta = (object) [
                 'current_page' => $results->currentPage(),
                 'per_page' => $results->perPage(),
                 'total' => $results->total(),
