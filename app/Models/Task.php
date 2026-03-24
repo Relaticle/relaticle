@@ -12,6 +12,8 @@ use App\Models\Concerns\InvalidatesRelatedAiSummaries;
 use App\Observers\TaskObserver;
 use Database\Factories\TaskFactory;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -110,5 +112,23 @@ final class Task extends Model implements HasCustomFields
     public function people(): MorphToMany
     {
         return $this->morphedByMany(People::class, 'taskable');
+    }
+
+    #[Scope]
+    protected function forCompany(Builder $query, string $companyId): void
+    {
+        $query->whereHas('companies', fn (Builder $q) => $q->where('companies.id', $companyId));
+    }
+
+    #[Scope]
+    protected function forPerson(Builder $query, string $personId): void
+    {
+        $query->whereHas('people', fn (Builder $q) => $q->where('people.id', $personId));
+    }
+
+    #[Scope]
+    protected function forOpportunity(Builder $query, string $opportunityId): void
+    {
+        $query->whereHas('opportunities', fn (Builder $q) => $q->where('opportunities.id', $opportunityId));
     }
 }

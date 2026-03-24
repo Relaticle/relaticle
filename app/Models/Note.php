@@ -12,6 +12,8 @@ use App\Models\Concerns\InvalidatesRelatedAiSummaries;
 use App\Observers\NoteObserver;
 use Database\Factories\NoteFactory;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -90,5 +92,31 @@ final class Note extends Model implements HasCustomFields
     public function opportunities(): MorphToMany
     {
         return $this->morphedByMany(Opportunity::class, 'noteable');
+    }
+
+    #[Scope]
+    protected function forNotableType(Builder $query, string $type): void
+    {
+        $relationMap = [
+            'company' => 'companies',
+            'people' => 'people',
+            'opportunity' => 'opportunities',
+        ];
+
+        $relation = $relationMap[$type] ?? null;
+
+        if ($relation) {
+            $query->whereHas($relation);
+        }
+    }
+
+    #[Scope]
+    protected function forNotableId(Builder $query, string $id): void
+    {
+        $query->where(function (Builder $q) use ($id): void {
+            $q->whereHas('companies', fn (Builder $sub) => $sub->where('noteables.noteable_id', $id))
+                ->orWhereHas('people', fn (Builder $sub) => $sub->where('noteables.noteable_id', $id))
+                ->orWhereHas('opportunities', fn (Builder $sub) => $sub->where('noteables.noteable_id', $id));
+        });
     }
 }

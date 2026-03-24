@@ -45,15 +45,9 @@ final readonly class ListTasks
                         $query->whereHas('assignees', fn (Builder $q) => $q->where('users.id', $user->getKey()));
                     }
                 }),
-                AllowedFilter::callback('company_id', function (Builder $query, mixed $value): void {
-                    $query->whereHas('companies', fn (Builder $q) => $q->where('companies.id', $value));
-                }),
-                AllowedFilter::callback('people_id', function (Builder $query, mixed $value): void {
-                    $query->whereHas('people', fn (Builder $q) => $q->where('people.id', $value));
-                }),
-                AllowedFilter::callback('opportunity_id', function (Builder $query, mixed $value): void {
-                    $query->whereHas('opportunities', fn (Builder $q) => $q->where('opportunities.id', $value));
-                }),
+                AllowedFilter::scope('company_id', 'forCompany'),
+                AllowedFilter::scope('people_id', 'forPerson'),
+                AllowedFilter::scope('opportunity_id', 'forOpportunity'),
                 AllowedFilter::custom('custom_fields', new CustomFieldFilter('task')),
             )
             ->allowedFields('id', 'title', 'creator_id', 'created_at', 'updated_at')
