@@ -114,18 +114,21 @@ final class Task extends Model implements HasCustomFields
         return $this->morphedByMany(People::class, 'taskable');
     }
 
+    /** @param Builder<self> $query */
     #[Scope]
     protected function forCompany(Builder $query, string $companyId): void
     {
         $query->whereHas('companies', fn (Builder $q) => $q->where('companies.id', $companyId));
     }
 
+    /** @param Builder<self> $query */
     #[Scope]
     protected function forPerson(Builder $query, string $personId): void
     {
         $query->whereHas('people', fn (Builder $q) => $q->where('people.id', $personId));
     }
 
+    /** @param Builder<self> $query */
     #[Scope]
     protected function forOpportunity(Builder $query, string $opportunityId): void
     {

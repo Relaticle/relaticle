@@ -17,7 +17,7 @@ trait BelongsToTeamCreator
 {
     public static function bootBelongsToTeamCreator(): void
     {
-        static::creating(function (Model $model): void {
+        static::creating(function (self $model): void {
             if (auth()->check()) {
                 /** @var User $user */
                 $user = auth()->user();

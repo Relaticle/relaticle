@@ -94,6 +94,7 @@ final class Note extends Model implements HasCustomFields
         return $this->morphedByMany(Opportunity::class, 'noteable');
     }
 
+    /** @param Builder<self> $query */
     #[Scope]
     protected function forNotableType(Builder $query, string $type): void
     {
@@ -110,6 +111,7 @@ final class Note extends Model implements HasCustomFields
         }
     }
 
+    /** @param Builder<self> $query */
     #[Scope]
     protected function forNotableId(Builder $query, string $id): void
     {
