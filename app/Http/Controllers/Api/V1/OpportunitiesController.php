@@ -14,9 +14,11 @@ use App\Http\Requests\Api\V1\UpdateOpportunityRequest;
 use App\Http\Resources\V1\OpportunityResource;
 use App\Models\Opportunity;
 use App\Models\User;
+use Illuminate\Container\Attributes\CurrentUser;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response as HttpResponse;
 use Illuminate\Support\Facades\Gate;
 use Knuckles\Scribe\Attributes\BodyParam;
 use Knuckles\Scribe\Attributes\Response;
@@ -30,14 +32,11 @@ use Knuckles\Scribe\Attributes\ResponseFromApiResource;
 final readonly class OpportunitiesController
 {
     #[ResponseFromApiResource(OpportunityResource::class, Opportunity::class, collection: true, paginate: 15)]
-    public function index(Request $request, ListOpportunities $action): AnonymousResourceCollection
+    public function index(Request $request, ListOpportunities $action, #[CurrentUser] User $user): AnonymousResourceCollection
     {
-        /** @var User $user */
-        $user = $request->user();
-
         return OpportunityResource::collection($action->execute(
             user: $user,
-            perPage: (int) $request->query('per_page', '15'),
+            perPage: $request->integer('per_page', 15),
             useCursor: $request->has('cursor'),
             request: $request,
         ));
@@ -47,14 +46,11 @@ final readonly class OpportunitiesController
     #[BodyParam('name', 'string', required: true, example: 'Enterprise Deal')]
     #[BodyParam('company_id', 'string', required: false, example: null)]
     #[BodyParam('contact_id', 'string', required: false, example: null)]
-    public function store(StoreOpportunityRequest $request, CreateOpportunity $action): JsonResponse
+    public function store(StoreOpportunityRequest $request, CreateOpportunity $action, #[CurrentUser] User $user): JsonResponse
     {
-        /** @var User $user */
-        $user = $request->user();
-
         $opportunity = $action->execute($user, $request->validated(), CreationSource::API);
 
-        return new OpportunityResource($opportunity->load('customFieldValues.customField.options'))
+        return (new OpportunityResource($opportunity->load('customFieldValues.customField.options')))
             ->response()
             ->setStatusCode(201);
     }
@@ -73,24 +69,18 @@ final readonly class OpportunitiesController
     #[BodyParam('name', 'string', required: false, example: 'Enterprise Deal')]
     #[BodyParam('company_id', 'string', required: false, example: null)]
     #[BodyParam('contact_id', 'string', required: false, example: null)]
-    public function update(UpdateOpportunityRequest $request, Opportunity $opportunity, UpdateOpportunity $action): OpportunityResource
+    public function update(UpdateOpportunityRequest $request, Opportunity $opportunity, UpdateOpportunity $action, #[CurrentUser] User $user): OpportunityResource
     {
-        /** @var User $user */
-        $user = $request->user();
-
         $opportunity = $action->execute($user, $opportunity, $request->validated());
 
         return new OpportunityResource($opportunity->load('customFieldValues.customField.options'));
     }
 
     #[Response(status: 204)]
-    public function destroy(Request $request, Opportunity $opportunity, DeleteOpportunity $action): JsonResponse
+    public function destroy(Opportunity $opportunity, DeleteOpportunity $action, #[CurrentUser] User $user): HttpResponse
     {
-        /** @var User $user */
-        $user = $request->user();
-
         $action->execute($user, $opportunity);
 
-        return response()->json(null, 204);
+        return response()->noContent();
     }
 }

@@ -14,9 +14,11 @@ use App\Http\Requests\Api\V1\UpdateCompanyRequest;
 use App\Http\Resources\V1\CompanyResource;
 use App\Models\Company;
 use App\Models\User;
+use Illuminate\Container\Attributes\CurrentUser;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response as HttpResponse;
 use Illuminate\Support\Facades\Gate;
 use Knuckles\Scribe\Attributes\Response;
 use Knuckles\Scribe\Attributes\ResponseFromApiResource;
@@ -29,28 +31,22 @@ use Knuckles\Scribe\Attributes\ResponseFromApiResource;
 final readonly class CompaniesController
 {
     #[ResponseFromApiResource(CompanyResource::class, Company::class, collection: true, paginate: 15)]
-    public function index(Request $request, ListCompanies $action): AnonymousResourceCollection
+    public function index(Request $request, ListCompanies $action, #[CurrentUser] User $user): AnonymousResourceCollection
     {
-        /** @var User $user */
-        $user = $request->user();
-
         return CompanyResource::collection($action->execute(
             user: $user,
-            perPage: (int) $request->query('per_page', '15'),
+            perPage: $request->integer('per_page', 15),
             useCursor: $request->has('cursor'),
             request: $request,
         ));
     }
 
     #[ResponseFromApiResource(CompanyResource::class, Company::class, status: 201)]
-    public function store(StoreCompanyRequest $request, CreateCompany $action): JsonResponse
+    public function store(StoreCompanyRequest $request, CreateCompany $action, #[CurrentUser] User $user): JsonResponse
     {
-        /** @var User $user */
-        $user = $request->user();
-
         $company = $action->execute($user, $request->validated(), CreationSource::API);
 
-        return new CompanyResource($company->load('customFieldValues.customField.options'))
+        return (new CompanyResource($company->load('customFieldValues.customField.options')))
             ->response()
             ->setStatusCode(201);
     }
@@ -66,24 +62,18 @@ final readonly class CompaniesController
     }
 
     #[ResponseFromApiResource(CompanyResource::class, Company::class)]
-    public function update(UpdateCompanyRequest $request, Company $company, UpdateCompany $action): CompanyResource
+    public function update(UpdateCompanyRequest $request, Company $company, UpdateCompany $action, #[CurrentUser] User $user): CompanyResource
     {
-        /** @var User $user */
-        $user = $request->user();
-
         $company = $action->execute($user, $company, $request->validated());
 
         return new CompanyResource($company->load('customFieldValues.customField.options'));
     }
 
     #[Response(status: 204)]
-    public function destroy(Request $request, Company $company, DeleteCompany $action): JsonResponse
+    public function destroy(Company $company, DeleteCompany $action, #[CurrentUser] User $user): HttpResponse
     {
-        /** @var User $user */
-        $user = $request->user();
-
         $action->execute($user, $company);
 
-        return response()->json(null, 204);
+        return response()->noContent();
     }
 }
