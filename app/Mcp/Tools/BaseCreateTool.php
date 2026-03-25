@@ -6,8 +6,8 @@ namespace App\Mcp\Tools;
 
 use App\Enums\CreationSource;
 use App\Mcp\Tools\Concerns\ChecksTokenAbility;
-use App\Mcp\Tools\Concerns\ValidatesCustomFields;
 use App\Models\User;
+use App\Rules\ValidCustomFields;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Laravel\Mcp\Request;
@@ -17,7 +17,6 @@ use Laravel\Mcp\Server\Tool;
 abstract class BaseCreateTool extends Tool
 {
     use ChecksTokenAbility;
-    use ValidatesCustomFields;
 
     /** @return class-string */
     abstract protected function actionClass(): string;
@@ -56,7 +55,7 @@ abstract class BaseCreateTool extends Tool
 
         $rules = array_merge(
             $this->entityRules($user),
-            $this->customFieldValidationRules($user, $this->entityType(), $request->get('custom_fields')),
+            (new ValidCustomFields($user->currentTeam->getKey(), $this->entityType()))->toRules($request->get('custom_fields')),
         );
 
         $validated = $request->validate($rules);

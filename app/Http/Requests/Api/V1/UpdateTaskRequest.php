@@ -4,16 +4,13 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Api\V1;
 
-use App\Http\Requests\Api\V1\Concerns\ValidatesCustomFields;
-use App\Models\Team;
 use App\Models\User;
+use App\Rules\ValidCustomFields;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 final class UpdateTaskRequest extends FormRequest
 {
-    use ValidatesCustomFields;
-
     /**
      * @return array<string, array<int, mixed>>
      */
@@ -21,11 +18,8 @@ final class UpdateTaskRequest extends FormRequest
     {
         /** @var User $user */
         $user = $this->user();
-
-        /** @var Team $team */
-        $team = $user->currentTeam;
-        $teamId = $team->getKey();
-        $teamMemberIds = $team->allUsers()->pluck('id')->all();
+        $teamId = $user->currentTeam->getKey();
+        $teamMemberIds = $user->currentTeam->allUsers()->pluck('id')->all();
 
         return array_merge([
             'title' => ['sometimes', 'required', 'string', 'max:255'],
@@ -37,11 +31,6 @@ final class UpdateTaskRequest extends FormRequest
             'opportunity_ids.*' => ['string', Rule::exists('opportunities', 'id')->where('team_id', $teamId)],
             'assignee_ids' => ['nullable', 'array'],
             'assignee_ids.*' => ['string', Rule::in($teamMemberIds)],
-        ], $this->customFieldRules());
-    }
-
-    public function customFieldEntityType(): string
-    {
-        return 'task';
+        ], (new ValidCustomFields($teamId, 'task', isUpdate: true))->toRules($this->input('custom_fields')));
     }
 }

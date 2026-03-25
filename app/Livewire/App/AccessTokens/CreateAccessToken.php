@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Livewire\App\ApiTokens;
+namespace App\Livewire\App\AccessTokens;
 
 use App\Livewire\BaseLivewireComponent;
 use DanHarrin\LivewireRateLimiting\Exceptions\TooManyRequestsException;
@@ -20,7 +20,7 @@ use Illuminate\View\View;
 use Laravel\Jetstream\Jetstream;
 use Laravel\Sanctum\NewAccessToken;
 
-final class CreateApiToken extends BaseLivewireComponent
+final class CreateAccessToken extends BaseLivewireComponent
 {
     /** @var array<string, mixed>|null */
     public ?array $data = [];
@@ -189,6 +189,6 @@ final class CreateApiToken extends BaseLivewireComponent
 
     public function render(): View
     {
-        return view('livewire.app.api-tokens.create-api-token');
+        return view('livewire.app.access-tokens.create-access-token');
     }
 }

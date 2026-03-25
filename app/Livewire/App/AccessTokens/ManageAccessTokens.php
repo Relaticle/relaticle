@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Livewire\App\ApiTokens;
+namespace App\Livewire\App\AccessTokens;
 
 use App\Livewire\BaseLivewireComponent;
 use App\Models\PersonalAccessToken;
@@ -18,7 +18,7 @@ use Illuminate\View\View;
 use Laravel\Jetstream\Jetstream;
 use Livewire\Attributes\On;
 
-final class ManageApiTokens extends BaseLivewireComponent implements HasTable
+final class ManageAccessTokens extends BaseLivewireComponent implements HasTable
 {
     use InteractsWithTable;
 
@@ -76,7 +76,7 @@ final class ManageApiTokens extends BaseLivewireComponent implements HasTable
                         ],
                     )
                     ->schema([
-                        CreateApiToken::permissionsCheckboxList(),
+                        CreateAccessToken::permissionsCheckboxList(),
                     ])
                     ->action(function (
                         PersonalAccessToken $record,
@@ -109,6 +109,6 @@ final class ManageApiTokens extends BaseLivewireComponent implements HasTable
 
     public function render(): View
     {
-        return view('livewire.app.api-tokens.manage-api-tokens');
+        return view('livewire.app.access-tokens.manage-access-tokens');
     }
 }

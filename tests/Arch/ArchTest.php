@@ -29,7 +29,6 @@ arch()->preset()
         'Relaticle\Admin\AdminPanelProvider',
         'App\Enums\EnumValues',
         'App\Enums\CustomFields\CustomFieldTrait',
-        'App\Http\Requests\Api\V1\Concerns\ValidatesCustomFields',
         'App\Mcp',
     ]);
 

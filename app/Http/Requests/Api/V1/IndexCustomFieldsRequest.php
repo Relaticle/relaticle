@@ -23,9 +23,4 @@ final class IndexCustomFieldsRequest extends FormRequest
             'per_page' => ['sometimes', 'integer', 'min:1', 'max:'.self::MAX_PER_PAGE],
         ];
     }
-
-    public function maxPerPage(): int
-    {
-        return self::MAX_PER_PAGE;
-    }
 }

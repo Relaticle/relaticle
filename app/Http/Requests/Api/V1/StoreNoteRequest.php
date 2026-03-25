@@ -4,15 +4,13 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Api\V1;
 
-use App\Http\Requests\Api\V1\Concerns\ValidatesCustomFields;
 use App\Models\User;
+use App\Rules\ValidCustomFields;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 final class StoreNoteRequest extends FormRequest
 {
-    use ValidatesCustomFields;
-
     /**
      * @return array<string, array<int, mixed>>
      */
@@ -30,11 +28,6 @@ final class StoreNoteRequest extends FormRequest
             'people_ids.*' => ['string', Rule::exists('people', 'id')->where('team_id', $teamId)],
             'opportunity_ids' => ['nullable', 'array'],
             'opportunity_ids.*' => ['string', Rule::exists('opportunities', 'id')->where('team_id', $teamId)],
-        ], $this->customFieldRules());
-    }
-
-    public function customFieldEntityType(): string
-    {
-        return 'note';
+        ], (new ValidCustomFields($teamId, 'note'))->toRules($this->input('custom_fields')));
     }
 }

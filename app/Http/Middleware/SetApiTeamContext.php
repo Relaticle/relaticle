@@ -100,7 +100,6 @@ final readonly class SetApiTeamContext
             return Team::query()->find($teamId);
         }
 
-        // @phpstan-ignore return.type (Jetstream's currentTeam is typed as Model|null)
         return $user->currentTeam;
     }
 

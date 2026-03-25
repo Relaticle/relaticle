@@ -24,18 +24,17 @@ final readonly class ValidCustomFields implements ValidationRule
     ) {}
 
     /**
-     * Returns all validation rules: the array-level rule (this) + per-field value rules.
-     *
      * @param  array<string, mixed>|null  $submittedFields
      * @return array<string, array<int, mixed>>
      */
-    public function toRules(?array $submittedFields = null): array
+    public function toRules(mixed $submittedFields = null): array
     {
+        $submittedFields = is_array($submittedFields) ? $submittedFields : null;
         $submittedCodes = is_array($submittedFields) ? array_keys($submittedFields) : [];
 
         $customFields = $this->resolveCustomFields($submittedCodes);
 
-        $rules = [];
+        $rules = ['custom_fields' => ['sometimes', 'array', $this]];
 
         if ($customFields->isNotEmpty()) {
             $validationService = resolve(ValidationService::class);

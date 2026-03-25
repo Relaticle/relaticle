@@ -33,13 +33,8 @@ final readonly class CustomFieldsController
             ->active()
             ->with(['options' => fn (HasMany $q) => $q->withoutGlobalScopes()]);
 
-        if ($request->has('entity_type')) {
-            $query->where('entity_type', $request->query('entity_type'));
-        }
+        $query->when($request->validated('entity_type'), fn ($q, $type) => $q->where('entity_type', $type));
 
-        $perPage = (int) $request->query('per_page', '15');
-        $perPage = max(1, min($perPage, $request->maxPerPage()));
-
-        return CustomFieldResource::collection($query->paginate($perPage));
+        return CustomFieldResource::collection($query->paginate($request->integer('per_page', 15)));
     }
 }

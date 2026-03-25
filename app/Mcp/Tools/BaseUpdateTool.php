@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Mcp\Tools;
 
 use App\Mcp\Tools\Concerns\ChecksTokenAbility;
-use App\Mcp\Tools\Concerns\ValidatesCustomFields;
 use App\Models\User;
+use App\Rules\ValidCustomFields;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -17,7 +17,6 @@ use Laravel\Mcp\Server\Tool;
 abstract class BaseUpdateTool extends Tool
 {
     use ChecksTokenAbility;
-    use ValidatesCustomFields;
 
     /** @return class-string<Model> */
     abstract protected function modelClass(): string;
@@ -65,7 +64,7 @@ abstract class BaseUpdateTool extends Tool
         $rules = array_merge(
             ['id' => ['required', 'string']],
             $this->entityRules($user),
-            $this->customFieldValidationRules($user, $this->entityType(), $request->get('custom_fields'), isUpdate: true),
+            (new ValidCustomFields($user->currentTeam->getKey(), $this->entityType(), isUpdate: true))->toRules($request->get('custom_fields')),
         );
 
         $validated = $request->validate($rules);

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Livewire\App\ApiTokens\CreateApiToken;
+use App\Livewire\App\AccessTokens\CreateAccessToken;
 use App\Models\Team;
 use App\Models\User;
 use Illuminate\Support\Str;
@@ -13,7 +13,7 @@ mutates(User::class);
 test('api tokens can be created with team and expiration', function () {
     $this->actingAs($user = User::factory()->withTeam()->create());
 
-    livewire(CreateApiToken::class)
+    livewire(CreateAccessToken::class)
         ->fillForm([
             'name' => 'Test Token',
             'team_id' => $user->currentTeam->id,
@@ -38,7 +38,7 @@ test('api tokens can be created with team and expiration', function () {
 test('token with no expiration stores null expires_at', function () {
     $this->actingAs($user = User::factory()->withTeam()->create());
 
-    livewire(CreateApiToken::class)
+    livewire(CreateAccessToken::class)
         ->fillForm([
             'name' => 'Forever Token',
             'team_id' => $user->currentTeam->id,
@@ -55,7 +55,7 @@ test('cannot create token for a team user does not belong to', function () {
     $this->actingAs($user = User::factory()->withTeam()->create());
     $otherTeam = Team::factory()->create();
 
-    livewire(CreateApiToken::class)
+    livewire(CreateAccessToken::class)
         ->fillForm([
             'name' => 'Sneaky Token',
             'team_id' => $otherTeam->id,
@@ -70,7 +70,7 @@ test('cannot create token for a team user does not belong to', function () {
 test('token name is required', function () {
     $this->actingAs(User::factory()->withTeam()->create());
 
-    livewire(CreateApiToken::class)
+    livewire(CreateAccessToken::class)
         ->fillForm([
             'name' => '',
             'permissions' => ['read'],
@@ -88,7 +88,7 @@ test('token name must be unique per user', function () {
         'abilities' => ['read'],
     ]);
 
-    livewire(CreateApiToken::class)
+    livewire(CreateAccessToken::class)
         ->fillForm([
             'name' => 'Existing Token',
             'permissions' => ['read'],
@@ -100,7 +100,7 @@ test('token name must be unique per user', function () {
 test('permissions are required', function () {
     $this->actingAs(User::factory()->withTeam()->create());
 
-    livewire(CreateApiToken::class)
+    livewire(CreateAccessToken::class)
         ->fillForm([
             'name' => 'Test Token',
             'permissions' => [],
@@ -112,7 +112,7 @@ test('permissions are required', function () {
 test('plain text token is shown after creation', function () {
     $this->actingAs($user = User::factory()->withTeam()->create());
 
-    $component = livewire(CreateApiToken::class)
+    $component = livewire(CreateAccessToken::class)
         ->fillForm([
             'name' => 'Test Token',
             'team_id' => $user->currentTeam->id,
@@ -127,7 +127,7 @@ test('plain text token is shown after creation', function () {
 test('team_id and expiration are required', function () {
     $this->actingAs(User::factory()->withTeam()->create());
 
-    livewire(CreateApiToken::class)
+    livewire(CreateAccessToken::class)
         ->fillForm([
             'name' => 'Test Token',
             'team_id' => null,

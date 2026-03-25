@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Livewire\App\ApiTokens\ManageApiTokens;
+use App\Livewire\App\AccessTokens\ManageAccessTokens;
 use App\Models\User;
 use Illuminate\Support\Str;
 use Laravel\Jetstream\Features;
@@ -18,7 +18,7 @@ test('api token permissions can be updated', function () {
         'abilities' => ['create', 'read'],
     ]);
 
-    livewire(ManageApiTokens::class)
+    livewire(ManageAccessTokens::class)
         ->callTableAction('permissions', $token, data: [
             'permissions' => ['delete', 'update'],
         ]);
@@ -38,7 +38,7 @@ test('table shows team name column', function () {
         'team_id' => $user->currentTeam->id,
     ]);
 
-    livewire(ManageApiTokens::class)
+    livewire(ManageAccessTokens::class)
         ->assertCanRenderTableColumn('team.name');
 })->skip(fn () => ! Features::hasApiFeatures(), 'API support is not enabled.');
 
@@ -52,6 +52,6 @@ test('table shows expiration column', function () {
         'expires_at' => now()->addDays(30),
     ]);
 
-    livewire(ManageApiTokens::class)
+    livewire(ManageAccessTokens::class)
         ->assertCanRenderTableColumn('expires_at');
 })->skip(fn () => ! Features::hasApiFeatures(), 'API support is not enabled.');

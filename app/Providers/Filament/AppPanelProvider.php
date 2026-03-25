@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Providers\Filament;
 
-use App\Filament\Pages\ApiTokens;
+use App\Filament\Pages\AccessTokens;
 use App\Filament\Pages\Auth\Login;
 use App\Filament\Pages\Auth\Register;
 use App\Filament\Pages\CreateTeam;
@@ -135,7 +135,7 @@ final class AppPanelProvider extends PanelProvider
             ->readOnlyRelationManagersOnResourceViewPagesByDefault(false)
             ->pages([
                 EditProfile::class,
-                ApiTokens::class,
+                AccessTokens::class,
             ])
             ->spa()
             ->breadcrumbs(false)
@@ -195,7 +195,7 @@ final class AppPanelProvider extends PanelProvider
                     ->label(__('access-tokens.user_menu'))
                     ->icon('heroicon-o-key')
                     ->url(fn (): string => $this->shouldRegisterMenuItem()
-                        ? url(ApiTokens::getUrl())
+                        ? url(AccessTokens::getUrl())
                         : url($panel->getPath())),
             ]);
         }

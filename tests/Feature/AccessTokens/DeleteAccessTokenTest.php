@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Livewire\App\ApiTokens\ManageApiTokens;
+use App\Livewire\App\AccessTokens\ManageAccessTokens;
 use App\Models\User;
 use Illuminate\Support\Str;
 use Laravel\Jetstream\Features;
@@ -18,7 +18,7 @@ test('api tokens can be deleted', function () {
         'abilities' => ['create', 'read'],
     ]);
 
-    livewire(ManageApiTokens::class)
+    livewire(ManageAccessTokens::class)
         ->callTableAction('delete', $token);
 
     expect($user->fresh()->tokens)->toHaveCount(0);
