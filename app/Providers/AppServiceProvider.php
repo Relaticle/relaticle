@@ -127,7 +127,7 @@ final class AppServiceProvider extends ServiceProvider
     private function configureRateLimiting(): void
     {
         RateLimiter::for('api', function (Request $request) {
-            /** @var \App\Models\User|null $user */
+            /** @var User|null $user */
             $user = $request->user();
             $tokenId = $user?->currentAccessToken()?->getKey();
             $teamId = $user?->currentTeam?->getKey();
