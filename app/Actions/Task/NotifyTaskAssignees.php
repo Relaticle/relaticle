@@ -25,26 +25,30 @@ final readonly class NotifyTaskAssignees
             return;
         }
 
+        $taskTitle = $task->title;
+        $taskId = $task->id;
         $taskUrl = $this->resolveTaskUrl($task);
 
-        User::query()
-            ->whereIn('id', $newIds)
-            ->get()
-            ->each(function (User $recipient) use ($task, $taskUrl): void {
-                Notification::make()
-                    ->title("New Task Assignment: {$task->title}")
-                    ->actions([
-                        Action::make('view')
-                            ->button()
-                            ->label('View Task')
-                            ->url($taskUrl)
-                            ->markAsRead(),
-                    ])
-                    ->icon(Heroicon::OutlinedCheckCircle)
-                    ->iconColor('primary')
-                    ->viewData(['task_id' => $task->id])
-                    ->sendToDatabase($recipient);
-            });
+        defer(function () use ($newIds, $taskTitle, $taskId, $taskUrl): void {
+            User::query()
+                ->whereIn('id', $newIds)
+                ->get()
+                ->each(function (User $recipient) use ($taskTitle, $taskId, $taskUrl): void {
+                    Notification::make()
+                        ->title("New Task Assignment: {$taskTitle}")
+                        ->actions([
+                            Action::make('view')
+                                ->button()
+                                ->label('View Task')
+                                ->url($taskUrl)
+                                ->markAsRead(),
+                        ])
+                        ->icon(Heroicon::OutlinedCheckCircle)
+                        ->iconColor('primary')
+                        ->viewData(['task_id' => $taskId])
+                        ->sendToDatabase($recipient);
+                });
+        });
     }
 
     private function resolveTaskUrl(Task $task): string

@@ -18,8 +18,9 @@ final class StoreTaskRequest extends FormRequest
     {
         /** @var User $user */
         $user = $this->user();
-        $teamId = $user->currentTeam->getKey();
-        $teamMemberIds = $user->currentTeam->allUsers()->pluck('id')->all();
+        $team = $user->currentTeam;
+        $teamId = $team->getKey();
+        $teamMemberIds = $team->users()->pluck('users.id')->push($team->user_id)->unique()->all();
 
         return array_merge([
             'title' => ['required', 'string', 'max:255'],

@@ -17,6 +17,7 @@ use Closure;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Relaticle\CustomFields\Services\TenantContextService;
 use Symfony\Component\HttpFoundation\Response;
@@ -109,9 +110,10 @@ final readonly class SetApiTeamContext
 
         User::addGlobalScope(
             'tenant',
-            fn (Builder $query) => $query
-                ->whereHas('teams', fn (Builder $query) => $query->where('teams.id', $tenantId))
-                ->orWhereHas('ownedTeams', fn (Builder $query) => $query->where('teams.id', $tenantId))
+            fn (Builder $query) => $query->where(function (Builder $q) use ($tenantId): void {
+                $q->whereIn('users.id', DB::table('team_user')->where('team_id', $tenantId)->select('user_id'))
+                    ->orWhere('users.id', DB::table('teams')->where('id', $tenantId)->select('user_id'));
+            })
         );
 
         Company::addGlobalScope(new TeamScope);

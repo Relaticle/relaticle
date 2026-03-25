@@ -15,12 +15,15 @@ use Relaticle\CustomFields\Facades\CustomFieldsType;
 use Relaticle\CustomFields\Models\CustomField as BaseCustomField;
 use Relaticle\CustomFields\Services\ValidationService;
 
-final readonly class ValidCustomFields implements ValidationRule
+final class ValidCustomFields implements ValidationRule
 {
+    /** @var array<int, string>|null */
+    private ?array $knownCodes = null;
+
     public function __construct(
-        private string $tenantId,
-        private string $entityType,
-        private bool $isUpdate = false,
+        private readonly string $tenantId,
+        private readonly string $entityType,
+        private readonly bool $isUpdate = false,
     ) {}
 
     /**
@@ -33,6 +36,7 @@ final readonly class ValidCustomFields implements ValidationRule
         $submittedCodes = is_array($submittedFields) ? array_keys($submittedFields) : [];
 
         $customFields = $this->resolveCustomFields($submittedCodes);
+        $this->knownCodes = $customFields->pluck('code')->all();
 
         $rules = ['custom_fields' => ['sometimes', 'array', $this]];
 
@@ -72,7 +76,7 @@ final readonly class ValidCustomFields implements ValidationRule
             return;
         }
 
-        $knownCodes = CustomField::query()
+        $knownCodes = $this->knownCodes ?? CustomField::query()
             ->withoutGlobalScopes()
             ->where('tenant_id', $this->tenantId)
             ->where('entity_type', $this->entityType)

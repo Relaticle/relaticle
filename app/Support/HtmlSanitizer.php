@@ -28,8 +28,12 @@ final class HtmlSanitizer
      */
     public static function sanitizeAttributes(array $attributes): array
     {
-        if (isset($attributes['custom_fields']) && is_array($attributes['custom_fields'])) {
-            $attributes['custom_fields'] = self::sanitizeCustomFields($attributes['custom_fields']);
+        foreach ($attributes as $key => $value) {
+            if ($key === 'custom_fields' && is_array($value)) {
+                $attributes[$key] = self::sanitizeCustomFields($value);
+            } elseif (is_string($value)) {
+                $attributes[$key] = self::sanitize($value);
+            }
         }
 
         return $attributes;
