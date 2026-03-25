@@ -49,6 +49,12 @@ final readonly class ValidCustomFields implements ValidationRule
                     $rules["custom_fields.{$customField->code}"] = $fieldRules;
                 }
 
+                $itemRules = $validationService->getItemValidationRules($customField);
+
+                if ($itemRules !== []) {
+                    $rules["custom_fields.{$customField->code}.*"] = $itemRules;
+                }
+
                 $this->addChoiceFieldOptionRules($customField, $rules);
             }
         }
