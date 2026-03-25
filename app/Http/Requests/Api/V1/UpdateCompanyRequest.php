@@ -21,6 +21,6 @@ final class UpdateCompanyRequest extends FormRequest
 
         return array_merge([
             'name' => ['sometimes', 'required', 'string', 'max:255'],
-        ], (new ValidCustomFields($teamId, 'company', isUpdate: true))->toRules($this->input('custom_fields')));
+        ], new ValidCustomFields($teamId, 'company', isUpdate: true)->toRules($this->input('custom_fields')));
     }
 }

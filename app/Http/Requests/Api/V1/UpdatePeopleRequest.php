@@ -23,6 +23,6 @@ final class UpdatePeopleRequest extends FormRequest
         return array_merge([
             'name' => ['sometimes', 'required', 'string', 'max:255'],
             'company_id' => ['nullable', 'string', Rule::exists('companies', 'id')->where('team_id', $teamId)],
-        ], (new ValidCustomFields($teamId, 'people', isUpdate: true))->toRules($this->input('custom_fields')));
+        ], new ValidCustomFields($teamId, 'people', isUpdate: true)->toRules($this->input('custom_fields')));
     }
 }

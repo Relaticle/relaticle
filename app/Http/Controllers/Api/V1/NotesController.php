@@ -46,7 +46,7 @@ final readonly class NotesController
     {
         $note = $action->execute($user, $request->validated(), CreationSource::API);
 
-        return (new NoteResource($note))
+        return new NoteResource($note)
             ->response()
             ->setStatusCode(201);
     }

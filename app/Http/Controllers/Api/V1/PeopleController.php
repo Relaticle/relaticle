@@ -49,7 +49,7 @@ final readonly class PeopleController
     {
         $person = $action->execute($user, $request->validated(), CreationSource::API);
 
-        return (new PeopleResource($person))
+        return new PeopleResource($person)
             ->response()
             ->setStatusCode(201);
     }

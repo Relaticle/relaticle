@@ -28,6 +28,6 @@ final class UpdateNoteRequest extends FormRequest
             'people_ids.*' => ['string', Rule::exists('people', 'id')->where('team_id', $teamId)],
             'opportunity_ids' => ['nullable', 'array'],
             'opportunity_ids.*' => ['string', Rule::exists('opportunities', 'id')->where('team_id', $teamId)],
-        ], (new ValidCustomFields($teamId, 'note', isUpdate: true))->toRules($this->input('custom_fields')));
+        ], new ValidCustomFields($teamId, 'note', isUpdate: true)->toRules($this->input('custom_fields')));
     }
 }

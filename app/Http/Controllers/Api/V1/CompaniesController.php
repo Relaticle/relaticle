@@ -46,7 +46,7 @@ final readonly class CompaniesController
     {
         $company = $action->execute($user, $request->validated(), CreationSource::API);
 
-        return (new CompanyResource($company))
+        return new CompanyResource($company)
             ->response()
             ->setStatusCode(201);
     }

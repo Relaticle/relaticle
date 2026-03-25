@@ -50,7 +50,7 @@ final readonly class OpportunitiesController
     {
         $opportunity = $action->execute($user, $request->validated(), CreationSource::API);
 
-        return (new OpportunityResource($opportunity))
+        return new OpportunityResource($opportunity)
             ->response()
             ->setStatusCode(201);
     }

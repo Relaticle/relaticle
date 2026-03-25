@@ -23,6 +23,6 @@ final class StorePeopleRequest extends FormRequest
         return array_merge([
             'name' => ['required', 'string', 'max:255'],
             'company_id' => ['nullable', 'string', Rule::exists('companies', 'id')->where('team_id', $teamId)],
-        ], (new ValidCustomFields($teamId, 'people'))->toRules($this->input('custom_fields')));
+        ], new ValidCustomFields($teamId, 'people')->toRules($this->input('custom_fields')));
     }
 }

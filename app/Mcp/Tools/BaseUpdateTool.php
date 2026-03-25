@@ -64,7 +64,7 @@ abstract class BaseUpdateTool extends Tool
         $rules = array_merge(
             ['id' => ['required', 'string']],
             $this->entityRules($user),
-            (new ValidCustomFields($user->currentTeam->getKey(), $this->entityType(), isUpdate: true))->toRules($request->get('custom_fields')),
+            new ValidCustomFields($user->currentTeam->getKey(), $this->entityType(), isUpdate: true)->toRules($request->get('custom_fields')),
         );
 
         $validated = $request->validate($rules);

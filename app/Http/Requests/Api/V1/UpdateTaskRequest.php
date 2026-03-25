@@ -31,6 +31,6 @@ final class UpdateTaskRequest extends FormRequest
             'opportunity_ids.*' => ['string', Rule::exists('opportunities', 'id')->where('team_id', $teamId)],
             'assignee_ids' => ['nullable', 'array'],
             'assignee_ids.*' => ['string', Rule::in($teamMemberIds)],
-        ], (new ValidCustomFields($teamId, 'task', isUpdate: true))->toRules($this->input('custom_fields')));
+        ], new ValidCustomFields($teamId, 'task', isUpdate: true)->toRules($this->input('custom_fields')));
     }
 }

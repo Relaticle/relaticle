@@ -21,6 +21,6 @@ final class StoreCompanyRequest extends FormRequest
 
         return array_merge([
             'name' => ['required', 'string', 'max:255'],
-        ], (new ValidCustomFields($teamId, 'company'))->toRules($this->input('custom_fields')));
+        ], new ValidCustomFields($teamId, 'company')->toRules($this->input('custom_fields')));
     }
 }

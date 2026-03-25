@@ -55,7 +55,7 @@ abstract class BaseCreateTool extends Tool
 
         $rules = array_merge(
             $this->entityRules($user),
-            (new ValidCustomFields($user->currentTeam->getKey(), $this->entityType()))->toRules($request->get('custom_fields')),
+            new ValidCustomFields($user->currentTeam->getKey(), $this->entityType())->toRules($request->get('custom_fields')),
         );
 
         $validated = $request->validate($rules);

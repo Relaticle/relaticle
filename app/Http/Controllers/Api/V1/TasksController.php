@@ -46,7 +46,7 @@ final readonly class TasksController
     {
         $task = $action->execute($user, $request->validated(), CreationSource::API);
 
-        return (new TaskResource($task))
+        return new TaskResource($task)
             ->response()
             ->setStatusCode(201);
     }
