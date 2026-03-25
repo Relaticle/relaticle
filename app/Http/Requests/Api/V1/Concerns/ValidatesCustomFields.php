@@ -24,9 +24,11 @@ trait ValidatesCustomFields
 
         $rule = new ValidCustomFields($teamId, $this->customFieldEntityType(), $this->isUpdateRequest());
 
+        $submittedFields = $this->input('custom_fields');
+
         return array_merge(
-            ['custom_fields' => ['nullable', 'array', $rule]],
-            $rule->toRules($this->input('custom_fields')),
+            ['custom_fields' => ['sometimes', 'array', $rule]],
+            is_array($submittedFields) ? $rule->toRules($submittedFields) : [],
         );
     }
 

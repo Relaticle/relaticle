@@ -576,6 +576,37 @@ describe('custom fields', function (): void {
             ->toBeArray()
             ->toHaveKey('orphan_field', 'test value');
     });
+
+    it('rejects custom_fields sent as a string', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $this->postJson('/api/v1/companies', [
+            'name' => 'Acme Corp',
+            'custom_fields' => 'not-an-array',
+        ])
+            ->assertUnprocessable()
+            ->assertInvalid(['custom_fields']);
+    });
+
+    it('rejects custom_fields sent as an integer', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $this->postJson('/api/v1/companies', [
+            'name' => 'Acme Corp',
+            'custom_fields' => 123,
+        ])
+            ->assertUnprocessable()
+            ->assertInvalid(['custom_fields']);
+    });
+
+    it('accepts request without custom_fields key', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $this->postJson('/api/v1/companies', [
+            'name' => 'Acme Corp',
+        ])
+            ->assertCreated();
+    });
 });
 
 describe('filtering and sorting', function (): void {
