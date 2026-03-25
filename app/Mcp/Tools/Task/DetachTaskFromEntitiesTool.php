@@ -7,9 +7,11 @@ namespace App\Mcp\Tools\Task;
 use App\Http\Resources\V1\TaskResource;
 use App\Mcp\Tools\BaseDetachTool;
 use App\Models\Task;
+use App\Models\Team;
 use App\Models\User;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Validation\Rule;
 use Laravel\Mcp\Server\Attributes\Description;
 
 #[Description('Detach a task from companies, people, opportunities, or unassign users. Removes specified links.')]
@@ -48,15 +50,20 @@ final class DetachTaskFromEntitiesTool extends BaseDetachTool
 
     public function relationshipRules(User $user): array
     {
+        /** @var Team $team */
+        $team = $user->currentTeam;
+        $teamId = $team->getKey();
+        $teamMemberIds = $team->allUsers()->pluck('id')->all();
+
         return [
             'company_ids' => ['sometimes', 'array'],
-            'company_ids.*' => ['string'],
+            'company_ids.*' => ['string', Rule::exists('companies', 'id')->where('team_id', $teamId)],
             'people_ids' => ['sometimes', 'array'],
-            'people_ids.*' => ['string'],
+            'people_ids.*' => ['string', Rule::exists('people', 'id')->where('team_id', $teamId)],
             'opportunity_ids' => ['sometimes', 'array'],
-            'opportunity_ids.*' => ['string'],
+            'opportunity_ids.*' => ['string', Rule::exists('opportunities', 'id')->where('team_id', $teamId)],
             'assignee_ids' => ['sometimes', 'array'],
-            'assignee_ids.*' => ['string'],
+            'assignee_ids.*' => ['string', Rule::in($teamMemberIds)],
         ];
     }
 

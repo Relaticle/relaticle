@@ -10,6 +10,7 @@ use App\Models\Note;
 use App\Models\User;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Validation\Rule;
 use Laravel\Mcp\Server\Attributes\Description;
 
 #[Description('Detach a note from companies, people, or opportunities. Removes specified links.')]
@@ -47,13 +48,15 @@ final class DetachNoteFromEntitiesTool extends BaseDetachTool
 
     public function relationshipRules(User $user): array
     {
+        $teamId = $user->currentTeam->getKey();
+
         return [
             'company_ids' => ['sometimes', 'array'],
-            'company_ids.*' => ['string'],
+            'company_ids.*' => ['string', Rule::exists('companies', 'id')->where('team_id', $teamId)],
             'people_ids' => ['sometimes', 'array'],
-            'people_ids.*' => ['string'],
+            'people_ids.*' => ['string', Rule::exists('people', 'id')->where('team_id', $teamId)],
             'opportunity_ids' => ['sometimes', 'array'],
-            'opportunity_ids.*' => ['string'],
+            'opportunity_ids.*' => ['string', Rule::exists('opportunities', 'id')->where('team_id', $teamId)],
         ];
     }
 

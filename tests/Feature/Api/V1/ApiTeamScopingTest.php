@@ -2,12 +2,15 @@
 
 declare(strict_types=1);
 
+use App\Http\Middleware\SetApiTeamContext;
 use App\Models\Company;
 use App\Models\Team;
 use App\Models\User;
 use Illuminate\Support\Str;
 use Illuminate\Testing\Fluent\AssertableJson;
 use Laravel\Sanctum\Sanctum;
+
+mutates(SetApiTeamContext::class);
 
 beforeEach(function () {
     $this->user = User::factory()->withPersonalTeam()->create();

@@ -2,11 +2,18 @@
 
 declare(strict_types=1);
 
+use App\Http\Middleware\ForceJsonResponse;
+use App\Http\Middleware\SetApiTeamContext;
 use App\Models\Company;
 use App\Models\User;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
+
+mutates(
+    ForceJsonResponse::class,
+    SetApiTeamContext::class,
+);
 
 beforeEach(function () {
     $this->user = User::factory()->withPersonalTeam()->create();

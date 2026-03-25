@@ -2,7 +2,12 @@
 
 declare(strict_types=1);
 
+use App\Actions\Company\CreateCompany;
+use App\Actions\Company\DeleteCompany;
+use App\Actions\Company\ListCompanies;
+use App\Actions\Company\UpdateCompany;
 use App\Enums\CreationSource;
+use App\Http\Controllers\Api\V1\CompaniesController;
 use App\Http\Resources\V1\CompanyResource;
 use App\Models\Company;
 use App\Models\CustomField;
@@ -15,6 +20,14 @@ use Illuminate\Testing\Fluent\AssertableJson;
 use Laravel\Sanctum\Sanctum;
 use Relaticle\CustomFields\Models\CustomFieldValue;
 use Relaticle\CustomFields\Services\TenantContextService;
+
+mutates(
+    CompaniesController::class,
+    CreateCompany::class,
+    UpdateCompany::class,
+    DeleteCompany::class,
+    ListCompanies::class,
+);
 
 beforeEach(function () {
     $this->user = User::factory()->withPersonalTeam()->create();
@@ -386,6 +399,39 @@ describe('custom fields', function (): void {
             ->assertInvalid(['custom_fields']);
     });
 
+    it('does not leak available field names in validation errors', function (): void {
+        Sanctum::actingAs($this->user);
+
+        CustomField::create([
+            'tenant_id' => $this->team->id,
+            'custom_field_section_id' => $this->section->id,
+            'entity_type' => 'company',
+            'code' => 'secret_field',
+            'name' => 'Secret Field',
+            'type' => 'text',
+            'sort_order' => 1,
+            'active' => true,
+            'validation_rules' => [],
+        ]);
+
+        $response = $this->postJson('/api/v1/companies', [
+            'name' => 'Acme Corp',
+            'custom_fields' => [
+                'unknown_key' => 'some value',
+            ],
+        ]);
+
+        $response->assertUnprocessable()
+            ->assertInvalid(['custom_fields']);
+
+        $errorMessage = $response->json('errors.custom_fields.0');
+
+        expect($errorMessage)
+            ->toContain('unknown_key')
+            ->not->toContain('Available fields')
+            ->not->toContain('secret_field');
+    });
+
     it('rejects invalid option ID for select custom field on create', function (): void {
         Sanctum::actingAs($this->user);
 
@@ -611,17 +657,14 @@ describe('custom fields', function (): void {
     it('rejects invalid domain format in link custom field', function (): void {
         Sanctum::actingAs($this->user);
 
-        CustomField::create([
-            'tenant_id' => $this->team->id,
-            'custom_field_section_id' => $this->section->id,
-            'entity_type' => 'company',
-            'code' => 'domains',
-            'name' => 'Domains',
-            'type' => 'link',
-            'sort_order' => 1,
-            'active' => true,
-            'validation_rules' => [],
-        ]);
+        $domainsField = CustomField::query()
+            ->withoutGlobalScopes()
+            ->where('tenant_id', $this->team->id)
+            ->where('entity_type', 'company')
+            ->where('code', 'domains')
+            ->first();
+
+        expect($domainsField)->not->toBeNull('domains custom field should be auto-created by team listener');
 
         $this->postJson('/api/v1/companies', [
             'name' => 'Acme Corp',
@@ -636,17 +679,14 @@ describe('custom fields', function (): void {
     it('accepts valid items in link custom field', function (): void {
         Sanctum::actingAs($this->user);
 
-        CustomField::create([
-            'tenant_id' => $this->team->id,
-            'custom_field_section_id' => $this->section->id,
-            'entity_type' => 'company',
-            'code' => 'domains',
-            'name' => 'Domains',
-            'type' => 'link',
-            'sort_order' => 1,
-            'active' => true,
-            'validation_rules' => [],
-        ]);
+        $domainsField = CustomField::query()
+            ->withoutGlobalScopes()
+            ->where('tenant_id', $this->team->id)
+            ->where('entity_type', 'company')
+            ->where('code', 'domains')
+            ->first();
+
+        expect($domainsField)->not->toBeNull('domains custom field should be auto-created by team listener');
 
         $this->postJson('/api/v1/companies', [
             'name' => 'Acme Corp',
@@ -988,5 +1028,54 @@ describe('non-existent record', function (): void {
 
         $this->getJson('/api/v1/companies/'.Str::ulid())
             ->assertNotFound();
+    });
+});
+
+it('can update a company via PATCH', function (): void {
+    Sanctum::actingAs($this->user);
+
+    $company = Company::factory()->for($this->team)->create();
+
+    $response = $this->patchJson("/api/v1/companies/{$company->id}", [
+        'name' => 'Patched Name',
+    ]);
+
+    $response->assertOk();
+    expect($company->refresh()->name)->toBe('Patched Name');
+});
+
+it('requires authentication for write operations', function (string $method, string $url): void {
+    $response = $this->json($method, $url, ['name' => 'Test']);
+    $response->assertUnauthorized();
+})->with([
+    'POST' => ['POST', '/api/v1/companies'],
+    'PUT' => ['PUT', '/api/v1/companies/fake-id'],
+    'DELETE' => ['DELETE', '/api/v1/companies/fake-id'],
+]);
+
+describe('cursor pagination', function (): void {
+    it('returns cursor-paginated results', function (): void {
+        Sanctum::actingAs($this->user);
+
+        Company::factory()->count(5)->create([
+            'team_id' => $this->team->id,
+        ]);
+
+        $response = $this->getJson('/api/v1/companies?cursor=true&per_page=2');
+
+        $response->assertOk()
+            ->assertJsonCount(2, 'data')
+            ->assertJsonStructure([
+                'data',
+                'meta' => ['path', 'per_page'],
+                'links' => ['next', 'prev'],
+            ]);
+
+        expect($response->json('meta.per_page'))->toBe(2);
+        expect($response->json('links.next'))->not->toBeNull();
+        expect($response->json('links.prev'))->toBeNull();
+
+        $firstIds = collect($response->json('data'))->pluck('id');
+        expect($firstIds)->toHaveCount(2);
     });
 });

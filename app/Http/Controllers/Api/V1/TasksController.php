@@ -35,8 +35,8 @@ final readonly class TasksController
     {
         return TaskResource::collection($action->execute(
             user: $user,
-            perPage: $request->integer('per_page', 15),
-            useCursor: $request->has('cursor'),
+            perPage: $request->safe()->integer('per_page', 15),
+            useCursor: $request->safe()->has('cursor'),
             request: $request,
         ));
     }

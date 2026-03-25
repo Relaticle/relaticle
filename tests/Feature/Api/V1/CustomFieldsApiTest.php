@@ -2,11 +2,14 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Api\V1\CustomFieldsController;
 use App\Models\CustomField;
 use App\Models\CustomFieldSection;
 use App\Models\Team;
 use App\Models\User;
 use Laravel\Sanctum\Sanctum;
+
+mutates(CustomFieldsController::class);
 
 beforeEach(function () {
     $this->user = User::factory()->withPersonalTeam()->create();

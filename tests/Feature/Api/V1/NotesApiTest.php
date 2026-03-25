@@ -2,7 +2,12 @@
 
 declare(strict_types=1);
 
+use App\Actions\Note\CreateNote;
+use App\Actions\Note\DeleteNote;
+use App\Actions\Note\ListNotes;
+use App\Actions\Note\UpdateNote;
 use App\Enums\CreationSource;
+use App\Http\Controllers\Api\V1\NotesController;
 use App\Models\Company;
 use App\Models\Note;
 use App\Models\Opportunity;
@@ -12,6 +17,14 @@ use App\Models\User;
 use Illuminate\Support\Str;
 use Illuminate\Testing\Fluent\AssertableJson;
 use Laravel\Sanctum\Sanctum;
+
+mutates(
+    NotesController::class,
+    CreateNote::class,
+    UpdateNote::class,
+    DeleteNote::class,
+    ListNotes::class,
+);
 
 beforeEach(function () {
     $this->user = User::factory()->withPersonalTeam()->create();

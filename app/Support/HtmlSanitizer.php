@@ -7,10 +7,8 @@ namespace App\Support;
 use Symfony\Component\HtmlSanitizer\HtmlSanitizer as SymfonySanitizer;
 use Symfony\Component\HtmlSanitizer\HtmlSanitizerConfig;
 
-final class HtmlSanitizer
+final readonly class HtmlSanitizer
 {
-    private static ?SymfonySanitizer $sanitizer = null;
-
     public static function sanitize(?string $html): ?string
     {
         if ($html === null || $html === '') {
@@ -45,15 +43,25 @@ final class HtmlSanitizer
      */
     public static function sanitizeCustomFields(array $customFields): array
     {
-        return array_map(
-            fn (mixed $value): mixed => is_string($value) ? self::sanitize($value) : $value,
-            $customFields,
-        );
+        return array_map(static function (mixed $value): mixed {
+            if (is_string($value)) {
+                return self::sanitize($value);
+            }
+
+            if (is_array($value)) {
+                return array_map(
+                    static fn (mixed $item): mixed => is_string($item) ? self::sanitize($item) : $item,
+                    $value,
+                );
+            }
+
+            return $value;
+        }, $customFields);
     }
 
     private static function instance(): SymfonySanitizer
     {
-        return self::$sanitizer ??= new SymfonySanitizer(
+        return once(fn (): SymfonySanitizer => new SymfonySanitizer(
             (new HtmlSanitizerConfig)
                 ->allowSafeElements()
                 ->allowElement('img', ['src', 'alt', 'title'])
@@ -64,6 +72,6 @@ final class HtmlSanitizer
                 ->allowRelativeLinks()
                 ->allowRelativeMedias()
                 ->forceHttpsUrls(false)
-        );
+        ));
     }
 }

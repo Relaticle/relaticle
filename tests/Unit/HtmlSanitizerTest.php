@@ -63,3 +63,25 @@ it('passes through attributes without custom_fields unchanged', function (): voi
 
     expect(HtmlSanitizer::sanitizeAttributes($attributes))->toBe($attributes);
 });
+
+it('sanitizes nested array values in custom fields', function (): void {
+    $input = [
+        'text_field' => '<script>alert(1)</script>Hello',
+        'multi_select' => [
+            '<img src=x onerror=alert(1)>Option A',
+            'Clean option',
+            '<script>xss</script>',
+        ],
+        'number_field' => 42,
+        'null_field' => null,
+    ];
+
+    $result = HtmlSanitizer::sanitizeCustomFields($input);
+
+    expect($result['text_field'])->not->toContain('<script>');
+    expect($result['multi_select'][0])->not->toContain('onerror');
+    expect($result['multi_select'][1])->toBe('Clean option');
+    expect($result['multi_select'][2])->not->toContain('<script>');
+    expect($result['number_field'])->toBe(42);
+    expect($result['null_field'])->toBeNull();
+});

@@ -15,15 +15,12 @@ use Relaticle\CustomFields\Facades\CustomFieldsType;
 use Relaticle\CustomFields\Models\CustomField as BaseCustomField;
 use Relaticle\CustomFields\Services\ValidationService;
 
-final class ValidCustomFields implements ValidationRule
+final readonly class ValidCustomFields implements ValidationRule
 {
-    /** @var array<int, string>|null */
-    private ?array $knownCodes = null;
-
     public function __construct(
-        private readonly string $tenantId,
-        private readonly string $entityType,
-        private readonly bool $isUpdate = false,
+        private string $tenantId,
+        private string $entityType,
+        private bool $isUpdate = false,
     ) {}
 
     /**
@@ -36,7 +33,6 @@ final class ValidCustomFields implements ValidationRule
         $submittedCodes = is_array($submittedFields) ? array_keys($submittedFields) : [];
 
         $customFields = $this->resolveCustomFields($submittedCodes);
-        $this->knownCodes = $customFields->pluck('code')->all();
 
         $rules = ['custom_fields' => ['sometimes', 'array', $this]];
 
@@ -76,7 +72,7 @@ final class ValidCustomFields implements ValidationRule
             return;
         }
 
-        $knownCodes = $this->knownCodes ?? CustomField::query()
+        $knownCodes = CustomField::query()
             ->withoutGlobalScopes()
             ->where('tenant_id', $this->tenantId)
             ->where('entity_type', $this->entityType)
@@ -91,9 +87,8 @@ final class ValidCustomFields implements ValidationRule
         }
 
         $unknownList = implode(', ', $unknownKeys);
-        $availableList = $knownCodes !== [] ? implode(', ', $knownCodes) : 'none';
 
-        $fail("Unknown custom field keys: {$unknownList}. Available fields for this entity type: {$availableList}.");
+        $fail("Unknown custom field keys: {$unknownList}.");
     }
 
     /**

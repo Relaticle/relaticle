@@ -33,8 +33,8 @@ final readonly class CustomFieldsController
             ->active()
             ->with(['options' => fn (HasMany $q) => $q->withoutGlobalScopes()]);
 
-        $query->when($request->validated('entity_type'), fn ($q, $type) => $q->where('entity_type', $type));
+        $query->when($request->validated('entity_type'), fn (mixed $q, string $type) => $q->where('entity_type', $type));
 
-        return CustomFieldResource::collection($query->paginate($request->integer('per_page', 15)));
+        return CustomFieldResource::collection($query->paginate($request->safe()->integer('per_page', 15)));
     }
 }

@@ -2,7 +2,12 @@
 
 declare(strict_types=1);
 
+use App\Actions\Opportunity\CreateOpportunity;
+use App\Actions\Opportunity\DeleteOpportunity;
+use App\Actions\Opportunity\ListOpportunities;
+use App\Actions\Opportunity\UpdateOpportunity;
 use App\Enums\CreationSource;
+use App\Http\Controllers\Api\V1\OpportunitiesController;
 use App\Models\Company;
 use App\Models\CustomField;
 use App\Models\CustomFieldSection;
@@ -13,6 +18,14 @@ use App\Models\User;
 use Illuminate\Support\Str;
 use Illuminate\Testing\Fluent\AssertableJson;
 use Laravel\Sanctum\Sanctum;
+
+mutates(
+    OpportunitiesController::class,
+    CreateOpportunity::class,
+    UpdateOpportunity::class,
+    DeleteOpportunity::class,
+    ListOpportunities::class,
+);
 
 beforeEach(function () {
     $this->user = User::factory()->withPersonalTeam()->create();

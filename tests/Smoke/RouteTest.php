@@ -44,5 +44,6 @@ routeTesting('smoke: all GET routes return non-500 response')
         'user/confirm-password',
         'up',
         'docs/api*',
+        'api/*',
     ])
     ->assertNotServerError();

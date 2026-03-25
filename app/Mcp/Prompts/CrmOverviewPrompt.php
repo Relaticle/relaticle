@@ -8,6 +8,7 @@ use App\Models\Company;
 use App\Models\Note;
 use App\Models\Opportunity;
 use App\Models\People;
+use App\Models\PersonalAccessToken;
 use App\Models\Task;
 use App\Models\User;
 use Illuminate\Support\Facades\Cache;
@@ -20,6 +21,19 @@ use Laravel\Mcp\Server\Prompt;
 final class CrmOverviewPrompt extends Prompt
 {
     private const int CACHE_TTL = 60;
+
+    public function shouldRegister(): bool
+    {
+        $token = auth()->user()?->currentAccessToken();
+        if (! $token instanceof PersonalAccessToken) {
+            return true;
+        }
+        if (! $token->getKey()) {
+            return true;
+        }
+
+        return $token->can('read');
+    }
 
     public function handle(Request $request): Response
     {

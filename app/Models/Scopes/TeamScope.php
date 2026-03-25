@@ -21,8 +21,13 @@ final class TeamScope implements Scope
      */
     public function apply(Builder $builder, Model $model): void
     {
-        /** @var User $user */
         $user = auth()->user();
+
+        if (! $user instanceof User) {
+            $builder->whereRaw('1 = 0');
+
+            return;
+        }
 
         $builder->whereBelongsTo($user->currentTeam);
     }

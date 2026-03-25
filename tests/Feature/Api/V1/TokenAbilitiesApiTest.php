@@ -2,8 +2,11 @@
 
 declare(strict_types=1);
 
+use App\Http\Middleware\EnsureTokenHasAbility;
 use App\Models\Company;
 use App\Models\User;
+
+mutates(EnsureTokenHasAbility::class);
 
 beforeEach(function () {
     $this->user = User::factory()->withPersonalTeam()->create();

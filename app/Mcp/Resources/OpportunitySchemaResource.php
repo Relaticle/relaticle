@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Mcp\Resources;
 
 use App\Mcp\Resources\Concerns\ResolvesEntitySchema;
+use App\Models\PersonalAccessToken;
 use App\Models\User;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
@@ -19,6 +20,19 @@ use Laravel\Mcp\Server\Resource;
 final class OpportunitySchemaResource extends Resource
 {
     use ResolvesEntitySchema;
+
+    public function shouldRegister(): bool
+    {
+        $token = auth()->user()?->currentAccessToken();
+        if (! $token instanceof PersonalAccessToken) {
+            return true;
+        }
+        if (! $token->getKey()) {
+            return true;
+        }
+
+        return $token->can('read');
+    }
 
     public function handle(Request $request): Response
     {

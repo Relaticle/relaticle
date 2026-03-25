@@ -9,6 +9,7 @@ use App\Mcp\Tools\Company\GetCompanyTool;
 use App\Mcp\Tools\Company\ListCompaniesTool;
 use App\Mcp\Tools\Company\UpdateCompanyTool;
 use App\Mcp\Tools\Note\CreateNoteTool;
+use App\Mcp\Tools\Note\DetachNoteFromEntitiesTool;
 use App\Mcp\Tools\Note\ListNotesTool;
 use App\Mcp\Tools\Note\UpdateNoteTool;
 use App\Mcp\Tools\Opportunity\CreateOpportunityTool;
@@ -16,6 +17,7 @@ use App\Mcp\Tools\Opportunity\UpdateOpportunityTool;
 use App\Mcp\Tools\People\CreatePeopleTool;
 use App\Mcp\Tools\People\UpdatePeopleTool;
 use App\Mcp\Tools\Task\CreateTaskTool;
+use App\Mcp\Tools\Task\DetachTaskFromEntitiesTool;
 use App\Mcp\Tools\Task\ListTasksTool;
 use App\Mcp\Tools\Task\UpdateTaskTool;
 use App\Models\Company;
@@ -25,6 +27,7 @@ use App\Models\Note;
 use App\Models\Opportunity;
 use App\Models\People;
 use App\Models\Task;
+use App\Models\Team;
 use App\Models\User;
 
 beforeEach(function () {
@@ -804,5 +807,40 @@ describe('relationship includes filter sensitive fields', function () {
             ->assertDontSee('team_id')
             ->assertDontSee('creator_id')
             ->assertDontSee('deleted_at');
+    });
+});
+
+// ---------------------------------------------------------------------------
+// Detach tools: team-scoped validation
+// ---------------------------------------------------------------------------
+describe('detach tools reject cross-team entity IDs', function () {
+    it('rejects company from another team when detaching from task', function (): void {
+        $task = Task::factory()->for($this->team)->create();
+        $otherTeam = Team::factory()->create();
+        $otherCompany = Company::withoutEvents(fn () => Company::factory()->create([
+            'team_id' => $otherTeam->id,
+        ]));
+
+        RelaticleServer::actingAs($this->user)
+            ->tool(DetachTaskFromEntitiesTool::class, [
+                'id' => $task->id,
+                'company_ids' => [$otherCompany->id],
+            ])
+            ->assertHasErrors(['company_ids.0']);
+    });
+
+    it('rejects company from another team when detaching from note', function (): void {
+        $note = Note::factory()->for($this->team)->create();
+        $otherTeam = Team::factory()->create();
+        $otherCompany = Company::withoutEvents(fn () => Company::factory()->create([
+            'team_id' => $otherTeam->id,
+        ]));
+
+        RelaticleServer::actingAs($this->user)
+            ->tool(DetachNoteFromEntitiesTool::class, [
+                'id' => $note->id,
+                'company_ids' => [$otherCompany->id],
+            ])
+            ->assertHasErrors(['company_ids.0']);
     });
 });

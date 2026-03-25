@@ -16,7 +16,7 @@ use Relaticle\CustomFields\Models\CustomFieldValue;
  * loads the model's current values and merges submitted fields on top,
  * so omitted fields are preserved.
  */
-final class CustomFieldMerger
+final readonly class CustomFieldMerger
 {
     /**
      * @param  array<string, mixed>  $attributes

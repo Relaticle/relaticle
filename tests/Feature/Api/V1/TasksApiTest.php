@@ -2,7 +2,12 @@
 
 declare(strict_types=1);
 
+use App\Actions\Task\CreateTask;
+use App\Actions\Task\DeleteTask;
+use App\Actions\Task\ListTasks;
+use App\Actions\Task\UpdateTask;
 use App\Enums\CreationSource;
+use App\Http\Controllers\Api\V1\TasksController;
 use App\Models\Company;
 use App\Models\Opportunity;
 use App\Models\People;
@@ -12,6 +17,14 @@ use App\Models\User;
 use Illuminate\Support\Str;
 use Illuminate\Testing\Fluent\AssertableJson;
 use Laravel\Sanctum\Sanctum;
+
+mutates(
+    TasksController::class,
+    CreateTask::class,
+    UpdateTask::class,
+    DeleteTask::class,
+    ListTasks::class,
+);
 
 beforeEach(function () {
     $this->user = User::factory()->withPersonalTeam()->create();
