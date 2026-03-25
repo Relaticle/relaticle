@@ -28,7 +28,7 @@ final readonly class UpdatePeople
         return DB::transaction(function () use ($people, $attributes): People {
             $people->update($attributes);
 
-            return $people->refresh();
+            return $people->refresh()->load('customFieldValues.customField.options');
         });
     }
 }

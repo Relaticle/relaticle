@@ -25,6 +25,8 @@ final readonly class CreateOpportunity
 
         $attributes = HtmlSanitizer::sanitizeAttributes($attributes);
 
-        return DB::transaction(fn (): Opportunity => Opportunity::query()->create($attributes));
+        $opportunity = DB::transaction(fn (): Opportunity => Opportunity::query()->create($attributes));
+
+        return $opportunity->load('customFieldValues.customField.options');
     }
 }

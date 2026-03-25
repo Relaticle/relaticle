@@ -25,6 +25,8 @@ final readonly class CreateCompany
 
         $attributes = HtmlSanitizer::sanitizeAttributes($attributes);
 
-        return DB::transaction(fn (): Company => Company::query()->create($attributes));
+        $company = DB::transaction(fn (): Company => Company::query()->create($attributes));
+
+        return $company->load('customFieldValues.customField.options');
     }
 }

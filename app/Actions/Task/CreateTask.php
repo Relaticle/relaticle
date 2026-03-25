@@ -55,6 +55,6 @@ final readonly class CreateTask
 
         $this->notifyAssignees->execute($task);
 
-        return $task;
+        return $task->load('customFieldValues.customField.options');
     }
 }

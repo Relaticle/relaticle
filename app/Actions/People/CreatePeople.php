@@ -25,6 +25,8 @@ final readonly class CreatePeople
 
         $attributes = HtmlSanitizer::sanitizeAttributes($attributes);
 
-        return DB::transaction(fn (): People => People::query()->create($attributes));
+        $person = DB::transaction(fn (): People => People::query()->create($attributes));
+
+        return $person->load('customFieldValues.customField.options');
     }
 }

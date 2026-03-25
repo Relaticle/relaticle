@@ -28,7 +28,7 @@ final readonly class UpdateOpportunity
         return DB::transaction(function () use ($opportunity, $attributes): Opportunity {
             $opportunity->update($attributes);
 
-            return $opportunity->refresh();
+            return $opportunity->refresh()->load('customFieldValues.customField.options');
         });
     }
 }

@@ -74,7 +74,7 @@ abstract class BaseListTool extends Tool
             $action = app()->make($this->actionClass());
             $results = $action->execute(
                 user: $user,
-                perPage: (int) $request->get('per_page', 15),
+                perPage: max(1, min((int) $request->get('per_page', 15), 100)),
                 page: $request->get('page') ? (int) $request->get('page') : null,
                 request: $httpRequest,
             );

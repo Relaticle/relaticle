@@ -38,7 +38,7 @@ final readonly class UpdateNote
                 $note->opportunities()->sync($data['opportunity_ids']);
             }
 
-            return $note->refresh();
+            return $note->refresh()->load('customFieldValues.customField.options');
         });
     }
 }

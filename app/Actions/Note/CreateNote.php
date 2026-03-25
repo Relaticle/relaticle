@@ -29,7 +29,7 @@ final readonly class CreateNote
 
         $attributes = HtmlSanitizer::sanitizeAttributes($attributes);
 
-        return DB::transaction(function () use ($attributes, $companyIds, $peopleIds, $opportunityIds): Note {
+        $note = DB::transaction(function () use ($attributes, $companyIds, $peopleIds, $opportunityIds): Note {
             $note = Note::query()->create($attributes);
 
             if ($companyIds !== null) {
@@ -44,5 +44,7 @@ final readonly class CreateNote
 
             return $note;
         });
+
+        return $note->load('customFieldValues.customField.options');
     }
 }

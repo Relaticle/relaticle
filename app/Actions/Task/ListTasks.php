@@ -32,8 +32,6 @@ final readonly class ListTasks
     ): CursorPaginator|LengthAwarePaginator {
         abort_unless($user->can('viewAny', Task::class), 403);
 
-        $perPage = max(1, min($perPage, 100));
-
         $request ??= new Request(['filter' => $filters]);
         $filterSchema = new CustomFieldFilterSchema;
 

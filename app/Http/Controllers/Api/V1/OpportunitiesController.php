@@ -9,6 +9,7 @@ use App\Actions\Opportunity\DeleteOpportunity;
 use App\Actions\Opportunity\ListOpportunities;
 use App\Actions\Opportunity\UpdateOpportunity;
 use App\Enums\CreationSource;
+use App\Http\Requests\Api\V1\IndexRequest;
 use App\Http\Requests\Api\V1\StoreOpportunityRequest;
 use App\Http\Requests\Api\V1\UpdateOpportunityRequest;
 use App\Http\Resources\V1\OpportunityResource;
@@ -16,7 +17,6 @@ use App\Models\Opportunity;
 use App\Models\User;
 use Illuminate\Container\Attributes\CurrentUser;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response as HttpResponse;
 use Illuminate\Support\Facades\Gate;
@@ -32,7 +32,7 @@ use Knuckles\Scribe\Attributes\ResponseFromApiResource;
 final readonly class OpportunitiesController
 {
     #[ResponseFromApiResource(OpportunityResource::class, Opportunity::class, collection: true, paginate: 15)]
-    public function index(Request $request, ListOpportunities $action, #[CurrentUser] User $user): AnonymousResourceCollection
+    public function index(IndexRequest $request, ListOpportunities $action, #[CurrentUser] User $user): AnonymousResourceCollection
     {
         return OpportunityResource::collection($action->execute(
             user: $user,
@@ -48,11 +48,9 @@ final readonly class OpportunitiesController
     #[BodyParam('contact_id', 'string', required: false, example: null)]
     public function store(StoreOpportunityRequest $request, CreateOpportunity $action, #[CurrentUser] User $user): JsonResponse
     {
-        Gate::authorize('create', Opportunity::class);
-
         $opportunity = $action->execute($user, $request->validated(), CreationSource::API);
 
-        return (new OpportunityResource($opportunity->load('customFieldValues.customField.options')))
+        return (new OpportunityResource($opportunity))
             ->response()
             ->setStatusCode(201);
     }
@@ -73,18 +71,14 @@ final readonly class OpportunitiesController
     #[BodyParam('contact_id', 'string', required: false, example: null)]
     public function update(UpdateOpportunityRequest $request, Opportunity $opportunity, UpdateOpportunity $action, #[CurrentUser] User $user): OpportunityResource
     {
-        Gate::authorize('update', $opportunity);
-
         $opportunity = $action->execute($user, $opportunity, $request->validated());
 
-        return new OpportunityResource($opportunity->load('customFieldValues.customField.options'));
+        return new OpportunityResource($opportunity);
     }
 
     #[Response(status: 204)]
     public function destroy(Opportunity $opportunity, DeleteOpportunity $action, #[CurrentUser] User $user): HttpResponse
     {
-        Gate::authorize('delete', $opportunity);
-
         $action->execute($user, $opportunity);
 
         return response()->noContent();

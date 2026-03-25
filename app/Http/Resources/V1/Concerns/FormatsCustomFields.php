@@ -11,10 +11,7 @@ use Relaticle\CustomFields\Models\CustomFieldValue;
 
 trait FormatsCustomFields
 {
-    /**
-     * @return array<string, mixed>|\stdClass
-     */
-    protected function formatCustomFields(Model $record): array|\stdClass
+    protected function formatCustomFields(Model $record): \stdClass
     {
         if (! $record->relationLoaded('customFieldValues')) {
             return new \stdClass;
@@ -28,7 +25,7 @@ trait FormatsCustomFields
             ])
             ->all();
 
-        return $result === [] ? new \stdClass : $result;
+        return (object) $result;
     }
 
     private function resolveFieldValue(CustomFieldValue $fieldValue): mixed

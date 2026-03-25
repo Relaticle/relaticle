@@ -28,7 +28,7 @@ final readonly class UpdateCompany
         return DB::transaction(function () use ($company, $attributes): Company {
             $company->update($attributes);
 
-            return $company->refresh();
+            return $company->refresh()->load('customFieldValues.customField.options');
         });
     }
 }

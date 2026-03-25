@@ -126,7 +126,25 @@ final class AppServiceProvider extends ServiceProvider
 
     private function configureRateLimiting(): void
     {
-        RateLimiter::for('api', fn (Request $request) => Limit::perMinute(60)->by($request->user()?->id ?: $request->ip()));
+        RateLimiter::for('api', function (Request $request) {
+            /** @var \App\Models\User|null $user */
+            $user = $request->user();
+            $tokenId = $user?->currentAccessToken()?->getKey();
+            $teamId = $user?->currentTeam?->getKey();
+            $key = $tokenId ?: $request->ip();
+
+            $limits = [
+                Limit::perMinute(600)->by('team:'.($teamId ?? $request->ip())),
+            ];
+
+            if ($request->isMethod('GET')) {
+                $limits[] = Limit::perMinute(300)->by("token:{$key}:read");
+            } else {
+                $limits[] = Limit::perMinute(60)->by("token:{$key}:write");
+            }
+
+            return $limits;
+        });
 
         RateLimiter::for('mcp', fn (Request $request) => Limit::perMinute(120)->by($request->user()?->id ?: $request->ip()));
     }

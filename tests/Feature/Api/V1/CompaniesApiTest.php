@@ -573,8 +573,8 @@ describe('custom fields', function (): void {
         $attributes = $resource->toAttributes(request());
 
         expect($attributes['custom_fields'])
-            ->toBeArray()
-            ->toHaveKey('orphan_field', 'test value');
+            ->toBeInstanceOf(stdClass::class)
+            ->and($attributes['custom_fields']->orphan_field)->toBe('test value');
     });
 
     it('rejects custom_fields sent as a string', function (): void {
@@ -606,6 +606,45 @@ describe('custom fields', function (): void {
             'name' => 'Acme Corp',
         ])
             ->assertCreated();
+    });
+
+    it('rejects object items in link custom field array', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $this->postJson('/api/v1/companies', [
+            'name' => 'Acme Corp',
+            'custom_fields' => [
+                'domains' => [['url' => 'acme.com']],
+            ],
+        ])
+            ->assertUnprocessable()
+            ->assertInvalid(['custom_fields.domains.0']);
+    });
+
+    it('accepts valid string items in link custom field array', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $this->postJson('/api/v1/companies', [
+            'name' => 'Acme Corp',
+            'custom_fields' => [
+                'domains' => ['acme.com'],
+            ],
+        ])
+            ->assertCreated()
+            ->assertValid();
+    });
+
+    it('rejects invalid domain format in link custom field', function (): void {
+        Sanctum::actingAs($this->user);
+
+        $this->postJson('/api/v1/companies', [
+            'name' => 'Acme Corp',
+            'custom_fields' => [
+                'domains' => ['not a valid domain'],
+            ],
+        ])
+            ->assertUnprocessable()
+            ->assertInvalid(['custom_fields.domains.0']);
     });
 });
 
@@ -739,12 +778,9 @@ describe('pagination', function (): void {
     it('caps per_page at maximum allowed value', function (): void {
         Sanctum::actingAs($this->user);
 
-        Company::factory(5)->for($this->team)->create();
-
-        $response = $this->getJson('/api/v1/companies?per_page=500');
-        $response->assertOk();
-
-        expect($response->json('data'))->toBeArray();
+        $this->getJson('/api/v1/companies?per_page=500')
+            ->assertUnprocessable()
+            ->assertInvalid(['per_page']);
     });
 
     it('returns empty data array for page beyond results', function (): void {

@@ -418,12 +418,9 @@ describe('pagination', function (): void {
     it('caps per_page at maximum allowed value', function (): void {
         Sanctum::actingAs($this->user);
 
-        People::factory(5)->for($this->team)->create();
-
-        $response = $this->getJson('/api/v1/people?per_page=500');
-        $response->assertOk();
-
-        expect($response->json('data'))->toBeArray();
+        $this->getJson('/api/v1/people?per_page=500')
+            ->assertUnprocessable()
+            ->assertInvalid(['per_page']);
     });
 
     it('returns empty data array for page beyond results', function (): void {

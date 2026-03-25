@@ -51,6 +51,29 @@ describe('rate limiting', function (): void {
             ->getJson('/api/v1/companies')
             ->assertTooManyRequests();
     });
+
+    it('enforces separate write rate limit', function (): void {
+        RateLimiter::for('api', function () {
+            return [
+                Limit::perMinute(100)->by('team:test'),
+                Limit::perMinute(2)->by('token:test:write'),
+            ];
+        });
+
+        $token = $this->user->createToken('test', ['*'])->plainTextToken;
+
+        $this->withToken($token)
+            ->postJson('/api/v1/companies', ['name' => 'A'])
+            ->assertCreated();
+
+        $this->withToken($token)
+            ->postJson('/api/v1/companies', ['name' => 'B'])
+            ->assertCreated();
+
+        $this->withToken($token)
+            ->postJson('/api/v1/companies', ['name' => 'C'])
+            ->assertTooManyRequests();
+    });
 });
 
 describe('real-token middleware chain', function (): void {

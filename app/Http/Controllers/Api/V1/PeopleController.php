@@ -9,6 +9,7 @@ use App\Actions\People\DeletePeople;
 use App\Actions\People\ListPeople;
 use App\Actions\People\UpdatePeople;
 use App\Enums\CreationSource;
+use App\Http\Requests\Api\V1\IndexRequest;
 use App\Http\Requests\Api\V1\StorePeopleRequest;
 use App\Http\Requests\Api\V1\UpdatePeopleRequest;
 use App\Http\Resources\V1\PeopleResource;
@@ -16,7 +17,6 @@ use App\Models\People;
 use App\Models\User;
 use Illuminate\Container\Attributes\CurrentUser;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response as HttpResponse;
 use Illuminate\Support\Facades\Gate;
@@ -32,7 +32,7 @@ use Knuckles\Scribe\Attributes\ResponseFromApiResource;
 final readonly class PeopleController
 {
     #[ResponseFromApiResource(PeopleResource::class, People::class, collection: true, paginate: 15)]
-    public function index(Request $request, ListPeople $action, #[CurrentUser] User $user): AnonymousResourceCollection
+    public function index(IndexRequest $request, ListPeople $action, #[CurrentUser] User $user): AnonymousResourceCollection
     {
         return PeopleResource::collection($action->execute(
             user: $user,
@@ -47,11 +47,9 @@ final readonly class PeopleController
     #[BodyParam('company_id', 'string', required: false, example: null)]
     public function store(StorePeopleRequest $request, CreatePeople $action, #[CurrentUser] User $user): JsonResponse
     {
-        Gate::authorize('create', People::class);
-
         $person = $action->execute($user, $request->validated(), CreationSource::API);
 
-        return (new PeopleResource($person->load('customFieldValues.customField.options')))
+        return (new PeopleResource($person))
             ->response()
             ->setStatusCode(201);
     }
@@ -71,18 +69,14 @@ final readonly class PeopleController
     #[BodyParam('company_id', 'string', required: false, example: null)]
     public function update(UpdatePeopleRequest $request, People $person, UpdatePeople $action, #[CurrentUser] User $user): PeopleResource
     {
-        Gate::authorize('update', $person);
-
         $person = $action->execute($user, $person, $request->validated());
 
-        return new PeopleResource($person->load('customFieldValues.customField.options'));
+        return new PeopleResource($person);
     }
 
     #[Response(status: 204)]
     public function destroy(People $person, DeletePeople $action, #[CurrentUser] User $user): HttpResponse
     {
-        Gate::authorize('delete', $person);
-
         $action->execute($user, $person);
 
         return response()->noContent();
