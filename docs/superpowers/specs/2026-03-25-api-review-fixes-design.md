@@ -2,11 +2,11 @@
 
 Date: 2026-03-25
 Branch: `feat/rest-api-mcp-server`
-Scope: 4 targeted refactors from PR #136 code review. No new abstractions, no new traits. Pure cleanup using Laravel conventions.
+Scope: 5 targeted refactors from PR #136 code review. No new abstractions, no new traits. Pure cleanup using Laravel conventions.
 
 ## Context
 
-PR #136 adds REST API, MCP server, and team-scoped API tokens (310 files, +27,945 lines). A thorough code review identified 13 findings. After brainstorming, 9 were ruled out (over-engineering, not real issues, or vendor-package concerns). 4 remain as worthwhile fixes.
+PR #136 adds REST API, MCP server, and team-scoped API tokens (310 files, +27,945 lines). A thorough code review identified 13 findings. After brainstorming, 8 were ruled out (over-engineering, not real issues, or vendor-package concerns). 5 remain as worthwhile fixes.
 
 ### Findings explicitly skipped
 
@@ -214,9 +214,77 @@ Tests that check `custom_fields` via HTTP responses (`$response->json(...)`) are
 
 None for API consumers (JSON output is identical). Return type changes from `array|\stdClass` to `\stdClass`.
 
+## Fix 5: Apply layered rate limiting to API routes
+
+### Problem
+
+`RateLimiter::for('api', ...)` and `RateLimiter::for('mcp', ...)` are defined in `AppServiceProvider` but never applied -- `routes/api.php` has no `throttle` middleware. The API is currently unthrottled.
+
+### Solution
+
+Layered rate limiting with separate budgets for reads vs writes:
+
+- **Per-team ceiling**: 600 requests/min shared across all tokens for a team
+- **Per-token reads** (GET): 300 requests/min
+- **Per-token writes** (POST/PUT/PATCH/DELETE): 60 requests/min
+
+This follows industry patterns (HubSpot, Salesforce, Attio) where writes are more constrained because they trigger DB transactions, notifications, and relationship syncing.
+
+### Implementation
+
+**Update `AppServiceProvider`** -- replace the existing `api` limiter:
+
+```php
+RateLimiter::for('api', function (Request $request) {
+    $tokenId = $request->user()?->currentAccessToken()?->getKey();
+    $teamId = $request->user()?->currentTeam?->getKey();
+    $key = $tokenId ?: $request->ip();
+
+    $limits = [
+        Limit::perMinute(600)->by("team:{$teamId}"),
+    ];
+
+    if ($request->isMethod('GET')) {
+        $limits[] = Limit::perMinute(300)->by("token:{$key}:read");
+    } else {
+        $limits[] = Limit::perMinute(60)->by("token:{$key}:write");
+    }
+
+    return $limits;
+});
+```
+
+**Update `routes/api.php`** -- add `throttle:api` to the middleware stack:
+
+```php
+Route::prefix('v1')
+    ->middleware([ForceJsonResponse::class, 'auth:sanctum', 'throttle:api', EnsureTokenHasAbility::class, SetApiTeamContext::class])
+    ->group(function (): void {
+```
+
+`throttle:api` must come after `auth:sanctum` (needs user for token/team resolution) and before `SetApiTeamContext` (team context setup).
+
+### Response headers
+
+Laravel automatically adds `X-RateLimit-Limit`, `X-RateLimit-Remaining`, and `Retry-After` (on 429) headers. No custom code needed.
+
+### Files changed
+
+- `app/Providers/AppServiceProvider.php` -- update `api` limiter definition
+- `routes/api.php` -- add `throttle:api` middleware
+
+### Tests
+
+Add a test verifying 429 response when rate limit is exceeded. Use Laravel's `RateLimiter::for()` override in the test to set a low limit (e.g., 2/min) and verify the third request gets 429.
+
+### Risk
+
+Low. Legitimate API usage should stay well within 300 reads/60 writes per minute per token. The per-team ceiling of 600/min prevents abuse from multiple tokens. Existing tests making multiple requests in a single test won't hit limits because `RefreshDatabase` resets state.
+
 ## Testing strategy
 
 - Update 6 tests before running (5 per_page capping tests + 1 orphaned custom field test)
+- Add rate limiting test (verify 429 response)
 - Run API test suite: `php artisan test tests/Feature/Api/V1/ --compact`
 - Run MCP test suite: `php artisan test tests/Feature/Mcp/ --compact`
 - PHPStan: `vendor/bin/phpstan analyse`
