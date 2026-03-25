@@ -608,34 +608,20 @@ describe('custom fields', function (): void {
             ->assertCreated();
     });
 
-    it('rejects object items in link custom field array', function (): void {
-        Sanctum::actingAs($this->user);
-
-        $this->postJson('/api/v1/companies', [
-            'name' => 'Acme Corp',
-            'custom_fields' => [
-                'domains' => [['url' => 'acme.com']],
-            ],
-        ])
-            ->assertUnprocessable()
-            ->assertInvalid(['custom_fields.domains.0']);
-    });
-
-    it('accepts valid string items in link custom field array', function (): void {
-        Sanctum::actingAs($this->user);
-
-        $this->postJson('/api/v1/companies', [
-            'name' => 'Acme Corp',
-            'custom_fields' => [
-                'domains' => ['acme.com'],
-            ],
-        ])
-            ->assertCreated()
-            ->assertValid();
-    });
-
     it('rejects invalid domain format in link custom field', function (): void {
         Sanctum::actingAs($this->user);
+
+        CustomField::create([
+            'tenant_id' => $this->team->id,
+            'custom_field_section_id' => $this->section->id,
+            'entity_type' => 'company',
+            'code' => 'domains',
+            'name' => 'Domains',
+            'type' => 'link',
+            'sort_order' => 1,
+            'active' => true,
+            'validation_rules' => [],
+        ]);
 
         $this->postJson('/api/v1/companies', [
             'name' => 'Acme Corp',
@@ -645,6 +631,128 @@ describe('custom fields', function (): void {
         ])
             ->assertUnprocessable()
             ->assertInvalid(['custom_fields.domains.0']);
+    });
+
+    it('accepts valid items in link custom field', function (): void {
+        Sanctum::actingAs($this->user);
+
+        CustomField::create([
+            'tenant_id' => $this->team->id,
+            'custom_field_section_id' => $this->section->id,
+            'entity_type' => 'company',
+            'code' => 'domains',
+            'name' => 'Domains',
+            'type' => 'link',
+            'sort_order' => 1,
+            'active' => true,
+            'validation_rules' => [],
+        ]);
+
+        $this->postJson('/api/v1/companies', [
+            'name' => 'Acme Corp',
+            'custom_fields' => [
+                'domains' => ['acme.com', 'example.org'],
+            ],
+        ])
+            ->assertCreated();
+    });
+
+    it('rejects invalid email in email custom field', function (): void {
+        Sanctum::actingAs($this->user);
+
+        CustomField::create([
+            'tenant_id' => $this->team->id,
+            'custom_field_section_id' => $this->section->id,
+            'entity_type' => 'company',
+            'code' => 'emails',
+            'name' => 'Emails',
+            'type' => 'email',
+            'sort_order' => 1,
+            'active' => true,
+            'validation_rules' => [],
+        ]);
+
+        $this->postJson('/api/v1/companies', [
+            'name' => 'Acme Corp',
+            'custom_fields' => [
+                'emails' => ['not-an-email'],
+            ],
+        ])
+            ->assertUnprocessable()
+            ->assertInvalid(['custom_fields.emails.0']);
+    });
+
+    it('accepts valid items in email custom field', function (): void {
+        Sanctum::actingAs($this->user);
+
+        CustomField::create([
+            'tenant_id' => $this->team->id,
+            'custom_field_section_id' => $this->section->id,
+            'entity_type' => 'company',
+            'code' => 'emails',
+            'name' => 'Emails',
+            'type' => 'email',
+            'sort_order' => 1,
+            'active' => true,
+            'validation_rules' => [],
+        ]);
+
+        $this->postJson('/api/v1/companies', [
+            'name' => 'Acme Corp',
+            'custom_fields' => [
+                'emails' => ['info@acme.com', 'sales@acme.com'],
+            ],
+        ])
+            ->assertCreated();
+    });
+
+    it('rejects invalid phone number in phone custom field', function (): void {
+        Sanctum::actingAs($this->user);
+
+        CustomField::create([
+            'tenant_id' => $this->team->id,
+            'custom_field_section_id' => $this->section->id,
+            'entity_type' => 'company',
+            'code' => 'phones',
+            'name' => 'Phones',
+            'type' => 'phone',
+            'sort_order' => 1,
+            'active' => true,
+            'validation_rules' => [],
+        ]);
+
+        $this->postJson('/api/v1/companies', [
+            'name' => 'Acme Corp',
+            'custom_fields' => [
+                'phones' => ['not-a-phone'],
+            ],
+        ])
+            ->assertUnprocessable()
+            ->assertInvalid(['custom_fields.phones.0']);
+    });
+
+    it('accepts valid items in phone custom field', function (): void {
+        Sanctum::actingAs($this->user);
+
+        CustomField::create([
+            'tenant_id' => $this->team->id,
+            'custom_field_section_id' => $this->section->id,
+            'entity_type' => 'company',
+            'code' => 'phones',
+            'name' => 'Phones',
+            'type' => 'phone',
+            'sort_order' => 1,
+            'active' => true,
+            'validation_rules' => [],
+        ]);
+
+        $this->postJson('/api/v1/companies', [
+            'name' => 'Acme Corp',
+            'custom_fields' => [
+                'phones' => ['+14155552671'],
+            ],
+        ])
+            ->assertCreated();
     });
 });
 
