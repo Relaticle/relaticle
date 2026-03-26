@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use Relaticle\ActivityLog\Concerns\LogsActivityForCrm;
 use Relaticle\CustomFields\Models\Concerns\UsesCustomFields;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 use Spatie\EloquentSortable\SortableTrait;
@@ -39,9 +40,13 @@ final class Opportunity extends Model implements HasCustomFields
     use HasNotes;
     use HasTeam;
     use HasUlids;
+    use LogsActivityForCrm;
     use SoftDeletes;
     use SortableTrait;
     use UsesCustomFields;
+
+    /** @var list<string> */
+    protected array $additionalActivityLogExclusions = ['order_column'];
 
     /**
      * The attributes that are mass assignable.

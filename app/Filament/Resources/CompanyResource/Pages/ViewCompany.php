@@ -20,6 +20,7 @@ use Filament\Resources\Pages\ViewRecord;
 use Filament\Schemas\Components\Flex;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Relaticle\ActivityLog\Filament\RelationManagers\ActivitiesRelationManager;
 use Relaticle\CustomFields\Facades\CustomFields;
 
 final class ViewCompany extends ViewRecord
@@ -118,6 +119,7 @@ final class ViewCompany extends ViewRecord
             PeopleRelationManager::class,
             TasksRelationManager::class,
             NotesRelationManager::class,
+            ActivitiesRelationManager::class,
         ];
     }
 }

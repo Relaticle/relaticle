@@ -9,6 +9,7 @@ use App\Providers\HealthServiceProvider;
 use App\Providers\HorizonServiceProvider;
 use App\Providers\JetstreamServiceProvider;
 use App\Providers\MacroServiceProvider;
+use Relaticle\ActivityLog\ActivityLogServiceProvider;
 use Relaticle\Documentation\DocumentationServiceProvider;
 use Relaticle\ImportWizard\ImportWizardNewServiceProvider;
 use Relaticle\SystemAdmin\SystemAdminPanelProvider;
@@ -25,4 +26,5 @@ return [
     DocumentationServiceProvider::class,
     ImportWizardNewServiceProvider::class,
     SystemAdminPanelProvider::class,
+    ActivityLogServiceProvider::class,
 ];

@@ -21,6 +21,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use Relaticle\ActivityLog\Concerns\LogsActivityForCrm;
 use Relaticle\CustomFields\Models\Concerns\UsesCustomFields;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 use Spatie\MediaLibrary\HasMedia;
@@ -48,8 +49,12 @@ final class Company extends Model implements HasCustomFields, HasMedia
     use HasTeam;
     use HasUlids;
     use InteractsWithMedia;
+    use LogsActivityForCrm;
     use SoftDeletes;
     use UsesCustomFields;
+
+    /** @var list<string> */
+    protected array $additionalActivityLogExclusions = ['account_owner_id'];
 
     /**
      * @var list<string>

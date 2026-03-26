@@ -20,6 +20,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use Relaticle\ActivityLog\Concerns\LogsActivityForCrm;
 use Relaticle\CustomFields\Models\Concerns\UsesCustomFields;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 
@@ -39,6 +40,7 @@ final class People extends Model implements HasCustomFields
     use HasNotes;
     use HasTeam;
     use HasUlids;
+    use LogsActivityForCrm;
     use SoftDeletes;
     use UsesCustomFields;
 

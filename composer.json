@@ -33,6 +33,7 @@
         "sentry/sentry-laravel": "^4.13",
         "spatie/cpu-load-health-check": "^1.0",
         "spatie/eloquent-sortable": "^4.4",
+        "spatie/laravel-activitylog": "^5.0",
         "spatie/laravel-data": "^4.15",
         "spatie/laravel-health": "^1.37",
         "spatie/laravel-login-link": "^1.3",
@@ -75,6 +76,7 @@
             "Relaticle\\Documentation\\": "app-modules/Documentation/src",
             "Relaticle\\OnboardSeed\\": "app-modules/OnboardSeed/src",
             "Relaticle\\ImportWizard\\": "app-modules/ImportWizard/src",
+            "Relaticle\\ActivityLog\\": "app-modules/ActivityLog/src",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
         }
