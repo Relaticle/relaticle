@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Relaticle\ActivityLog\Filament\Schemas;
 
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
@@ -55,7 +56,7 @@ final class ActivityTimeline extends Component
                 'id' => $activity->id,
                 'event' => $activity->event,
                 'description' => $this->buildDescription($activity),
-                'causer_name' => $activity->causer?->name,
+                'causer_name' => $this->resolveCauserName($activity),
                 'causer_avatar' => $activity->causer?->profile_photo_url,
                 'changes' => $activity->event === 'updated' ? $this->formatChanges($activity) : null,
                 'created_at' => $activity->created_at->toIso8601String(),
@@ -87,7 +88,7 @@ final class ActivityTimeline extends Component
 
     private function buildDescription(Activity $activity): string
     {
-        $causerName = $activity->causer?->name ?? 'System';
+        $causerName = $this->resolveCauserName($activity) ?? 'System';
         $modelLabel = ucfirst($this->subjectType);
 
         return match ($activity->event) {
@@ -113,13 +114,13 @@ final class ActivityTimeline extends Component
         $changedFields = array_keys($attributes);
 
         $fieldList = collect($changedFields)
-            ->map(fn (string $field) => str_replace('_', ' ', $field))
+            ->map(fn (string $field) => $this->humanizeFieldName($field))
             ->join(', ', ' and ');
 
         return "{$causerName} updated {$fieldList}";
     }
 
-    /** @return array{old: array<string, mixed>, attributes: array<string, mixed>}|null */
+    /** @return array{old: array<string, string>, attributes: array<string, string>}|null */
     private function formatChanges(Activity $activity): ?array
     {
         $changes = $activity->attribute_changes;
@@ -131,9 +132,70 @@ final class ActivityTimeline extends Component
         $old = $changes['old'] ?? [];
         $attributes = $changes['attributes'] ?? [];
 
+        $old = $old instanceof Collection ? $old->toArray() : (array) $old;
+        $attributes = $attributes instanceof Collection ? $attributes->toArray() : (array) $attributes;
+
         return [
-            'old' => $old instanceof Collection ? $old->toArray() : (array) $old,
-            'attributes' => $attributes instanceof Collection ? $attributes->toArray() : (array) $attributes,
+            'old' => array_map(fn (mixed $value) => $this->formatValue($value), $old),
+            'attributes' => array_map(fn (mixed $value) => $this->formatValue($value), $attributes),
         ];
+    }
+
+    private function resolveCauserName(Activity $activity): ?string
+    {
+        $causer = $activity->causer;
+
+        if (! $causer) {
+            return null;
+        }
+
+        if (method_exists($causer, 'getFilamentName')) {
+            return $causer->getFilamentName();
+        }
+
+        return $causer->name ?? null;
+    }
+
+    private function humanizeFieldName(string $field): string
+    {
+        return str($field)->when(
+            str($field)->endsWith('_id'),
+            fn ($s) => $s->beforeLast('_id'),
+        )->headline()->toString();
+    }
+
+    private function formatValue(mixed $value): string
+    {
+        if (is_null($value)) {
+            return '(empty)';
+        }
+
+        if (is_bool($value)) {
+            return $value ? 'Yes' : 'No';
+        }
+
+        if (is_array($value)) {
+            return json_encode($value, JSON_PRETTY_PRINT);
+        }
+
+        $stringValue = (string) $value;
+
+        if (preg_match('/^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}/', $stringValue)) {
+            try {
+                return Carbon::parse($stringValue)->format('M j, Y g:i A');
+            } catch (\Exception) {
+                // Fall through
+            }
+        }
+
+        if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $stringValue)) {
+            try {
+                return Carbon::parse($stringValue)->format('M j, Y');
+            } catch (\Exception) {
+                // Fall through
+            }
+        }
+
+        return $stringValue;
     }
 }

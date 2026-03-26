@@ -31,7 +31,9 @@
             @foreach ($data['entries'] as $entry)
                 <div class="relative flex gap-3 py-3" wire:key="activity-{{ $entry['id'] }}">
                     {{-- Timeline Line --}}
-                    <div class="absolute bottom-0 left-4 top-0 w-px bg-gray-200 dark:bg-white/10"></div>
+                    @if (! $loop->last)
+                        <div class="absolute -bottom-0 left-4 top-8 w-px bg-gray-200 dark:bg-white/10"></div>
+                    @endif
 
                     {{-- Icon --}}
                     <div @class([
@@ -60,7 +62,16 @@
                     {{-- Content --}}
                     <div class="min-w-0 flex-1 pt-0.5">
                         <div class="flex items-baseline justify-between gap-2">
-                            <p class="text-sm text-gray-700 dark:text-gray-300">{{ $entry['description'] }}</p>
+                            <div class="flex items-center gap-1.5">
+                                @if ($entry['causer_avatar'])
+                                    <img
+                                        src="{{ $entry['causer_avatar'] }}"
+                                        alt="{{ $entry['causer_name'] }}"
+                                        class="h-5 w-5 shrink-0 rounded-full"
+                                    />
+                                @endif
+                                <p class="text-sm text-gray-700 dark:text-gray-300">{{ $entry['description'] }}</p>
+                            </div>
                             <time
                                 class="shrink-0 text-xs text-gray-400 dark:text-gray-500"
                                 title="{{ $entry['created_at'] }}"
@@ -74,10 +85,10 @@
                             <div class="mt-1.5 rounded-md border border-gray-100 bg-gray-50/50 p-2 dark:border-white/5 dark:bg-white/5">
                                 @foreach ($entry['changes']['attributes'] as $field => $newVal)
                                     <div class="flex items-center gap-1.5 py-0.5 text-xs">
-                                        <span class="font-medium text-gray-500 dark:text-gray-400">{{ str_replace('_', ' ', $field) }}</span>
+                                        <span class="font-medium text-gray-500 dark:text-gray-400">{{ str($field)->when(str($field)->endsWith('_id'), fn ($s) => $s->beforeLast('_id'))->headline() }}</span>
                                         <span class="text-gray-400 line-through dark:text-gray-500">{{ $entry['changes']['old'][$field] ?? '(empty)' }}</span>
                                         <span class="text-gray-400 dark:text-gray-500">&rarr;</span>
-                                        <span class="text-gray-700 dark:text-gray-300">{{ $newVal ?? '(empty)' }}</span>
+                                        <span class="text-gray-700 dark:text-gray-300">{{ $newVal }}</span>
                                     </div>
                                 @endforeach
                             </div>
