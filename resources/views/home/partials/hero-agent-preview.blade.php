@@ -9,11 +9,8 @@
     <div class="flex-1 p-4 sm:p-6 md:px-8 md:py-6 space-y-4 sm:space-y-5">
 
         {{-- User 1 --}}
-        <div class="mcp-el mcp-user flex items-start gap-2.5">
-            <div class="w-6 h-6 rounded-full bg-gray-100 dark:bg-white/[0.08] flex items-center justify-center shrink-0 mt-0.5">
-                <span class="text-[10px] font-semibold text-gray-500 dark:text-gray-400">M</span>
-            </div>
-            <div class="text-sm text-gray-900 dark:text-gray-100 leading-relaxed pt-0.5">Add Sarah Chen as a contact at Kovra Systems. She's VP of Engineering.</div>
+        <div class="mcp-el mcp-user">
+            <div class="text-sm text-gray-900 dark:text-gray-100 leading-relaxed">Add Sarah Chen as a contact at Kovra Systems. She's VP of Engineering.</div>
         </div>
 
         {{-- Agent 1: Tool call + response --}}
@@ -46,11 +43,8 @@
         </div>
 
         {{-- User 2 --}}
-        <div class="mcp-el mcp-user flex items-start gap-2.5">
-            <div class="w-6 h-6 rounded-full bg-gray-100 dark:bg-white/[0.08] flex items-center justify-center shrink-0 mt-0.5">
-                <span class="text-[10px] font-semibold text-gray-500 dark:text-gray-400">M</span>
-            </div>
-            <div class="text-sm text-gray-900 dark:text-gray-100 leading-relaxed pt-0.5">Show me deals closing this quarter over $50K</div>
+        <div class="mcp-el mcp-user">
+            <div class="text-sm text-gray-900 dark:text-gray-100 leading-relaxed">Show me deals closing this quarter over $50K</div>
         </div>
 
         {{-- Agent 2: Tool call + deals --}}
