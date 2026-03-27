@@ -19,22 +19,22 @@
             </div>
         </div>
 
-        {{-- Agent 1: Tool call + response --}}
+        {{-- AI Assistant 1: Tool call + response --}}
         <div class="flex items-start gap-2.5">
-            <div class="w-6 h-6 rounded-full bg-gradient-to-br from-primary to-primary-400 flex items-center justify-center shrink-0 mt-4 mcp-el mcp-avatar">
-                <x-ri-sparkling-2-fill class="w-3 h-3 text-white"/>
+            <div class="w-6 h-6 rounded-full bg-gray-900 dark:bg-white/[0.15] flex items-center justify-center shrink-0 mt-4 mcp-el mcp-avatar">
+                <x-ri-sparkling-2-fill class="w-3 h-3 text-white dark:text-gray-300"/>
             </div>
             <div class="flex-1 min-w-0">
-                <div class="mcp-el mcp-label text-xs font-semibold text-gray-900 dark:text-white mb-1">Relaticle</div>
+                <div class="mcp-el mcp-label text-xs font-semibold text-gray-900 dark:text-white mb-1">ChatGPT</div>
                 <div class="space-y-2.5">
                     <div class="mcp-el mcp-tool flex items-center gap-2 text-[11px] sm:text-xs">
                         <span class="inline-flex items-center gap-1.5 text-primary dark:text-primary-300 font-medium">
                             <x-ri-terminal-box-line class="w-3 h-3 shrink-0"/>
-                            <span class="font-mono">create-people-tool</span>
+                            <span class="font-mono">relaticle/create-people</span>
                         </span>
                         <span class="text-emerald-600 dark:text-emerald-400 font-medium">completed</span>
                     </div>
-                    <div class="mcp-el mcp-text text-sm text-gray-600 dark:text-gray-300 leading-relaxed">Created and linked to Kovra Systems.</div>
+                    <div class="mcp-el mcp-text text-sm text-gray-600 dark:text-gray-300 leading-relaxed">Done. I created the contact and linked her to Kovra Systems.</div>
                     <div class="mcp-el mcp-card rounded-lg p-3 border border-gray-200/80 dark:border-white/[0.06] bg-gray-50/80 dark:bg-white/[0.02]">
                         <div class="flex items-center justify-between">
                             <div>
@@ -61,18 +61,18 @@
             </div>
         </div>
 
-        {{-- Agent 2: Tool call + deals --}}
+        {{-- AI Assistant 2: Tool call + deals --}}
         <div class="flex items-start gap-2.5">
-            <div class="w-6 h-6 rounded-full bg-gradient-to-br from-primary to-primary-400 flex items-center justify-center shrink-0 mt-4 mcp-el mcp-avatar">
-                <x-ri-sparkling-2-fill class="w-3 h-3 text-white"/>
+            <div class="w-6 h-6 rounded-full bg-gray-900 dark:bg-white/[0.15] flex items-center justify-center shrink-0 mt-4 mcp-el mcp-avatar">
+                <x-ri-sparkling-2-fill class="w-3 h-3 text-white dark:text-gray-300"/>
             </div>
             <div class="flex-1 min-w-0">
-                <div class="mcp-el mcp-label text-xs font-semibold text-gray-900 dark:text-white mb-1">Relaticle</div>
+                <div class="mcp-el mcp-label text-xs font-semibold text-gray-900 dark:text-white mb-1">ChatGPT</div>
                 <div class="space-y-2.5">
                     <div class="mcp-el mcp-tool flex items-center gap-2 text-[11px] sm:text-xs">
                         <span class="inline-flex items-center gap-1.5 text-primary dark:text-primary-300 font-medium">
                             <x-ri-terminal-box-line class="w-3 h-3 shrink-0"/>
-                            <span class="font-mono">list-opportunities-tool</span>
+                            <span class="font-mono">relaticle/list-opportunities</span>
                         </span>
                         <span class="text-emerald-600 dark:text-emerald-400 font-medium">completed</span>
                     </div>
@@ -104,8 +104,8 @@
     {{-- Input bar --}}
     <div class="mcp-el mcp-input border-t border-gray-100 dark:border-white/[0.06] px-4 sm:px-6 md:px-8 py-3">
         <div class="flex items-center gap-3 bg-gray-50/80 dark:bg-white/[0.03] rounded-lg border border-gray-200/80 dark:border-white/[0.06] px-3.5 py-2.5">
-            <x-ri-sparkling-2-fill class="w-4 h-4 text-primary/30 dark:text-primary-400/30 shrink-0"/>
-            <span class="text-sm text-gray-400 dark:text-gray-500 flex-1">Ask Relaticle...</span>
+            <x-ri-sparkling-2-fill class="w-4 h-4 text-gray-400/50 dark:text-gray-500/50 shrink-0"/>
+            <span class="text-sm text-gray-400 dark:text-gray-500 flex-1">Message ChatGPT...</span>
             <div class="text-[10px] text-gray-300 dark:text-gray-600 border border-gray-200 dark:border-white/[0.06] rounded px-1.5 py-0.5 font-mono">↵</div>
         </div>
     </div>
