@@ -3,6 +3,9 @@
 declare(strict_types=1);
 
 use App\Http\Middleware\SetApiTeamContext;
+use App\Models\TeamInvitation;
+use App\Models\User;
+use Filament\Facades\Filament;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -25,6 +28,22 @@ return Application::configure(basePath: dirname(__DIR__))
             before: SubstituteBindings::class,
             prepend: SetApiTeamContext::class,
         );
+
+        $middleware->redirectGuestsTo(function (Request $request): string {
+            if ($request->routeIs('team-invitations.accept')) {
+                $invitation = TeamInvitation::query()
+                    ->whereKey($request->route('invitation'))
+                    ->first();
+
+                if ($invitation && User::query()->where('email', $invitation->email)->exists()) {
+                    return Filament::getLoginUrl();
+                }
+
+                return Filament::getRegistrationUrl();
+            }
+
+            return route('login');
+        });
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         Integration::handles($exceptions);
@@ -34,6 +53,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $schedule->command('app:generate-sitemap')->daily();
         $schedule->command('import:cleanup')->hourly();
         $schedule->command('queue:prune-batches --hours=24')->daily();
+        $schedule->command('invitations:cleanup')->daily();
 
         if (config('app.health_checks_enabled')) {
             $schedule->command(RunHealthChecksCommand::class)->everyMinute();
