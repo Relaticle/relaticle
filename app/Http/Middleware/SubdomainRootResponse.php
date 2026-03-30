@@ -9,7 +9,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-final class SubdomainRootResponse
+final readonly class SubdomainRootResponse
 {
     public function handle(Request $request, Closure $next): Response
     {
@@ -23,7 +23,7 @@ final class SubdomainRootResponse
             return new JsonResponse([
                 'name' => 'Relaticle API',
                 'version' => 'v1',
-                'docs' => config('app.url').'/docs/api',
+                'docs' => url('/docs/api'),
             ]);
         }
 
@@ -31,7 +31,7 @@ final class SubdomainRootResponse
             return new JsonResponse([
                 'name' => 'Relaticle MCP Server',
                 'version' => '1.0.0',
-                'docs' => config('app.url').'/docs/mcp',
+                'docs' => url('/docs/mcp'),
             ]);
         }
 
