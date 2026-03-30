@@ -1,3 +1,7 @@
+@push('turnstile')
+    <x-turnstile.scripts />
+@endpush
+
 <x-guest-layout
     title="Contact Us - Relaticle"
     description="Get in touch with the Relaticle team. Questions about enterprise deployments, custom integrations, or partnerships."
