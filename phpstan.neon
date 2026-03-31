@@ -17,17 +17,17 @@ parameters:
 
     paths:
         - app
-        - app-modules
+        - packages
         - config
         - bootstrap
         - database/factories
         - routes
 
     excludePaths:
-        - app-modules/SystemAdmin
+        - packages/SystemAdmin
 
     configDirectories:
         - config
-        - app-modules/ActivityLog/config
-        - app-modules/ImportWizard/config
-        - app-modules/Documentation/config
+        - packages/ActivityLog/config
+        - packages/ImportWizard/config
+        - packages/Documentation/config
