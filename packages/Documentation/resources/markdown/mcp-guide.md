@@ -60,9 +60,35 @@ For developer tools that don't support OAuth, use an access token:
 4. Click **Create** and give your token a name
 5. Copy the token -- it won't be shown again
 
-The token scopes your access to the team you select when creating it.
+The token scopes your access to the team you select when creating it. All MCP operations use that team's data.
+
+---
+
+## Setup by Client
+
+The MCP server endpoint is `https://mcp.relaticle.com`. Replace `YOUR_TOKEN` in the examples below with the access token you created above.
+
+### Claude Desktop
+
+Add this to your Claude Desktop configuration file (`claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "relaticle": {
+      "type": "streamable-http",
+      "url": "https://mcp.relaticle.com",
+      "headers": {
+        "Authorization": "Bearer YOUR_TOKEN"
+      }
+    }
+  }
+}
+```
 
 ### Claude Code
+
+Add the server from your terminal:
 
 ```bash
 claude mcp add relaticle \

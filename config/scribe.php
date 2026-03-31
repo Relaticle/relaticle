@@ -32,14 +32,14 @@ return [
     ,
     // The base URL displayed in the docs.
     // If you're using `laravel` type, you can set this to a dynamic string, like '{{ config("app.tenant_url") }}' to get a dynamic base URL.
-    'base_url' => config('app.url'),
+    'base_url' => config('app.api_domain') ? 'https://'.config('app.api_domain') : config('app.url'),
 
     // Routes to include in the docs
     'routes' => [
         [
             'match' => [
                 // Match only routes whose paths match this pattern (use * as a wildcard to match any characters). Example: 'users/*'.
-                'prefixes' => ['api/v1/*'],
+                'prefixes' => config('app.api_domain') ? ['v1/*'] : ['api/v1/*'],
 
                 // Match only routes whose domains match this pattern (use * as a wildcard to match any characters). Example: 'api.*'.
                 'domains' => ['*'],

@@ -7,7 +7,6 @@ namespace App\Actions\Opportunity;
 use App\Models\Opportunity;
 use App\Models\User;
 use App\Support\CustomFieldMerger;
-use App\Support\HtmlSanitizer;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
@@ -23,7 +22,6 @@ final readonly class UpdateOpportunity
         $attributes = Arr::only($data, ['name', 'company_id', 'contact_id', 'custom_fields']);
 
         $attributes = CustomFieldMerger::merge($opportunity, $attributes);
-        $attributes = HtmlSanitizer::sanitizeAttributes($attributes);
 
         return DB::transaction(function () use ($opportunity, $attributes): Opportunity {
             $opportunity->update($attributes);

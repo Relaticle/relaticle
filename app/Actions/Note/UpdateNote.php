@@ -7,7 +7,6 @@ namespace App\Actions\Note;
 use App\Models\Note;
 use App\Models\User;
 use App\Support\CustomFieldMerger;
-use App\Support\HtmlSanitizer;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
@@ -23,7 +22,6 @@ final readonly class UpdateNote
         $attributes = Arr::only($data, ['title', 'custom_fields']);
 
         $attributes = CustomFieldMerger::merge($note, $attributes);
-        $attributes = HtmlSanitizer::sanitizeAttributes($attributes);
 
         return DB::transaction(function () use ($note, $attributes, $data): Note {
             $note->update($attributes);

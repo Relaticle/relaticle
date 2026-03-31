@@ -7,7 +7,6 @@ namespace App\Actions\People;
 use App\Enums\CreationSource;
 use App\Models\People;
 use App\Models\User;
-use App\Support\HtmlSanitizer;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
@@ -22,8 +21,6 @@ final readonly class CreatePeople
 
         $attributes = Arr::only($data, ['name', 'company_id', 'custom_fields']);
         $attributes['creation_source'] = $source;
-
-        $attributes = HtmlSanitizer::sanitizeAttributes($attributes);
 
         $person = DB::transaction(fn (): People => People::query()->create($attributes));
 

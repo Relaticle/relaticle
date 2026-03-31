@@ -7,7 +7,6 @@ namespace App\Actions\Task;
 use App\Enums\CreationSource;
 use App\Models\Task;
 use App\Models\User;
-use App\Support\HtmlSanitizer;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
@@ -31,8 +30,6 @@ final readonly class CreateTask
 
         $attributes = Arr::only($data, ['title', 'custom_fields']);
         $attributes['creation_source'] = $source;
-
-        $attributes = HtmlSanitizer::sanitizeAttributes($attributes);
 
         $task = DB::transaction(function () use ($attributes, $companyIds, $peopleIds, $opportunityIds, $assigneeIds): Task {
             $task = Task::query()->create($attributes);

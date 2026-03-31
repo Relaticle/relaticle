@@ -7,7 +7,6 @@ namespace App\Actions\Company;
 use App\Enums\CreationSource;
 use App\Models\Company;
 use App\Models\User;
-use App\Support\HtmlSanitizer;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
@@ -22,8 +21,6 @@ final readonly class CreateCompany
 
         $attributes = Arr::only($data, ['name', 'custom_fields']);
         $attributes['creation_source'] = $source;
-
-        $attributes = HtmlSanitizer::sanitizeAttributes($attributes);
 
         $company = DB::transaction(fn (): Company => Company::query()->create($attributes));
 
