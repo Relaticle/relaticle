@@ -19,6 +19,7 @@ use Filament\Schemas\Components\Flex;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Js;
+use Relaticle\ActivityLog\Filament\RelationManagers\ActivitiesRelationManager;
 use Relaticle\CustomFields\Facades\CustomFields;
 
 final class ViewOpportunity extends ViewRecord
@@ -63,6 +64,13 @@ final class ViewOpportunity extends ViewRecord
                 ])->dropdown(false),
                 DeleteAction::make(),
             ]),
+        ];
+    }
+
+    public function getRelationManagers(): array
+    {
+        return [
+            ActivitiesRelationManager::class,
         ];
     }
 
