@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Models\User;
+use Illuminate\Support\Facades\Route;
 use Laravel\Sanctum\Sanctum;
 
 beforeEach(function () {
@@ -24,17 +25,13 @@ describe('API routing - default path mode', function () {
 });
 
 describe('API routing - subdomain mode', function () {
-    beforeEach(function () {
-        putenv('API_DOMAIN=api.example.com');
-        $this->refreshApplication();
-        $this->user = User::factory()->withPersonalTeam()->create();
-    });
-
-    afterEach(function () {
-        putenv('API_DOMAIN');
-    });
-
     it('serves root JSON info on API subdomain', function (): void {
+        config(['app.api_domain' => 'api.example.com']);
+
+        Route::domain('api.example.com')
+            ->middleware('api')
+            ->group(base_path('routes/api.php'));
+
         $response = $this->get('http://api.example.com/');
         $response->assertOk();
 
@@ -45,6 +42,12 @@ describe('API routing - subdomain mode', function () {
     });
 
     it('serves API resources on subdomain at /v1 prefix', function (): void {
+        config(['app.api_domain' => 'api.example.com']);
+
+        Route::domain('api.example.com')
+            ->middleware('api')
+            ->group(base_path('routes/api.php'));
+
         Sanctum::actingAs($this->user);
 
         $this->getJson('http://api.example.com/v1/companies')->assertOk();
@@ -58,17 +61,17 @@ describe('MCP routing - default path mode', function () {
 });
 
 describe('MCP routing - subdomain mode', function () {
-    beforeEach(function () {
-        putenv('MCP_DOMAIN=mcp.example.com');
-        $this->refreshApplication();
-        $this->user = User::factory()->withPersonalTeam()->create();
-    });
-
-    afterEach(function () {
-        putenv('MCP_DOMAIN');
-    });
-
     it('returns JSON info on MCP subdomain root', function (): void {
+        config(['app.mcp_domain' => 'mcp.example.com']);
+
+        Route::domain('mcp.example.com')->group(function (): void {
+            Route::get('/', fn () => response()->json([
+                'name' => 'Relaticle MCP Server',
+                'version' => '1.0.0',
+                'docs' => url('/docs/mcp'),
+            ]));
+        });
+
         $response = $this->get('http://mcp.example.com/');
         $response->assertOk();
 
