@@ -23,7 +23,7 @@ final class ActivitiesRelationManager extends RelationManager
     public static function getTabComponent(Model $ownerRecord, string $pageClass): Tab
     {
         return Tab::make('Activity')
-            ->badge(fn (): int => Activity::withoutGlobalScopes()
+            ->badge(fn (): int => Activity::query()->withoutGlobalScopes()
                 ->where('subject_type', $ownerRecord->getMorphClass())
                 ->where('subject_id', $ownerRecord->getKey())
                 ->where('team_id', $ownerRecord->team_id)

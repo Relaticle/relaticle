@@ -19,42 +19,42 @@ final readonly class ActivityPolicy
         return $user->currentTeam?->id === $activity->team_id;
     }
 
-    public function create(User $user): bool
+    public function create(): bool
     {
         return false;
     }
 
-    public function update(User $user, Activity $activity): bool
+    public function update(): bool
     {
         return false;
     }
 
-    public function delete(User $user, Activity $activity): bool
+    public function delete(): bool
     {
         return false;
     }
 
-    public function deleteAny(User $user): bool
+    public function deleteAny(): bool
     {
         return false;
     }
 
-    public function restore(User $user, Activity $activity): bool
+    public function restore(): bool
     {
         return false;
     }
 
-    public function restoreAny(User $user): bool
+    public function restoreAny(): bool
     {
         return false;
     }
 
-    public function forceDelete(User $user, Activity $activity): bool
+    public function forceDelete(): bool
     {
         return false;
     }
 
-    public function forceDeleteAny(User $user): bool
+    public function forceDeleteAny(): bool
     {
         return false;
     }

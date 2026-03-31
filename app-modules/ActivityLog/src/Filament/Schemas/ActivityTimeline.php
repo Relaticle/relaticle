@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Relaticle\ActivityLog\Filament\Schemas;
 
 use Illuminate\Contracts\View\View;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Date;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 use Relaticle\ActivityLog\Models\Activity;
@@ -36,7 +36,7 @@ final class ActivityTimeline extends Component
     #[Computed]
     public function timelineData(): array
     {
-        $query = Activity::withoutGlobalScopes()
+        $query = Activity::query()->withoutGlobalScopes()
             ->where('subject_type', $this->subjectType)
             ->where('subject_id', $this->subjectId)
             ->where('team_id', $this->teamId)
@@ -52,7 +52,7 @@ final class ActivityTimeline extends Component
         $activities = $activities->take($this->page * $this->perPage);
 
         return [
-            'entries' => $activities->map(fn (Activity $activity) => [
+            'entries' => $activities->map(fn (Activity $activity): array => [
                 'id' => $activity->id,
                 'event' => $activity->event,
                 'description' => $this->buildDescription($activity),
@@ -107,14 +107,14 @@ final class ActivityTimeline extends Component
         $attributes = $changes['attributes'] ?? [];
         $attributes = $attributes instanceof Collection ? $attributes->toArray() : (array) $attributes;
 
-        if (empty($attributes)) {
+        if (blank($attributes)) {
             return "{$causerName} updated this record";
         }
 
         $changedFields = array_keys($attributes);
 
         $fieldList = collect($changedFields)
-            ->map(fn (string $field) => $this->humanizeFieldName($field))
+            ->map(fn (string $field): string => $this->humanizeFieldName($field))
             ->join(', ', ' and ');
 
         return "{$causerName} updated {$fieldList}";
@@ -136,8 +136,8 @@ final class ActivityTimeline extends Component
         $attributes = $attributes instanceof Collection ? $attributes->toArray() : (array) $attributes;
 
         return [
-            'old' => array_map(fn (mixed $value) => $this->formatValue($value), $old),
-            'attributes' => array_map(fn (mixed $value) => $this->formatValue($value), $attributes),
+            'old' => array_map($this->formatValue(...), $old),
+            'attributes' => array_map($this->formatValue(...), $attributes),
         ];
     }
 
@@ -182,7 +182,7 @@ final class ActivityTimeline extends Component
 
         if (preg_match('/^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}/', $stringValue)) {
             try {
-                return Carbon::parse($stringValue)->format('M j, Y g:i A');
+                return Date::parse($stringValue)->format('M j, Y g:i A');
             } catch (\Exception) {
                 // Fall through
             }
@@ -190,7 +190,7 @@ final class ActivityTimeline extends Component
 
         if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $stringValue)) {
             try {
-                return Carbon::parse($stringValue)->format('M j, Y');
+                return Date::parse($stringValue)->format('M j, Y');
             } catch (\Exception) {
                 // Fall through
             }
