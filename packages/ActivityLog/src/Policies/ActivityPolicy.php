@@ -4,18 +4,23 @@ declare(strict_types=1);
 
 namespace Relaticle\ActivityLog\Policies;
 
-use App\Models\User;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Relaticle\ActivityLog\Models\Activity;
 
 final readonly class ActivityPolicy
 {
-    public function viewAny(User $user): bool
+    public function viewAny(Authenticatable $user): bool
     {
-        return $user->hasVerifiedEmail() && $user->currentTeam !== null;
+        return method_exists($user, 'hasVerifiedEmail') && $user->hasVerifiedEmail()
+            && method_exists($user, 'currentTeam') && $user->currentTeam !== null;
     }
 
-    public function view(User $user, Activity $activity): bool
+    public function view(Authenticatable $user, Activity $activity): bool
     {
+        if (! method_exists($user, 'currentTeam')) {
+            return false;
+        }
+
         return $user->currentTeam?->id === $activity->team_id;
     }
 
