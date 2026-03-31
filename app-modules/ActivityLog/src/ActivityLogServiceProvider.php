@@ -21,7 +21,7 @@ final class ActivityLogServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        $this->app['config']->set('activitylog.activity_model', Activity::class);
+        config()->set('activitylog.activity_model', Activity::class);
 
         Gate::policy(Activity::class, ActivityPolicy::class);
         Gate::policy(SpatieActivity::class, ActivityPolicy::class);
