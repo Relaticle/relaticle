@@ -18,7 +18,7 @@
 
     {{-- Timeline --}}
     <div class="max-h-[500px] space-y-0 overflow-y-auto" style="scrollbar-gutter: stable;">
-        @if (empty($data['entries']))
+        @if (empty($data['groups']))
             <div class="flex flex-col items-center justify-center py-12 text-center">
                 <x-filament::icon
                     icon="heroicon-o-clock"
@@ -28,7 +28,8 @@
                 <p class="mt-1 text-xs text-gray-400 dark:text-gray-500">Changes to this record will appear here</p>
             </div>
         @else
-            @foreach ($data['entries'] as $entry)
+            @foreach ($data['groups'] as $group)
+                @foreach ($group['entries'] as $entry)
                 <div class="relative flex gap-3 py-3" wire:key="activity-{{ $entry['id'] }}">
                     {{-- Timeline Line --}}
                     @if (! $loop->last)
@@ -100,6 +101,7 @@
                         @endif
                     </div>
                 </div>
+                @endforeach
             @endforeach
 
             {{-- Load More --}}

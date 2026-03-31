@@ -34,7 +34,7 @@ final class ActivityTimeline extends Component
         $this->subjectId = $subjectId;
     }
 
-    /** @return array{entries: array<int, array<string, mixed>>, hasMore: bool} */
+    /** @return array{groups: list<array{label: string, date: string, entries: list<array<string, mixed>>}>, hasMore: bool} */
     #[Computed]
     public function timelineData(): array
     {
@@ -52,22 +52,26 @@ final class ActivityTimeline extends Component
         $hasMore = $activities->count() > ($this->page * $this->perPage);
         $activities = $activities->take($this->page * $this->perPage);
 
-        $entries = [];
-        foreach ($activities as $activity) {
-            $entries[] = [
-                'id' => $activity->id,
-                'event' => $activity->event,
-                'description' => $this->buildDescription($activity),
-                'causer_name' => $this->resolveCauserName($activity),
-                'causer_avatar' => $activity->causer?->getAttribute('profile_photo_url'),
-                'changes' => $activity->event === 'updated' ? $this->formatChanges($activity) : null,
-                'created_at' => $activity->created_at->toIso8601String(),
-                'created_at_human' => $activity->created_at->diffForHumans(),
+        $grouped = $activities->groupBy(
+            fn (Activity $activity): string => $activity->created_at->toDateString()
+        );
+
+        $groups = [];
+        foreach ($grouped as $date => $dateActivities) {
+            $entries = [];
+            foreach ($dateActivities as $activity) {
+                $entries[] = $this->transformActivity($activity);
+            }
+
+            $groups[] = [
+                'label' => $this->humanizeDateLabel($date),
+                'date' => $date,
+                'entries' => $entries,
             ];
         }
 
         return [
-            'entries' => $entries,
+            'groups' => $groups,
             'hasMore' => $hasMore,
         ];
     }
@@ -90,6 +94,78 @@ final class ActivityTimeline extends Component
         return view('activity-log::filament.schemas.activity-timeline', [
             'data' => $this->timelineData(),
         ]);
+    }
+
+    /** @return array<string, mixed> */
+    private function transformActivity(Activity $activity): array
+    {
+        return [
+            'id' => $activity->id,
+            'event' => $activity->event,
+            'description' => $this->buildDescription($activity),
+            'causer_name' => $this->resolveCauserName($activity),
+            'causer_avatar' => $activity->causer?->getAttribute('profile_photo_url'),
+            'causer_initials' => $this->resolveCauserInitials($activity),
+            'changes' => $activity->event === 'updated' ? $this->formatChanges($activity) : null,
+            'field_count' => $activity->event === 'updated' ? $this->countChangedFields($activity) : 0,
+            'created_at' => $activity->created_at->toIso8601String(),
+            'created_at_human' => $activity->created_at->diffForHumans(),
+            'created_at_time' => $activity->created_at->format('g:i A'),
+        ];
+    }
+
+    private function humanizeDateLabel(string $date): string
+    {
+        $carbon = Date::parse($date);
+
+        if ($carbon->isToday()) {
+            return 'Today';
+        }
+
+        if ($carbon->isYesterday()) {
+            return 'Yesterday';
+        }
+
+        if ($carbon->isCurrentWeek()) {
+            return $carbon->format('l');
+        }
+
+        if ($carbon->isCurrentYear()) {
+            return $carbon->format('M j');
+        }
+
+        return $carbon->format('M j, Y');
+    }
+
+    private function resolveCauserInitials(Activity $activity): ?string
+    {
+        $name = $this->resolveCauserName($activity);
+
+        if (! $name) {
+            return null;
+        }
+
+        $parts = explode(' ', $name);
+
+        if (count($parts) >= 2) {
+            return mb_strtoupper(mb_substr($parts[0], 0, 1).mb_substr(end($parts), 0, 1));
+        }
+
+        return mb_strtoupper(mb_substr($name, 0, 2));
+    }
+
+    private function countChangedFields(Activity $activity): int
+    {
+        $changes = $activity->attribute_changes;
+
+        if (! $changes) {
+            return 0;
+        }
+
+        $attributes = $changes['attributes'] ?? [];
+        $attributes = $attributes instanceof Collection ? $attributes->toArray() : (array) $attributes;
+
+        return count($attributes);
     }
 
     private function buildDescription(Activity $activity): string
