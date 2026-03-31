@@ -4,9 +4,13 @@ declare(strict_types=1);
 
 namespace Relaticle\ActivityLog;
 
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
 use Relaticle\ActivityLog\Filament\Schemas\ActivityTimeline;
+use Relaticle\ActivityLog\Models\Activity;
+use Relaticle\ActivityLog\Policies\ActivityPolicy;
+use Spatie\Activitylog\Models\Activity as SpatieActivity;
 
 final class ActivityLogServiceProvider extends ServiceProvider
 {
@@ -17,6 +21,9 @@ final class ActivityLogServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        Gate::policy(Activity::class, ActivityPolicy::class);
+        Gate::policy(SpatieActivity::class, ActivityPolicy::class);
+
         Livewire::component('activity-timeline', ActivityTimeline::class);
 
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');

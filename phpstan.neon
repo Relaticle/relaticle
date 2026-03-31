@@ -28,5 +28,6 @@ parameters:
 
     configDirectories:
         - config
+        - app-modules/ActivityLog/config
         - app-modules/ImportWizard/config
         - app-modules/Documentation/config

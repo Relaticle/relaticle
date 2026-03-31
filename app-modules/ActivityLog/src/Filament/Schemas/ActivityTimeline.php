@@ -34,7 +34,7 @@ final class ActivityTimeline extends Component
         $this->subjectId = $subjectId;
     }
 
-    /** @return array{entries: list<array<string, mixed>>, hasMore: bool} */
+    /** @return array{entries: array<int, array<string, mixed>>, hasMore: bool} */
     #[Computed]
     public function timelineData(): array
     {
@@ -52,17 +52,22 @@ final class ActivityTimeline extends Component
         $hasMore = $activities->count() > ($this->page * $this->perPage);
         $activities = $activities->take($this->page * $this->perPage);
 
-        return [
-            'entries' => $activities->map(fn (Activity $activity): array => [
+        $entries = [];
+        foreach ($activities as $activity) {
+            $entries[] = [
                 'id' => $activity->id,
                 'event' => $activity->event,
                 'description' => $this->buildDescription($activity),
                 'causer_name' => $this->resolveCauserName($activity),
-                'causer_avatar' => $activity->causer?->profile_photo_url,
+                'causer_avatar' => $activity->causer?->getAttribute('profile_photo_url'),
                 'changes' => $activity->event === 'updated' ? $this->formatChanges($activity) : null,
                 'created_at' => $activity->created_at->toIso8601String(),
                 'created_at_human' => $activity->created_at->diffForHumans(),
-            ])->values()->all(),
+            ];
+        }
+
+        return [
+            'entries' => $entries,
             'hasMore' => $hasMore,
         ];
     }
@@ -70,14 +75,14 @@ final class ActivityTimeline extends Component
     public function loadMore(): void
     {
         $this->page++;
-        unset($this->timelineData);
+        unset($this->timelineData); // @phpstan-ignore property.notFound
     }
 
     public function setFilter(string $filter): void
     {
         $this->filter = $filter;
         $this->page = 1;
-        unset($this->timelineData);
+        unset($this->timelineData); // @phpstan-ignore property.notFound
     }
 
     public function render(): View
@@ -176,7 +181,7 @@ final class ActivityTimeline extends Component
         }
 
         if (is_array($value)) {
-            return json_encode($value, JSON_PRETTY_PRINT);
+            return (string) json_encode($value, JSON_PRETTY_PRINT);
         }
 
         $stringValue = (string) $value;

@@ -25,9 +25,12 @@ trait LogsActivityForCrm
     /** @return list<string> */
     protected function getActivityLogExcludedAttributes(): array
     {
-        return array_merge(
+        /** @var list<string> $exclusions */
+        $exclusions = property_exists($this, 'additionalActivityLogExclusions') ? $this->additionalActivityLogExclusions : [];
+
+        return array_values(array_merge(
             ['id', 'team_id', 'creator_id', 'creation_source', 'created_at', 'updated_at', 'deleted_at'],
-            $this->additionalActivityLogExclusions ?? [],
-        );
+            $exclusions,
+        ));
     }
 }
