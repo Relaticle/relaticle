@@ -9,6 +9,7 @@ use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
 use Relaticle\ActivityLog\Contracts\TenantResolver;
 use Relaticle\ActivityLog\Filament\Schemas\ActivityTimeline;
+use Relaticle\ActivityLog\Filament\Schemas\AttributeHistory;
 use Relaticle\ActivityLog\Models\Activity;
 use Relaticle\ActivityLog\Policies\ActivityPolicy;
 use Spatie\Activitylog\Models\Activity as SpatieActivity;
@@ -38,6 +39,7 @@ final class ActivityLogServiceProvider extends ServiceProvider
         Gate::policy(SpatieActivity::class, ActivityPolicy::class);
 
         Livewire::component('activity-timeline', ActivityTimeline::class);
+        Livewire::component('attribute-history', AttributeHistory::class);
 
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'activity-log');
