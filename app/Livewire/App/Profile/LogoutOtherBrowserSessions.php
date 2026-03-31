@@ -21,6 +21,8 @@ final class LogoutOtherBrowserSessions extends BaseLivewireComponent
 {
     public function form(Schema $schema): Schema
     {
+        $hasPassword = $this->authUser()->hasPassword();
+
         return $schema
             ->schema([
                 Section::make(__('profile.sections.browser_sessions.title'))
@@ -36,32 +38,34 @@ final class LogoutOtherBrowserSessions extends BaseLivewireComponent
                                 ->label(__('profile.actions.log_out_other_browsers'))
                                 ->requiresConfirmation()
                                 ->modalHeading(__('profile.modals.log_out_other_browsers.title'))
-                                ->modalDescription(__('profile.modals.log_out_other_browsers.description'))
+                                ->modalDescription($hasPassword ? __('profile.modals.log_out_other_browsers.description') : __('profile.modals.log_out_other_browsers.description_no_password'))
                                 ->modalSubmitActionLabel(__('profile.actions.log_out_other_browsers'))
                                 ->modalCancelAction(false)
-                                ->schema([
+                                ->schema($hasPassword ? [
                                     Forms\Components\TextInput::make('password')
                                         ->password()
                                         ->revealable()
                                         ->label(__('profile.form.password.label'))
                                         ->required()
                                         ->currentPassword(),
-                                ])
+                                ] : [])
                                 ->action(
-                                    fn (array $data) => $this->logoutOtherBrowserSessions($data['password'])
+                                    fn (array $data) => $this->logoutOtherBrowserSessions($data['password'] ?? null)
                                 ),
                         ]),
                     ]),
             ]);
     }
 
-    public function logoutOtherBrowserSessions(string $password): void
+    public function logoutOtherBrowserSessions(?string $password): void
     {
         if (config('session.driver') !== 'database') {
             return;
         }
 
-        auth(filament()->getAuthGuard())->logoutOtherDevices($password);
+        if ($password !== null) {
+            auth(filament()->getAuthGuard())->logoutOtherDevices($password);
+        }
 
         DB::connection(config('session.connection'))
             ->table(config('session.table', 'sessions'))

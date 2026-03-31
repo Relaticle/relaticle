@@ -2,34 +2,36 @@
 
 declare(strict_types=1);
 
+use App\Livewire\App\Profile\DeleteAccount;
 use App\Models\User;
-use Laravel\Jetstream\Features;
-use Laravel\Jetstream\Http\Livewire\DeleteUserForm;
 use Livewire\Livewire;
 
-mutates(User::class);
+mutates(DeleteAccount::class, User::class);
 
-test('user accounts can be deleted', function () {
-    $this->actingAs($user = User::factory()->create());
+test('social user can delete account without password', function () {
+    $this->actingAs($user = User::factory()->withTeam()->socialOnly()->create());
 
-    Livewire::test(DeleteUserForm::class)
-        ->set('password', 'password')
-        ->call('deleteUser');
+    Livewire::test(DeleteAccount::class)
+        ->call('deleteAccount')
+        ->assertRedirect();
 
     expect($user->fresh())->toBeNull();
-})->skip(function () {
-    return ! Features::hasAccountDeletionFeatures();
-}, 'Account deletion is not enabled.');
+});
 
-test('correct password must be provided before account can be deleted', function () {
-    $this->actingAs($user = User::factory()->create());
+test('password user can delete account', function () {
+    $this->actingAs($user = User::factory()->withTeam()->create());
 
-    Livewire::test(DeleteUserForm::class)
-        ->set('password', 'wrong-password')
-        ->call('deleteUser')
-        ->assertHasErrors(['password']);
+    Livewire::test(DeleteAccount::class)
+        ->call('deleteAccount')
+        ->assertRedirect();
 
-    expect($user->fresh())->not->toBeNull();
-})->skip(function () {
-    return ! Features::hasAccountDeletionFeatures();
-}, 'Account deletion is not enabled.');
+    expect($user->fresh())->toBeNull();
+});
+
+test('delete account component renders correctly', function () {
+    $this->actingAs(User::factory()->withTeam()->create());
+
+    Livewire::test(DeleteAccount::class)
+        ->assertSuccessful()
+        ->assertSee('Delete Account');
+});
