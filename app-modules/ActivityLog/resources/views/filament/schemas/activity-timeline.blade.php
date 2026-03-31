@@ -81,12 +81,17 @@
                         </div>
 
                         {{-- Attribute Changes --}}
-                        @if (! empty($entry['changes']['old']))
+                        @php
+                            $oldAttributes = (array) data_get($entry, 'changes.old', []);
+                            $newAttributes = (array) data_get($entry, 'changes.attributes', []);
+                        @endphp
+
+                        @if (! empty($oldAttributes))
                             <div class="mt-1.5 rounded-md border border-gray-100 bg-gray-50/50 p-2 dark:border-white/5 dark:bg-white/5">
-                                @foreach ($entry['changes']['attributes'] as $field => $newVal)
+                                @foreach ($newAttributes as $field => $newVal)
                                     <div class="flex items-center gap-1.5 py-0.5 text-xs">
                                         <span class="font-medium text-gray-500 dark:text-gray-400">{{ str($field)->when(str($field)->endsWith('_id'), fn ($s) => $s->beforeLast('_id'))->headline() }}</span>
-                                        <span class="text-gray-400 line-through dark:text-gray-500">{{ $entry['changes']['old'][$field] ?? '(empty)' }}</span>
+                                        <span class="text-gray-400 line-through dark:text-gray-500">{{ $oldAttributes[$field] ?? '(empty)' }}</span>
                                         <span class="text-gray-400 dark:text-gray-500">&rarr;</span>
                                         <span class="text-gray-700 dark:text-gray-300">{{ $newVal }}</span>
                                     </div>

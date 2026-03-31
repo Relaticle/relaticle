@@ -15,8 +15,12 @@ final class TeamScope implements Scope
     {
         $tenant = Filament::getTenant();
 
-        if ($tenant) {
-            $builder->where('team_id', $tenant->getKey());
+        if ($tenant === null) {
+            $builder->whereRaw('1 = 0');
+
+            return;
         }
+
+        $builder->where('team_id', $tenant->getKey());
     }
 }

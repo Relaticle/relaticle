@@ -23,10 +23,9 @@ final class ActivitiesRelationManager extends RelationManager
     public static function getTabComponent(Model $ownerRecord, string $pageClass): Tab
     {
         return Tab::make('Activity')
-            ->badge(fn (): int => Activity::query()->withoutGlobalScopes()
+            ->badge(fn (): int => Activity::query()
                 ->where('subject_type', $ownerRecord->getMorphClass())
                 ->where('subject_id', $ownerRecord->getKey())
-                ->where('team_id', $ownerRecord->team_id)
                 ->count()
             )
             ->icon(Heroicon::OutlinedClock);
@@ -48,7 +47,6 @@ final class ActivitiesRelationManager extends RelationManager
                 Livewire::make(ActivityTimeline::class, [
                     'subjectType' => $record->getMorphClass(),
                     'subjectId' => $record->getKey(),
-                    'teamId' => $record->team_id,
                 ])->lazy(),
             ]);
     }

@@ -8,38 +8,38 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Date;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\Locked;
 use Livewire\Component;
 use Relaticle\ActivityLog\Models\Activity;
 
 final class ActivityTimeline extends Component
 {
+    #[Locked]
     public string $subjectType;
 
+    #[Locked]
     public string $subjectId;
-
-    public string $teamId;
 
     public int $page = 1;
 
     public string $filter = 'all';
 
+    #[Locked]
     public int $perPage = 20;
 
-    public function mount(string $subjectType, string $subjectId, string $teamId): void
+    public function mount(string $subjectType, string $subjectId): void
     {
         $this->subjectType = $subjectType;
         $this->subjectId = $subjectId;
-        $this->teamId = $teamId;
     }
 
     /** @return array{entries: list<array<string, mixed>>, hasMore: bool} */
     #[Computed]
     public function timelineData(): array
     {
-        $query = Activity::query()->withoutGlobalScopes()
+        $query = Activity::query()
             ->where('subject_type', $this->subjectType)
             ->where('subject_id', $this->subjectId)
-            ->where('team_id', $this->teamId)
             ->with('causer')
             ->latest();
 
@@ -61,7 +61,7 @@ final class ActivityTimeline extends Component
                 'changes' => $activity->event === 'updated' ? $this->formatChanges($activity) : null,
                 'created_at' => $activity->created_at->toIso8601String(),
                 'created_at_human' => $activity->created_at->diffForHumans(),
-            ])->values()->toArray(),
+            ])->values()->all(),
             'hasMore' => $hasMore,
         ];
     }
