@@ -7,6 +7,7 @@ namespace Relaticle\ActivityLog;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
+use Relaticle\ActivityLog\Contracts\TenantResolver;
 use Relaticle\ActivityLog\Filament\Schemas\ActivityTimeline;
 use Relaticle\ActivityLog\Models\Activity;
 use Relaticle\ActivityLog\Policies\ActivityPolicy;
@@ -17,6 +18,16 @@ final class ActivityLogServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->mergeConfigFrom(__DIR__.'/../config/activitylog.php', 'activitylog');
+
+        $this->app->bind(
+            TenantResolver::class,
+            static function (): TenantResolver {
+                /** @var class-string<TenantResolver> $resolverClass */
+                $resolverClass = config('activitylog.tenant_resolver');
+
+                return new $resolverClass;
+            }
+        );
     }
 
     public function boot(): void

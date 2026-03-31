@@ -1,7 +1,9 @@
 <?php
 
 declare(strict_types=1);
+
 use Relaticle\ActivityLog\Models\Activity;
+use Relaticle\ActivityLog\Support\FilamentTenantResolver;
 
 return [
     'enabled' => env('ACTIVITYLOG_ENABLED', true),
@@ -10,4 +12,5 @@ return [
     'default_auth_driver' => null,
     'include_soft_deleted_subjects' => true,
     'activity_model' => Activity::class,
+    'tenant_resolver' => FilamentTenantResolver::class,
 ];
