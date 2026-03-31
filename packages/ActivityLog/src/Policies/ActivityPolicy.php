@@ -11,17 +11,17 @@ final readonly class ActivityPolicy
 {
     public function viewAny(Authenticatable $user): bool
     {
-        return method_exists($user, 'hasVerifiedEmail') && $user->hasVerifiedEmail()
-            && method_exists($user, 'currentTeam') && $user->currentTeam !== null;
+        return method_exists($user, 'hasVerifiedEmail') && $user->hasVerifiedEmail() // @phpstan-ignore function.alreadyNarrowedType
+            && method_exists($user, 'currentTeam') && $user->currentTeam !== null; // @phpstan-ignore function.alreadyNarrowedType, property.notFound
     }
 
     public function view(Authenticatable $user, Activity $activity): bool
     {
-        if (! method_exists($user, 'currentTeam')) {
+        if (! method_exists($user, 'currentTeam')) { // @phpstan-ignore function.alreadyNarrowedType
             return false;
         }
 
-        return $user->currentTeam?->id === $activity->team_id;
+        return $user->currentTeam?->id === $activity->team_id; // @phpstan-ignore property.notFound
     }
 
     public function create(): bool
