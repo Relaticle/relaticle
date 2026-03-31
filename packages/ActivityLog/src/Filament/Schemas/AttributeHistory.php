@@ -6,6 +6,7 @@ namespace Relaticle\ActivityLog\Filament\Schemas;
 
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Stringable;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
@@ -79,7 +80,7 @@ final class AttributeHistory extends Component
         return view('activity-log::filament.schemas.attribute-history', [
             'history' => $this->historyData(),
             'fieldLabel' => str($this->attribute)
-                ->when(str($this->attribute)->endsWith('_id'), fn ($s) => $s->beforeLast('_id'))
+                ->when(str($this->attribute)->endsWith('_id'), fn (Stringable $s) => $s->beforeLast('_id'))
                 ->headline()
                 ->toString(),
         ]);
