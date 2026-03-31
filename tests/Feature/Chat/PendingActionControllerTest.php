@@ -1,0 +1,162 @@
+<?php
+
+declare(strict_types=1);
+
+use App\Actions\Company\CreateCompany;
+use App\Enums\PendingActionOperation;
+use App\Enums\PendingActionStatus;
+use App\Http\Controllers\Chat\PendingActionController;
+use App\Models\PendingAction;
+use App\Models\User;
+use Filament\Facades\Filament;
+
+mutates(PendingActionController::class);
+
+beforeEach(function () {
+    $this->user = User::factory()->withPersonalTeam()->create();
+    $this->team = $this->user->currentTeam;
+    $this->actingAs($this->user);
+    Filament::setTenant($this->team);
+});
+
+it('approves a pending action and creates the record', function (): void {
+    $pending = PendingAction::query()->create([
+        'team_id' => $this->team->getKey(),
+        'user_id' => $this->user->getKey(),
+        'conversation_id' => 'conv-123',
+        'action_class' => CreateCompany::class,
+        'operation' => PendingActionOperation::Create,
+        'entity_type' => 'company',
+        'action_data' => ['name' => 'Test Corp'],
+        'display_data' => ['title' => 'Create Company', 'summary' => 'Create company "Test Corp"', 'fields' => []],
+        'status' => PendingActionStatus::Pending,
+        'expires_at' => now()->addMinutes(15),
+    ]);
+
+    $this->postJson(route('chat.actions.approve', $pending))
+        ->assertOk()
+        ->assertJsonPath('status', 'approved');
+
+    $this->assertDatabaseHas('companies', ['name' => 'Test Corp']);
+});
+
+it('rejects a pending action without creating the record', function (): void {
+    $pending = PendingAction::query()->create([
+        'team_id' => $this->team->getKey(),
+        'user_id' => $this->user->getKey(),
+        'conversation_id' => 'conv-123',
+        'action_class' => CreateCompany::class,
+        'operation' => PendingActionOperation::Create,
+        'entity_type' => 'company',
+        'action_data' => ['name' => 'Rejected Corp'],
+        'display_data' => ['title' => 'Create Company', 'summary' => 'Create company "Rejected Corp"', 'fields' => []],
+        'status' => PendingActionStatus::Pending,
+        'expires_at' => now()->addMinutes(15),
+    ]);
+
+    $this->postJson(route('chat.actions.reject', $pending))
+        ->assertOk()
+        ->assertJsonPath('status', 'rejected');
+
+    $this->assertDatabaseMissing('companies', ['name' => 'Rejected Corp']);
+});
+
+it('returns 422 for expired actions', function (): void {
+    $pending = PendingAction::query()->create([
+        'team_id' => $this->team->getKey(),
+        'user_id' => $this->user->getKey(),
+        'conversation_id' => 'conv-123',
+        'action_class' => CreateCompany::class,
+        'operation' => PendingActionOperation::Create,
+        'entity_type' => 'company',
+        'action_data' => ['name' => 'Expired Corp'],
+        'display_data' => [],
+        'status' => PendingActionStatus::Pending,
+        'expires_at' => now()->subMinutes(5),
+    ]);
+
+    $this->postJson(route('chat.actions.approve', $pending))
+        ->assertUnprocessable()
+        ->assertJsonPath('error', 'This action has expired');
+});
+
+it('returns 422 for already resolved actions', function (): void {
+    $pending = PendingAction::query()->create([
+        'team_id' => $this->team->getKey(),
+        'user_id' => $this->user->getKey(),
+        'conversation_id' => 'conv-123',
+        'action_class' => CreateCompany::class,
+        'operation' => PendingActionOperation::Create,
+        'entity_type' => 'company',
+        'action_data' => ['name' => 'Already Done Corp'],
+        'display_data' => [],
+        'status' => PendingActionStatus::Approved,
+        'expires_at' => now()->addMinutes(15),
+        'resolved_at' => now(),
+    ]);
+
+    $this->postJson(route('chat.actions.approve', $pending))
+        ->assertUnprocessable()
+        ->assertJsonPath('error', 'This action has already been resolved');
+});
+
+it('returns 404 for actions from another team', function (): void {
+    $otherUser = User::factory()->withPersonalTeam()->create();
+
+    $pending = PendingAction::query()->create([
+        'team_id' => $otherUser->currentTeam->getKey(),
+        'user_id' => $otherUser->getKey(),
+        'conversation_id' => 'conv-other',
+        'action_class' => CreateCompany::class,
+        'operation' => PendingActionOperation::Create,
+        'entity_type' => 'company',
+        'action_data' => ['name' => 'Other Team Corp'],
+        'display_data' => [],
+        'status' => PendingActionStatus::Pending,
+        'expires_at' => now()->addMinutes(15),
+    ]);
+
+    $this->postJson(route('chat.actions.approve', $pending))
+        ->assertNotFound();
+});
+
+it('returns 403 for actions belonging to another user on same team', function (): void {
+    $otherUser = User::factory()->create();
+    $this->team->users()->attach($otherUser, ['role' => 'member']);
+
+    $pending = PendingAction::query()->create([
+        'team_id' => $this->team->getKey(),
+        'user_id' => $otherUser->getKey(),
+        'conversation_id' => 'conv-other-user',
+        'action_class' => CreateCompany::class,
+        'operation' => PendingActionOperation::Create,
+        'entity_type' => 'company',
+        'action_data' => ['name' => 'Not My Action'],
+        'display_data' => [],
+        'status' => PendingActionStatus::Pending,
+        'expires_at' => now()->addMinutes(15),
+    ]);
+
+    $this->postJson(route('chat.actions.approve', $pending))
+        ->assertForbidden();
+});
+
+it('rejects unauthenticated approve request', function (): void {
+    $pending = PendingAction::query()->create([
+        'team_id' => $this->team->getKey(),
+        'user_id' => $this->user->getKey(),
+        'conversation_id' => 'conv-123',
+        'action_class' => CreateCompany::class,
+        'operation' => PendingActionOperation::Create,
+        'entity_type' => 'company',
+        'action_data' => ['name' => 'Unauth Corp'],
+        'display_data' => [],
+        'status' => PendingActionStatus::Pending,
+        'expires_at' => now()->addMinutes(15),
+    ]);
+
+    auth()->logout();
+
+    $this->postJson(route('chat.actions.approve', $pending))
+        ->assertUnauthorized();
+});
