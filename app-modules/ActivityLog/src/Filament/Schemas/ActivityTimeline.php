@@ -75,20 +75,20 @@ final class ActivityTimeline extends Component
     public function loadMore(): void
     {
         $this->page++;
-        unset($this->timelineData); // @phpstan-ignore property.notFound
+        unset($this->timelineData);
     }
 
     public function setFilter(string $filter): void
     {
         $this->filter = $filter;
         $this->page = 1;
-        unset($this->timelineData); // @phpstan-ignore property.notFound
+        unset($this->timelineData);
     }
 
     public function render(): View
     {
         return view('activity-log::filament.schemas.activity-timeline', [
-            'data' => $this->timelineData,
+            'data' => $this->timelineData(),
         ]);
     }
 
