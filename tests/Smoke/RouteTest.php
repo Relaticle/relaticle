@@ -45,5 +45,7 @@ routeTesting('smoke: all GET routes return non-500 response')
         'up',
         'docs/api*',
         'api/*',
+        'oauth/*',
+        '.well-known/*',
     ])
     ->assertNotServerError();

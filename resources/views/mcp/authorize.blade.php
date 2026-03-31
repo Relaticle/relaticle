@@ -7,7 +7,7 @@
     {{-- Inline script to detect system dark mode preference and apply it immediately --}}
     <script>
         (function() {
-            const appearance = '{{ $appearance ?? "system" }}';
+            const appearance = @js($appearance ?? 'system');
 
             if (appearance === 'system') {
                 const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -101,7 +101,7 @@
                 <form method="POST" action="{{ route('passport.authorizations.deny') }}" class="flex-1">
                     @csrf
                     @method('DELETE')
-                    <input type="hidden" name="state" value="">
+                    <input type="hidden" name="state" value="{{ $request->state }}">
                     <input type="hidden" name="client_id" value="{{ $client->id }}">
                     <input type="hidden" name="auth_token" value="{{ $authToken }}">
                     <button type="submit" class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 w-full">
@@ -115,7 +115,7 @@
                 <!-- Approve Form -->
                 <form method="POST" action="{{ route('passport.authorizations.approve') }}" class="flex-1" id="authorizeForm">
                     @csrf
-                    <input type="hidden" name="state" value="">
+                    <input type="hidden" name="state" value="{{ $request->state }}">
                     <input type="hidden" name="client_id" value="{{ $client->id }}">
                     <input type="hidden" name="auth_token" value="{{ $authToken }}">
                     <button type="submit" class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full" id="authorizeButton">

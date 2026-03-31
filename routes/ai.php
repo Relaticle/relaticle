@@ -9,6 +9,6 @@ use Laravel\Mcp\Facades\Mcp;
 Mcp::oauthRoutes();
 
 Mcp::web('/mcp', RelaticleServer::class)
-    ->middleware(['auth:api', 'throttle:mcp', SetApiTeamContext::class]);
+    ->middleware(['auth:sanctum,api', 'throttle:mcp', SetApiTeamContext::class]);
 
 Mcp::local('relaticle', RelaticleServer::class);

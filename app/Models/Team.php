@@ -76,6 +76,7 @@ final class Team extends JetstreamTeam implements HasAvatar
         'mail', 'email', 'contact', 'feedback', 'abuse', 'report',
 
         // Infrastructure & framework
+        '.well-known',
         'filament', 'livewire', 'storage', 'imports', 'horizon', 'scalar', 'engagement',
         'system-administrators',
         'up', 'health', 'status', 'metrics',
