@@ -21,7 +21,6 @@ final class ActivityLogServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(__DIR__.'/../config/activitylog.php', 'activitylog');
 
         $this->app->bind(
-            TenantResolver::class,
             static function (): TenantResolver {
                 /** @var class-string<TenantResolver> $resolverClass */
                 $resolverClass = config('activitylog.tenant_resolver');

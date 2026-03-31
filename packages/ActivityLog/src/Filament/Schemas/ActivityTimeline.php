@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Relaticle\ActivityLog\Filament\Schemas;
 
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Stringable;
@@ -217,10 +218,40 @@ final class ActivityTimeline extends Component
         $old = $old instanceof Collection ? $old->toArray() : (array) $old;
         $attributes = $attributes instanceof Collection ? $attributes->toArray() : (array) $attributes;
 
+        $formattedOld = [];
+        $formattedNew = [];
+
+        foreach ($attributes as $field => $value) {
+            $formattedNew[$field] = $this->resolveRelationshipValue($field, $value);
+            $formattedOld[$field] = $this->resolveRelationshipValue($field, $old[$field] ?? null);
+        }
+
         return [
-            'old' => array_map($this->formatValue(...), $old),
-            'attributes' => array_map($this->formatValue(...), $attributes),
+            'old' => $formattedOld,
+            'attributes' => $formattedNew,
         ];
+    }
+
+    private function resolveRelationshipValue(string $field, mixed $value): string
+    {
+        if (! is_string($value) || ! str($field)->endsWith('_id')) {
+            return $this->formatValue($value);
+        }
+
+        $morphMap = Relation::morphMap();
+        $relationName = str($field)->beforeLast('_id')->toString();
+
+        foreach ($morphMap as $alias => $modelClass) {
+            if ($alias === $relationName || str($alias)->singular()->toString() === $relationName) {
+                $record = $modelClass::query()->find($value);
+
+                if ($record) {
+                    return $record->getAttribute('name') ?? $record->getAttribute('title') ?? $this->formatValue($value);
+                }
+            }
+        }
+
+        return $this->formatValue($value);
     }
 
     private function resolveCauserName(Activity $activity): ?string
