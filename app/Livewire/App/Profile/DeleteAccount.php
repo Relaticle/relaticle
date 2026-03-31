@@ -17,6 +17,8 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Redirector;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 final class DeleteAccount extends BaseLivewireComponent
@@ -51,7 +53,7 @@ final class DeleteAccount extends BaseLivewireComponent
                                         ->required()
                                         ->currentPassword(),
                                 ] : [])
-                                ->action($this->deleteAccount(...)),
+                                ->action(fn (array $data) => $this->deleteAccount($data['password'] ?? null)),
                         ]),
                     ]),
             ]);
@@ -59,10 +61,18 @@ final class DeleteAccount extends BaseLivewireComponent
 
     /**
      * Delete the current user.
+     *
+     * @throws ValidationException
      */
-    public function deleteAccount(): Redirector|RedirectResponse
+    public function deleteAccount(?string $password = null): Redirector|RedirectResponse
     {
-        $user = auth('web')->user();
+        $user = $this->authUser();
+
+        if ($user->hasPassword() && ! Hash::check((string) $password, $user->password ?? '')) {
+            throw ValidationException::withMessages([
+                'password' => __('auth.password'),
+            ]);
+        }
 
         // Logout before deleting to prevent SessionGuard::logout() from
         // re-inserting the user when it updates the remember token.
@@ -79,13 +89,8 @@ final class DeleteAccount extends BaseLivewireComponent
                 });
             }
 
-            if (method_exists($user, 'deleteProfilePhoto')) {
-                $user->deleteProfilePhoto();
-            }
-
-            if (method_exists($user, 'tokens')) {
-                $user->tokens->each->delete();
-            }
+            $user->deleteProfilePhoto();
+            $user->tokens->each->delete();
 
             $user->delete();
         });

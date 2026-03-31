@@ -15,6 +15,8 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
 use Laravel\Jetstream\Agent;
 
 final class LogoutOtherBrowserSessions extends BaseLivewireComponent
@@ -57,8 +59,19 @@ final class LogoutOtherBrowserSessions extends BaseLivewireComponent
             ]);
     }
 
+    /**
+     * @throws ValidationException
+     */
     public function logoutOtherBrowserSessions(?string $password): void
     {
+        $user = $this->authUser();
+
+        if ($user->hasPassword() && ! Hash::check((string) $password, $user->password ?? '')) {
+            throw ValidationException::withMessages([
+                'password' => __('auth.password'),
+            ]);
+        }
+
         if (config('session.driver') !== 'database') {
             return;
         }

@@ -18,14 +18,34 @@ test('social user can delete account without password', function () {
     expect($user->fresh())->toBeNull();
 });
 
-test('password user can delete account', function () {
+test('password user can delete account with correct password', function () {
+    $this->actingAs($user = User::factory()->withTeam()->create());
+
+    Livewire::test(DeleteAccount::class)
+        ->call('deleteAccount', 'password')
+        ->assertRedirect();
+
+    expect($user->fresh())->toBeNull();
+});
+
+test('password user cannot delete account with wrong password', function () {
+    $this->actingAs($user = User::factory()->withTeam()->create());
+
+    Livewire::test(DeleteAccount::class)
+        ->call('deleteAccount', 'wrong-password')
+        ->assertHasErrors(['password']);
+
+    expect($user->fresh())->not->toBeNull();
+});
+
+test('password user cannot delete account without password', function () {
     $this->actingAs($user = User::factory()->withTeam()->create());
 
     Livewire::test(DeleteAccount::class)
         ->call('deleteAccount')
-        ->assertRedirect();
+        ->assertHasErrors(['password']);
 
-    expect($user->fresh())->toBeNull();
+    expect($user->fresh())->not->toBeNull();
 });
 
 test('delete account component renders correctly', function () {
