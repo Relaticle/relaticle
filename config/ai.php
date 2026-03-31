@@ -42,6 +42,64 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | AI Credit Limits per Plan
+    |--------------------------------------------------------------------------
+    |
+    | Monthly AI credit allowances for each subscription plan tier.
+    |
+    */
+
+    'credits' => [
+        'free' => (int) env('AI_CREDITS_FREE', 100),
+        'starter' => (int) env('AI_CREDITS_STARTER', 500),
+        'pro' => (int) env('AI_CREDITS_PRO', 2000),
+        'enterprise' => (int) env('AI_CREDITS_ENTERPRISE', 10000),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Model Credit Multipliers
+    |--------------------------------------------------------------------------
+    |
+    | Cost multipliers per AI model. A multiplier of 1.0 means one credit
+    | per message; higher values cost more credits per interaction.
+    |
+    */
+
+    'model_multipliers' => [
+        'claude-opus-4-20250514' => 3.0,
+        'claude-sonnet-4-5-20250514' => 1.0,
+        'claude-haiku-4-5' => 0.5,
+        'gpt-4o' => 1.5,
+        'gpt-4o-mini' => 0.5,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Tool Call Credit Bonus
+    |--------------------------------------------------------------------------
+    |
+    | Additional credits charged when the AI invokes a tool call during
+    | a chat interaction, on top of the base model multiplier cost.
+    |
+    */
+
+    'tool_call_credit_bonus' => 0.5,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Pending Action Expiry
+    |--------------------------------------------------------------------------
+    |
+    | Minutes before a pending action (awaiting user approval) expires
+    | automatically and is marked as expired.
+    |
+    */
+
+    'pending_action_expiry_minutes' => 15,
+
+    /*
+    |--------------------------------------------------------------------------
     | AI Providers
     |--------------------------------------------------------------------------
     |
