@@ -17,9 +17,42 @@ With the Relaticle MCP server, your AI assistant can:
 
 ---
 
-## Prerequisites
+## Connection Methods
 
-Before connecting an AI assistant, you need an access token:
+The MCP server supports two authentication methods:
+
+- **OAuth (recommended)** -- One-click connection via Claude, ChatGPT, or any OAuth-capable MCP client. No tokens to manage.
+- **Access Token** -- Manual token-based authentication for developer tools like Cursor and VS Code.
+
+---
+
+## OAuth Connection (Recommended)
+
+The easiest way to connect. Your AI assistant handles authentication automatically -- just authorize Relaticle when prompted.
+
+### Claude (Desktop, Web, Mobile)
+
+1. Open Claude and go to **Settings > Connectors**
+2. Click **Add custom connector**
+3. Enter the MCP server URL: `https://mcp.relaticle.com`
+4. Click **Connect** -- a browser window opens for you to log in to Relaticle
+5. Authorize the connection and you're done
+
+All MCP operations use the team associated with your Relaticle account.
+
+### ChatGPT
+
+If Relaticle is available in the ChatGPT App Directory:
+
+1. Open ChatGPT and go to **Settings > Apps**
+2. Search for **Relaticle**
+3. Click **Connect** and authorize with your Relaticle account
+
+---
+
+## Access Token Connection
+
+For developer tools that don't support OAuth, use an access token:
 
 1. Log in to Relaticle
 2. Click your avatar in the top-right corner
@@ -27,35 +60,9 @@ Before connecting an AI assistant, you need an access token:
 4. Click **Create** and give your token a name
 5. Copy the token -- it won't be shown again
 
-The token scopes your access to the team you select when creating it. All MCP operations use that team's data.
-
----
-
-## Setup by Client
-
-The MCP server endpoint is `https://mcp.relaticle.com`. Replace `YOUR_TOKEN` in the examples below with the access token you created above.
-
-### Claude Desktop
-
-Add this to your Claude Desktop configuration file (`claude_desktop_config.json`):
-
-```json
-{
-  "mcpServers": {
-    "relaticle": {
-      "type": "streamable-http",
-      "url": "https://mcp.relaticle.com",
-      "headers": {
-        "Authorization": "Bearer YOUR_TOKEN"
-      }
-    }
-  }
-}
-```
+The token scopes your access to the team you select when creating it.
 
 ### Claude Code
-
-Add the server from your terminal:
 
 ```bash
 claude mcp add relaticle \

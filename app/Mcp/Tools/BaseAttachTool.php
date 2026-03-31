@@ -13,7 +13,11 @@ use Illuminate\Http\Resources\Json\JsonResource;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\Server\Tool;
+use Laravel\Mcp\Server\Tools\Annotations\IsIdempotent;
+use Laravel\Mcp\Server\Tools\Annotations\IsOpenWorld;
 
+#[IsIdempotent]
+#[IsOpenWorld(false)]
 abstract class BaseAttachTool extends Tool
 {
     use BuildsRelationshipResponse;
