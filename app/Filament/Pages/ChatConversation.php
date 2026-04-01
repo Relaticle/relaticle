@@ -1,0 +1,60 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Filament\Pages;
+
+use App\Actions\Chat\FindConversation;
+use App\Models\User;
+use BackedEnum;
+use Filament\Facades\Filament;
+use Filament\Pages\Page;
+
+final class ChatConversation extends Page
+{
+    protected static string|null|BackedEnum $navigationIcon = 'heroicon-o-chat-bubble-left-right';
+
+    protected static ?string $slug = 'chats/{conversationId?}';
+
+    protected static bool $shouldRegisterNavigation = false;
+
+    protected string $view = 'filament.pages.chat-conversation';
+
+    public ?string $conversationId = null;
+
+    public ?string $initialMessage = null;
+
+    public ?string $conversationTitle = null;
+
+    public function mount(?string $conversationId = null): void
+    {
+        $this->conversationId = $conversationId;
+
+        if ($this->conversationId) {
+            /** @var User $user */
+            $user = Filament::auth()->user();
+
+            $this->conversationTitle = (new FindConversation)
+                ->execute($user, $this->conversationId)?->title;
+        }
+
+        /** @var string|null $message */
+        $message = request()->query('message');
+        $this->initialMessage = $message;
+    }
+
+    public function getTitle(): string
+    {
+        return $this->conversationTitle ?? 'New chat';
+    }
+
+    public function getHeading(): string
+    {
+        return $this->conversationTitle ?? 'New chat';
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return 'Chat';
+    }
+}

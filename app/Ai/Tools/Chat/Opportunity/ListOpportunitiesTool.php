@@ -45,8 +45,8 @@ final class ListOpportunitiesTool extends BaseReadListTool
     protected function additionalFilters(Request $request): array
     {
         return array_filter([
-            'company_id' => $request['company_id'],
-            'contact_id' => $request['contact_id'],
+            'company_id' => $request['company_id'] ?? null,
+            'contact_id' => $request['contact_id'] ?? null,
         ]);
     }
 }

@@ -45,13 +45,13 @@ final class UpdateNoteTool extends BaseWriteUpdateTool
 
     protected function extractActionData(Request $request): array
     {
-        return array_filter(['title' => $request['title']], fn (mixed $v): bool => $v !== null);
+        return array_filter(['title' => $request['title'] ?? null], fn (mixed $v): bool => $v !== null);
     }
 
     protected function buildDisplayData(Request $request, Model $model): array
     {
         $fields = [];
-        if ($request['title'] !== null) {
+        if (($request['title'] ?? null) !== null) {
             $fields[] = ['label' => 'Title', 'old' => $model->getAttribute('title'), 'new' => $request['title']];
         }
 

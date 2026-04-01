@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace App\Filament\Pages;
 
-use App\Models\Team;
-use App\Services\ChatContextService;
-use App\Services\CrmDashboardService;
+use App\Actions\Chat\ListConversations;
+use App\Models\User;
 use BackedEnum;
 use Filament\Facades\Filament;
 use Filament\Pages\Page;
@@ -17,35 +16,56 @@ final class Dashboard extends Page
 
     protected static ?string $navigationLabel = 'Home';
 
-    protected static ?string $title = 'Dashboard';
+    protected static ?string $title = 'Home';
 
     protected static ?int $navigationSort = -2;
 
+    protected ?string $heading = '';
+
     protected string $view = 'filament.pages.dashboard';
 
-    public ?string $conversationId = null;
+    public ?string $recentChatTitle = null;
 
-    /** @var array<string, mixed> */
-    public array $summary = [];
-
-    /**
-     * @var array<int, array{label: string, prompt: string}>
-     */
-    public array $suggestedPrompts = [];
+    public ?string $recentChatId = null;
 
     public function mount(): void
     {
-        /** @var string|null $conversation */
-        $conversation = request()->query('conversation');
-        $this->conversationId = $conversation;
+        /** @var User $user */
+        $user = Filament::auth()->user();
 
-        /** @var Team $team */
-        $team = Filament::getTenant();
+        $recentChat = (new ListConversations)->execute($user, 1)->first();
 
-        $dashboardService = resolve(CrmDashboardService::class);
-        $this->summary = $dashboardService->getSummary($team);
+        if ($recentChat) {
+            $this->recentChatId = $recentChat->id;
+            $this->recentChatTitle = $recentChat->title;
+        }
+    }
 
-        $contextService = resolve(ChatContextService::class);
-        $this->suggestedPrompts = $contextService->getSuggestedPrompts($contextService->getContext());
+    public function getGreeting(): string
+    {
+        /** @var User $user */
+        $user = Filament::auth()->user();
+        $firstName = explode(' ', $user->name)[0];
+
+        $hour = (int) now()->format('H');
+
+        return match (true) {
+            $hour < 12 => "Good morning, {$firstName}.",
+            $hour < 18 => "Good afternoon, {$firstName}.",
+            default => "Good evening, {$firstName}.",
+        };
+    }
+
+    /**
+     * @return array<int, array{label: string, prompt: string}>
+     */
+    public function getSuggestedPrompts(): array
+    {
+        return [
+            ['label' => 'CRM overview', 'prompt' => 'Give me a summary of my CRM data'],
+            ['label' => 'Overdue tasks', 'prompt' => 'Show my overdue tasks'],
+            ['label' => 'Recent companies', 'prompt' => 'List companies added this week'],
+            ['label' => 'Pipeline summary', 'prompt' => 'Show my opportunity pipeline summary'],
+        ];
     }
 }

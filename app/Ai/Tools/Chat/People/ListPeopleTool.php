@@ -44,7 +44,7 @@ final class ListPeopleTool extends BaseReadListTool
     protected function additionalFilters(Request $request): array
     {
         return array_filter([
-            'company_id' => $request['company_id'],
+            'company_id' => $request['company_id'] ?? null,
         ]);
     }
 }

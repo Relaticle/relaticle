@@ -45,13 +45,13 @@ final class UpdateCompanyTool extends BaseWriteUpdateTool
 
     protected function extractActionData(Request $request): array
     {
-        return array_filter(['name' => $request['name']], fn (mixed $v): bool => $v !== null);
+        return array_filter(['name' => $request['name'] ?? null], fn (mixed $v): bool => $v !== null);
     }
 
     protected function buildDisplayData(Request $request, Model $model): array
     {
         $fields = [];
-        if ($request['name'] !== null) {
+        if (($request['name'] ?? null) !== null) {
             $fields[] = ['label' => 'Name', 'old' => $model->getAttribute('name'), 'new' => $request['name']];
         }
 

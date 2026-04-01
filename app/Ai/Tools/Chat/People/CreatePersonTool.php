@@ -38,7 +38,7 @@ final class CreatePersonTool extends BaseWriteCreateTool
     {
         return array_filter([
             'name' => (string) $request->string('name'),
-            'company_id' => $request['company_id'],
+            'company_id' => $request['company_id'] ?? null,
         ], fn (mixed $v): bool => $v !== null && $v !== '');
     }
 
@@ -46,7 +46,7 @@ final class CreatePersonTool extends BaseWriteCreateTool
     {
         $name = (string) $request->string('name');
         $fields = [['label' => 'Name', 'value' => $name]];
-        if ($request['company_id']) {
+        if ($request['company_id'] ?? null) {
             $fields[] = ['label' => 'Company ID', 'value' => $request['company_id']];
         }
 

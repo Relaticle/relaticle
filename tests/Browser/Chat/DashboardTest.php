@@ -7,7 +7,7 @@ use App\Models\User;
 
 mutates(Dashboard::class);
 
-it('can load the dashboard with chat interface', function (): void {
+it('can load the dashboard with chat input', function (): void {
     $user = User::factory()->withTeam()->create();
     $team = $user->ownedTeams()->first();
 
@@ -16,10 +16,10 @@ it('can load the dashboard with chat interface', function (): void {
         ->type('[id="form.password"]', 'password')
         ->click('button.fi-btn')
         ->visit("/app/{$team->slug}")
-        ->assertSee('Ask anything about your CRM');
+        ->assertSee('Ask anything...');
 });
 
-it('shows CRM summary widgets on the dashboard', function (): void {
+it('shows greeting on the dashboard', function (): void {
     $user = User::factory()->withTeam()->create();
     $team = $user->ownedTeams()->first();
 
@@ -28,8 +28,7 @@ it('shows CRM summary widgets on the dashboard', function (): void {
         ->type('[id="form.password"]', 'password')
         ->click('button.fi-btn')
         ->visit("/app/{$team->slug}")
-        ->assertSee('Companies')
-        ->assertSee('People');
+        ->assertSee('Good');
 });
 
 it('shows suggested prompts on the dashboard', function (): void {

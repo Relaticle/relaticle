@@ -189,8 +189,8 @@ final class AppPanelProvider extends PanelProvider
                 fn (): View|Factory => view('filament.app.analytics')
             )
             ->renderHook(
-                PanelsRenderHook::BODY_END,
-                fn (): View|Factory => view('filament.app.chat-side-panel-hook'),
+                PanelsRenderHook::SIDEBAR_NAV_END,
+                fn (): View|Factory => view('filament.app.chat-sidebar-nav-hook'),
             );
 
         if (Features::hasApiFeatures()) {

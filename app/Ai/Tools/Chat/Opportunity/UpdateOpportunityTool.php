@@ -50,16 +50,16 @@ final class UpdateOpportunityTool extends BaseWriteUpdateTool
     protected function extractActionData(Request $request): array
     {
         return array_filter([
-            'name' => $request['name'],
-            'company_id' => $request['company_id'],
-            'contact_id' => $request['contact_id'],
+            'name' => $request['name'] ?? null,
+            'company_id' => $request['company_id'] ?? null,
+            'contact_id' => $request['contact_id'] ?? null,
         ], fn (mixed $v): bool => $v !== null);
     }
 
     protected function buildDisplayData(Request $request, Model $model): array
     {
         $fields = [];
-        if ($request['name'] !== null) {
+        if (($request['name'] ?? null) !== null) {
             $fields[] = ['label' => 'Name', 'old' => $model->getAttribute('name'), 'new' => $request['name']];
         }
 

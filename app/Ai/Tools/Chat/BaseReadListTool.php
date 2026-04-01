@@ -60,7 +60,7 @@ abstract class BaseReadListTool implements Tool
             $results = $action->execute(
                 user: $user,
                 perPage: max(1, min((int) ($request['per_page'] ?? 15), 50)),
-                page: $request['page'] ? (int) $request['page'] : null,
+                page: isset($request['page']) ? (int) $request['page'] : null,
                 request: $httpRequest,
             );
         } catch (InvalidQuery $e) {
@@ -79,7 +79,7 @@ abstract class BaseReadListTool implements Tool
         $input = [];
 
         $nativeFilters = array_filter(array_merge(
-            [$this->searchFilterName() => $request['search']],
+            [$this->searchFilterName() => $request['search'] ?? null],
             $this->additionalFilters($request),
         ));
 

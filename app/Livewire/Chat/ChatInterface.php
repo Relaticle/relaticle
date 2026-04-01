@@ -4,49 +4,44 @@ declare(strict_types=1);
 
 namespace App\Livewire\Chat;
 
+use App\Actions\Chat\ListConversationMessages;
 use App\Livewire\BaseLivewireComponent;
 use Illuminate\Contracts\View\View;
-use Illuminate\Support\Facades\DB;
 
 final class ChatInterface extends BaseLivewireComponent
 {
     public ?string $conversationId = null;
+
+    public ?string $initialMessage = null;
 
     /**
      * @var array<int, array{role: string, content: string, pending_actions?: array<int, mixed>}>
      */
     public array $messages = [];
 
-    public function mount(?string $conversationId = null): void
+    public function mount(?string $conversationId = null, ?string $initialMessage = null): void
     {
         $this->conversationId = $conversationId;
+        $this->initialMessage = $initialMessage;
 
         if ($this->conversationId !== null) {
-            $this->loadConversation();
+            $this->messages = $this->fetchMessages();
         }
     }
 
-    public function loadConversation(): void
+    /**
+     * @return array<int, array{role: string, content: string}>
+     */
+    public function fetchMessages(): array
     {
         if ($this->conversationId === null) {
-            return;
+            return [];
         }
 
-        $messages = DB::table('agent_conversation_messages')
-            ->where('conversation_id', $this->conversationId)
-            ->where('user_id', $this->authUser()->getKey())->oldest()
-            ->get(['role', 'content', 'tool_calls', 'tool_results']);
-
-        $this->messages = $messages->map(fn (object $msg): array => [
-            'role' => $msg->role,
-            'content' => $msg->content ?? '',
-        ])->values()->all();
-    }
-
-    public function startNewConversation(): void
-    {
-        $this->conversationId = null;
-        $this->messages = [];
+        return (new ListConversationMessages)->execute(
+            $this->authUser(),
+            $this->conversationId,
+        );
     }
 
     public function render(): View

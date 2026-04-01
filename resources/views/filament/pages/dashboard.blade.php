@@ -1,36 +1,75 @@
 <x-filament-panels::page>
-    <div class="space-y-6">
-        {{-- CRM Summary Widgets --}}
-        <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
-            @foreach($summary['record_counts'] ?? [] as $entity => $count)
-                <div class="rounded-xl bg-white p-4 shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10">
-                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ ucfirst($entity) }}</p>
-                    <p class="mt-1 text-2xl font-bold text-gray-950 dark:text-white">{{ number_format($count) }}</p>
+    <div
+        x-data="{
+            message: '',
+            submitting: false,
+
+            submit() {
+                const text = this.message.trim();
+                if (!text || this.submitting) return;
+                this.submitting = true;
+
+                const url = new URL(@js(\App\Filament\Pages\ChatConversation::getUrl()), window.location.origin);
+                url.searchParams.set('message', text);
+
+                window.location.href = url.toString();
+            }
+        }"
+        class="mx-auto max-w-2xl py-12"
+    >
+        {{-- Greeting --}}
+        <h1 class="text-3xl font-semibold text-gray-950 dark:text-white">
+            {{ $this->getGreeting() }}
+        </h1>
+
+        {{-- Recent chat link --}}
+        @if($recentChatId)
+            <a
+                href="{{ \App\Filament\Pages\ChatConversation::getUrl(['conversationId' => $recentChatId]) }}"
+                class="mt-3 inline-flex items-center gap-1.5 text-sm text-gray-500 transition hover:text-primary-600 dark:text-gray-400 dark:hover:text-primary-400"
+            >
+                <x-heroicon-o-arrow-path class="h-3.5 w-3.5" />
+                <span>Recent chat &middot; {{ \Illuminate\Support\Str::limit($recentChatTitle ?? 'Untitled', 50) }}</span>
+            </a>
+        @endif
+
+        {{-- Chat input --}}
+        <div class="mt-6">
+            <form @submit.prevent="submit()">
+                <div class="relative">
+                    <textarea
+                        x-model="message"
+                        @keydown.enter.prevent="submit()"
+                        placeholder="Ask anything..."
+                        rows="3"
+                        class="w-full resize-none rounded-xl border border-gray-300 bg-white px-4 py-3 pr-12 text-sm shadow-sm transition placeholder:text-gray-400 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder:text-gray-500"
+                        :disabled="submitting"
+                    ></textarea>
+                    <div class="absolute bottom-3 right-3 flex items-center gap-2">
+                        <button
+                            type="submit"
+                            class="flex h-7 w-7 items-center justify-center rounded-lg bg-primary-600 text-white transition hover:bg-primary-700 disabled:opacity-40"
+                            :disabled="!message.trim() || submitting"
+                        >
+                            <x-heroicon-s-arrow-up class="h-4 w-4" />
+                        </button>
+                    </div>
                 </div>
-            @endforeach
+            </form>
         </div>
 
-        {{-- Full Chat Interface --}}
-        <div class="rounded-xl bg-white shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10">
-            <livewire:chat.chat-interface :conversation-id="$conversationId" />
-        </div>
-
-        {{-- Recent Activity --}}
-        @if(!empty($summary['recent_activity']))
-            <div class="rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10">
-                <h3 class="mb-4 text-lg font-semibold text-gray-950 dark:text-white">This Week</h3>
-                <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                    @foreach($summary['recent_activity'] as $metric => $count)
-                        <div class="flex items-center gap-3">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-50 dark:bg-primary-900/20">
-                                <span class="text-lg font-bold text-primary-600 dark:text-primary-400">{{ $count }}</span>
-                            </div>
-                            <span class="text-sm text-gray-600 dark:text-gray-400">
-                                {{ str_replace('_', ' ', ucfirst(str_replace('_this_week', '', $metric))) }}
-                            </span>
-                        </div>
-                    @endforeach
-                </div>
+        {{-- Suggested prompts --}}
+        @php($suggestedPrompts = $this->getSuggestedPrompts())
+        @if(!empty($suggestedPrompts))
+            <div class="mt-4 flex flex-wrap gap-2">
+                @foreach($suggestedPrompts as $prompt)
+                    <button
+                        @click="message = '{{ addslashes($prompt['prompt']) }}'; $nextTick(() => submit())"
+                        class="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs text-gray-600 transition hover:border-primary-300 hover:bg-primary-50 hover:text-primary-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:border-primary-600 dark:hover:bg-primary-900/20 dark:hover:text-primary-400"
+                    >
+                        {{ $prompt['label'] }}
+                    </button>
+                @endforeach
             </div>
         @endif
     </div>

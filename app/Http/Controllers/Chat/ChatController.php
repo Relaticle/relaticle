@@ -4,18 +4,21 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Chat;
 
+use App\Actions\Chat\DeleteConversation;
+use App\Actions\Chat\ListConversations;
 use App\Ai\Agents\CrmAssistant;
 use App\Enums\AiCreditType;
 use App\Models\Company;
+use App\Models\Note;
 use App\Models\Opportunity;
 use App\Models\People;
+use App\Models\Scopes\TeamScope;
 use App\Models\Task;
 use App\Models\User;
 use App\Services\AI\AiModelResolver;
 use App\Services\AI\CreditService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Laravel\Ai\Responses\StreamedAgentResponse;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -36,6 +39,8 @@ final readonly class ChatController
         /** @var User $user */
         $user = $request->user();
         $team = $user->currentTeam;
+
+        $this->applyTenantScopes();
 
         if (! $this->creditService->hasCredits($team)) {
             return response()->json([
@@ -60,28 +65,51 @@ final readonly class ChatController
             model: $resolved['model'],
         );
 
-        $response->then(function (StreamedAgentResponse $streamedResponse) use ($user, $team): void {
-            $usage = $streamedResponse->usage;
-            $meta = $streamedResponse->meta;
-            $toolCallCount = $streamedResponse->toolCalls->count();
+        $resolvedConversationId = null;
+
+        $response->then(function (StreamedAgentResponse $streamedResponse) use ($user, $team, &$resolvedConversationId): void {
+            $resolvedConversationId = $streamedResponse->conversationId;
 
             $this->creditService->deduct(
                 team: $team,
                 user: $user,
                 type: AiCreditType::Chat,
-                model: $meta->model ?? 'unknown',
-                inputTokens: $usage->promptTokens,
-                outputTokens: $usage->completionTokens,
-                toolCallsCount: $toolCallCount,
+                model: $streamedResponse->meta->model ?? 'unknown',
+                inputTokens: $streamedResponse->usage->promptTokens,
+                outputTokens: $streamedResponse->usage->completionTokens,
+                toolCallsCount: $streamedResponse->toolCalls->count(),
                 conversationId: $streamedResponse->conversationId,
             );
         });
 
-        return $response->toResponse($request);
+        return response()->stream(function () use ($response, &$resolvedConversationId): void {
+            foreach ($response as $event) {
+                echo "data: {$event}\n\n";
+
+                if (ob_get_level() > 0) {
+                    ob_flush();
+                }
+                flush();
+            }
+
+            if ($resolvedConversationId) {
+                $payload = json_encode(['type' => 'conversation_id', 'id' => $resolvedConversationId]);
+                echo "data: {$payload}\n\n";
+            }
+
+            echo "data: [DONE]\n\n";
+
+            if (ob_get_level() > 0) {
+                ob_flush();
+            }
+            flush();
+        }, headers: ['Content-Type' => 'text/event-stream']);
     }
 
     public function mentions(Request $request): JsonResponse
     {
+        $this->applyTenantScopes();
+
         $query = $request->string('q');
 
         if ($query->length() < 2) {
@@ -117,13 +145,9 @@ final readonly class ChatController
         /** @var User $user */
         $user = $request->user();
 
-        $conversations = DB::table('agent_conversations')
-            ->where('user_id', $user->getKey())
-            ->latest('updated_at')
-            ->limit(50)
-            ->get(['id', 'title', 'created_at', 'updated_at']);
-
-        return response()->json(['data' => $conversations]);
+        return response()->json([
+            'data' => (new ListConversations)->execute($user),
+        ]);
     }
 
     public function destroyConversation(Request $request, string $conversation): JsonResponse
@@ -131,19 +155,19 @@ final readonly class ChatController
         /** @var User $user */
         $user = $request->user();
 
-        $deleted = DB::table('agent_conversations')
-            ->where('id', $conversation)
-            ->where('user_id', $user->getKey())
-            ->delete();
-
-        if ($deleted === 0) {
+        if (! (new DeleteConversation)->execute($user, $conversation)) {
             return response()->json(['error' => 'Conversation not found'], 404);
         }
 
-        DB::table('agent_conversation_messages')
-            ->where('conversation_id', $conversation)
-            ->delete();
-
         return response()->json(['success' => true]);
+    }
+
+    private function applyTenantScopes(): void
+    {
+        Company::addGlobalScope(new TeamScope);
+        People::addGlobalScope(new TeamScope);
+        Opportunity::addGlobalScope(new TeamScope);
+        Task::addGlobalScope(new TeamScope);
+        Note::addGlobalScope(new TeamScope);
     }
 }
