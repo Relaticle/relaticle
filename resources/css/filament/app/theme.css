@@ -414,3 +414,9 @@
 .flowforge-column-header {
     @apply bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 rounded-t-xl;
 }
+
+/* Chat Side Panel */
+[data-chat-side-panel] [data-chat-messages] {
+    scrollbar-width: thin;
+    scrollbar-color: theme('colors.gray.400') transparent;
+}

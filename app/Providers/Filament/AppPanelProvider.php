@@ -190,7 +190,7 @@ final class AppPanelProvider extends PanelProvider
             )
             ->renderHook(
                 PanelsRenderHook::BODY_END,
-                fn (): string => Blade::render('<livewire:chat.chat-side-panel />')
+                fn (): View|Factory => view('filament.app.chat-side-panel-hook'),
             );
 
         if (Features::hasApiFeatures()) {
