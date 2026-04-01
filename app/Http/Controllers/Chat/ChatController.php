@@ -6,7 +6,12 @@ namespace App\Http\Controllers\Chat;
 
 use App\Ai\Agents\CrmAssistant;
 use App\Enums\AiCreditType;
+use App\Models\Company;
+use App\Models\Opportunity;
+use App\Models\People;
+use App\Models\Task;
 use App\Models\User;
+use App\Services\AI\AiModelResolver;
 use App\Services\AI\CreditService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -18,12 +23,14 @@ final class ChatController
 {
     public function __construct(
         private readonly CreditService $creditService,
+        private readonly AiModelResolver $modelResolver,
     ) {}
 
     public function send(Request $request, ?string $conversation = null): Response
     {
         $validated = $request->validate([
             'message' => ['required', 'string', 'max:5000'],
+            'model' => ['nullable', 'string'],
         ]);
 
         /** @var User $user */
@@ -45,7 +52,13 @@ final class ChatController
             $agent->forUser($user);
         }
 
-        $response = $agent->stream($validated['message']);
+        $resolved = $this->modelResolver->resolve($user, $validated['model'] ?? null);
+
+        $response = $agent->stream(
+            prompt: $validated['message'],
+            provider: $resolved['provider'],
+            model: $resolved['model'],
+        );
 
         $response->then(function (StreamedAgentResponse $streamedResponse) use ($user, $team): void {
             $usage = $streamedResponse->usage;
@@ -65,6 +78,38 @@ final class ChatController
         });
 
         return $response->toResponse($request);
+    }
+
+    public function mentions(Request $request): JsonResponse
+    {
+        $query = $request->string('q');
+
+        if ($query->length() < 2) {
+            return response()->json(['data' => []]);
+        }
+
+        $search = (string) $query;
+        $limit = 5;
+
+        $results = collect();
+
+        $results = $results->merge(
+            Company::query()->where('name', 'ilike', "%{$search}%")->limit($limit)->get(['id', 'name'])->map(fn ($r) => ['id' => $r->id, 'name' => $r->name, 'type' => 'company'])
+        );
+
+        $results = $results->merge(
+            People::query()->where('name', 'ilike', "%{$search}%")->limit($limit)->get(['id', 'name'])->map(fn ($r) => ['id' => $r->id, 'name' => $r->name, 'type' => 'people'])
+        );
+
+        $results = $results->merge(
+            Opportunity::query()->where('name', 'ilike', "%{$search}%")->limit($limit)->get(['id', 'name'])->map(fn ($r) => ['id' => $r->id, 'name' => $r->name, 'type' => 'opportunity'])
+        );
+
+        $results = $results->merge(
+            Task::query()->where('title', 'ilike', "%{$search}%")->limit($limit)->get(['id', 'title'])->map(fn ($r) => ['id' => $r->id, 'name' => $r->title, 'type' => 'task'])
+        );
+
+        return response()->json(['data' => $results->take(15)->values()]);
     }
 
     public function conversations(Request $request): JsonResponse

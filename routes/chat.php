@@ -7,6 +7,7 @@ use App\Http\Controllers\Chat\PendingActionController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:web')->group(function (): void {
+    Route::get('/chat/mentions', [ChatController::class, 'mentions'])->name('chat.mentions');
     Route::get('/chat/conversations', [ChatController::class, 'conversations'])->name('chat.conversations');
     Route::delete('/chat/conversations/{conversation}', [ChatController::class, 'destroyConversation'])->name('chat.conversations.destroy');
 

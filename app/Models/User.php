@@ -36,6 +36,7 @@ use Laravel\Sanctum\HasApiTokens;
  * @property string|null $remember_token
  * @property string|null $two_factor_recovery_codes
  * @property string|null $two_factor_secret
+ * @property array<string, mixed>|null $ai_preferences
  * @property-read Team|null $currentTeam
  */
 final class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaultTenant, HasTenants, MustVerifyEmail
@@ -60,6 +61,7 @@ final class User extends Authenticatable implements FilamentUser, HasAvatar, Has
         'name',
         'email',
         'password',
+        'ai_preferences',
     ];
 
     /**
@@ -93,6 +95,7 @@ final class User extends Authenticatable implements FilamentUser, HasAvatar, Has
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'ai_preferences' => 'array',
         ];
     }
 
