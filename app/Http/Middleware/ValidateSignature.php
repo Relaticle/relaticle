@@ -12,51 +12,47 @@ use Illuminate\Support\Facades\URL;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Extends Laravel's signed URL middleware with percent-encoding normalization.
+ * Signed URL middleware with percent-encoding normalization.
  *
  * Email providers (Postmark, SendGrid, Mailgun) may decode percent-encoded
  * characters in URLs during HTML processing (e.g., %40 → @). Since the
  * signature was computed against the encoded form, verification fails.
  *
- * This middleware first tries the standard check, then falls back to
+ * Delegates to Laravel's built-in middleware first, then falls back to
  * re-encoding query values before comparing.
  *
  * @see https://github.com/laravel/framework/issues/42979
  */
-final class ValidateSignature extends BaseValidateSignature
+final readonly class ValidateSignature
 {
-    /**
-     * @param  Request  $request
-     * @param  array<int, string>  $args
-     */
-    public function handle($request, Closure $next, ...$args): Response // @pest-ignore-type
+    public function __construct(
+        private BaseValidateSignature $base,
+    ) {}
+
+    /** @param  string  ...$args */
+    public function handle(Request $request, Closure $next, mixed ...$args): Response
     {
-        [$relative, $ignore] = $this->parseArguments($args);
+        try {
+            return $this->base->handle($request, $next, ...$args);
+        } catch (InvalidSignatureException) {
+            if ($this->hasValidNormalizedSignature($request, array_values($args))) {
+                return $next($request);
+            }
 
-        $absolute = ! $relative;
-
-        if ($request->hasValidSignatureWhileIgnoring($ignore, $absolute)) {
-            return $next($request);
+            throw new InvalidSignatureException;
         }
-
-        if ($this->hasValidSignatureWithNormalizedEncoding($request, $absolute, $ignore)
-            && URL::signatureHasNotExpired($request)) {
-            return $next($request);
-        }
-
-        throw new InvalidSignatureException;
     }
 
     /**
      * Re-encode query values to match the percent-encoding used during signing,
      * then verify the signature against the normalized URL.
      *
-     * @param  array<int, string>  $ignore
+     * @param  array<int, string>  $args
      */
-    private function hasValidSignatureWithNormalizedEncoding(Request $request, bool $absolute, array $ignore): bool
+    private function hasValidNormalizedSignature(Request $request, array $args): bool
     {
-        $ignore[] = 'signature';
-
+        $relative = isset($args[0]) && $args[0] === 'relative';
+        $absolute = ! $relative;
         $url = $absolute ? $request->url() : '/'.$request->path();
 
         $rawQuery = (string) $request->server->get('QUERY_STRING');
@@ -74,22 +70,23 @@ final class ValidateSignature extends BaseValidateSignature
                 ? [substr($part, 0, $equalsPos), substr($part, $equalsPos + 1)]
                 : [$part, ''];
 
-            if (in_array($key, $ignore, true)) {
+            if ($key === 'signature') {
                 continue;
             }
 
             $normalized[] = $key.'='.rawurlencode(rawurldecode($value));
         }
 
-        $normalizedQuery = implode('&', $normalized);
-        $original = rtrim("{$url}?{$normalizedQuery}", '?');
+        $original = rtrim("{$url}?".implode('&', $normalized), '?');
 
-        $keys = config('app.key');
-        $previousKeys = config('app.previous_keys', []);
-        $keys = [$keys, ...$previousKeys];
-
+        $keys = [config('app.key'), ...config('app.previous_keys', [])];
         $signature = (string) $request->query('signature', '');
 
-        return array_any($keys, fn (string $key): bool => hash_equals(hash_hmac('sha256', $original, $key), $signature));
+        $hasCorrectSignature = array_any(
+            $keys,
+            fn (string $key): bool => hash_equals(hash_hmac('sha256', $original, $key), $signature),
+        );
+
+        return $hasCorrectSignature && URL::signatureHasNotExpired($request);
     }
 }
