@@ -115,10 +115,7 @@ test('password reset URL with decoded percent-encoding is accessible', function 
 
     $url = Filament::getPanel('app')->getResetPasswordUrl($token, $user);
 
-    // Simulate email client/browser decoding %40 to @ in the URL
-    $decodedUrl = urldecode($url);
-
-    $this->get($decodedUrl)->assertSuccessful();
+    $this->get(urldecode($url))->assertSuccessful();
 });
 
 test('password reset URL with tampered email is rejected', function () {

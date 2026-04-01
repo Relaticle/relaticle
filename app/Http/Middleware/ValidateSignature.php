@@ -7,25 +7,29 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Exceptions\InvalidSignatureException;
-use Illuminate\Support\Arr;
+use Illuminate\Routing\Middleware\ValidateSignature as BaseValidateSignature;
+use Illuminate\Support\Facades\URL;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Validates signed URLs with percent-encoding normalization.
+ * Extends Laravel's signed URL middleware with percent-encoding normalization.
  *
- * Email clients and browsers may decode percent-encoded characters in URLs
- * (e.g., %40 → @), causing signature verification to fail because the signature
- * was computed against the encoded form. This middleware falls back to a
- * normalized comparison when the standard check fails.
+ * Email providers (Postmark, SendGrid, Mailgun) may decode percent-encoded
+ * characters in URLs during HTML processing (e.g., %40 → @). Since the
+ * signature was computed against the encoded form, verification fails.
+ *
+ * This middleware first tries the standard check, then falls back to
+ * re-encoding query values before comparing.
+ *
+ * @see https://github.com/laravel/framework/issues/42979
  */
-final class ValidateSignature
+final class ValidateSignature extends BaseValidateSignature
 {
     /**
-     * @var array<int, string>
+     * @param  Request  $request
+     * @param  array<int, string>  $args
      */
-    protected static array $neverValidate = [];
-
-    public function handle(Request $request, Closure $next, string ...$args): Response
+    public function handle($request, Closure $next, ...$args): Response // @pest-ignore-type
     {
         [$relative, $ignore] = $this->parseArguments($args);
 
@@ -35,7 +39,8 @@ final class ValidateSignature
             return $next($request);
         }
 
-        if ($this->hasValidSignatureWithNormalizedEncoding($request, $absolute, $ignore)) {
+        if ($this->hasValidSignatureWithNormalizedEncoding($request, $absolute, $ignore)
+            && URL::signatureHasNotExpired($request)) {
             return $next($request);
         }
 
@@ -43,42 +48,10 @@ final class ValidateSignature
     }
 
     /**
-     * @param  array<int, string>|string  $ignore
-     */
-    public static function relative(array|string $ignore = []): string
-    {
-        $ignore = Arr::wrap($ignore);
-
-        return self::class.':'.implode(',', empty($ignore) ? ['relative'] : ['relative', ...$ignore]);
-    }
-
-    /**
-     * @param  array<int, string>|string  $ignore
-     */
-    public static function absolute(array|string $ignore = []): string
-    {
-        $ignore = Arr::wrap($ignore);
-
-        return empty($ignore)
-            ? self::class
-            : self::class.':'.implode(',', $ignore);
-    }
-
-    /**
-     * @param  array<int, string>|string  $parameters
-     */
-    public static function except(array|string $parameters): void
-    {
-        self::$neverValidate = array_values(array_unique(
-            array_merge(self::$neverValidate, Arr::wrap($parameters))
-        ));
-    }
-
-    /**
-     * Re-encode query string values to match the percent-encoding used during signing,
+     * Re-encode query values to match the percent-encoding used during signing,
      * then verify the signature against the normalized URL.
      *
-     * @param  array<int|string, string>  $ignore
+     * @param  array<int, string>  $ignore
      */
     private function hasValidSignatureWithNormalizedEncoding(Request $request, bool $absolute, array $ignore): bool
     {
@@ -97,16 +70,10 @@ final class ValidateSignature
         foreach (explode('&', $rawQuery) as $part) {
             $equalsPos = strpos($part, '=');
 
-            if ($equalsPos === false) {
-                $key = $part;
-                $value = '';
-            } else {
-                $key = substr($part, 0, $equalsPos);
-                $value = substr($part, $equalsPos + 1);
-            }
-            if ($key === 'signature') {
-                continue;
-            }
+            [$key, $value] = $equalsPos !== false
+                ? [substr($part, 0, $equalsPos), substr($part, $equalsPos + 1)]
+                : [$part, ''];
+
             if (in_array($key, $ignore, true)) {
                 continue;
             }
@@ -117,25 +84,12 @@ final class ValidateSignature
         $normalizedQuery = implode('&', $normalized);
         $original = rtrim("{$url}?{$normalizedQuery}", '?');
 
-        $keys = [config('app.key'), ...config('app.previous_keys', [])];
+        $keys = config('app.key');
+        $previousKeys = config('app.previous_keys', []);
+        $keys = [$keys, ...$previousKeys];
 
         $signature = (string) $request->query('signature', '');
 
         return array_any($keys, fn (string $key): bool => hash_equals(hash_hmac('sha256', $original, $key), $signature));
-    }
-
-    /**
-     * @param  array<int|string, string>  $args
-     * @return array{bool, array<int|string, string>}
-     */
-    private function parseArguments(array $args): array
-    {
-        $relative = ! empty($args) && $args[0] === 'relative';
-
-        if ($relative) {
-            array_shift($args);
-        }
-
-        return [$relative, array_merge($args, self::$neverValidate)];
     }
 }
