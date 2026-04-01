@@ -83,8 +83,14 @@ final class ActivityTimeline extends Component
         unset($this->timelineData);
     }
 
+    private const ALLOWED_FILTERS = ['all', 'created', 'updated', 'deleted', 'restored'];
+
     public function setFilter(string $filter): void
     {
+        if (! in_array($filter, self::ALLOWED_FILTERS, true)) {
+            return;
+        }
+
         $this->filter = $filter;
         $this->page = 1;
         unset($this->timelineData);
@@ -157,16 +163,18 @@ final class ActivityTimeline extends Component
 
     private function countChangedFields(Activity $activity): int
     {
+        $nativeCount = 0;
         $changes = $activity->attribute_changes;
 
-        if (! $changes) {
-            return 0;
+        if ($changes) {
+            $attributes = $changes['attributes'] ?? [];
+            $attributes = $attributes instanceof Collection ? $attributes->toArray() : (array) $attributes;
+            $nativeCount = count($attributes);
         }
 
-        $attributes = $changes['attributes'] ?? [];
-        $attributes = $attributes instanceof Collection ? $attributes->toArray() : (array) $attributes;
+        $cfCount = count($activity->properties['custom_field_changes'] ?? []);
 
-        return count($attributes);
+        return $nativeCount + $cfCount;
     }
 
     private function buildDescription(Activity $activity): string
@@ -190,25 +198,31 @@ final class ActivityTimeline extends Component
         $attributes = $changes['attributes'] ?? [];
         $attributes = $attributes instanceof Collection ? $attributes->toArray() : (array) $attributes;
 
-        if (blank($attributes)) {
+        $nativeLabels = collect(array_keys($attributes))
+            ->map(fn (string $field): string => $this->humanizeFieldName($field));
+
+        /** @var list<array{label: string}> $cfChanges */
+        $cfChanges = $activity->properties['custom_field_changes'] ?? [];
+        $cfLabels = collect($cfChanges)->pluck('label');
+
+        $allLabels = $nativeLabels->merge($cfLabels);
+
+        if ($allLabels->isEmpty()) {
             return "{$causerName} updated this record";
         }
 
-        $changedFields = array_keys($attributes);
-
-        $fieldList = collect($changedFields)
-            ->map(fn (string $field): string => $this->humanizeFieldName($field))
-            ->join(', ', ' and ');
+        $fieldList = $allLabels->join(', ', ' and ');
 
         return "{$causerName} updated {$fieldList}";
     }
 
-    /** @return array{old: array<string, string>, attributes: array<string, string>}|null */
+    /** @return array{old: array<string, string>, attributes: array<string, string>, custom_field_changes: list<array<string, mixed>>}|null */
     private function formatChanges(Activity $activity): ?array
     {
         $changes = $activity->attribute_changes;
+        $cfChanges = $activity->properties['custom_field_changes'] ?? [];
 
-        if (! $changes) {
+        if (! $changes && empty($cfChanges)) {
             return null;
         }
 
@@ -229,13 +243,23 @@ final class ActivityTimeline extends Component
         return [
             'old' => $formattedOld,
             'attributes' => $formattedNew,
+            'custom_field_changes' => $cfChanges,
         ];
     }
+
+    /** @var array<string, string> */
+    private array $resolvedRelationValues = [];
 
     private function resolveRelationshipValue(string $field, mixed $value): string
     {
         if (! is_string($value) || ! str($field)->endsWith('_id')) {
             return $this->formatValue($value);
+        }
+
+        $cacheKey = "{$field}:{$value}";
+
+        if (isset($this->resolvedRelationValues[$cacheKey])) {
+            return $this->resolvedRelationValues[$cacheKey];
         }
 
         $morphMap = Relation::morphMap();
@@ -246,12 +270,18 @@ final class ActivityTimeline extends Component
                 $record = $modelClass::query()->find($value);
 
                 if ($record) {
-                    return $record->getAttribute('name') ?? $record->getAttribute('title') ?? $this->formatValue($value);
+                    $resolved = $record->getAttribute('name') ?? $record->getAttribute('title') ?? $this->formatValue($value);
+                    $this->resolvedRelationValues[$cacheKey] = $resolved;
+
+                    return $resolved;
                 }
             }
         }
 
-        return $this->formatValue($value);
+        $formatted = $this->formatValue($value);
+        $this->resolvedRelationValues[$cacheKey] = $formatted;
+
+        return $formatted;
     }
 
     private function resolveCauserName(Activity $activity): ?string

@@ -20,7 +20,6 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\TextSize;
 use Illuminate\Support\Js;
-use Relaticle\ActivityLog\Filament\RelationManagers\ActivitiesRelationManager;
 use Relaticle\CustomFields\Facades\CustomFields;
 
 final class ViewPeople extends ViewRecord
@@ -65,13 +64,6 @@ final class ViewPeople extends ViewRecord
                 ])->dropdown(false),
                 DeleteAction::make(),
             ]),
-        ];
-    }
-
-    public function getRelationManagers(): array
-    {
-        return [
-            ActivitiesRelationManager::class,
         ];
     }
 

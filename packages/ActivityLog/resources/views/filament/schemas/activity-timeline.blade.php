@@ -121,14 +121,16 @@
                             @php
                                 $oldAttributes = (array) data_get($entry, 'changes.old', []);
                                 $newAttributes = (array) data_get($entry, 'changes.attributes', []);
+                                $customFieldChanges = (array) data_get($entry, 'changes.custom_field_changes', []);
+                                $totalChanges = count($newAttributes) + count($customFieldChanges);
                             @endphp
 
-                            @if (! empty($oldAttributes))
+                            @if ($totalChanges > 0)
                                 <div
-                                    x-data="{ expanded: {{ count($newAttributes) <= 3 ? 'true' : 'false' }} }"
+                                    x-data="{ expanded: {{ $totalChanges <= 3 ? 'true' : 'false' }} }"
                                     class="mt-1.5"
                                 >
-                                    @if (count($newAttributes) > 3)
+                                    @if ($totalChanges > 3)
                                         <button
                                             type="button"
                                             x-on:click="expanded = !expanded"
@@ -139,7 +141,7 @@
                                                 class="h-3 w-3 transition-transform"
                                                 x-bind:class="expanded && 'rotate-90'"
                                             />
-                                            <span x-text="expanded ? 'Hide changes' : 'Show {{ count($newAttributes) }} changes'"></span>
+                                            <span x-text="expanded ? 'Hide changes' : 'Show {{ $totalChanges }} changes'"></span>
                                         </button>
                                     @endif
 
@@ -159,6 +161,32 @@
                                                 <span class="truncate text-gray-400 line-through dark:text-gray-500">{{ $oldAttributes[$field] ?? '(empty)' }}</span>
                                                 <span class="shrink-0 text-gray-300 dark:text-gray-600">&rarr;</span>
                                                 <span class="truncate font-medium text-gray-700 dark:text-gray-300">{{ $newVal }}</span>
+                                            </div>
+                                        @endforeach
+
+                                        @foreach ($customFieldChanges as $cf)
+                                            <div @class([
+                                                'flex items-baseline gap-1.5 px-2.5 py-1.5 text-xs',
+                                                'border-t border-gray-100 dark:border-white/5' => ! ($loop->first && empty($newAttributes)),
+                                            ])>
+                                                <span class="shrink-0 font-medium text-gray-500 dark:text-gray-400">
+                                                    {{ $cf['label'] }}
+                                                </span>
+                                                <span class="truncate text-gray-400 line-through dark:text-gray-500">
+                                                    @if (is_array($cf['old']['label'] ?? null))
+                                                        {{ implode(', ', $cf['old']['label']) }}
+                                                    @else
+                                                        {{ $cf['old']['label'] ?? $cf['old']['value'] ?? '(empty)' }}
+                                                    @endif
+                                                </span>
+                                                <span class="shrink-0 text-gray-300 dark:text-gray-600">&rarr;</span>
+                                                <span class="truncate font-medium text-gray-700 dark:text-gray-300">
+                                                    @if (is_array($cf['new']['label'] ?? null))
+                                                        {{ implode(', ', $cf['new']['label']) }}
+                                                    @else
+                                                        {{ $cf['new']['label'] ?? $cf['new']['value'] ?? '(empty)' }}
+                                                    @endif
+                                                </span>
                                             </div>
                                         @endforeach
                                     </div>
