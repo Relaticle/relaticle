@@ -33,6 +33,8 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\View\View;
 use Knuckles\Scribe\Scribe;
 use Laravel\Sanctum\Sanctum;
+use ManukMinasyan\FilamentBlog\Models\Category;
+use ManukMinasyan\FilamentBlog\Models\Post;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\SystemAdmin\Models\SystemAdministrator;
 
@@ -201,6 +203,8 @@ final class AppServiceProvider extends ServiceProvider
             'task' => Task::class,
             'note' => Note::class,
             'system_administrator' => SystemAdministrator::class,
+            'blog_post' => Post::class,
+            'blog_category' => Category::class,
         ]);
 
         // Use custom models for custom-fields package

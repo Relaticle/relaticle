@@ -24,6 +24,7 @@
                 ['url' => url('/#features'), 'label' => 'Features'],
                 ['url' => route('pricing'), 'label' => 'Pricing'],
                 ['url' => route('documentation.index'), 'label' => 'Docs'],
+                ['url' => route('blog.index'), 'label' => 'Blog'],
                 ['url' => route('contact'), 'label' => 'Contact'],
             ] as $link)
                 <a href="{{ $link['url'] }}" @click="mobileMenu = false"
