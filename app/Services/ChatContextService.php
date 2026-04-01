@@ -13,7 +13,7 @@ final readonly class ChatContextService
      */
     public function getContext(): array
     {
-        $currentPanel = Filament::getCurrentPanel();
+        Filament::getCurrentPanel();
 
         return [
             'page' => request()->route()?->getName(),

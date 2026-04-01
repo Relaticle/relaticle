@@ -41,7 +41,7 @@ abstract class BaseWriteCreateTool implements Tool
 
         $conversationId = $request['_conversation_id'] ?? 'unknown';
 
-        $service = app(PendingActionService::class);
+        $service = resolve(PendingActionService::class);
         $pending = $service->createProposal(
             user: $user,
             conversationId: $conversationId,

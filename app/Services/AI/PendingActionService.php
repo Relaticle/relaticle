@@ -64,7 +64,7 @@ final readonly class PendingActionService
         return $pendingAction->refresh();
     }
 
-    public function reject(PendingAction $pendingAction, User $user): PendingAction
+    public function reject(PendingAction $pendingAction): PendingAction
     {
         $this->validateResolvable($pendingAction);
 
@@ -88,13 +88,9 @@ final readonly class PendingActionService
 
     private function validateResolvable(PendingAction $pendingAction): void
     {
-        if (! $pendingAction->isPending()) {
-            throw new RuntimeException('This action has already been resolved');
-        }
+        throw_unless($pendingAction->isPending(), RuntimeException::class, 'This action has already been resolved');
 
-        if ($pendingAction->isExpired()) {
-            throw new RuntimeException('This action has expired');
-        }
+        throw_if($pendingAction->isExpired(), RuntimeException::class, 'This action has expired');
     }
 
     private function executeAction(PendingAction $pendingAction, User $user): mixed

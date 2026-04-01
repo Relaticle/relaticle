@@ -19,11 +19,11 @@ use Illuminate\Support\Facades\DB;
 use Laravel\Ai\Responses\StreamedAgentResponse;
 use Symfony\Component\HttpFoundation\Response;
 
-final class ChatController
+final readonly class ChatController
 {
     public function __construct(
-        private readonly CreditService $creditService,
-        private readonly AiModelResolver $modelResolver,
+        private CreditService $creditService,
+        private AiModelResolver $modelResolver,
     ) {}
 
     public function send(Request $request, ?string $conversation = null): Response
@@ -44,7 +44,7 @@ final class ChatController
             ], 402);
         }
 
-        $agent = app(CrmAssistant::class);
+        $agent = resolve(CrmAssistant::class);
 
         if ($conversation !== null) {
             $agent->continue($conversation, as: $user);
@@ -94,19 +94,19 @@ final class ChatController
         $results = collect();
 
         $results = $results->merge(
-            Company::query()->where('name', 'ilike', "%{$search}%")->limit($limit)->get(['id', 'name'])->map(fn ($r) => ['id' => $r->id, 'name' => $r->name, 'type' => 'company'])
+            Company::query()->where('name', 'ilike', "%{$search}%")->limit($limit)->get(['id', 'name'])->map(fn (Company $r): array => ['id' => $r->id, 'name' => $r->name, 'type' => 'company'])
         );
 
         $results = $results->merge(
-            People::query()->where('name', 'ilike', "%{$search}%")->limit($limit)->get(['id', 'name'])->map(fn ($r) => ['id' => $r->id, 'name' => $r->name, 'type' => 'people'])
+            People::query()->where('name', 'ilike', "%{$search}%")->limit($limit)->get(['id', 'name'])->map(fn (People $r): array => ['id' => $r->id, 'name' => $r->name, 'type' => 'people'])
         );
 
         $results = $results->merge(
-            Opportunity::query()->where('name', 'ilike', "%{$search}%")->limit($limit)->get(['id', 'name'])->map(fn ($r) => ['id' => $r->id, 'name' => $r->name, 'type' => 'opportunity'])
+            Opportunity::query()->where('name', 'ilike', "%{$search}%")->limit($limit)->get(['id', 'name'])->map(fn (Opportunity $r): array => ['id' => $r->id, 'name' => $r->name, 'type' => 'opportunity'])
         );
 
         $results = $results->merge(
-            Task::query()->where('title', 'ilike', "%{$search}%")->limit($limit)->get(['id', 'title'])->map(fn ($r) => ['id' => $r->id, 'name' => $r->title, 'type' => 'task'])
+            Task::query()->where('title', 'ilike', "%{$search}%")->limit($limit)->get(['id', 'title'])->map(fn (Task $r): array => ['id' => $r->id, 'name' => $r->title, 'type' => 'task'])
         );
 
         return response()->json(['data' => $results->take(15)->values()]);
@@ -119,7 +119,7 @@ final class ChatController
 
         $conversations = DB::table('agent_conversations')
             ->where('user_id', $user->getKey())
-            ->orderByDesc('updated_at')
+            ->latest('updated_at')
             ->limit(50)
             ->get(['id', 'title', 'created_at', 'updated_at']);
 

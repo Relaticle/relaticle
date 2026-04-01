@@ -6,6 +6,8 @@ namespace App\Models;
 
 use App\Models\Concerns\HasTeam;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
+use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 
@@ -19,6 +21,9 @@ use Illuminate\Support\Carbon;
  */
 final class AiCreditBalance extends Model
 {
+    /** @use HasFactory<Factory<static>> */
+    use HasFactory;
+
     use HasTeam;
     use HasUlids;
 

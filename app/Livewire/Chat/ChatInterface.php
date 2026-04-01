@@ -34,14 +34,13 @@ final class ChatInterface extends BaseLivewireComponent
 
         $messages = DB::table('agent_conversation_messages')
             ->where('conversation_id', $this->conversationId)
-            ->where('user_id', $this->authUser()->getKey())
-            ->orderBy('created_at')
+            ->where('user_id', $this->authUser()->getKey())->oldest()
             ->get(['role', 'content', 'tool_calls', 'tool_results']);
 
         $this->messages = $messages->map(fn (object $msg): array => [
             'role' => $msg->role,
             'content' => $msg->content ?? '',
-        ])->values()->toArray();
+        ])->values()->all();
     }
 
     public function startNewConversation(): void

@@ -67,7 +67,7 @@ abstract class BaseWriteUpdateTool implements Tool
         $actionData['_record_id'] = $model->getKey();
         $actionData['_model_class'] = $model::class;
 
-        $service = app(PendingActionService::class);
+        $service = resolve(PendingActionService::class);
         $pending = $service->createProposal(
             user: $user,
             conversationId: $conversationId,

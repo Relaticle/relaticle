@@ -125,7 +125,7 @@ PROMPT;
         ];
 
         return array_map(
-            static fn (string $class): Tool => app($class),
+            static fn (string $class): Tool => resolve($class),
             $toolClasses,
         );
     }

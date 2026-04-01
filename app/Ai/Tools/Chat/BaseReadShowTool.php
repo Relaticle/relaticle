@@ -60,6 +60,6 @@ abstract class BaseReadShowTool implements Tool
         /** @var class-string<JsonResource> $resourceClass */
         $resourceClass = $this->resourceClass();
 
-        return (new $resourceClass($model))->toJson(JSON_PRETTY_PRINT);
+        return new $resourceClass($model)->toJson(JSON_PRETTY_PRINT);
     }
 }

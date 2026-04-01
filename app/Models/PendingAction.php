@@ -7,8 +7,11 @@ namespace App\Models;
 use App\Enums\PendingActionOperation;
 use App\Enums\PendingActionStatus;
 use App\Models\Concerns\HasTeam;
+use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
+use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
@@ -31,6 +34,9 @@ use Illuminate\Support\Carbon;
  */
 final class PendingAction extends Model
 {
+    /** @use HasFactory<Factory<static>> */
+    use HasFactory;
+
     use HasTeam;
     use HasUlids;
 
@@ -85,7 +91,8 @@ final class PendingAction extends Model
      * @param  Builder<PendingAction>  $query
      * @return Builder<PendingAction>
      */
-    public function scopePending(Builder $query): Builder
+    #[Scope]
+    protected function pending(Builder $query): Builder
     {
         return $query->where('status', PendingActionStatus::Pending);
     }
@@ -94,7 +101,8 @@ final class PendingAction extends Model
      * @param  Builder<PendingAction>  $query
      * @return Builder<PendingAction>
      */
-    public function scopeExpired(Builder $query): Builder
+    #[Scope]
+    protected function expired(Builder $query): Builder
     {
         return $query
             ->where('status', PendingActionStatus::Pending)

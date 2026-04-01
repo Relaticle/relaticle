@@ -11,10 +11,10 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use RuntimeException;
 
-final class PendingActionController
+final readonly class PendingActionController
 {
     public function __construct(
-        private readonly PendingActionService $service,
+        private PendingActionService $service,
     ) {}
 
     public function approve(Request $request, PendingAction $pendingAction): JsonResponse
@@ -56,7 +56,7 @@ final class PendingActionController
         }
 
         try {
-            $this->service->reject($pendingAction, $user);
+            $this->service->reject($pendingAction);
 
             return response()->json(['status' => 'rejected']);
         } catch (RuntimeException $e) {

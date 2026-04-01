@@ -36,10 +36,10 @@ final class Dashboard extends Page
         /** @var Team $team */
         $team = Filament::getTenant();
 
-        $dashboardService = app(CrmDashboardService::class);
+        $dashboardService = resolve(CrmDashboardService::class);
         $this->summary = $dashboardService->getSummary($team);
 
-        $contextService = app(ChatContextService::class);
+        $contextService = resolve(ChatContextService::class);
         $this->suggestedPrompts = $contextService->getSuggestedPrompts($contextService->getContext());
     }
 }
