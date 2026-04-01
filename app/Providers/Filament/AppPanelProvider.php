@@ -8,9 +8,9 @@ use App\Filament\Pages\AccessTokens;
 use App\Filament\Pages\Auth\Login;
 use App\Filament\Pages\Auth\Register;
 use App\Filament\Pages\CreateTeam;
+use App\Filament\Pages\Dashboard;
 use App\Filament\Pages\EditProfile;
 use App\Filament\Pages\EditTeam;
-use App\Filament\Resources\CompanyResource;
 use App\Http\Middleware\ApplyTenantScopes;
 use App\Listeners\SwitchTeam;
 use App\Models\Team;
@@ -87,7 +87,7 @@ final class AppPanelProvider extends PanelProvider
         }
 
         $panel
-            ->homeUrl(fn (): string => CompanyResource::getUrl())
+            ->homeUrl(fn (): string => Dashboard::getUrl())
             ->brandName('Relaticle')
             ->brandLogo(fn (): View|Factory => Auth::user()?->hasVerifiedEmail()
                 ? view('filament.app.logo-empty')
@@ -187,6 +187,10 @@ final class AppPanelProvider extends PanelProvider
             ->renderHook(
                 PanelsRenderHook::HEAD_END,
                 fn (): View|Factory => view('filament.app.analytics')
+            )
+            ->renderHook(
+                PanelsRenderHook::BODY_END,
+                fn (): string => Blade::render('<livewire:chat.chat-side-panel />')
             );
 
         if (Features::hasApiFeatures()) {
