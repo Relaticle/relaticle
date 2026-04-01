@@ -7,7 +7,7 @@ use App\Models\User;
 
 mutates(Dashboard::class);
 
-it('can load the dashboard with chat input', function (): void {
+it('can load the dashboard with chat interface', function (): void {
     $user = User::factory()->withTeam()->create();
     $team = $user->ownedTeams()->first();
 

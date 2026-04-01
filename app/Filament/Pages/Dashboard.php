@@ -23,6 +23,8 @@ final class Dashboard extends Page
 
     protected string $view = 'filament.pages.dashboard';
 
+    public ?string $conversationId = null;
+
     /** @var array<string, mixed> */
     public array $summary = [];
 
@@ -33,6 +35,10 @@ final class Dashboard extends Page
 
     public function mount(): void
     {
+        /** @var string|null $conversation */
+        $conversation = request()->query('conversation');
+        $this->conversationId = $conversation;
+
         /** @var Team $team */
         $team = Filament::getTenant();
 

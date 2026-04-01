@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Livewire\Chat\ChatSidePanel;
+use App\Livewire\App\Chat\ChatSidePanel;
 use App\Models\User;
 
 mutates(ChatSidePanel::class);
