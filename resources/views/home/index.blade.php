@@ -19,6 +19,10 @@
         <link rel="preload" as="image" href="{{ asset('images/app-pipeline-preview-832w.webp') }}" type="image/webp" />
     @endpush
 
+    @push('header')
+        @vite('resources/js/motion.js')
+    @endpush
+
     @include('home.partials.hero')
     @include('home.partials.features')
     @include('home.partials.community')
