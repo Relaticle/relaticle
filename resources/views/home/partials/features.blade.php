@@ -127,11 +127,11 @@
                             var ease = [0.22, 1, 0.36, 1];
                             animate(".curve-path", { pathLength: 0 }, { duration: 0 });
                             inView("#flow-desktop", function() {
-                                animate("#flow-desktop .fn", { opacity: [0, 1], y: [12, 0] }, { delay: stagger(0.05), duration: 0.4, ease: ease });
+                                animate("#flow-desktop .fn", { y: [12, 0] }, { delay: stagger(0.05), duration: 0.4, ease: ease });
                                 animate(".curve-path", { pathLength: [0, 1] }, { duration: 0.8, delay: stagger(0.06, { start: 0.3 }), ease: ease });
                             }, { amount: 0.3 });
                             inView("#flow-mobile", function() {
-                                animate("#flow-mobile .fn", { opacity: [0, 1], y: [12, 0] }, { delay: stagger(0.06), duration: 0.4, ease: ease });
+                                animate("#flow-mobile .fn", { y: [12, 0] }, { delay: stagger(0.06), duration: 0.4, ease: ease });
                             }, { amount: 0.3 });
                         });
                     </script>
@@ -304,7 +304,7 @@
 
                 // Cards entrance — staggered fade up (visible by default for Lighthouse/no-JS)
                 inView('#features .grid', function() {
-                    animate('.feat-card', { opacity: [0, 1], y: [32, 0] }, { delay: stagger(0.07), duration: 0.6, ease: e });
+                    animate('.feat-card', { y: [32, 0] }, { delay: stagger(0.07), duration: 0.6, ease: e });
                 }, { amount: 0.1 });
 
                 // AI Insights — scanning lines fill to random widths
@@ -322,7 +322,7 @@
 
                 // Data Model — form fields slide in from left
                 inView('#card-data', function() {
-                    animate('#card-data .field-row', { opacity: [0, 1], x: [-16, 0] }, { delay: stagger(0.1, { start: 0.3 }), duration: 0.4, ease: e });
+                    animate('#card-data .field-row', { x: [-16, 0] }, { delay: stagger(0.1, { start: 0.3 }), duration: 0.4, ease: e });
                 }, { amount: 0.4 });
 
                 // Sales Pipeline — segments scale in from left
@@ -332,7 +332,7 @@
 
                 // Tasks — rows slide in staggered from right
                 inView('#card-tasks', function() {
-                    animate('.task-row', { opacity: [0, 1], x: [20, 0] }, { delay: stagger(0.15, { start: 0.2 }), duration: 0.45, ease: e });
+                    animate('.task-row', { x: [20, 0] }, { delay: stagger(0.15, { start: 0.2 }), duration: 0.45, ease: e });
                 }, { amount: 0.3 });
             });
         </script>

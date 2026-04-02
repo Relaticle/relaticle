@@ -61,19 +61,19 @@
                     <div class="absolute bottom-0 left-0 right-0 h-px bg-gray-200 dark:bg-white/[0.08] pointer-events-none" aria-hidden="true"></div>
                     <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-[100vw] h-px pointer-events-none bg-[repeating-linear-gradient(to_right,theme(colors.gray.200)_0,theme(colors.gray.200)_10px,transparent_10px,transparent_18px)] dark:bg-[repeating-linear-gradient(to_right,rgba(255,255,255,0.08)_0,rgba(255,255,255,0.08)_10px,transparent_10px,transparent_18px)]" aria-hidden="true"></div>
                     <div x-ref="indicator" class="absolute bottom-0 h-px bg-primary/80 rounded-full pointer-events-none transition-[left,width] duration-200" aria-hidden="true"></div>
-                    <button type="button" id="tab-pipeline" role="tab" :aria-selected="(activeTab === 'pipeline').toString()" aria-controls="panel-pipeline" x-ref="tab-pipeline" x-on:click="switchTab('pipeline')" :class="tabClasses('pipeline')" class="relative flex-1 py-2.5 sm:py-3 text-xs sm:text-sm font-medium whitespace-nowrap transition-colors duration-200 cursor-pointer">
+                    <button type="button" id="tab-pipeline" role="tab" :aria-selected="(activeTab === 'pipeline').toString()" :tabindex="activeTab === 'pipeline' ? 0 : -1" aria-controls="panel-pipeline" x-ref="tab-pipeline" x-on:click="switchTab('pipeline')" x-on:keydown="handleTabKeydown($event)" :class="tabClasses('pipeline')" class="relative flex-1 py-2.5 sm:py-3 text-xs sm:text-sm font-medium whitespace-nowrap transition-colors duration-200 cursor-pointer">
                         Pipeline
                     </button>
                     <div class="w-px self-stretch my-0 bg-gray-200 dark:bg-white/[0.08]" aria-hidden="true"></div>
-                    <button type="button" id="tab-ai-agent" role="tab" :aria-selected="(activeTab === 'ai-agent').toString()" aria-controls="panel-ai-agent" x-ref="tab-ai-agent" x-on:click="switchTab('ai-agent')" :class="tabClasses('ai-agent')" class="relative flex-1 py-2.5 sm:py-3 text-xs sm:text-sm font-medium whitespace-nowrap transition-colors duration-200 cursor-pointer">
+                    <button type="button" id="tab-ai-agent" role="tab" :aria-selected="(activeTab === 'ai-agent').toString()" :tabindex="activeTab === 'ai-agent' ? 0 : -1" aria-controls="panel-ai-agent" x-ref="tab-ai-agent" x-on:click="switchTab('ai-agent')" x-on:keydown="handleTabKeydown($event)" :class="tabClasses('ai-agent')" class="relative flex-1 py-2.5 sm:py-3 text-xs sm:text-sm font-medium whitespace-nowrap transition-colors duration-200 cursor-pointer">
                         AI Agent
                     </button>
                     <div class="w-px self-stretch my-0 bg-gray-200 dark:bg-white/[0.08]" aria-hidden="true"></div>
-                    <button type="button" id="tab-companies" role="tab" :aria-selected="(activeTab === 'companies').toString()" aria-controls="panel-companies" x-ref="tab-companies" x-on:click="switchTab('companies')" :class="tabClasses('companies')" class="relative flex-1 py-2.5 sm:py-3 text-xs sm:text-sm font-medium whitespace-nowrap transition-colors duration-200 cursor-pointer">
+                    <button type="button" id="tab-companies" role="tab" :aria-selected="(activeTab === 'companies').toString()" :tabindex="activeTab === 'companies' ? 0 : -1" aria-controls="panel-companies" x-ref="tab-companies" x-on:click="switchTab('companies')" x-on:keydown="handleTabKeydown($event)" :class="tabClasses('companies')" class="relative flex-1 py-2.5 sm:py-3 text-xs sm:text-sm font-medium whitespace-nowrap transition-colors duration-200 cursor-pointer">
                         Companies
                     </button>
                     <div class="w-px self-stretch my-0 bg-gray-200 dark:bg-white/[0.08]" aria-hidden="true"></div>
-                    <button type="button" id="tab-custom-fields" role="tab" :aria-selected="(activeTab === 'custom-fields').toString()" aria-controls="panel-custom-fields" x-ref="tab-custom-fields" x-on:click="switchTab('custom-fields')" :class="tabClasses('custom-fields')" class="relative flex-1 py-2.5 sm:py-3 text-xs sm:text-sm font-medium whitespace-nowrap transition-colors duration-200 cursor-pointer">
+                    <button type="button" id="tab-custom-fields" role="tab" :aria-selected="(activeTab === 'custom-fields').toString()" :tabindex="activeTab === 'custom-fields' ? 0 : -1" aria-controls="panel-custom-fields" x-ref="tab-custom-fields" x-on:click="switchTab('custom-fields')" x-on:keydown="handleTabKeydown($event)" :class="tabClasses('custom-fields')" class="relative flex-1 py-2.5 sm:py-3 text-xs sm:text-sm font-medium whitespace-nowrap transition-colors duration-200 cursor-pointer">
                         <span class="sm:hidden">Fields</span><span class="hidden sm:inline">Custom Fields</span>
                     </button>
                 </div>
@@ -275,6 +275,28 @@
                         self.$dispatch('hero-chat-animate');
                     }
                 });
+            },
+
+            handleTabKeydown(event) {
+                var key = event.key;
+                var index = this.tabOrder.indexOf(this.activeTab);
+                var next = -1;
+
+                if (key === 'ArrowRight') {
+                    next = (index + 1) % this.tabOrder.length;
+                } else if (key === 'ArrowLeft') {
+                    next = (index - 1 + this.tabOrder.length) % this.tabOrder.length;
+                } else if (key === 'Home') {
+                    next = 0;
+                } else if (key === 'End') {
+                    next = this.tabOrder.length - 1;
+                }
+
+                if (next >= 0) {
+                    event.preventDefault();
+                    this.switchTab(this.tabOrder[next]);
+                    this.$refs['tab-' + this.tabOrder[next]].focus();
+                }
             },
 
             tabClasses(tab) {

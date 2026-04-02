@@ -71,7 +71,7 @@
 
 <x-layout.header/>
 
-<main id="main-content">
+<main id="main-content" tabindex="-1">
     {{ $slot }}
 </main>
 

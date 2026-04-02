@@ -27,7 +27,7 @@
                         </span>
                         <x-ri-arrow-down-s-line class="h-5 w-5 shrink-0 text-gray-400 transition-transform duration-200" ::class="open === {{ $index }} ? 'rotate-180' : ''"/>
                     </button>
-                    <div id="faq-answer-{{ $index }}" role="region" aria-labelledby="faq-question-{{ $index }}" x-show="open === {{ $index }}" x-collapse class="mt-3 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                    <div id="faq-answer-{{ $index }}" role="region" aria-labelledby="faq-question-{{ $index }}" x-show="open === {{ $index }}" x-collapse x-cloak class="mt-3 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
                         {{ $answer }}
                     </div>
                 </div>
@@ -39,7 +39,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             var e = [0.22, 1, 0.36, 1];
             inView('#faq .divide-y', function() {
-                animate('.faq-item', { opacity: [0, 1], y: [20, 0] }, { delay: stagger(0.08), duration: 0.5, ease: e });
+                animate('.faq-item', { y: [20, 0] }, { delay: stagger(0.08), duration: 0.5, ease: e });
             }, { amount: 0.15 });
         });
     </script>
