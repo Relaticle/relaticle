@@ -15,6 +15,10 @@
     :ogTitle="config('app.name') . ' - Open-Source Agent-Native CRM'"
     ogDescription="Self-hosted CRM with 30 MCP tools for AI agents. Full CRUD, custom fields, schema discovery. Own your data, bring your AI."
     :ogImage="url('/images/open-graph.jpg')">
+    @push('preload')
+        <link rel="preload" as="image" href="{{ asset('images/app-pipeline-preview.webp') }}" type="image/webp" />
+    @endpush
+
     @include('home.partials.hero')
     @include('home.partials.features')
     @include('home.partials.community')
