@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Jobs\Email;
 
 use App\Data\SubscriberData;
+use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -27,7 +28,9 @@ final class UpdateSubscriberJob implements ShouldQueue
         $subscriber = Mailcoach::findByEmail(config('mailcoach-sdk.subscribers_list_id'), $this->data->email);
 
         if ($subscriber instanceof Subscriber) {
-            $data = $this->data->toArray();
+            $this->storeUuidIfNeeded($subscriber->uuid);
+
+            $data = $this->data->except('user_id')->toArray();
             $data['tags'] = collect($subscriber->tags)->merge($this->data->tags)->unique()->toArray();
 
             Mailcoach::updateSubscriber($subscriber->uuid, array_filter($data));
@@ -36,27 +39,27 @@ final class UpdateSubscriberJob implements ShouldQueue
         }
     }
 
-    /**
-     * The unique ID of the job.
-     */
+    private function storeUuidIfNeeded(string $uuid): void
+    {
+        if ($this->data->user_id) {
+            User::query()
+                ->where('id', $this->data->user_id)
+                ->whereNull('mailcoach_subscriber_uuid')
+                ->update(['mailcoach_subscriber_uuid' => $uuid]);
+        }
+    }
+
     public function uniqueId(): string
     {
         return $this->data->email;
     }
 
-    /**
-     * Get the middleware the job should pass through.
-     *
-     * @return array<ThrottlesExceptionsWithRedis>
-     */
+    /** @return array<ThrottlesExceptionsWithRedis> */
     public function middleware(): array
     {
         return [new ThrottlesExceptionsWithRedis(1, 1)->backoff(1)->report()];
     }
 
-    /**
-     * Determine the time at which the job should timeout.
-     */
     public function retryUntil(): \DateTime
     {
         return now()->addHour();
