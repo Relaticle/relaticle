@@ -6,6 +6,7 @@ namespace App\Console\Commands;
 
 use App\Models\User;
 use Illuminate\Console\Command;
+use Illuminate\Support\Sleep;
 use Spatie\MailcoachSdk\Facades\Mailcoach;
 use Spatie\MailcoachSdk\Resources\Subscriber;
 
@@ -47,7 +48,7 @@ final class BackfillMailcoachUuidsCommand extends Command
             }
 
             $bar->advance();
-            usleep(100_000); // 100ms delay to respect API rate limits
+            Sleep::usleep(100_000); // 100ms delay to respect API rate limits
         }
 
         $bar->finish();
