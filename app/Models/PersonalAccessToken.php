@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\SubscriberTagEnum;
+use App\Jobs\Email\AddSubscriberTagsJob;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Laravel\Sanctum\PersonalAccessToken as SanctumPersonalAccessToken;
 use LogicException;
@@ -43,6 +45,32 @@ class PersonalAccessToken extends SanctumPersonalAccessToken
                     );
                 }
             }
+        });
+
+        self::created(function (PersonalAccessToken $token): void {
+            if (! config('mailcoach-sdk.enabled_subscribers_sync', false)) {
+                return;
+            }
+
+            $user = $token->tokenable;
+
+            if (! $user instanceof User || ! $user->mailcoach_subscriber_uuid) {
+                return;
+            }
+
+            $existingTokenCount = PersonalAccessToken::query()
+                ->where('tokenable_type', 'user')
+                ->where('tokenable_id', $user->id)
+                ->count();
+
+            if ($existingTokenCount > 1) {
+                return;
+            }
+
+            dispatch(new AddSubscriberTagsJob(
+                $user->mailcoach_subscriber_uuid,
+                [SubscriberTagEnum::HAS_API_TOKEN->value],
+            ));
         });
     }
 
