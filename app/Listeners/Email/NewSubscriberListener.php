@@ -31,12 +31,19 @@ final class NewSubscriberListener implements ShouldHandleEventsAfterCommit, Shou
         $user = $event->user;
 
         if ($user->hasVerifiedEmail() && config('mailcoach-sdk.enabled_subscribers_sync', false)) {
+            $signupSourceTag = $user->socialAccounts()->exists()
+                ? SubscriberTagEnum::SIGNUP_SOURCE_GOOGLE->value
+                : SubscriberTagEnum::SIGNUP_SOURCE_ORGANIC->value;
+
+            $tags = [SubscriberTagEnum::VERIFIED->value, $signupSourceTag];
+
             $subscriber = retry(10, fn (): mixed => Mailcoach::findByEmail(config('mailcoach-sdk.subscribers_list_id'), $user->email), fn (int $attempt): int => $attempt * 100 * random_int(1, 15));
 
             if ($subscriber) {
                 dispatch(new UpdateSubscriberJob(SubscriberData::from([
                     'email' => $user->email,
-                    'tags' => [SubscriberTagEnum::VERIFIED->value],
+                    'tags' => $tags,
+                    'user_id' => (string) $user->id,
                 ])));
             }
 
@@ -44,8 +51,9 @@ final class NewSubscriberListener implements ShouldHandleEventsAfterCommit, Shou
                 'email' => $user->email,
                 'first_name' => $user->name,
                 'last_name' => $user->name,
-                'tags' => [SubscriberTagEnum::VERIFIED->value],
+                'tags' => $tags,
                 'skip_confirmation' => true,
+                'user_id' => (string) $user->id,
             ])));
         }
     }
