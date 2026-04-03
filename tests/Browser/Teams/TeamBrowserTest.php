@@ -21,7 +21,7 @@ it('can create a new team through the browser', function (): void {
         ->assertSee('Create your workspace')
         ->type('[id="form.name"]', 'Second Workspace')
         ->type('[id="form.slug"]', 'second-workspace')
-        ->press('Create Team')
+        ->press('Create workspace')
         ->assertPathContains('/app/second-workspace/companies');
 
     expect(Team::where('name', 'Second Workspace')->where('user_id', $user->id)->exists())->toBeTrue();

@@ -27,6 +27,8 @@ final readonly class CreateTeam implements CreatesTeams
         Validator::make($input, [
             'name' => ['required', 'string', 'max:255'],
             'slug' => ['required', 'string', 'max:255', new ValidTeamSlug, 'unique:teams,slug'],
+            'onboarding_role' => ['nullable', 'string'],
+            'onboarding_use_case' => ['nullable', 'string'],
         ])->validateWithBag('createTeam');
 
         $isFirstTeam = ! $user->ownedTeams()->exists();
@@ -37,6 +39,8 @@ final readonly class CreateTeam implements CreatesTeams
             'name' => $input['name'],
             'slug' => $input['slug'],
             'personal_team' => $isFirstTeam,
+            'onboarding_role' => $input['onboarding_role'] ?? null,
+            'onboarding_use_case' => $input['onboarding_use_case'] ?? null,
         ]));
 
         /** @var Team $team */

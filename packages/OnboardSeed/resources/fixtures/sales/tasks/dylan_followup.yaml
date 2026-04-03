@@ -1,0 +1,9 @@
+title: Follow up with Dylan
+# Add people assignment directly in the YAML
+assigned_people:
+  - dylan
+custom_fields:
+  description: Discuss the Figma enterprise plan proposal and address any questions he may have.
+  due_date: '{{ +3d }}'
+  status: To do
+  priority: High 

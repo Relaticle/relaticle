@@ -9,6 +9,7 @@ use App\Enums\CustomFields\NoteField as NoteCustomField;
 use App\Enums\CustomFields\OpportunityField as OpportunityCustomField;
 use App\Enums\CustomFields\PeopleField as PeopleCustomField;
 use App\Enums\CustomFields\TaskField as TaskCustomField;
+use App\Enums\OnboardingUseCase;
 use App\Models\Company;
 use App\Models\Note;
 use App\Models\Opportunity;
@@ -62,7 +63,12 @@ final readonly class CreateTeamCustomFields
 
             /** @var Authenticatable $owner */
             $owner = $team->owner;
-            $this->onboardSeeder->run($owner, $team);
+
+            $fixtureSet = $team->onboarding_use_case instanceof OnboardingUseCase
+                ? $team->onboarding_use_case->getFixtureSet()
+                : 'sales';
+
+            $this->onboardSeeder->run($owner, $team, $fixtureSet);
         }
     }
 

@@ -1,0 +1,8 @@
+title: Integration meeting with Ivan
+assigned_people:
+  - ivan
+custom_fields:
+  description: Discuss API integration possibilities with Notion and explore collaboration features.
+  due_date: '{{ +10d }}'
+  status: To do
+  priority: High 

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\OnboardingRole;
+use App\Enums\OnboardingUseCase;
 use App\Services\AvatarService;
 use Database\Factories\TeamFactory;
 use Filament\Models\Contracts\HasAvatar;
@@ -21,6 +23,8 @@ use Spatie\Sluggable\SlugOptions;
 /**
  * @property string $name
  * @property string $slug
+ * @property ?OnboardingRole $onboarding_role
+ * @property ?OnboardingUseCase $onboarding_use_case
  */
 final class Team extends JetstreamTeam implements HasAvatar
 {
@@ -98,6 +102,8 @@ final class Team extends JetstreamTeam implements HasAvatar
         'name',
         'slug',
         'personal_team',
+        'onboarding_role',
+        'onboarding_use_case',
     ];
 
     /**
@@ -120,6 +126,8 @@ final class Team extends JetstreamTeam implements HasAvatar
     {
         return [
             'personal_team' => 'boolean',
+            'onboarding_role' => OnboardingRole::class,
+            'onboarding_use_case' => OnboardingUseCase::class,
         ];
     }
 

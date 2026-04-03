@@ -7,7 +7,7 @@ use App\Models\User;
 
 mutates(CreateTeam::class);
 
-it('new user without teams is directed to create a workspace', function (): void {
+it('new user without teams is directed to onboarding wizard', function (): void {
     $user = User::factory()->create();
 
     $this->visit('/app/login')
@@ -16,11 +16,20 @@ it('new user without teams is directed to create a workspace', function (): void
         ->click('button.fi-btn')
         ->assertPathIs('/app/new')
         ->navigate('/app/new')
-        ->assertSee('Create your workspace')
+        ->assertSee('Welcome to Relaticle')
+        // Step 1: Select role
+        ->click('input[value="founder"]')
+        ->press('Next')
+        ->waitForText('What will you use Relaticle for?')
+        // Step 2: Select use case
+        ->click('input[value="sales_pipeline"]')
+        ->press('Next')
+        ->waitForText('Name your workspace')
+        // Step 3: Create workspace
         ->type('[id="form.name"]', 'My First Workspace')
         ->type('[id="form.slug"]', 'my-first-workspace')
-        ->press('Create Team')
-        ->assertPathContains('/app/my-first-workspace/companies');
+        ->press('Create workspace')
+        ->assertPathContains('/my-first-workspace/companies');
 
     $user->refresh();
 
