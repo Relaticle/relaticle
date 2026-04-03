@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Pages;
 
 use App\Actions\Jetstream\CreateTeam as CreateTeamAction;
-use App\Enums\OnboardingRole;
+use App\Enums\OnboardingReferralSource;
 use App\Enums\OnboardingUseCase;
 use App\Filament\Resources\CompanyResource;
 use App\Models\Team;
@@ -14,8 +14,8 @@ use App\Rules\ValidTeamSlug;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\ToggleButtons;
 use Filament\Pages\Tenancy\RegisterTenant;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Utilities\Get;
@@ -31,6 +31,8 @@ use Override;
 
 final class CreateTeam extends RegisterTenant
 {
+    private ?bool $wasFirstTeam = null;
+
     #[Override]
     public static function getLabel(): string
     {
@@ -67,8 +69,8 @@ final class CreateTeam extends RegisterTenant
         return $schema
             ->components([
                 Wizard::make([
-                    $this->getRoleStep(),
                     $this->getUseCaseStep(),
+                    $this->getAttributionStep(),
                     $this->getWorkspaceStep(),
                 ])
                     ->submitAction(new HtmlString(
@@ -77,65 +79,69 @@ final class CreateTeam extends RegisterTenant
             ]);
     }
 
-    private function getRoleStep(): Step
+    private function getUseCaseStep(): Step
     {
-        return Step::make('Your role')
-            ->description('What best describes your role?')
-            ->icon('ri-user-line')
+        return Step::make('Use case')
+            ->description('Tell us about your use case')
+            ->icon('ri-apps-line')
             ->schema([
-                Radio::make('onboarding_role')
-                    ->label('Select your role')
-                    ->hiddenLabel()
+                ToggleButtons::make('onboarding_use_case')
+                    ->label('What will you be using Relaticle for?')
                     ->options(
-                        collect(OnboardingRole::cases())
-                            ->mapWithKeys(fn (OnboardingRole $role): array => [
-                                $role->value => $role->getLabel(),
+                        collect(OnboardingUseCase::cases())
+                            ->mapWithKeys(fn (OnboardingUseCase $case): array => [
+                                $case->value => $case->getLabel(),
                             ])
                             ->all()
                     )
-                    ->descriptions(
-                        collect(OnboardingRole::cases())
-                            ->mapWithKeys(fn (OnboardingRole $role): array => [
-                                $role->value => $role->getDescription(),
+                    ->icons(
+                        collect(OnboardingUseCase::cases())
+                            ->mapWithKeys(fn (OnboardingUseCase $case): array => [
+                                $case->value => $case->getIcon(),
                             ])
                             ->all()
                     )
+                    ->inline()
                     ->required()
                     ->live(),
+
+                ToggleButtons::make('onboarding_context')
+                    ->label('Please tell us more about your use case.')
+                    ->options(function (Get $get): array {
+                        $useCase = OnboardingUseCase::tryFrom($get('onboarding_use_case') ?? '');
+
+                        if (! $useCase) {
+                            return [];
+                        }
+
+                        return $useCase->getSubOptions();
+                    })
+                    ->inline()
+                    ->multiple()
+                    ->visible(function (Get $get): bool {
+                        $useCase = OnboardingUseCase::tryFrom($get('onboarding_use_case') ?? '');
+
+                        return $useCase !== null && $useCase->getSubOptions() !== [];
+                    }),
             ]);
     }
 
-    private function getUseCaseStep(): Step
+    private function getAttributionStep(): Step
     {
-        return Step::make('Primary use case')
-            ->description('What will you use Relaticle for?')
-            ->icon('ri-apps-line')
+        return Step::make('Attribution')
+            ->description('Optional')
+            ->icon('ri-question-line')
             ->schema([
-                Radio::make('onboarding_use_case')
-                    ->label('Select your primary use case')
-                    ->hiddenLabel()
-                    ->options(function (Get $get): array {
-                        $role = OnboardingRole::tryFrom($get('onboarding_role') ?? '');
-
-                        if (! $role) {
-                            return collect(OnboardingUseCase::cases())
-                                ->mapWithKeys(fn (OnboardingUseCase $case): array => [
-                                    $case->value => $case->getLabel(),
-                                ])
-                                ->all();
-                        }
-
-                        return $role->getUseCaseOptions();
-                    })
-                    ->descriptions(
-                        collect(OnboardingUseCase::cases())
-                            ->mapWithKeys(fn (OnboardingUseCase $case): array => [
-                                $case->value => $case->getDescription(),
+                ToggleButtons::make('onboarding_referral_source')
+                    ->label('How did you hear about us?')
+                    ->options(
+                        collect(OnboardingReferralSource::cases())
+                            ->mapWithKeys(fn (OnboardingReferralSource $source): array => [
+                                $source->value => $source->getLabel(),
                             ])
                             ->all()
                     )
-                    ->required()
-                    ->live(),
+                    ->inline(),
             ]);
     }
 
@@ -189,6 +195,10 @@ final class CreateTeam extends RegisterTenant
     #[Override]
     protected function getRedirectUrl(): string
     {
+        if ($this->wasFirstTeam) {
+            return OnboardingInvite::getUrl(tenant: $this->tenant);
+        }
+
         return CompanyResource::getUrl('index', ['tenant' => $this->tenant]);
     }
 
@@ -197,6 +207,8 @@ final class CreateTeam extends RegisterTenant
     {
         /** @var User $user */
         $user = auth('web')->user();
+
+        $this->wasFirstTeam = $this->isFirstTeam();
 
         return resolve(CreateTeamAction::class)->create($user, $data);
     }

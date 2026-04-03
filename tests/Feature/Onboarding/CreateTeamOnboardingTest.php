@@ -3,9 +3,10 @@
 declare(strict_types=1);
 
 use App\Actions\Jetstream\CreateTeam as CreateTeamAction;
-use App\Enums\OnboardingRole;
+use App\Enums\OnboardingReferralSource;
 use App\Enums\OnboardingUseCase;
 use App\Filament\Pages\CreateTeam;
+use App\Filament\Pages\OnboardingInvite;
 use App\Filament\Resources\CompanyResource;
 use App\Listeners\CreateTeamCustomFields;
 use App\Models\Company;
@@ -17,6 +18,7 @@ use App\Models\People;
 use App\Models\Task;
 use App\Models\Team;
 use App\Models\User;
+use Filament\Facades\Filament;
 use Relaticle\OnboardSeed\OnboardSeedManager;
 
 mutates(CreateTeam::class, CreateTeamAction::class, OnboardSeedManager::class, CreateTeamCustomFields::class);
@@ -49,8 +51,7 @@ it('creates a team with onboarding fields', function (): void {
 
     livewire(CreateTeam::class)
         ->fillForm([
-            'onboarding_role' => OnboardingRole::Founder->value,
-            'onboarding_use_case' => OnboardingUseCase::SalesPipeline->value,
+            'onboarding_use_case' => OnboardingUseCase::Sales->value,
             'name' => 'Acme Corp',
         ])
         ->call('register')
@@ -60,8 +61,7 @@ it('creates a team with onboarding fields', function (): void {
 
     expect($team)->not->toBeNull()
         ->and($team->slug)->toBe('acme-corp')
-        ->and($team->onboarding_role)->toBe(OnboardingRole::Founder)
-        ->and($team->onboarding_use_case)->toBe(OnboardingUseCase::SalesPipeline);
+        ->and($team->onboarding_use_case)->toBe(OnboardingUseCase::Sales);
 });
 
 it('creates a team with a custom slug', function (): void {
@@ -71,8 +71,7 @@ it('creates a team with a custom slug', function (): void {
 
     livewire(CreateTeam::class)
         ->fillForm([
-            'onboarding_role' => OnboardingRole::Sales->value,
-            'onboarding_use_case' => OnboardingUseCase::SalesPipeline->value,
+            'onboarding_use_case' => OnboardingUseCase::Sales->value,
             'name' => 'Acme Corp',
             'slug' => 'my-workspace',
         ])
@@ -92,8 +91,7 @@ it('validates slug format', function (): void {
 
     livewire(CreateTeam::class)
         ->fillForm([
-            'onboarding_role' => OnboardingRole::Founder->value,
-            'onboarding_use_case' => OnboardingUseCase::General->value,
+            'onboarding_use_case' => OnboardingUseCase::Other->value,
             'name' => 'Acme Corp',
             'slug' => 'INVALID SLUG!!',
         ])
@@ -111,8 +109,7 @@ it('validates slug uniqueness', function (): void {
 
     livewire(CreateTeam::class)
         ->fillForm([
-            'onboarding_role' => OnboardingRole::Founder->value,
-            'onboarding_use_case' => OnboardingUseCase::General->value,
+            'onboarding_use_case' => OnboardingUseCase::Other->value,
             'name' => 'Acme Corp',
             'slug' => 'taken-slug',
         ])
@@ -127,8 +124,7 @@ it('requires a team name', function (): void {
 
     livewire(CreateTeam::class)
         ->fillForm([
-            'onboarding_role' => OnboardingRole::Founder->value,
-            'onboarding_use_case' => OnboardingUseCase::General->value,
+            'onboarding_use_case' => OnboardingUseCase::Other->value,
             'name' => '',
         ])
         ->call('register')
@@ -142,8 +138,7 @@ it('marks first team as personal team', function (): void {
 
     livewire(CreateTeam::class)
         ->fillForm([
-            'onboarding_role' => OnboardingRole::Founder->value,
-            'onboarding_use_case' => OnboardingUseCase::SalesPipeline->value,
+            'onboarding_use_case' => OnboardingUseCase::Sales->value,
             'name' => 'My First Team',
         ])
         ->call('register')
@@ -171,31 +166,43 @@ it('marks subsequent teams as non-personal', function (): void {
     expect($secondTeam->personal_team)->toBeFalse();
 });
 
-it('redirects to companies index after team creation', function (): void {
+it('redirects first team to onboarding invite page', function (): void {
     $user = User::factory()->create();
 
     $this->actingAs($user);
 
     livewire(CreateTeam::class)
         ->fillForm([
-            'onboarding_role' => OnboardingRole::Founder->value,
-            'onboarding_use_case' => OnboardingUseCase::SalesPipeline->value,
+            'onboarding_use_case' => OnboardingUseCase::Sales->value,
             'name' => 'Redirect Team',
+        ])
+        ->call('register')
+        ->assertHasNoFormErrors()
+        ->assertRedirect(OnboardingInvite::getUrl(tenant: $user->fresh()->currentTeam));
+});
+
+it('redirects subsequent teams to companies index', function (): void {
+    $user = User::factory()->withPersonalTeam()->create();
+
+    $this->actingAs($user);
+
+    livewire(CreateTeam::class)
+        ->fillForm([
+            'name' => 'Second Team',
         ])
         ->call('register')
         ->assertHasNoFormErrors()
         ->assertRedirect(CompanyResource::getUrl('index', ['tenant' => $user->fresh()->currentTeam]));
 });
 
-it('seeds sales demo data for sales pipeline use case', function (): void {
+it('seeds sales demo data for sales use case', function (): void {
     $user = User::factory()->create();
 
     $this->actingAs($user);
 
     livewire(CreateTeam::class)
         ->fillForm([
-            'onboarding_role' => OnboardingRole::Sales->value,
-            'onboarding_use_case' => OnboardingUseCase::SalesPipeline->value,
+            'onboarding_use_case' => OnboardingUseCase::Sales->value,
             'name' => 'Sales Team',
         ])
         ->call('register')
@@ -218,7 +225,6 @@ it('seeds recruiting demo data for recruiting use case', function (): void {
 
     livewire(CreateTeam::class)
         ->fillForm([
-            'onboarding_role' => OnboardingRole::Founder->value,
             'onboarding_use_case' => OnboardingUseCase::Recruiting->value,
             'name' => 'Hiring Team',
         ])
@@ -242,7 +248,6 @@ it('seeds marketing demo data for marketing use case', function (): void {
 
     livewire(CreateTeam::class)
         ->fillForm([
-            'onboarding_role' => OnboardingRole::Marketing->value,
             'onboarding_use_case' => OnboardingUseCase::Marketing->value,
             'name' => 'Marketing Team',
         ])
@@ -257,15 +262,14 @@ it('seeds marketing demo data for marketing use case', function (): void {
         ->and($companies->all())->toBe(['Canva', 'Clearbit', 'HubSpot', 'Mailchimp']);
 });
 
-it('seeds general demo data for general use case', function (): void {
+it('seeds general demo data for other use case', function (): void {
     $user = User::factory()->create();
 
     $this->actingAs($user);
 
     livewire(CreateTeam::class)
         ->fillForm([
-            'onboarding_role' => OnboardingRole::Other->value,
-            'onboarding_use_case' => OnboardingUseCase::General->value,
+            'onboarding_use_case' => OnboardingUseCase::Other->value,
             'name' => 'General Team',
         ])
         ->call('register')
@@ -279,6 +283,27 @@ it('seeds general demo data for general use case', function (): void {
         ->and($companies->all())->toBe(['Atlas Design Studio', 'Coastal Media', 'Horizon Labs', 'Summit Group']);
 });
 
+it('seeds fundraising demo data for fundraising use case', function (): void {
+    $user = User::factory()->create();
+
+    $this->actingAs($user);
+
+    livewire(CreateTeam::class)
+        ->fillForm([
+            'onboarding_use_case' => OnboardingUseCase::Fundraising->value,
+            'name' => 'Fundraising Team',
+        ])
+        ->call('register')
+        ->assertHasNoFormErrors();
+
+    $team = $user->fresh()->personalTeam();
+
+    $companies = Company::where('team_id', $team->id)->pluck('name')->sort()->values();
+
+    expect($companies)->toHaveCount(4)
+        ->and($companies->all())->toBe(['Andreessen Horowitz', 'Benchmark', 'Greylock Partners', 'Sequoia Capital']);
+});
+
 it('creates all custom fields for the first team', function (): void {
     $user = User::factory()->create();
 
@@ -286,8 +311,7 @@ it('creates all custom fields for the first team', function (): void {
 
     livewire(CreateTeam::class)
         ->fillForm([
-            'onboarding_role' => OnboardingRole::Founder->value,
-            'onboarding_use_case' => OnboardingUseCase::SalesPipeline->value,
+            'onboarding_use_case' => OnboardingUseCase::Sales->value,
             'name' => 'Custom Fields Team',
         ])
         ->call('register')
@@ -314,8 +338,7 @@ it('seeds people linked to their correct companies for sales', function (): void
 
     livewire(CreateTeam::class)
         ->fillForm([
-            'onboarding_role' => OnboardingRole::Sales->value,
-            'onboarding_use_case' => OnboardingUseCase::SalesPipeline->value,
+            'onboarding_use_case' => OnboardingUseCase::Sales->value,
             'name' => 'Link Test Team',
         ])
         ->call('register');
@@ -344,8 +367,7 @@ it('seeds tasks and opportunities with board positions', function (): void {
 
     livewire(CreateTeam::class)
         ->fillForm([
-            'onboarding_role' => OnboardingRole::Founder->value,
-            'onboarding_use_case' => OnboardingUseCase::SalesPipeline->value,
+            'onboarding_use_case' => OnboardingUseCase::Sales->value,
             'name' => 'Board Test Team',
         ])
         ->call('register');
@@ -372,8 +394,7 @@ it('seeds custom field values correctly for sales', function (): void {
 
     livewire(CreateTeam::class)
         ->fillForm([
-            'onboarding_role' => OnboardingRole::Sales->value,
-            'onboarding_use_case' => OnboardingUseCase::SalesPipeline->value,
+            'onboarding_use_case' => OnboardingUseCase::Sales->value,
             'name' => 'Values Test Team',
         ])
         ->call('register');
@@ -412,25 +433,65 @@ it('does not require onboarding fields for subsequent teams', function (): void 
     $team = $user->fresh()->ownedTeams()->where('name', 'Second Team')->first();
 
     expect($team)->not->toBeNull()
-        ->and($team->onboarding_role)->toBeNull()
         ->and($team->onboarding_use_case)->toBeNull();
 });
 
-it('shows branched use case options based on role', function (): void {
-    $founderOptions = OnboardingRole::Founder->getUseCaseOptions();
-    $salesOptions = OnboardingRole::Sales->getUseCaseOptions();
+it('provides sub-options for each use case', function (): void {
+    expect(OnboardingUseCase::Sales->getSubOptions())->toHaveCount(7)
+        ->and(OnboardingUseCase::CustomerSuccess->getSubOptions())->toHaveCount(5)
+        ->and(OnboardingUseCase::Recruiting->getSubOptions())->toHaveCount(2)
+        ->and(OnboardingUseCase::Marketing->getSubOptions())->toHaveCount(4)
+        ->and(OnboardingUseCase::Fundraising->getSubOptions())->toHaveCount(3)
+        ->and(OnboardingUseCase::Investing->getSubOptions())->toHaveCount(3)
+        ->and(OnboardingUseCase::Other->getSubOptions())->toBe([]);
+});
 
-    expect($founderOptions)->toHaveCount(4)
-        ->and($salesOptions)->toHaveCount(2)
-        ->and(array_keys($founderOptions))->toContain(OnboardingUseCase::Recruiting->value)
-        ->and(array_keys($salesOptions))->not->toContain(OnboardingUseCase::Recruiting->value);
+it('stores referral source', function (): void {
+    $user = User::factory()->create();
+
+    $this->actingAs($user);
+
+    livewire(CreateTeam::class)
+        ->fillForm([
+            'onboarding_use_case' => OnboardingUseCase::Sales->value,
+            'onboarding_referral_source' => OnboardingReferralSource::Google->value,
+            'name' => 'Referral Team',
+        ])
+        ->call('register')
+        ->assertHasNoFormErrors();
+
+    $team = Team::query()->where('name', 'Referral Team')->first();
+
+    expect($team->onboarding_referral_source)->toBe(OnboardingReferralSource::Google);
+});
+
+it('stores onboarding context', function (): void {
+    $user = User::factory()->create();
+
+    $this->actingAs($user);
+
+    livewire(CreateTeam::class)
+        ->fillForm([
+            'onboarding_use_case' => OnboardingUseCase::Sales->value,
+            'onboarding_context' => ['product_led', 'enterprise'],
+            'name' => 'Context Team',
+        ])
+        ->call('register')
+        ->assertHasNoFormErrors();
+
+    $team = Team::query()->where('name', 'Context Team')->first();
+
+    expect($team->onboarding_context)->toBe(['product_led', 'enterprise']);
 });
 
 it('maps use case to correct fixture set', function (): void {
-    expect(OnboardingUseCase::SalesPipeline->getFixtureSet())->toBe('sales')
+    expect(OnboardingUseCase::Sales->getFixtureSet())->toBe('sales')
+        ->and(OnboardingUseCase::CustomerSuccess->getFixtureSet())->toBe('sales')
         ->and(OnboardingUseCase::Recruiting->getFixtureSet())->toBe('recruiting')
         ->and(OnboardingUseCase::Marketing->getFixtureSet())->toBe('marketing')
-        ->and(OnboardingUseCase::General->getFixtureSet())->toBe('general');
+        ->and(OnboardingUseCase::Fundraising->getFixtureSet())->toBe('fundraising')
+        ->and(OnboardingUseCase::Investing->getFixtureSet())->toBe('fundraising')
+        ->and(OnboardingUseCase::Other->getFixtureSet())->toBe('general');
 });
 
 it('seeds all entity types for each fixture set', function (OnboardingUseCase $useCase): void {
@@ -440,7 +501,6 @@ it('seeds all entity types for each fixture set', function (OnboardingUseCase $u
 
     livewire(CreateTeam::class)
         ->fillForm([
-            'onboarding_role' => OnboardingRole::Founder->value,
             'onboarding_use_case' => $useCase->value,
             'name' => "Team {$useCase->value}",
         ])
@@ -455,8 +515,33 @@ it('seeds all entity types for each fixture set', function (OnboardingUseCase $u
         ->and(Task::where('team_id', $team->id)->count())->toBe(4)
         ->and(Note::where('team_id', $team->id)->count())->toBe(5);
 })->with([
-    'sales' => [OnboardingUseCase::SalesPipeline],
+    'sales' => [OnboardingUseCase::Sales],
     'recruiting' => [OnboardingUseCase::Recruiting],
     'marketing' => [OnboardingUseCase::Marketing],
-    'general' => [OnboardingUseCase::General],
+    'customer_success' => [OnboardingUseCase::CustomerSuccess],
+    'fundraising' => [OnboardingUseCase::Fundraising],
+    'investing' => [OnboardingUseCase::Investing],
+    'other' => [OnboardingUseCase::Other],
 ]);
+
+it('renders the onboarding invite page for new teams', function (): void {
+    $user = User::factory()->withPersonalTeam()->create();
+
+    $this->actingAs($user);
+    Filament::setTenant($user->personalTeam());
+
+    livewire(OnboardingInvite::class)
+        ->assertSuccessful()
+        ->assertSee('Invite your team to collaborate');
+});
+
+it('can skip the onboarding invite page', function (): void {
+    $user = User::factory()->withPersonalTeam()->create();
+
+    $this->actingAs($user);
+    Filament::setTenant($user->personalTeam());
+
+    livewire(OnboardingInvite::class)
+        ->call('skip')
+        ->assertRedirect(CompanyResource::getUrl('index'));
+});

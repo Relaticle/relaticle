@@ -17,19 +17,18 @@ it('new user without teams is directed to onboarding wizard', function (): void 
         ->assertPathIs('/app/new')
         ->navigate('/app/new')
         ->assertSee('Welcome to Relaticle')
-        // Step 1: Select role
-        ->click('input[value="founder"]')
+        // Step 1: Select use case
+        ->click('[for$="onboarding_use_case-sales"]')
         ->press('Next')
-        ->waitForText('What will you use Relaticle for?')
-        // Step 2: Select use case
-        ->click('input[value="sales_pipeline"]')
-        ->press('Next')
+        ->waitForText('How did you hear about us?')
+        // Step 2: Attribution (optional, just proceed via Next wrapper)
+        ->click('[x-on\\:click="requestNextStep()"]')
         ->waitForText('Name your workspace')
         // Step 3: Create workspace
         ->type('[id="form.name"]', 'My First Workspace')
         ->type('[id="form.slug"]', 'my-first-workspace')
         ->press('Create workspace')
-        ->assertPathContains('/my-first-workspace/companies');
+        ->assertPathContains('/my-first-workspace/onboarding/invite');
 
     $user->refresh();
 
