@@ -18,19 +18,19 @@ final class BackfillMailcoachUuidsCommand extends Command
 
     public function handle(): int
     {
-        $users = User::query()
+        $query = User::query()
             ->whereNull('mailcoach_subscriber_uuid')
-            ->whereNotNull('email_verified_at')
-            ->select(['id', 'email'])
-            ->get();
+            ->whereNotNull('email_verified_at');
 
-        $this->info("Found {$users->count()} users without Mailcoach UUID.");
+        $total = (clone $query)->count();
 
-        $bar = $this->output->createProgressBar($users->count());
+        $this->info("Found {$total} users without Mailcoach UUID.");
+
+        $bar = $this->output->createProgressBar($total);
         $matched = 0;
         $notFound = 0;
 
-        foreach ($users as $user) {
+        foreach ($query->select(['id', 'email'])->lazyById() as $user) {
             try {
                 $subscriber = Mailcoach::findByEmail(
                     config('mailcoach-sdk.subscribers_list_id'),

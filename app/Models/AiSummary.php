@@ -58,7 +58,7 @@ final class AiSummary extends Model
             dispatch(new AddSubscriberTagsJob(
                 $user->mailcoach_subscriber_uuid,
                 [SubscriberTagEnum::HAS_AI_USAGE->value],
-            ));
+            ))->afterCommit();
         });
     }
 

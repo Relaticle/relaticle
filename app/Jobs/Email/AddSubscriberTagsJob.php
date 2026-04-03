@@ -29,11 +29,6 @@ final class AddSubscriberTagsJob implements ShouldQueue
         Mailcoach::post("subscribers/{$this->subscriberUuid}/tags", ['tags' => $this->tags]);
     }
 
-    public function uniqueId(): string
-    {
-        return $this->subscriberUuid.':add:'.implode(',', $this->tags);
-    }
-
     /** @return array<ThrottlesExceptionsWithRedis> */
     public function middleware(): array
     {

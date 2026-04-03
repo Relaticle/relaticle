@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('subscriber_recency_bucket')->nullable()->after('mailcoach_subscriber_uuid');
 
             $table->index('last_login_at');
+            $table->index('mailcoach_subscriber_uuid');
             $table->index('subscriber_recency_bucket');
         });
     }

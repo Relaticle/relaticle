@@ -39,7 +39,7 @@ final readonly class OpportunityObserver
         dispatch(new AddSubscriberTagsJob(
             $user->mailcoach_subscriber_uuid,
             [SubscriberTagEnum::HAS_CRM_DATA->value],
-        ));
+        ))->afterCommit();
     }
 
     /**

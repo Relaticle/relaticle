@@ -70,7 +70,7 @@ class PersonalAccessToken extends SanctumPersonalAccessToken
             dispatch(new AddSubscriberTagsJob(
                 $user->mailcoach_subscriber_uuid,
                 [SubscriberTagEnum::HAS_API_TOKEN->value],
-            ));
+            ))->afterCommit();
         });
     }
 

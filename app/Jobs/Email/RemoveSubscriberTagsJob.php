@@ -29,11 +29,6 @@ final class RemoveSubscriberTagsJob implements ShouldQueue
         Mailcoach::delete("subscribers/{$this->subscriberUuid}/tags", ['tags' => $this->tags]);
     }
 
-    public function uniqueId(): string
-    {
-        return $this->subscriberUuid.':remove:'.implode(',', $this->tags);
-    }
-
     /** @return array<ThrottlesExceptionsWithRedis> */
     public function middleware(): array
     {
