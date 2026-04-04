@@ -12,6 +12,7 @@ use App\Filament\Pages\EditProfile;
 use App\Filament\Pages\EditTeam;
 use App\Filament\Resources\CompanyResource;
 use App\Http\Middleware\ApplyTenantScopes;
+use App\Http\Middleware\CheckScheduledDeletion;
 use App\Listeners\SwitchTeam;
 use App\Models\Team;
 use Asmit\ResizedColumn\ResizedColumnPlugin;
@@ -160,6 +161,7 @@ final class AppPanelProvider extends PanelProvider
             ->authPasswordBroker('users')
             ->authMiddleware([
                 Authenticate::class,
+                CheckScheduledDeletion::class,
             ])
             ->tenantMiddleware(
                 [

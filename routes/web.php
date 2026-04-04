@@ -9,6 +9,7 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PrivacyPolicyController;
 use App\Http\Controllers\TermsOfServiceController;
+use App\Livewire\App\Profile\ScheduledDeletionInterstitial;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Support\Facades\Route;
 use Spatie\Honeypot\ProtectAgainstSpam;
@@ -54,6 +55,10 @@ Route::get('/dashboard', fn () => redirect()->to(url()->getAppUrl()))->name('das
 Route::get('/team-invitations/{invitation}', AcceptTeamInvitationController::class)
     ->middleware(['signed', 'auth', 'verified', AuthenticateSession::class])
     ->name('team-invitations.accept');
+
+Route::get('/scheduled-deletion', ScheduledDeletionInterstitial::class)
+    ->middleware('auth')
+    ->name('scheduled-deletion');
 
 // Legacy documentation redirects
 Route::get('/documentation/{slug?}', fn (string $slug = '') => redirect("/docs/{$slug}", 301))
