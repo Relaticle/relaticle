@@ -7,12 +7,15 @@ namespace App\Actions\Jetstream;
 use App\Models\Team;
 use App\Models\User;
 use App\Notifications\TeamDeletionCancelledNotification;
+use Illuminate\Auth\Access\AuthorizationException;
 
 final readonly class CancelTeamDeletion
 {
-    public function cancel(Team $team): void
+    public function cancel(User $user, Team $team): void
     {
-        $team->update(['scheduled_deletion_at' => null]);
+        throw_unless($user->ownsTeam($team), AuthorizationException::class);
+
+        $team->forceFill(['scheduled_deletion_at' => null])->save();
 
         /** @var User $owner */
         $owner = $team->owner;

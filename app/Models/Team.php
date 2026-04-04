@@ -100,7 +100,6 @@ final class Team extends JetstreamTeam implements HasAvatar
         'name',
         'slug',
         'personal_team',
-        'scheduled_deletion_at',
     ];
 
     /**

@@ -83,11 +83,11 @@ test('team owner can cancel team deletion', function () {
 
     $user = User::factory()->withTeam()->create();
     $team = $user->currentTeam;
-    $team->update(['scheduled_deletion_at' => now()->addDays(30)]);
+    $team->forceFill(['scheduled_deletion_at' => now()->addDays(30)])->save();
     $member = User::factory()->create();
     $team->users()->attach($member, ['role' => 'editor']);
 
-    resolve(CancelTeamDeletion::class)->cancel($team);
+    resolve(CancelTeamDeletion::class)->cancel($user, $team);
 
     expect($team->refresh()->scheduled_deletion_at)->toBeNull();
 

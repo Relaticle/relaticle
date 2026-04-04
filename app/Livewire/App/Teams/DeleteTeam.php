@@ -82,7 +82,7 @@ final class DeleteTeam extends BaseLivewireComponent
 
     public function cancelTeamDeletion(Team $team): void
     {
-        resolve(CancelTeamDeletion::class)->cancel($team);
+        resolve(CancelTeamDeletion::class)->cancel($this->authUser(), $team);
 
         $this->sendNotification('Team deletion cancelled');
     }

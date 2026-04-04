@@ -18,7 +18,7 @@ final readonly class ScheduleUserDeletion
         DB::transaction(function () use ($user): void {
             $deletionDate = now()->addDays(30);
 
-            $user->update(['scheduled_deletion_at' => $deletionDate]);
+            $user->forceFill(['scheduled_deletion_at' => $deletionDate])->save();
 
             $user->ownedTeams()
                 ->where('personal_team', true)

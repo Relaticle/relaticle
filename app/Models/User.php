@@ -61,7 +61,6 @@ final class User extends Authenticatable implements FilamentUser, HasAvatar, Has
         'name',
         'email',
         'password',
-        'scheduled_deletion_at',
     ];
 
     /**

@@ -13,7 +13,7 @@ final readonly class CancelUserDeletion
     public function cancel(User $user): void
     {
         DB::transaction(function () use ($user): void {
-            $user->update(['scheduled_deletion_at' => null]);
+            $user->forceFill(['scheduled_deletion_at' => null])->save();
 
             $user->ownedTeams()
                 ->where('personal_team', true)
