@@ -16,6 +16,15 @@ use Livewire\Attributes\Layout;
 #[Layout('layouts.filament-standalone')]
 final class ScheduledDeletionInterstitial extends BaseLivewireComponent
 {
+    public function mount(): Redirector|RedirectResponse|null
+    {
+        if (! $this->authUser()->isScheduledForDeletion()) {
+            return redirect(Filament::getHomeUrl());
+        }
+
+        return null;
+    }
+
     public function cancelDeletion(): Redirector|RedirectResponse
     {
         resolve(CancelUserDeletion::class)->cancel($this->authUser());

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use App\Livewire\App\Teams\DeleteTeam;
 use App\Models\User;
-use App\Notifications\TeamDeletionScheduledNotification;
 use Illuminate\Support\Facades\Notification;
 use Livewire\Livewire;
 
