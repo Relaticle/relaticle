@@ -34,6 +34,7 @@ use Laravel\Sanctum\HasApiTokens;
  * @property-read string $profile_photo_url
  * @property Carbon|null $email_verified_at
  * @property string|null $remember_token
+ * @property Carbon|null $scheduled_deletion_at
  * @property string|null $two_factor_recovery_codes
  * @property string|null $two_factor_secret
  * @property-read Team|null $currentTeam
@@ -60,6 +61,7 @@ final class User extends Authenticatable implements FilamentUser, HasAvatar, Has
         'name',
         'email',
         'password',
+        'scheduled_deletion_at',
     ];
 
     /**
@@ -93,6 +95,7 @@ final class User extends Authenticatable implements FilamentUser, HasAvatar, Has
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'scheduled_deletion_at' => 'datetime',
         ];
     }
 
@@ -107,6 +110,11 @@ final class User extends Authenticatable implements FilamentUser, HasAvatar, Has
     public function hasPassword(): bool
     {
         return $this->password !== null;
+    }
+
+    public function isScheduledForDeletion(): bool
+    {
+        return $this->scheduled_deletion_at !== null;
     }
 
     /**

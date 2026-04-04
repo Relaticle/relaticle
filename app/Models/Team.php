@@ -10,6 +10,7 @@ use Filament\Models\Contracts\HasAvatar;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 use Laravel\Jetstream\Events\TeamCreated;
 use Laravel\Jetstream\Events\TeamDeleted;
@@ -21,6 +22,7 @@ use Spatie\Sluggable\SlugOptions;
 /**
  * @property string $name
  * @property string $slug
+ * @property Carbon|null $scheduled_deletion_at
  */
 final class Team extends JetstreamTeam implements HasAvatar
 {
@@ -98,6 +100,7 @@ final class Team extends JetstreamTeam implements HasAvatar
         'name',
         'slug',
         'personal_team',
+        'scheduled_deletion_at',
     ];
 
     /**
@@ -120,6 +123,7 @@ final class Team extends JetstreamTeam implements HasAvatar
     {
         return [
             'personal_team' => 'boolean',
+            'scheduled_deletion_at' => 'datetime',
         ];
     }
 
@@ -159,6 +163,11 @@ final class Team extends JetstreamTeam implements HasAvatar
     public function isPersonalTeam(): bool
     {
         return $this->personal_team;
+    }
+
+    public function isScheduledForDeletion(): bool
+    {
+        return $this->scheduled_deletion_at !== null;
     }
 
     public function getFilamentAvatarUrl(): string
