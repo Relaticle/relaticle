@@ -39,9 +39,7 @@ final readonly class AcceptTeamInvitationController
         /** @var User $currentUser */
         $currentUser = $request->user();
 
-        if ($currentUser->isScheduledForDeletion()) {
-            abort(403, __('You cannot accept team invitations while your account is scheduled for deletion.'));
-        }
+        abort_if($currentUser->isScheduledForDeletion(), 403, __('You cannot accept team invitations while your account is scheduled for deletion.'));
 
         /** @var User $owner */
         $owner = $invitation->team->owner;

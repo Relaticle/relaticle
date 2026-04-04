@@ -17,7 +17,7 @@ final readonly class CheckScheduledDeletion
         $user = $request->user();
 
         if ($user?->isScheduledForDeletion() && ! $request->routeIs('scheduled-deletion', 'scheduled-deletion.*', 'logout')) {
-            return redirect()->route('scheduled-deletion');
+            return to_route('scheduled-deletion');
         }
 
         return $next($request);

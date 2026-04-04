@@ -59,7 +59,7 @@ final class Team extends JetstreamTeam implements HasAvatar
 
         // App routes
         'companies', 'people', 'tasks', 'opportunities', 'notes',
-        'api-tokens', 'import-history', 'profile',
+        'api-tokens', 'import-history', 'profile', 'scheduled-deletion',
         'opportunities-board', 'tasks-board',
 
         // Content & info pages
