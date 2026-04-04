@@ -36,6 +36,13 @@ final readonly class AcceptTeamInvitationController
             abort(403, __('This invitation was sent to a different email address.'));
         }
 
+        /** @var User $currentUser */
+        $currentUser = $request->user();
+
+        if ($currentUser->isScheduledForDeletion()) {
+            abort(403, __('You cannot accept team invitations while your account is scheduled for deletion.'));
+        }
+
         /** @var User $owner */
         $owner = $invitation->team->owner;
 
