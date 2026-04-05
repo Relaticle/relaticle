@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Relaticle\Chat\Tools\Opportunity;
 
 use App\Actions\Opportunity\UpdateOpportunity;
-use Relaticle\Chat\Tools\BaseWriteUpdateTool;
 use App\Models\Opportunity;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\Database\Eloquent\Model;
 use Laravel\Ai\Tools\Request;
+use Relaticle\Chat\Tools\BaseWriteUpdateTool;
 
 final class UpdateOpportunityTool extends BaseWriteUpdateTool
 {

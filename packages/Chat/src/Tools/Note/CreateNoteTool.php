@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Relaticle\Chat\Tools\Note;
 
 use App\Actions\Note\CreateNote;
-use Relaticle\Chat\Tools\BaseWriteCreateTool;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Ai\Tools\Request;
+use Relaticle\Chat\Tools\BaseWriteCreateTool;
 
 final class CreateNoteTool extends BaseWriteCreateTool
 {

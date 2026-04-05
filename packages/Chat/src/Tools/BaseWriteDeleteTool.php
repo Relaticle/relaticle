@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Relaticle\Chat\Tools;
 
-use Relaticle\Chat\Enums\PendingActionOperation;
 use App\Models\User;
-use Relaticle\Chat\Services\PendingActionService;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\Database\Eloquent\Model;
 use Laravel\Ai\Contracts\Tool;
 use Laravel\Ai\Tools\Request;
+use Relaticle\Chat\Enums\PendingActionOperation;
+use Relaticle\Chat\Services\PendingActionService;
 
 abstract class BaseWriteDeleteTool implements Tool
 {

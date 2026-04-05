@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Relaticle\Chat\Tools\People;
 
-use Relaticle\Chat\Tools\BaseReadShowTool;
 use App\Http\Resources\V1\PeopleResource;
 use App\Models\People;
+use Relaticle\Chat\Tools\BaseReadShowTool;
 
 final class GetPersonTool extends BaseReadShowTool
 {

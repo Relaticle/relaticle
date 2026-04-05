@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Relaticle\Chat\Tools\Company;
 
-use Relaticle\Chat\Tools\BaseReadShowTool;
 use App\Http\Resources\V1\CompanyResource;
 use App\Models\Company;
+use Relaticle\Chat\Tools\BaseReadShowTool;
 
 final class GetCompanyTool extends BaseReadShowTool
 {

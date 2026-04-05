@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Relaticle\Chat\Tools\Note;
 
-use Relaticle\Chat\Tools\BaseReadShowTool;
 use App\Http\Resources\V1\NoteResource;
 use App\Models\Note;
+use Relaticle\Chat\Tools\BaseReadShowTool;
 
 final class GetNoteTool extends BaseReadShowTool
 {

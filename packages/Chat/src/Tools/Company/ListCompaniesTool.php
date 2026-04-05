@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Relaticle\Chat\Tools\Company;
 
 use App\Actions\Company\ListCompanies;
-use Relaticle\Chat\Tools\BaseReadListTool;
 use App\Http\Resources\V1\CompanyResource;
+use Relaticle\Chat\Tools\BaseReadListTool;
 
 final class ListCompaniesTool extends BaseReadListTool
 {

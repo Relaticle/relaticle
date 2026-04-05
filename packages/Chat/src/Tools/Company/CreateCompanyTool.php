@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Relaticle\Chat\Tools\Company;
 
 use App\Actions\Company\CreateCompany;
-use Relaticle\Chat\Tools\BaseWriteCreateTool;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Ai\Tools\Request;
+use Relaticle\Chat\Tools\BaseWriteCreateTool;
 
 final class CreateCompanyTool extends BaseWriteCreateTool
 {

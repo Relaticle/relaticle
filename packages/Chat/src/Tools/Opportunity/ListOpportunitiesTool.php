@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Relaticle\Chat\Tools\Opportunity;
 
 use App\Actions\Opportunity\ListOpportunities;
-use Relaticle\Chat\Tools\BaseReadListTool;
 use App\Http\Resources\V1\OpportunityResource;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Ai\Tools\Request;
+use Relaticle\Chat\Tools\BaseReadListTool;
 
 final class ListOpportunitiesTool extends BaseReadListTool
 {

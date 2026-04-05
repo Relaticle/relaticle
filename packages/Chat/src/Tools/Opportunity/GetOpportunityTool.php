@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Relaticle\Chat\Tools\Opportunity;
 
-use Relaticle\Chat\Tools\BaseReadShowTool;
 use App\Http\Resources\V1\OpportunityResource;
 use App\Models\Opportunity;
+use Relaticle\Chat\Tools\BaseReadShowTool;
 
 final class GetOpportunityTool extends BaseReadShowTool
 {

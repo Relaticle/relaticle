@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Relaticle\Chat\Tools\People;
 
 use App\Actions\People\DeletePeople;
-use Relaticle\Chat\Tools\BaseWriteDeleteTool;
 use App\Models\People;
+use Relaticle\Chat\Tools\BaseWriteDeleteTool;
 
 final class DeletePersonTool extends BaseWriteDeleteTool
 {

@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Relaticle\Chat\Tools\Task;
 
 use App\Actions\Task\UpdateTask;
-use Relaticle\Chat\Tools\BaseWriteUpdateTool;
 use App\Models\Task;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\Database\Eloquent\Model;
 use Laravel\Ai\Tools\Request;
+use Relaticle\Chat\Tools\BaseWriteUpdateTool;
 
 final class UpdateTaskTool extends BaseWriteUpdateTool
 {

@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Relaticle\Chat\Services;
 
-use Relaticle\Chat\Enums\AiCreditType;
-use Relaticle\Chat\Models\AiCreditBalance;
-use Relaticle\Chat\Models\AiCreditTransaction;
 use App\Models\Team;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Relaticle\Chat\Enums\AiCreditType;
+use Relaticle\Chat\Models\AiCreditBalance;
+use Relaticle\Chat\Models\AiCreditTransaction;
 
 final readonly class CreditService
 {

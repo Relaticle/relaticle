@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Relaticle\Chat\Tools\Task;
 
-use Relaticle\Chat\Tools\BaseReadShowTool;
 use App\Http\Resources\V1\TaskResource;
 use App\Models\Task;
+use Relaticle\Chat\Tools\BaseReadShowTool;
 
 final class GetTaskTool extends BaseReadShowTool
 {

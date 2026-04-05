@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Relaticle\Chat\Tools\People;
 
 use App\Actions\People\ListPeople;
-use Relaticle\Chat\Tools\BaseReadListTool;
 use App\Http\Resources\V1\PeopleResource;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Ai\Tools\Request;
+use Relaticle\Chat\Tools\BaseReadListTool;
 
 final class ListPeopleTool extends BaseReadListTool
 {

@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Relaticle\Chat\Tools\People;
 
 use App\Actions\People\CreatePeople;
-use Relaticle\Chat\Tools\BaseWriteCreateTool;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Ai\Tools\Request;
+use Relaticle\Chat\Tools\BaseWriteCreateTool;
 
 final class CreatePersonTool extends BaseWriteCreateTool
 {

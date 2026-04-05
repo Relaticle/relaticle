@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Relaticle\Chat\Http\Controllers;
 
-use Relaticle\Chat\Models\PendingAction;
 use App\Models\User;
-use Relaticle\Chat\Services\PendingActionService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Relaticle\Chat\Models\PendingAction;
+use Relaticle\Chat\Services\PendingActionService;
 use RuntimeException;
 
 final readonly class PendingActionController

@@ -4,6 +4,17 @@ declare(strict_types=1);
 
 namespace Relaticle\Chat\Agents;
 
+use Laravel\Ai\Attributes\MaxSteps;
+use Laravel\Ai\Attributes\Provider;
+use Laravel\Ai\Attributes\Temperature;
+use Laravel\Ai\Attributes\Timeout;
+use Laravel\Ai\Concerns\RemembersConversations;
+use Laravel\Ai\Contracts\Agent;
+use Laravel\Ai\Contracts\Conversational;
+use Laravel\Ai\Contracts\HasMiddleware;
+use Laravel\Ai\Contracts\HasTools;
+use Laravel\Ai\Contracts\Tool;
+use Laravel\Ai\Promptable;
 use Relaticle\Chat\Tools\Company\CreateCompanyTool as ChatCreateCompanyTool;
 use Relaticle\Chat\Tools\Company\DeleteCompanyTool as ChatDeleteCompanyTool;
 use Relaticle\Chat\Tools\Company\GetCompanyTool as ChatGetCompanyTool;
@@ -31,17 +42,6 @@ use Relaticle\Chat\Tools\Task\DeleteTaskTool as ChatDeleteTaskTool;
 use Relaticle\Chat\Tools\Task\GetTaskTool as ChatGetTaskTool;
 use Relaticle\Chat\Tools\Task\ListTasksTool as ChatListTasksTool;
 use Relaticle\Chat\Tools\Task\UpdateTaskTool as ChatUpdateTaskTool;
-use Laravel\Ai\Attributes\MaxSteps;
-use Laravel\Ai\Attributes\Provider;
-use Laravel\Ai\Attributes\Temperature;
-use Laravel\Ai\Attributes\Timeout;
-use Laravel\Ai\Concerns\RemembersConversations;
-use Laravel\Ai\Contracts\Agent;
-use Laravel\Ai\Contracts\Conversational;
-use Laravel\Ai\Contracts\HasMiddleware;
-use Laravel\Ai\Contracts\HasTools;
-use Laravel\Ai\Contracts\Tool;
-use Laravel\Ai\Promptable;
 
 #[Provider(['anthropic', 'openai'])]
 #[MaxSteps(15)]

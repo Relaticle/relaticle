@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Relaticle\Chat\Tools\Company;
 
 use App\Actions\Company\DeleteCompany;
-use Relaticle\Chat\Tools\BaseWriteDeleteTool;
 use App\Models\Company;
+use Relaticle\Chat\Tools\BaseWriteDeleteTool;
 
 final class DeleteCompanyTool extends BaseWriteDeleteTool
 {

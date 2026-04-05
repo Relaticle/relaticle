@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Relaticle\Chat\Tools\Company;
 
 use App\Actions\Company\UpdateCompany;
-use Relaticle\Chat\Tools\BaseWriteUpdateTool;
 use App\Models\Company;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\Database\Eloquent\Model;
 use Laravel\Ai\Tools\Request;
+use Relaticle\Chat\Tools\BaseWriteUpdateTool;
 
 final class UpdateCompanyTool extends BaseWriteUpdateTool
 {

@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Relaticle\Chat\Livewire\App\Chat;
 
 use App\Livewire\BaseLivewireComponent;
-use Relaticle\Chat\Services\ChatContextService;
 use Illuminate\Contracts\View\View;
+use Relaticle\Chat\Services\ChatContextService;
 
 final class ChatSidePanel extends BaseLivewireComponent
 {

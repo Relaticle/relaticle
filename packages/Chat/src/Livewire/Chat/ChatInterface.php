@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Relaticle\Chat\Livewire\Chat;
 
-use Relaticle\Chat\Actions\ListConversationMessages;
 use App\Livewire\BaseLivewireComponent;
 use Illuminate\Contracts\View\View;
+use Relaticle\Chat\Actions\ListConversationMessages;
 
 final class ChatInterface extends BaseLivewireComponent
 {

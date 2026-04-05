@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Relaticle\Chat\Tools\Task;
 
 use App\Actions\Task\CreateTask;
-use Relaticle\Chat\Tools\BaseWriteCreateTool;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Ai\Tools\Request;
+use Relaticle\Chat\Tools\BaseWriteCreateTool;
 
 final class CreateTaskTool extends BaseWriteCreateTool
 {

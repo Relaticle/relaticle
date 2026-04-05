@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Relaticle\Chat\Services;
 
-use Relaticle\Chat\Enums\AiModel;
 use App\Models\User;
+use Relaticle\Chat\Enums\AiModel;
 
 final readonly class AiModelResolver
 {

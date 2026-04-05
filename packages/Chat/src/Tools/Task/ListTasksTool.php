@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Relaticle\Chat\Tools\Task;
 
 use App\Actions\Task\ListTasks;
-use Relaticle\Chat\Tools\BaseReadListTool;
 use App\Http\Resources\V1\TaskResource;
+use Relaticle\Chat\Tools\BaseReadListTool;
 
 final class ListTasksTool extends BaseReadListTool
 {

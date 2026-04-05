@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Relaticle\Chat\Tools\Note;
 
 use App\Actions\Note\ListNotes;
-use Relaticle\Chat\Tools\BaseReadListTool;
 use App\Http\Resources\V1\NoteResource;
+use Relaticle\Chat\Tools\BaseReadListTool;
 
 final class ListNotesTool extends BaseReadListTool
 {

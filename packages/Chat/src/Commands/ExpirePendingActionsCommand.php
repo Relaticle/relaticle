@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Relaticle\Chat\Commands;
 
-use Relaticle\Chat\Services\PendingActionService;
 use Illuminate\Console\Command;
+use Relaticle\Chat\Services\PendingActionService;
 
 final class ExpirePendingActionsCommand extends Command
 {

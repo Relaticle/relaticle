@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Relaticle\Chat\Tools\Opportunity;
 
 use App\Actions\Opportunity\DeleteOpportunity;
-use Relaticle\Chat\Tools\BaseWriteDeleteTool;
 use App\Models\Opportunity;
+use Relaticle\Chat\Tools\BaseWriteDeleteTool;
 
 final class DeleteOpportunityTool extends BaseWriteDeleteTool
 {

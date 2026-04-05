@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Relaticle\Chat\Models;
 
-use Relaticle\Chat\Enums\PendingActionOperation;
-use Relaticle\Chat\Enums\PendingActionStatus;
 use App\Models\Concerns\HasTeam;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Attributes\Scope;
@@ -16,6 +14,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
+use Relaticle\Chat\Enums\PendingActionOperation;
+use Relaticle\Chat\Enums\PendingActionStatus;
 
 /**
  * @property string $id

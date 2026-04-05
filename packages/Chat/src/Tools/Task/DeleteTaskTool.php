@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Relaticle\Chat\Tools\Task;
 
 use App\Actions\Task\DeleteTask;
-use Relaticle\Chat\Tools\BaseWriteDeleteTool;
 use App\Models\Task;
+use Relaticle\Chat\Tools\BaseWriteDeleteTool;
 
 final class DeleteTaskTool extends BaseWriteDeleteTool
 {

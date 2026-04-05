@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Relaticle\Chat\Tools\Note;
 
 use App\Actions\Note\DeleteNote;
-use Relaticle\Chat\Tools\BaseWriteDeleteTool;
 use App\Models\Note;
+use Relaticle\Chat\Tools\BaseWriteDeleteTool;
 
 final class DeleteNoteTool extends BaseWriteDeleteTool
 {
