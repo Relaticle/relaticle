@@ -56,9 +56,9 @@ trait LogsActivityForCrm
         $activity = $query->latest('id')->first();
 
         if ($activity && $activity->created_at->diffInSeconds(now()) < 5) {
-            $properties = $activity->properties->toArray();
+            $properties = $activity->properties?->toArray() ?? [];
             $properties['custom_field_changes'] = $changes;
-            $activity->properties = $properties;
+            $activity->properties = collect($properties);
             $activity->save();
 
             return;
