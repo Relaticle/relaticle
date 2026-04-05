@@ -52,7 +52,7 @@ final class Task extends Model implements HasCustomFields
     use UsesCustomFields;
 
     /** @var list<string> */
-    protected array $additionalActivityLogExclusions = ['order_column'];
+    private array $additionalActivityLogExclusions = ['order_column'];
 
     protected $fillable = [
         'user_id',

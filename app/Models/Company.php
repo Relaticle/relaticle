@@ -53,7 +53,7 @@ final class Company extends Model implements HasCustomFields, HasMedia
     use UsesCustomFields;
 
     /** @var list<string> */
-    protected array $additionalActivityLogExclusions = ['account_owner_id'];
+    private array $additionalActivityLogExclusions = ['account_owner_id'];
 
     /**
      * @var list<string>

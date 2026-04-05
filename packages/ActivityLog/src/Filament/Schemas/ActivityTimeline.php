@@ -83,7 +83,7 @@ final class ActivityTimeline extends Component
         unset($this->timelineData);
     }
 
-    private const ALLOWED_FILTERS = ['all', 'created', 'updated', 'deleted', 'restored'];
+    private const array ALLOWED_FILTERS = ['all', 'created', 'updated', 'deleted', 'restored'];
 
     public function setFilter(string $filter): void
     {
@@ -222,7 +222,7 @@ final class ActivityTimeline extends Component
         $changes = $activity->attribute_changes;
         $cfChanges = $activity->properties['custom_field_changes'] ?? [];
 
-        if (! $changes && empty($cfChanges)) {
+        if (! $changes && blank($cfChanges)) {
             return null;
         }
 

@@ -48,7 +48,7 @@ final class Opportunity extends Model implements HasCustomFields
     use UsesCustomFields;
 
     /** @var list<string> */
-    protected array $additionalActivityLogExclusions = ['order_column'];
+    private array $additionalActivityLogExclusions = ['order_column'];
 
     /**
      * The attributes that are mass assignable.
