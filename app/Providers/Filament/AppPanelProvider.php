@@ -45,6 +45,8 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Laravel\Jetstream\Features;
+use ManukMinasyan\FilamentBlog\Filament\Resources\CategoryResource;
+use ManukMinasyan\FilamentBlog\Filament\Resources\PostResource;
 use ManukMinasyan\FilamentBlog\FilamentBlogPlugin;
 use Relaticle\CustomFields\CustomFieldsPlugin;
 use Relaticle\ImportWizard\Filament\Pages\ImportHistory;
@@ -63,6 +65,9 @@ final class AppPanelProvider extends PanelProvider
             TenantSet::class,
             SwitchTeam::class,
         );
+
+        CategoryResource::scopeToTenant(false);
+        PostResource::scopeToTenant(false);
 
         Action::configureUsing(fn (Action $action): Action => $action->size(Size::Small)->iconPosition('before'));
         DeleteAction::configureUsing(fn (DeleteAction $action): DeleteAction => $action->label('Delete record'));
