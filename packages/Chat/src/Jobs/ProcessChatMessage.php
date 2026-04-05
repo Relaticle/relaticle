@@ -15,6 +15,7 @@ use App\Models\User;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
+use Laravel\Ai\Responses\StreamedAgentResponse;
 use Laravel\Ai\Streaming\Events\StreamEvent;
 use Relaticle\Chat\Agents\CrmAssistant;
 use Relaticle\Chat\Enums\AiCreditType;
@@ -62,7 +63,7 @@ final class ProcessChatMessage implements ShouldQueue
             $event->broadcastNow($channel);
         });
 
-        $response->then(function ($streamedResponse) use ($creditService): void {
+        $response->then(function (StreamedAgentResponse $streamedResponse) use ($creditService): void {
             broadcast(new ConversationResolved(
                 userId: (string) $this->user->getKey(),
                 conversationId: $streamedResponse->conversationId,
