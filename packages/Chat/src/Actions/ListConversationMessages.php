@@ -59,7 +59,7 @@ final readonly class ListConversationMessages
             }
 
             /** @var array<string, mixed>|null $parsed */
-            $parsed = json_decode($toolResult['result'], true);
+            $parsed = json_decode((string) $toolResult['result'], true);
 
             if (is_array($parsed) && ($parsed['type'] ?? null) === 'pending_action') {
                 $pendingActionId = $parsed['pending_action_id'] ?? null;

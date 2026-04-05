@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Relaticle\Chat\Http\Controllers;
 
 use App\Models\Company;
-use App\Models\Note;
 use App\Models\Opportunity;
 use App\Models\People;
 use App\Models\Task;
@@ -40,7 +39,7 @@ final readonly class ChatController
         if ($conversation !== null) {
             $found = (new FindConversation)->execute($user, $conversation);
 
-            if ($found === null) {
+            if (! $found instanceof \stdClass) {
                 return response()->json(['error' => 'Conversation not found'], 404);
             }
         }
@@ -54,13 +53,7 @@ final readonly class ChatController
 
         $resolved = $this->modelResolver->resolve($user, $validated['model'] ?? null);
 
-        ProcessChatMessage::dispatch(
-            user: $user,
-            team: $team,
-            message: $validated['message'],
-            conversationId: $conversation,
-            resolved: $resolved,
-        );
+        dispatch(new ProcessChatMessage(user: $user, team: $team, message: $validated['message'], conversationId: $conversation, resolved: $resolved));
 
         return response()->json(['status' => 'processing']);
     }

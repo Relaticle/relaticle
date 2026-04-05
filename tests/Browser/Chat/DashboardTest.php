@@ -15,8 +15,9 @@ it('can load the dashboard with chat input', function (): void {
         ->type('[id="form.email"]', $user->email)
         ->type('[id="form.password"]', 'password')
         ->click('button.fi-btn')
-        ->visit("/app/{$team->slug}")
-        ->assertSee('Ask anything...');
+        ->assertPathIs("/app/{$team->slug}/companies")
+        ->navigate("/app/{$team->slug}")
+        ->assertSourceHas('placeholder="Ask anything..."');
 });
 
 it('shows greeting on the dashboard', function (): void {
@@ -27,7 +28,8 @@ it('shows greeting on the dashboard', function (): void {
         ->type('[id="form.email"]', $user->email)
         ->type('[id="form.password"]', 'password')
         ->click('button.fi-btn')
-        ->visit("/app/{$team->slug}")
+        ->assertPathIs("/app/{$team->slug}/companies")
+        ->navigate("/app/{$team->slug}")
         ->assertSee('Good');
 });
 
@@ -39,6 +41,7 @@ it('shows suggested prompts on the dashboard', function (): void {
         ->type('[id="form.email"]', $user->email)
         ->type('[id="form.password"]', 'password')
         ->click('button.fi-btn')
-        ->visit("/app/{$team->slug}")
+        ->assertPathIs("/app/{$team->slug}/companies")
+        ->navigate("/app/{$team->slug}")
         ->assertSee('CRM overview');
 });

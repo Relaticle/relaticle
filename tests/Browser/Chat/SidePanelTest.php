@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-use App\Livewire\App\Chat\ChatSidePanel;
 use App\Models\User;
+use Relaticle\Chat\Livewire\App\Chat\ChatSidePanel;
 
 mutates(ChatSidePanel::class);
 
-it('renders the side panel toggle button after login', function (): void {
+it('renders the side panel on the dashboard', function (): void {
     $user = User::factory()->withTeam()->create();
     $team = $user->ownedTeams()->first();
 
@@ -15,6 +15,7 @@ it('renders the side panel toggle button after login', function (): void {
         ->type('[id="form.email"]', $user->email)
         ->type('[id="form.password"]', 'password')
         ->click('button.fi-btn')
-        ->visit("/app/{$team->slug}")
-        ->assertSee('Dashboard');
+        ->assertPathIs("/app/{$team->slug}/companies")
+        ->navigate("/app/{$team->slug}")
+        ->assertSourceHas('data-chat-side-panel');
 });

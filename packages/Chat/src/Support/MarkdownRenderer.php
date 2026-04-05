@@ -9,7 +9,7 @@ use League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension;
 use League\CommonMark\Extension\Table\TableExtension;
 use League\CommonMark\MarkdownConverter;
 
-final class MarkdownRenderer
+final readonly class MarkdownRenderer
 {
     private MarkdownConverter $converter;
 

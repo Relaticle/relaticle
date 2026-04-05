@@ -8,6 +8,7 @@ use Filament\Support\Facades\FilamentView;
 use Filament\View\PanelsRenderHook;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
@@ -57,6 +58,7 @@ final class ChatServiceProvider extends ServiceProvider
     private function registerViews(): void
     {
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'chat');
+        Blade::anonymousComponentPath(__DIR__.'/../resources/views/components', 'chat');
     }
 
     private function registerLivewireComponents(): void

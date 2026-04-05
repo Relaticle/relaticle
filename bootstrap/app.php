@@ -21,8 +21,8 @@ use Spatie\Health\Commands\ScheduleCheckHeartbeatCommand;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
-        channels: __DIR__.'/../routes/channels.php',
         web: __DIR__.'/../routes/web.php',
+        channels: __DIR__.'/../routes/channels.php',
         health: '/up',
         then: function (): void {
             $apiDomain = config('app.api_domain');
