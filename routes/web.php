@@ -5,6 +5,9 @@ declare(strict_types=1);
 use App\Http\Controllers\AcceptTeamInvitationController;
 use App\Http\Controllers\Auth\CallbackController;
 use App\Http\Controllers\Auth\RedirectController;
+use App\Http\Controllers\Blog\BlogCategoryController;
+use App\Http\Controllers\Blog\BlogFeedController;
+use App\Http\Controllers\Blog\BlogPreviewController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\HomeController;
@@ -52,9 +55,9 @@ Route::middleware(ProvideMarkdownResponse::class)->group(function (): void {
 
 Route::middleware(ProvideMarkdownResponse::class)->prefix('blog')->name('blog.')->group(function (): void {
     Route::get('/', [BlogController::class, 'index'])->name('index');
-    Route::get('/feed', [BlogController::class, 'feed'])->name('feed');
-    Route::get('/category/{slug}', [BlogController::class, 'category'])->name('category');
-    Route::get('/preview/{post}', [BlogController::class, 'preview'])->name('preview')->middleware('signed');
+    Route::get('/feed', BlogFeedController::class)->name('feed');
+    Route::get('/category/{slug}', BlogCategoryController::class)->name('category');
+    Route::get('/preview/{post}', BlogPreviewController::class)->name('preview')->middleware('signed');
     Route::get('/{slug}', [BlogController::class, 'show'])->name('show');
 });
 

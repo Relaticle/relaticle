@@ -18,6 +18,8 @@ use App\Models\PersonalAccessToken;
 use App\Models\Task;
 use App\Models\Team;
 use App\Models\User;
+use App\Policies\Blog\CategoryPolicy;
+use App\Policies\Blog\PostPolicy;
 use App\Services\GitHubService;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
@@ -67,6 +69,9 @@ final class AppServiceProvider extends ServiceProvider
 
     private function configurePolicies(): void
     {
+        Gate::policy(Post::class, PostPolicy::class);
+        Gate::policy(Category::class, CategoryPolicy::class);
+
         Gate::guessPolicyNamesUsing(function (string $modelClass): ?string {
             try {
                 $currentPanelId = Filament::getCurrentPanel()?->getId();
