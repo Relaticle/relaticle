@@ -9,6 +9,7 @@ use App\Livewire\BaseLivewireComponent;
 use App\Models\User;
 use Filament\Facades\Filament;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Blade;
 use Relaticle\Chat\Actions\ListConversations;
 
 final class ChatSidebarNav extends BaseLivewireComponent
@@ -18,7 +19,7 @@ final class ChatSidebarNav extends BaseLivewireComponent
         $user = Filament::auth()->user();
 
         if (! $user instanceof User) {
-            return view('chat::livewire.app.chat.empty');
+            return Blade::render('<div></div>');
         }
 
         return view('chat::livewire.app.chat.chat-sidebar-nav', [
