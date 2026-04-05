@@ -13,12 +13,12 @@ use Relaticle\Chat\Actions\ListConversations;
 
 final class ChatSidebarNav extends BaseLivewireComponent
 {
-    public function render(): View|string
+    public function render(): View
     {
         $user = Filament::auth()->user();
 
         if (! $user instanceof User) {
-            return '';
+            return view('chat::livewire.app.chat.empty');
         }
 
         return view('chat::livewire.app.chat.chat-sidebar-nav', [
