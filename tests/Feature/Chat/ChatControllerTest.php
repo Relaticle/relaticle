@@ -2,12 +2,13 @@
 
 declare(strict_types=1);
 
-use App\Ai\Agents\CrmAssistant;
-use App\Http\Controllers\Chat\ChatController;
-use App\Models\AiCreditBalance;
 use App\Models\User;
 use Filament\Facades\Filament;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Queue;
+use Relaticle\Chat\Http\Controllers\ChatController;
+use Relaticle\Chat\Jobs\ProcessChatMessage;
+use Relaticle\Chat\Models\AiCreditBalance;
 
 mutates(ChatController::class);
 
@@ -55,16 +56,19 @@ it('validates message max length', function (): void {
         ->assertJsonValidationErrors('message');
 });
 
-it('streams a response when credits are available', function (): void {
-    CrmAssistant::fake(['Hello, how can I help you?']);
+it('dispatches a chat job when credits are available', function (): void {
+    Queue::fake();
 
     $response = $this->postJson(route('chat.send'), ['message' => 'hello']);
 
     $response->assertOk();
-    $response->assertHeader('content-type', 'text/event-stream; charset=utf-8');
+    $response->assertJson(['status' => 'processing']);
+    Queue::assertPushed(ProcessChatMessage::class);
 });
 
 it('continues an existing conversation', function (): void {
+    Queue::fake();
+
     DB::table('agent_conversations')->insert([
         'id' => 'conv-existing',
         'user_id' => $this->user->getKey(),
@@ -73,14 +77,13 @@ it('continues an existing conversation', function (): void {
         'updated_at' => now(),
     ]);
 
-    CrmAssistant::fake(['Continuing the conversation.']);
-
     $response = $this->postJson(route('chat.send', ['conversation' => 'conv-existing']), [
         'message' => 'continue please',
     ]);
 
     $response->assertOk();
-    $response->assertHeader('content-type', 'text/event-stream; charset=utf-8');
+    $response->assertJson(['status' => 'processing']);
+    Queue::assertPushed(ProcessChatMessage::class);
 });
 
 it('lists conversations for current user', function (): void {

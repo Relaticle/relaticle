@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-use App\Enums\AiCreditType;
-use App\Models\AiCreditBalance;
 use App\Models\User;
-use App\Services\AI\CreditService;
 use Illuminate\Support\Carbon;
+use Relaticle\Chat\Enums\AiCreditType;
+use Relaticle\Chat\Models\AiCreditBalance;
+use Relaticle\Chat\Services\CreditService;
 
 mutates(CreditService::class);
 

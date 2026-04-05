@@ -9,6 +9,7 @@ use App\Providers\HealthServiceProvider;
 use App\Providers\HorizonServiceProvider;
 use App\Providers\JetstreamServiceProvider;
 use App\Providers\MacroServiceProvider;
+use Relaticle\Chat\ChatServiceProvider;
 use Relaticle\Documentation\DocumentationServiceProvider;
 use Relaticle\ImportWizard\ImportWizardNewServiceProvider;
 use Relaticle\SystemAdmin\SystemAdminPanelProvider;
@@ -22,6 +23,7 @@ return [
     HorizonServiceProvider::class,
     JetstreamServiceProvider::class,
     MacroServiceProvider::class,
+    ChatServiceProvider::class,
     DocumentationServiceProvider::class,
     ImportWizardNewServiceProvider::class,
     SystemAdminPanelProvider::class,

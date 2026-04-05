@@ -2,11 +2,6 @@
 
 declare(strict_types=1);
 
-use App\Ai\Tools\Chat\BaseReadListTool;
-use App\Ai\Tools\Chat\BaseReadShowTool;
-use App\Ai\Tools\Chat\BaseWriteCreateTool;
-use App\Ai\Tools\Chat\BaseWriteDeleteTool;
-use App\Ai\Tools\Chat\BaseWriteUpdateTool;
 use App\Filament\Exports\BaseExporter;
 use App\Filament\Imports\BaseImporter;
 use App\Filament\Pages\Import\ImportPage;
@@ -29,14 +24,13 @@ arch()->preset()->security()->ignoring('assert');
 arch()->preset()
     ->laravel()
     ->ignoring([
-        'App\Ai',
-        'App\Http\Controllers\Chat',
         'App\Providers\AppServiceProvider',
         'App\Providers\Filament\AppPanelProvider',
         'Relaticle\Admin\AdminPanelProvider',
         'App\Enums\EnumValues',
         'App\Enums\CustomFields\CustomFieldTrait',
         'App\Mcp',
+        'Relaticle\Chat',
     ]);
 
 arch('strict types')
@@ -58,11 +52,6 @@ arch('avoid open for extension')
         BaseDeleteTool::class,
         BaseAttachTool::class,
         BaseDetachTool::class,
-        BaseReadListTool::class,
-        BaseReadShowTool::class,
-        BaseWriteCreateTool::class,
-        BaseWriteUpdateTool::class,
-        BaseWriteDeleteTool::class,
         ImportPage::class,
         PersonalAccessToken::class,
     ]);
@@ -83,11 +72,6 @@ arch('ensure no extends')
         BaseDeleteTool::class,
         BaseAttachTool::class,
         BaseDetachTool::class,
-        BaseReadListTool::class,
-        BaseReadShowTool::class,
-        BaseWriteCreateTool::class,
-        BaseWriteUpdateTool::class,
-        BaseWriteDeleteTool::class,
         ImportPage::class,
     ]);
 
@@ -96,7 +80,6 @@ arch('avoid mutation')
     ->classes()
     ->toBeReadonly()
     ->ignoring([
-        'App\Ai',
         'App\Console\Commands',
         'App\Exceptions',
         'App\Filament',
@@ -124,7 +107,6 @@ arch('avoid inheritance')
     ->classes()
     ->toExtendNothing()
     ->ignoring([
-        'App\Ai',
         'App\Console\Commands',
         'App\Exceptions',
         'App\Filament',
@@ -142,11 +124,6 @@ arch('avoid inheritance')
         'App\Scribe',
         'App\View',
     ]);
-
-// arch('annotations')
-//    ->expect('App')
-//    ->toHavePropertiesDocumented()
-//    ->toHaveMethodsDocumented();
 
 arch('main app must not depend on SystemAdmin module')
     ->expect('App')

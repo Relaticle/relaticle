@@ -21,6 +21,7 @@ use Spatie\Health\Commands\ScheduleCheckHeartbeatCommand;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
+        channels: __DIR__.'/../routes/channels.php',
         web: __DIR__.'/../routes/web.php',
         health: '/up',
         then: function (): void {
@@ -35,8 +36,6 @@ return Application::configure(basePath: dirname(__DIR__))
             }
 
             $routes->group(base_path('routes/api.php'));
-
-            Route::middleware('web')->group(base_path('routes/chat.php'));
         },
     )
     ->withMiddleware(function (Middleware $middleware): void {

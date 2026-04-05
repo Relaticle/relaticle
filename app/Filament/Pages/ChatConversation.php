@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Filament\Pages;
 
-use App\Actions\Chat\FindConversation;
 use App\Models\User;
 use BackedEnum;
 use Filament\Facades\Filament;
 use Filament\Pages\Page;
+use Relaticle\Chat\Actions\FindConversation;
 
 final class ChatConversation extends Page
 {
@@ -18,7 +18,7 @@ final class ChatConversation extends Page
 
     protected static bool $shouldRegisterNavigation = false;
 
-    protected string $view = 'filament.pages.chat-conversation';
+    protected string $view = 'chat::filament.pages.chat-conversation';
 
     public ?string $conversationId = null;
 

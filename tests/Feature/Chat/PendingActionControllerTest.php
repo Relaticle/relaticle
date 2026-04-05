@@ -3,12 +3,12 @@
 declare(strict_types=1);
 
 use App\Actions\Company\CreateCompany;
-use App\Enums\PendingActionOperation;
-use App\Enums\PendingActionStatus;
-use App\Http\Controllers\Chat\PendingActionController;
-use App\Models\PendingAction;
 use App\Models\User;
 use Filament\Facades\Filament;
+use Relaticle\Chat\Enums\PendingActionOperation;
+use Relaticle\Chat\Enums\PendingActionStatus;
+use Relaticle\Chat\Http\Controllers\PendingActionController;
+use Relaticle\Chat\Models\PendingAction;
 
 mutates(PendingActionController::class);
 

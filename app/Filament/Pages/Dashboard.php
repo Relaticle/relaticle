@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Filament\Pages;
 
-use App\Actions\Chat\ListConversations;
 use App\Models\User;
 use BackedEnum;
 use Filament\Facades\Filament;
 use Filament\Pages\Page;
+use Relaticle\Chat\Actions\ListConversations;
 
 final class Dashboard extends Page
 {
@@ -22,7 +22,7 @@ final class Dashboard extends Page
 
     protected ?string $heading = '';
 
-    protected string $view = 'filament.pages.dashboard';
+    protected string $view = 'chat::filament.pages.dashboard';
 
     public ?string $recentChatTitle = null;
 
