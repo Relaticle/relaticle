@@ -9,6 +9,7 @@ use App\Jobs\Email\AddSubscriberTagsJob;
 use App\Jobs\Email\RemoveSubscriberTagsJob;
 use App\Models\User;
 use Illuminate\Console\Command;
+use Illuminate\Database\Eloquent\Collection;
 
 final class SyncSubscriberRecencyTagsCommand extends Command
 {
@@ -29,7 +30,7 @@ final class SyncSubscriberRecencyTagsCommand extends Command
         User::query()
             ->whereNotNull('mailcoach_subscriber_uuid')
             ->select(['id', 'last_login_at', 'mailcoach_subscriber_uuid', 'subscriber_recency_bucket'])
-            ->chunkById(200, function ($users) use (&$synced): void {
+            ->chunkById(200, function (Collection $users) use (&$synced): void {
                 /** @var User $user */
                 foreach ($users as $user) {
                     $newBucket = $this->computeBucket($user);
