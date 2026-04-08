@@ -8,6 +8,7 @@ use App\Models\Team;
 use App\Models\User;
 use App\Notifications\DeletionReminderNotification;
 use Illuminate\Console\Command;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Laravel\Jetstream\Contracts\DeletesTeams;
@@ -35,7 +36,7 @@ final class PurgeScheduledDeletionsCommand extends Command
         User::query()
             ->whereNotNull('scheduled_deletion_at')
             ->where('scheduled_deletion_at', '<=', now())
-            ->chunkById(100, function ($users) use ($deletesUsers, &$count): void {
+            ->chunkById(100, function (Collection $users) use ($deletesUsers, &$count): void {
                 $users->each(function (User $user) use ($deletesUsers, &$count): void {
                     DB::transaction(fn () => $deletesUsers->delete($user));
 
@@ -55,7 +56,7 @@ final class PurgeScheduledDeletionsCommand extends Command
         Team::query()
             ->whereNotNull('scheduled_deletion_at')
             ->where('scheduled_deletion_at', '<=', now())
-            ->chunkById(100, function ($teams) use ($deletesTeams, &$count): void {
+            ->chunkById(100, function (Collection $teams) use ($deletesTeams, &$count): void {
                 $teams->each(function (Team $team) use ($deletesTeams, &$count): void {
                     DB::transaction(fn () => $deletesTeams->delete($team));
 
