@@ -11,11 +11,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table): void {
-            $table->timestamp('scheduled_deletion_at')->nullable()->after('remember_token');
+            $table->timestamp('scheduled_deletion_at')->nullable()->index()->after('remember_token');
         });
 
         Schema::table('teams', function (Blueprint $table): void {
-            $table->timestamp('scheduled_deletion_at')->nullable()->after('personal_team');
+            $table->timestamp('scheduled_deletion_at')->nullable()->index()->after('personal_team');
         });
     }
 };

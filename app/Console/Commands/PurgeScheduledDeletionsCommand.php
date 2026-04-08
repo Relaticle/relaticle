@@ -30,36 +30,42 @@ final class PurgeScheduledDeletionsCommand extends Command
 
     private function purgeExpiredUsers(DeletesUsers $deletesUsers): void
     {
-        $users = User::query()
+        $count = 0;
+
+        User::query()
             ->whereNotNull('scheduled_deletion_at')
             ->where('scheduled_deletion_at', '<=', now())
-            ->get();
+            ->chunkById(100, function ($users) use ($deletesUsers, &$count): void {
+                $users->each(function (User $user) use ($deletesUsers, &$count): void {
+                    DB::transaction(fn () => $deletesUsers->delete($user));
 
-        $users->each(function (User $user) use ($deletesUsers): void {
-            DB::transaction(fn () => $deletesUsers->delete($user));
+                    Log::info('Purged user account', ['user_id' => $user->id, 'email' => $user->email]);
+                    $this->info("Purged user: {$user->email}");
+                    $count++;
+                });
+            });
 
-            Log::info('Purged user account', ['user_id' => $user->id, 'email' => $user->email]);
-            $this->info("Purged user: {$user->email}");
-        });
-
-        $this->info("Purged {$users->count()} user(s).");
+        $this->info("Purged {$count} user(s).");
     }
 
     private function purgeExpiredTeams(DeletesTeams $deletesTeams): void
     {
-        $teams = Team::query()
+        $count = 0;
+
+        Team::query()
             ->whereNotNull('scheduled_deletion_at')
             ->where('scheduled_deletion_at', '<=', now())
-            ->get();
+            ->chunkById(100, function ($teams) use ($deletesTeams, &$count): void {
+                $teams->each(function (Team $team) use ($deletesTeams, &$count): void {
+                    DB::transaction(fn () => $deletesTeams->delete($team));
 
-        $teams->each(function (Team $team) use ($deletesTeams): void {
-            DB::transaction(fn () => $deletesTeams->delete($team));
+                    Log::info('Purged team', ['team_id' => $team->id, 'name' => $team->name]);
+                    $this->info("Purged team: {$team->name}");
+                    $count++;
+                });
+            });
 
-            Log::info('Purged team', ['team_id' => $team->id, 'name' => $team->name]);
-            $this->info("Purged team: {$team->name}");
-        });
-
-        $this->info("Purged {$teams->count()} team(s).");
+        $this->info("Purged {$count} team(s).");
     }
 
     private function sendReminders(): void
