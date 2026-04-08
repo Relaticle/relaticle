@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "36eaf19035aa4edf549c52dd42da3ce0",
+    "content-hash": "b351971448eb098fbadc6aff0c1a6fcb",
     "packages": [
         {
             "name": "andreiio/blade-remix-icon",
@@ -4897,60 +4897,6 @@
             "time": "2025-12-10T09:58:31+00:00"
         },
         {
-            "name": "manukminasyan/filament-blog",
-            "version": "v1.0.1",
-            "source": {
-                "type": "git",
-                "url": "git@github.com:ManukMinasyan/filament-blog.git",
-                "reference": "75b3d49e44108fc902ced6f7a5a830eaec9ae931"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/ManukMinasyan/filament-blog/zipball/75b3d49e44108fc902ced6f7a5a830eaec9ae931",
-                "reference": "75b3d49e44108fc902ced6f7a5a830eaec9ae931",
-                "shasum": ""
-            },
-            "require": {
-                "filament/filament": "^5.0",
-                "illuminate/contracts": "^12.0",
-                "php": "^8.4",
-                "ralphjsmit/laravel-filament-seo": "^2.0",
-                "ralphjsmit/laravel-seo": "^1.7",
-                "spatie/laravel-markdown": "^2.7",
-                "spatie/laravel-package-tools": "^1.15",
-                "spatie/laravel-sitemap": "^7.0",
-                "spatie/laravel-sluggable": "^3.0"
-            },
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "providers": [
-                        "ManukMinasyan\\FilamentBlog\\FilamentBlogServiceProvider"
-                    ]
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "ManukMinasyan\\FilamentBlog\\": "src/",
-                    "ManukMinasyan\\FilamentBlog\\Database\\Factories\\": "database/factories/"
-                }
-            },
-            "autoload-dev": {
-                "psr-4": {
-                    "ManukMinasyan\\FilamentBlog\\Tests\\": "tests/"
-                }
-            },
-            "license": [
-                "MIT"
-            ],
-            "description": "Headless blog package for Filament with SEO, MCP tools, and publishable components.",
-            "support": {
-                "source": "https://github.com/ManukMinasyan/filament-blog/tree/v1.0.1",
-                "issues": "https://github.com/ManukMinasyan/filament-blog/issues"
-            },
-            "time": "2026-03-31T21:13:55+00:00"
-        },
-        {
             "name": "masterminds/html5",
             "version": "2.10.0",
             "source": {
@@ -5688,23 +5634,23 @@
         },
         {
             "name": "nunomaduro/collision",
-            "version": "v8.9.1",
+            "version": "v8.9.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nunomaduro/collision.git",
-                "reference": "a1ed3fa530fd60bc515f9303e8520fcb7d4bd935"
+                "reference": "b0d8ab95b29c3189aeeb902d81215231df4c1b64"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nunomaduro/collision/zipball/a1ed3fa530fd60bc515f9303e8520fcb7d4bd935",
-                "reference": "a1ed3fa530fd60bc515f9303e8520fcb7d4bd935",
+                "url": "https://api.github.com/repos/nunomaduro/collision/zipball/b0d8ab95b29c3189aeeb902d81215231df4c1b64",
+                "reference": "b0d8ab95b29c3189aeeb902d81215231df4c1b64",
                 "shasum": ""
             },
             "require": {
                 "filp/whoops": "^2.18.4",
                 "nunomaduro/termwind": "^2.4.0",
                 "php": "^8.2.0",
-                "symfony/console": "^7.4.4 || ^8.0.4"
+                "symfony/console": "^7.4.8 || ^8.0.4"
             },
             "conflict": {
                 "laravel/framework": "<11.48.0 || >=14.0.0",
@@ -5712,12 +5658,12 @@
             },
             "require-dev": {
                 "brianium/paratest": "^7.8.5",
-                "larastan/larastan": "^3.9.2",
-                "laravel/framework": "^11.48.0 || ^12.52.0",
-                "laravel/pint": "^1.27.1",
-                "orchestra/testbench-core": "^9.12.0 || ^10.9.0",
-                "pestphp/pest": "^3.8.5 || ^4.4.1 || ^5.0.0",
-                "sebastian/environment": "^7.2.1 || ^8.0.3 || ^9.0.0"
+                "larastan/larastan": "^3.9.3",
+                "laravel/framework": "^11.48.0 || ^12.56.0 || ^13.2.0",
+                "laravel/pint": "^1.29.0",
+                "orchestra/testbench-core": "^9.12.0 || ^10.12.1 || ^11.0.0",
+                "pestphp/pest": "^3.8.5 || ^4.4.3 || ^5.0.0",
+                "sebastian/environment": "^7.2.1 || ^8.0.4 || ^9.0.0"
             },
             "type": "library",
             "extra": {
@@ -5780,7 +5726,7 @@
                     "type": "patreon"
                 }
             ],
-            "time": "2026-02-17T17:33:08+00:00"
+            "time": "2026-04-06T19:25:53+00:00"
         },
         {
             "name": "nunomaduro/termwind",
@@ -7612,227 +7558,6 @@
                 "source": "https://github.com/ralouphie/getallheaders/tree/develop"
             },
             "time": "2019-03-08T08:55:37+00:00"
-        },
-        {
-            "name": "ralphjsmit/laravel-filament-seo",
-            "version": "2.2.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/ralphjsmit/laravel-filament-seo.git",
-                "reference": "c217d80708a3947dfd04d44e91e86d8fa2366587"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/ralphjsmit/laravel-filament-seo/zipball/c217d80708a3947dfd04d44e91e86d8fa2366587",
-                "reference": "c217d80708a3947dfd04d44e91e86d8fa2366587",
-                "shasum": ""
-            },
-            "require": {
-                "filament/filament": "^4.0|^5.0",
-                "illuminate/contracts": "^11.0|^12.0|^13.0",
-                "php": "^8.0",
-                "ralphjsmit/laravel-seo": "^1.7",
-                "spatie/laravel-package-tools": "^1.9.2"
-            },
-            "require-dev": {
-                "doctrine/dbal": "^3.8|^4.4",
-                "nesbot/carbon": "^2.66|^3.0",
-                "nunomaduro/collision": "^8.0|^9.0",
-                "orchestra/testbench": "^9.0|^10.0|^11.0",
-                "pestphp/pest": "^4.0",
-                "pestphp/pest-plugin-laravel": "^4.0",
-                "phpunit/phpunit": "^12.0",
-                "spatie/laravel-ray": "^1.39"
-            },
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "aliases": [],
-                    "providers": [
-                        "RalphJSmit\\Filament\\SEO\\FilamentSEOServiceProvider"
-                    ]
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "RalphJSmit\\Filament\\SEO\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Ralph J. Smit",
-                    "email": "rjs@ralphjsmit.com",
-                    "role": "Developer"
-                }
-            ],
-            "description": "A package to combine the power of Laravel SEO and Filament Admin.",
-            "homepage": "https://github.com/ralphjsmit/laravel-filament-seo",
-            "keywords": [
-                "laravel",
-                "laravel-filament-seo",
-                "ralphjsmit"
-            ],
-            "support": {
-                "issues": "https://github.com/ralphjsmit/laravel-filament-seo/issues",
-                "source": "https://github.com/ralphjsmit/laravel-filament-seo/tree/2.2.0"
-            },
-            "time": "2026-03-07T22:20:25+00:00"
-        },
-        {
-            "name": "ralphjsmit/laravel-helpers",
-            "version": "1.11.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/ralphjsmit/laravel-helpers.git",
-                "reference": "cabfeb5e3f3a360bcd958fbf872271c56a74ebf0"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/ralphjsmit/laravel-helpers/zipball/cabfeb5e3f3a360bcd958fbf872271c56a74ebf0",
-                "reference": "cabfeb5e3f3a360bcd958fbf872271c56a74ebf0",
-                "shasum": ""
-            },
-            "require": {
-                "guzzlehttp/guzzle": "^7.4",
-                "illuminate/contracts": "^11.0|^12.0|^13.0",
-                "php": "^8.0",
-                "spatie/laravel-package-tools": "^1.9.2"
-            },
-            "require-dev": {
-                "livewire/livewire": "^2.9|^3.4|^4.2",
-                "nesbot/carbon": "^2.66|^3.0",
-                "nunomaduro/collision": "^7.0|^8.0",
-                "orchestra/testbench": "^8.0|^9.0|^10.0|^11.0",
-                "pestphp/pest": "^2.34|^3.7|^4.4",
-                "pestphp/pest-plugin-laravel": "^2.3|^3.1|^4.1",
-                "phpunit/phpunit": "^10.5|^11.5|^12.5.12",
-                "spatie/invade": "^1.0|^2.0",
-                "spatie/laravel-ray": "^1.39"
-            },
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "aliases": {
-                        "Helpers": "RalphJSmit\\Helpers\\Facades\\Helpers"
-                    },
-                    "providers": [
-                        "RalphJSmit\\Helpers\\HelpersServiceProvider"
-                    ]
-                }
-            },
-            "autoload": {
-                "files": [
-                    "src/Laravel/Support/helpers.php",
-                    "src/helpers.php"
-                ],
-                "psr-4": {
-                    "RalphJSmit\\Helpers\\": "src",
-                    "RalphJSmit\\Helpers\\Database\\Factories\\": "database/factories"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Ralph J. Smit",
-                    "email": "rjs@ralphjsmit.com",
-                    "role": "Developer"
-                }
-            ],
-            "description": "A package containing handy helpers for your Laravel-application.",
-            "homepage": "https://github.com/ralphjsmit/laravel-helpers",
-            "keywords": [
-                "laravel",
-                "laravel-helpers",
-                "ralphjsmit"
-            ],
-            "support": {
-                "issues": "https://github.com/ralphjsmit/laravel-helpers/issues",
-                "source": "https://github.com/ralphjsmit/laravel-helpers/tree/1.11.0"
-            },
-            "time": "2026-03-07T22:24:40+00:00"
-        },
-        {
-            "name": "ralphjsmit/laravel-seo",
-            "version": "1.8.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/ralphjsmit/laravel-seo.git",
-                "reference": "fef1dddfbc4f3f8f361eca9dab16d220ab595828"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/ralphjsmit/laravel-seo/zipball/fef1dddfbc4f3f8f361eca9dab16d220ab595828",
-                "reference": "fef1dddfbc4f3f8f361eca9dab16d220ab595828",
-                "shasum": ""
-            },
-            "require": {
-                "illuminate/contracts": "^11.11|^12.0|^13.0",
-                "php": "^8.2",
-                "ralphjsmit/laravel-helpers": "^1.10",
-                "spatie/laravel-package-tools": "^1.9.2"
-            },
-            "require-dev": {
-                "laravel/pint": "^1.16",
-                "nesbot/carbon": "^3.0",
-                "nunomaduro/collision": "^8.0|^9.0",
-                "orchestra/testbench": "^9.16|^10.0|^11.0",
-                "orchestra/testbench-core": "^9.1.4|^10.0|^11.0",
-                "pestphp/pest": "^2.0|^3.0|^4.4",
-                "pestphp/pest-plugin-laravel": "^2.0|^3.0|^4.1",
-                "phpunit/phpunit": "^10.5|^11.5|^12.5.12",
-                "spatie/laravel-ray": "^1.39",
-                "spatie/pest-plugin-test-time": "^2.0"
-            },
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "aliases": {
-                        "SEOManager": "RalphJSmit\\Laravel\\SEO\\Facades\\SEOManager"
-                    },
-                    "providers": [
-                        "RalphJSmit\\Laravel\\SEO\\LaravelSEOServiceProvider"
-                    ]
-                }
-            },
-            "autoload": {
-                "files": [
-                    "src/helpers.php"
-                ],
-                "psr-4": {
-                    "RalphJSmit\\Laravel\\SEO\\": "src",
-                    "RalphJSmit\\Laravel\\SEO\\Database\\Factories\\": "database/factories"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Ralph J. Smit",
-                    "email": "rjs@ralphjsmit.com",
-                    "role": "Developer"
-                }
-            ],
-            "description": "A package to handle the SEO in any Laravel application, big or small.",
-            "homepage": "https://github.com/ralphjsmit/laravel-seo",
-            "keywords": [
-                "laravel",
-                "laravel-seo",
-                "ralphjsmit"
-            ],
-            "support": {
-                "issues": "https://github.com/ralphjsmit/laravel-seo/issues",
-                "source": "https://github.com/ralphjsmit/laravel-seo/tree/1.8.1"
-            },
-            "time": "2026-03-26T20:29:46+00:00"
         },
         {
             "name": "ramsey/collection",
@@ -11237,16 +10962,16 @@
         },
         {
             "name": "symfony/console",
-            "version": "v7.4.7",
+            "version": "v7.4.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/console.git",
-                "reference": "e1e6770440fb9c9b0cf725f81d1361ad1835329d"
+                "reference": "1e92e39c51f95b88e3d66fa2d9f06d1fb45dd707"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/console/zipball/e1e6770440fb9c9b0cf725f81d1361ad1835329d",
-                "reference": "e1e6770440fb9c9b0cf725f81d1361ad1835329d",
+                "url": "https://api.github.com/repos/symfony/console/zipball/1e92e39c51f95b88e3d66fa2d9f06d1fb45dd707",
+                "reference": "1e92e39c51f95b88e3d66fa2d9f06d1fb45dd707",
                 "shasum": ""
             },
             "require": {
@@ -11311,7 +11036,7 @@
                 "terminal"
             ],
             "support": {
-                "source": "https://github.com/symfony/console/tree/v7.4.7"
+                "source": "https://github.com/symfony/console/tree/v7.4.8"
             },
             "funding": [
                 {
@@ -11331,7 +11056,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-03-06T14:06:20+00:00"
+            "time": "2026-03-30T13:54:39+00:00"
         },
         {
             "name": "symfony/css-selector",
@@ -13777,16 +13502,16 @@
         },
         {
             "name": "symfony/string",
-            "version": "v8.0.6",
+            "version": "v8.0.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/string.git",
-                "reference": "6c9e1108041b5dce21a9a4984b531c4923aa9ec4"
+                "reference": "ae9488f874d7603f9d2dfbf120203882b645d963"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/string/zipball/6c9e1108041b5dce21a9a4984b531c4923aa9ec4",
-                "reference": "6c9e1108041b5dce21a9a4984b531c4923aa9ec4",
+                "url": "https://api.github.com/repos/symfony/string/zipball/ae9488f874d7603f9d2dfbf120203882b645d963",
+                "reference": "ae9488f874d7603f9d2dfbf120203882b645d963",
                 "shasum": ""
             },
             "require": {
@@ -13843,7 +13568,7 @@
                 "utf8"
             ],
             "support": {
-                "source": "https://github.com/symfony/string/tree/v8.0.6"
+                "source": "https://github.com/symfony/string/tree/v8.0.8"
             },
             "funding": [
                 {
@@ -13863,7 +13588,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-02-09T10:14:57+00:00"
+            "time": "2026-03-30T15:14:47+00:00"
         },
         {
             "name": "symfony/translation",
@@ -16957,6 +16682,104 @@
             "time": "2025-08-01T08:46:24+00:00"
         },
         {
+            "name": "nunomaduro/pao",
+            "version": "v0.1.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/nunomaduro/pao.git",
+                "reference": "4c5db4a762b1a99a91d6249892b356a1f0681a33"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/nunomaduro/pao/zipball/4c5db4a762b1a99a91d6249892b356a1f0681a33",
+                "reference": "4c5db4a762b1a99a91d6249892b356a1f0681a33",
+                "shasum": ""
+            },
+            "require": {
+                "ext-simplexml": "*",
+                "php": "^8.3",
+                "shipfastlabs/agent-detector": "^1.1.0"
+            },
+            "conflict": {
+                "laravel/framework": "<12.0",
+                "nunomaduro/collision": "<8.9.2",
+                "pestphp/pest": "<4.4.3 || >=6.0",
+                "phpunit/phpunit": "<12.5.14 || >=13.0.0 <13.0.5 || >=14.0"
+            },
+            "require-dev": {
+                "brianium/paratest": "^7.20.0",
+                "laravel/pint": "^1.29.0",
+                "orchestra/testbench": "^10.11.0 || ^11.0.0",
+                "pestphp/pest": "^4.4.3 || ^5.0.0",
+                "pestphp/pest-plugin-type-coverage": "^4.0.3 || ^5.0.0",
+                "phpstan/phpstan": "^2.1.46",
+                "rector/rector": "^2.4.1",
+                "symfony/process": "^7.4.5 || ^8.1.0",
+                "symfony/var-dumper": "^7.4.6 || ^8.0.8"
+            },
+            "type": "library",
+            "extra": {
+                "pest": {
+                    "plugins": [
+                        "Pao\\Drivers\\Pest\\Plugin"
+                    ]
+                },
+                "laravel": {
+                    "providers": [
+                        "Pao\\Laravel\\ServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "files": [
+                    "src/Autoload.php"
+                ],
+                "psr-4": {
+                    "Pao\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Nuno Maduro",
+                    "email": "enunomaduro@gmail.com"
+                }
+            ],
+            "description": "Agent-optimized output for PHP testing tools",
+            "keywords": [
+                "Agent",
+                "PHPStan",
+                "json",
+                "paratest",
+                "pest",
+                "php",
+                "phpunit",
+                "testing"
+            ],
+            "support": {
+                "issues": "https://github.com/nunomaduro/pao/issues",
+                "source": "https://github.com/nunomaduro/pao/tree/v0.1.3"
+            },
+            "funding": [
+                {
+                    "url": "https://www.paypal.com/paypalme/enunomaduro",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/nunomaduro",
+                    "type": "github"
+                },
+                {
+                    "url": "https://www.patreon.com/nunomaduro",
+                    "type": "patreon"
+                }
+            ],
+            "time": "2026-04-08T15:22:27+00:00"
+        },
+        {
             "name": "nunomaduro/pokio",
             "version": "v0.1.2",
             "source": {
@@ -19300,6 +19123,73 @@
                 }
             ],
             "time": "2025-02-07T05:00:38+00:00"
+        },
+        {
+            "name": "shipfastlabs/agent-detector",
+            "version": "v1.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/shipfastlabs/agent-detector.git",
+                "reference": "eefb18b61968a59a0428a4f75bee2e21596fe949"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/shipfastlabs/agent-detector/zipball/eefb18b61968a59a0428a4f75bee2e21596fe949",
+                "reference": "eefb18b61968a59a0428a4f75bee2e21596fe949",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^8.2.0"
+            },
+            "require-dev": {
+                "laravel/pint": "^1.24.0",
+                "pestphp/pest": "^3.8.5|^4.1.0",
+                "pestphp/pest-plugin-type-coverage": "^3.0|^4.0.2",
+                "phpstan/phpstan": "^2.1.26",
+                "rector/rector": "^2.1.7",
+                "symfony/var-dumper": "^7.3.3"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "src/functions.php"
+                ],
+                "psr-4": {
+                    "AgentDetector\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Pushpak Chahjed",
+                    "email": "pushpak1300@gmail.com"
+                }
+            ],
+            "description": "Detect if code is running in an AI agent or automated development environment",
+            "keywords": [
+                "Agent",
+                "ai",
+                "automation",
+                "claude",
+                "cursor",
+                "detection",
+                "devin",
+                "php"
+            ],
+            "support": {
+                "issues": "https://github.com/shipfastlabs/agent-detector/issues",
+                "source": "https://github.com/shipfastlabs/agent-detector/tree/v1.1.0"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/pushpak1300",
+                    "type": "github"
+                }
+            ],
+            "time": "2026-03-11T22:59:30+00:00"
         },
         {
             "name": "spatie/boost-spatie-guidelines",
