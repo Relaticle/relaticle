@@ -12,6 +12,7 @@ export default defineConfig({
                 'resources/js/app.js',
                 // Echo (Reverb WebSocket client)
                 'resources/js/echo.js',
+                'resources/js/motion.js',
                 // Filament
                 'resources/css/filament/app/theme.css',
                 'resources/css/filament/admin/theme.css',
