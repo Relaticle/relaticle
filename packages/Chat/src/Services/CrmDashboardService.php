@@ -26,16 +26,16 @@ final readonly class CrmDashboardService
 
         return Cache::remember($cacheKey, 60, fn (): array => [
             'record_counts' => [
-                'companies' => Company::query()->count(),
-                'people' => People::query()->count(),
-                'opportunities' => Opportunity::query()->count(),
-                'tasks' => Task::query()->count(),
-                'notes' => Note::query()->count(),
+                'companies' => Company::query()->whereBelongsTo($team)->count(),
+                'people' => People::query()->whereBelongsTo($team)->count(),
+                'opportunities' => Opportunity::query()->whereBelongsTo($team)->count(),
+                'tasks' => Task::query()->whereBelongsTo($team)->count(),
+                'notes' => Note::query()->whereBelongsTo($team)->count(),
             ],
             'recent_activity' => [
-                'companies_this_week' => Company::query()->where('created_at', '>=', now()->startOfWeek())->count(),
-                'tasks_this_week' => Task::query()->where('created_at', '>=', now()->startOfWeek())->count(),
-                'opportunities_this_week' => Opportunity::query()->where('created_at', '>=', now()->startOfWeek())->count(),
+                'companies_this_week' => Company::query()->whereBelongsTo($team)->where('created_at', '>=', now()->startOfWeek())->count(),
+                'tasks_this_week' => Task::query()->whereBelongsTo($team)->where('created_at', '>=', now()->startOfWeek())->count(),
+                'opportunities_this_week' => Opportunity::query()->whereBelongsTo($team)->where('created_at', '>=', now()->startOfWeek())->count(),
             ],
         ]);
     }

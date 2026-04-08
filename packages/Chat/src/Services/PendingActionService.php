@@ -5,6 +5,11 @@ declare(strict_types=1);
 namespace Relaticle\Chat\Services;
 
 use App\Enums\CreationSource;
+use App\Models\Company;
+use App\Models\Note;
+use App\Models\Opportunity;
+use App\Models\People;
+use App\Models\Task;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
@@ -15,6 +20,15 @@ use RuntimeException;
 
 final readonly class PendingActionService
 {
+    /** @var list<class-string<Model>> */
+    private const array ALLOWED_MODEL_CLASSES = [
+        Company::class,
+        People::class,
+        Opportunity::class,
+        Task::class,
+        Note::class,
+    ];
+
     /**
      * @param  array<string, mixed>  $actionData
      * @param  array<string, mixed>  $displayData
@@ -117,15 +131,11 @@ final readonly class PendingActionService
     private function executeUpdate(object $action, User $user, PendingAction $pendingAction): mixed
     {
         $data = $pendingAction->action_data;
-        $modelId = $data['_record_id'] ?? null;
-        $modelClass = $data['_model_class'] ?? null;
+        $modelClass = $this->resolveModelClass($data);
 
         unset($data['_record_id'], $data['_model_class']);
 
-        /** @var class-string<Model> $modelClass */
-        $model = $modelClass::query()
-            ->where('team_id', $pendingAction->team_id)
-            ->findOrFail($modelId);
+        $model = $this->resolveModel($modelClass, $pendingAction);
 
         if (! method_exists($action, 'execute')) {
             throw new RuntimeException("Action class {$pendingAction->action_class} does not have an execute method");
@@ -137,13 +147,9 @@ final readonly class PendingActionService
     private function executeDelete(object $action, User $user, PendingAction $pendingAction): mixed
     {
         $data = $pendingAction->action_data;
-        $modelId = $data['_record_id'] ?? null;
-        $modelClass = $data['_model_class'] ?? null;
+        $modelClass = $this->resolveModelClass($data);
 
-        /** @var class-string<Model> $modelClass */
-        $model = $modelClass::query()
-            ->where('team_id', $pendingAction->team_id)
-            ->findOrFail($modelId);
+        $model = $this->resolveModel($modelClass, $pendingAction);
 
         if (! method_exists($action, 'execute')) {
             throw new RuntimeException("Action class {$pendingAction->action_class} does not have an execute method");
@@ -152,5 +158,33 @@ final readonly class PendingActionService
         $action->execute($user, $model);
 
         return null;
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     * @return class-string<Model>
+     */
+    private function resolveModelClass(array $data): string
+    {
+        $modelClass = $data['_model_class'] ?? null;
+
+        if (! is_string($modelClass) || ! in_array($modelClass, self::ALLOWED_MODEL_CLASSES, true)) {
+            throw new RuntimeException("Invalid model class: {$modelClass}");
+        }
+
+        return $modelClass;
+    }
+
+    private function resolveModel(string $modelClass, PendingAction $pendingAction): Model
+    {
+        $recordId = $pendingAction->action_data['_record_id'] ?? null;
+
+        if (! is_string($recordId) && ! is_int($recordId)) {
+            throw new RuntimeException('Missing or invalid _record_id in action data');
+        }
+
+        return $modelClass::query()
+            ->where('team_id', $pendingAction->team_id)
+            ->findOrFail($recordId);
     }
 }

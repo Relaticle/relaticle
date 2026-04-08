@@ -9,7 +9,7 @@
             $message = is_array($prompt) ? $prompt['prompt'] : $prompt;
         @endphp
         <button
-            @click="window.dispatchEvent(new CustomEvent('chat:send', { detail: { message: '{{ addslashes($message) }}', source: 'suggestion' } }))"
+            @click="window.dispatchEvent(new CustomEvent('chat:send', { detail: { message: @js($message), source: 'suggestion' } }))"
             class="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs text-gray-700 transition hover:border-primary-300 hover:bg-primary-50 hover:text-primary-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-primary-600 dark:hover:bg-primary-900/20 dark:hover:text-primary-400"
         >
             {{ $label }}

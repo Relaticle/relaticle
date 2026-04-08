@@ -64,7 +64,7 @@
             <div class="mt-4 flex flex-wrap gap-2">
                 @foreach($suggestedPrompts as $prompt)
                     <button
-                        @click="message = '{{ addslashes($prompt['prompt']) }}'; $nextTick(() => submit())"
+                        @click="message = @js($prompt['prompt']); $nextTick(() => submit())"
                         class="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs text-gray-600 transition hover:border-primary-300 hover:bg-primary-50 hover:text-primary-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:border-primary-600 dark:hover:bg-primary-900/20 dark:hover:text-primary-400"
                     >
                         {{ $prompt['label'] }}

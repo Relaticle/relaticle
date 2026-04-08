@@ -44,12 +44,19 @@ final readonly class CreditService
         $creditsCharged = $this->calculateCredits($model, $toolCallsCount);
 
         DB::transaction(function () use ($team, $user, $type, $model, $inputTokens, $outputTokens, $creditsCharged, $toolCallsCount, $conversationId): void {
-            AiCreditBalance::query()
+            $balance = AiCreditBalance::query()
                 ->where('team_id', $team->getKey())
-                ->update([
-                    'credits_remaining' => DB::raw("GREATEST(credits_remaining - {$creditsCharged}, 0)"),
-                    'credits_used' => DB::raw("credits_used + {$creditsCharged}"),
-                ]);
+                ->lockForUpdate()
+                ->first();
+
+            if (! $balance instanceof AiCreditBalance) {
+                return;
+            }
+
+            $balance->update([
+                'credits_remaining' => max($balance->credits_remaining - $creditsCharged, 0),
+                'credits_used' => $balance->credits_used + $creditsCharged,
+            ]);
 
             AiCreditTransaction::query()->create([
                 'team_id' => $team->getKey(),

@@ -9,6 +9,7 @@ use App\Models\Note;
 use App\Models\Opportunity;
 use App\Models\People;
 use App\Models\Task;
+use App\Models\User;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Ai\Contracts\Tool;
 use Laravel\Ai\Tools\Request;
@@ -32,29 +33,37 @@ final class SearchCrmTool implements Tool
     {
         $query = (string) $request->string('query');
         $limit = min((int) ($request['limit'] ?? 5), 10);
+        /** @var User $user */
+        $user = auth()->user();
+        $team = $user->currentTeam;
 
         $results = [
             'companies' => Company::query()
+                ->whereBelongsTo($team)
                 ->where('name', 'ilike', "%{$query}%")
                 ->limit($limit)
                 ->get(['id', 'name', 'created_at'])
                 ->toArray(),
             'people' => People::query()
+                ->whereBelongsTo($team)
                 ->where('name', 'ilike', "%{$query}%")
                 ->limit($limit)
                 ->get(['id', 'name', 'company_id', 'created_at'])
                 ->toArray(),
             'opportunities' => Opportunity::query()
+                ->whereBelongsTo($team)
                 ->where('name', 'ilike', "%{$query}%")
                 ->limit($limit)
                 ->get(['id', 'name', 'company_id', 'created_at'])
                 ->toArray(),
             'tasks' => Task::query()
+                ->whereBelongsTo($team)
                 ->where('title', 'ilike', "%{$query}%")
                 ->limit($limit)
                 ->get(['id', 'title', 'created_at'])
                 ->toArray(),
             'notes' => Note::query()
+                ->whereBelongsTo($team)
                 ->where('title', 'ilike', "%{$query}%")
                 ->limit($limit)
                 ->get(['id', 'title', 'created_at'])
