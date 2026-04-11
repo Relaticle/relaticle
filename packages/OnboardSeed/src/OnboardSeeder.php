@@ -8,7 +8,7 @@ use App\Models\Team;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Seeder;
 
-final class OnboardSeeder extends Seeder
+class OnboardSeeder extends Seeder
 {
     public function __construct(private readonly OnboardSeedManager $manager) {}
 

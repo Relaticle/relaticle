@@ -1,7 +1,9 @@
 {
     "preset": "laravel",
     "notPath": [
-        "app/Models/PersonalAccessToken.php"
+        "app/Models/PersonalAccessToken.php",
+        "packages/OnboardSeed/src/OnboardSeeder.php",
+        "packages/OnboardSeed/src/OnboardSeedManager.php"
     ],
     "rules": {
         "declare_strict_types": true,
