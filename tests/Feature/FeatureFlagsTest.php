@@ -54,39 +54,34 @@ describe('OnboardSeed', function (): void {
 
 describe('SocialAuth', function (): void {
     it('registers social auth routes when feature is active', function (): void {
-        Feature::define(SocialAuth::class, true);
-
         $this->get(route('auth.socialite.redirect', 'google'))
             ->assertRedirect();
     });
 
-    it('returns 404 for social auth routes when feature is inactive', function (): void {
-        Feature::deactivate(SocialAuth::class);
+    it('does not register social auth routes when feature is inactive', function (): void {
+        putenv('RELATICLE_FEATURE_SOCIAL_AUTH=false');
+        $this->refreshApplication();
 
-        $this->get(route('auth.socialite.redirect', 'google'))
+        $this->get('/auth/redirect/google')
             ->assertNotFound();
-    });
 
-    it('returns 404 for social auth callback when feature is inactive', function (): void {
-        Feature::deactivate(SocialAuth::class);
-
-        $this->get(route('auth.socialite.callback', 'google'))
-            ->assertNotFound();
+        putenv('RELATICLE_FEATURE_SOCIAL_AUTH');
     });
 });
 
 describe('Documentation', function (): void {
     it('serves documentation pages when feature is active', function (): void {
-        Feature::define(Documentation::class, true);
-
         $this->get('/docs')
             ->assertOk();
     });
 
-    it('returns 404 for documentation pages when feature is inactive', function (): void {
-        Feature::deactivate(Documentation::class);
+    it('does not register documentation routes when feature is inactive', function (): void {
+        putenv('RELATICLE_FEATURE_DOCUMENTATION=false');
+        $this->refreshApplication();
 
         $this->get('/docs')
             ->assertNotFound();
+
+        putenv('RELATICLE_FEATURE_DOCUMENTATION');
     });
 });

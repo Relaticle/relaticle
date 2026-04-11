@@ -26,6 +26,10 @@ final class DocumentationServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        if (! config('relaticle.features.documentation', true)) {
+            return;
+        }
+
         $this->registerRoutes();
         $this->registerViews();
         $this->registerComponents();
