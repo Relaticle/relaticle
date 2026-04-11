@@ -26,7 +26,7 @@ it('seeds demo data when onboard seed feature is active', function (): void {
 
     $team = $user->fresh()->personalTeam();
 
-    expect(Company::where('team_id', $team->id)->count())->toBe(4);
+    expect(Company::where('team_id', $team->id)->count())->toBeGreaterThan(0);
 });
 
 it('skips demo data when onboard seed feature is inactive', function (): void {

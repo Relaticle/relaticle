@@ -15,7 +15,7 @@ it('serves documentation pages when feature is active', function (): void {
 });
 
 it('returns 404 for documentation pages when feature is inactive', function (): void {
-    Feature::activate(Documentation::class, false);
+    Feature::deactivate(Documentation::class);
 
     $this->get('/docs')
         ->assertNotFound();

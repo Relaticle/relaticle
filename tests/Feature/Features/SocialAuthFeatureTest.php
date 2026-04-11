@@ -15,15 +15,15 @@ it('registers social auth routes when feature is active', function (): void {
 });
 
 it('returns 404 for social auth routes when feature is inactive', function (): void {
-    Feature::activate(SocialAuth::class, false);
+    Feature::deactivate(SocialAuth::class);
 
-    $this->get('/auth/redirect/google')
+    $this->get(route('auth.socialite.redirect', 'google'))
         ->assertNotFound();
 });
 
 it('returns 404 for social auth callback when feature is inactive', function (): void {
-    Feature::activate(SocialAuth::class, false);
+    Feature::deactivate(SocialAuth::class);
 
-    $this->get('/auth/callback/google')
+    $this->get(route('auth.socialite.callback', 'google'))
         ->assertNotFound();
 });
