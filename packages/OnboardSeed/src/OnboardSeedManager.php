@@ -17,7 +17,7 @@ use Relaticle\OnboardSeed\ModelSeeders\TaskSeeder;
 use Relaticle\OnboardSeed\Support\FixtureRegistry;
 use Throwable;
 
-class OnboardSeedManager
+final class OnboardSeedManager
 {
     /** @var array<class-string<ModelSeederInterface>> */
     private array $entitySeederSequence = [
