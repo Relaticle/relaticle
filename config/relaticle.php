@@ -20,9 +20,9 @@ return [
     */
 
     'features' => [
-        'onboard_seed' => (bool) env('RELATICLE_ONBOARD_SEED', true),
-        'social_auth' => (bool) env('RELATICLE_SOCIAL_AUTH', true),
-        'documentation' => (bool) env('RELATICLE_DOCUMENTATION', true),
+        'onboard_seed' => (bool) env('RELATICLE_FEATURE_ONBOARD_SEED', true),
+        'social_auth' => (bool) env('RELATICLE_FEATURE_SOCIAL_AUTH', true),
+        'documentation' => (bool) env('RELATICLE_FEATURE_DOCUMENTATION', true),
     ],
 
 ];
