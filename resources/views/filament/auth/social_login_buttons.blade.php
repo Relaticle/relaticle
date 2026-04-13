@@ -1,3 +1,4 @@
+@feature(App\Features\SocialAuth::class)
 <div class="space-y-3">
     @foreach ($enabledProviders as $provider)
         <x-filament::button
@@ -25,3 +26,4 @@
         </div>
     @endif
 </div>
+@endfeature
