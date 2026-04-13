@@ -168,9 +168,7 @@ final readonly class PendingActionService
     {
         $modelClass = $data['_model_class'] ?? null;
 
-        if (! is_string($modelClass) || ! in_array($modelClass, self::ALLOWED_MODEL_CLASSES, true)) {
-            throw new RuntimeException("Invalid model class: {$modelClass}");
-        }
+        throw_if(! is_string($modelClass) || ! in_array($modelClass, self::ALLOWED_MODEL_CLASSES, true), RuntimeException::class, "Invalid model class: {$modelClass}");
 
         return $modelClass;
     }
@@ -179,9 +177,7 @@ final readonly class PendingActionService
     {
         $recordId = $pendingAction->action_data['_record_id'] ?? null;
 
-        if (! is_string($recordId) && ! is_int($recordId)) {
-            throw new RuntimeException('Missing or invalid _record_id in action data');
-        }
+        throw_if(! is_string($recordId) && ! is_int($recordId), RuntimeException::class, 'Missing or invalid _record_id in action data');
 
         return $modelClass::query()
             ->where('team_id', $pendingAction->team_id)
