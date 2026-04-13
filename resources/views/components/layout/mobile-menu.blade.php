@@ -23,7 +23,6 @@
             @foreach([
                 ['url' => url('/#features'), 'label' => 'Features'],
                 ['url' => route('pricing'), 'label' => 'Pricing'],
-                ['url' => route('documentation.index'), 'label' => 'Docs'],
                 ['url' => route('blog.index'), 'label' => 'Blog'],
                 ['url' => route('contact'), 'label' => 'Contact'],
             ] as $link)
@@ -32,6 +31,12 @@
                     {{ $link['label'] }}
                 </a>
             @endforeach
+            @feature(App\Features\Documentation::class)
+                <a href="{{ route('documentation.index') }}" @click="mobileMenu = false"
+                   class="block text-[2rem] font-semibold text-gray-950 dark:text-white hover:text-primary dark:hover:text-primary-400 transition-colors py-2">
+                    Docs
+                </a>
+            @endfeature
         </div>
     </nav>
 
