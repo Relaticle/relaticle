@@ -16,8 +16,8 @@ final readonly class CheckScheduledDeletion
         /** @var User|null $user */
         $user = $request->user();
 
-        if ($user?->isScheduledForDeletion() && ! $request->routeIs('scheduled-deletion', 'scheduled-deletion.*', 'logout')) {
-            return to_route('scheduled-deletion');
+        if ($user?->isScheduledForDeletion() && ! $request->routeIs('*.scheduled-deletion', 'scheduled-deletion', 'logout', '*.auth.logout')) {
+            return to_route('filament.app.scheduled-deletion');
         }
 
         return $next($request);

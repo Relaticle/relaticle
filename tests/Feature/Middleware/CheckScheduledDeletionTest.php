@@ -14,7 +14,7 @@ test('user with scheduled deletion is redirected to interstitial from panel', fu
 
     $this->actingAs($user)
         ->get('/app')
-        ->assertRedirect(route('scheduled-deletion'));
+        ->assertRedirect(route('filament.app.scheduled-deletion'));
 });
 
 test('user without scheduled deletion is not redirected to interstitial', function () {
@@ -22,7 +22,7 @@ test('user without scheduled deletion is not redirected to interstitial', functi
 
     $response = $this->actingAs($user)->get('/app');
 
-    expect($response->headers->get('Location'))->not->toBe(route('scheduled-deletion'));
+    expect($response->headers->get('Location'))->not->toBe(route('filament.app.scheduled-deletion'));
 });
 
 test('interstitial component renders for user with scheduled deletion', function () {
@@ -32,7 +32,7 @@ test('interstitial component renders for user with scheduled deletion', function
 
     livewire(ScheduledDeletionInterstitial::class)
         ->assertSuccessful()
-        ->assertSee('Account Scheduled for Deletion');
+        ->assertSee('Your account is being deleted');
 });
 
 test('interstitial redirects non-scheduled user to home', function () {
@@ -60,7 +60,7 @@ test('user can cancel deletion from interstitial', function () {
 
 test('interstitial route lives under panel path in path mode', function () {
     $panelPath = config('app.app_panel_path', 'app');
-    $url = route('scheduled-deletion');
+    $url = route('filament.app.scheduled-deletion');
 
     if (config('app.app_panel_domain')) {
         expect(parse_url($url, PHP_URL_HOST))->toBe(config('app.app_panel_domain'));
@@ -75,7 +75,7 @@ test('middleware redirect targets same host as interstitial route', function () 
     $response = $this->actingAs($user)->get('/app');
 
     $redirectUrl = $response->headers->get('Location');
-    $interstitialUrl = route('scheduled-deletion');
+    $interstitialUrl = route('filament.app.scheduled-deletion');
 
     expect(parse_url($redirectUrl, PHP_URL_HOST))
         ->toBe(parse_url($interstitialUrl, PHP_URL_HOST));
