@@ -23,8 +23,6 @@ final readonly class ScheduleUserDeletion
             $user->ownedTeams()
                 ->where('personal_team', true)
                 ->update(['scheduled_deletion_at' => $deletionDate]);
-
-            $user->teams()->detach();
         });
 
         $user->notify(new UserDeletionScheduledNotification($user));

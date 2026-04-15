@@ -37,7 +37,7 @@ test('personal team is scheduled for deletion alongside user', function () {
     expect($personalTeam->refresh()->scheduled_deletion_at)->not->toBeNull();
 });
 
-test('user is detached from non-owned teams on schedule', function () {
+test('user retains team memberships during grace period', function () {
     Notification::fake();
 
     $user = User::factory()->withPersonalTeam()->create();
@@ -48,7 +48,7 @@ test('user is detached from non-owned teams on schedule', function () {
 
     resolve(ScheduleUserDeletion::class)->schedule($user);
 
-    expect($user->refresh()->teams)->toHaveCount(0);
+    expect($user->refresh()->teams)->toHaveCount(1);
 });
 
 test('user cannot schedule deletion when owning team with other members', function () {
