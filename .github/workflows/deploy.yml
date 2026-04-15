@@ -4,6 +4,9 @@ on:
   release:
     types: [published]
 
+permissions:
+  contents: read
+
 jobs:
   lint-and-static-analysis:
     runs-on: ubuntu-latest
@@ -227,8 +230,9 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     name: Deploy to Forge
+    if: github.event.release.prerelease == false
     needs: [lint-and-static-analysis, tests, browser-tests]
 
     steps:
       - name: Trigger Forge Deploy
-        run: curl -s "${{ secrets.FORGE_DEPLOY_WEBHOOK }}"
+        run: curl --fail --silent --show-error --location "${{ secrets.FORGE_DEPLOY_WEBHOOK }}"
