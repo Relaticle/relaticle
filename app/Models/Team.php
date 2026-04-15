@@ -7,6 +7,8 @@ namespace App\Models;
 use App\Services\AvatarService;
 use Database\Factories\TeamFactory;
 use Filament\Models\Contracts\HasAvatar;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -167,6 +169,27 @@ final class Team extends JetstreamTeam implements HasAvatar
     public function isScheduledForDeletion(): bool
     {
         return $this->scheduled_deletion_at !== null;
+    }
+
+    /**
+     * @param  Builder<Team>  $query
+     * @return Builder<Team>
+     */
+    #[Scope]
+    protected function scheduledForDeletion(Builder $query): Builder
+    {
+        return $query->whereNotNull('scheduled_deletion_at');
+    }
+
+    /**
+     * @param  Builder<Team>  $query
+     * @return Builder<Team>
+     */
+    #[Scope]
+    protected function expiredDeletion(Builder $query): Builder
+    {
+        return $query->whereNotNull('scheduled_deletion_at')
+            ->where('scheduled_deletion_at', '<=', now());
     }
 
     public function getFilamentAvatarUrl(): string

@@ -24,7 +24,7 @@ final readonly class ScheduleTeamDeletion
         }
 
         DB::transaction(function () use ($team): void {
-            $team->forceFill(['scheduled_deletion_at' => now()->addDays(30)])->save();
+            $team->forceFill(['scheduled_deletion_at' => now()->addDays(config('relaticle.deletion.grace_period_days'))])->save();
 
             $team->teamInvitations()->delete();
         });

@@ -21,7 +21,7 @@ test('user can schedule account deletion', function () {
     resolve(ScheduleUserDeletion::class)->schedule($user);
 
     expect($user->refresh()->scheduled_deletion_at)->not->toBeNull()
-        ->and($user->scheduled_deletion_at->isSameDay(now()->addDays(30)))->toBeTrue();
+        ->and($user->scheduled_deletion_at->isSameDay(now()->addDays(config('relaticle.deletion.grace_period_days'))))->toBeTrue();
 
     Notification::assertSentTo($user, UserDeletionScheduledNotification::class);
 });

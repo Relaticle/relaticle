@@ -13,6 +13,8 @@ use Filament\Models\Contracts\HasDefaultTenant;
 use Filament\Models\Contracts\HasTenants;
 use Filament\Panel;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -114,6 +116,27 @@ final class User extends Authenticatable implements FilamentUser, HasAvatar, Has
     public function isScheduledForDeletion(): bool
     {
         return $this->scheduled_deletion_at !== null;
+    }
+
+    /**
+     * @param  Builder<User>  $query
+     * @return Builder<User>
+     */
+    #[Scope]
+    protected function scheduledForDeletion(Builder $query): Builder
+    {
+        return $query->whereNotNull('scheduled_deletion_at');
+    }
+
+    /**
+     * @param  Builder<User>  $query
+     * @return Builder<User>
+     */
+    #[Scope]
+    protected function expiredDeletion(Builder $query): Builder
+    {
+        return $query->whereNotNull('scheduled_deletion_at')
+            ->where('scheduled_deletion_at', '<=', now());
     }
 
     /**

@@ -6,7 +6,8 @@ namespace App\Console\Commands;
 
 use App\Models\Team;
 use App\Models\User;
-use App\Notifications\DeletionReminderNotification;
+use App\Notifications\TeamDeletionReminderNotification;
+use App\Notifications\UserDeletionReminderNotification;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
@@ -34,8 +35,7 @@ final class PurgeScheduledDeletionsCommand extends Command
         $count = 0;
 
         User::query()
-            ->whereNotNull('scheduled_deletion_at')
-            ->where('scheduled_deletion_at', '<=', now())
+            ->expiredDeletion()
             ->chunkById(100, function (Collection $users) use ($deletesUsers, &$count): void {
                 $users->each(function (User $user) use ($deletesUsers, &$count): void {
                     DB::transaction(fn () => $deletesUsers->delete($user));
@@ -54,8 +54,7 @@ final class PurgeScheduledDeletionsCommand extends Command
         $count = 0;
 
         Team::query()
-            ->whereNotNull('scheduled_deletion_at')
-            ->where('scheduled_deletion_at', '<=', now())
+            ->expiredDeletion()
             ->chunkById(100, function (Collection $teams) use ($deletesTeams, &$count): void {
                 $teams->each(function (Team $team) use ($deletesTeams, &$count): void {
                     DB::transaction(fn () => $deletesTeams->delete($team));
@@ -71,23 +70,24 @@ final class PurgeScheduledDeletionsCommand extends Command
 
     private function sendReminders(): void
     {
-        $reminderStart = now()->addDays(5)->startOfDay();
-        $reminderEnd = now()->addDays(5)->endOfDay();
+        $reminderDays = config('relaticle.deletion.reminder_days_before');
+        $reminderStart = now()->addDays($reminderDays)->startOfDay();
+        $reminderEnd = now()->addDays($reminderDays)->endOfDay();
 
         User::query()
-            ->whereNotNull('scheduled_deletion_at')
+            ->scheduledForDeletion()
             ->whereBetween('scheduled_deletion_at', [$reminderStart, $reminderEnd])
-            ->each(function (User $user): void {
-                $user->notify(new DeletionReminderNotification($user->name, $user->scheduled_deletion_at, 'user'));
+            ->chunkById(100, function (Collection $users): void {
+                $users->each(fn (User $user) => $user->notify(new UserDeletionReminderNotification($user)));
             });
 
         Team::query()
-            ->whereNotNull('scheduled_deletion_at')
+            ->scheduledForDeletion()
             ->whereBetween('scheduled_deletion_at', [$reminderStart, $reminderEnd])
             ->with('owner', 'users')
-            ->each(function (Team $team): void {
-                $team->allUsers()->each(function (User $member) use ($team): void {
-                    $member->notify(new DeletionReminderNotification($team->name, $team->scheduled_deletion_at, 'team'));
+            ->chunkById(100, function (Collection $teams): void {
+                $teams->each(function (Team $team): void {
+                    $team->allUsers()->each(fn (User $member) => $member->notify(new TeamDeletionReminderNotification($team)));
                 });
             });
     }

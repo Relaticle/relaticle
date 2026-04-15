@@ -22,7 +22,7 @@ test('team owner can schedule team deletion', function () {
     resolve(ScheduleTeamDeletion::class)->schedule($user, $team);
 
     expect($team->refresh()->scheduled_deletion_at)->not->toBeNull()
-        ->and($team->scheduled_deletion_at->isSameDay(now()->addDays(30)))->toBeTrue();
+        ->and($team->scheduled_deletion_at->isSameDay(now()->addDays(config('relaticle.deletion.grace_period_days'))))->toBeTrue();
 });
 
 test('team members are notified when team is scheduled for deletion', function () {

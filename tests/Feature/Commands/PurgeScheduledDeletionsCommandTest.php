@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 use App\Models\Team;
 use App\Models\User;
-use App\Notifications\DeletionReminderNotification;
+use App\Notifications\TeamDeletionReminderNotification;
+use App\Notifications\UserDeletionReminderNotification;
 use Illuminate\Support\Facades\Notification;
 
 test('expired users are permanently deleted', function () {
@@ -48,7 +49,7 @@ test('day 25 reminder is sent for users', function () {
     $this->artisan('app:purge-scheduled-deletions')
         ->assertExitCode(0);
 
-    Notification::assertSentTo($user, DeletionReminderNotification::class);
+    Notification::assertSentTo($user, UserDeletionReminderNotification::class);
 });
 
 test('day 25 reminder is sent for team members', function () {
@@ -63,5 +64,5 @@ test('day 25 reminder is sent for team members', function () {
     $this->artisan('app:purge-scheduled-deletions')
         ->assertExitCode(0);
 
-    Notification::assertSentTo($member, DeletionReminderNotification::class);
+    Notification::assertSentTo($member, TeamDeletionReminderNotification::class);
 });

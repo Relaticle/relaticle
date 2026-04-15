@@ -38,7 +38,7 @@ final class DeleteTeam extends BaseLivewireComponent
                         TextEntry::make('notice')
                             ->hiddenLabel()
                             ->state(fn (): string => $this->team->isScheduledForDeletion()
-                                ? "This team is scheduled for deletion on {$this->team->scheduled_deletion_at->format('F j, Y')}."
+                                ? __('teams.sections.delete_team.scheduled_notice', ['date' => $this->team->scheduled_deletion_at->format('F j, Y')])
                                 : __('teams.sections.delete_team.notice')),
                         Actions::make([
                             Action::make('deleteAccountAction')
@@ -52,11 +52,11 @@ final class DeleteTeam extends BaseLivewireComponent
                                 ->visible(fn (): bool => ! $this->team->isScheduledForDeletion())
                                 ->action(fn () => $this->deleteTeam($this->team)),
                             Action::make('cancelDeletionAction')
-                                ->label('Cancel Deletion')
+                                ->label(__('teams.actions.cancel_deletion'))
                                 ->color('gray')
                                 ->requiresConfirmation()
-                                ->modalHeading('Cancel team deletion?')
-                                ->modalDescription('The team and all its data will be preserved.')
+                                ->modalHeading(__('teams.modals.cancel_deletion.heading'))
+                                ->modalDescription(__('teams.modals.cancel_deletion.notice'))
                                 ->visible(fn (): bool => $this->team->isScheduledForDeletion())
                                 ->action(fn () => $this->cancelTeamDeletion($this->team)),
                         ]),

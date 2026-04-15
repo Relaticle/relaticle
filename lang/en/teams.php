@@ -38,6 +38,7 @@ return [
             'title' => 'Delete Team',
             'description' => 'Permanently delete this team.',
             'notice' => 'Once a team is deleted, all of its resources and data will be permanently deleted. Before deleting this team, please download any data or information that you wish to retain.',
+            'scheduled_notice' => 'This team is scheduled for deletion on :date.',
         ],
     ],
 
@@ -52,6 +53,7 @@ return [
         'copy_invite_link' => 'Copy Link',
         'cancel_team_invitation' => 'Cancel',
         'delete_team' => 'Delete Team',
+        'cancel_deletion' => 'Cancel Deletion',
     ],
 
     'notifications' => [
@@ -96,6 +98,10 @@ return [
         ],
         'delete_team' => [
             'notice' => 'Are you sure you want to delete this team? Once a team is deleted, all of its resources and data will be permanently deleted.',
+        ],
+        'cancel_deletion' => [
+            'heading' => 'Cancel team deletion?',
+            'notice' => 'The team and all its data will be preserved.',
         ],
     ],
 

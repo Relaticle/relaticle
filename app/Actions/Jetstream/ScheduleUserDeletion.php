@@ -16,7 +16,7 @@ final readonly class ScheduleUserDeletion
         $this->ensureUserCanBeDeleted($user);
 
         DB::transaction(function () use ($user): void {
-            $deletionDate = now()->addDays(30);
+            $deletionDate = now()->addDays(config('relaticle.deletion.grace_period_days'));
 
             $user->forceFill(['scheduled_deletion_at' => $deletionDate])->save();
 
