@@ -84,10 +84,13 @@ final class PurgeScheduledDeletionsCommand extends Command
         Team::query()
             ->scheduledForDeletion()
             ->whereBetween('scheduled_deletion_at', [$reminderStart, $reminderEnd])
-            ->with('owner', 'users')
+            ->with('owner')
             ->chunkById(100, function (Collection $teams): void {
                 $teams->each(function (Team $team): void {
-                    $team->allUsers()->each(fn (User $member) => $member->notify(new TeamDeletionReminderNotification($team)));
+                    /** @var User $owner */
+                    $owner = $team->owner;
+
+                    $owner->notify(new TeamDeletionReminderNotification($team));
                 });
             });
     }

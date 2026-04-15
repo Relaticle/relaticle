@@ -36,8 +36,8 @@ return [
         ],
         'delete_team' => [
             'title' => 'Delete Team',
-            'description' => 'Permanently delete this team.',
-            'notice' => 'Once a team is deleted, all of its resources and data will be permanently deleted. Before deleting this team, please download any data or information that you wish to retain.',
+            'description' => 'Schedule this team for deletion.',
+            'notice' => 'Deleting this team will schedule it for permanent removal after a 30-day grace period. You can cancel the deletion at any time before that. After the grace period, all resources and data will be permanently deleted.',
             'scheduled_notice' => 'This team is scheduled for deletion on :date.',
         ],
     ],
@@ -97,7 +97,7 @@ return [
             'notice' => 'Are you sure you would like to leave this team?',
         ],
         'delete_team' => [
-            'notice' => 'Are you sure you want to delete this team? Once a team is deleted, all of its resources and data will be permanently deleted.',
+            'notice' => 'This will schedule the team for deletion. You will have 30 days to cancel before all data is permanently removed.',
         ],
         'cancel_deletion' => [
             'heading' => 'Cancel team deletion?',

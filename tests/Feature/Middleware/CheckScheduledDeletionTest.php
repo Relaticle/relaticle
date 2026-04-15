@@ -58,6 +58,29 @@ test('user can cancel deletion from interstitial', function () {
     expect($user->refresh()->scheduled_deletion_at)->toBeNull();
 });
 
+test('interstitial route lives under panel path in path mode', function () {
+    $panelPath = config('app.app_panel_path', 'app');
+    $url = route('scheduled-deletion');
+
+    if (config('app.app_panel_domain')) {
+        expect(parse_url($url, PHP_URL_HOST))->toBe(config('app.app_panel_domain'));
+    } else {
+        expect(parse_url($url, PHP_URL_PATH))->toBe("/{$panelPath}/scheduled-deletion");
+    }
+});
+
+test('middleware redirect targets same host as interstitial route', function () {
+    $user = User::factory()->withPersonalTeam()->scheduledForDeletion()->create();
+
+    $response = $this->actingAs($user)->get('/app');
+
+    $redirectUrl = $response->headers->get('Location');
+    $interstitialUrl = route('scheduled-deletion');
+
+    expect(parse_url($redirectUrl, PHP_URL_HOST))
+        ->toBe(parse_url($interstitialUrl, PHP_URL_HOST));
+});
+
 test('user can logout from interstitial', function () {
     $user = User::factory()->withPersonalTeam()->scheduledForDeletion()->create();
 

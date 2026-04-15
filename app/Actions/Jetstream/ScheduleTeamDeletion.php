@@ -32,8 +32,6 @@ final readonly class ScheduleTeamDeletion
         /** @var User $owner */
         $owner = $team->owner;
 
-        $team->allUsers()
-            ->reject(fn (User $member): bool => $member->id === $owner->id)
-            ->each(fn (User $member) => $member->notify(new TeamDeletionScheduledNotification($team, $owner)));
+        $owner->notify(new TeamDeletionScheduledNotification($team));
     }
 }

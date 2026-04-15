@@ -60,9 +60,13 @@ Route::get('/team-invitations/{invitation}', AcceptTeamInvitationController::cla
     ->middleware(['signed', 'auth', 'verified', AuthenticateSession::class])
     ->name('team-invitations.accept');
 
-Route::get('/scheduled-deletion', ScheduledDeletionInterstitial::class)
+Route::get(
+    config('app.app_panel_domain') ? '/scheduled-deletion' : '/'.config('app.app_panel_path', 'app').'/scheduled-deletion',
+    ScheduledDeletionInterstitial::class,
+)
     ->middleware('auth')
-    ->name('scheduled-deletion');
+    ->name('scheduled-deletion')
+    ->domain(config('app.app_panel_domain'));
 
 // Legacy documentation redirects
 Route::get('/documentation/{slug?}', fn (string $slug = '') => redirect("/docs/{$slug}", 301))

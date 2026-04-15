@@ -25,7 +25,7 @@ test('team owner can schedule team deletion', function () {
         ->and($team->scheduled_deletion_at->isSameDay(now()->addDays(config('relaticle.deletion.grace_period_days'))))->toBeTrue();
 });
 
-test('team members are notified when team is scheduled for deletion', function () {
+test('team owner is notified when team is scheduled for deletion', function () {
     Notification::fake();
 
     $user = User::factory()->withTeam()->create();
@@ -35,7 +35,8 @@ test('team members are notified when team is scheduled for deletion', function (
 
     resolve(ScheduleTeamDeletion::class)->schedule($user, $team);
 
-    Notification::assertSentTo($member, TeamDeletionScheduledNotification::class);
+    Notification::assertSentTo($user, TeamDeletionScheduledNotification::class);
+    Notification::assertNotSentTo($member, TeamDeletionScheduledNotification::class);
 });
 
 test('pending invitations are cancelled when team deletion is scheduled', function () {
@@ -91,5 +92,6 @@ test('team owner can cancel team deletion', function () {
 
     expect($team->refresh()->scheduled_deletion_at)->toBeNull();
 
-    Notification::assertSentTo($member, TeamDeletionCancelledNotification::class);
+    Notification::assertSentTo($user, TeamDeletionCancelledNotification::class);
+    Notification::assertNotSentTo($member, TeamDeletionCancelledNotification::class);
 });

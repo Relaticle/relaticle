@@ -52,7 +52,7 @@ test('day 25 reminder is sent for users', function () {
     Notification::assertSentTo($user, UserDeletionReminderNotification::class);
 });
 
-test('day 25 reminder is sent for team members', function () {
+test('day 25 reminder is sent to team owner only', function () {
     Notification::fake();
 
     $owner = User::factory()->withTeam()->create();
@@ -64,5 +64,6 @@ test('day 25 reminder is sent for team members', function () {
     $this->artisan('app:purge-scheduled-deletions')
         ->assertExitCode(0);
 
-    Notification::assertSentTo($member, TeamDeletionReminderNotification::class);
+    Notification::assertSentTo($owner, TeamDeletionReminderNotification::class);
+    Notification::assertNotSentTo($member, TeamDeletionReminderNotification::class);
 });
