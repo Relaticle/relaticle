@@ -1,6 +1,6 @@
 ---
 name: pest-testing
-description: "Use this skill for Pest PHP testing in Laravel projects only. Trigger whenever any test is being written, edited, fixed, or refactored — including fixing tests that broke after a code change, adding assertions, converting PHPUnit to Pest, adding datasets, and TDD workflows. Always activate when the user asks how to write something in Pest, mentions test files or directories (tests/Feature, tests/Unit, tests/Browser), or needs browser testing, smoke testing multiple pages for JS errors, or architecture tests. Covers: it()/expect() syntax, datasets, mocking, browser testing (visit/click/fill), smoke testing, arch(), Livewire component tests, RefreshDatabase, and all Pest 4 features. Do not use for factories, seeders, migrations, controllers, models, or non-test PHP code."
+description: "Use this skill for Pest PHP testing in Laravel projects only. Trigger whenever any test is being written, edited, fixed, or refactored — including fixing tests that broke after a code change, adding assertions, converting PHPUnit to Pest, adding datasets, and TDD workflows. Always activate when the user asks how to write something in Pest, mentions test files or directories (tests/Feature, tests/Unit, tests/Browser), or needs browser testing, smoke testing multiple pages for JS errors, or architecture tests. Covers: test()/it()/expect() syntax, datasets, mocking, browser testing (visit/click/fill), smoke testing, arch(), Livewire component tests, RefreshDatabase, and all Pest 4 features. Do not use for factories, seeders, migrations, controllers, models, or non-test PHP code."
 license: MIT
 metadata:
   author: laravel
@@ -25,6 +25,8 @@ All tests must be written using Pest. Use `php artisan make:test --pest {name}`.
 - Do NOT remove tests without approval - these are core application code.
 
 ### Basic Test Structure
+
+Pest supports both `test()` and `it()` functions. Before writing new tests, check existing test files in the same directory to match the project's convention. Use `test()` if existing tests use `test()`, or `it()` if they use `it()`.
 
 <!-- Basic Pest Test Example -->
 ```php
@@ -132,9 +134,14 @@ $pages->assertNoJavaScriptErrors()->assertNoConsoleLogs();
 
 Capture and compare screenshots to detect visual changes.
 
-### Test Sharding
+### Test Sharding (Time-Balanced)
 
-Split tests across parallel processes for faster CI runs.
+This project uses Pest's time-balanced sharding (v4.6.0+) for CI. Tests are split across 5 shards based on recorded timings in `tests/.pest/shards.json`, ensuring each shard runs roughly the same duration.
+
+- **Update shards baseline locally**: `composer test:update-shards`
+- **Commit `tests/.pest/shards.json`** — CI uses it automatically when `--shard` is passed
+- **CI usage**: `pest --shard=1/5` reads timings from `shards.json` and distributes test classes by total time
+- **Re-run periodically** after adding/removing tests or significant timing changes
 
 ### Architecture Testing
 
