@@ -571,3 +571,157 @@ Fixtures: database/seeders/ChatQaSeeder.php
 - **Fix sketch:** Add a guard in `setupEchoListener()` using `window.__chatEchoAttached` to prevent double subscription. Alternatively, conditionally suppress the side panel's embedded `ChatInterface` when a full-page chat is active, or use a scoped channel identifier per instance.
 - **Screenshots:** `.context/screenshots/03-dual-instance.png`
 - **Proposed Pest test (Phase 14):** Browser test asserting only one `chat.{userId}` Echo channel subscription is active on the chats page.
+
+---
+
+## Phase 4 — PendingAction State Machine (2026-04-17)
+
+Tasks 4.1–4.14 executed. All HTTP routes tested via browser `fetch()` (authenticated session) and bare `curl` (unauthenticated). Race tested via `Promise.all`. Expire command tested directly via Artisan.
+
+### F-022: Phase 4 Task 4.1–4.2 — Create-approve and create-reject happy paths nominal
+
+- **Surface:** `POST /chat/actions/{id}/approve` and `/reject`
+- **Severity:** P3 observability
+- **Category:** confirmation
+- **Steps to reproduce:**
+  1. Seed `PendingAction` with `operation=Create`, `action_class=CreateCompany`, `status=Pending`.
+  2. `POST /chat/actions/{id}/approve` with valid session + CSRF.
+  3. Repeat with `/reject` on a separate row.
+- **Observed:**
+  - Approve: `200 {"status":"approved","result_data":{"id":"...","type":"company"}}`. DB: `status=approved`, `resolved_at` set, `result_data.id` matches new Company ID. Company row created.
+  - Reject: `200 {"status":"rejected"}`. DB: `status=rejected`, `resolved_at` set. No Company row created.
+- **Root cause:** Nominal — both happy paths operate correctly.
+- **Fix sketch:** None required.
+
+### F-023: Phase 4 Task 4.3 — Approve expired action → 422; status stays `pending` (no auto-flip)
+
+- **Surface:** `PendingActionService::validateResolvable()` + `PendingAction::isExpired()`
+- **Severity:** P2 minor (UX/data-integrity)
+- **Category:** state machine correctness
+- **Steps to reproduce:**
+  1. Seed PendingAction with `expires_at = now()->subMinute()`, `status = Pending`.
+  2. `POST /chat/actions/{id}/approve`.
+- **Expected:** 422 `{"error":"This action has expired"}`.
+- **Observed:** 422 returned correctly. However, `status` remains `pending` — NOT flipped to `expired` by the approve attempt.
+- **Secondary observation:** The UI (chat cards with Approve/Reject buttons) has no client-side timer or visual indicator that an action has expired. A card seeded with `expires_at` in the past renders live Approve/Reject buttons with no visual distinction from a valid pending action. A user clicking Approve receives a 422 but may not understand why (depends on UI error handling — not yet verified in Phase 4).
+- **Root cause:** By design — `expireStale()` is a background job; the approve endpoint does not auto-transition status. The `expired` scope in `PendingAction` correctly filters by `status=Pending AND expires_at < now()`, so the command will catch it on the next 5-minute run. Gap: between creation and command run, an expired action appears live in the UI.
+- **Fix sketch:** Two options: (a) auto-transition status to `expired` inside the 422 branch of `approve()`/`reject()` so the DB stays consistent immediately; (b) add client-side expiry countdown to grey out buttons before server expiry. Option (a) is a one-liner in `validateResolvable`.
+
+### F-024: Phase 4 Task 4.4 — Approve already-resolved action → 422 nominal
+
+- **Surface:** `PendingActionService::validateResolvable()` → `isPending()` check
+- **Severity:** P3 observability
+- **Category:** confirmation
+- **Steps to reproduce:**
+  1. Seed PendingAction with `status=Approved`, `resolved_at=now()`.
+  2. `POST /chat/actions/{id}/approve`.
+- **Observed:** `422 {"error":"This action has already been resolved"}`. State unchanged.
+- **Root cause:** Nominal.
+- **Fix sketch:** None required.
+
+### F-025: Phase 4 Task 4.5 — Race condition: `lockForUpdate` prevents double-execute
+
+- **Surface:** `PendingActionService::approve()` → `DB::transaction` + `lockForUpdate`
+- **Severity:** P3 observability
+- **Category:** confirmation (race guard verified)
+- **Steps to reproduce:**
+  1. Seed one PendingAction.
+  2. Fire two concurrent `POST /chat/actions/{id}/approve` via `Promise.all`.
+- **Observed:** One `200` (approved), one `422 {"error":"This action has already been resolved"}`. `Company::where('name','Phase4 Race Test')->count()` = `1`. No double-execution.
+- **Root cause:** `lockForUpdate()` inside the transaction serialises concurrent requests correctly.
+- **Fix sketch:** None required. Note: `reject()` does NOT use a transaction or `lockForUpdate` — see F-026.
+
+### F-026: Phase 4 Task 4.5 follow-on — `reject()` has no DB-level lock; concurrent rejects could double-resolve
+
+- **Surface:** `PendingActionService::reject()` — no `DB::transaction`, no `lockForUpdate`
+- **Severity:** P2 minor (data-integrity)
+- **Category:** state machine correctness
+- **Steps to reproduce (hypothetical):**
+  1. Seed one PendingAction.
+  2. Fire two concurrent `POST /chat/actions/{id}/reject` simultaneously.
+- **Expected:** One `200 {"status":"rejected"}`, one `422`.
+- **Observed (code-level):** `reject()` calls `validateResolvable()` then `$pendingAction->update()` without a transaction or row lock. The two requests can both pass `validateResolvable()` (both see `status=Pending`) before either commits the update. Result: `resolved_at` is overwritten twice with `now()` and `status=rejected` twice — functionally idempotent for rejection (no side-effects like a Create), but the pattern is inconsistent with `approve()` and would be dangerous if `reject()` ever gains side-effects (e.g., sending a notification).
+- **Root cause:** `reject()` was implemented without the same transaction/lock guard as `approve()`.
+- **Fix sketch:** Wrap `reject()` in `DB::transaction()` with a `lockForUpdate` re-fetch, mirroring the `approve()` implementation.
+
+### F-027: Phase 4 Task 4.6 — Cross-user same-team action → 403 nominal
+
+- **Surface:** `PendingActionController::approve()` user_id check
+- **Severity:** P3 observability
+- **Category:** confirmation
+- **Steps to reproduce:**
+  1. Seed PendingAction owned by teammate (same team, different user_id).
+  2. Approve as `chat-qa@relaticle.test`.
+- **Observed:** `403 {"error":"You can only approve your own actions"}`. No company created.
+- **Root cause:** Nominal — user_id guard fires before service call.
+- **Fix sketch:** None required.
+
+### F-028: Phase 4 Task 4.7 — Cross-team action → 404 (no existence leak) nominal
+
+- **Surface:** `PendingActionController` team_id check
+- **Severity:** P3 observability
+- **Category:** confirmation
+- **Steps to reproduce:**
+  1. Seed PendingAction owned by `other-team@relaticle.test` (different team).
+  2. Approve as `chat-qa@relaticle.test`.
+- **Observed:** `404 {"error":"Not found"}`. No existence information leaked.
+- **Root cause:** Nominal — team_id guard returns 404 before user_id check, correctly treating cross-team records as non-existent.
+- **Fix sketch:** None required.
+
+### F-029: Phase 4 Task 4.8 — Unauthenticated request returns 419 (CSRF), not 401
+
+- **Surface:** Middleware stack ordering — `VerifyCsrfToken` fires before `Authenticate`
+- **Severity:** P3 polish
+- **Category:** observability / API ergonomics
+- **Steps to reproduce:**
+  ```bash
+  curl -sk -X POST "https://app.relaticle-pr-209.test/chat/actions/{id}/approve" \
+    -H "Accept: application/json" -w "\n%{http_code}\n"
+  ```
+- **Observed:** `419 {"message":"CSRF token mismatch.","exception":"...HttpException..."}` — full stack trace leaked in JSON response.
+- **Expected (API convention):** `401 {"message":"Unauthenticated."}` for missing session; 419 is acceptable for missing CSRF on stateful routes, but leaking the full exception stack trace is undesirable.
+- **Secondary finding:** The `419` response body contains the full PHP stack trace (40+ frames). This is likely a `APP_DEBUG=true` or `APP_ENV=local` issue in the QA environment but should be confirmed for production.
+- **Root cause:** CSRF middleware precedes auth middleware; `APP_DEBUG` may be `true` in this environment.
+- **Fix sketch:** Ensure `APP_DEBUG=false` in production. Consider adding the chat action routes to an API middleware group (with token auth) if they need to be called without CSRF (e.g., from mobile clients).
+
+### F-030: Phase 4 Task 4.9–4.10 — Update and Delete action paths nominal
+
+- **Surface:** `PendingActionService::executeUpdate()` and `executeDelete()`
+- **Severity:** P3 observability
+- **Category:** confirmation
+- **Steps to reproduce:**
+  1. Seed Update action with `_record_id` and `_model_class=Company::class`. Approve. Assert company renamed.
+  2. Seed Delete action with same fields. Approve. Assert company soft-deleted.
+- **Observed:**
+  - Update: `200 {"status":"approved","result_data":{"id":"...","type":"company"}}`. Company `name` changed from "Phase4 Test Corp" to "Renamed By Approval". ✓
+  - Delete: `200 {"status":"approved","result_data":{"success":true}}`. Company `deleted_at` set (soft-delete via `SoftDeletes` trait). `Company::find(id)` returns null. ✓
+  - Note: Delete returns `{"success":true}` not `{"id":"...","type":"..."}` because `executeDelete` returns `null` — the result_data branch uses `['success' => true]` for non-Model results. This is consistent with the code.
+
+### F-031: Phase 4 Task 4.11 — Malicious `_model_class` blocked by allowlist
+
+- **Surface:** `PendingActionService::resolveModelClass()` → `ALLOWED_MODEL_CLASSES` allowlist
+- **Severity:** P3 observability
+- **Category:** confirmation (security guard verified)
+- **Steps to reproduce:**
+  1. Seed Update action with `_model_class = App\Models\User::class`.
+  2. Approve.
+- **Observed:** `422 {"error":"Invalid model class: App\\Models\\User"}`. No data accessed.
+- **Root cause:** Nominal — `ALLOWED_MODEL_CLASSES` constant covers `Company`, `People`, `Opportunity`, `Task`, `Note` only.
+- **Fix sketch:** None required.
+
+### F-032: Phase 4 Task 4.12–4.13 — `chat:expire-pending-actions` command and schedule nominal
+
+- **Surface:** `ExpirePendingActionsCommand` + `PendingActionService::expireStale()` + `bootstrap/app.php` schedule
+- **Severity:** P3 observability
+- **Category:** confirmation
+- **Steps to reproduce:**
+  1. Seed 3 past-due Pending rows + 1 past-due Approved row + 1 future Pending row.
+  2. `php artisan chat:expire-pending-actions`.
+- **Observed:**
+  - First run: `Expired 4 pending action(s).` (3 test rows + 1 leftover from Task 4.3). All expired rows: `status=expired`, `resolved_at` set.
+  - Approved row (past-due): status unchanged (`approved`). The `expired()` scope correctly gates on `status=Pending`. ✓
+  - Future Pending row: status unchanged (`pending`). ✓
+  - Second run (idempotent): `Expired 0 pending action(s).` ✓
+  - Schedule: `bootstrap/app.php:79` — `$schedule->command('chat:expire-pending-actions')->everyFiveMinutes()`. ✓
+- **Root cause:** Nominal.
+- **Fix sketch:** None required.
