@@ -16,8 +16,8 @@ final class ChatQaSeeder extends Seeder
 {
     public function run(): void
     {
-        User::where('email', 'chat-qa@relaticle.test')->delete();
-        User::where('email', 'other-team@relaticle.test')->delete();
+        User::query()->where('email', 'chat-qa@relaticle.test')->delete();
+        User::query()->where('email', 'other-team@relaticle.test')->delete();
 
         $user = User::factory()->withPersonalTeam()->create([
             'email' => 'chat-qa@relaticle.test',
