@@ -1305,3 +1305,143 @@ public function apply(Builder $builder, Model $model): void
 - **Observed:** `ListConversationMessages` queries `WHERE conversation_id = ? AND user_id = ?`. If the conversation belongs to another user, the query returns zero rows — no messages are shown, no error is raised. The page loads with an empty message list.
 - **Root cause:** Nominal. User-id scoping on message query prevents cross-user message access.
 - **Fix sketch:** None required. (Note: a 404 redirect when `conversationId` does not belong to the user would be a UX improvement but is not a security issue.)
+
+---
+
+## Phase 10 — UI/UX Edge Cases (2026-04-17)
+
+### F-070: `isStreaming` stuck permanently — no client-side timeout, send disabled until reload
+
+- **Surface:** `packages/Chat/resources/views/livewire/chat/chat-interface.blade.php`; `packages/Chat/resources/js/chat-interface.js` (Alpine component)
+- **Severity:** P1 major
+- **Category:** input behaviour / streaming lifecycle
+- **Steps to reproduce:**
+  1. Navigate to any chat conversation.
+  2. Send any message (tool-call-triggering or plain text).
+  3. Wait 45+ seconds.
+  4. Check `Alpine.$data(chatInterfaceEl).isStreaming`.
+- **Observed:**
+  - After sending "Count slowly to 20 please" (non-tool prompt), `isStreaming` remained `true` at t=10s, 20s, 30s, and 45s.
+  - After sending "List all my companies please" (tool-call prompt), same result: `isStreaming=true` at t=10, 20, 30, 45s with no change.
+  - `textarea[disabled]` and `button[type=submit][disabled]` both remain disabled the entire time.
+  - No timeout mechanism resets `isStreaming` on the client.
+- **Root cause:** `isStreaming` is set to `true` on send and cleared only on receiving a `stream_end` WebSocket event. In this environment `BROADCAST_CONNECTION=log` (F-001), so no WebSocket events arrive. Even in production, if a job fails or times out (F-015), `stream_end` is never broadcast and the client stalls forever.
+- **Impact:** User cannot send another message after any send attempt. The only escape is a full page reload. This is a regression risk in production if jobs fail mid-stream.
+- **Fix sketch:** Add a client-side timeout (e.g. 60–90 s) in the Alpine `sendMessage()` function: `setTimeout(() => { if (this.isStreaming) { this.isStreaming = false; this.addErrorMessage('Response timed out. Please try again.'); } }, 60000)`. Also expose a retry button when `isStreaming` stays true beyond a threshold.
+
+### F-071: User message bubble missing `break-words` — 300-char unbreakable word overflows chat width
+
+- **Surface:** `packages/Chat/resources/views/livewire/chat/chat-interface.blade.php` line 27
+- **Severity:** P2 minor
+- **Category:** long-content / CSS
+- **Steps to reproduce:**
+  1. Open any chat conversation.
+  2. Send a message containing a 300-character unbreakable string (e.g. `'a' * 300`).
+  3. Observe the user bubble.
+- **Observed:**
+  - Bubble element: `class="max-w-[80%] rounded-2xl rounded-br-md bg-primary-600 px-4 py-3 text-sm text-white"` — no `break-words` or `overflow-wrap: anywhere`.
+  - Injecting 300-char word via Alpine data: `bubbleScrollWidth=2390px`, `parentOffsetWidth=768px`. Bubble is 2390px wide inside a 768px container.
+  - `getComputedStyle().overflowWrap` = `"normal"`, `wordBreak` = `"normal"`.
+  - The bubble breaks out of `max-w-[80%]` and forces horizontal scroll on the chat area.
+- **Root cause:** Tailwind `text-sm` does not apply any word-break behaviour. The bubble div needs `break-words` (Tailwind utility for `overflow-wrap: break-word`).
+- **Fix sketch:** Add `break-words` to the user bubble class: `class="max-w-[80%] break-words rounded-2xl ..."`. Same class should be added to the assistant bubble (`prose` handles it via `overflow-wrap` internally, but defensive addition is fine).
+
+### F-072: Floating Chat button invisible at 375 × 812px — `bottom-6` pushes button outside viewport
+
+- **Surface:** `packages/Chat/resources/views/livewire/app/chat/chat-side-panel.blade.php`; floating button wrapper
+- **Severity:** P1 major
+- **Category:** mobile viewport / layout
+- **Steps to reproduce:**
+  1. Set viewport to 375 × 812 (iPhone SE / common mobile).
+  2. Navigate to any chat page.
+  3. Inspect floating Chat button position.
+- **Observed:**
+  - Floating button `getBoundingClientRect()`: `{x:0, y:812, width:91, height:44}` — `top=812` is exactly at the viewport bottom edge, `bottom=856` is 44px below the fold.
+  - The button is not visible or clickable without scrolling (but the page itself doesn't scroll to reveal it).
+  - Relates to F-019 (chat side panel 420px wide overflows 375px viewport by 44px). The panel and button positioning both assume a wider viewport.
+- **Root cause:** The floating button uses `class="fixed bottom-6 right-6"`. At 375px wide, Filament's layout shifts the content area, and the element's `x=0, y=812` places it exactly at or below the viewport bottom.
+- **Fix sketch:** Test with `bottom-16` or add `pb-safe` / `env(safe-area-inset-bottom)` padding on mobile. Ensure the button is at least 80px from the bottom edge on small viewports.
+
+### F-073: `Shift+Enter` does not insert newline — `@keydown.enter.prevent` blocks default for all Enter events
+
+- **Surface:** `packages/Chat/resources/views/livewire/chat/chat-interface.blade.php` line 140
+- **Severity:** P2 minor
+- **Category:** input behaviour / keyboard UX
+- **Steps to reproduce:**
+  1. Focus the chat textarea.
+  2. Type "line one", then press Shift+Enter.
+  3. Check `textarea.value` for a newline character.
+- **Observed:**
+  - Attribute: `@keydown.enter.prevent="if(!$event.shiftKey) sendMessage()"`.
+  - `preventDefault()` is called unconditionally for all Enter keypresses, including Shift+Enter, because Alpine's `.prevent` modifier fires before the inline expression is evaluated.
+  - `textarea.value.includes("\n")` returns `false` after Shift+Enter.
+  - The textarea also has `rows="1"` and `resize-none` — no visual multi-line support exists.
+- **Root cause:** Alpine's `@keydown.enter.prevent` runs `preventDefault()` first, then evaluates the inline expression. The browser never inserts the newline for Shift+Enter.
+- **Fix sketch:** Replace `.prevent` modifier with inline prevention: `@keydown.enter="if(!$event.shiftKey) { $event.preventDefault(); sendMessage(); }"`. Also consider setting `rows` to auto-resize for multi-line input.
+
+### F-074: Escape key does not close chat side panel — no keyboard dismiss affordance
+
+- **Surface:** `packages/Chat/resources/views/livewire/app/chat/chat-side-panel.blade.php`; `packages/Chat/resources/views/filament/app/chat-side-panel-hook.blade.php`
+- **Severity:** P2 minor
+- **Category:** keyboard accessibility / a11y
+- **Steps to reproduce:**
+  1. Open chat side panel (Cmd+J / click floating button).
+  2. Press Escape.
+  3. Observe panel state.
+- **Observed:**
+  - Before Escape: `Alpine.$data(panelEl).panelOpen = true`.
+  - After Escape: `Alpine.$data(panelEl).panelOpen = true` (no change).
+  - No `@keydown.escape` listener is registered on the panel container or document.
+- **Root cause:** The panel component has no Escape handler. Standard modal/dialog UX (WCAG 2.1 SC 1.4.13) requires Escape to dismiss overlaid panels.
+- **Fix sketch:** Add `@keydown.escape.window="panelOpen = false"` to the panel's root Alpine element.
+
+### F-075: No DOM virtualisation — 200-message chat renders 701 DOM nodes, freezes at scale
+
+- **Surface:** `packages/Chat/resources/views/livewire/chat/chat-interface.blade.php`; Alpine `x-for="(msg, index) in messages"` loop
+- **Severity:** P1 major
+- **Category:** performance / long-content
+- **Steps to reproduce:**
+  1. Seed 200 messages into a conversation (done via Tinker with `conv-scroll-phase10`).
+  2. Navigate to `/{slug}/chats/conv-scroll-phase10`.
+  3. Count DOM nodes and measure scroll height.
+- **Observed:**
+  - `messages.length = 200` in Alpine state.
+  - `messages` container has 701 child `<div>` elements (user bubbles + assistant bubbles + pending-action templates).
+  - `scrollHeight = 14048px`, `clientHeight = 655px`.
+  - No virtual scroll, no pagination, no lazy-load of older messages.
+  - Page load wall time for 200 messages was fast in test (JS renders from in-memory Alpine array), but with 500–1000 messages the JS heap and layout recalculations will cause measurable jank.
+- **Root cause:** `x-for` over the entire `messages` array renders all bubbles unconditionally. The `fetchMessages()` Livewire action loads all messages at once with no limit.
+- **Fix sketch:** (1) Short term: paginate `fetchMessages()` — load last 50 messages on mount, fetch older messages on scroll-to-top. (2) Long term: implement virtual scroll (Intersection Observer approach or a library like `@tanstack/virtual`).
+
+### F-076: Unicode / CJK / RTL message renders correctly — P3 nominal confirmation
+
+- **Surface:** User message bubble rendering via Alpine `x-text="msg.content"`
+- **Severity:** P3 confirmation (pass)
+- **Category:** Unicode / internationalisation
+- **Steps to reproduce:**
+  1. Send message: `🚀 こんにちは مرحبا ✨`
+  2. Observe user bubble content.
+- **Observed:**
+  - Alpine data confirmed: `messages[2].content = "🚀 こんにちは مرحبا ✨"` (stored and rendered intact).
+  - No layout shift detected. `bubbleScrollWidth (177px) ≤ parentOffsetWidth` — no overflow.
+  - `x-text` escapes HTML correctly; no XSS vector from Unicode chars.
+- **Root cause:** Nominal. Browser handles Unicode in `x-text` correctly.
+- **Fix sketch:** None required.
+
+### F-077: Dark mode — chat components have correct dark variants; floating button uses brand colour (nominal)
+
+- **Surface:** `packages/Chat/resources/views/livewire/chat/chat-interface.blade.php`
+- **Severity:** P3 confirmation (pass)
+- **Category:** dark mode / theming
+- **Steps to reproduce:**
+  1. Force dark mode: `document.documentElement.classList.add("dark"); localStorage.setItem("theme","dark")`.
+  2. Reload page.
+  3. Inspect textarea and assistant bubble colours.
+- **Observed:**
+  - Dark mode persists after reload (`html.fi.dark` present).
+  - Textarea: `dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder:gray-500` — correct.
+  - Assistant bubble: `dark:prose-invert dark:bg-gray-800 dark:text-gray-100` — correct.
+  - Floating Chat button: `bg-primary-600` with no `dark:` variant — intentional brand-colour button, acceptable.
+  - `getComputedStyle(textarea).backgroundColor = oklch(0.274 0.006 286.033)` in dark mode (dark gray).
+- **Root cause:** Nominal.
+- **Fix sketch:** None required.
