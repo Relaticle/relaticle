@@ -1081,3 +1081,140 @@ Tasks 4.1–4.14 executed. All HTTP routes tested via browser `fetch()` (authent
 - **Observed:** Exact match. `updateOrCreate` correctly resets used credits to 0. Period boundaries use `startOfMonth()` / `endOfMonth()` which aligns to calendar month (not 30-day rolling).
 - **Root cause:** Nominal.
 - **Fix sketch:** None for mechanics. The only gap is that this method is never automatically called (see F-050).
+
+---
+
+## Phase 8 — Validation / Auth / CSRF / XSS (2026-04-17)
+
+### F-056: Empty and missing `message` → 422 — validation working
+
+- **Surface:** `POST /chat` — `ChatController::send` validation rule `['required', 'string', 'max:5000']`
+- **Severity:** P3 confirmation
+- **Category:** input validation
+- **Steps to reproduce:**
+  - `POST /chat` with `{"message":""}` (empty string)
+  - `POST /chat` with `{}` (missing key)
+- **Expected:** 422 Unprocessable Entity with `errors.message` array.
+- **Observed:** Both return `HTTP 422` with `{"message":"The message field is required.","errors":{"message":["The message field is required."]}}`.
+- **Root cause:** Nominal — `required` rule correctly catches both cases.
+- **Fix sketch:** None.
+
+### F-057: 5001-char message → 422 — max:5000 enforced; no client-side counter
+
+- **Surface:** `POST /chat` validation `max:5000`; `chat-interface.blade.php` textarea
+- **Severity:** P2 UX
+- **Category:** input validation / UX
+- **Steps to reproduce:**
+  1. POST `{"message":"a"×5001}` → `HTTP 422`, `"The message field must not be greater than 5000 characters."`.
+  2. In browser, type >5000 chars into textarea and submit.
+- **Expected:** 422 from server (working). Client should show a character counter or disable the send button at 5000 chars.
+- **Observed:**
+  - Server correctly rejects with 422.
+  - Textarea has no `maxlength` attribute, no character counter, no client-side guard. The `sendMessage()` JS passes the full string; the fetch response (`!response.ok`) puts `body.message` into the assistant bubble — so the user sees the raw Laravel validation error string in the chat window, not a friendly warning.
+  - No `maxlength` or `x-bind:maxlength` anywhere in `chat-interface.blade.php`.
+- **Root cause:** Server validation exists; client UX layer is absent.
+- **Fix sketch:** Add `maxlength="5000"` to the textarea and optionally a `<span x-text="5000 - input.length" …>` counter below it.
+
+### F-058: Unauthenticated POST → 419 (CSRF fires before auth); 419 body leaks stack trace
+
+- **Surface:** `POST /chat` with no session cookie and no CSRF token
+- **Severity:** P2 security / observability
+- **Category:** auth / CSRF / debug leak
+- **Steps to reproduce:**
+  ```js
+  fetch("/chat", {method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},body:'{"message":"hi"}',credentials:"omit"})
+  ```
+- **Expected:** 419 (CSRF fires first — no session token); body should be minimal JSON in non-debug environments.
+- **Observed:**
+  - Response: `HTTP 419` — CSRF middleware fires before `auth:web`, so the response never reveals whether the user is authenticated.
+  - Response body is a full JSON exception dump including `exception`, `file`, `line`, and a 40-entry `trace` array with absolute file paths on disk (`/Users/manuk/…`). This is a `APP_DEBUG=true` artefact — in production this should be `{"message":"CSRF token mismatch."}` only.
+  - Client JS (`sendMessage`, line 218): `assistantMsg.content = body.message || \`Error ${response.status}: ${response.statusText}\`` — shows `"CSRF token mismatch."` in the assistant bubble, which is a confusing message for an end user whose session expired.
+- **Root cause:** `APP_DEBUG=true` in dev/preview environment leaks traces. Client error handler surface is misleading for 419.
+- **Fix sketch:** Confirm `APP_DEBUG=false` in all preview/staging deployments. Add a client-side check for status 419 and show "Your session expired — please refresh the page." instead of the raw error message.
+
+### F-059: Bad conversation ID → 404 `{"error":"Conversation not found"}` — correct; but `stdClass` return-type contract is brittle
+
+- **Surface:** `ChatController::send` line 42: `if (! $found instanceof \stdClass)`; `FindConversation::execute`
+- **Severity:** P3 observability
+- **Category:** code correctness / type safety
+- **Steps to reproduce:**
+  ```js
+  fetch("/chat/definitely-not-a-real-ulid", {method:"POST", …, body:'{"message":"hi"}'})
+  ```
+- **Expected:** `HTTP 404` `{"error":"Conversation not found"}`.
+- **Observed:** Correct — `HTTP 404` with expected body.
+- **Root cause (latent):** The guard `if (! $found instanceof \stdClass)` relies on `FindConversation::execute()` returning a `\stdClass` on success and `null` (or anything non-`stdClass`) on failure. If `FindConversation` is ever refactored to return a typed DTO or an Eloquent model, the `instanceof \stdClass` check silently breaks — every valid conversation returns 404. No PHPStan type annotation enforces the contract.
+- **Fix sketch:** Type `FindConversation::execute()` to return a named DTO or nullable Eloquent model, and update the guard to `if ($found === null)`.
+
+### F-060: Model override — any authenticated user can force `claude-opus` (3× credits); no plan-tier gate
+
+- **Surface:** `POST /chat` with `{"message":"hi","model":"claude-opus"}`; `AiModelResolver::resolve`; `CreditService::calculateCredits`
+- **Severity:** P2 billing risk
+- **Category:** authorization / billing
+- **Steps to reproduce:**
+  1. POST `{"message":"hi","model":"claude-opus"}` as an authenticated user.
+  2. Response: `HTTP 200 {"status":"processing"}` — job dispatched using `claude-opus-4-20250514`.
+- **Expected:** Either all users are permitted all models (by design), or plan-gating exists.
+- **Observed:**
+  - `AiModelResolver::resolve` accepts any `AiModel::tryFrom($override)` value without checking the user's subscription plan or team tier. `claude-opus` has `creditMultiplier = 3.0` — costs 3× the credits of Sonnet.
+  - No `allowedModels`, `plan`, or `subscription` check exists anywhere in the chat request path (`packages/Chat/src/`).
+  - There is no plan-gate design in the codebase — so this is not a "broken gate" but an absent gate. As a result, any user on any plan can silently consume 3× credits per message by passing `"model":"claude-opus"`.
+- **Root cause:** `AiModelResolver` was designed for preference resolution, not authorization.
+- **Fix sketch:** Add an `allowedModels(User $user): array` method (or Pennant feature flag per team) and validate the override against it in `AiModelResolver::resolveModel`. Return a 403 from `ChatController::send` if the model is not permitted for the user's plan.
+
+### F-061: Invalid model string silently falls through to Auto; no 422
+
+- **Surface:** `AiModelResolver::resolveModel` — `AiModel::tryFrom($override)` returns `null` for unknown values
+- **Severity:** P2 UX / silent failure
+- **Category:** input validation
+- **Steps to reproduce:**
+  1. POST `{"message":"hi","model":"not-a-model"}` → `HTTP 200 {"status":"processing"}`.
+- **Expected:** `HTTP 422` with a message like `"Invalid model. Valid options: auto, claude-sonnet, claude-opus, gpt-4o, gemini-pro."` so the client can surface a clear error.
+- **Observed:** `AiModel::tryFrom("not-a-model")` returns `null`; resolver falls through to `AiModel::Auto`. Request processes silently using a different model than requested — wrong billing tier and wrong model for the user without any error signal.
+- **Root cause:** Validation rule for `model` is `['nullable', 'string']` — no `in:` or `Rule::enum` constraint.
+- **Fix sketch:** Change the validation rule to `['nullable', Rule::enum(AiModel::class)]` so invalid values are rejected at the controller input layer.
+
+### F-062: XSS — all 6 assistant-message payloads safely stripped by CommonMark `html_input: strip`
+
+- **Surface:** `MarkdownRenderer`, `ListConversationMessages`, `chat-interface.blade.php` `x-html="msg.content"`
+- **Severity:** P3 confirmation (safe)
+- **Category:** XSS / content security
+- **Steps to reproduce:** Insert 6 XSS payloads as assistant messages directly in DB; navigate to the conversation in browser.
+- **Payloads and outcomes:**
+  | # | Payload | Rendered DOM | Fired? |
+  |---|---------|-------------|--------|
+  | 1 | `<img src=x onerror=alert("XSS1")>` | `<p>&lt;img src=x onerror=…&gt;</p>` | **safe** |
+  | 2 | `<script>window.__xss2=true</script>` | (empty paragraph, script stripped) | **safe** (`window.__xss2 === false`) |
+  | 3 | `<a href="javascript:alert(1)">click</a>` | `<p>click</p>` (href stripped, `allow_unsafe_links: false`) | **safe** |
+  | 4 | `<svg onload=alert("XSS4")>` | `<p>&lt;svg onload=…&gt;</p>` | **safe** |
+  | 5 | `[malicious](javascript:alert("XSS5"))` | `<p><a>malicious</a></p>` (href removed) | **safe** |
+  | 6 | `<iframe src="javascript:alert(1)"></iframe>` | (stripped entirely) | **safe** |
+- **MarkdownRenderer config:** `html_input => 'strip'`, `allow_unsafe_links => false`. CommonMark strips raw HTML blocks entirely rather than escaping them (so `<script>` produces an empty paragraph).
+- **Root cause:** Nominal.
+- **Fix sketch:** None for the renderer. Consider `html_input => 'escape'` instead of `'strip'` to make injected HTML visible as text rather than silently disappearing (aids debugging).
+
+### F-063: User bubble uses `x-text` — safe against XSS; pending-action fields use `x-text` — safe
+
+- **Surface:** `chat-interface.blade.php` line 28 (user bubble), lines 55–67 (pending-action display fields)
+- **Severity:** P3 confirmation (safe)
+- **Category:** XSS / content security
+- **Steps to reproduce:** POST `{"message":"<script>alert(1)</script>"}` as user message; observe bubble rendering.
+- **Expected:** `x-text` escapes HTML entities — no script execution.
+- **Observed:** `HTTP 200`; user message stored; rendered as plain text in bubble. All pending-action fields (`display.summary`, `field.label`, `field.new`, `field.old`, `field.value`, `action.error`, `action.status`) use `x-text` — all safe from XSS.
+- **Root cause:** Nominal.
+- **Fix sketch:** None.
+
+### F-064: Conversation title HTML-injection — Blade `{{ }}` escapes correctly; `getTitle()` / `getHeading()` safe
+
+- **Surface:** `ChatConversation::getTitle()`, `ChatConversation::getHeading()`; Filament page heading rendering
+- **Severity:** P3 confirmation (safe)
+- **Category:** XSS / content security
+- **Steps to reproduce:** Insert conversation with `title = '<img src=x onerror=alert("title-xss")>Evil'`; navigate to its URL.
+- **Expected:** Blade escapes `{{ $title }}` — no image element, no onerror fired.
+- **Observed:**
+  - Page `<title>` text: `"Evil - Relaticle"` (HTML stripped by browser title rendering).
+  - `h1.innerHTML`: `&lt;img src=x onerror=alert("title-xss")&gt;Evil` — correctly escaped, no DOM element created.
+  - `window.__titlexss` undefined; no img element with onerror in heading.
+  - No `{!! !!}` usage found in `ChatConversation.php` or surrounding Filament heading templates for title output.
+- **Root cause:** Nominal.
+- **Fix sketch:** None.
