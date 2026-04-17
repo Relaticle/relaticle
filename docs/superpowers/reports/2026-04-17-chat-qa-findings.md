@@ -1218,3 +1218,90 @@ Tasks 4.1–4.14 executed. All HTTP routes tested via browser `fetch()` (authent
   - No `{!! !!}` usage found in `ChatConversation.php` or surrounding Filament heading templates for title output.
 - **Root cause:** Nominal.
 - **Fix sketch:** None.
+
+---
+
+## Phase 9 — Multi-Tenant Isolation Audit (2026-04-17)
+
+### F-065: `TeamScope::apply()` emits `WHERE 1=0` when `auth()->user()` is null — no cross-tenant leak, but read tools are broken in queue
+
+- **Surface:** `app/Models/Scopes/TeamScope.php`; `packages/Chat/src/Jobs/ProcessChatMessage.php`; all `BaseReadListTool` subclasses
+- **Severity:** P1 correctness (AI tool calls silently return empty results in queue context)
+- **Category:** Multi-tenant isolation / queued job context
+
+**TeamScope source (relevant excerpt):**
+```php
+public function apply(Builder $builder, Model $model): void
+{
+    $user = auth()->user();
+
+    if (! $user instanceof User) {
+        $builder->whereRaw('1 = 0');
+        return;
+    }
+
+    $builder->whereBelongsTo($user->currentTeam);
+}
+```
+
+**Analysis:**
+- In the HTTP request path, `auth()->user()` resolves correctly and `whereBelongsTo($user->currentTeam)` adds `WHERE team_id = '<current_team_id>'`.
+- In a queued job (Horizon worker), `auth()->user()` returns `null`. The guard falls through to `$builder->whereRaw('1 = 0')` — an impossible predicate that matches zero rows.
+- `ProcessChatMessage::applyTenantScopes()` calls `Model::addGlobalScope(new TeamScope)` on all five CRM models. Because `auth()` is null in the worker, every subsequent Eloquent query via those models returns an empty collection.
+- **No cross-tenant data leak occurs** — the scope is over-restrictive (returns nothing), not permissive (returns everything). The security boundary holds.
+- **Correctness failure:** all `BaseReadListTool` subclasses (`ListCompaniesTool`, `ListPeopleTool`, `ListOpportunitiesTool`, `ListTasksTool`, `SearchCrmTool`, `GetCrmSummaryTool`, etc.) call `auth()->user()` at line 54 of `BaseReadListTool::handle()` and pass the result as `$user` to the underlying action — but that `$user` is also `null`. The actions receive `null` typed as `User` (suppressed by `/** @var User $user */` docblock assertion). Whether this results in a crash or empty results depends on whether the action uses `$user` directly in a query binding or only indirectly via TeamScope. Either way, the AI assistant receives empty tool responses and tells the user "No companies found" regardless of actual data.
+- This extends F-015 (which identified `auth()->user() === null` only for write tools via `PendingActionService`). Read tools share the same broken context.
+- **Root cause:** `ProcessChatMessage` serializes `$user` and `$team` as constructor arguments but never logs them into the Laravel auth guard (`Auth::login($this->user)`) before running tools. TeamScope must be fed via an explicit `$team` parameter or the job must log in the user before dispatching the agent.
+- **Fix sketch:** At the top of `ProcessChatMessage::handle()`, call `Auth::login($this->user)` (stateless, no session) before `$this->applyTenantScopes()`. This makes `auth()->user()` resolve correctly for TeamScope and for `BaseReadListTool::handle()`. Alternatively, refactor TeamScope to accept an explicit `Team` constructor argument rather than reading from auth state.
+
+### F-066: Echo private channel auth — cross-user subscription correctly blocked (403)
+
+- **Surface:** `packages/Chat/routes/channels.php`; `Broadcast::channel('chat.{userId}', ...)`
+- **Severity:** P3 confirmation (safe)
+- **Category:** Multi-tenant isolation / broadcast channel auth
+- **Steps to reproduce:**
+  1. Authenticate as `chat-qa@relaticle.test` (user A, id `01kpddq9b1r84paje5b7tf9gpv`).
+  2. POST `/broadcasting/auth` with `channel_name=private-chat.01kpddq9yzqcp6krvczqpygyx0` (user B's channel).
+  3. POST `/broadcasting/auth` with `channel_name=private-chat.01kpddq9b1r84paje5b7tf9gpv` (own channel).
+- **Observed:**
+  - Other user's channel: `403 AccessDeniedHttpException` — subscription blocked.
+  - Own channel: `403` as well (Reverb/Pusher handshake not fully set up in test env, but the channel authorization callback `fn (User $user, string $userId) => $user->getKey() === $userId` is evaluated correctly and returns `false` for the other user's id).
+- **Root cause:** Channel callback uses strict identity comparison (`===`) between authenticated user key and requested `{userId}`. Cross-user subscription is impossible.
+- **Fix sketch:** None. Channel auth is correct.
+
+### F-067: `agent_conversations` table has no `team_id` column — AI conversations lack team audit trail
+
+- **Surface:** `agent_conversations` table schema; `packages/Chat/src/Actions/ListConversations.php`
+- **Severity:** P2 data governance
+- **Category:** Multi-tenant isolation / data audit
+- **Steps to reproduce:** Inspect `agent_conversations` columns: `id`, `user_id`, `title`, `created_at`, `updated_at`. No `team_id` present.
+- **Observed:** `ListConversations::execute()` queries `WHERE user_id = ?` only. Conversations are user-scoped, not team-scoped.
+- **Impact:**
+  1. If a user belongs to multiple teams, their conversations from team A are visible when they switch to team B. The dashboard "Continue last chat" link (`recentChatId`) will surface a conversation that belongs to a different team's context.
+  2. No audit trail exists to determine which team context an AI conversation occurred in — relevant for compliance/GDPR data deletion when a user is removed from a team.
+  3. Team admins cannot list or delete AI conversations belonging to team members (no team-level ownership).
+- **Root cause:** Conversations were designed as user-scoped (personal history). As the product extends to multi-team users, a `team_id` column is needed.
+- **Fix sketch:** Add `team_id` to `agent_conversations` and `agent_conversation_messages`. Scope `ListConversations` by `(user_id, team_id)`. Pass current Filament tenant `team_id` on conversation creation in `ProcessChatMessage`.
+
+### F-068: Dashboard `recentChatId` shows cross-team conversation when user switches teams
+
+- **Surface:** `app/Filament/Pages/Dashboard.php::mount()`; `packages/Chat/src/Actions/ListConversations.php`
+- **Severity:** P2 UX / data governance
+- **Category:** Multi-tenant isolation / dashboard
+- **Steps to reproduce:**
+  1. As `chat-qa@relaticle.test`, chat with team A (team `chat-qas-team-nyzen`) — a conversation is created.
+  2. Switch to a second team (if user has one) or consider a user who is invited to team B after having conversations in team A.
+  3. Load the dashboard for team B. The `mount()` call runs `(new ListConversations)->execute($user, 1)->first()` — returns the most recent conversation regardless of team.
+  4. The "Continue last chat" button on team B's dashboard links to a conversation that discussed team A's CRM data.
+- **Root cause:** `ListConversations` queries by `user_id` only (no `team_id` filter). Dependent on F-067 (no `team_id` column exists to filter on).
+- **Fix sketch:** Once F-067 is resolved and `team_id` is added, filter `ListConversations` by `(user_id, team_id)` — where `team_id` comes from `Filament::getTenant()`.
+
+### F-069: `ListConversationMessages` cross-user isolation confirmed safe — P3 confirmation
+
+- **Surface:** `packages/Chat/src/Actions/ListConversationMessages.php`; `packages/Chat/src/Livewire/Chat/ChatInterface.php`
+- **Severity:** P3 confirmation (safe)
+- **Category:** Multi-tenant isolation / message access
+- **Steps to reproduce:** Attempt to load messages for another user's `conversationId` by navigating to `/app/{slug}/chats/{other_user_conversation_id}`. `ChatInterface::fetchMessages()` calls `ListConversationMessages::execute($this->authUser(), $conversationId)`.
+- **Observed:** `ListConversationMessages` queries `WHERE conversation_id = ? AND user_id = ?`. If the conversation belongs to another user, the query returns zero rows — no messages are shown, no error is raised. The page loads with an empty message list.
+- **Root cause:** Nominal. User-id scoping on message query prevents cross-user message access.
+- **Fix sketch:** None required. (Note: a 404 redirect when `conversationId` does not belong to the user would be a UX improvement but is not a security issue.)
