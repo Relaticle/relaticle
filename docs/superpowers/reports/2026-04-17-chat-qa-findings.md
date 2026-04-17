@@ -89,18 +89,18 @@ Fixtures: database/seeders/ChatQaSeeder.php
   ```
 - **Fix sketch:** N/A — observability entry only.
 
-### F-004: Echo/WebSocket state — Reverb not running, broadcast driver is log
+### F-004: Echo/WebSocket state — Echo and Pusher both undefined on dashboard
 
-- **Surface:** browser JS / `window.Echo` / `.env`
+- **Surface:** browser JS / `window.Echo` / `https://app.relaticle-pr-209.test/chat-qas-team-nyzen/dashboard`
 - **Severity:** P0 blocker
 - **Category:** correctness
 - **Steps to reproduce:**
-  1. Log in as `chat-qa@relaticle.test`
-  2. Navigate to dashboard `https://relaticle-pr-209.test/app/chat-qas-team-nyzen`
-  3. `agent-browser eval 'JSON.stringify({ echo: typeof window.Echo, state: window.Echo?.connector?.pusher?.connection?.state })'`
-- **Expected:** `state` = `"connected"` within 8s.
-- **Observed:** Reverb is not running (no process on any port). `BROADCAST_CONNECTION=log`. Echo may initialize but will fail to connect. WebSocket-dependent chat features (streaming responses, real-time message delivery) cannot be verified in this environment without Reverb running.
-- **Root cause hypothesis:** Local `.env` not configured for Reverb; `php artisan reverb:start` was not started.
+  1. Log in as `chat-qa@relaticle.test` at `https://app.relaticle-pr-209.test/login`
+  2. Navigate to `https://app.relaticle-pr-209.test/chat-qas-team-nyzen/dashboard`
+  3. `agent-browser eval 'JSON.stringify({ echo: typeof window.Echo, pusher: typeof window.Pusher })'`
+- **Expected:** `echo` = `"object"`, `pusher` = `"function"`, `state` = `"connected"` within 8s.
+- **Observed:** `{"echo":"undefined","pusher":"undefined"}` — neither Echo nor Pusher is initialized on the page. Dashboard threw 500 error (see F-005) so scripts may not have loaded.
+- **Root cause hypothesis:** Dashboard 500 prevents full page load; additionally `BROADCAST_CONNECTION=log` and Reverb not running means WS would not connect even if Echo were loaded.
 - **Proposed Pest test (Phase 14):**
   ```php
   // file: tests/Feature/Chat/WebSocketTest.php
@@ -109,4 +109,27 @@ Fixtures: database/seeders/ChatQaSeeder.php
       // send message and assert broadcast event fired
   });
   ```
-- **Fix sketch:** Start Reverb: `php artisan reverb:start --host=0.0.0.0 --port=8080` and set `BROADCAST_CONNECTION=reverb`, `REVERB_APP_KEY`, `REVERB_HOST`, `REVERB_PORT` in `.env`.
+- **Fix sketch:** Fix `agent_conversations` migration first (see F-002/F-005); then start Reverb and set `BROADCAST_CONNECTION=reverb`.
+
+### F-005: Dashboard 500 — agent_conversations table does not exist
+
+- **Surface:** `app/Filament/Pages/Dashboard.php:36` / `packages/Chat/src/Actions/ListConversations.php:22`
+- **Severity:** P0 blocker
+- **Category:** correctness
+- **Steps to reproduce:**
+  1. Log in as `chat-qa@relaticle.test`
+  2. Navigate to `https://app.relaticle-pr-209.test/chat-qas-team-nyzen/dashboard`
+- **Expected:** Dashboard renders with chat panel.
+- **Observed:** HTTP 500 — `SQLSTATE[42P01]: Undefined table: 7 ERROR: relation "agent_conversations" does not exist`. Stack: `ListConversations->execute()` at `Dashboard.php:36` calls `DB::table('agent_conversations')` which does not exist because `laravel/ai` package (which provides `AiMigration` base class) is not installed and the migration `2026_03_31_212425_create_agent_conversations_table` is blocked.
+- **Root cause hypothesis:** `laravel/ai` package is in `composer.json` but missing from `vendor/` — the `create_agent_conversations_table` migration cannot run, so the table never gets created.
+- **Proposed Pest test (Phase 14):**
+  ```php
+  // file: tests/Feature/Chat/DashboardTest.php
+  it('dashboard renders without errors for authenticated user', function () {
+      $user = User::factory()->withPersonalTeam()->create();
+      actingAs($user);
+      get(route('filament.app.pages.dashboard', ['tenant' => $user->currentTeam->slug]))
+          ->assertOk();
+  });
+  ```
+- **Fix sketch:** Install `laravel/ai` package (`composer require laravel/ai:^0.4.3`) and run `php artisan migrate`.
