@@ -725,3 +725,141 @@ Tasks 4.1–4.14 executed. All HTTP routes tested via browser `fetch()` (authent
   - Schedule: `bootstrap/app.php:79` — `$schedule->command('chat:expire-pending-actions')->everyFiveMinutes()`. ✓
 - **Root cause:** Nominal.
 - **Fix sketch:** None required.
+
+---
+
+## Phase 5 — Conversation Management (2026-04-17)
+
+### F-033: No chat index page — users with >10 conversations cannot reach older chats
+
+- **Surface:** Sidebar (`chat-sidebar-nav.blade.php`) + Filament page registry
+- **Severity:** P1 UX
+- **Category:** missing feature
+- **Steps to reproduce:**
+  1. Seed 15 conversations for a user.
+  2. Navigate to `/{slug}/dashboard`.
+  3. Count `[data-group-label="Chats"] li.fi-sidebar-item` items.
+  4. Search `app/Filament/Pages/` and routes for any conversation list/index page.
+- **Expected:** A "View all chats" link or `/chats` index page giving access to all conversations.
+- **Observed:**
+  - Sidebar shows exactly 10 items (newest first by `updated_at DESC`). Conversations #10–#14 are invisible.
+  - Only one Filament page exists: `ChatConversation` with slug `chats/{conversationId?}`. No index route.
+  - `grep -rn "ChatConversation\|/chats$" app/Filament/Pages/` → single result for `ChatConversation.php`. No index page.
+  - There is no "View all" link in the sidebar group header.
+- **Root cause:** Sidebar query is hard-limited to 10. No index page was built.
+- **Fix sketch:** Add a `/chats` Filament page listing all user conversations paginated, and add a "View all" link at the bottom of the sidebar group.
+
+### F-034: `wire:poll.60s` on sidebar is an at-scale AJAX flood
+
+- **Surface:** `packages/Chat/resources/views/livewire/app/chat/chat-sidebar-nav.blade.php:2`
+- **Severity:** P1 scalability
+- **Category:** performance
+- **Steps to reproduce:**
+  1. Read `chat-sidebar-nav.blade.php` line 1–10.
+  2. Calculate: 100k active users × 1 request/60s × 86,400s/day = ~144M Livewire requests/day.
+- **Expected:** Sidebar refreshes only when a conversation is actually created or renamed, via custom event.
+- **Observed:**
+  - `wire:poll.60s` fires unconditionally every 60 seconds for every user with the sidebar open.
+  - The same file already has `x-on:chat:conversation-created.window="$wire.$refresh()"` (line 7), which correctly handles new-conversation events from `handleConversationResolved`.
+  - In the Phase 5 poll test, a DB-inserted conversation appeared in the sidebar between the 30s and 40s check — consistent with a ~60s poll cycle.
+- **Root cause:** `wire:poll.60s` was added as a fallback/catch-all. The event-driven path (`chat:conversation-created`) already covers the new-conversation case; the poll adds no value once WS is healthy and is wasteful at scale.
+- **Fix sketch:** Remove `wire:poll.60s`. The `chat:conversation-created` event listener is sufficient for real-time updates. If offline-resilience is needed, use a conservative poll only when the Echo channel is disconnected.
+
+### F-035: `handleConversationResolved` cross-instance URL rewrite (extends F-016)
+
+- **Surface:** `packages/Chat/resources/views/livewire/chat/chat-interface.blade.php:257–269`
+- **Severity:** P1 logic
+- **Category:** correctness
+- **Steps to reproduce (static trace):**
+  1. Read `chat-interface.blade.php` lines 180–195 (Echo listener binds on `chat.${userId}` channel).
+  2. Read `handleConversationResolved` at line 257: unconditionally does `this.conversationId = event.conversationId` then `history.replaceState(...)`.
+  3. Identify scenarios where multiple `ChatInterface` components share the same user-scoped channel.
+- **Expected:** The handler guards on `conversationId` match before rewriting the URL.
+- **Observed:**
+  - No guard exists. `this.conversationId = event.conversationId` runs unconditionally on every instance.
+  - **Scenario A (side-panel + page):** User is on `/chats/A`. Side panel (conversationId=null) resolves a new conversation B. Both instances receive the event. The page-level instance overwrites its own `conversationId` to B and rewrites `window.location` from `/chats/A` to `/chats/B`.
+  - **Scenario B (two tabs):** Tab 1 on `/chats/A`, Tab 2 on `/chats/B`. Sending from Tab 1 resolves conversation C. Tab 2's listener fires and rewrites its URL to `/chats/C`.
+- **Root cause:** User-scoped Echo channel (`chat.${userId}`) means all UI instances share events. `handleConversationResolved` was written assuming one instance per user.
+- **Fix sketch:** Add a guard at the top of `handleConversationResolved`: `if (this.conversationId !== null && this.conversationId !== event.conversationId) return;` — lets side-panel (null) always handle it, page instances only handle their own.
+
+### F-036: No delete conversation UI — users cannot remove their own chats
+
+- **Surface:** `packages/Chat/resources/views/` (all Blade/Livewire views)
+- **Severity:** P1 UX
+- **Category:** missing feature
+- **Steps to reproduce:**
+  1. `grep -rn "destroy\|deleteConversation\|chat.conversations.destroy\|/chat/conversations/" packages/Chat/resources/ resources/`
+  2. Inspect the sidebar and chat page UI for any delete affordance.
+- **Expected:** A delete button or context menu item per conversation allowing the user to remove it.
+- **Observed:**
+  - Zero grep results in view files for any delete conversation UI.
+  - `DELETE chat/conversations/{conversation}` route exists (`chat.conversations.destroy`) and the `DeleteConversation` action works correctly (verified via tinker: returns `true`, row removed, cross-user deletion returns `false`).
+  - The backend is ready; there is simply no frontend affordance.
+- **Root cause:** Delete UI was not implemented.
+- **Fix sketch:** Add a trash icon button to each sidebar conversation item (visible on hover). Wire it to a Livewire action that calls `DeleteConversation::execute()` and dispatches `chat:conversation-created` to refresh the sidebar.
+
+### F-037: `DeleteConversation` does not clean up orphaned `pending_actions` rows
+
+- **Surface:** `packages/Chat/src/Actions/DeleteConversation.php:14–29`
+- **Severity:** P2 data-integrity
+- **Category:** correctness
+- **Steps to reproduce:**
+  1. Read `DeleteConversation::execute()` — only deletes `agent_conversations` and `agent_conversation_messages`.
+  2. Check `pending_actions` schema: `conversation_id` column present, no FK constraint to `agent_conversations`.
+  3. Delete a conversation that has associated `pending_actions` rows; query `pending_actions` for that `conversation_id`.
+- **Expected:** `pending_actions` rows for the deleted conversation are also deleted.
+- **Observed:**
+  - `DeleteConversation` deletes only two tables: `agent_conversations` and `agent_conversation_messages`.
+  - `pending_actions` has `conversation_id` with no FK constraint (confirmed via `information_schema.referential_constraints` — only `team_id` and `user_id` FKs exist).
+  - After conversation deletion, `pending_actions` rows with the deleted `conversation_id` remain indefinitely. They accumulate unbounded garbage.
+  - `extractPendingActions()` returns these orphans as `status=expired` (null DB lookup falls back to `'expired'`), so no immediate crash, but data is stale.
+- **Root cause:** Missing cleanup in `DeleteConversation::execute()`. No DB-level cascade constraint.
+- **Fix sketch:** Add `DB::table('pending_actions')->where('conversation_id', $conversationId)->delete();` inside the transaction in `DeleteConversation`.
+
+### F-038: `extractPendingActions` N+1 — one DB query per pending action per message render
+
+- **Surface:** `packages/Chat/src/Actions/ListConversationMessages.php:42–79` (`extractPendingActions` method)
+- **Severity:** P2 performance
+- **Category:** query efficiency
+- **Steps to reproduce:**
+  1. Read `extractPendingActions()` (lines 42–79).
+  2. Note `DB::table('pending_actions')->where('id', $pendingActionId)->value('status')` inside a `foreach` loop.
+  3. Load a conversation history with N messages each containing M pending_action tool results.
+- **Expected:** Single `whereIn` prefetch of all pending_action IDs, then local map.
+- **Observed:**
+  - Each message fires one `SELECT ... WHERE id = ?` per pending_action found in tool_results.
+  - For 20 messages × 2 pending actions each = 40 separate DB queries just to hydrate statuses during history load.
+- **Root cause:** Incremental DB lookup inside a loop; no batching across messages.
+- **Fix sketch:** Collect all `pending_action_id` values from all messages first, batch-fetch `DB::table('pending_actions')->whereIn('id', $ids)->pluck('status', 'id')`, then pass the status map into `extractPendingActions`.
+
+### F-039: Title truncation works correctly — P3 observability note
+
+- **Surface:** Sidebar title rendering + `agent_conversations.title` schema
+- **Severity:** P3 observability
+- **Category:** confirmation
+- **Steps to reproduce:**
+  1. Insert a conversation with 255-char title (max DB allows; 500-char throws `SQLSTATE[22001]`).
+  2. Reload sidebar, read `li:first-child a` text content and length.
+- **Expected:** Title truncated to ≤33 chars in the UI (30 + `...`).
+- **Observed:**
+  - DB: `varchar(255)` — rejects titles over 255 chars at the DB level.
+  - Sidebar: text length 33 (30 chars + `...`). `Str::limit($title, 30)` works correctly. ✓
+  - No XSS risk: Blade escapes HTML entities.
+- **Root cause:** Nominal.
+- **Fix sketch:** None required.
+
+### F-040: U+202E RTL override character passes through `Str::limit` and renders in sidebar
+
+- **Surface:** Sidebar title rendering (`chat-sidebar-nav.blade.php`)
+- **Severity:** P3 security (UX hardening)
+- **Category:** input sanitization
+- **Steps to reproduce:**
+  1. Insert conversation with title containing U+202E (RTL override) and U+202C (PDF).
+  2. Reload sidebar, read `li:first-child a innerHTML`.
+- **Expected:** Bidi override characters stripped or escaped before rendering.
+- **Observed:**
+  - `innerHTML` includes U+202E (`‮`) and U+202C (`‬`) unescaped in the DOM.
+  - Blade escapes HTML entities so this is not an XSS vector. However, U+202E can visually reverse text direction in the rendered sidebar label.
+  - Not exploitable for code injection but could be used for phishing-style social engineering within the app.
+- **Root cause:** No Unicode bidi sanitization on conversation title input or display.
+- **Fix sketch:** Strip Unicode bidi control characters (U+202A–U+202E, U+2066–U+2069, U+200F) from titles at save time, or add a sanitization helper before rendering.
