@@ -182,3 +182,115 @@ Fixtures: database/seeders/ChatQaSeeder.php
 - **Root cause hypothesis:** Local Reverb has no TLS cert; browser blocks ws from https origin. Fix for local dev: point Herd to proxy a secured subdomain (`ws.relaticle-pr-209.test`) to Reverb, or run the app over http for testing.
 - **Proposed Pest test (Phase 14):** N/A — env concern only.
 - **Fix sketch:** For this QA run, verify broadcasts by inspecting server-side Reverb connection logs + Laravel log + DB state instead of client-side WS reception.
+
+### F-008: Phase 1 Task 1.1 — Dashboard renders; greeting uses server UTC, wrong for non-UTC users
+
+- **Surface:** `app/Filament/Pages/Dashboard.php:50-55` / `https://app.relaticle-pr-209.test/chat-qas-team-nyzen/dashboard`
+- **Severity:** P2 minor
+- **Category:** UX / correctness
+- **Steps to reproduce:**
+  1. Log in as `chat-qa@relaticle.test` from a browser in a UTC+4 timezone.
+  2. Navigate to `https://app.relaticle-pr-209.test/chat-qas-team-nyzen/dashboard` at 14:00 local time.
+  3. Observe the greeting heading.
+- **Expected:** Greeting reflects the user's local time of day — "Good afternoon" at 14:00 local.
+- **Observed:** Greeting reads "Good morning, Chat." Server UTC hour was 10 (`APP_TIMEZONE=UTC`); local system hour was 14. `Dashboard.php:50` calls `now()->format('H')` which uses `config('app.timezone')` = UTC, ignoring the user's timezone entirely.
+- **Root cause hypothesis:** `Dashboard.php` derives the hour from the server/app timezone rather than a user-preference timezone. No user timezone column exists on the users table.
+- **Proposed Pest test (Phase 14):**
+  ```php
+  // file: tests/Feature/Chat/DashboardGreetingTest.php
+  it('greeting reflects afternoon for a user in UTC+4', function () {
+      $this->travelTo(now()->setTimezone('UTC')->setHour(10)); // 14:00 UTC+4
+      $user = User::factory()->withPersonalTeam()->create(['timezone' => 'Asia/Baku']);
+      actingAs($user);
+      livewire(\App\Filament\Pages\Dashboard::class)
+          ->assertSeeHtml('Good afternoon');
+  });
+  ```
+- **Fix sketch:** Store a `timezone` column on users; in `Dashboard::getGreeting()` use `now($user->timezone ?? config('app.timezone'))` to compute the hour. Fall back to `config('app.timezone')` for users without a preference.
+- **Screenshots:** `.context/screenshots/01-dashboard.png`
+
+### F-009: Phase 1 Task 1.1 — Dashboard renders with 8 suggested prompts and no page-level 500
+
+- **Surface:** `https://app.relaticle-pr-209.test/chat-qas-team-nyzen/dashboard`
+- **Severity:** P3 polish
+- **Category:** observability
+- **Steps to reproduce:**
+  1. Navigate to dashboard as `chat-qa@relaticle.test`.
+  2. Count `<button>` elements whose text matches `/CRM overview|Overdue tasks|Recent companies|Pipeline summary/`.
+  3. Check browser errors for 500 responses.
+- **Expected:** Page renders (HTTP 200), ≥4 suggested prompt buttons visible.
+- **Observed:**
+  - Dashboard page rendered successfully (no page-level 500; earlier F-005 500 is resolved in the QA environment).
+  - 8 suggested prompt buttons found matching the CRM overview / Overdue tasks / Recent companies / Pipeline summary pattern.
+  - `window.Echo` and `window.Pusher` remain undefined (pre-existing F-004/F-006).
+  - WSS timeout errors visible in console (pre-existing F-007).
+  - One `500` resource error in console log — unrelated to main dashboard render (Boost browser-logger endpoint at `https://filament-demo.test/_boost/browser-logs`).
+  - Two Flowforge errors: `Could not determine card ID for move operation` and `Target column ID is missing` — appear to be from a different panel/page bleeding into the console log cache, not triggered by this page.
+- **Root cause hypothesis:** Nominal — dashboard renders correctly for Phase 1. Pre-existing findings (F-004, F-005, F-006, F-007) account for all console errors.
+- **Proposed Pest test (Phase 14):**
+  ```php
+  // file: tests/Feature/Chat/DashboardTest.php
+  it('dashboard renders with suggested prompts', function () {
+      $user = User::factory()->withPersonalTeam()->create();
+      actingAs($user);
+      livewire(\App\Filament\Pages\Dashboard::class)
+          ->assertSee('CRM overview')
+          ->assertSee('Overdue tasks');
+  });
+  ```
+- **Fix sketch:** N/A — observability entry only.
+
+### F-010: Phase 1 Task 1.3 — Chats sidebar group visible but shows no empty-state placeholder under zero conversations
+
+- **Surface:** Sidebar nav / `[data-group-label="Chats"]` element
+- **Severity:** P2 minor
+- **Category:** UX
+- **Steps to reproduce:**
+  1. Log in as `chat-qa@relaticle.test` (no conversations yet).
+  2. Navigate to dashboard.
+  3. Inspect sidebar: `document.querySelector('[data-group-label="Chats"]')?.textContent?.trim()`.
+- **Expected:** `chatsGroup: true`; empty state copy visible (e.g. "No conversations yet" or "Start a new chat").
+- **Observed:** `chatsGroup: true`, `itemCount: 0`. The group renders only the label text "Chats" with a blank area beneath — no hint that the user should start a conversation. A first-time user sees a blank section with no affordance.
+- **Root cause hypothesis:** The sidebar navigation component for "Chats" renders the group header and a list, but the list empty state is absent — no `<li>` placeholder or descriptive text is rendered when the conversation list is empty.
+- **Proposed Pest test (Phase 14):**
+  ```php
+  // file: tests/Feature/Chat/SidebarTest.php
+  it('shows empty state copy in chats sidebar group when no conversations exist', function () {
+      $user = User::factory()->withPersonalTeam()->create();
+      actingAs($user);
+      get(route('filament.app.pages.dashboard', ['tenant' => $user->currentTeam->slug]))
+          ->assertSee('No conversations yet');
+  });
+  ```
+- **Fix sketch:** In the component that renders the Chats sidebar group, add a conditional: when the conversation list is empty, render a small muted-text placeholder `<li>` such as "No conversations yet. Start one →".
+
+### F-011: Phase 1 Task 1.2 & 1.4 — Chat toggle button and chat empty-state page both nominal
+
+- **Surface:** `[data-chat-toggle]` button / `https://app.relaticle-pr-209.test/chat-qas-team-nyzen/chats`
+- **Severity:** P3 polish
+- **Category:** observability
+- **Steps to reproduce:**
+  1. On dashboard, eval `document.querySelector("[data-chat-toggle]")?.offsetParent !== null` — should be true.
+  2. Eval `document.querySelector("[data-chat-toggle] kbd")?.textContent?.trim()` — should be `"⌘J"`.
+  3. Navigate to `/chats` (no id), wait for `textarea[placeholder="Ask anything..."]`.
+  4. Assert `h1` = "New chat", textarea enabled, empty state copy present.
+- **Expected:** Toggle visible, kbdText = "⌘J", `/chats` page shows h1 "New chat" with input enabled and "Start a conversation..." copy.
+- **Observed:**
+  - Toggle: `visible: true`, `kbdText: "⌘J"` — correct.
+  - `/chats` page title = "New chat - Relaticle", h1 = "New chat", textarea enabled, empty state copy = "Start a conversation..." (appears twice in DOM — once in each locale variant or duplication).
+  - No 500/4xx errors on the `/chats` route.
+- **Root cause hypothesis:** Nominal — both surfaces render as designed. The double "Start a conversation..." may be a DOM duplication worth a follow-up look (same text node cloned for e.g. sr-only and visible spans), but not a functional issue.
+- **Proposed Pest test (Phase 14):**
+  ```php
+  // file: tests/Feature/Chat/ChatPageTest.php
+  it('chat page without id shows empty state', function () {
+      $user = User::factory()->withPersonalTeam()->create();
+      actingAs($user);
+      get(route('filament.app.chats.index', ['tenant' => $user->currentTeam->slug]))
+          ->assertOk()
+          ->assertSee('New chat')
+          ->assertSee('Start a conversation');
+  });
+  ```
+- **Fix sketch:** N/A — observability entry. Investigate duplicate "Start a conversation..." text node in Phase 2.
+- **Screenshots:** `.context/screenshots/01-chat-empty.png`
