@@ -848,6 +848,106 @@ Tasks 4.1–4.14 executed. All HTTP routes tested via browser `fetch()` (authent
 - **Root cause:** Nominal.
 - **Fix sketch:** None required.
 
+---
+
+## Phase 6 — `/chat/mentions` API (2026-04-17)
+
+### F-041: `/chat/mentions` — dead endpoint, no UI consumer
+
+- **Surface:** `packages/Chat/src/Http/Controllers/ChatController.php::mentions`, registered as `chat.mentions` in `packages/Chat/routes/chat.php`
+- **Severity:** P1 missing feature
+- **Category:** completeness
+- **Steps to reproduce:**
+  1. `grep -rn "chat/mentions\|chat\.mentions\|mentions" packages/Chat/resources/ resources/ app/`
+  2. Read `chat-interface.blade.php` — textarea with no `@` keydown handler.
+- **Expected:** `@`-triggered typeahead dropdown in the chat input calling `/chat/mentions?q=`.
+- **Observed:** Zero references to `chat/mentions` or `chat.mentions` outside the route file and controller. The chat input (`chat-interface.blade.php`) is a plain `<textarea>` with no mention-trigger logic. The endpoint is fully implemented server-side but never called from any UI.
+- **Root cause:** Server implementation was merged before the front-end @mention component was built.
+- **Fix sketch:** Add Alpine.js `@keydown` handler detecting `@` in the textarea; on trigger, fetch `/chat/mentions?q=<typed>` and render a floating results list. On item select, insert `@[name]` into the input.
+
+### F-042: `q` parameter accepts raw `%` wildcard — enables full-team data enumeration
+
+- **Surface:** `ChatController::mentions` — query built as `"ilike", "%{$search}%"` with no escaping of LIKE special chars
+- **Severity:** P2 security
+- **Category:** input sanitization
+- **Steps to reproduce:**
+  1. `GET /chat/mentions?q=%%` → HTTP 200, `data` count = 15 (capped by `take(15)`).
+  2. `GET /chat/mentions?q=a%` → HTTP 200, count = 15. Same result — `%` is treated as a wildcard by Postgres.
+  3. Paginate with offset patterns to exfiltrate full CRM contents.
+- **Expected:** `%` and `_` in `q` treated as literal characters (escaped to `\%` and `\_` before interpolation).
+- **Observed:** `q=%%` returns 15 results; `q=a%` returns 15 results. Any logged-in user can enumerate their entire team's companies, people, opportunities, and tasks without knowing any names.
+- **Root cause:** Missing `str_replace(['%', '_'], ['\%', '\_'], $search)` before interpolating into `ilike "%{$search}%"`.
+- **Fix sketch:**
+  ```php
+  $escaped = str_replace(['\\', '%', '_'], ['\\\\', '\%', '\_'], $search);
+  // then use "%{$escaped}%" in the ilike clause
+  ```
+
+### F-043: No rate limit on `/chat/mentions` — brute-force / scraping vector
+
+- **Surface:** `packages/Chat/routes/chat.php` — no `throttle` middleware on the `chat.mentions` route
+- **Severity:** P2 security
+- **Category:** rate limiting
+- **Steps to reproduce:**
+  1. Issue 1000 rapid `GET /chat/mentions?q=%%` requests.
+  2. All return 200; no 429 observed.
+- **Expected:** Route protected by `throttle:60,1` (60 req/min) consistent with other API endpoints.
+- **Observed:** No rate-limit header (`X-RateLimit-Limit`) in response. Unlimited requests accepted.
+- **Root cause:** Route was registered without a throttle middleware.
+- **Fix sketch:** Add `->middleware('throttle:60,1')` to the `chat.mentions` route definition in `routes/chat.php`.
+
+### F-044: No `max` validation on `q` parameter — 10 000-char query hits Postgres
+
+- **Surface:** `ChatController::mentions` — `$request->string('q')` with only `length() < 2` guard
+- **Severity:** P3 validation
+- **Category:** input validation
+- **Steps to reproduce:**
+  1. `GET /chat/mentions?q=<10000-char string>` → HTTP 200, no error.
+  2. Postgres executes `ilike '%<10000 chars>%'` — full sequential scan on every entity table.
+- **Expected:** Request rejected with 422 when `q` exceeds a sensible maximum (e.g. 100 chars).
+- **Observed:** HTTP 200, empty `data` array. No validation error. The 10 000-char LIKE pattern is passed to Postgres unchanged.
+- **Root cause:** No `max:100` rule on the `q` parameter.
+- **Fix sketch:** Add `$request->validate(['q' => ['nullable', 'string', 'max:100']]);` at the top of `mentions()`.
+
+### F-045: Per-type `limit(5)` caps each entity type correctly — P3 confirmation
+
+- **Surface:** `ChatController::mentions` — per-type `limit(5)`, total `take(15)`
+- **Severity:** P3 observability
+- **Category:** confirmation
+- **Steps to reproduce:**
+  1. Seed 7 companies named `Phase6Limit C0`–`C6`.
+  2. `GET /chat/mentions?q=Phase6Limit` — observe result count.
+- **Expected:** 5 results (per-type limit enforced).
+- **Observed:** Count = 5. Only companies C0–C4 returned; C5 and C6 suppressed. `take(15)` outer cap not reached since only one entity type matches. ✓
+- **Root cause:** Nominal.
+- **Fix sketch:** None required. Note for product: if users need more than 5 results per type, expose a `limit` param or a dedicated search endpoint.
+
+### F-046: Case-insensitive search via Postgres `ilike` works correctly — P3 confirmation
+
+- **Surface:** `ChatController::mentions` — `where('name', 'ilike', "%{$search}%")`
+- **Severity:** P3 observability
+- **Category:** confirmation
+- **Steps to reproduce:**
+  1. Seed `Phase6 Alpha Inc`, `Phase6 Alpha Contact`, `Phase6 Alpha Deal`, `Phase6 Alpha Task`.
+  2. Query `q=alpha`, `q=ALPHA`, `q=aLpHa` — compare result sets.
+- **Expected:** All three return the same 4 records.
+- **Observed:** All three return identical 4-item arrays. `ilike` is case-insensitive on Postgres. ✓ Tasks correctly map `title` → `name` in the response payload.
+- **Root cause:** Nominal.
+- **Fix sketch:** None required.
+
+### F-047: Tenant isolation holds — no cross-team data leak
+
+- **Surface:** `ChatController::mentions` — `whereBelongsTo($team)` scope on all four entity queries
+- **Severity:** P3 confirmation (P0 if it had failed)
+- **Category:** data isolation
+- **Steps to reproduce:**
+  1. Authenticate as `chat-qa@relaticle.test` (team `chat-qas-team-nyzen`).
+  2. `GET /chat/mentions?q=OTHER-TEAM` — other team has companies named `OTHER-TEAM-ACME*`.
+- **Expected:** Empty `data` array.
+- **Observed:** `{"data":[]}` — no cross-team records returned. ✓ `whereBelongsTo($team)` global scope filters correctly.
+- **Root cause:** Nominal.
+- **Fix sketch:** None required.
+
 ### F-040: U+202E RTL override character passes through `Str::limit` and renders in sidebar
 
 - **Surface:** Sidebar title rendering (`chat-sidebar-nav.blade.php`)
