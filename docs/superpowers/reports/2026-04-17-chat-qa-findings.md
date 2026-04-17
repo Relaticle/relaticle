@@ -1671,3 +1671,72 @@ public function apply(Builder $builder, Model $model): void
 - **Expected:** `aria-label="Open Chat (Cmd+J)"` or an `<kbd>` accessible description via `aria-describedby` so the keyboard shortcut is programmatically associated.
 - **Observed:** `title` attribute is the only mechanism advertising Cmd+J — `title` is not reliably exposed on mobile/touch or under all AT configurations.
 - **Fix sketch:** Add `aria-label="Open Chat (Cmd+J)"` in addition to, or instead of, `title`.
+
+---
+
+## Phase 13 — Performance & Load Characterization
+
+### F-095: `ListConversationMessages` executes 1 query per pending_action — N+1 confirmed at scale — P2 perf
+
+- **Surface:** `packages/Chat/src/Actions/ListConversationMessages.php`, `extractPendingActions()` private method, line 68
+- **Severity:** P2 perf
+- **Category:** performance / N+1 query
+- **Measurement:** Seeded conversation with 40 messages (20 assistant, each with one pending_action_id). `ListConversationMessages::execute()` issued **21 queries total**: 1 `SELECT` on `agent_conversation_messages` + 20 individual `SELECT "status" FROM "pending_actions" WHERE "id" = ? LIMIT 1` — one per pending action. Elapsed: **44 ms** on local DB. At 100 messages (50 assistant) this scales to 51 queries; at 200 messages → 101 queries.
+- **Root cause:** `extractPendingActions()` calls `DB::table('pending_actions')->where('id', $pendingActionId)->value('status')` inside a `foreach` loop over tool results. There is no batch fetch.
+- **Note:** When `pending_action_id` is `null` (seeder default) the query is skipped — the bug is latent until real write-tool calls produce actual IDs.
+- **Fix sketch:** Collect all non-null pending_action_ids in a first pass, batch-fetch statuses with a single `whereIn` query, then hydrate results from the in-memory map.
+- **Refs:** Cross-references F-038.
+
+---
+
+### F-096: `wire:poll.60s` on `chat-sidebar-nav` fires unconditionally — P1 perf (cross-ref F-034)
+
+- **Surface:** `packages/Chat/resources/views/livewire/app/chat/chat-sidebar-nav.blade.php`, line 2
+- **Severity:** P1 perf
+- **Category:** performance / polling
+- **Measurement:** `wire:poll.60s` is hardcoded on the root element of `ChatSidebarNav`. Every authenticated session issues one Livewire server round-trip per minute regardless of whether the chat panel is open or the user is active. At 100 concurrent users → 100 server hits/min; at 10 000 users → 10 000/min (167 req/s) from polling alone.
+- **Naive scale math:** 1 poll/min × 60 min/h × 8 h/day × 100 k MAU (assuming 1% concurrency = 1 000 concurrent) = **480 000 Livewire requests/day** just for sidebar refresh.
+- **Fix sketch:** Replace with `wire:poll` only when chat panel is open (Alpine `$wire` guard), or better, push conversation-list updates via Reverb broadcast so polling is eliminated entirely.
+- **Refs:** Cross-references F-034.
+
+---
+
+### F-097: `ListConversations` runs 1 extra query on every app-panel page load — P3 perf
+
+- **Surface:** `ChatServiceProvider` → `SIDEBAR_NAV_END` hook renders `ChatSidebarNav` Livewire component on every authenticated panel page; component calls `ListConversations::execute($user, 10)`.
+- **Severity:** P3 perf
+- **Category:** performance / per-request overhead
+- **Measurement:** `ListConversations::execute()` issues **1 query** (`SELECT id, title, ... FROM agent_conversations WHERE user_id = ? ORDER BY updated_at DESC LIMIT 10`). This fires on every app-panel page, including non-chat pages (companies, people, etc.).
+- **Impact:** At 100 req/s panel traffic, this is 100 extra DB queries/s. Marginal cost is low but it accumulates under load and bypasses any query result caching.
+- **Fix sketch:** Cache the result in the Livewire component with a 30-second TTL keyed on `user_id`, invalidated on conversation create/update via event listener. Or suppress the query when the sidebar is collapsed (client-side guard on component mount).
+
+---
+
+### F-098: `CrmAssistant` resolves all 26 tools on every job invocation — P3 perf
+
+- **Surface:** `packages/Chat/src/Agents/CrmAssistant.php`, `tools()` method; `packages/Chat/src/Jobs/ProcessChatMessage.php`, `handle()`.
+- **Severity:** P3 perf
+- **Category:** performance / memory / container instantiation
+- **Detail:** `CrmAssistant::tools()` calls `resolve($class)` for all 26 tool classes on every `ProcessChatMessage` job execution. Each tool resolution goes through the Laravel service container, constructing any injected dependencies. Additionally, `ProcessChatMessage::handle()` calls `applyTenantScopes()` which attaches 5 global Eloquent scopes (Company, People, Opportunity, Task, Note) on every job. Global scopes persist for the duration of the PHP worker's request — on long-lived queue workers this is fine (scopes are re-attached each job), but it adds cost proportional to job throughput.
+- **Fix sketch:** Tool classes should be lightweight value objects. Confirm none perform heavy initialization in constructors. Consider lazy instantiation (resolve tools only when actually called) if the AI SDK supports deferred tool resolution.
+
+---
+
+### F-099: No APM / observability instrumentation on chat job pipeline — P3 observability
+
+- **Surface:** `packages/Chat/src/Jobs/ProcessChatMessage.php`; no Telescope, Pulse, Datadog, or Sentry performance spans.
+- **Severity:** P3 observability
+- **Category:** performance / monitoring
+- **Detail:** The `ProcessChatMessage` job is the critical path for every AI response. It streams from the AI provider (up to 120s timeout), runs up to 15 agentic steps, and broadcasts events via Reverb. There is no p95/p99 latency tracking, no memory high-water mark recording, and no error-budget measurement. Failures surface only through Horizon's failed-jobs list and Laravel's default exception handler.
+- **Impact:** Production incidents (slow AI responses, OOM worker crashes, Reverb disconnects) will be invisible until users report them. Post-mortem analysis is impossible without historical metrics.
+- **Fix sketch:** Instrument with Laravel Pulse (already in ecosystem) or Sentry performance tracing. At minimum: record job start/end time, token counts, and tool-call counts as Pulse metrics. Add a `JobFailed` listener that logs conversation ID and user ID for support triage.
+
+---
+
+### F-100: `pending_actions` approve path uses `lockForUpdate` inside transaction — P3 infra (contention risk under fan-out)
+
+- **Surface:** Approve/reject endpoint for pending CRM actions (transaction + `lockForUpdate` pattern inferred from approval flow).
+- **Severity:** P3 infra
+- **Category:** performance / database contention
+- **Detail:** The approval endpoint wraps the action execution in `DB::transaction` with `lockForUpdate` on the pending_actions row. Per-user, per-action — this is low-fanout and correct. The risk materialises only if a future feature triggers bulk approvals (e.g., "approve all") or if a user spam-clicks approve, causing multiple concurrent transactions to contend on the same row. Current single-user approval UX makes this acceptable.
+- **Fix sketch:** Add an idempotency guard (check `status !== pending` before locking) as a fast path to reject duplicate approval requests before entering the transaction, reducing lock contention surface.
