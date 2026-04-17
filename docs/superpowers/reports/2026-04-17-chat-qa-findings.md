@@ -294,3 +294,152 @@ Fixtures: database/seeders/ChatQaSeeder.php
   ```
 - **Fix sketch:** N/A — observability entry. Investigate duplicate "Start a conversation..." text node in Phase 2.
 - **Screenshots:** `.context/screenshots/01-chat-empty.png`
+
+---
+
+## Phase 2 Findings (Tasks 2.1–2.5)
+
+### F-012: Task 2.1 — Dashboard hero redirects correctly but URL querystring leaks after conversation.resolved
+
+- **Surface:** Dashboard hero → `GET /{slug}/chats?message=…` → `handleConversationResolved`
+- **Severity:** P1 major
+- **Category:** UX / URL routing
+- **Steps to reproduce:**
+  1. Navigate to dashboard as `chat-qa@relaticle.test`.
+  2. Type "Say hi in exactly 5 words" in the hero textarea and press Enter.
+  3. Browser redirects to `/{slug}/chats?message=Say+hi+in+exactly+5+words`.
+  4. Alpine `init()` detects `initialMessage`, calls `sendMessage()`, job processes, `conversation.resolved` fires.
+  5. Observe `window.location.href` after `handleConversationResolved` runs.
+- **Expected:** URL rewritten to `/{slug}/chats/{newConversationId}` — querystring dropped.
+- **Observed:** URL remains `/{slug}/chats?message=Say+hi+in+exactly+5+words` — the conversation ID is never appended.
+- **Root cause:** `handleConversationResolved` calls two `.replace()` on `window.location.pathname`. Neither regex matches `/chats?…` because:
+  - Regex 1: `/\/chats\/.*$/` — requires a slash after `/chats`, fails on `?`.
+  - Regex 2: `/\/chats\/?$/` — the `$` anchor fails because `?message=…` trails the pathname on the raw `pathname` string.
+  - Verified with Node.js: `'/slug/chats?message=foo'.replace(/\/chats\/.*$/, '...')` → unchanged.
+- **Browser-confirmed:** After job completed and `conversation.resolved` broadcast, URL stayed as `/chats?message=Say+hi+in+exactly+5+words`. New conversation `019d9afe-9587-727f-aab3-392a4862d5bd` ("Hello everyone nice to meet") was created in DB but URL never updated.
+- **Proposed fix:** Strip the querystring before computing the rewrite path:
+  ```js
+  handleConversationResolved(event) {
+      this.conversationId = event.conversationId;
+      const pathOnly = window.location.pathname;
+      const path = pathOnly
+          .replace(/\/chats\/.*$/, '/chats/' + event.conversationId)
+          .replace(/\/chats\/?$/, '/chats/' + event.conversationId);
+      history.replaceState(null, '', path);
+      // ...
+  }
+  ```
+  Replace `window.location.pathname` lookup with `pathOnly` and ensure the second `.replace` always drops any trailing `?…`.
+- **Proposed Pest test (Phase 14):** Static JS unit test; no server-side Pest equivalent.
+- **Screenshots:** `.context/screenshots/05-url-stuck-with-message-param.png`
+
+### F-013: Task 2.2 — Send-message happy path nominal; job runs, messages persist, credits deducted
+
+- **Surface:** `POST /chat` → `ProcessChatMessage` job → DB messages + credit transaction
+- **Severity:** P3 observability
+- **Category:** happy path
+- **Steps to reproduce:**
+  1. Navigate to `/{slug}/chats?message=What%20is%202%2B2%3F`.
+  2. Alpine auto-sends; `ProcessChatMessage` job dispatched to `queues:default`.
+  3. Job completes within ~5 s on Horizon.
+  4. Query DB: `agent_conversations`, `agent_conversation_messages`, `ai_credit_balances`, `ai_credit_transactions`.
+- **Expected:** 1 conversation, 2 messages (user + assistant), `credits_remaining` decremented, transaction with non-null model.
+- **Observed (all passing):**
+  - Conversation: `id=019d9afa-1f60-71bd-86e1-a866f5b5482d`, title="Simple Math Question".
+  - Messages: `msg_count=2`, `roles=["user","assistant"]`, assistant content: `"4! 😄\n\nThat said, I'm specifically designed to help you manage your CRM data…"`.
+  - Credits before: `remaining=500, used=0`. Credits after: `remaining=499, used=1`.
+  - Last transaction: `model=claude-sonnet-4-6`, `charged=1`, `input_tokens=3451`, `output_tokens=57`.
+  - Model name is correctly populated (not "unknown").
+- **Root cause hypothesis:** N/A — nominal path working correctly.
+- **Fix sketch:** N/A.
+
+### F-014: Task 2.3 — Broadcast event names match client listeners; no mismatch
+
+- **Surface:** `vendor/laravel/ai/src/Streaming/Events/` vs `packages/Chat/resources/views/livewire/chat/chat-interface.blade.php:184–187`
+- **Severity:** P3 observability
+- **Category:** static analysis
+- **Steps to reproduce:**
+  1. Check `TextDelta::toArray()['type']`, `StreamEnd::toArray()['type']`, `ToolResult::toArray()['type']`.
+  2. Check `ConversationResolved::broadcastAs()`.
+  3. Compare to `.listen()` calls in `chat-interface.blade.php`.
+- **Expected:** Names match exactly.
+- **Observed:** All four match:
+  - SDK `TextDelta::type()` → `"text_delta"` ↔ `.listen('.text_delta', …)` ✓
+  - SDK `StreamEnd::type()` → `"stream_end"` ↔ `.listen('.stream_end', …)` ✓
+  - SDK `ToolResult::type()` → `"tool_result"` ↔ `.listen('.tool_result', …)` ✓
+  - `ConversationResolved::broadcastAs()` → `"conversation.resolved"` ↔ `.listen('.conversation.resolved', …)` ✓
+  - Note: `StreamEvent::broadcast()` uses `->as($this->type())` (no leading dot); Laravel Echo automatically prepends `.` when listening on private channels — so the dot-prefix in listener calls is correct.
+- **Fix sketch:** N/A.
+
+### F-015: Task 2.4 — `PendingActionService::createProposal()` crashes with `$user = null` in queued job context
+
+- **Surface:** `ProcessChatMessage` job → `BaseWriteCreateTool::handle()` → `PendingActionService::createProposal()`
+- **Severity:** P0 blocker
+- **Category:** crash / data loss
+- **Steps to reproduce:**
+  1. Navigate to `/{slug}/chats/{conversationId}` with a live conversation.
+  2. Send: "Please create a company called QA Test Corp with website qa-test.example."
+  3. AI model decides to call `CreateCompanyTool`.
+  4. `BaseWriteCreateTool::handle()` calls `auth()->user()` — returns `null` (no session in queued job).
+  5. `PendingActionService::createProposal(user: null, …)` throws `TypeError`.
+- **Expected:** `PendingAction` record created with `status=pending`, company NOT yet created, response returned to user.
+- **Observed:**
+  - Job UUID `62956f02-5860-47fc-8c96-2b0acbb1294f` landed in `failed_jobs` at `2026-04-17 10:26:57`.
+  - Exception: `TypeError: PendingActionService::createProposal(): Argument #1 ($user) must be of type App\Models\User, null given`.
+  - Stack: `BaseWriteCreateTool.php:40 → auth()->user()` returns `null`.
+  - No `PendingAction` row created. Conversation has no new messages persisted (stays at 2). Credits NOT charged (`.then()` callback never ran).
+  - Company NOT created (correct isolation, but flow is fully broken).
+- **Root cause:** `BaseWriteCreateTool::handle()` uses `auth()->user()` to retrieve the current user. Queued jobs run in a CLI context with no HTTP session; the `web` auth guard has no authenticated user. The `ProcessChatMessage` job holds `$this->user` but does not bind it into the auth context before running the agent — tools inside the agent cannot access the user via `auth()`.
+- **Fix sketch:** In `ProcessChatMessage::handle()`, bind the user into the auth guard before streaming:
+  ```php
+  auth()->setUser($this->user);
+  ```
+  Or pass `$user` explicitly into `BaseWriteCreateTool` via constructor injection using the agent's tool-resolution mechanism, rather than relying on `auth()->user()`.
+- **Proposed Pest test (Phase 14):**
+  ```php
+  it('creates a pending action when AI proposes a company', function () {
+      $user = User::factory()->withPersonalTeam()->create();
+      $team = $user->currentTeam;
+      // ensure credits available
+      AiCreditBalance::factory()->for($team)->create(['credits_remaining' => 100]);
+
+      Bus::fake();
+      $response = actingAs($user)->postJson('/chat', ['message' => 'Create company Acme']);
+      $response->assertOk();
+
+      Bus::assertDispatched(ProcessChatMessage::class);
+  });
+  ```
+
+### F-016: Task 2.5 — Dual-instance `handleConversationResolved` race and querystring-clobbering in URL rewrite regex
+
+- **Surface:** `handleConversationResolved` in `chat-interface.blade.php:260–268`; side panel + full-page simultaneous mount
+- **Severity:** P1 major
+- **Category:** correctness / UX
+- **Steps to reproduce (dual instance):**
+  1. Open any page that renders both the Filament side panel (`@livewire('app.chat.chat-side-panel')`) and the full `ChatConversation` page — which is possible when navigating to `/{slug}/chats/{id}` while the side panel is also visible.
+  2. Both `chat-interface` Alpine components mount and call `setupEchoListener()`.
+  3. Both subscribe to `window.Echo.private('chat.{userId}')` and both register `.conversation.resolved` handlers.
+  4. When `ConversationResolved` is broadcast, both handlers fire on the same `window`.
+  5. Both call `history.replaceState(null, '', path)` with potentially different `path` values (side panel may have `conversationId = null`, full page may have a different `conversationId`).
+- **Expected:** Only one `history.replaceState` call; URL set to the new `/{slug}/chats/{newId}`.
+- **Observed (static analysis):** Two `chat-interface` instances are rendered simultaneously — one in `chat-conversation.blade.php:3-5` and one in `chat-side-panel.blade.php:89-93`. Both initialize Echo listeners on the same private channel. Last-write-wins is non-deterministic.
+- **Steps to reproduce (querystring clobbering — variant of F-012):**
+  1. Existing conversation URL: `/{slug}/chats/some-uuid?message=foo`.
+  2. `conversation.resolved` fires (e.g., after a new message on the same page).
+  3. Regex 1 `/\/chats\/.*$/` matches `"/chats/some-uuid?message=foo"` and replaces the entire suffix including the querystring.
+  4. Result: `/{slug}/chats/{newId}` — querystring silently dropped.
+  - This is usually the desired outcome, but it discards any legitimate querystring parameters that may be added in the future (bookmarked filters, etc.).
+- **Root cause (dual instance):** No guard against multiple `chat-interface` instances subscribing to the same Echo channel.
+- **Root cause (querystring):** Greedy regex `/\/chats\/.*$/` consumes `?` and beyond — correct for the existing conversationId case but a latent clobber risk; and neither regex handles `/chats?…` (bare chats with querystring, as shown in F-012).
+- **Fix sketch:**
+  1. Deduplicate listeners: use a module-level flag or a `window.__chatEchoListener` guard so only one `chat-interface` subscribes at a time.
+  2. Fix URL rewrite to handle querystrings explicitly:
+     ```js
+     const pathOnly = window.location.pathname;
+     const newPath = pathOnly
+         .replace(/\/chats(\/[^?]*)?$/, '/chats/' + event.conversationId);
+     history.replaceState(null, '', newPath);
+     ```
+- **Proposed Pest test (Phase 14):** JS unit test for the rewrite logic.
+- **Screenshots:** `.context/screenshots/05-url-stuck-with-message-param.png`
