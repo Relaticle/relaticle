@@ -1551,3 +1551,123 @@ public function apply(Builder $builder, Model $model): void
   - Client-side Pusher.js may silently disconnect and miss deltas if the WebSocket auth endpoint (`/broadcasting/auth`) rejects re-subscription (returns 403 for expired session). Reverb has no event replay.
 - **Root cause:** Reverb/Pusher has no replay mechanism; client auth path is session-dependent.
 - **Fix sketch:** Extend session lifetime for active streaming contexts, or implement client-side reconnect with a fallback HTTP poll for the final persisted message.
+
+---
+
+## Phase 12 — Accessibility Audit (F-087..F-094)
+
+### F-087: No `aria-live` region on assistant message output — screen readers receive no announcement during streaming — P1 a11y
+
+- **Surface:** `chat-interface.blade.php` — assistant message bubble
+- **Severity:** P1 a11y
+- **Category:** accessibility / WCAG 2.2 AA
+- **Steps to reproduce:**
+  1. Open chat with a screen reader (VoiceOver / NVDA).
+  2. Send a message.
+  3. Observe: assistant reply streams into `x-html="msg.content"` inside a plain `<div>` with no `aria-live`, `role="log"`, or `role="status"`.
+- **Expected:** `aria-live="polite"` (or `role="log"`) wrapping the messages container so new assistant content is announced.
+- **Observed:** Zero matches for `aria-live`, `role="log"`, `role="status"` in `chat-interface.blade.php`. The entire conversation is invisible to screen-reader users mid-stream.
+- **Root cause:** `<div x-ref="messages" ...>` has no live-region semantics.
+- **Fix sketch:** Add `role="log" aria-live="polite" aria-label="Conversation"` to the messages container `div`.
+
+---
+
+### F-088: Send button is icon-only with no `aria-label` — P2 a11y
+
+- **Surface:** `chat-interface.blade.php` lines 147–154
+- **Severity:** P2 a11y
+- **Category:** accessibility / WCAG 1.1.1
+- **Steps to reproduce:**
+  1. Inspect the submit button: `<button type="submit" ...><x-heroicon-s-arrow-up .../></button>`.
+  2. No `aria-label`, no `title`, no visible text.
+- **Expected:** `aria-label="Send message"` on the submit button.
+- **Observed:** Button is entirely unlabelled — screen readers announce it as "button" with no purpose.
+- **Fix sketch:** Add `aria-label="Send message"` to the `<button type="submit">`.
+
+---
+
+### F-089: Close panel button is icon-only with no `aria-label` — P2 a11y
+
+- **Surface:** `chat-side-panel.blade.php` lines 79–84
+- **Severity:** P2 a11y
+- **Category:** accessibility / WCAG 1.1.1
+- **Steps to reproduce:**
+  1. Open the chat side panel.
+  2. Inspect the header close button: `<button @click="open = false" ...><x-heroicon-o-x-mark .../></button>`.
+  3. No `aria-label`, no `title`.
+- **Expected:** `aria-label="Close chat panel"` on the close button.
+- **Observed:** Button renders as unlabelled — announced as "button" to screen readers.
+- **Fix sketch:** Add `aria-label="Close chat panel"` to the close button.
+
+---
+
+### F-090: Chat side panel is a plain `<div>` — missing `role="dialog"`, `aria-modal`, and accessible label — P2 a11y
+
+- **Surface:** `chat-side-panel.blade.php` line 3 (`data-chat-side-panel` div)
+- **Severity:** P2 a11y
+- **Category:** accessibility / WCAG 4.1.2
+- **Steps to reproduce:**
+  1. Open the chat panel.
+  2. Inspect the container: `<div ... data-chat-side-panel>`.
+  3. No `role`, no `aria-modal`, no `aria-label` or `aria-labelledby`.
+- **Expected:** `role="dialog" aria-modal="true" aria-label="Chat"` so assistive technology treats it as a modal region.
+- **Observed:** Plain `<div>` — screen readers do not announce it as a dialog, and AT virtual cursors roam freely outside the intended boundaries.
+- **Fix sketch:** Add `role="dialog" aria-modal="true" aria-labelledby="chat-panel-heading"` to the outer panel div; add `id="chat-panel-heading"` to the `<h3>Chat</h3>` heading inside the header.
+
+---
+
+### F-091: No focus trap when panel opens — Tab escapes back to main page — P2 a11y
+
+- **Surface:** `chat-side-panel.blade.php` — panel open behaviour
+- **Severity:** P2 a11y
+- **Category:** accessibility / WCAG 2.1.2
+- **Steps to reproduce:**
+  1. Open the chat panel (Cmd+J or floating button).
+  2. Observe: focus stays on the element that triggered open, or falls to `<body>` — it is not moved inside the panel.
+  3. Press Tab repeatedly — focus cycles through main page content behind the panel.
+- **Expected:** On open, focus moves to the first focusable element inside the panel (e.g. the textarea). Tab/Shift+Tab cycle only within the panel. Escape closes the panel and returns focus to the toggle button.
+- **Observed:** No Alpine focus-trap directive or equivalent. Keyboard users cannot reach close button or textarea via Tab without tabbing through the entire page first.
+- **Fix sketch:** Use Alpine's `trap` magic (`x-trap="open"`) which ships with Alpine's focus plugin, or implement a manual focus-trap with `aria-modal` to communicate boundary to AT.
+
+---
+
+### F-092: Textarea has no accessible label — placeholder-only name fails WCAG 2.5.3 — P2 a11y
+
+- **Surface:** `chat-interface.blade.php` line 137–145
+- **Severity:** P2 a11y
+- **Category:** accessibility / WCAG 1.3.1, 2.5.3
+- **Steps to reproduce:**
+  1. Inspect the textarea: `<textarea placeholder="Ask anything..." ...>`.
+  2. No `aria-label`, no `aria-labelledby`, no associated `<label>` element, no `id` on the textarea.
+- **Expected:** `aria-label="Ask anything"` (or a visible `<label>`) so the field has a programmatic label independent of placeholder text.
+- **Observed:** Placeholder-only naming — browsers may suppress placeholder in accessibility tree when value is present; fails WCAG 2.5.3 Label in Name.
+- **Fix sketch:** Add `aria-label="Ask anything"` to the textarea.
+
+---
+
+### F-093: `animate-bounce` streaming indicator has no `prefers-reduced-motion` guard — P3 a11y
+
+- **Surface:** `chat-interface.blade.php` lines 123–125
+- **Severity:** P3 a11y
+- **Category:** accessibility / WCAG 2.3.3
+- **Steps to reproduce:**
+  1. Enable `prefers-reduced-motion: reduce` in OS accessibility settings.
+  2. Send a message and observe the streaming indicator.
+  3. Three dots continue to animate (bounce) despite the user preference.
+- **Expected:** `motion-safe:animate-bounce` so animation stops when reduced-motion is set.
+- **Observed:** Raw `animate-bounce` class — no Tailwind `motion-safe:` or `motion-reduce:` variant applied. Panel slide-in transition (`x-transition:enter="transition ease-out duration-200"`) also has no reduced-motion guard.
+- **Fix sketch:** Replace `animate-bounce` with `motion-safe:animate-bounce`; wrap panel transitions with Alpine's `x-transition` only when `window.matchMedia('(prefers-reduced-motion: no-preference)').matches`, or conditionally strip transition classes.
+
+---
+
+### F-094: Floating toggle button uses `title` only for keyboard shortcut — not exposed as `aria-label` — P3 a11y
+
+- **Surface:** `chat-side-panel.blade.php` lines 110–121
+- **Severity:** P3 a11y
+- **Category:** accessibility / WCAG 1.1.1
+- **Steps to reproduce:**
+  1. Inspect the floating Chat button: `<button ... title="Open Chat (Cmd+J)" data-chat-toggle>`.
+  2. The button has visible text ("Chat") so WCAG 1.1.1 is technically met, but `title` tooltip does not surface on touch devices or in most screen reader modes.
+- **Expected:** `aria-label="Open Chat (Cmd+J)"` or an `<kbd>` accessible description via `aria-describedby` so the keyboard shortcut is programmatically associated.
+- **Observed:** `title` attribute is the only mechanism advertising Cmd+J — `title` is not reliably exposed on mobile/touch or under all AT configurations.
+- **Fix sketch:** Add `aria-label="Open Chat (Cmd+J)"` in addition to, or instead of, `title`.
