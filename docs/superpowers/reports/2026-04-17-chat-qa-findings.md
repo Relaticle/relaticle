@@ -963,3 +963,121 @@ Tasks 4.1–4.14 executed. All HTTP routes tested via browser `fetch()` (authent
   - Not exploitable for code injection but could be used for phishing-style social engineering within the app.
 - **Root cause:** No Unicode bidi sanitization on conversation title input or display.
 - **Fix sketch:** Strip Unicode bidi control characters (U+202A–U+202E, U+2066–U+2069, U+200F) from titles at save time, or add a sanitization helper before rendering.
+
+---
+
+## Phase 7 — Credit System Edge Cases
+
+### F-048: 402 credit-exhausted rendered as plain chat bubble — no upgrade CTA
+
+- **Surface:** `chat-interface.blade.php` Alpine `sendMessage` handler; `ChatController::send` (line 47–51)
+- **Severity:** P1 revenue UX
+- **Category:** conversion / billing
+- **Steps to reproduce:**
+  1. Set `credits_remaining = 0` for team via DB.
+  2. Open `/chats`, type any message, press Enter.
+- **Expected:** Dedicated paywall modal or inline paywall card with upgrade link and plan details.
+- **Observed:** The 402 JSON `message` field ("You have used all your AI credits for this billing period.") is inserted directly into an assistant chat bubble (same gray bubble used for normal AI replies). No upgrade CTA, no billing link, no plan upsell. Screenshot: `.context/screenshots/07-credits-exhausted.png`.
+- **Root cause:** Alpine `sendMessage` handles non-OK responses with `assistantMsg.content = body.message || 'Error ${status}...'` — treats all error bodies as chat content.
+- **Fix sketch:** Detect `body.error === 'credits_exhausted'` in the Alpine handler and render a dedicated paywall card component (distinct visual style + "Upgrade plan" button linking to `/billing`). This is the single highest-value conversion moment in the product.
+
+### F-049: Non-atomic credit gate — 1 credit allows N concurrent jobs (revenue leak)
+
+- **Surface:** `ChatController::send` (lines 47, 56); `CreditService::hasCredits`
+- **Severity:** P1 revenue
+- **Category:** race condition / billing integrity
+- **Steps to reproduce:**
+  1. Set `credits_remaining = 1`.
+  2. Fire 5 concurrent POST `/chat` requests before any job deducts.
+- **Expected:** Only 1 request returns 200; subsequent requests see 0 credits and receive 402.
+- **Observed:** All 5 concurrent requests pass `hasCredits > 0` simultaneously (balance read is non-atomic: no lock, no pre-deduction). All 5 dispatch `ProcessChatMessage` jobs. The balance is only decremented later inside the job via `CreditService::deduct` (which uses `lockForUpdate`), but by then all jobs are already queued. A team with 1 credit can trigger 5+ AI completions.
+- **Root cause:** `hasCredits` is a plain SELECT with no lock; `dispatch` fires immediately after with no optimistic deduction. The gate and the charge are decoupled across HTTP request and queue job.
+- **Fix sketch:** Perform an optimistic pre-deduction inside the HTTP request (atomic `UPDATE ... SET credits_remaining = credits_remaining - 1 WHERE credits_remaining > 0` returning affected rows). Refund inside the job if the AI call fails. Alternatively, use `DB::transaction` + `lockForUpdate` in the controller before dispatching.
+
+### F-050: `resetPeriod` has no caller — credits never reset automatically
+
+- **Surface:** `CreditService::resetPeriod`; `bootstrap/app.php` schedule; entire codebase
+- **Severity:** P1 data-integrity
+- **Category:** billing / scheduled jobs
+- **Steps to reproduce:**
+  1. `grep -rn "resetPeriod" packages/Chat/ app/ bootstrap/` — only one hit: the method definition itself.
+  2. Inspect `bootstrap/app.php` `withSchedule()` block — no monthly credit reset command.
+- **Expected:** A monthly scheduled command (or billing-webhook listener) calls `resetPeriod($team, $allowance)` for every active team at the start of each billing period.
+- **Observed:** `resetPeriod` is defined but never invoked from any scheduled command, listener, observer, or webhook handler. Once a team exhausts their credits, `credits_remaining` stays at 0 permanently until manually seeded. There is no path back to a non-zero balance.
+- **Root cause:** The monthly reset command was not implemented.
+- **Fix sketch:** Create `php artisan chat:reset-credits` that iterates all teams, looks up their plan allowance from config, and calls `CreditService::resetPeriod`. Schedule it `->monthlyOn(1, '00:00')` in `bootstrap/app.php`. Also add a billing-webhook listener for plan upgrades/downgrades to immediately re-provision credits.
+
+### F-051: `deduct()` silently no-ops when balance row is absent — inconsistency risk
+
+- **Surface:** `CreditService::deduct` (lines 52–54)
+- **Severity:** P2 data-integrity
+- **Category:** billing integrity
+- **Steps to reproduce:**
+  1. Delete the `ai_credit_balances` row for a team.
+  2. Observe `getBalance` returns 0, so `hasCredits` returns false → controller sends 402. No free access in the happy path.
+  3. However: if the balance row is deleted between the `hasCredits` check and the `deduct` call inside the job (tiny TOCTOU window), `deduct` hits `if (!$balance instanceof AiCreditBalance) return;` and silently exits — AI work completes with no charge recorded and no transaction row created.
+- **Expected:** Missing balance row should throw or log a critical error (it signals a broken onboarding state), not silently pass.
+- **Root cause:** The silent return was added as defensive code but creates an invisible billing gap.
+- **Fix sketch:** Replace the silent `return` with `Log::critical('Credit balance row missing for team', ['team_id' => $team->getKey()]); throw new \RuntimeException(...)` or at minimum emit an alert. Ensure team onboarding always calls `resetPeriod` to create the balance row.
+
+### F-052: `calculateCredits` formula matches spec exactly — P3 confirmation
+
+- **Surface:** `CreditService::calculateCredits` (lines 76–86)
+- **Severity:** P3 polish
+- **Category:** billing correctness
+- **Steps to reproduce:** Call `calculateCredits` for each model/tool-count combination.
+- **Expected vs Observed:**
+
+| Input | Expected (`ceil((1×mult)+(n×0.5))`, min 1) | Actual |
+|---|---|---|
+| sonnet / 0 tools | 1 | **1** ✓ |
+| sonnet / 4 tools | 3 | **3** ✓ |
+| opus / 0 tools | 3 | **3** ✓ |
+| opus / 4 tools | 5 | **5** ✓ |
+| haiku / 0 tools | 1 (min clamp) | **1** ✓ |
+| unknown model / 0 | 1 (fallback mult=1.0) | **1** ✓ |
+| gpt-4o / 2 tools | 3 | **3** ✓ |
+
+- **Observed:** All values match specification. Formula is correct.
+- **Root cause:** Nominal.
+- **Fix sketch:** None required.
+
+### F-053: Dead config entries for `claude-haiku-4-5` and `gpt-4o-mini` — no `AiModel` enum case
+
+- **Surface:** `packages/Chat/config/chat.php` `model_multipliers`; `packages/Chat/src/Enums/AiModel.php`
+- **Severity:** P3 cleanup
+- **Category:** dead code / config drift
+- **Steps to reproduce:**
+  1. `grep "claude-haiku\|gpt-4o-mini" packages/Chat/config/chat.php`
+  2. `grep "claude-haiku\|gpt-4o-mini\|Haiku\|Mini" packages/Chat/src/Enums/AiModel.php` — no matches.
+- **Expected:** Every model key in `model_multipliers` has a corresponding `AiModel` enum case; every enum case has a config entry.
+- **Observed:**
+  - `claude-haiku-4-5` (mult=0.5) and `gpt-4o-mini` (mult=0.5) are in config but have no `AiModel` case — they can never be selected through normal UI or `AiModelResolver`.
+  - `gemini-2.5-pro` (used by `AiModel::GeminiPro`) has no config entry — falls through to the default multiplier of 1.0 silently.
+- **Root cause:** Config and enum evolved independently without cross-checking.
+- **Fix sketch:** Either add enum cases for haiku and gpt-4o-mini (if they are planned), or remove dead config keys. Add `gemini-2.5-pro` to `model_multipliers`. Consider a boot-time assertion that validates every `AiModel::modelId()` value has a config entry.
+
+### F-054: `model` column in `ai_credit_transactions` is NOT NULL — no unique constraint
+
+- **Surface:** `ai_credit_transactions` table schema
+- **Severity:** P3 observability
+- **Category:** schema / data quality
+- **Steps to reproduce:** `php artisan db:table ai_credit_transactions`
+- **Expected:** `model` column NOT NULL (correct); no unique constraint (expected).
+- **Observed:**
+  - `model varchar NOT NULL` — confirmed correct, a `'unknown'` string is stored when `StreamedAgentResponse->meta->model` is null.
+  - No unique constraint on `model` — correct (many rows per model expected).
+  - The string `'unknown'` will appear in transaction history making billing audits ambiguous. There is no index on `model` for query performance on per-model cost reports.
+- **Root cause:** Nominal schema; the `'unknown'` fallback is functional but produces low-quality audit data.
+- **Fix sketch:** Add an index on `model` for analytics queries. Consider logging a warning when `model` is `'unknown'` so ops can trace which response path produced a null model string.
+
+### F-055: `resetPeriod` mechanics correct — period boundaries confirmed
+
+- **Surface:** `CreditService::resetPeriod` (lines 88–99)
+- **Severity:** P3 polish
+- **Category:** billing correctness
+- **Steps to reproduce:** Call `resetPeriod($team, 500)` and inspect resulting balance row.
+- **Expected:** `credits_remaining=500`, `credits_used=0`, `period_starts_at=2026-04-01 00:00:00`, `period_ends_at=2026-04-30 23:59:59`.
+- **Observed:** Exact match. `updateOrCreate` correctly resets used credits to 0. Period boundaries use `startOfMonth()` / `endOfMonth()` which aligns to calendar month (not 30-day rolling).
+- **Root cause:** Nominal.
+- **Fix sketch:** None for mechanics. The only gap is that this method is never automatically called (see F-050).
