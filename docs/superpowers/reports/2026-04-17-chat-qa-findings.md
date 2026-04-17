@@ -443,3 +443,131 @@ Fixtures: database/seeders/ChatQaSeeder.php
      ```
 - **Proposed Pest test (Phase 14):** JS unit test for the rewrite logic.
 - **Screenshots:** `.context/screenshots/05-url-stuck-with-message-param.png`
+
+---
+
+## Phase 3 Findings (Tasks 3.1–3.4)
+
+### F-017: Side panel `window.keydown` and `chat:send` listeners never removed — accumulate on each Livewire component re-init
+
+- **Surface:** `packages/Chat/resources/views/livewire/app/chat/chat-side-panel.blade.php:11-24`
+- **Severity:** P1 major
+- **Category:** memory leak / UX correctness
+- **Steps to reproduce:**
+  1. Load the app panel; `ChatSidePanel` Alpine component initializes, adding one `keydown` and one `chat:send` listener via `window.addEventListener`.
+  2. Navigate to any other page and back (SPA or full). If Livewire re-mounts the component (BODY_END hook re-evaluates), `init()` fires again, adding a second copy of each listener.
+  3. After N round-trips, pressing Cmd+J fires N toggle operations — odd N opens the panel, even N closes and re-opens it in the same keypress cycle.
+  4. Similarly, clicking a suggested prompt fires `handleSendFromDashboard` N times.
+- **Observed:** Static analysis confirms `init()` contains `window.addEventListener('keydown', …)` (line 12) and `window.addEventListener('chat:send', …)` (line 19) with no corresponding `destroy()` / `removeEventListener` calls. No `x-destroy` Alpine hook is defined. The `document.addEventListener('livewire:navigated', …)` on line 26 also accumulates.
+- **Observed (runtime):** After 5 company↔dashboard round-trips, Cmd+J still toggled the panel once — Livewire's persistent component mechanism kept the same DOM node alive in this session, suppressing the symptom. The leak is latent but will manifest when the Livewire component unmounts and re-mounts (e.g., first load of each fresh page, auth state changes, multi-tab usage).
+- **Root cause:** Alpine's `init()` lifecycle function has no paired `destroy()` to clean up window-level listeners. Livewire's `BODY_END` render hook re-injects the component on every server-rendered page, and any unmount/remount cycle re-runs `init()`.
+- **Proposed fix:** Add `destroy()` to the Alpine `x-data` object:
+  ```js
+  destroy() {
+      window.removeEventListener('keydown', this._keydownHandler);
+      window.removeEventListener('chat:send', this._chatSendHandler);
+      document.removeEventListener('livewire:navigated', this._navigatedHandler);
+  }
+  ```
+  And store handler references before attaching:
+  ```js
+  init() {
+      this._keydownHandler = (e) => { … };
+      this._chatSendHandler = (e) => { … };
+      this._navigatedHandler = () => { $wire.refreshContext(); };
+      window.addEventListener('keydown', this._keydownHandler);
+      window.addEventListener('chat:send', this._chatSendHandler);
+      document.addEventListener('livewire:navigated', this._navigatedHandler);
+  }
+  ```
+- **Proposed Pest test (Phase 14):** Browser test asserting Cmd+J toggles exactly once after 5 navigations.
+
+### F-018: `localStorage` width read has no clamp — corrupted value renders panel below minimum usable width
+
+- **Surface:** `packages/Chat/resources/views/livewire/app/chat/chat-side-panel.blade.php:6`
+- **Severity:** P3 polish
+- **Category:** UX / robustness
+- **Steps to reproduce:**
+  1. `localStorage.setItem('chat-panel-width', '100')` in any browser tab.
+  2. Reload the page and open the side panel (Cmd+J).
+  3. Panel renders at 100px — too narrow to read content or use the textarea.
+- **Observed:** `width: 100px` confirmed at runtime. The `minWidth: 360` property exists but is only enforced during drag resize (in `startResize → onMouseMove`). The initial `width` assignment on line 6 reads raw `localStorage` without clamping.
+- **Root cause:** `width: parseInt(localStorage.getItem('chat-panel-width') || '420')` has no `Math.max(this.minWidth, Math.min(this.maxWidth, …))` guard.
+- **Proposed fix:**
+  ```js
+  width: Math.max(360, Math.min(720, parseInt(localStorage.getItem('chat-panel-width') || '420'))),
+  ```
+  Or compute dynamically once `minWidth`/`maxWidth` are defined (use `$nextTick` or a getter).
+- **Proposed Pest test (Phase 14):** Browser test setting `localStorage` to `50` and asserting rendered panel width ≥ 360px.
+
+### F-019: Mobile viewport — side panel overflows 375px screen by 45px; no responsive breakpoint or max-width:100vw
+
+- **Surface:** `packages/Chat/resources/views/livewire/app/chat/chat-side-panel.blade.php:61` (`:style="{ width: width + 'px' }"`)
+- **Severity:** P1 major
+- **Category:** mobile UX
+- **Steps to reproduce:**
+  1. Set viewport to 375×812 (iPhone SE/13).
+  2. Navigate to dashboard and open side panel (Cmd+J or toggle button).
+  3. Panel renders at 420px width, viewport is 375px.
+- **Observed:** `viewportW: 375, panelW: 420, overflows: true` — panel extends 45px beyond the right edge of the viewport, hiding content and making the panel unusable on mobile.
+- **Root cause:** `width` defaults to 420 (or whatever is in `localStorage`). The `:style` binding sets `width` in pixels with no `max(100vw)` constraint. `minWidth` is 360 which itself exceeds most phone viewport widths.
+- **Proposed fix:** Add CSS `max-width: 100vw` to the panel element, and clamp `minWidth` dynamically:
+  ```js
+  minWidth: Math.min(360, window.innerWidth),
+  ```
+  Or add a Tailwind class `max-w-full` and change the binding to `:style="{ width: Math.min(width, window.innerWidth) + 'px' }"`.
+- **Screenshots:** `.context/screenshots/03-panel-mobile.png`
+- **Proposed Pest test (Phase 14):** Browser test at 375px viewport asserting `panel.offsetWidth <= 375`.
+
+### F-020: `chat:send-message` Livewire event dispatched by `ChatSidePanel` has no listener in `ChatInterface` — suggested prompts in side panel are a dead drop
+
+- **Surface:** `packages/Chat/src/Livewire/App/Chat/ChatSidePanel.php:60` → `packages/Chat/src/Livewire/Chat/ChatInterface.php`
+- **Severity:** P1 major
+- **Category:** broken feature
+- **Steps to reproduce:**
+  1. Navigate to dashboard and open the side panel.
+  2. Click any suggested prompt button (e.g. "CRM overview").
+  3. The button dispatches a browser `CustomEvent('chat:send', …)`.
+  4. Panel's `chat:send` window listener calls `$wire.handleSendFromDashboard('CRM overview', 'suggestion')`.
+  5. `handleSendFromDashboard` sets `isOpen = true` and calls `$this->dispatch('chat:send-message', message: …)`.
+  6. Livewire dispatches `chat:send-message` as a browser event; no component or Alpine handler receives it.
+- **Observed:** After clicking "CRM overview", the panel remains open but no user message bubble appeared, no network request to `/chat` was fired, and no streaming indicator appeared. The `ChatInterface` Alpine component has no `window.addEventListener('chat:send-message', …)` and the PHP class has no `#[On('chat:send-message')]` attribute.
+- **Root cause:** `ChatSidePanel::handleSendFromDashboard()` uses `$this->dispatch()` (Livewire 4 browser-event dispatch) but the receiving `ChatInterface` — a sibling Livewire component — does not listen to `chat:send-message`. Neither `$listeners` nor `#[On]` is defined in `ChatInterface.php`, and the blade template has no `x-on:chat:send-message` binding.
+- **Fix sketch (option A — add `#[On]` to ChatInterface):**
+  ```php
+  #[On('chat:send-message')]
+  public function sendFromPanel(string $message): void
+  {
+      $this->dispatch('chat:trigger-send', message: $message);
+  }
+  ```
+  Then in the Alpine component's `init()`: `window.addEventListener('chat:trigger-send', (e) => { this.input = e.detail.message; this.sendMessage(); })`.
+- **Fix sketch (option B — bypass Livewire, use a direct browser event):**
+  In `handleSendFromDashboard`, replace `$this->dispatch('chat:send-message', …)` with a JS eval that directly calls `sendMessage()` on the embedded Alpine component — or dispatch a plain `window` event that the Alpine `init()` in `chat-interface.blade.php` listens for.
+- **Proposed Pest test (Phase 14):**
+  ```php
+  it('clicking a suggested prompt in the side panel sends a message', function () {
+      // livewire(ChatSidePanel::class)->call('handleSendFromDashboard', 'CRM overview', 'suggestion')
+      // assert ChatInterface received message
+  });
+  ```
+
+### F-021: Two `ChatInterface` Livewire components simultaneously active on `/chats/{id}` page — both subscribe to same Echo channel
+
+- **Surface:** Full-page `ChatConversation` + `ChatSidePanel` → both embed `chat.chat-interface`
+- **Severity:** P1 major (extends F-016)
+- **Category:** correctness / race condition
+- **Steps to reproduce:**
+  1. Navigate to `/{slug}/chats/{conversationId}`.
+  2. The full-page `ChatConversation` renders `@livewire('chat.chat-interface', ['conversationId' => $id])`.
+  3. The BODY_END-injected `ChatSidePanel` renders a second `@livewire('chat.chat-interface', ['conversationId' => null])`.
+  4. Both Alpine instances call `setupEchoListener()` → `window.Echo.private('chat.{userId}').listen(…)`.
+- **Observed:** `chatInterfaces: 2` confirmed in browser at runtime on the chats page (both present even before opening the side panel, since the panel component is always mounted via BODY_END even when `isOpen=false`). Instance 0: full-page, `conversationId='019d9afe-…'`. Instance 1: side panel, `conversationId=null`.
+- **Effect:** On `conversation.resolved` broadcast:
+  - The full-page instance calls `handleConversationResolved` with the real `conversationId` and rewrites the URL correctly.
+  - The side panel instance ALSO calls `handleConversationResolved` with `event.conversationId`, but its own `this.conversationId` is `null` — it may rewrite the URL to the new ID even when the user is not interacting with the side panel.
+  - Two competing `history.replaceState` calls fire in undefined order. Last-write-wins is non-deterministic.
+- **Root cause:** `BODY_END` renders `ChatSidePanel` (and its embedded `ChatInterface`) on every page, including the full-page chat view. No guard prevents double-mounting.
+- **Fix sketch:** Add a guard in `setupEchoListener()` using `window.__chatEchoAttached` to prevent double subscription. Alternatively, conditionally suppress the side panel's embedded `ChatInterface` when a full-page chat is active, or use a scoped channel identifier per instance.
+- **Screenshots:** `.context/screenshots/03-dual-instance.png`
+- **Proposed Pest test (Phase 14):** Browser test asserting only one `chat.{userId}` Echo channel subscription is active on the chats page.
