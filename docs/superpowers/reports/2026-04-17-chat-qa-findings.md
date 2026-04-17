@@ -167,3 +167,18 @@ Fixtures: database/seeders/ChatQaSeeder.php
   );
   ```
   And update `config/filament.php` broadcasting block to use reverb env vars, OR explicitly skip Filament's echo block (`'broadcasting' => []`) so only the chat package's Echo instance exists.
+
+### F-007: Browser WSS/TLS mismatch against local Reverb — environment-only, not a PR bug
+
+- **Surface:** env / Herd TLS termination
+- **Severity:** P3 polish
+- **Category:** observability
+- **Steps to reproduce:**
+  1. `php artisan reverb:start` on `ws://localhost:8080`
+  2. Load `https://app.relaticle-pr-209.test/...` in browser
+  3. Echo attempts `wss://localhost:8080/app/...` — browser mixed-content policy blocks insecure WS from HTTPS origin; Pusher-js auto-upgrades to WSS despite `forceTLS:false`.
+- **Expected:** Browser connects to Reverb and `window.Echo.connector.pusher.connection.state === 'connected'`.
+- **Observed:** `state` stays at `unavailable`; console: `WebSocket connection to 'wss://localhost:8080/...' failed`.
+- **Root cause hypothesis:** Local Reverb has no TLS cert; browser blocks ws from https origin. Fix for local dev: point Herd to proxy a secured subdomain (`ws.relaticle-pr-209.test`) to Reverb, or run the app over http for testing.
+- **Proposed Pest test (Phase 14):** N/A — env concern only.
+- **Fix sketch:** For this QA run, verify broadcasts by inspecting server-side Reverb connection logs + Laravel log + DB state instead of client-side WS reception.

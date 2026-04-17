@@ -76,6 +76,11 @@ final class ChatServiceProvider extends ServiceProvider
     private function registerRenderHooks(): void
     {
         FilamentView::registerRenderHook(
+            PanelsRenderHook::HEAD_END,
+            fn (): string => Blade::render("@vite('resources/js/echo.js')"),
+        );
+
+        FilamentView::registerRenderHook(
             PanelsRenderHook::SIDEBAR_NAV_END,
             fn (): View|Factory => view('chat::filament.app.chat-sidebar-nav-hook'),
         );
