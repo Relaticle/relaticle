@@ -1445,3 +1445,109 @@ public function apply(Builder $builder, Model $model): void
   - `getComputedStyle(textarea).backgroundColor = oklch(0.274 0.006 286.033)` in dark mode (dark gray).
 - **Root cause:** Nominal.
 - **Fix sketch:** None required.
+
+---
+
+## Phase 11 — Streaming failure modes (2026-04-17, static + failed-queue artifacts)
+
+### F-078: Job timeout produces silent failure — credits not deducted, no client notification — P1 UX+revenue
+
+- **Severity:** P1
+- **File:** `packages/Chat/src/Jobs/ProcessChatMessage.php:29`
+- **Observed:**
+  - `public int $timeout = 120;` is the only timeout-related property.
+  - No `$tries`, no `failOnTimeout`, no `retryUntil`, no `public function failed()`.
+  - Laravel default: 1 try. At 120 s the worker sends SIGALRM / terminates the process; the `->then()` closure on line 66 never executes.
+  - Result: credits are NOT deducted, the assistant message is not persisted by the SDK `->then` callback, and the client receives no `stream_end` event. `isStreaming` stays `true` until the user reloads.
+- **Root cause:** No `failed()` handler and no `failOnTimeout = true`. The timeout path is entirely unhandled.
+- **Fix sketch:** Add `public bool $failOnTimeout = true;` and a `public function failed(\Throwable $e): void` method that broadcasts `stream_end` with `['error' => true]` on the user's channel and optionally issues a partial credit deduction proportional to tokens emitted.
+
+### F-079: No `failed()` handler — job failures leave client in permanent streaming state — P1 observability/UX
+
+- **Severity:** P1
+- **File:** `packages/Chat/src/Jobs/ProcessChatMessage.php`
+- **Observed:**
+  - `grep "public function failed"` returns no results.
+  - Any exception (timeout, Reverb down, tool crash, null-user — see F-015/F-065) silently terminates the job. The client's `isStreaming` flag is never reset.
+  - Failed-queue artifacts confirm 4 failures on this job (latest: `2026-04-17 11:25:05`, queue `redis@default`). Top exception: `TypeError: App\Actions\Company\ListCompanies::execute(): Argument #1 ($user) must be of type App\Models\User, null given` (F-015 signature confirmed).
+- **Root cause:** Missing `failed()` lifecycle hook.
+- **Fix sketch:** Implement `failed(Throwable $e)` to broadcast `['event' => 'stream_end', 'error' => $e->getMessage()]` on the private channel, enabling the client to exit streaming state and show an error banner.
+
+### F-080: All streams broadcast on `chat.{userId}` — concurrent conversations corrupt each other's messages — P1 correctness
+
+- **Severity:** P1
+- **Files:** `packages/Chat/src/Jobs/ProcessChatMessage.php` (channel construction), `packages/Chat/src/Events/ConversationResolved.php`
+- **Observed:**
+  - `ProcessChatMessage`: `$channel = new PrivateChannel("chat.{$this->user->getKey()}");` — user-scoped, no conversation ID.
+  - `ConversationResolved`: broadcasts on `new PrivateChannel("chat.{$this->userId}")` — same.
+  - Client appends every `text_delta` to `messages[messages.length-1]` with no conversation filter.
+  - If a user has two tabs open (conv A and conv B) and sends messages in both, both `ChatInterface` Alpine instances subscribe to the same channel. Delta events from job A appear in conv B's UI and vice versa — message content is silently corrupted.
+- **Root cause:** Channel granularity is per-user not per-conversation.
+- **Fix sketch:** Change channel to `chat.{userId}.{conversationId}` in both the job and the event. Update client subscription in `subscribeToChannel()` and `broadcastOn` auth rule in `routes/channels.php`.
+
+### F-081: `handleConversationResolved` sets `conversationId` to `undefined` if payload field is absent — URL becomes `/chats/undefined` — P2 bug
+
+- **Severity:** P2
+- **File:** `packages/Chat/resources/views/livewire/chat/chat-interface.blade.php:257-265`
+- **Observed:**
+  - `handleConversationResolved(event)` assigns `this.conversationId = event.conversationId` unconditionally.
+  - If `event.conversationId` is missing (e.g., malformed broadcast, wrong field name, future SDK change), `this.conversationId` becomes `undefined`.
+  - `window.history.pushState(...)` then produces `/chats/undefined`, and the `conversationIdUpdated` custom event fires with `{ id: undefined }`, which downstream Livewire handlers could persist.
+- **Root cause:** No null/undefined guard before assigning or using `event.conversationId`.
+- **Fix sketch:** Add `if (!event.conversationId) return;` at the top of `handleConversationResolved`.
+
+### F-082: `ProcessChatMessage` dispatches to `default` queue — slow 120 s chat jobs block all other work — P1 infra
+
+- **Severity:** P1
+- **File:** `packages/Chat/src/Jobs/ProcessChatMessage.php`; `config/horizon.php`
+- **Observed:**
+  - No `public string $queue` property and no `->onQueue()` at dispatch site — job lands on `default`.
+  - Failed-queue output confirms `redis@default` for all 4 failed chat jobs.
+  - In production, a single stuck chat job (120 s timeout) occupies a default-queue worker, delaying notifications, webhooks, and any other default-queue work behind it.
+- **Root cause:** No dedicated queue for long-running AI streaming jobs.
+- **Fix sketch:** Add `public string $queue = 'chat';` to `ProcessChatMessage`. Add a dedicated `chat` supervisor block in `config/horizon.php` with `balance = 'auto'`, `minProcesses = 2`, `maxProcesses = 10`, and `timeout = 130` (> job timeout so the worker can clean up).
+
+### F-083: Reverb horizontal scaling disabled — single-node config not viable at scale — P1 infra
+
+- **Severity:** P1
+- **Config:** `config/reverb.php` (`scaling.enabled = false`, `max_request_size = 10000`)
+- **Observed:**
+  - `php artisan config:show reverb` returns `scaling ⇁ enabled .. false`.
+  - Single-node Reverb handles roughly 1 k concurrent WebSocket connections before memory pressure degrades throughput.
+  - `allowed_origins = ['*']` — overly permissive for production.
+- **Root cause:** Default out-of-box Reverb config; scaling not configured.
+- **Fix sketch:** Set `REVERB_SCALING_ENABLED=true` and configure the Redis pub/sub channel (`scaling.channel`) to allow multi-node fanout. Restrict `allowed_origins` to the production domain. Set `max_request_size` to match expected max message payload.
+
+### F-084: Rapid-fire send double-submission blocked by `isStreaming` guard — P3 nominal confirmation
+
+- **Severity:** P3
+- **File:** `packages/Chat/resources/views/livewire/chat/chat-interface.blade.php:192,144,150`
+- **Observed:**
+  - `sendMessage`: `if (!text || this.isStreaming) return;` at line 192.
+  - Send button: `:disabled="isStreaming"` at line 144.
+  - Submit button: `:disabled="isStreaming || !input.trim()"` at line 150.
+  - Two independent guards prevent double-submission.
+- **Root cause:** Nominal. Double-safety confirmed.
+- **Fix sketch:** None.
+
+### F-085: Page unload during stream — server job completes, DB persists final message, client misses deltas — P3 observability
+
+- **Severity:** P3
+- **Files:** `packages/Chat/src/Jobs/ProcessChatMessage.php:66` (`->then()`), `vendor/laravel/ai/src/Storage/DatabaseConversationStore.php:55,81`
+- **Observed:**
+  - SDK writes to `agent_conversation_messages` via `DatabaseConversationStore` inside `->then()` after full stream completes.
+  - If the user navigates away mid-stream, the job still runs and commits the final assistant message on completion. Credits are correctly deducted.
+  - On return to the conversation, `ListConversationMessages` shows the persisted final message — no content is lost.
+  - Applies equally to the embedded side-panel `ChatInterface` unmounting when the panel is closed.
+- **Root cause:** Nominal. Server-side persistence is independent of client presence.
+- **Fix sketch:** None required. Optionally add a client `beforeunload` warning if `isStreaming`.
+
+### F-086: Session expiry during stream — client may silently lose tail deltas, no replay — P3 cross-link F-007
+
+- **Severity:** P3 (cross-link F-007)
+- **Observed:**
+  - Server-side `broadcastNow()` pushes directly to Reverb over HTTP — not tied to client WebSocket session or Laravel session token.
+  - If the user's Laravel session expires mid-stream, the server continues broadcasting to Reverb successfully.
+  - Client-side Pusher.js may silently disconnect and miss deltas if the WebSocket auth endpoint (`/broadcasting/auth`) rejects re-subscription (returns 403 for expired session). Reverb has no event replay.
+- **Root cause:** Reverb/Pusher has no replay mechanism; client auth path is session-dependent.
+- **Fix sketch:** Extend session lifetime for active streaming contexts, or implement client-side reconnect with a fallback HTTP poll for the final persisted message.
