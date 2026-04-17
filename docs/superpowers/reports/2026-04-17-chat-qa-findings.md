@@ -133,3 +133,37 @@ Fixtures: database/seeders/ChatQaSeeder.php
   });
   ```
 - **Fix sketch:** Install `laravel/ai` package (`composer require laravel/ai:^0.4.3`) and run `php artisan migrate`.
+
+### F-006: Echo client never bootstrapped in app panel — chat realtime cannot work out of the box
+
+- **Surface:** `packages/Chat/src/ChatServiceProvider.php`, `resources/js/echo.js`, `config/filament.php:19-34`, `app/Providers/Filament/AppPanelProvider.php`
+- **Severity:** P0 blocker
+- **Category:** correctness
+- **Steps to reproduce:**
+  1. `grep -rn "echo.js\|@vite.*echo" resources/ app/ packages/Chat/ config/` — zero results outside the Vite input declaration.
+  2. Log in to the app panel, `agent-browser eval 'typeof window.Echo'` → `"undefined"`.
+- **Expected:** `window.Echo` initialized in every authenticated app-panel page so `chat.{userId}` private channel can be subscribed.
+- **Observed:** Three independent gaps:
+  1. `resources/js/echo.js` is a Vite input but **never included** by any Blade template, Filament asset registration, or render hook.
+  2. Filament's native `config/filament.php` broadcasting block is gated on `VITE_PUSHER_APP_KEY` and hardcodes `broadcaster: 'pusher'` with `wsHost: VITE_PUSHER_HOST` — incompatible with the chat package's Reverb configuration even if the key were set.
+  3. `ChatServiceProvider::registerRenderHooks()` registers a `SIDEBAR_NAV_END` and `BODY_END` hook but no `HEAD_END` / `SCRIPTS_BEFORE` hook that injects the echo asset.
+- **Root cause hypothesis:** The chat package was authored assuming an external Echo bootstrap (e.g. from `resources/js/app.js` or a parent layout) that does not exist in this app. The feature shipped without asset integration.
+- **Proposed Pest test (Phase 14):**
+  ```php
+  // file: tests/Browser/Chat/EchoBootstrapTest.php
+  it('bootstraps Echo on the app panel', function () {
+      $this->actingAs(User::factory()->withPersonalTeam()->create())
+          ->visit('/app/'.$user->currentTeam->slug)
+          ->assertScript('typeof window.Echo', 'object')
+          ->assertScript('window.Echo.connector.pusher.connection.state', 'connected');
+  });
+  ```
+- **Fix sketch:**
+  Add to `ChatServiceProvider::registerRenderHooks()`:
+  ```php
+  FilamentView::registerRenderHook(
+      PanelsRenderHook::HEAD_END,
+      fn (): string => Blade::render("@vite('resources/js/echo.js')"),
+  );
+  ```
+  And update `config/filament.php` broadcasting block to use reverb env vars, OR explicitly skip Filament's echo block (`'broadcasting' => []`) so only the chat package's Echo instance exists.
