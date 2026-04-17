@@ -1740,3 +1740,95 @@ public function apply(Builder $builder, Model $model): void
 - **Category:** performance / database contention
 - **Detail:** The approval endpoint wraps the action execution in `DB::transaction` with `lockForUpdate` on the pending_actions row. Per-user, per-action — this is low-fanout and correct. The risk materialises only if a future feature triggers bulk approvals (e.g., "approve all") or if a user spam-clicks approve, causing multiple concurrent transactions to contend on the same row. Current single-user approval UX makes this acceptable.
 - **Fix sketch:** Add an idempotency guard (check `status !== pending` before locking) as a fast path to reject duplicate approval requests before entering the transaction, reducing lock contention surface.
+
+---
+
+## Summary
+
+**Run date:** 2026-04-17
+**PR:** #209 (feat/dashboard-chat)
+**Driver:** agent-browser + server-side verification
+**Fixtures:** database/seeders/ChatQaSeeder.php
+**Environment gaps that shaped the run:** F-002 (laravel/ai not installed), F-006 (Echo asset not registered), F-007 (local browser WSS blocked) — all documented and partially fixed in commit `69f53241`.
+
+### Severity breakdown
+
+- **P0 blocker:** 4 (F-004, F-005, F-006, F-015 — cascade: missing package → no migration → 500 → no tools)
+- **P1 major:** 21
+- **P2 minor:** 24
+- **P3 polish/observability:** 43 (includes nominal confirmation entries)
+- **Total findings:** 100
+
+### Category breakdown (raw, as tagged in findings)
+
+- correctness: 8
+- performance: 8 (+ F-096 cross-ref)
+- accessibility: 8
+- confirmation/observability: 11
+- Multi-tenant: 5
+- input validation: 8
+- billing: 4
+- XSS: 3
+- UX: 4
+- mobile: 2
+- state machine: 2
+- security/auth: 3
+- missing feature: 2
+- data integrity: 3
+- dead code: 1
+- memory leak: 1
+- infra: 2
+
+### Top 10 by user impact (must-fix before GA)
+
+1. **F-015 / F-065 — Chat tool calls silently broken in queue.** `ProcessChatMessage` runs with `auth()->user()=null`, so every tool call either crashes (write tools via `PendingActionService`) or returns empty results (read tools via `TeamScope WHERE 1=0`). The AI responds but sees nothing real. Feature is effectively non-functional end-to-end.
+2. **F-006 — Echo never bootstrapped.** Chat realtime requires Echo, but no view/hook/asset-register loads `resources/js/echo.js`. Fix applied in commit `69f53241`; must be merged upstream.
+3. **F-070 / F-078 / F-079 — Stuck isStreaming.** Client has no timeout/retry; job has no `failed()` handler. One crash leaves the UI permanently disabled until page reload.
+4. **F-080 — Cross-conversation content corruption.** All conversations share `chat.{userId}` channel; two open tabs or panel+page interleave assistant output silently.
+5. **F-049 — Credit race.** `hasCredits` not atomic with dispatch; one user with 1 credit can trigger N concurrent jobs before any deduction occurs.
+6. **F-050 — Credits never reset.** `CreditService::resetPeriod` has zero callers. Users exhaust their allowance and stay exhausted forever — no path back to a non-zero balance without manual seeding.
+7. **F-048 — Credit exhaustion has no upgrade CTA.** 402 rendered as a plain assistant bubble. Worst possible UX at the most important conversion moment.
+8. **F-075 / F-095 — Performance bombs.** 200+ messages render without virtualisation (701 DOM nodes); `extractPendingActions` runs O(N) DB queries per page load.
+9. **F-033 + F-036 — Conversation management UX gaps.** No chat index page (10+ conversations unreachable by any UI); no delete conversation affordance.
+10. **F-087 — No aria-live.** Screen readers are silent for all assistant output. WCAG 2.2 AA blocker for any enterprise procurement.
+
+### Top 10 by revenue/security impact
+
+1. **F-049 — Credit race lets users over-spend on a 1-credit balance.**
+2. **F-050 — No credit reset = stuck user = lost MRR retention.**
+3. **F-048 — No paywall UX at exhaustion = no upgrade conversion moment.**
+4. **F-060 — Model override unguarded** — free-tier users can silently request claude-opus (3× credit spend).
+5. **F-061 — Invalid model string silent fallthrough** → wrong billing tier, user unaware of substitution.
+6. **F-043 — No rate limit on `/chat/mentions`** — unlimited brute-force enumeration of team CRM data.
+7. **F-042 — `q=%` wildcard enumeration** via mentions endpoint exposes full tenant data set.
+8. **F-058 — 419 response leaks full PHP stack trace** (absolute file paths) when `APP_DEBUG=true` — environment-dependent, still warrants review before prod deploy.
+9. **F-083 — Reverb `allowed_origins=['*']`** — overly permissive CORS; WebSocket subscriptions from any origin accepted.
+10. **F-067 / F-068 — Conversations user-scoped not team-scoped** — no audit trail; "Continue last chat" links cross team-context data on multi-team accounts.
+
+### Top 10 P3 polish/observability (easy wins)
+
+1. **F-008** — Greeting uses server UTC; non-UTC users see wrong time-of-day salutation.
+2. **F-018** — `localStorage` panel width unclamped; value of `50` renders a 50px-wide unusable panel.
+3. **F-029** — Unauthenticated POST returns 419 instead of 401 (CSRF fires before auth middleware).
+4. **F-040** — U+202E RTL override character passes through `Str::limit` — potential phishing-style text reversal in sidebar.
+5. **F-044** — No `max:100` on mentions `q` param; 10 000-char LIKE pattern hits Postgres unguarded.
+6. **F-051** — `CreditService::deduct` silently no-ops when balance row is absent — invisible billing gap.
+7. **F-053** — Dead config entries for `claude-haiku-4-5` and `gpt-4o-mini`; `gemini-2.5-pro` has no multiplier entry.
+8. **F-085** — Page unload during stream: server still completes and persists; client misses deltas but DB is correct. No `beforeunload` warning.
+9. **F-093** — `animate-bounce` streaming indicator ignores `prefers-reduced-motion` OS setting.
+10. **F-097** — `ListConversations` fires one extra query on every app-panel page load (all pages, not just chat pages).
+
+### Known workspace-only patches
+
+1. Commit `69f53241` — registered `@vite('resources/js/echo.js')` via `HEAD_END` render hook in `ChatServiceProvider`. MUST be preserved/promoted to the PR diff.
+2. Commit `d958572e` — synced composer deps (`laravel/ai`, `laravel/reverb`, `prism-php/prism`). Confirm before merging that these deps are intentional and versions are pinned correctly.
+3. `.env` additions (`BROADCAST_CONNECTION=reverb`, `QUEUE_CONNECTION=redis`, `REVERB_APP_*` vars). Not committed (gitignored). Must be documented in `.env.example` for anyone running locally.
+
+### Recommended fix order
+
+1. **Unblock core flow** (F-015 + F-065 auth binding in `ProcessChatMessage`; F-006 Echo asset; F-070 + F-078 + F-079 streaming timeout + `failed()` handler; F-080 conversation-scoped channel).
+2. **Revenue integrity** (F-049 atomic credit gate; F-050 monthly reset command; F-048 paywall CTA; F-060 model plan gate; F-061 `Rule::enum` validation).
+3. **Feature completeness** (F-033 conversation index page; F-036 delete conversation UI; F-020 side-panel suggested-prompt wiring; F-012 URL querystring rewrite regex; F-016 dual-instance Echo guard).
+4. **Accessibility** (F-087 `aria-live`; F-088–F-092 button labels, dialog role, focus trap, textarea label).
+5. **Performance** (F-095 + F-038 N+1 batch fix; F-034 + F-096 remove unconditional `wire:poll`; F-075 message pagination; F-082 dedicated chat queue).
+6. **Polish & observability** (remaining P3s: F-008, F-018, F-029, F-040, F-044, F-051, F-053, F-067 `team_id` migration, F-083 Reverb CORS, F-097–F-100).
