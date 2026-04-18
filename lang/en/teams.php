@@ -85,6 +85,8 @@ return [
             'cannot_update_team_member' => 'You do not have permission to update this team member.',
             'cannot_leave_team' => 'You may not leave a team that you created.',
             'cannot_remove_team_member' => 'You do not have permission to remove this team member.',
+            'cannot_delete_team' => 'You do not have permission to delete this team.',
+            'cannot_cancel_team_deletion' => 'You do not have permission to cancel this team\'s deletion.',
         ],
     ],
 

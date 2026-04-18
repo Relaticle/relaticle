@@ -19,7 +19,7 @@ final class PurgeScheduledDeletionsCommand extends Command
 {
     protected $signature = 'app:purge-scheduled-deletions';
 
-    protected $description = 'Permanently delete users and teams past their scheduled deletion date, and send day-25 reminders';
+    protected $description = 'Permanently delete users and teams past their scheduled deletion date, and send reminders ahead of purge';
 
     public function handle(DeletesUsers $deletesUsers, DeletesTeams $deletesTeams): int
     {
@@ -71,8 +71,9 @@ final class PurgeScheduledDeletionsCommand extends Command
     private function sendReminders(): void
     {
         $reminderDays = config('relaticle.deletion.reminder_days_before');
-        $reminderStart = now()->addDays($reminderDays)->startOfDay();
-        $reminderEnd = now()->addDays($reminderDays)->endOfDay();
+        $reminderDate = now()->addDays($reminderDays);
+        $reminderStart = $reminderDate->copy()->startOfDay();
+        $reminderEnd = $reminderDate->copy()->endOfDay();
 
         User::query()
             ->scheduledForDeletion()

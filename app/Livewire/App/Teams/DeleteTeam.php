@@ -13,6 +13,7 @@ use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Actions;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
@@ -41,7 +42,7 @@ final class DeleteTeam extends BaseLivewireComponent
                                 ? __('teams.sections.delete_team.scheduled_notice', ['date' => $this->team->scheduled_deletion_at->format('F j, Y')])
                                 : __('teams.sections.delete_team.notice')),
                         Actions::make([
-                            Action::make('deleteAccountAction')
+                            Action::make('scheduleTeamDeletionAction')
                                 ->label(__('teams.actions.delete_team'))
                                 ->color('danger')
                                 ->requiresConfirmation()
@@ -75,6 +76,11 @@ final class DeleteTeam extends BaseLivewireComponent
             resolve(ScheduleTeamDeletion::class)->schedule($this->authUser(), $team);
 
             $this->sendNotification("Team scheduled for deletion on {$team->refresh()->scheduled_deletion_at->format('F j, Y')}");
+        } catch (AuthorizationException) {
+            $this->sendNotification(
+                __('teams.notifications.permission_denied.cannot_delete_team'),
+                type: 'danger'
+            );
         } catch (ValidationException $e) {
             $this->addError('team', $e->validator->errors()->first());
         }
@@ -82,8 +88,15 @@ final class DeleteTeam extends BaseLivewireComponent
 
     public function cancelTeamDeletion(Team $team): void
     {
-        resolve(CancelTeamDeletion::class)->cancel($this->authUser(), $team);
+        try {
+            resolve(CancelTeamDeletion::class)->cancel($this->authUser(), $team);
 
-        $this->sendNotification('Team deletion cancelled');
+            $this->sendNotification('Team deletion cancelled');
+        } catch (AuthorizationException) {
+            $this->sendNotification(
+                __('teams.notifications.permission_denied.cannot_cancel_team_deletion'),
+                type: 'danger'
+            );
+        }
     }
 }
