@@ -66,6 +66,10 @@ final class ChatSidePanel extends BaseLivewireComponent
      */
     public function refreshContext(): void
     {
+        if (! $this->isOpen) {
+            return;
+        }
+
         $contextService = resolve(ChatContextService::class);
         $context = $contextService->getContext();
         $this->suggestedPrompts = $contextService->getSuggestedPrompts($context);
