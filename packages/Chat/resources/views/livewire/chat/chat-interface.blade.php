@@ -276,6 +276,21 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
             });
         }
 
+        try {
+            const draft = localStorage.getItem('chat:draft');
+            if (draft) {
+                this.input = draft;
+                localStorage.removeItem('chat:draft');
+            }
+        } catch (_) { /* ignore */ }
+
+        this.beforeUnloadHandler = (e) => {
+            if (!this.isStreaming) return;
+            e.preventDefault();
+            e.returnValue = 'Your message is still being generated. Leave anyway?';
+        };
+        window.addEventListener('beforeunload', this.beforeUnloadHandler);
+
         this.$wire.$on('chat:messages-prepended', (payload) => {
             const earlier = (payload && payload.messages) || [];
             const hasMore = payload ? !!payload.hasMore : false;
@@ -302,6 +317,7 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
     destroy() {
         this.clearStreamTimeout();
         this.unsubscribe();
+        window.removeEventListener('beforeunload', this.beforeUnloadHandler);
     },
 
     unsubscribe() {
@@ -357,7 +373,7 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
         this.input = '';
         this.isStreaming = true;
 
-        this.messages.push({ role: 'assistant', content: '', pending_actions: [], paywall: null });
+        this.messages.push({ role: 'assistant', content: '', pending_actions: [], paywall: null, sessionExpired: false });
 
         const url = this.conversationId
             ? sendUrl.replace(/\/$/, '') + '/' + this.conversationId
@@ -379,6 +395,15 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
             if (!response.ok) {
                 const body = await response.json().catch(() => ({}));
                 const assistantMsg = this.messages[this.messages.length - 1];
+
+                if (response.status === 401 || response.status === 419) {
+                    try { localStorage.setItem('chat:draft', text); } catch (_) { /* ignore */ }
+                    assistantMsg.content = 'Your session expired. Please sign in again — your message is saved locally.';
+                    assistantMsg.sessionExpired = true;
+                    this.isStreaming = false;
+                    this.clearStreamTimeout();
+                    return;
+                }
 
                 if (response.status === 402 && body?.error === 'credits_exhausted') {
                     const resetLabel = body.reset_at ? new Date(body.reset_at).toLocaleDateString() : null;
