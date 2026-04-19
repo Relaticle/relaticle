@@ -56,8 +56,8 @@
                     {{-- User message --}}
                     <template x-if="msg.role === 'user'">
                         <div class="flex justify-end">
-                            <div class="max-w-[80%] rounded-2xl rounded-br-md bg-primary-600 px-4 py-3 text-sm text-white">
-                                <span x-text="msg.content"></span>
+                            <div class="max-w-[80%] [overflow-wrap:anywhere] break-words rounded-2xl rounded-br-md bg-primary-600 px-4 py-3 text-sm text-white">
+                                <span x-text="msg.content" class="whitespace-pre-wrap"></span>
                             </div>
                         </div>
                     </template>
