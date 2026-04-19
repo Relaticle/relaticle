@@ -130,15 +130,16 @@
         <button
             wire:click="togglePanel"
             type="button"
-            aria-label="Open chat panel (Cmd+J)"
-            title="Open Chat (Cmd+J)"
+            x-data="{ isMac: navigator.platform.toLowerCase().includes('mac') }"
+            :aria-label="isMac ? 'Open chat panel (Cmd+J)' : 'Open chat panel (Ctrl+J)'"
+            :title="isMac ? 'Open Chat (Cmd+J)' : 'Open Chat (Ctrl+J)'"
             class="flex items-center gap-2 rounded-full bg-primary-600 px-4 py-3 text-white shadow-lg transition hover:bg-primary-700 hover:shadow-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-500"
             data-chat-toggle
         >
             <x-heroicon-s-chat-bubble-left-right class="h-5 w-5" aria-hidden="true" />
             <span class="text-sm font-medium">Chat</span>
             <kbd class="hidden items-center rounded bg-primary-500 px-1.5 py-0.5 font-mono text-xs text-primary-100 sm:inline-flex" aria-hidden="true">
-                &#8984;J
+                <span x-text="isMac ? '⌘J' : 'Ctrl+J'"></span>
             </kbd>
         </button>
     </div>
