@@ -19,15 +19,24 @@ final readonly class ListConversationMessages
     /**
      * @return array<int, array{id: string, role: string, content: string, pending_actions: array<int, mixed>}>
      */
-    public function execute(User $user, string $conversationId): array
+    public function execute(User $user, string $conversationId, ?string $beforeMessageId = null, int $limit = 50): array
     {
-        $messages = DB::table('agent_conversation_messages as m')
+        $query = DB::table('agent_conversation_messages as m')
             ->join('agent_conversations as c', 'c.id', '=', 'm.conversation_id')
             ->where('m.conversation_id', $conversationId)
             ->where('m.user_id', $user->getKey())
-            ->where('c.team_id', $user->current_team_id)
-            ->oldest('m.created_at')
-            ->get(['m.id', 'm.role', 'm.content', 'm.tool_results']);
+            ->where('c.team_id', $user->current_team_id);
+
+        if ($beforeMessageId !== null) {
+            $query->where('m.id', '<', $beforeMessageId);
+        }
+
+        $messages = $query
+            ->orderByDesc('m.id')
+            ->limit($limit)
+            ->get(['m.id', 'm.role', 'm.content', 'm.tool_results'])
+            ->reverse()
+            ->values();
 
         $pendingIds = $this->collectPendingActionIds($messages);
 

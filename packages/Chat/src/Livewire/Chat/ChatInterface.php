@@ -14,8 +14,14 @@ final class ChatInterface extends BaseLivewireComponent
 
     public ?string $initialMessage = null;
 
+    public ?string $oldestMessageId = null;
+
+    public bool $hasMoreMessages = false;
+
+    private const int PAGE_SIZE = 50;
+
     /**
-     * @var array<int, array{role: string, content: string, pending_actions?: array<int, mixed>}>
+     * @var array<int, array{id?: string, role: string, content: string, pending_actions?: array<int, mixed>}>
      */
     public array $messages = [];
 
@@ -26,11 +32,13 @@ final class ChatInterface extends BaseLivewireComponent
 
         if ($this->conversationId !== null) {
             $this->messages = $this->fetchMessages();
+            $this->oldestMessageId = $this->messages === [] ? null : ($this->messages[0]['id'] ?? null);
+            $this->hasMoreMessages = count($this->messages) === self::PAGE_SIZE;
         }
     }
 
     /**
-     * @return array<int, array{role: string, content: string}>
+     * @return array<int, array{id: string, role: string, content: string, pending_actions: array<int, mixed>}>
      */
     public function fetchMessages(): array
     {
@@ -42,6 +50,25 @@ final class ChatInterface extends BaseLivewireComponent
             $this->authUser(),
             $this->conversationId,
         );
+    }
+
+    public function loadEarlierMessages(): void
+    {
+        if ($this->conversationId === null || $this->oldestMessageId === null) {
+            return;
+        }
+
+        $earlier = (new ListConversationMessages)->execute(
+            $this->authUser(),
+            $this->conversationId,
+            beforeMessageId: $this->oldestMessageId,
+        );
+
+        $this->messages = [...$earlier, ...$this->messages];
+        $this->oldestMessageId = $this->messages === [] ? null : ($this->messages[0]['id'] ?? $this->oldestMessageId);
+        $this->hasMoreMessages = count($earlier) === self::PAGE_SIZE;
+
+        $this->dispatch('chat:messages-prepended', messages: $earlier, hasMore: $this->hasMoreMessages);
     }
 
     public function render(): View

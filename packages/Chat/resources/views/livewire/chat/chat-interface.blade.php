@@ -1,5 +1,5 @@
 <div
-    x-data="chatInterface(@js($conversationId), @js(route('chat.send')), @js($initialMessage), @js($messages), @js(auth()->id()))"
+    x-data="chatInterface(@js($conversationId), @js(route('chat.send')), @js($initialMessage), @js($messages), @js(auth()->id()), @js($hasMoreMessages))"
     x-init="init()"
     class="flex h-full flex-col"
 >
@@ -39,6 +39,18 @@
         </template>
 
         <div class="mx-auto max-w-3xl space-y-6">
+            <template x-if="hasMoreMessages">
+                <div class="flex justify-center py-2">
+                    <button
+                        type="button"
+                        x-on:click="loadEarlier()"
+                        class="rounded-full border border-gray-200 bg-white px-3 py-1 text-xs text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+                    >
+                        Load earlier messages
+                    </button>
+                </div>
+            </template>
+
             <template x-for="(msg, index) in messages" :key="index">
                 <div>
                     {{-- User message --}}
@@ -229,14 +241,16 @@
 
 @script
 <script>
-Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, initialMessages, userId) => ({
+Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, initialMessages, userId, initialHasMoreMessages) => ({
     conversationId: initialConversationId,
     messages: initialMessages || [],
+    hasMoreMessages: !!initialHasMoreMessages,
     input: '',
     isStreaming: false,
     channel: null,
     streamTimeoutId: null,
     streamTimeoutMs: 60000,
+    prependScrollAnchor: null,
 
     starterPrompts: [
         'Give me a CRM overview',
@@ -261,6 +275,28 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
                 this.sendMessage();
             });
         }
+
+        this.$wire.$on('chat:messages-prepended', (payload) => {
+            const earlier = (payload && payload.messages) || [];
+            const hasMore = payload ? !!payload.hasMore : false;
+            if (earlier.length > 0) {
+                this.messages = [...earlier, ...this.messages];
+            }
+            this.hasMoreMessages = hasMore;
+
+            this.$nextTick(() => {
+                const el = this.$refs.messages;
+                if (!el || this.prependScrollAnchor === null) return;
+                el.scrollTop = el.scrollHeight - this.prependScrollAnchor;
+                this.prependScrollAnchor = null;
+            });
+        });
+    },
+
+    loadEarlier() {
+        const el = this.$refs.messages;
+        this.prependScrollAnchor = el ? el.scrollHeight : 0;
+        this.$wire.loadEarlierMessages();
     },
 
     destroy() {
