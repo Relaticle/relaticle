@@ -9,6 +9,7 @@ use Relaticle\Chat\Enums\PendingActionOperation;
 use Relaticle\Chat\Enums\PendingActionStatus;
 use Relaticle\Chat\Http\Controllers\PendingActionController;
 use Relaticle\Chat\Models\PendingAction;
+use Relaticle\Chat\Services\PendingActionService;
 
 mutates(PendingActionController::class);
 
@@ -159,4 +160,25 @@ it('rejects unauthenticated approve request', function (): void {
 
     $this->postJson(route('chat.actions.approve', $pending))
         ->assertUnauthorized();
+});
+
+it('rejects are idempotent under second call', function (): void {
+    $pending = PendingAction::query()->create([
+        'team_id' => $this->team->getKey(),
+        'user_id' => $this->user->getKey(),
+        'conversation_id' => 'conv-x',
+        'action_class' => CreateCompany::class,
+        'operation' => PendingActionOperation::Create,
+        'entity_type' => 'company',
+        'action_data' => ['name' => 'Acme'],
+        'display_data' => [],
+        'status' => PendingActionStatus::Pending,
+        'expires_at' => now()->addMinutes(15),
+    ]);
+
+    $service = app(PendingActionService::class);
+
+    $service->reject($pending);
+
+    expect(fn () => $service->reject($pending->refresh()))->toThrow(RuntimeException::class);
 });

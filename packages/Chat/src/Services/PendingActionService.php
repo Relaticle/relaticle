@@ -88,14 +88,21 @@ final readonly class PendingActionService
 
     public function reject(PendingAction $pendingAction): PendingAction
     {
-        $this->validateResolvable($pendingAction);
+        return DB::transaction(function () use ($pendingAction): PendingAction {
+            /** @var PendingAction $locked */
+            $locked = PendingAction::query()
+                ->lockForUpdate()
+                ->findOrFail($pendingAction->getKey());
 
-        $pendingAction->update([
-            'status' => PendingActionStatus::Rejected,
-            'resolved_at' => now(),
-        ]);
+            $this->validateResolvable($locked);
 
-        return $pendingAction->refresh();
+            $locked->update([
+                'status' => PendingActionStatus::Rejected,
+                'resolved_at' => now(),
+            ]);
+
+            return $locked->refresh();
+        });
     }
 
     public function expireStale(): int
@@ -110,8 +117,15 @@ final readonly class PendingActionService
 
     private function validateResolvable(PendingAction $pendingAction): void
     {
-        throw_unless($pendingAction->isPending(), RuntimeException::class, 'This action has already been resolved');
+        if ($pendingAction->isPending() && $pendingAction->isExpired()) {
+            $pendingAction->update([
+                'status' => PendingActionStatus::Expired,
+                'resolved_at' => now(),
+            ]);
+            throw new RuntimeException('This action has expired');
+        }
 
+        throw_unless($pendingAction->isPending(), RuntimeException::class, 'This action has already been resolved');
         throw_if($pendingAction->isExpired(), RuntimeException::class, 'This action has expired');
     }
 
