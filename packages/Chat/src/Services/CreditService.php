@@ -15,6 +15,10 @@ final readonly class CreditService
 {
     public function hasCredits(Team $team): bool
     {
+        if ((bool) config('ai.unlimited_credits', false)) {
+            return true;
+        }
+
         return $this->getBalance($team) > 0;
     }
 
@@ -41,6 +45,10 @@ final readonly class CreditService
         int $toolCallsCount = 0,
         ?string $conversationId = null,
     ): void {
+        if ((bool) config('ai.unlimited_credits', false)) {
+            return;
+        }
+
         $creditsCharged = $this->calculateCredits($model, $toolCallsCount);
 
         DB::transaction(function () use ($team, $user, $type, $model, $inputTokens, $outputTokens, $creditsCharged, $toolCallsCount, $conversationId): void {

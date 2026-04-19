@@ -9,11 +9,27 @@
         class="flex-1 overflow-y-auto px-4 py-6"
     >
         <template x-if="messages.length === 0 && !isStreaming">
-            <div class="flex h-full items-center justify-center">
-                <div class="text-center">
-                    <p class="text-sm text-gray-400 dark:text-gray-500">
-                        Start a conversation...
+            <div class="flex h-full items-center justify-center px-6">
+                <div class="mx-auto max-w-md text-center">
+                    <div class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary-50 text-primary-600 dark:bg-primary-900/20 dark:text-primary-400">
+                        <x-heroicon-o-sparkles class="h-6 w-6" />
+                    </div>
+                    <h3 class="text-base font-semibold text-gray-900 dark:text-white">
+                        How can I help?
+                    </h3>
+                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                        Ask about your CRM data, or try one of these:
                     </p>
+                    <div class="mt-4 flex flex-wrap justify-center gap-2">
+                        <template x-for="prompt in starterPrompts" :key="prompt">
+                            <button
+                                type="button"
+                                x-on:click="input = prompt; $nextTick(() => sendMessage())"
+                                x-text="prompt"
+                                class="rounded-full border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 transition hover:border-primary-300 hover:bg-primary-50 hover:text-primary-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-primary-700 dark:hover:bg-primary-900/20 dark:hover:text-primary-300"
+                            ></button>
+                        </template>
+                    </div>
                 </div>
             </div>
         </template>
@@ -33,9 +49,10 @@
                     {{-- Assistant message --}}
                     <template x-if="msg.role === 'assistant'">
                         <div class="flex justify-start">
-                            <div class="prose prose-sm dark:prose-invert max-w-[80%] rounded-2xl rounded-bl-md bg-gray-100 px-4 py-3 text-gray-900 dark:bg-gray-800 dark:text-gray-100">
-                                <div x-html="msg.content"></div>
-                            </div>
+                            <div
+                                class="prose prose-sm dark:prose-invert max-w-[85%] rounded-2xl rounded-bl-md bg-white px-4 py-3 text-gray-900 shadow-sm ring-1 ring-gray-200 dark:bg-gray-800 dark:text-gray-100 dark:ring-gray-700 prose-p:my-2 prose-headings:mb-2 prose-headings:mt-3 prose-headings:text-gray-900 dark:prose-headings:text-white prose-pre:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0.5 prose-table:my-2 prose-table:border-collapse prose-thead:border-b prose-thead:border-gray-300 dark:prose-thead:border-gray-600 prose-th:px-2 prose-th:py-1 prose-th:text-left prose-td:border-t prose-td:border-gray-100 prose-td:px-2 prose-td:py-1 dark:prose-td:border-gray-700 prose-code:rounded prose-code:bg-gray-100 prose-code:px-1 prose-code:py-0.5 prose-code:text-[0.85em] prose-code:before:content-none prose-code:after:content-none dark:prose-code:bg-gray-900 prose-pre:rounded-lg prose-pre:bg-gray-900 prose-pre:text-gray-100 first:prose-headings:mt-0"
+                                x-html="window.renderMarkdown(msg.content)"
+                            ></div>
                         </div>
                     </template>
 
@@ -115,14 +132,14 @@
                 </div>
             </template>
 
-            {{-- Streaming indicator --}}
-            <template x-if="isStreaming">
+            {{-- Streaming indicator (only before first token arrives) --}}
+            <template x-if="isStreaming && (messages.length === 0 || messages[messages.length-1].role !== 'assistant' || !messages[messages.length-1].content)">
                 <div class="flex justify-start">
-                    <div class="rounded-2xl rounded-bl-md bg-gray-100 px-4 py-3 dark:bg-gray-800">
-                        <div class="flex items-center gap-1">
-                            <span class="h-2 w-2 animate-bounce rounded-full bg-gray-400 [animation-delay:-0.3s]"></span>
-                            <span class="h-2 w-2 animate-bounce rounded-full bg-gray-400 [animation-delay:-0.15s]"></span>
-                            <span class="h-2 w-2 animate-bounce rounded-full bg-gray-400"></span>
+                    <div class="rounded-2xl rounded-bl-md bg-white px-4 py-3 shadow-sm ring-1 ring-gray-200 dark:bg-gray-800 dark:ring-gray-700">
+                        <div class="flex items-center gap-1.5">
+                            <span class="h-1.5 w-1.5 animate-bounce rounded-full bg-gray-400 [animation-delay:-0.3s]"></span>
+                            <span class="h-1.5 w-1.5 animate-bounce rounded-full bg-gray-400 [animation-delay:-0.15s]"></span>
+                            <span class="h-1.5 w-1.5 animate-bounce rounded-full bg-gray-400"></span>
                         </div>
                     </div>
                 </div>
@@ -131,26 +148,42 @@
     </div>
 
     {{-- Input area --}}
-    <div class="border-t border-gray-200 px-4 py-4 dark:border-gray-700">
+    <div class="border-t border-gray-200 bg-white px-4 py-4 dark:border-gray-700 dark:bg-gray-900">
         <div class="mx-auto max-w-3xl">
-            <form x-on:submit.prevent="sendMessage()" class="relative">
-                <textarea
-                    x-model="input"
-                    x-ref="chatInput"
-                    @keydown.enter.prevent="if(!$event.shiftKey) sendMessage()"
-                    placeholder="Ask anything..."
-                    rows="1"
-                    class="w-full resize-none rounded-xl border border-gray-300 bg-white px-4 py-3 pr-12 text-sm shadow-sm transition placeholder:text-gray-400 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder:text-gray-500"
-                    :disabled="isStreaming"
-                ></textarea>
-                <div class="absolute bottom-3 right-3">
+            <form x-on:submit.prevent="sendMessage()">
+                <div class="relative flex items-end gap-2 rounded-2xl border border-gray-200 bg-white px-3 py-2 shadow-sm transition focus-within:border-primary-500 focus-within:ring-2 focus-within:ring-primary-500/20 dark:border-gray-700 dark:bg-gray-800">
+                    <textarea
+                        x-model="input"
+                        x-ref="chatInput"
+                        @keydown.enter.prevent="if(!$event.shiftKey) sendMessage()"
+                        @input="autosize($event.target)"
+                        placeholder="Ask anything..."
+                        rows="1"
+                        class="block min-h-[28px] w-full resize-none border-0 bg-transparent px-1 py-1 text-sm leading-6 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-0 dark:text-white dark:placeholder:text-gray-500"
+                        style="max-height: 200px;"
+                        :disabled="isStreaming"
+                    ></textarea>
                     <button
                         type="submit"
-                        class="flex h-7 w-7 items-center justify-center rounded-lg bg-primary-600 text-white transition hover:bg-primary-700 disabled:opacity-40"
+                        class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary-600 text-white shadow-sm transition hover:bg-primary-700 disabled:cursor-not-allowed disabled:bg-gray-200 disabled:text-gray-400 disabled:shadow-none dark:disabled:bg-gray-700 dark:disabled:text-gray-500"
                         :disabled="isStreaming || !input.trim()"
+                        aria-label="Send message"
                     >
-                        <x-heroicon-s-arrow-up class="h-4 w-4" />
+                        <template x-if="!isStreaming">
+                            <x-heroicon-s-arrow-up class="h-4 w-4" />
+                        </template>
+                        <template x-if="isStreaming">
+                            <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+                        </template>
                     </button>
+                </div>
+                <div class="mt-1.5 px-1 text-center text-[11px] text-gray-400 dark:text-gray-500">
+                    <kbd class="rounded border border-gray-200 bg-gray-50 px-1 py-0.5 font-sans text-[10px] dark:border-gray-700 dark:bg-gray-900">Enter</kbd> to send
+                    <span class="mx-1 text-gray-300 dark:text-gray-600">·</span>
+                    <kbd class="rounded border border-gray-200 bg-gray-50 px-1 py-0.5 font-sans text-[10px] dark:border-gray-700 dark:bg-gray-900">Shift</kbd>
+                    +
+                    <kbd class="rounded border border-gray-200 bg-gray-50 px-1 py-0.5 font-sans text-[10px] dark:border-gray-700 dark:bg-gray-900">Enter</kbd>
+                    for newline
                 </div>
             </form>
         </div>
@@ -166,6 +199,18 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
     isStreaming: false,
     channel: null,
 
+    starterPrompts: [
+        'Give me a CRM overview',
+        'Show overdue tasks',
+        'Recent companies',
+        'Pipeline summary',
+    ],
+
+    autosize(el) {
+        el.style.height = 'auto';
+        el.style.height = Math.min(el.scrollHeight, 200) + 'px';
+    },
+
     init() {
         this.setupEchoListener();
 
@@ -177,8 +222,18 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
         }
     },
 
+    destroy() {
+        if (this.channel) {
+            this.channel.stopListening('.text_delta');
+            this.channel.stopListening('.tool_result');
+            this.channel.stopListening('.stream_end');
+            this.channel.stopListening('.conversation.resolved');
+            this.channel = null;
+        }
+    },
+
     setupEchoListener() {
-        if (!window.Echo) return;
+        if (!window.Echo || this.channel) return;
 
         this.channel = window.Echo.private(`chat.${userId}`)
             .listen('.text_delta', (e) => this.handleTextDelta(e))

@@ -77,7 +77,7 @@ final class ChatServiceProvider extends ServiceProvider
     {
         FilamentView::registerRenderHook(
             PanelsRenderHook::HEAD_END,
-            fn (): string => Blade::render("@vite('resources/js/echo.js')"),
+            fn (): string => Blade::render("@vite(['resources/js/echo.js', 'packages/Chat/resources/js/chat.js'])"),
         );
 
         FilamentView::registerRenderHook(

@@ -2,8 +2,13 @@
 @import '../../fonts.css';
 @import '../../theme.css';
 
+@plugin "@tailwindcss/typography";
+
 @source '../../../../app/Filament';
 @source '../../../../resources/views';
+
+/* Chat */
+@source '../../../../packages/Chat/resources/views';
 
 /* ImportWizard */
 @source '../../../../packages/ImportWizard/resources';
