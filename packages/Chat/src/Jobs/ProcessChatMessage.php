@@ -42,7 +42,9 @@ final class ProcessChatMessage implements ShouldQueue
         private readonly string $message,
         private readonly string $conversationId,
         private readonly array $resolved,
-    ) {}
+    ) {
+        $this->onQueue('chat');
+    }
 
     public function handle(CreditService $creditService): void
     {

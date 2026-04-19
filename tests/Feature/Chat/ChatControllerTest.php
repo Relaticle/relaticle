@@ -221,6 +221,14 @@ it('returns reset_at and upgrade_url on 402', function (): void {
         ->assertJsonPath('error', 'credits_exhausted');
 });
 
+it('dispatches a chat job on the chat queue', function (): void {
+    Queue::fake();
+
+    $this->postJson(route('chat.send'), ['message' => 'hello'])->assertOk();
+
+    Queue::assertPushedOn('chat', ProcessChatMessage::class);
+});
+
 it('cleans up messages when deleting a conversation', function (): void {
     DB::table('agent_conversations')->insert([
         'id' => 'conv-cleanup',
