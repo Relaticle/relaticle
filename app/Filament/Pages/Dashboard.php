@@ -8,7 +8,7 @@ use App\Models\User;
 use BackedEnum;
 use Filament\Facades\Filament;
 use Filament\Pages\Page;
-use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Date;
 use Relaticle\Chat\Actions\ListConversations;
 
 final class Dashboard extends Page
@@ -50,7 +50,7 @@ final class Dashboard extends Page
 
         /** @var string $timezone */
         $timezone = $user->timezone ?? config('app.timezone');
-        $hour = Carbon::now($timezone)->hour;
+        $hour = Date::now($timezone)->hour;
 
         return match (true) {
             $hour < 12 => "Good morning, {$firstName}.",
