@@ -7,6 +7,7 @@
             minWidth: 360,
             maxWidth: 720,
             resizing: false,
+            viewportWidth: window.innerWidth,
 
             init() {
                 this.keydownHandler = (e) => {
@@ -34,12 +35,16 @@
                     $wire.refreshContext();
                 };
                 document.addEventListener('livewire:navigated', this.navigatedHandler);
+
+                this.resizeHandler = () => { this.viewportWidth = window.innerWidth; };
+                window.addEventListener('resize', this.resizeHandler);
             },
 
             destroy() {
                 window.removeEventListener('keydown', this.keydownHandler);
                 window.removeEventListener('chat:send', this.chatSendHandler);
                 document.removeEventListener('livewire:navigated', this.navigatedHandler);
+                window.removeEventListener('resize', this.resizeHandler);
             },
 
             startResize(e) {
@@ -76,7 +81,7 @@
         aria-label="Chat side panel"
         tabindex="-1"
         class="fixed inset-y-0 right-0 z-50 flex max-w-full"
-        :style="{ width: width + 'px' }"
+        :style="{ width: (viewportWidth < 640 ? viewportWidth : width) + 'px' }"
         data-chat-side-panel
     >
         {{-- Resize Handle --}}
