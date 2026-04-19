@@ -132,6 +132,7 @@ final class AppPanelProvider extends PanelProvider
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->discoverPages(in: base_path('packages/ImportWizard/src/Filament/Pages'), for: 'Relaticle\\ImportWizard\\Filament\\Pages')
+            ->discoverPages(in: base_path('packages/Chat/src/Filament/Pages'), for: 'Relaticle\\Chat\\Filament\\Pages')
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->discoverClusters(in: app_path('Filament/Clusters'), for: 'App\\Filament\\Clusters')
             ->readOnlyRelationManagersOnResourceViewPagesByDefault(false)
