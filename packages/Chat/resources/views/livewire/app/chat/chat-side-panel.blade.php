@@ -3,29 +3,43 @@
     <div
         x-data="{
             open: @entangle('isOpen'),
-            width: parseInt(localStorage.getItem('chat-panel-width') || '420'),
+            width: Math.max(360, Math.min(720, parseInt(localStorage.getItem('chat-panel-width') || '420', 10) || 420)),
             minWidth: 360,
             maxWidth: 720,
             resizing: false,
 
             init() {
-                window.addEventListener('keydown', (e) => {
+                this.keydownHandler = (e) => {
                     if ((e.metaKey || e.ctrlKey) && e.key === 'j') {
                         e.preventDefault();
                         this.open = !this.open;
+                        return;
                     }
-                });
+                    if (e.key === 'Escape' && this.open) {
+                        e.preventDefault();
+                        this.open = false;
+                    }
+                };
+                window.addEventListener('keydown', this.keydownHandler);
 
-                window.addEventListener('chat:send', (e) => {
+                this.chatSendHandler = (e) => {
                     if (e.detail?.message) {
                         this.open = true;
                         $wire.handleSendFromDashboard(e.detail.message, e.detail.source ?? 'dashboard');
                     }
-                });
+                };
+                window.addEventListener('chat:send', this.chatSendHandler);
 
-                document.addEventListener('livewire:navigated', () => {
+                this.navigatedHandler = () => {
                     $wire.refreshContext();
-                });
+                };
+                document.addEventListener('livewire:navigated', this.navigatedHandler);
+            },
+
+            destroy() {
+                window.removeEventListener('keydown', this.keydownHandler);
+                window.removeEventListener('chat:send', this.chatSendHandler);
+                document.removeEventListener('livewire:navigated', this.navigatedHandler);
             },
 
             startResize(e) {
@@ -57,7 +71,11 @@
         x-transition:leave-start="translate-x-0"
         x-transition:leave-end="translate-x-full"
         x-cloak
-        class="fixed inset-y-0 right-0 z-50 flex"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Chat side panel"
+        tabindex="-1"
+        class="fixed inset-y-0 right-0 z-50 flex max-w-full"
         :style="{ width: width + 'px' }"
         data-chat-side-panel
     >
@@ -78,9 +96,11 @@
                 </div>
                 <button
                     @click="open = false"
-                    class="rounded-lg p-1 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-300"
+                    type="button"
+                    aria-label="Close chat panel"
+                    class="rounded-lg p-1 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-500 dark:hover:bg-gray-800 dark:hover:text-gray-300"
                 >
-                    <x-heroicon-o-x-mark class="h-5 w-5" />
+                    <x-heroicon-o-x-mark class="h-5 w-5" aria-hidden="true" />
                 </button>
             </div>
 
@@ -109,13 +129,15 @@
     >
         <button
             wire:click="togglePanel"
-            class="flex items-center gap-2 rounded-full bg-primary-600 px-4 py-3 text-white shadow-lg transition hover:bg-primary-700 hover:shadow-xl"
+            type="button"
+            aria-label="Open chat panel (Cmd+J)"
             title="Open Chat (Cmd+J)"
+            class="flex items-center gap-2 rounded-full bg-primary-600 px-4 py-3 text-white shadow-lg transition hover:bg-primary-700 hover:shadow-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-500"
             data-chat-toggle
         >
-            <x-heroicon-s-chat-bubble-left-right class="h-5 w-5" />
+            <x-heroicon-s-chat-bubble-left-right class="h-5 w-5" aria-hidden="true" />
             <span class="text-sm font-medium">Chat</span>
-            <kbd class="hidden items-center rounded bg-primary-500 px-1.5 py-0.5 font-mono text-xs text-primary-100 sm:inline-flex">
+            <kbd class="hidden items-center rounded bg-primary-500 px-1.5 py-0.5 font-mono text-xs text-primary-100 sm:inline-flex" aria-hidden="true">
                 &#8984;J
             </kbd>
         </button>

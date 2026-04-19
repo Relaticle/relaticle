@@ -4,5 +4,9 @@ declare(strict_types=1);
 
 use App\Models\User;
 use Illuminate\Support\Facades\Broadcast;
+use Illuminate\Support\Facades\DB;
 
-Broadcast::channel('chat.{userId}', fn (User $user, string $userId): bool => $user->getKey() === $userId);
+Broadcast::channel('chat.conversation.{conversationId}', fn (User $user, string $conversationId): bool => DB::table('agent_conversations')
+    ->where('id', $conversationId)
+    ->where('user_id', $user->getKey())
+    ->exists());

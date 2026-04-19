@@ -8,13 +8,13 @@ use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 
-final class ConversationResolved implements ShouldBroadcastNow
+final class ChatStreamFailed implements ShouldBroadcastNow
 {
     use InteractsWithSockets;
 
     public function __construct(
-        public readonly string $userId,
         public readonly string $conversationId,
+        public readonly string $message,
     ) {}
 
     /**
@@ -29,7 +29,7 @@ final class ConversationResolved implements ShouldBroadcastNow
 
     public function broadcastAs(): string
     {
-        return 'conversation.resolved';
+        return 'stream.failed';
     }
 
     /**
@@ -38,8 +38,8 @@ final class ConversationResolved implements ShouldBroadcastNow
     public function broadcastWith(): array
     {
         return [
-            'userId' => $this->userId,
             'conversationId' => $this->conversationId,
+            'message' => $this->message,
         ];
     }
 }

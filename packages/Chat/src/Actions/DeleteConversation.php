@@ -6,6 +6,7 @@ namespace Relaticle\Chat\Actions;
 
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Relaticle\Chat\Models\PendingAction;
 
 final readonly class DeleteConversation
 {
@@ -22,6 +23,10 @@ final readonly class DeleteConversation
             }
 
             DB::table('agent_conversation_messages')
+                ->where('conversation_id', $conversationId)
+                ->delete();
+
+            PendingAction::query()
                 ->where('conversation_id', $conversationId)
                 ->delete();
 

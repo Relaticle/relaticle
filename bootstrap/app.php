@@ -77,6 +77,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $schedule->command('queue:prune-batches --hours=24')->daily();
         $schedule->command('invitations:cleanup')->daily();
         $schedule->command('chat:expire-pending-actions')->everyFiveMinutes();
+        $schedule->command('chat:reset-credits')->dailyAt('00:05');
 
         if (config('app.health_checks_enabled')) {
             $schedule->command(RunHealthChecksCommand::class)->everyMinute();

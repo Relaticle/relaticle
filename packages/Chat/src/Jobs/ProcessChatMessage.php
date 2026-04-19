@@ -15,12 +15,15 @@ use App\Models\User;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Facades\Auth;
 use Laravel\Ai\Responses\StreamedAgentResponse;
 use Laravel\Ai\Streaming\Events\StreamEvent;
 use Relaticle\Chat\Agents\CrmAssistant;
 use Relaticle\Chat\Enums\AiCreditType;
+use Relaticle\Chat\Events\ChatStreamFailed;
 use Relaticle\Chat\Events\ConversationResolved;
 use Relaticle\Chat\Services\CreditService;
+use Throwable;
 
 final class ProcessChatMessage implements ShouldQueue
 {
@@ -28,66 +31,90 @@ final class ProcessChatMessage implements ShouldQueue
 
     public int $timeout = 120;
 
+    public int $tries = 1;
+
     /**
-     * @param  array{provider: string, model: string}  $resolved
+     * @param  array{provider: string|null, model: string|null}  $resolved
      */
     public function __construct(
         private readonly User $user,
         private readonly Team $team,
         private readonly string $message,
-        private readonly ?string $conversationId,
+        private readonly string $conversationId,
         private readonly array $resolved,
     ) {}
 
     public function handle(CreditService $creditService): void
     {
-        $this->applyTenantScopes();
+        $this->bindAuthAndScopes();
 
-        $agent = resolve(CrmAssistant::class);
-
-        if ($this->conversationId !== null) {
+        try {
+            $agent = resolve(CrmAssistant::class);
             $agent->continue($this->conversationId, as: $this->user);
-        } else {
-            $agent->forUser($this->user);
-        }
 
-        $channel = new PrivateChannel("chat.{$this->user->getKey()}");
+            $channel = new PrivateChannel("chat.conversation.{$this->conversationId}");
 
-        $response = $agent->stream(
-            prompt: $this->message,
-            provider: $this->resolved['provider'],
-            model: $this->resolved['model'],
-        );
-
-        $response->each(function (StreamEvent $event) use ($channel): void {
-            $event->broadcastNow($channel);
-        });
-
-        $response->then(function (StreamedAgentResponse $streamedResponse) use ($creditService): void {
-            broadcast(new ConversationResolved(
-                userId: (string) $this->user->getKey(),
-                conversationId: $streamedResponse->conversationId,
-            ));
-
-            $creditService->deduct(
-                team: $this->team,
-                user: $this->user,
-                type: AiCreditType::Chat,
-                model: $streamedResponse->meta->model ?? 'unknown',
-                inputTokens: $streamedResponse->usage->promptTokens,
-                outputTokens: $streamedResponse->usage->completionTokens,
-                toolCallsCount: $streamedResponse->toolCalls->count(),
-                conversationId: $streamedResponse->conversationId,
+            $response = $agent->stream(
+                prompt: $this->message,
+                provider: $this->resolved['provider'],
+                model: $this->resolved['model'],
             );
-        });
+
+            $response->each(function (StreamEvent $event) use ($channel): void {
+                $event->broadcastNow($channel);
+            });
+
+            $response->then(function (StreamedAgentResponse $streamedResponse) use ($creditService): void {
+                broadcast(new ConversationResolved(
+                    userId: (string) $this->user->getKey(),
+                    conversationId: $streamedResponse->conversationId,
+                ));
+
+                $creditService->settleReservation(
+                    team: $this->team,
+                    user: $this->user,
+                    type: AiCreditType::Chat,
+                    model: $streamedResponse->meta->model ?? 'unknown',
+                    inputTokens: $streamedResponse->usage->promptTokens,
+                    outputTokens: $streamedResponse->usage->completionTokens,
+                    toolCallsCount: $streamedResponse->toolCalls->count(),
+                    conversationId: $streamedResponse->conversationId,
+                );
+            });
+        } finally {
+            $this->releaseScopes();
+        }
     }
 
-    private function applyTenantScopes(): void
+    public function failed(?Throwable $exception): void
     {
+        resolve(CreditService::class)->refundReservation($this->team);
+
+        broadcast(new ChatStreamFailed(
+            conversationId: $this->conversationId,
+            message: 'The assistant encountered an error. Please try again.',
+        ));
+    }
+
+    private function bindAuthAndScopes(): void
+    {
+        Auth::guard('web')->setUser($this->user);
+
         Company::addGlobalScope(new TeamScope);
         People::addGlobalScope(new TeamScope);
         Opportunity::addGlobalScope(new TeamScope);
         Task::addGlobalScope(new TeamScope);
         Note::addGlobalScope(new TeamScope);
+    }
+
+    private function releaseScopes(): void
+    {
+        Company::clearBootedModels();
+        People::clearBootedModels();
+        Opportunity::clearBootedModels();
+        Task::clearBootedModels();
+        Note::clearBootedModels();
+
+        Auth::guard('web')->forgetUser();
     }
 }

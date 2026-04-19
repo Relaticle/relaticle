@@ -6,6 +6,10 @@
     {{-- Messages --}}
     <div
         x-ref="messages"
+        role="log"
+        aria-live="polite"
+        aria-relevant="additions text"
+        aria-atomic="false"
         class="flex-1 overflow-y-auto px-4 py-6"
     >
         <template x-if="messages.length === 0 && !isStreaming">
@@ -134,12 +138,12 @@
 
             {{-- Streaming indicator (only before first token arrives) --}}
             <template x-if="isStreaming && (messages.length === 0 || messages[messages.length-1].role !== 'assistant' || !messages[messages.length-1].content)">
-                <div class="flex justify-start">
+                <div class="flex justify-start" aria-label="Assistant is typing" role="status">
                     <div class="rounded-2xl rounded-bl-md bg-white px-4 py-3 shadow-sm ring-1 ring-gray-200 dark:bg-gray-800 dark:ring-gray-700">
-                        <div class="flex items-center gap-1.5">
-                            <span class="h-1.5 w-1.5 animate-bounce rounded-full bg-gray-400 [animation-delay:-0.3s]"></span>
-                            <span class="h-1.5 w-1.5 animate-bounce rounded-full bg-gray-400 [animation-delay:-0.15s]"></span>
-                            <span class="h-1.5 w-1.5 animate-bounce rounded-full bg-gray-400"></span>
+                        <div class="flex items-center gap-1.5 motion-reduce:animate-none" aria-hidden="true">
+                            <span class="h-1.5 w-1.5 animate-bounce rounded-full bg-gray-400 [animation-delay:-0.3s] motion-reduce:animate-none"></span>
+                            <span class="h-1.5 w-1.5 animate-bounce rounded-full bg-gray-400 [animation-delay:-0.15s] motion-reduce:animate-none"></span>
+                            <span class="h-1.5 w-1.5 animate-bounce rounded-full bg-gray-400 motion-reduce:animate-none"></span>
                         </div>
                     </div>
                 </div>
@@ -152,13 +156,16 @@
         <div class="mx-auto max-w-3xl">
             <form x-on:submit.prevent="sendMessage()">
                 <div class="relative flex items-end gap-2 rounded-2xl border border-gray-200 bg-white px-3 py-2 shadow-sm transition focus-within:border-primary-500 focus-within:ring-2 focus-within:ring-primary-500/20 dark:border-gray-700 dark:bg-gray-800">
+                    <label for="chat-message-input" class="sr-only">Message the assistant</label>
                     <textarea
+                        id="chat-message-input"
                         x-model="input"
                         x-ref="chatInput"
-                        @keydown.enter.prevent="if(!$event.shiftKey) sendMessage()"
+                        @keydown.enter="if (!$event.shiftKey) { $event.preventDefault(); sendMessage() }"
                         @input="autosize($event.target)"
                         placeholder="Ask anything..."
                         rows="1"
+                        aria-label="Message the assistant"
                         class="block min-h-[28px] w-full resize-none border-0 bg-transparent px-1 py-1 text-sm leading-6 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-0 dark:text-white dark:placeholder:text-gray-500"
                         style="max-height: 200px;"
                         :disabled="isStreaming"
@@ -198,6 +205,8 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
     input: '',
     isStreaming: false,
     channel: null,
+    streamTimeoutId: null,
+    streamTimeoutMs: 60000,
 
     starterPrompts: [
         'Give me a CRM overview',
@@ -212,7 +221,9 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
     },
 
     init() {
-        this.setupEchoListener();
+        if (this.conversationId) {
+            this.subscribeToConversation(this.conversationId);
+        }
 
         if (initialMessage) {
             this.$nextTick(() => {
@@ -223,23 +234,53 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
     },
 
     destroy() {
-        if (this.channel) {
-            this.channel.stopListening('.text_delta');
-            this.channel.stopListening('.tool_result');
-            this.channel.stopListening('.stream_end');
-            this.channel.stopListening('.conversation.resolved');
+        this.clearStreamTimeout();
+        this.unsubscribe();
+    },
+
+    unsubscribe() {
+        if (this.channel && window.Echo) {
+            window.Echo.leave(this.channel.name);
             this.channel = null;
         }
     },
 
-    setupEchoListener() {
-        if (!window.Echo || this.channel) return;
+    subscribeToConversation(conversationId) {
+        if (!window.Echo) return;
+        if (this.channel && this.channel.conversationId === conversationId) return;
 
-        this.channel = window.Echo.private(`chat.${userId}`)
+        this.unsubscribe();
+
+        const channelName = `chat.conversation.${conversationId}`;
+        this.channel = window.Echo.private(channelName);
+        this.channel.name = channelName;
+        this.channel.conversationId = conversationId;
+
+        this.channel
             .listen('.text_delta', (e) => this.handleTextDelta(e))
             .listen('.tool_result', (e) => this.handleToolResult(e))
             .listen('.stream_end', () => this.handleStreamEnd())
+            .listen('.stream.failed', (e) => this.handleStreamFailed(e))
             .listen('.conversation.resolved', (e) => this.handleConversationResolved(e));
+    },
+
+    startStreamTimeout() {
+        this.clearStreamTimeout();
+        this.streamTimeoutId = setTimeout(() => {
+            if (!this.isStreaming) return;
+            const assistantMsg = this.messages[this.messages.length - 1];
+            if (assistantMsg?.role === 'assistant' && !assistantMsg.content) {
+                assistantMsg.content = 'The assistant took too long to respond. Please try again.';
+            }
+            this.isStreaming = false;
+        }, this.streamTimeoutMs);
+    },
+
+    clearStreamTimeout() {
+        if (this.streamTimeoutId) {
+            clearTimeout(this.streamTimeoutId);
+            this.streamTimeoutId = null;
+        }
     },
 
     async sendMessage() {
@@ -256,6 +297,8 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
             ? sendUrl.replace(/\/$/, '') + '/' + this.conversationId
             : sendUrl;
 
+        this.startStreamTimeout();
+
         try {
             const response = await fetch(url, {
                 method: 'POST',
@@ -268,21 +311,40 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
             });
 
             if (!response.ok) {
-                const body = await response.json();
+                const body = await response.json().catch(() => ({}));
                 const assistantMsg = this.messages[this.messages.length - 1];
                 assistantMsg.content = body.message || `Error ${response.status}: ${response.statusText}`;
                 this.isStreaming = false;
+                this.clearStreamTimeout();
+                return;
+            }
+
+            const body = await response.json();
+            if (body.conversation_id && !this.conversationId) {
+                this.conversationId = body.conversation_id;
+                this.subscribeToConversation(body.conversation_id);
+
+                const path = window.location.pathname
+                    .replace(/\/chats\/.*$/, '/chats/' + body.conversation_id)
+                    .replace(/\/chats\/?$/, '/chats/' + body.conversation_id);
+                history.replaceState(null, '', path);
+
+                window.dispatchEvent(new CustomEvent('chat:conversation-created', {
+                    detail: { id: body.conversation_id }
+                }));
             }
         } catch {
             const assistantMsg = this.messages[this.messages.length - 1];
             assistantMsg.content = 'Network error. Please try again.';
             this.isStreaming = false;
+            this.clearStreamTimeout();
         }
 
         this.scrollToBottom();
     },
 
     handleTextDelta(event) {
+        this.startStreamTimeout();
         const assistantMsg = this.messages[this.messages.length - 1];
         if (assistantMsg?.role === 'assistant') {
             assistantMsg.content += event.delta || '';
@@ -291,6 +353,7 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
     },
 
     handleToolResult(event) {
+        this.startStreamTimeout();
         const assistantMsg = this.messages[this.messages.length - 1];
         if (assistantMsg?.role === 'assistant' && event.result) {
             try {
@@ -306,20 +369,23 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
 
     handleStreamEnd() {
         this.isStreaming = false;
+        this.clearStreamTimeout();
         this.scrollToBottom();
     },
 
+    handleStreamFailed(event) {
+        const assistantMsg = this.messages[this.messages.length - 1];
+        if (assistantMsg?.role === 'assistant' && !assistantMsg.content) {
+            assistantMsg.content = event?.message || 'The assistant encountered an error. Please try again.';
+        }
+        this.isStreaming = false;
+        this.clearStreamTimeout();
+    },
+
     handleConversationResolved(event) {
-        this.conversationId = event.conversationId;
-
-        const path = window.location.pathname
-            .replace(/\/chats\/.*$/, '/chats/' + event.conversationId)
-            .replace(/\/chats\/?$/, '/chats/' + event.conversationId);
-        history.replaceState(null, '', path);
-
-        window.dispatchEvent(new CustomEvent('chat:conversation-created', {
-            detail: { id: event.conversationId }
-        }));
+        if (!this.conversationId && event.conversationId) {
+            this.conversationId = event.conversationId;
+        }
     },
 
     async approveAction(action) {

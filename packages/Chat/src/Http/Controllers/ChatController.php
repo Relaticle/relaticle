@@ -11,9 +11,13 @@ use App\Models\Task;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
+use Laravel\Ai\Contracts\ConversationStore;
 use Relaticle\Chat\Actions\DeleteConversation;
 use Relaticle\Chat\Actions\FindConversation;
 use Relaticle\Chat\Actions\ListConversations;
+use Relaticle\Chat\Enums\AiModel;
 use Relaticle\Chat\Jobs\ProcessChatMessage;
 use Relaticle\Chat\Services\AiModelResolver;
 use Relaticle\Chat\Services\CreditService;
@@ -23,13 +27,14 @@ final readonly class ChatController
     public function __construct(
         private CreditService $creditService,
         private AiModelResolver $modelResolver,
+        private ConversationStore $conversationStore,
     ) {}
 
     public function send(Request $request, ?string $conversation = null): JsonResponse
     {
         $validated = $request->validate([
             'message' => ['required', 'string', 'max:5000'],
-            'model' => ['nullable', 'string'],
+            'model' => ['nullable', 'string', Rule::enum(AiModel::class)],
         ]);
 
         /** @var User $user */
@@ -44,29 +49,41 @@ final readonly class ChatController
             }
         }
 
-        if (! $this->creditService->hasCredits($team)) {
+        if (! $this->creditService->reserveCredit($team)) {
             return response()->json([
                 'error' => 'credits_exhausted',
                 'message' => 'You have used all your AI credits for this billing period.',
             ], 402);
         }
 
+        $conversation ??= $this->conversationStore->storeConversation(
+            (string) $user->getKey(),
+            Str::limit($validated['message'], 100, preserveWords: true),
+        );
+
         $resolved = $this->modelResolver->resolve($user, $validated['model'] ?? null);
 
-        dispatch(new ProcessChatMessage(user: $user, team: $team, message: $validated['message'], conversationId: $conversation, resolved: $resolved));
+        dispatch(new ProcessChatMessage(
+            user: $user,
+            team: $team,
+            message: $validated['message'],
+            conversationId: $conversation,
+            resolved: $resolved,
+        ));
 
-        return response()->json(['status' => 'processing']);
+        return response()->json([
+            'status' => 'processing',
+            'conversation_id' => $conversation,
+        ]);
     }
 
     public function mentions(Request $request): JsonResponse
     {
-        $query = $request->string('q');
+        $validated = $request->validate([
+            'q' => ['required', 'string', 'min:2', 'max:100'],
+        ]);
 
-        if ($query->length() < 2) {
-            return response()->json(['data' => []]);
-        }
-
-        $search = (string) $query;
+        $search = $this->escapeLikeWildcards($validated['q']);
         $limit = 5;
 
         /** @var User $user */
@@ -76,19 +93,39 @@ final readonly class ChatController
         $results = collect();
 
         $results = $results->merge(
-            Company::query()->whereBelongsTo($team)->where('name', 'ilike', "%{$search}%")->limit($limit)->get(['id', 'name'])->map(fn (Company $r): array => ['id' => $r->id, 'name' => $r->name, 'type' => 'company'])
+            Company::query()
+                ->whereBelongsTo($team)
+                ->where('name', 'ilike', "%{$search}%")
+                ->limit($limit)
+                ->get(['id', 'name'])
+                ->map(fn (Company $r): array => ['id' => $r->id, 'name' => $r->name, 'type' => 'company'])
         );
 
         $results = $results->merge(
-            People::query()->whereBelongsTo($team)->where('name', 'ilike', "%{$search}%")->limit($limit)->get(['id', 'name'])->map(fn (People $r): array => ['id' => $r->id, 'name' => $r->name, 'type' => 'people'])
+            People::query()
+                ->whereBelongsTo($team)
+                ->where('name', 'ilike', "%{$search}%")
+                ->limit($limit)
+                ->get(['id', 'name'])
+                ->map(fn (People $r): array => ['id' => $r->id, 'name' => $r->name, 'type' => 'people'])
         );
 
         $results = $results->merge(
-            Opportunity::query()->whereBelongsTo($team)->where('name', 'ilike', "%{$search}%")->limit($limit)->get(['id', 'name'])->map(fn (Opportunity $r): array => ['id' => $r->id, 'name' => $r->name, 'type' => 'opportunity'])
+            Opportunity::query()
+                ->whereBelongsTo($team)
+                ->where('name', 'ilike', "%{$search}%")
+                ->limit($limit)
+                ->get(['id', 'name'])
+                ->map(fn (Opportunity $r): array => ['id' => $r->id, 'name' => $r->name, 'type' => 'opportunity'])
         );
 
         $results = $results->merge(
-            Task::query()->whereBelongsTo($team)->where('title', 'ilike', "%{$search}%")->limit($limit)->get(['id', 'title'])->map(fn (Task $r): array => ['id' => $r->id, 'name' => $r->title, 'type' => 'task'])
+            Task::query()
+                ->whereBelongsTo($team)
+                ->where('title', 'ilike', "%{$search}%")
+                ->limit($limit)
+                ->get(['id', 'title'])
+                ->map(fn (Task $r): array => ['id' => $r->id, 'name' => $r->title, 'type' => 'task'])
         );
 
         return response()->json(['data' => $results->take(15)->values()]);
@@ -114,5 +151,10 @@ final readonly class ChatController
         }
 
         return response()->json(['success' => true]);
+    }
+
+    private function escapeLikeWildcards(string $value): string
+    {
+        return str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $value);
     }
 }

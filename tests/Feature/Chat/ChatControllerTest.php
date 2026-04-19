@@ -147,6 +147,64 @@ it('cannot delete another user conversation', function (): void {
         ->assertNotFound();
 });
 
+it('rejects unknown model overrides with 422', function (): void {
+    Queue::fake();
+
+    $this->postJson(route('chat.send'), [
+        'message' => 'hello',
+        'model' => 'not-a-real-model',
+    ])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors('model');
+
+    Queue::assertNotPushed(ProcessChatMessage::class);
+});
+
+it('accepts known model override values', function (): void {
+    Queue::fake();
+
+    $this->postJson(route('chat.send'), [
+        'message' => 'hello',
+        'model' => 'claude-sonnet',
+    ])->assertOk();
+
+    Queue::assertPushed(ProcessChatMessage::class);
+});
+
+it('returns the conversation id so the client can subscribe', function (): void {
+    Queue::fake();
+
+    $response = $this->postJson(route('chat.send'), ['message' => 'hello']);
+
+    $response->assertOk()
+        ->assertJsonStructure(['status', 'conversation_id']);
+
+    expect($response->json('conversation_id'))->toBeString();
+});
+
+it('atomically reserves a credit so concurrent sends cannot overspend', function (): void {
+    AiCreditBalance::query()
+        ->where('team_id', $this->team->getKey())
+        ->update(['credits_remaining' => 1, 'credits_used' => 99]);
+
+    Queue::fake();
+
+    $first = $this->postJson(route('chat.send'), ['message' => 'first']);
+    $second = $this->postJson(route('chat.send'), ['message' => 'second']);
+
+    $first->assertOk();
+    $second->assertStatus(402);
+
+    expect(AiCreditBalance::query()->where('team_id', $this->team->getKey())->value('credits_remaining'))->toBe(0);
+});
+
+it('does not reserve a credit when the request fails validation', function (): void {
+    $this->postJson(route('chat.send'), ['message' => ''])
+        ->assertUnprocessable();
+
+    expect(AiCreditBalance::query()->where('team_id', $this->team->getKey())->value('credits_remaining'))->toBe(100);
+});
+
 it('cleans up messages when deleting a conversation', function (): void {
     DB::table('agent_conversations')->insert([
         'id' => 'conv-cleanup',

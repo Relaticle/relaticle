@@ -22,6 +22,61 @@ final readonly class CreditService
         return $this->getBalance($team) > 0;
     }
 
+    /**
+     * Atomically reserve one credit up-front. Prevents concurrent requests from
+     * bypassing a non-atomic credit gate when the team has a small balance.
+     */
+    public function reserveCredit(Team $team): bool
+    {
+        if ((bool) config('ai.unlimited_credits', false)) {
+            return true;
+        }
+
+        return DB::transaction(function () use ($team): bool {
+            $balance = AiCreditBalance::query()
+                ->where('team_id', $team->getKey())
+                ->lockForUpdate()
+                ->first();
+
+            if (! $balance instanceof AiCreditBalance || $balance->credits_remaining < 1) {
+                return false;
+            }
+
+            $balance->update([
+                'credits_remaining' => $balance->credits_remaining - 1,
+                'credits_used' => $balance->credits_used + 1,
+            ]);
+
+            return true;
+        });
+    }
+
+    /**
+     * Refund a previously reserved credit (e.g. when the downstream job fails).
+     */
+    public function refundReservation(Team $team, int $credits = 1): void
+    {
+        if ((bool) config('ai.unlimited_credits', false)) {
+            return;
+        }
+
+        DB::transaction(function () use ($team, $credits): void {
+            $balance = AiCreditBalance::query()
+                ->where('team_id', $team->getKey())
+                ->lockForUpdate()
+                ->first();
+
+            if (! $balance instanceof AiCreditBalance) {
+                return;
+            }
+
+            $balance->update([
+                'credits_remaining' => $balance->credits_remaining + $credits,
+                'credits_used' => max($balance->credits_used - $credits, 0),
+            ]);
+        });
+    }
+
     public function getBalance(Team $team): int
     {
         $balance = AiCreditBalance::query()
@@ -65,6 +120,66 @@ final readonly class CreditService
                 'credits_remaining' => max($balance->credits_remaining - $creditsCharged, 0),
                 'credits_used' => $balance->credits_used + $creditsCharged,
             ]);
+
+            AiCreditTransaction::query()->create([
+                'team_id' => $team->getKey(),
+                'user_id' => $user->getKey(),
+                'conversation_id' => $conversationId,
+                'type' => $type,
+                'model' => $model,
+                'input_tokens' => $inputTokens,
+                'output_tokens' => $outputTokens,
+                'credits_charged' => $creditsCharged,
+                'metadata' => ['tool_calls_count' => $toolCallsCount],
+                'created_at' => now(),
+            ]);
+        });
+    }
+
+    /**
+     * Settle a previously reserved credit by applying the difference between
+     * the real cost of the request and the 1 credit already reserved.
+     */
+    public function settleReservation(
+        Team $team,
+        User $user,
+        AiCreditType $type,
+        string $model,
+        int $inputTokens,
+        int $outputTokens,
+        int $toolCallsCount = 0,
+        ?string $conversationId = null,
+        int $reservedCredits = 1,
+    ): void {
+        if ((bool) config('ai.unlimited_credits', false)) {
+            return;
+        }
+
+        $creditsCharged = $this->calculateCredits($model, $toolCallsCount);
+        $adjustment = $creditsCharged - $reservedCredits;
+
+        DB::transaction(function () use ($team, $user, $type, $model, $inputTokens, $outputTokens, $creditsCharged, $toolCallsCount, $conversationId, $adjustment): void {
+            if ($adjustment !== 0) {
+                $balance = AiCreditBalance::query()
+                    ->where('team_id', $team->getKey())
+                    ->lockForUpdate()
+                    ->first();
+
+                if ($balance instanceof AiCreditBalance) {
+                    if ($adjustment > 0) {
+                        $balance->update([
+                            'credits_remaining' => max($balance->credits_remaining - $adjustment, 0),
+                            'credits_used' => $balance->credits_used + $adjustment,
+                        ]);
+                    } else {
+                        $refund = abs($adjustment);
+                        $balance->update([
+                            'credits_remaining' => $balance->credits_remaining + $refund,
+                            'credits_used' => max($balance->credits_used - $refund, 0),
+                        ]);
+                    }
+                }
+            }
 
             AiCreditTransaction::query()->create([
                 'team_id' => $team->getKey(),

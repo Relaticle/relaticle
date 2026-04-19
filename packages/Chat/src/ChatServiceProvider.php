@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
 use Relaticle\Chat\Commands\ExpirePendingActionsCommand;
+use Relaticle\Chat\Commands\ResetCreditsCommand;
 use Relaticle\Chat\Livewire\App\Chat\ChatSidebarNav;
 use Relaticle\Chat\Livewire\App\Chat\ChatSidePanel;
 use Relaticle\Chat\Livewire\Chat\ChatInterface;
@@ -39,6 +40,7 @@ final class ChatServiceProvider extends ServiceProvider
     {
         $this->commands([
             ExpirePendingActionsCommand::class,
+            ResetCreditsCommand::class,
         ]);
     }
 
