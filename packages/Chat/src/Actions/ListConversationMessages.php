@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace Relaticle\Chat\Actions;
 
 use App\Models\User;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Relaticle\Chat\Support\MarkdownRenderer;
+use stdClass;
 
 final readonly class ListConversationMessages
 {
@@ -15,63 +17,106 @@ final readonly class ListConversationMessages
     ) {}
 
     /**
-     * @return array<int, array{role: string, content: string, pending_actions: array<int, mixed>}>
+     * @return array<int, array{id: string, role: string, content: string, pending_actions: array<int, mixed>}>
      */
     public function execute(User $user, string $conversationId): array
     {
-        return DB::table('agent_conversation_messages as m')
+        $messages = DB::table('agent_conversation_messages as m')
             ->join('agent_conversations as c', 'c.id', '=', 'm.conversation_id')
             ->where('m.conversation_id', $conversationId)
             ->where('m.user_id', $user->getKey())
             ->where('c.team_id', $user->current_team_id)
             ->oldest('m.created_at')
-            ->get(['m.role', 'm.content', 'm.tool_results'])
-            ->map(fn (object $msg): array => [
-                'role' => $msg->role,
-                'content' => $msg->role === 'assistant'
-                    ? $this->markdown->render($msg->content ?? '')
-                    : ($msg->content ?? ''),
-                'pending_actions' => $this->extractPendingActions($msg->tool_results),
-            ])
-            ->values()
-            ->all();
+            ->get(['m.id', 'm.role', 'm.content', 'm.tool_results']);
+
+        $pendingIds = $this->collectPendingActionIds($messages);
+
+        /** @var array<string, string> $statuses */
+        $statuses = $pendingIds === []
+            ? []
+            : DB::table('pending_actions')
+                ->whereIn('id', $pendingIds)
+                ->pluck('status', 'id')
+                ->all();
+
+        return $messages->map(fn (object $msg): array => [
+            'id' => (string) $msg->id,
+            'role' => (string) $msg->role,
+            'content' => $msg->role === 'assistant'
+                ? $this->markdown->render((string) ($msg->content ?? ''))
+                : (string) ($msg->content ?? ''),
+            'pending_actions' => $this->extractPendingActions(
+                $msg->tool_results === null ? null : (string) $msg->tool_results,
+                $statuses,
+            ),
+        ])->values()->all();
     }
 
     /**
+     * @param  Collection<int, stdClass>  $messages
+     * @return list<string>
+     */
+    private function collectPendingActionIds(Collection $messages): array
+    {
+        $ids = [];
+
+        foreach ($messages as $msg) {
+            $rawToolResults = $msg->tool_results ?? null;
+            $parsed = json_decode((string) ($rawToolResults ?? 'null'), true);
+
+            if (! is_array($parsed)) {
+                continue;
+            }
+
+            foreach ($parsed as $toolResult) {
+                if (! is_array($toolResult)) {
+                    continue;
+                }
+                if (! isset($toolResult['result'])) {
+                    continue;
+                }
+                $inner = json_decode((string) $toolResult['result'], true);
+
+                if (is_array($inner) && ($inner['type'] ?? null) === 'pending_action' && isset($inner['pending_action_id'])) {
+                    $ids[] = (string) $inner['pending_action_id'];
+                }
+            }
+        }
+
+        return array_values(array_unique($ids));
+    }
+
+    /**
+     * @param  array<string, string>  $statuses
      * @return array<int, mixed>
      */
-    private function extractPendingActions(?string $toolResults): array
+    private function extractPendingActions(?string $toolResults, array $statuses): array
     {
         if ($toolResults === null) {
             return [];
         }
 
-        /** @var array<string, array<string, mixed>>|null $results */
-        $results = json_decode($toolResults, true);
+        $parsed = json_decode($toolResults, true);
 
-        if (! is_array($results)) {
+        if (! is_array($parsed)) {
             return [];
         }
 
         $actions = [];
 
-        foreach ($results as $toolResult) {
+        foreach ($parsed as $toolResult) {
+            if (! is_array($toolResult)) {
+                continue;
+            }
             if (! isset($toolResult['result'])) {
                 continue;
             }
+            $inner = json_decode((string) $toolResult['result'], true);
 
-            /** @var array<string, mixed>|null $parsed */
-            $parsed = json_decode((string) $toolResult['result'], true);
-
-            if (is_array($parsed) && ($parsed['type'] ?? null) === 'pending_action') {
-                $pendingActionId = $parsed['pending_action_id'] ?? null;
-
-                $status = $pendingActionId
-                    ? DB::table('pending_actions')->where('id', $pendingActionId)->value('status')
-                    : 'expired';
-
-                $parsed['status'] = $status ?? 'expired';
-                $actions[] = $parsed;
+            if (is_array($inner) && ($inner['type'] ?? null) === 'pending_action') {
+                $pendingId = (string) ($inner['pending_action_id'] ?? '');
+                $inner['status'] = $statuses[$pendingId] ?? 'expired';
+                $actions[] = $inner;
             }
         }
 
