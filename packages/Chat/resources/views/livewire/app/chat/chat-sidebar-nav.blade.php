@@ -1,10 +1,8 @@
 <li
-    wire:poll.60s
     x-data="{ label: 'Chats' }"
     data-group-label="Chats"
     x-bind:class="{ 'fi-collapsed': $store.sidebar.groupIsCollapsed(label) }"
     class="fi-sidebar-group fi-collapsible"
-    x-on:chat:conversation-created.window="$wire.$refresh()"
 >
     {{-- Group header --}}
     <div

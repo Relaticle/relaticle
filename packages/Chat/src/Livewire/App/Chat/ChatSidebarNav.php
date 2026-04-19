@@ -13,6 +13,13 @@ use Relaticle\Chat\Actions\ListConversations;
 
 final class ChatSidebarNav extends BaseLivewireComponent
 {
+    /** @var array<string, string> */
+    protected $listeners = [
+        'chat:conversation-created' => '$refresh',
+        'chat:conversation-deleted' => '$refresh',
+        'chat:conversation-renamed' => '$refresh',
+    ];
+
     public function render(): View
     {
         $user = Filament::auth()->user();
