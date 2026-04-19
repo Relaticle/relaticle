@@ -85,13 +85,26 @@ For any create, update, or delete operation:
 PROMPT;
     }
 
+    /** @var list<Tool>|null */
+    private static ?array $toolsCache = null;
+
     /**
      * @return list<Tool>
      */
     public function tools(): array
     {
-        /** @var list<class-string<Tool>> $toolClasses */
-        $toolClasses = [
+        return self::$toolsCache ??= array_map(
+            static fn (string $class): Tool => resolve($class),
+            $this->toolClasses(),
+        );
+    }
+
+    /**
+     * @return list<class-string<Tool>>
+     */
+    private function toolClasses(): array
+    {
+        return [
             // Read tools
             ChatListCompaniesTool::class,
             ChatGetCompanyTool::class,
@@ -123,11 +136,6 @@ PROMPT;
             ChatUpdateNoteTool::class,
             ChatDeleteNoteTool::class,
         ];
-
-        return array_map(
-            static fn (string $class): Tool => resolve($class),
-            $toolClasses,
-        );
     }
 
     /**
