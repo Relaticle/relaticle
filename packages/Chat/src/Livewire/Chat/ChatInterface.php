@@ -28,7 +28,10 @@ final class ChatInterface extends BaseLivewireComponent
     public function mount(?string $conversationId = null, ?string $initialMessage = null): void
     {
         $this->conversationId = $conversationId;
-        $this->initialMessage = $initialMessage;
+
+        /** @var string|null $promptQuery */
+        $promptQuery = request()->query('prompt');
+        $this->initialMessage = $initialMessage ?? $promptQuery;
 
         if ($this->conversationId !== null) {
             $this->messages = $this->fetchMessages();
