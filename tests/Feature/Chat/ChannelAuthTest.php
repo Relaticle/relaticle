@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Models\Team;
 use App\Models\User;
 use Illuminate\Contracts\Broadcasting\Broadcaster as BroadcasterContract;
 use Illuminate\Support\Facades\DB;
@@ -62,4 +63,21 @@ it('denies access to nonexistent conversation channel', function (): void {
     $user = User::factory()->withPersonalTeam()->create();
 
     expect(chatChannelAuth($user, 'does-not-exist'))->toBeFalse();
+});
+
+it('denies access when the conversation belongs to user other team', function (): void {
+    $user = User::factory()->withPersonalTeam()->create();
+    $otherTeam = Team::factory()->create(['user_id' => $user->getKey()]);
+    $user->teams()->attach($otherTeam, ['role' => 'admin']);
+
+    DB::table('agent_conversations')->insert([
+        'id' => 'conv-other-team',
+        'user_id' => $user->getKey(),
+        'team_id' => $otherTeam->getKey(),
+        'title' => 'Other',
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+
+    expect(chatChannelAuth($user, 'conv-other-team'))->toBeFalse();
 });
