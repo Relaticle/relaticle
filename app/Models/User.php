@@ -29,6 +29,7 @@ use Laravel\Sanctum\HasApiTokens;
 /**
  * @property string $name
  * @property string $email
+ * @property string|null $timezone
  * @property string|null $password
  * @property string|null $profile_photo_path
  * @property-read string $profile_photo_url
@@ -60,6 +61,7 @@ final class User extends Authenticatable implements FilamentUser, HasAvatar, Has
     protected $fillable = [
         'name',
         'email',
+        'timezone',
         'password',
         'ai_preferences',
     ];
