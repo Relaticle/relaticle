@@ -33,6 +33,7 @@ it('grants access to own conversation channel', function (): void {
     DB::table('agent_conversations')->insert([
         'id' => 'conv-mine',
         'user_id' => $user->getKey(),
+        'team_id' => $user->current_team_id,
         'title' => 'Mine',
         'created_at' => now(),
         'updated_at' => now(),
@@ -48,6 +49,7 @@ it('denies access to another user conversation channel', function (): void {
     DB::table('agent_conversations')->insert([
         'id' => 'conv-other',
         'user_id' => $other->getKey(),
+        'team_id' => $other->current_team_id,
         'title' => 'Other',
         'created_at' => now(),
         'updated_at' => now(),

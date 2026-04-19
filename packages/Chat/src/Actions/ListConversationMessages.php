@@ -19,11 +19,13 @@ final readonly class ListConversationMessages
      */
     public function execute(User $user, string $conversationId): array
     {
-        return DB::table('agent_conversation_messages')
-            ->where('conversation_id', $conversationId)
-            ->where('user_id', $user->getKey())
-            ->oldest()
-            ->get(['role', 'content', 'tool_results'])
+        return DB::table('agent_conversation_messages as m')
+            ->join('agent_conversations as c', 'c.id', '=', 'm.conversation_id')
+            ->where('m.conversation_id', $conversationId)
+            ->where('m.user_id', $user->getKey())
+            ->where('c.team_id', $user->current_team_id)
+            ->oldest('m.created_at')
+            ->get(['m.role', 'm.content', 'm.tool_results'])
             ->map(fn (object $msg): array => [
                 'role' => $msg->role,
                 'content' => $msg->role === 'assistant'

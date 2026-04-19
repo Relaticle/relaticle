@@ -11,6 +11,7 @@ use App\Models\Task;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Laravel\Ai\Contracts\ConversationStore;
@@ -60,6 +61,11 @@ final readonly class ChatController
             (string) $user->getKey(),
             Str::limit($validated['message'], 100, preserveWords: true),
         );
+
+        DB::table('agent_conversations')
+            ->where('id', $conversation)
+            ->whereNull('team_id')
+            ->update(['team_id' => $team->getKey()]);
 
         $resolved = $this->modelResolver->resolve($user, $validated['model'] ?? null);
 
