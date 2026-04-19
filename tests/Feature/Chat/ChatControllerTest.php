@@ -210,6 +210,17 @@ it('does not reserve a credit when the request fails validation', function (): v
     expect(AiCreditBalance::query()->where('team_id', $this->team->getKey())->value('credits_remaining'))->toBe(100);
 });
 
+it('returns reset_at and upgrade_url on 402', function (): void {
+    AiCreditBalance::query()
+        ->where('team_id', $this->team->getKey())
+        ->update(['credits_remaining' => 0, 'period_ends_at' => now()->endOfMonth()]);
+
+    $this->postJson(route('chat.send'), ['message' => 'hi'])
+        ->assertStatus(402)
+        ->assertJsonStructure(['error', 'message', 'reset_at', 'upgrade_url'])
+        ->assertJsonPath('error', 'credits_exhausted');
+});
+
 it('cleans up messages when deleting a conversation', function (): void {
     DB::table('agent_conversations')->insert([
         'id' => 'conv-cleanup',

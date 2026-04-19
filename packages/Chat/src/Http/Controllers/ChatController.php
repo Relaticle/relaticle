@@ -19,6 +19,7 @@ use Relaticle\Chat\Actions\FindConversation;
 use Relaticle\Chat\Actions\ListConversations;
 use Relaticle\Chat\Enums\AiModel;
 use Relaticle\Chat\Jobs\ProcessChatMessage;
+use Relaticle\Chat\Models\AiCreditBalance;
 use Relaticle\Chat\Services\AiModelResolver;
 use Relaticle\Chat\Services\CreditService;
 use Relaticle\Chat\Support\TitleSanitizer;
@@ -51,9 +52,15 @@ final readonly class ChatController
         }
 
         if (! $this->creditService->reserveCredit($team)) {
+            $balance = AiCreditBalance::query()
+                ->where('team_id', $team->getKey())
+                ->first();
+
             return response()->json([
                 'error' => 'credits_exhausted',
                 'message' => 'You have used all your AI credits for this billing period.',
+                'reset_at' => $balance?->period_ends_at?->toIso8601String(),
+                'upgrade_url' => url('/app/billing'),
             ], 402);
         }
 
