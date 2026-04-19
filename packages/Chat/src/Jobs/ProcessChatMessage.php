@@ -107,7 +107,7 @@ final class ProcessChatMessage implements ShouldQueue
 
         ChatTelemetry::breadcrumb('job.failed', [
             'exception' => $exception?->getMessage(),
-            'class' => $exception !== null ? $exception::class : null,
+            'class' => $exception instanceof Throwable ? $exception::class : null,
         ]);
 
         broadcast(new ChatStreamFailed(
