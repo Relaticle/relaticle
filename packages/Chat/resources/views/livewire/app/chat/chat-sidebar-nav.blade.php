@@ -40,13 +40,13 @@
                 $isActive = request()->url() === $chatUrl;
             @endphp
             <li @class([
-                'fi-sidebar-item',
+                'fi-sidebar-item group/chat-item relative',
                 'fi-active' => $isActive,
             ])>
                 <a
                     href="{{ $chatUrl }}"
                     wire:navigate
-                    class="fi-sidebar-item-btn"
+                    class="fi-sidebar-item-btn pe-8"
                 >
                     <x-heroicon-o-chat-bubble-left class="fi-sidebar-item-icon h-5 w-5" />
                     <span
@@ -54,11 +54,23 @@
                         x-transition:enter="fi-transition-enter"
                         x-transition:enter-start="fi-transition-enter-start"
                         x-transition:enter-end="fi-transition-enter-end"
-                        class="fi-sidebar-item-label"
+                        class="fi-sidebar-item-label truncate"
                     >
                         {{ \Illuminate\Support\Str::limit($conversation->title ?: 'Untitled chat', 30) }}
                     </span>
                 </a>
+
+                <button
+                    type="button"
+                    wire:click="deleteConversation(@js($conversation->id))"
+                    wire:confirm="Delete this chat? Messages and any pending actions will be removed."
+                    x-show="$store.sidebar.isOpen"
+                    aria-label="Delete chat"
+                    title="Delete chat"
+                    class="absolute inset-y-0 end-1 my-auto flex h-6 w-6 items-center justify-center rounded-md text-gray-400 opacity-0 transition hover:bg-gray-100 hover:text-danger-600 focus:opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 group-hover/chat-item:opacity-100 dark:hover:bg-white/5 dark:hover:text-danger-400"
+                >
+                    <x-heroicon-o-trash class="h-4 w-4" />
+                </button>
             </li>
         @endforeach
     </ul>

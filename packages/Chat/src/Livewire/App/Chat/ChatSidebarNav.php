@@ -9,6 +9,7 @@ use App\Livewire\BaseLivewireComponent;
 use App\Models\User;
 use Filament\Facades\Filament;
 use Illuminate\Contracts\View\View;
+use Relaticle\Chat\Actions\DeleteConversation;
 use Relaticle\Chat\Actions\ListConversations;
 
 final class ChatSidebarNav extends BaseLivewireComponent
@@ -19,6 +20,19 @@ final class ChatSidebarNav extends BaseLivewireComponent
         'chat:conversation-deleted' => '$refresh',
         'chat:conversation-renamed' => '$refresh',
     ];
+
+    public function deleteConversation(string $conversationId): void
+    {
+        $user = Filament::auth()->user();
+
+        if (! $user instanceof User) {
+            return;
+        }
+
+        (new DeleteConversation)->execute($user, $conversationId);
+
+        $this->dispatch('chat:conversation-deleted');
+    }
 
     public function render(): View
     {

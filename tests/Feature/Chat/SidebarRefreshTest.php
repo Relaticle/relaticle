@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Models\User;
 use Filament\Facades\Filament;
+use Illuminate\Support\Facades\DB;
 use Livewire\Livewire;
 use Relaticle\Chat\Livewire\App\Chat\ChatSidebarNav;
 
@@ -38,4 +39,21 @@ it('registers chat:conversation-renamed listener', function (): void {
     $listeners = $reflection->invoke($instance);
 
     expect($listeners)->toHaveKey('chat:conversation-renamed', '$refresh');
+});
+
+it('deletes a conversation via livewire action', function (): void {
+    DB::table('agent_conversations')->insert([
+        'id' => 'c-del',
+        'user_id' => $this->user->getKey(),
+        'team_id' => $this->user->current_team_id,
+        'title' => 'Kill me',
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+
+    Livewire::test(ChatSidebarNav::class)
+        ->call('deleteConversation', 'c-del')
+        ->assertDispatched('chat:conversation-deleted');
+
+    expect(DB::table('agent_conversations')->where('id', 'c-del')->exists())->toBeFalse();
 });
