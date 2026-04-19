@@ -23,6 +23,7 @@ use Relaticle\Chat\Enums\AiCreditType;
 use Relaticle\Chat\Events\ChatStreamFailed;
 use Relaticle\Chat\Events\ConversationResolved;
 use Relaticle\Chat\Services\CreditService;
+use Relaticle\Chat\Support\ChatTelemetry;
 use Throwable;
 
 final class ProcessChatMessage implements ShouldQueue
@@ -50,6 +51,13 @@ final class ProcessChatMessage implements ShouldQueue
     {
         $this->bindAuthAndScopes();
 
+        ChatTelemetry::tagCurrentScope(
+            $this->conversationId,
+            (string) $this->team->getKey(),
+            $this->resolved['model'] ?? 'unknown',
+        );
+        ChatTelemetry::breadcrumb('job.started', ['message_length' => strlen($this->message)]);
+
         try {
             $agent = resolve(CrmAssistant::class);
             $agent->continue($this->conversationId, as: $this->user);
@@ -67,6 +75,11 @@ final class ProcessChatMessage implements ShouldQueue
             });
 
             $response->then(function (StreamedAgentResponse $streamedResponse) use ($creditService): void {
+                ChatTelemetry::breadcrumb('stream.completed', [
+                    'input_tokens' => $streamedResponse->usage->promptTokens,
+                    'output_tokens' => $streamedResponse->usage->completionTokens,
+                ]);
+
                 broadcast(new ConversationResolved(
                     userId: (string) $this->user->getKey(),
                     conversationId: $streamedResponse->conversationId,
@@ -91,6 +104,11 @@ final class ProcessChatMessage implements ShouldQueue
     public function failed(?Throwable $exception): void
     {
         resolve(CreditService::class)->refundReservation($this->team);
+
+        ChatTelemetry::breadcrumb('job.failed', [
+            'exception' => $exception?->getMessage(),
+            'class' => $exception !== null ? $exception::class : null,
+        ]);
 
         broadcast(new ChatStreamFailed(
             conversationId: $this->conversationId,
