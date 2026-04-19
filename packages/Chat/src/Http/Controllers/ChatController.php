@@ -12,7 +12,6 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Laravel\Ai\Contracts\ConversationStore;
 use Relaticle\Chat\Actions\DeleteConversation;
@@ -22,6 +21,7 @@ use Relaticle\Chat\Enums\AiModel;
 use Relaticle\Chat\Jobs\ProcessChatMessage;
 use Relaticle\Chat\Services\AiModelResolver;
 use Relaticle\Chat\Services\CreditService;
+use Relaticle\Chat\Support\TitleSanitizer;
 
 final readonly class ChatController
 {
@@ -59,7 +59,7 @@ final readonly class ChatController
 
         $conversation ??= $this->conversationStore->storeConversation(
             (string) $user->getKey(),
-            Str::limit($validated['message'], 100, preserveWords: true),
+            TitleSanitizer::clean($validated['message']),
         );
 
         DB::table('agent_conversations')
