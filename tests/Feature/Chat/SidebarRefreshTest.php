@@ -57,3 +57,8 @@ it('deletes a conversation via livewire action', function (): void {
 
     expect(DB::table('agent_conversations')->where('id', 'c-del')->exists())->toBeFalse();
 });
+
+it('shows empty state when no conversations exist', function (): void {
+    Livewire::test(ChatSidebarNav::class)
+        ->assertSee('No chats yet');
+});
