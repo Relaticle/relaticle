@@ -191,7 +191,7 @@
                     <button
                         type="submit"
                         class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary-600 text-white shadow-sm transition hover:bg-primary-700 disabled:cursor-not-allowed disabled:bg-gray-200 disabled:text-gray-400 disabled:shadow-none dark:disabled:bg-gray-700 dark:disabled:text-gray-500"
-                        :disabled="isStreaming || !input.trim()"
+                        :disabled="isStreaming || !input.trim() || input.length > 5000"
                         aria-label="Send message"
                     >
                         <template x-if="!isStreaming">
@@ -202,13 +202,25 @@
                         </template>
                     </button>
                 </div>
-                <div class="mt-1.5 px-1 text-center text-[11px] text-gray-400 dark:text-gray-500">
-                    <kbd class="rounded border border-gray-200 bg-gray-50 px-1 py-0.5 font-sans text-[10px] dark:border-gray-700 dark:bg-gray-900">Enter</kbd> to send
-                    <span class="mx-1 text-gray-300 dark:text-gray-600">·</span>
-                    <kbd class="rounded border border-gray-200 bg-gray-50 px-1 py-0.5 font-sans text-[10px] dark:border-gray-700 dark:bg-gray-900">Shift</kbd>
-                    +
-                    <kbd class="rounded border border-gray-200 bg-gray-50 px-1 py-0.5 font-sans text-[10px] dark:border-gray-700 dark:bg-gray-900">Enter</kbd>
-                    for newline
+                <div class="mt-1.5 flex items-center justify-between px-1 text-[11px] text-gray-400 dark:text-gray-500">
+                    <div>
+                        <kbd class="rounded border border-gray-200 bg-gray-50 px-1 py-0.5 font-sans text-[10px] dark:border-gray-700 dark:bg-gray-900">Enter</kbd> to send
+                        <span class="mx-1 text-gray-300 dark:text-gray-600">·</span>
+                        <kbd class="rounded border border-gray-200 bg-gray-50 px-1 py-0.5 font-sans text-[10px] dark:border-gray-700 dark:bg-gray-900">Shift</kbd>
+                        +
+                        <kbd class="rounded border border-gray-200 bg-gray-50 px-1 py-0.5 font-sans text-[10px] dark:border-gray-700 dark:bg-gray-900">Enter</kbd>
+                        for newline
+                    </div>
+                    <span
+                        x-show="input.length > 4000"
+                        x-text="`${input.length.toLocaleString()} / 5,000`"
+                        :class="{
+                            'text-gray-500 dark:text-gray-400': input.length <= 4900,
+                            'text-amber-600 dark:text-amber-400': input.length > 4900 && input.length <= 5000,
+                            'text-red-600 dark:text-red-400': input.length > 5000,
+                        }"
+                        aria-live="polite"
+                    ></span>
                 </div>
             </form>
         </div>
