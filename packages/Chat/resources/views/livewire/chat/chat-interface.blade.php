@@ -324,10 +324,13 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
                 this.conversationId = body.conversation_id;
                 this.subscribeToConversation(body.conversation_id);
 
-                const path = window.location.pathname
-                    .replace(/\/chats\/.*$/, '/chats/' + body.conversation_id)
-                    .replace(/\/chats\/?$/, '/chats/' + body.conversation_id);
-                history.replaceState(null, '', path);
+                const url = new URL(window.location.href);
+                url.pathname = url.pathname
+                    .replace(/\/chats\/.*$/, `/chats/${body.conversation_id}`)
+                    .replace(/\/chats\/?$/, `/chats/${body.conversation_id}`);
+                url.search = '';
+                url.hash = '';
+                history.replaceState(null, '', url.toString());
 
                 window.dispatchEvent(new CustomEvent('chat:conversation-created', {
                     detail: { id: body.conversation_id }
@@ -383,7 +386,8 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
     },
 
     handleConversationResolved(event) {
-        if (!this.conversationId && event.conversationId) {
+        if (!event?.conversationId) return;
+        if (!this.conversationId) {
             this.conversationId = event.conversationId;
         }
     },
