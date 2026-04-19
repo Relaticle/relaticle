@@ -60,6 +60,24 @@
                         </div>
                     </template>
 
+                    {{-- Paywall card for credits_exhausted state --}}
+                    <template x-if="msg.paywall">
+                        <div class="flex justify-start">
+                            <div class="flex max-w-[85%] flex-col gap-3 rounded-2xl rounded-bl-md border border-amber-200 bg-amber-50 px-4 py-4 dark:border-amber-900/50 dark:bg-amber-900/10">
+                                <div class="flex items-center gap-2">
+                                    <x-heroicon-o-sparkles class="h-5 w-5 text-amber-600 dark:text-amber-400" aria-hidden="true" />
+                                    <h4 class="text-sm font-semibold text-amber-900 dark:text-amber-100" x-text="msg.paywall.heading"></h4>
+                                </div>
+                                <p class="text-sm text-amber-800 dark:text-amber-200" x-text="msg.paywall.body"></p>
+                                <div class="flex gap-2">
+                                    <a :href="msg.paywall.upgrade_url" class="inline-flex items-center rounded-lg bg-amber-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-amber-700">
+                                        Add credits
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+
                     {{-- Pending action cards --}}
                     <template x-if="msg.pending_actions && msg.pending_actions.length > 0">
                         <div class="mt-3 space-y-3">
@@ -291,7 +309,7 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
         this.input = '';
         this.isStreaming = true;
 
-        this.messages.push({ role: 'assistant', content: '', pending_actions: [] });
+        this.messages.push({ role: 'assistant', content: '', pending_actions: [], paywall: null });
 
         const url = this.conversationId
             ? sendUrl.replace(/\/$/, '') + '/' + this.conversationId
@@ -313,7 +331,19 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
             if (!response.ok) {
                 const body = await response.json().catch(() => ({}));
                 const assistantMsg = this.messages[this.messages.length - 1];
-                assistantMsg.content = body.message || `Error ${response.status}: ${response.statusText}`;
+
+                if (response.status === 402 && body?.error === 'credits_exhausted') {
+                    const resetLabel = body.reset_at ? new Date(body.reset_at).toLocaleDateString() : null;
+                    assistantMsg.paywall = {
+                        heading: "You've used all your AI credits",
+                        body: resetLabel ? `Your plan resets on ${resetLabel}.` : 'Add credits to keep chatting.',
+                        upgrade_url: body.upgrade_url || '/app',
+                    };
+                    assistantMsg.content = '';
+                } else {
+                    assistantMsg.content = body.message || `Error ${response.status}: ${response.statusText}`;
+                }
+
                 this.isStreaming = false;
                 this.clearStreamTimeout();
                 return;
