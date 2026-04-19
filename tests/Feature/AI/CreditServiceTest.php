@@ -124,3 +124,21 @@ it('uses default multiplier for unknown models', function (): void {
 
     expect($credits)->toBe(1);
 });
+
+it('auto-creates a zero balance when deduct is called on a missing team', function (): void {
+    $user = User::factory()->withPersonalTeam()->create();
+    $team = $user->currentTeam;
+
+    expect(AiCreditBalance::query()->where('team_id', $team->getKey())->exists())->toBeFalse();
+
+    app(CreditService::class)->deduct(
+        team: $team,
+        user: $user,
+        type: AiCreditType::Chat,
+        model: 'claude-sonnet-4-5-20250514',
+        inputTokens: 100,
+        outputTokens: 50,
+    );
+
+    expect(AiCreditBalance::query()->where('team_id', $team->getKey())->exists())->toBeTrue();
+});

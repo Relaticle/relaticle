@@ -113,7 +113,13 @@ final readonly class CreditService
                 ->first();
 
             if (! $balance instanceof AiCreditBalance) {
-                return;
+                $balance = AiCreditBalance::query()->create([
+                    'team_id' => $team->getKey(),
+                    'credits_remaining' => 0,
+                    'credits_used' => 0,
+                    'period_starts_at' => now()->startOfMonth(),
+                    'period_ends_at' => now()->endOfMonth(),
+                ]);
             }
 
             $balance->update([
@@ -165,19 +171,27 @@ final readonly class CreditService
                     ->lockForUpdate()
                     ->first();
 
-                if ($balance instanceof AiCreditBalance) {
-                    if ($adjustment > 0) {
-                        $balance->update([
-                            'credits_remaining' => max($balance->credits_remaining - $adjustment, 0),
-                            'credits_used' => $balance->credits_used + $adjustment,
-                        ]);
-                    } else {
-                        $refund = abs($adjustment);
-                        $balance->update([
-                            'credits_remaining' => $balance->credits_remaining + $refund,
-                            'credits_used' => max($balance->credits_used - $refund, 0),
-                        ]);
-                    }
+                if (! $balance instanceof AiCreditBalance) {
+                    $balance = AiCreditBalance::query()->create([
+                        'team_id' => $team->getKey(),
+                        'credits_remaining' => 0,
+                        'credits_used' => 0,
+                        'period_starts_at' => now()->startOfMonth(),
+                        'period_ends_at' => now()->endOfMonth(),
+                    ]);
+                }
+
+                if ($adjustment > 0) {
+                    $balance->update([
+                        'credits_remaining' => max($balance->credits_remaining - $adjustment, 0),
+                        'credits_used' => $balance->credits_used + $adjustment,
+                    ]);
+                } else {
+                    $refund = abs($adjustment);
+                    $balance->update([
+                        'credits_remaining' => $balance->credits_remaining + $refund,
+                        'credits_used' => max($balance->credits_used - $refund, 0),
+                    ]);
                 }
             }
 
