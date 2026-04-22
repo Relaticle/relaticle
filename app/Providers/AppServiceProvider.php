@@ -19,6 +19,7 @@ use App\Models\Task;
 use App\Models\Team;
 use App\Models\User;
 use App\Services\GitHubService;
+use App\Support\ActivityLog\CustomFieldChangesRenderer;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -33,6 +34,7 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\View\View;
 use Knuckles\Scribe\Scribe;
 use Laravel\Sanctum\Sanctum;
+use Relaticle\ActivityLog\Facades\Timeline;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\SystemAdmin\Models\SystemAdministrator;
 
@@ -61,6 +63,8 @@ final class AppServiceProvider extends ServiceProvider
         $this->configureLivewire();
         $this->configureRateLimiting();
         $this->configureScribe();
+
+        Timeline::registerRenderer('custom_field_changes', CustomFieldChangesRenderer::class);
     }
 
     private function configurePolicies(): void
