@@ -8,7 +8,7 @@ use Illuminate\Contracts\View\View;
 use Relaticle\ActivityLog\Contracts\TimelineRenderer;
 use Relaticle\ActivityLog\Timeline\TimelineEntry;
 
-final class CustomFieldChangesRenderer implements TimelineRenderer
+final readonly class CustomFieldChangesRenderer implements TimelineRenderer
 {
     public function render(TimelineEntry $entry): View
     {
