@@ -32,15 +32,12 @@ final class LegacyActivityLogServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        config()->set('activitylog.activity_model', Activity::class);
-
         Gate::policy(Activity::class, ActivityPolicy::class);
         Gate::policy(SpatieActivity::class, ActivityPolicy::class);
 
         Livewire::component('activity-timeline', ActivityTimeline::class);
         Livewire::component('attribute-history', AttributeHistory::class);
 
-        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'activity-log');
     }
 }
