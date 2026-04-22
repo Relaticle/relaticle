@@ -89,7 +89,6 @@
             "Relaticle\\Documentation\\": "packages/Documentation/src",
             "Relaticle\\OnboardSeed\\": "packages/OnboardSeed/src",
             "Relaticle\\ImportWizard\\": "packages/ImportWizard/src",
-            "Relaticle\\ActivityLog\\": "packages/ActivityLog/src",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
         }
