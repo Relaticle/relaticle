@@ -10,6 +10,7 @@ use App\Models\Concerns\HasAiSummary;
 use App\Models\Concerns\HasCreator;
 use App\Models\Concerns\HasNotes;
 use App\Models\Concerns\HasTeam;
+use App\Models\Concerns\RecordsCustomFieldActivity;
 use App\Observers\OpportunityObserver;
 use Database\Factories\OpportunityFactory;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
@@ -20,9 +21,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
-use Relaticle\ActivityLog\Concerns\LogsActivityForCrm;
+use Relaticle\ActivityLog\Concerns\InteractsWithTimeline;
+use Relaticle\ActivityLog\Contracts\HasTimeline;
+use Relaticle\ActivityLog\Timeline\TimelineBuilder;
 use Relaticle\CustomFields\Models\Concerns\UsesCustomFields;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
+use Spatie\Activitylog\Models\Concerns\LogsActivity;
+use Spatie\Activitylog\Support\LogOptions;
 use Spatie\EloquentSortable\SortableTrait;
 
 /**
@@ -30,7 +35,7 @@ use Spatie\EloquentSortable\SortableTrait;
  * @property CreationSource $creation_source
  */
 #[ObservedBy(OpportunityObserver::class)]
-final class Opportunity extends Model implements HasCustomFields
+final class Opportunity extends Model implements HasCustomFields, HasTimeline
 {
     use BelongsToTeamCreator;
     use HasAiSummary;
@@ -42,13 +47,12 @@ final class Opportunity extends Model implements HasCustomFields
     use HasNotes;
     use HasTeam;
     use HasUlids;
-    use LogsActivityForCrm;
+    use InteractsWithTimeline;
+    use LogsActivity;
+    use RecordsCustomFieldActivity;
     use SoftDeletes;
     use SortableTrait;
     use UsesCustomFields;
-
-    /** @var list<string> */
-    private array $additionalActivityLogExclusions = ['order_column'];
 
     /**
      * The attributes that are mass assignable.
@@ -100,5 +104,24 @@ final class Opportunity extends Model implements HasCustomFields
     public function tasks(): MorphToMany
     {
         return $this->morphToMany(Task::class, 'taskable');
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logAll()
+            ->logOnlyDirty()
+            ->dontLogEmptyChanges()
+            ->logExcept([
+                'id', 'team_id', 'creator_id', 'creation_source', 'custom_fields',
+                'created_at', 'updated_at', 'deleted_at', 'order_column',
+            ])
+            ->useLogName('crm')
+            ->setDescriptionForEvent(fn (string $eventName): string => $eventName);
+    }
+
+    public function timeline(): TimelineBuilder
+    {
+        return TimelineBuilder::make($this)->fromActivityLog();
     }
 }
