@@ -37,7 +37,7 @@ use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Relaticle\ActivityLog\Filament\RelationManagers\ActivitiesRelationManager;
+use Relaticle\ActivityLog\Filament\RelationManagers\ActivityLogRelationManager;
 use Relaticle\CustomFields\Facades\CustomFields;
 
 final class PeopleResource extends Resource
@@ -165,7 +165,7 @@ final class PeopleResource extends Resource
         return [
             TasksRelationManager::class,
             NotesRelationManager::class,
-            ActivitiesRelationManager::class,
+            ActivityLogRelationManager::class,
         ];
     }
 
