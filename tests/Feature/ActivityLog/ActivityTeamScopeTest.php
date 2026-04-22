@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Models\ActivityLog\Activity;
 use App\Models\Company;
 use App\Models\User;
+use App\Support\ActivityLog\CleanActivityLogAction;
 use Filament\Facades\Filament;
 
 beforeEach(function (): void {
@@ -40,6 +41,18 @@ it('returns no rows when no tenant is set', function (): void {
     Filament::setTenant(null);
 
     expect(Activity::query()->count())->toBe(0);
+});
+
+it('lets the custom CleanActivityLogAction purge globally via withoutGlobalScopes', function (): void {
+    Company::factory()->for($this->team)->create();
+
+    $activity = Activity::withoutGlobalScopes()->first();
+    $activity->created_at = now()->subDays(400);
+    $activity->save();
+
+    (new CleanActivityLogAction)->execute(maxAgeInDays: 365);
+
+    expect(Activity::withoutGlobalScopes()->count())->toBe(0);
 });
 
 it('auto-populates team_id from the subject on create', function (): void {

@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use App\Models\ActivityLog\Activity;
-use Spatie\Activitylog\Actions\CleanActivityLogAction;
+use App\Support\ActivityLog\CleanActivityLogAction;
 use Spatie\Activitylog\Actions\LogActivityAction;
 
 return [
