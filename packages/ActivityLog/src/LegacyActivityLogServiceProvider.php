@@ -14,7 +14,7 @@ use Relaticle\ActivityLog\Models\Activity;
 use Relaticle\ActivityLog\Policies\ActivityPolicy;
 use Spatie\Activitylog\Models\Activity as SpatieActivity;
 
-final class ActivityLogServiceProvider extends ServiceProvider
+final class LegacyActivityLogServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
