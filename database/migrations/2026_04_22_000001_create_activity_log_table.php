@@ -12,6 +12,7 @@ return new class extends Migration
     {
         Schema::create('activity_log', function (Blueprint $table): void {
             $table->id();
+            $table->foreignUlid('team_id')->nullable()->constrained('teams')->cascadeOnDelete();
             $table->string('log_name')->nullable()->index();
             $table->text('description');
             $table->nullableUlidMorphs('subject', 'subject');
@@ -20,6 +21,9 @@ return new class extends Migration
             $table->json('attribute_changes')->nullable();
             $table->json('properties')->nullable();
             $table->timestamps();
+
+            $table->index(['subject_type', 'subject_id', 'created_at'], 'idx_activity_log_subject_timeline');
+            $table->index(['team_id', 'created_at'], 'idx_activity_log_team_activity');
         });
     }
 };
