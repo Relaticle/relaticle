@@ -18,6 +18,7 @@ use App\Models\PersonalAccessToken;
 use App\Models\Task;
 use App\Models\Team;
 use App\Models\User;
+use App\Observers\CustomFieldValueObserver;
 use App\Services\GitHubService;
 use App\Support\ActivityLog\CustomFieldChangesRenderer;
 use Filament\Actions\Action;
@@ -65,6 +66,8 @@ final class AppServiceProvider extends ServiceProvider
         $this->configureScribe();
 
         Timeline::registerRenderer('custom_field_changes', CustomFieldChangesRenderer::class);
+
+        CustomFieldValue::observe(CustomFieldValueObserver::class);
     }
 
     private function configurePolicies(): void

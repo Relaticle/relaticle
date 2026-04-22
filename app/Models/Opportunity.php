@@ -10,7 +10,6 @@ use App\Models\Concerns\HasAiSummary;
 use App\Models\Concerns\HasCreator;
 use App\Models\Concerns\HasNotes;
 use App\Models\Concerns\HasTeam;
-use App\Models\Concerns\RecordsCustomFieldActivity;
 use App\Observers\OpportunityObserver;
 use Database\Factories\OpportunityFactory;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
@@ -49,7 +48,6 @@ final class Opportunity extends Model implements HasCustomFields, HasTimeline
     use HasUlids;
     use InteractsWithTimeline;
     use LogsActivity;
-    use RecordsCustomFieldActivity;
     use SoftDeletes;
     use SortableTrait;
     use UsesCustomFields;

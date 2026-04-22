@@ -9,7 +9,6 @@ use App\Models\Concerns\BelongsToTeamCreator;
 use App\Models\Concerns\HasCreator;
 use App\Models\Concerns\HasTeam;
 use App\Models\Concerns\InvalidatesRelatedAiSummaries;
-use App\Models\Concerns\RecordsCustomFieldActivity;
 use App\Observers\TaskObserver;
 use Database\Factories\TaskFactory;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
@@ -53,7 +52,6 @@ final class Task extends Model implements HasCustomFields, HasTimeline
     use InteractsWithTimeline;
     use InvalidatesRelatedAiSummaries;
     use LogsActivity;
-    use RecordsCustomFieldActivity;
     use SoftDeletes;
     use SortableTrait;
     use UsesCustomFields;

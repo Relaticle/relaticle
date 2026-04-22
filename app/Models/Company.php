@@ -10,7 +10,6 @@ use App\Models\Concerns\HasAiSummary;
 use App\Models\Concerns\HasCreator;
 use App\Models\Concerns\HasNotes;
 use App\Models\Concerns\HasTeam;
-use App\Models\Concerns\RecordsCustomFieldActivity;
 use App\Observers\CompanyObserver;
 use App\Services\AvatarService;
 use Database\Factories\CompanyFactory;
@@ -55,7 +54,6 @@ final class Company extends Model implements HasCustomFields, HasMedia, HasTimel
     use InteractsWithMedia;
     use InteractsWithTimeline;
     use LogsActivity;
-    use RecordsCustomFieldActivity;
     use SoftDeletes;
     use UsesCustomFields;
 

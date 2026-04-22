@@ -10,7 +10,6 @@ use App\Models\Concerns\HasAiSummary;
 use App\Models\Concerns\HasCreator;
 use App\Models\Concerns\HasNotes;
 use App\Models\Concerns\HasTeam;
-use App\Models\Concerns\RecordsCustomFieldActivity;
 use App\Observers\PeopleObserver;
 use App\Services\AvatarService;
 use Database\Factories\PeopleFactory;
@@ -49,7 +48,6 @@ final class People extends Model implements HasCustomFields, HasTimeline
     use HasUlids;
     use InteractsWithTimeline;
     use LogsActivity;
-    use RecordsCustomFieldActivity;
     use SoftDeletes;
     use UsesCustomFields;
 
