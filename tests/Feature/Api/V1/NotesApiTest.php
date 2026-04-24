@@ -583,11 +583,6 @@ it('validates large arrays of relationship ids in a bounded number of queries', 
     $peopleLookupCount = collect($log)->filter(fn (array $q): bool => str_contains($q['query'], 'from "people"') && str_contains($q['query'], 'team_id'))->count();
     $opportunityLookupCount = collect($log)->filter(fn (array $q): bool => str_contains($q['query'], 'from "opportunities"') && str_contains($q['query'], 'team_id'))->count();
 
-    // TODO(#array-validation-n-plus-1): these assertions fail today. After the refactor in this plan, remove the skip.
-    if (true) {
-        $this->markTestSkipped('Enable after ArrayExistsForTeam refactor; currently N+1.');
-    }
-
     expect($companyLookupCount)->toBeLessThanOrEqual(3, 'company validation should not be N+1');
     expect($peopleLookupCount)->toBeLessThanOrEqual(3, 'people validation should not be N+1');
     expect($opportunityLookupCount)->toBeLessThanOrEqual(3, 'opportunity validation should not be N+1');
