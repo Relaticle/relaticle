@@ -72,11 +72,6 @@ it('validates large arrays in bounded queries via MCP', function (): void {
         ->filter(fn (array $q): bool => str_contains($q['query'], 'from "companies"') && str_contains($q['query'], 'team_id'))
         ->count();
 
-    // TODO(#array-validation-n-plus-1): enable after refactor.
-    if (true) {
-        $this->markTestSkipped('Enable after ArrayExistsForTeam refactor; currently N+1.');
-    }
-
     expect($lookups)->toBeLessThanOrEqual(2);
 });
 
