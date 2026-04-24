@@ -190,6 +190,22 @@ it('rejects cross-tenant relationship ids on task create', function (): void {
         ->assertInvalid(['company_ids.0']);
 });
 
+it('reports per-item validation errors with correct array index', function (): void {
+    Sanctum::actingAs($this->user);
+
+    $validCompany = Company::factory()->recycle([$this->user, $this->team])->create();
+    $otherTeam = Team::factory()->create();
+    $invalidCompany = Company::factory()->for($otherTeam)->create();
+
+    $this->postJson('/api/v1/tasks', [
+        'title' => 'Mixed valid and invalid',
+        'company_ids' => [$validCompany->id, $invalidCompany->id, $validCompany->id],
+    ])
+        ->assertUnprocessable()
+        ->assertInvalid(['company_ids.1'])
+        ->assertValid(['company_ids.0', 'company_ids.2']);
+});
+
 describe('cross-tenant isolation', function (): void {
     it('cannot show a task from another team', function (): void {
         Sanctum::actingAs($this->user);
