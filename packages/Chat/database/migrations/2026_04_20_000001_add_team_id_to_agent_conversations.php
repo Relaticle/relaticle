@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('agent_conversations', function (Blueprint $table): void {
             $table->char('team_id', 26)->nullable()->after('user_id');
-            $table->foreign('team_id')->references('id')->on('teams')->nullOnDelete();
+            $table->foreign('team_id')->references('id')->on('teams')->cascadeOnDelete();
             $table->index(['team_id', 'user_id', 'updated_at']);
         });
 
@@ -23,5 +23,11 @@ return new class extends Migration
             FROM users u
             WHERE ac.user_id = u.id AND ac.team_id IS NULL
         SQL);
+
+        DB::statement('DELETE FROM agent_conversations WHERE team_id IS NULL');
+
+        Schema::table('agent_conversations', function (Blueprint $table): void {
+            $table->char('team_id', 26)->nullable(false)->change();
+        });
     }
 };
