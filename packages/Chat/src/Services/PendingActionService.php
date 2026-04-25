@@ -125,8 +125,9 @@ final readonly class PendingActionService
             throw new RuntimeException('This action has expired');
         }
 
-        throw_unless($pendingAction->isPending(), RuntimeException::class, 'This action has already been resolved');
-        throw_if($pendingAction->isExpired(), RuntimeException::class, 'This action has expired');
+        if (! $pendingAction->isPending()) {
+            throw new RuntimeException('This action has already been resolved');
+        }
     }
 
     private function executeAction(PendingAction $pendingAction, User $user): mixed
