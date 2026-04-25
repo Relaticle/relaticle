@@ -15,7 +15,7 @@ return new class extends AiMigration
     {
         Schema::create('agent_conversations', function (Blueprint $table): void {
             $table->string('id', 36)->primary();
-            $table->foreignId('user_id')->nullable();
+            $table->char('user_id', 26)->nullable()->index();
             $table->string('title');
             $table->timestamps();
 
@@ -25,7 +25,7 @@ return new class extends AiMigration
         Schema::create('agent_conversation_messages', function (Blueprint $table): void {
             $table->string('id', 36)->primary();
             $table->string('conversation_id', 36)->index();
-            $table->foreignId('user_id')->nullable();
+            $table->char('user_id', 26)->nullable()->index();
             $table->string('agent');
             $table->string('role', 25);
             $table->text('content');
@@ -37,7 +37,6 @@ return new class extends AiMigration
             $table->timestamps();
 
             $table->index(['conversation_id', 'user_id', 'updated_at'], 'conversation_index');
-            $table->index(['user_id']);
         });
     }
 };
