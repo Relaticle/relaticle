@@ -29,6 +29,7 @@ final class ArrayExistsForTeam implements DataAwareRule, ValidationRule
     public function setData(array $data): static
     {
         $this->data = $data;
+        $this->validIds = null;
 
         return $this;
     }

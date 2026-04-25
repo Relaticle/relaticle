@@ -84,3 +84,21 @@ it('does not leak ids from other teams into the valid set', function (): void {
 
     expect($validator->fails())->toBeTrue();
 });
+
+it('rebuilds the prefetched id set when setData is called again', function (): void {
+    $first = Company::factory()->recycle([$this->user, $this->team])->create();
+    $second = Company::factory()->recycle([$this->user, $this->team])->create();
+
+    $rule = new ArrayExistsForTeam('companies', 'company_ids', $this->team->id);
+
+    DB::enableQueryLog();
+
+    Validator::make(['company_ids' => [$first->id]], ['company_ids.*' => [$rule]])->passes();
+    Validator::make(['company_ids' => [$second->id]], ['company_ids.*' => [$rule]])->passes();
+
+    $lookups = collect(DB::getQueryLog())
+        ->filter(fn (array $q): bool => str_contains($q['query'], 'from "companies"'))
+        ->count();
+
+    expect($lookups)->toBe(2);
+});
