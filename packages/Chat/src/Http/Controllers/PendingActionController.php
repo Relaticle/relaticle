@@ -107,4 +107,58 @@ final readonly class PendingActionController
             return response()->json(['error' => $e->getMessage()], 422);
         }
     }
+
+    public function restore(Request $request, PendingAction $pendingAction): JsonResponse
+    {
+        /** @var User $user */
+        $user = $request->user();
+
+        if ($pendingAction->team_id !== $user->currentTeam->getKey()) {
+            return response()->json(['error' => 'Not found'], 404);
+        }
+
+        if ($pendingAction->user_id !== $user->getKey()) {
+            return response()->json(['error' => 'Not found'], 404);
+        }
+
+        try {
+            $result = $this->service->restore($pendingAction, $user);
+
+            return response()->json([
+                'status' => 'restored',
+                'record' => $this->resolveDeletedRecordReference($result),
+            ]);
+        } catch (RuntimeException $e) {
+            if ($e->getMessage() === 'undo_window_expired') {
+                return response()->json(['error' => 'undo_window_expired'], 410);
+            }
+
+            return response()->json(['error' => $e->getMessage()], 422);
+        }
+    }
+
+    /**
+     * @return array{id: string, type: string, url: string}|null
+     */
+    private function resolveDeletedRecordReference(PendingAction $pendingAction): ?array
+    {
+        $recordId = $pendingAction->action_data['_record_id'] ?? null;
+
+        if (! is_string($recordId) && ! is_int($recordId)) {
+            return null;
+        }
+
+        $entityType = $pendingAction->entity_type;
+        $url = $this->resolveResourceUrl($entityType, (string) $recordId);
+
+        if ($url === null) {
+            return null;
+        }
+
+        return [
+            'id' => (string) $recordId,
+            'type' => $entityType,
+            'url' => $url,
+        ];
+    }
 }

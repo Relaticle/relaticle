@@ -288,10 +288,11 @@
                                                     'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400': action.status === 'approved',
                                                     'bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400': action.status === 'rejected',
                                                     'bg-gray-50 text-gray-700 dark:bg-gray-900/20 dark:text-gray-400': action.status === 'expired',
+                                                    'bg-gradient-to-r from-green-50 to-blue-50 text-blue-700 dark:from-green-900/20 dark:to-blue-900/20 dark:text-blue-300': action.status === 'restored',
                                                 }"
                                                 x-text="action.status.charAt(0).toUpperCase() + action.status.slice(1)"
                                             ></span>
-                                            <template x-if="action.status === 'approved' && action.record && action.record.url">
+                                            <template x-if="(action.status === 'approved' || action.status === 'restored') && action.record && action.record.url">
                                                 <a
                                                     :href="action.record.url"
                                                     wire:navigate
@@ -324,6 +325,25 @@
             </template>
         </div>
     </div>
+
+    {{-- Undo toast --}}
+    <template x-if="undoToast">
+        <div class="pointer-events-auto fixed bottom-24 left-1/2 z-50 flex -translate-x-1/2 items-center gap-3 rounded-lg border border-gray-200 bg-white px-4 py-2 shadow-lg dark:border-gray-700 dark:bg-gray-800"
+             role="status"
+             aria-live="polite"
+             x-transition:enter="transition ease-out duration-200"
+             x-transition:enter-start="opacity-0 translate-y-2"
+             x-transition:enter-end="opacity-100 translate-y-0"
+             x-transition:leave="transition ease-in duration-150"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0">
+            <span class="text-sm text-gray-700 dark:text-gray-300">Deleted. Undo?</span>
+            <button type="button" x-on:click="undoLastAction()"
+                    class="rounded-md bg-primary-600 px-2 py-1 text-xs font-medium text-white hover:bg-primary-700">
+                Undo
+            </button>
+        </div>
+    </template>
 
     {{-- Input area --}}
     <div class="border-t border-gray-200 bg-white px-4 py-4 dark:border-gray-700 dark:bg-gray-900">
@@ -443,6 +463,7 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
     now: Date.now(),
     copyTickerId: null,
     selectedModel: 'auto',
+    undoToast: null,
 
     modelOptions: [
         { value: 'auto', label: 'Auto' },
@@ -568,6 +589,10 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
         this.clearStreamTimeout();
         this.stopCopyTicker();
         this.unsubscribe();
+        if (this.undoToast?.timeoutId) {
+            clearTimeout(this.undoToast.timeoutId);
+        }
+        this.undoToast = null;
         window.removeEventListener('beforeunload', this.beforeUnloadHandler);
     },
 
@@ -978,6 +1003,9 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
                 if (body.record) {
                     action.record = body.record;
                 }
+                if (action.operation === 'delete') {
+                    this.showUndoToast(action);
+                }
             } else {
                 const body = await res.json().catch(() => ({}));
                 action.status = previousStatus;
@@ -985,6 +1013,51 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
             }
         } catch {
             action.status = previousStatus;
+            action.error = 'Network error';
+        }
+    },
+
+    showUndoToast(action) {
+        if (this.undoToast?.timeoutId) {
+            clearTimeout(this.undoToast.timeoutId);
+        }
+        this.undoToast = {
+            action,
+            startedAt: Date.now(),
+            timeoutId: null,
+        };
+        this.undoToast.timeoutId = setTimeout(() => {
+            this.undoToast = null;
+        }, 5000);
+    },
+
+    async undoLastAction() {
+        if (!this.undoToast) return;
+        const action = this.undoToast.action;
+        clearTimeout(this.undoToast.timeoutId);
+        this.undoToast = null;
+
+        try {
+            const res = await fetch(@js(url('/chat/actions')) + '/' + action.pending_action_id + '/restore', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                },
+            });
+
+            if (res.ok) {
+                const body = await res.json().catch(() => ({}));
+                action.status = 'restored';
+                action.error = null;
+                if (body.record) {
+                    action.record = body.record;
+                }
+            } else {
+                const body = await res.json().catch(() => ({}));
+                action.error = body.error || 'Failed to restore';
+            }
+        } catch {
             action.error = 'Network error';
         }
     },

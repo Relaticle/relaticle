@@ -3,6 +3,8 @@
 declare(strict_types=1);
 
 use App\Actions\Company\CreateCompany;
+use App\Actions\Company\DeleteCompany;
+use App\Models\Company;
 use App\Models\User;
 use Filament\Facades\Filament;
 use Relaticle\Chat\Enums\PendingActionOperation;
@@ -181,4 +183,111 @@ it('rejects are idempotent under second call', function (): void {
     $service->reject($pending);
 
     expect(fn () => $service->reject($pending->refresh()))->toThrow(RuntimeException::class);
+});
+
+it('restores a soft-deleted record within the undo window', function (): void {
+    $company = Company::factory()->for($this->team)->create(['name' => 'Restore Me Corp']);
+    $company->delete();
+
+    $pending = PendingAction::query()->create([
+        'team_id' => $this->team->getKey(),
+        'user_id' => $this->user->getKey(),
+        'conversation_id' => 'conv-restore',
+        'action_class' => DeleteCompany::class,
+        'operation' => PendingActionOperation::Delete,
+        'entity_type' => 'company',
+        'action_data' => [
+            '_record_id' => $company->getKey(),
+            '_model_class' => Company::class,
+        ],
+        'display_data' => [],
+        'status' => PendingActionStatus::Approved,
+        'expires_at' => now()->addMinutes(15),
+        'resolved_at' => now()->subMinute(),
+    ]);
+
+    $this->postJson(route('chat.actions.restore', $pending))
+        ->assertOk()
+        ->assertJsonPath('status', 'restored')
+        ->assertJsonPath('record.id', (string) $company->getKey())
+        ->assertJsonPath('record.type', 'company');
+
+    expect($company->fresh()->trashed())->toBeFalse();
+    expect($pending->fresh()->status)->toBe(PendingActionStatus::Restored);
+});
+
+it('rejects restore after the 5-minute window', function (): void {
+    $company = Company::factory()->for($this->team)->create();
+    $company->delete();
+
+    $pending = PendingAction::query()->create([
+        'team_id' => $this->team->getKey(),
+        'user_id' => $this->user->getKey(),
+        'conversation_id' => 'conv-restore-late',
+        'action_class' => DeleteCompany::class,
+        'operation' => PendingActionOperation::Delete,
+        'entity_type' => 'company',
+        'action_data' => [
+            '_record_id' => $company->getKey(),
+            '_model_class' => Company::class,
+        ],
+        'display_data' => [],
+        'status' => PendingActionStatus::Approved,
+        'expires_at' => now()->addMinutes(15),
+        'resolved_at' => now()->subMinutes(10),
+    ]);
+
+    $this->postJson(route('chat.actions.restore', $pending))
+        ->assertStatus(410)
+        ->assertJsonPath('error', 'undo_window_expired');
+
+    expect($company->fresh()->trashed())->toBeTrue();
+});
+
+it('rejects restore for non-delete operations', function (): void {
+    $pending = PendingAction::query()->create([
+        'team_id' => $this->team->getKey(),
+        'user_id' => $this->user->getKey(),
+        'conversation_id' => 'conv-restore-create',
+        'action_class' => CreateCompany::class,
+        'operation' => PendingActionOperation::Create,
+        'entity_type' => 'company',
+        'action_data' => ['name' => 'Something'],
+        'display_data' => [],
+        'status' => PendingActionStatus::Approved,
+        'expires_at' => now()->addMinutes(15),
+        'resolved_at' => now()->subMinute(),
+    ]);
+
+    $this->postJson(route('chat.actions.restore', $pending))
+        ->assertUnprocessable()
+        ->assertJsonPath('error', 'Only deleted records can be restored');
+});
+
+it('rejects restore for cross-team users', function (): void {
+    $otherUser = User::factory()->withPersonalTeam()->create();
+    $company = Company::factory()->for($otherUser->currentTeam)->create();
+    $company->delete();
+
+    $pending = PendingAction::query()->create([
+        'team_id' => $otherUser->currentTeam->getKey(),
+        'user_id' => $otherUser->getKey(),
+        'conversation_id' => 'conv-restore-cross',
+        'action_class' => DeleteCompany::class,
+        'operation' => PendingActionOperation::Delete,
+        'entity_type' => 'company',
+        'action_data' => [
+            '_record_id' => $company->getKey(),
+            '_model_class' => Company::class,
+        ],
+        'display_data' => [],
+        'status' => PendingActionStatus::Approved,
+        'expires_at' => now()->addMinutes(15),
+        'resolved_at' => now()->subMinute(),
+    ]);
+
+    $this->postJson(route('chat.actions.restore', $pending))
+        ->assertNotFound();
+
+    expect($company->fresh()->trashed())->toBeTrue();
 });

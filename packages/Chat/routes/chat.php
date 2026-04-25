@@ -16,6 +16,7 @@ Route::middleware(['auth:web', ApplyChatTenantScopes::class])->group(function ()
 
     Route::post('/chat/actions/{pendingAction}/approve', [PendingActionController::class, 'approve'])->name('chat.actions.approve');
     Route::post('/chat/actions/{pendingAction}/reject', [PendingActionController::class, 'reject'])->name('chat.actions.reject');
+    Route::post('/chat/actions/{pendingAction}/restore', [PendingActionController::class, 'restore'])->name('chat.actions.restore');
 
     Route::post('/chat/{conversation?}', [ChatController::class, 'send'])->name('chat.send');
 });

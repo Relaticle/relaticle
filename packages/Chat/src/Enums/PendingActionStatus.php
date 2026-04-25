@@ -13,6 +13,7 @@ enum PendingActionStatus: string implements HasColor, HasLabel
     case Approved = 'approved';
     case Rejected = 'rejected';
     case Expired = 'expired';
+    case Restored = 'restored';
 
     public function getColor(): string
     {
@@ -21,6 +22,7 @@ enum PendingActionStatus: string implements HasColor, HasLabel
             self::Approved => 'success',
             self::Rejected => 'danger',
             self::Expired => 'gray',
+            self::Restored => 'info',
         };
     }
 
@@ -31,6 +33,7 @@ enum PendingActionStatus: string implements HasColor, HasLabel
             self::Approved => 'Approved',
             self::Rejected => 'Rejected',
             self::Expired => 'Expired',
+            self::Restored => 'Restored',
         };
     }
 }

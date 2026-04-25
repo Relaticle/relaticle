@@ -12,6 +12,7 @@ use App\Models\People;
 use App\Models\Task;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 use Relaticle\Chat\Enums\PendingActionOperation;
 use Relaticle\Chat\Enums\PendingActionStatus;
@@ -105,6 +106,40 @@ final readonly class PendingActionService
         });
     }
 
+    public function restore(PendingAction $pendingAction, User $user): PendingAction
+    {
+        return DB::transaction(function () use ($pendingAction, $user): PendingAction {
+            /** @var PendingAction $locked */
+            $locked = PendingAction::query()
+                ->lockForUpdate()
+                ->findOrFail($pendingAction->getKey());
+
+            $this->validateRestorable($locked);
+
+            $modelClass = $this->resolveModelClass($locked->action_data);
+
+            throw_unless(in_array(SoftDeletes::class, class_uses_recursive($modelClass), true), RuntimeException::class, 'This record cannot be restored');
+
+            $recordId = $locked->action_data['_record_id'] ?? null;
+
+            throw_if(! is_string($recordId) && ! is_int($recordId), RuntimeException::class, 'Missing or invalid _record_id in action data');
+
+            $record = $this->findTrashedRecord($modelClass, $locked->team_id, $recordId);
+
+            throw_if(! $record instanceof Model, RuntimeException::class, 'Record not found');
+
+            abort_unless($user->can('restore', $record), 403);
+
+            $this->restoreTrashedRecord($record);
+
+            $locked->update([
+                'status' => PendingActionStatus::Restored,
+            ]);
+
+            return $locked->refresh();
+        });
+    }
+
     public function expireStale(): int
     {
         return PendingAction::query()
@@ -125,9 +160,18 @@ final readonly class PendingActionService
             throw new RuntimeException('This action has expired');
         }
 
-        if (! $pendingAction->isPending()) {
-            throw new RuntimeException('This action has already been resolved');
-        }
+        throw_unless($pendingAction->isPending(), RuntimeException::class, 'This action has already been resolved');
+    }
+
+    private function validateRestorable(PendingAction $pendingAction): void
+    {
+        throw_if($pendingAction->operation !== PendingActionOperation::Delete, RuntimeException::class, 'Only deleted records can be restored');
+
+        throw_if($pendingAction->status !== PendingActionStatus::Approved, RuntimeException::class, 'Only approved deletions can be restored');
+
+        $resolvedAt = $pendingAction->resolved_at;
+
+        throw_if($resolvedAt === null || $resolvedAt->lt(now()->subMinutes(5)), RuntimeException::class, 'undo_window_expired');
     }
 
     private function executeAction(PendingAction $pendingAction, User $user): mixed
@@ -197,5 +241,32 @@ final readonly class PendingActionService
         return $modelClass::query()
             ->where('team_id', $pendingAction->team_id)
             ->findOrFail($recordId);
+    }
+
+    /**
+     * @param  class-string<Model>  $modelClass
+     */
+    private function findTrashedRecord(string $modelClass, string $teamId, string|int $recordId): ?Model
+    {
+        return match ($modelClass) {
+            Company::class => Company::withTrashed()->where('team_id', $teamId)->whereKey($recordId)->first(),
+            People::class => People::withTrashed()->where('team_id', $teamId)->whereKey($recordId)->first(),
+            Opportunity::class => Opportunity::withTrashed()->where('team_id', $teamId)->whereKey($recordId)->first(),
+            Task::class => Task::withTrashed()->where('team_id', $teamId)->whereKey($recordId)->first(),
+            Note::class => Note::withTrashed()->where('team_id', $teamId)->whereKey($recordId)->first(),
+            default => null,
+        };
+    }
+
+    private function restoreTrashedRecord(Model $record): void
+    {
+        match (true) {
+            $record instanceof Company => $record->restore(),
+            $record instanceof People => $record->restore(),
+            $record instanceof Opportunity => $record->restore(),
+            $record instanceof Task => $record->restore(),
+            $record instanceof Note => $record->restore(),
+            default => throw new RuntimeException('This record cannot be restored'),
+        };
     }
 }
