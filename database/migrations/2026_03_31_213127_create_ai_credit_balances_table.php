@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -21,5 +22,7 @@ return new class extends Migration
 
             $table->unique('team_id');
         });
+
+        DB::statement('ALTER TABLE ai_credit_balances ADD CONSTRAINT ai_credit_balances_credits_nonneg CHECK (credits_remaining >= 0)');
     }
 };
