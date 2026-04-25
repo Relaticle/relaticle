@@ -11,7 +11,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table): void {
-            $table->jsonb('ai_preferences')->nullable()->after('profile_photo_path');
+            $table->jsonb('ai_preferences')->nullable();
         });
     }
 };
