@@ -121,7 +121,7 @@ it('returns 404 for actions from another team', function (): void {
         ->assertNotFound();
 });
 
-it('returns 403 for actions belonging to another user on same team', function (): void {
+it('returns 404 for actions belonging to another user on same team', function (): void {
     $otherUser = User::factory()->create();
     $this->team->users()->attach($otherUser, ['role' => 'member']);
 
@@ -139,7 +139,7 @@ it('returns 403 for actions belonging to another user on same team', function ()
     ]);
 
     $this->postJson(route('chat.actions.approve', $pending))
-        ->assertForbidden();
+        ->assertNotFound();
 });
 
 it('rejects unauthenticated approve request', function (): void {

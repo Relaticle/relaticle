@@ -27,7 +27,7 @@ final readonly class PendingActionController
         }
 
         if ($pendingAction->user_id !== $user->getKey()) {
-            return response()->json(['error' => 'You can only approve your own actions'], 403);
+            return response()->json(['error' => 'Not found'], 404);
         }
 
         try {
@@ -52,7 +52,7 @@ final readonly class PendingActionController
         }
 
         if ($pendingAction->user_id !== $user->getKey()) {
-            return response()->json(['error' => 'You can only reject your own actions'], 403);
+            return response()->json(['error' => 'Not found'], 404);
         }
 
         try {
