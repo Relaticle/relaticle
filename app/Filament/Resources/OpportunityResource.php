@@ -8,7 +8,10 @@ use App\Enums\CreationSource;
 use App\Filament\Exports\OpportunityExporter;
 use App\Filament\Resources\OpportunityResource\Forms\OpportunityForm;
 use App\Filament\Resources\OpportunityResource\Pages\ListOpportunities;
+use App\Filament\Resources\OpportunityResource\Pages\OpportunityEmailsPage;
 use App\Filament\Resources\OpportunityResource\Pages\ViewOpportunity;
+use App\Filament\Resources\OpportunityResource\RelationManagers\EmailsRelationManager;
+use App\Filament\Resources\OpportunityResource\RelationManagers\MeetingsRelationManager;
 use App\Filament\Resources\OpportunityResource\RelationManagers\NotesRelationManager;
 use App\Filament\Resources\OpportunityResource\RelationManagers\TasksRelationManager;
 use App\Models\Opportunity;
@@ -32,6 +35,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Override;
+use Relaticle\ActivityLog\Filament\RelationManagers\ActivityLogRelationManager;
 
 final class OpportunityResource extends Resource
 {
@@ -106,8 +110,11 @@ final class OpportunityResource extends Resource
     public static function getRelations(): array
     {
         return [
+            ActivityLogRelationManager::class,
             TasksRelationManager::class,
             NotesRelationManager::class,
+            // EmailsRelationManager::class,
+            MeetingsRelationManager::class,
         ];
     }
 
@@ -117,6 +124,7 @@ final class OpportunityResource extends Resource
         return [
             'index' => ListOpportunities::route('/'),
             'view' => ViewOpportunity::route('/{record}'),
+            'emails' => OpportunityEmailsPage::route('/{record}/emails'),
         ];
     }
 

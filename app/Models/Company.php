@@ -6,10 +6,12 @@ namespace App\Models;
 
 use App\Enums\CreationSource;
 use App\Models\Concerns\BelongsToTeamCreator;
+use App\Models\Concerns\HasActivityTimeline;
 use App\Models\Concerns\HasAiSummary;
 use App\Models\Concerns\HasCreator;
 use App\Models\Concerns\HasNotes;
 use App\Models\Concerns\HasTeam;
+use App\Models\Concerns\LogsCrmActivity;
 use App\Observers\CompanyObserver;
 use App\Services\AvatarService;
 use Database\Factories\CompanyFactory;
@@ -22,8 +24,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use Relaticle\ActivityLog\Contracts\HasTimeline;
 use Relaticle\CustomFields\Models\Concerns\UsesCustomFields;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
+use Relaticle\EmailIntegration\Models\Concerns\HasEmails;
+use Relaticle\EmailIntegration\Models\Concerns\HasMeetings;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
@@ -31,22 +36,32 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  * @property string $name
  * @property Carbon|null $deleted_at
  * @property CreationSource $creation_source
+ * @property Carbon|null $last_email_at
+ * @property Carbon|null $last_interaction_at
+ * @property int $email_count
+ * @property int $inbound_email_count
+ * @property int $outbound_email_count
+ * @property float|null $avg_response_time_hours
  * @property-read string $created_by
  */
 #[ObservedBy(CompanyObserver::class)]
-final class Company extends Model implements HasCustomFields, HasMedia
+final class Company extends Model implements HasCustomFields, HasMedia, HasTimeline
 {
     use BelongsToTeamCreator;
+    use HasActivityTimeline;
     use HasAiSummary;
     use HasCreator;
+    use HasEmails;
 
     /** @use HasFactory<CompanyFactory> */
     use HasFactory;
 
+    use HasMeetings;
     use HasNotes;
     use HasTeam;
     use HasUlids;
     use InteractsWithMedia;
+    use LogsCrmActivity;
     use SoftDeletes;
     use UsesCustomFields;
 
@@ -74,6 +89,8 @@ final class Company extends Model implements HasCustomFields, HasMedia
     {
         return [
             'creation_source' => CreationSource::class,
+            'last_email_at' => 'datetime',
+            'last_interaction_at' => 'datetime',
         ];
     }
 

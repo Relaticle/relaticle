@@ -4,7 +4,11 @@ declare(strict_types=1);
 
 use App\Filament\Exports\BaseExporter;
 use App\Filament\Imports\BaseImporter;
+use App\Filament\Pages\BaseRecordEmailsPage;
 use App\Filament\Pages\Import\ImportPage;
+use App\Filament\RelationManagers\BaseActivityTimelineRelationManager;
+use App\Filament\RelationManagers\BaseEmailsRelationManager;
+use App\Filament\RelationManagers\BaseMeetingsRelationManager;
 use App\Livewire\BaseLivewireComponent;
 use App\Mcp\Tools\BaseAttachTool;
 use App\Mcp\Tools\BaseCreateTool;
@@ -19,7 +23,10 @@ arch()->preset()->php();
 
 // arch()->preset()->strict();
 
-arch()->preset()->security()->ignoring('assert');
+arch()->preset()->security()->ignoring([
+    'assert',
+    'Relaticle\EmailIntegration\Jobs\StoreMeetingJob',
+]);
 
 arch()->preset()
     ->laravel()
@@ -30,6 +37,7 @@ arch()->preset()
         'App\Enums\EnumValues',
         'App\Enums\CustomFields\CustomFieldTrait',
         'App\Mcp',
+        'App\ActivityLog',
     ]);
 
 arch('strict types')
@@ -41,6 +49,10 @@ arch('avoid open for extension')
     ->classes()
     ->toBeFinal()
     ->ignoring([
+        BaseActivityTimelineRelationManager::class,
+        BaseEmailsRelationManager::class,
+        BaseMeetingsRelationManager::class,
+        BaseRecordEmailsPage::class,
         BaseLivewireComponent::class,
         BaseImporter::class,
         BaseExporter::class,
@@ -61,6 +73,10 @@ arch('ensure no extends')
     ->not
     ->toBeAbstract()
     ->ignoring([
+        BaseActivityTimelineRelationManager::class,
+        BaseEmailsRelationManager::class,
+        BaseMeetingsRelationManager::class,
+        BaseRecordEmailsPage::class,
         BaseLivewireComponent::class,
         BaseImporter::class,
         BaseExporter::class,
@@ -72,6 +88,7 @@ arch('ensure no extends')
         BaseAttachTool::class,
         BaseDetachTool::class,
         ImportPage::class,
+        BaseRecordEmailsPage::class,
     ]);
 
 arch('avoid mutation')

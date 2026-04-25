@@ -6,10 +6,12 @@ namespace App\Models;
 
 use App\Enums\CreationSource;
 use App\Models\Concerns\BelongsToTeamCreator;
+use App\Models\Concerns\HasActivityTimeline;
 use App\Models\Concerns\HasAiSummary;
 use App\Models\Concerns\HasCreator;
 use App\Models\Concerns\HasNotes;
 use App\Models\Concerns\HasTeam;
+use App\Models\Concerns\LogsCrmActivity;
 use App\Observers\PeopleObserver;
 use App\Services\AvatarService;
 use Database\Factories\PeopleFactory;
@@ -21,26 +23,39 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use Relaticle\ActivityLog\Contracts\HasTimeline;
 use Relaticle\CustomFields\Models\Concerns\UsesCustomFields;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
+use Relaticle\EmailIntegration\Models\Concerns\HasEmails;
+use Relaticle\EmailIntegration\Models\Concerns\HasMeetings;
 
 /**
  * @property Carbon|null $deleted_at
  * @property CreationSource $creation_source
+ * @property Carbon|null $last_email_at
+ * @property Carbon|null $last_interaction_at
+ * @property int $email_count
+ * @property int $inbound_email_count
+ * @property int $outbound_email_count
+ * @property float|null $avg_response_time_hours
  */
 #[ObservedBy(PeopleObserver::class)]
-final class People extends Model implements HasCustomFields
+final class People extends Model implements HasCustomFields, HasTimeline
 {
     use BelongsToTeamCreator;
+    use HasActivityTimeline;
     use HasAiSummary;
     use HasCreator;
+    use HasEmails;
 
     /** @use HasFactory<PeopleFactory> */
     use HasFactory;
 
+    use HasMeetings;
     use HasNotes;
     use HasTeam;
     use HasUlids;
+    use LogsCrmActivity;
     use SoftDeletes;
     use UsesCustomFields;
 
@@ -70,6 +85,8 @@ final class People extends Model implements HasCustomFields
     {
         return [
             'creation_source' => CreationSource::class,
+            'last_email_at' => 'datetime',
+            'last_interaction_at' => 'datetime',
         ];
     }
 

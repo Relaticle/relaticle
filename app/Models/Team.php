@@ -18,12 +18,14 @@ use Laravel\Jetstream\Events\TeamCreated;
 use Laravel\Jetstream\Events\TeamDeleted;
 use Laravel\Jetstream\Events\TeamUpdated;
 use Laravel\Jetstream\Team as JetstreamTeam;
+use Relaticle\EmailIntegration\Enums\EmailPrivacyTier;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
 /**
  * @property string $name
  * @property string $slug
+ * @property EmailPrivacyTier|null $default_email_sharing_tier
  * @property Carbon|null $scheduled_deletion_at
  */
 final class Team extends JetstreamTeam implements HasAvatar
@@ -91,6 +93,9 @@ final class Team extends JetstreamTeam implements HasAvatar
 
         // Misc
         'null', 'undefined', 'error', 'test', 'staging', 'preview',
+
+        // Email Integration
+        'email-accounts', 'email-attachments',
     ];
 
     /**
@@ -102,6 +107,7 @@ final class Team extends JetstreamTeam implements HasAvatar
         'name',
         'slug',
         'personal_team',
+        'default_email_sharing_tier',
     ];
 
     /**
@@ -124,6 +130,7 @@ final class Team extends JetstreamTeam implements HasAvatar
     {
         return [
             'personal_team' => 'boolean',
+            'default_email_sharing_tier' => EmailPrivacyTier::class,
             'scheduled_deletion_at' => 'datetime',
         ];
     }

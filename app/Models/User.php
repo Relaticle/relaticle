@@ -27,6 +27,7 @@ use Illuminate\Support\Collection;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasTeams;
 use Laravel\Sanctum\HasApiTokens;
+use Relaticle\EmailIntegration\Enums\EmailPrivacyTier;
 
 /**
  * @property string $name
@@ -39,6 +40,7 @@ use Laravel\Sanctum\HasApiTokens;
  * @property Carbon|null $scheduled_deletion_at
  * @property string|null $two_factor_recovery_codes
  * @property string|null $two_factor_secret
+ * @property EmailPrivacyTier|null $default_email_sharing_tier
  * @property-read Team|null $currentTeam
  */
 final class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaultTenant, HasTenants, MustVerifyEmail
@@ -63,6 +65,7 @@ final class User extends Authenticatable implements FilamentUser, HasAvatar, Has
         'name',
         'email',
         'password',
+        'default_email_sharing_tier',
     ];
 
     /**
@@ -96,6 +99,7 @@ final class User extends Authenticatable implements FilamentUser, HasAvatar, Has
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'default_email_sharing_tier' => EmailPrivacyTier::class,
             'scheduled_deletion_at' => 'datetime',
         ];
     }

@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace App\Providers\Filament;
 
+use App\ActivityLog\AppEventPalette;
+use App\ActivityLog\AppEventRenderer;
+use App\ActivityLog\MeetingEventPalette;
+use App\ActivityLog\MeetingEventRenderer;
 use App\Features\SocialAuth;
 use App\Filament\Pages\AccessTokens;
 use App\Filament\Pages\Auth\Login;
@@ -11,6 +15,7 @@ use App\Filament\Pages\Auth\Register;
 use App\Filament\Pages\CreateTeam;
 use App\Filament\Pages\EditProfile;
 use App\Filament\Pages\EditTeam;
+use App\Filament\Pages\EmailPrivacySettingsPage;
 use App\Filament\Resources\CompanyResource;
 use App\Http\Middleware\ApplyTenantScopes;
 use App\Http\Middleware\CheckScheduledDeletion;
@@ -31,6 +36,7 @@ use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Schemas\Components\Section;
 use Filament\Support\Enums\Size;
+use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Filament\View\PanelsRenderHook;
@@ -50,6 +56,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Laravel\Jetstream\Features;
 use Laravel\Pennant\Feature;
+use Relaticle\ActivityLog\Filament\ActivityLogPlugin;
 use Relaticle\CustomFields\CustomFieldsPlugin;
 use Relaticle\ImportWizard\Filament\Pages\ImportHistory;
 
@@ -69,7 +76,7 @@ final class AppPanelProvider extends PanelProvider
         );
 
         Action::configureUsing(fn (Action $action): Action => $action->size(Size::Small)->iconPosition('before'));
-        DeleteAction::configureUsing(fn (DeleteAction $action): DeleteAction => $action->label('Delete record'));
+        DeleteAction::configureUsing(fn (DeleteAction $action): DeleteAction => $action->label('Delete'));
         Section::configureUsing(fn (Section $section): Section => $section->compact());
         Table::configureUsing(fn (Table $table): Table => $table);
     }
@@ -131,18 +138,29 @@ final class AppPanelProvider extends PanelProvider
                     ->url(fn (): string => $this->shouldRegisterMenuItem()
                         ? url(EditProfile::getUrl())
                         : url($panel->getPath())),
+                Action::make('email_privacy')
+                    ->label('Email privacy')
+                    ->icon('heroicon-m-shield-check')
+                    ->url(fn (): string => $this->shouldRegisterMenuItem()
+                        ? url(EmailPrivacySettingsPage::getUrl())
+                        : url($panel->getPath())),
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\Resources')
+            ->discoverResources(in: base_path('packages/EmailIntegration/src/Filament/Resources'), for: 'Relaticle\\EmailIntegration\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->discoverPages(in: base_path('packages/ImportWizard/src/Filament/Pages'), for: 'Relaticle\\ImportWizard\\Filament\\Pages')
+            ->discoverPages(in: base_path('packages/EmailIntegration/src/Filament/Pages'), for: 'Relaticle\\EmailIntegration\\Filament\\Pages')
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->discoverClusters(in: app_path('Filament/Clusters'), for: 'App\\Filament\\Clusters')
             ->readOnlyRelationManagersOnResourceViewPagesByDefault(false)
             ->pages([
                 EditProfile::class,
                 AccessTokens::class,
+                EmailPrivacySettingsPage::class,
             ])
             ->spa()
+            ->sidebarWidth('67')
+            ->maxContentWidth(Width::Full)
             ->routes(function (): void {
                 Route::get('/scheduled-deletion', ScheduledDeletionInterstitial::class)
                     ->middleware('auth')
@@ -154,6 +172,9 @@ final class AppPanelProvider extends PanelProvider
                 NavigationGroup::make()
                     ->label('Tasks')
                     ->icon('heroicon-o-shopping-cart'),
+                NavigationGroup::make()
+                    ->label('Emails')
+                    ->icon('heroicon-o-envelope'),
             ])
             ->middleware([
                 EncryptCookies::class,
@@ -182,6 +203,15 @@ final class AppPanelProvider extends PanelProvider
                 CustomFieldsPlugin::make()
                     ->authorize(fn () => Gate::check('update', Filament::getTenant())),
                 ResizedColumnPlugin::make(),
+                ActivityLogPlugin::make()
+                    ->renderers(array_fill_keys(
+                        array_column(AppEventPalette::cases(), 'value'),
+                        AppEventRenderer::class,
+                    ))
+                    ->renderers(array_fill_keys(
+                        array_column(MeetingEventPalette::cases(), 'value'),
+                        MeetingEventRenderer::class,
+                    )),
             ])
             ->renderHook(
                 PanelsRenderHook::AUTH_LOGIN_FORM_BEFORE,
