@@ -129,12 +129,6 @@ final class ProcessChatMessage implements ShouldQueue
 
     private function releaseScopes(): void
     {
-        Company::clearBootedModels();
-        People::clearBootedModels();
-        Opportunity::clearBootedModels();
-        Task::clearBootedModels();
-        Note::clearBootedModels();
-
         Auth::guard('web')->forgetUser();
     }
 }
