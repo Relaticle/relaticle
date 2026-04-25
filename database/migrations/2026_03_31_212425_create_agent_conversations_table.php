@@ -37,6 +37,8 @@ return new class extends AiMigration
             $table->timestamps();
 
             $table->index(['conversation_id', 'user_id', 'updated_at'], 'conversation_index');
+
+            $table->foreign('conversation_id')->references('id')->on('agent_conversations')->cascadeOnDelete();
         });
     }
 };
