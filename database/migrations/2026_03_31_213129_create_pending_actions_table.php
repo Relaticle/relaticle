@@ -30,6 +30,7 @@ return new class extends Migration
             $table->index(['team_id', 'status']);
             $table->index(['conversation_id', 'status']);
             $table->index('expires_at');
+            $table->index(['team_id', 'user_id', 'status']);
         });
     }
 };
