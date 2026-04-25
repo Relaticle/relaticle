@@ -8,8 +8,11 @@ use App\Models\User;
 use BackedEnum;
 use Filament\Facades\Filament;
 use Filament\Pages\Page;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Date;
 use Relaticle\Chat\Actions\ListConversations;
+use Relaticle\Chat\Data\CrmInsight;
+use Relaticle\Chat\Services\CrmInsightsService;
 
 final class Dashboard extends Page
 {
@@ -40,6 +43,20 @@ final class Dashboard extends Page
             $this->recentChatId = $recentChat->id;
             $this->recentChatTitle = $recentChat->title;
         }
+    }
+
+    /**
+     * @return Collection<int, CrmInsight>
+     */
+    public function getInsights(): Collection
+    {
+        /** @var User $user */
+        $user = Filament::auth()->user();
+        $team = $user->currentTeam;
+
+        return $team
+            ? resolve(CrmInsightsService::class)->forTeam($team)
+            : collect();
     }
 
     public function getGreeting(): string

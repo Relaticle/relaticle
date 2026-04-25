@@ -33,6 +33,40 @@
             </a>
         @endif
 
+        {{-- Proactive insights --}}
+        @php
+            $insights = $this->getInsights();
+        @endphp
+        @if($insights->isNotEmpty())
+            <div class="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                @foreach($insights as $insight)
+                    @php
+                        $severityClasses = match ($insight->severity) {
+                            'warning' => 'border-amber-200 bg-amber-50 hover:border-amber-300 dark:border-amber-900/40 dark:bg-amber-900/10',
+                            'success' => 'border-emerald-200 bg-emerald-50 hover:border-emerald-300 dark:border-emerald-900/40 dark:bg-emerald-900/10',
+                            default => 'border-blue-200 bg-blue-50 hover:border-blue-300 dark:border-blue-900/40 dark:bg-blue-900/10',
+                        };
+                        $countClasses = match ($insight->severity) {
+                            'warning' => 'text-amber-600 dark:text-amber-400',
+                            'success' => 'text-emerald-600 dark:text-emerald-400',
+                            default => 'text-blue-600 dark:text-blue-400',
+                        };
+                    @endphp
+                    <button
+                        type="button"
+                        @click="message = @js($insight->prompt); $nextTick(() => submit())"
+                        class="rounded-xl border p-4 text-left shadow-sm transition {{ $severityClasses }}"
+                    >
+                        <div class="flex items-baseline gap-2">
+                            <span class="text-2xl font-bold {{ $countClasses }}">{{ $insight->count }}</span>
+                            <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ $insight->title }}</span>
+                        </div>
+                        <p class="mt-1 text-xs text-gray-600 dark:text-gray-400">{{ $insight->description }}</p>
+                    </button>
+                @endforeach
+            </div>
+        @endif
+
         {{-- Chat input --}}
         <div class="mt-6">
             <form @submit.prevent="submit()">
