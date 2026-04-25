@@ -160,6 +160,19 @@
                                 </div>
                             </div>
 
+                            <template x-if="msg.rendered && Array.isArray(msg.follow_ups) && msg.follow_ups.length > 0">
+                                <div class="mt-2 flex flex-wrap gap-2">
+                                    <template x-for="chip in msg.follow_ups" :key="chip.prompt">
+                                        <button
+                                            type="button"
+                                            x-on:click="input = chip.prompt; $nextTick(() => sendMessage())"
+                                            x-text="chip.label"
+                                            class="rounded-full border border-gray-200 bg-white px-3 py-1 text-xs font-medium text-gray-700 transition hover:border-primary-300 hover:bg-primary-50 hover:text-primary-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-primary-700 dark:hover:bg-primary-900/20 dark:hover:text-primary-300"
+                                        ></button>
+                                    </template>
+                                </div>
+                            </template>
+
                             <template x-if="msg.rendered && msg.content">
                                 <div class="mt-1 flex items-center gap-1 px-1 opacity-0 transition group-hover/message:opacity-100 focus-within:opacity-100">
                                     <button
@@ -473,6 +486,9 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
             if (m.role === 'assistant') {
                 m.rendered = true;
                 m.prerendered = true;
+                if (!Array.isArray(m.follow_ups)) {
+                    m.follow_ups = [];
+                }
             }
             if (m.role === 'user') {
                 m.editing = false;
@@ -517,6 +533,9 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
                     if (m.role === 'assistant') {
                         m.rendered = true;
                         m.prerendered = true;
+                        if (!Array.isArray(m.follow_ups)) {
+                            m.follow_ups = [];
+                        }
                     }
                     if (m.role === 'user') {
                         m.editing = false;
@@ -696,7 +715,18 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
             .listen('.tool_result', (e) => this.handleToolResult(e))
             .listen('.stream_end', () => this.handleStreamEnd())
             .listen('.stream.failed', (e) => this.handleStreamFailed(e))
-            .listen('.conversation.resolved', (e) => this.handleConversationResolved(e));
+            .listen('.conversation.resolved', (e) => this.handleConversationResolved(e))
+            .listen('.follow_ups', (e) => this.handleFollowUps(e));
+    },
+
+    handleFollowUps(event) {
+        const chips = Array.isArray(event?.chips) ? event.chips.slice(0, 3) : [];
+        for (let i = this.messages.length - 1; i >= 0; i--) {
+            if (this.messages[i].role === 'assistant') {
+                this.messages[i].follow_ups = chips;
+                break;
+            }
+        }
     },
 
     friendlyToolStatus(toolName) {
@@ -754,7 +784,7 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
         this.isStreaming = true;
         this.currentToolStatus = null;
 
-        this.messages.push({ role: 'assistant', content: '', pending_actions: [], paywall: null, sessionExpired: false, rendered: false, prerendered: false, copiedAt: 0 });
+        this.messages.push({ role: 'assistant', content: '', pending_actions: [], paywall: null, sessionExpired: false, rendered: false, prerendered: false, copiedAt: 0, follow_ups: [] });
 
         const url = this.conversationId
             ? sendUrl.replace(/\/$/, '') + '/' + this.conversationId

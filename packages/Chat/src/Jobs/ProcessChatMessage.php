@@ -16,14 +16,17 @@ use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Auth;
+use Laravel\Ai\Responses\Data\ToolResult;
 use Laravel\Ai\Responses\StreamedAgentResponse;
 use Laravel\Ai\Streaming\Events\StreamEvent;
 use Relaticle\Chat\Agents\CrmAssistant;
 use Relaticle\Chat\Enums\AiCreditType;
 use Relaticle\Chat\Events\ChatStreamFailed;
 use Relaticle\Chat\Events\ConversationResolved;
+use Relaticle\Chat\Events\FollowUpsSuggested;
 use Relaticle\Chat\Models\AiCreditTransaction;
 use Relaticle\Chat\Services\CreditService;
+use Relaticle\Chat\Services\FollowUpService;
 use Relaticle\Chat\Support\ChatTelemetry;
 use Throwable;
 
@@ -97,6 +100,8 @@ final class ProcessChatMessage implements ShouldQueue
                     conversationId: $streamedResponse->conversationId,
                     idempotencyKey: $streamedResponse->invocationId,
                 );
+
+                $this->broadcastFollowUps($streamedResponse);
             });
         } finally {
             $this->releaseScopes();
@@ -123,6 +128,32 @@ final class ProcessChatMessage implements ShouldQueue
         broadcast(new ChatStreamFailed(
             conversationId: $this->conversationId,
             message: 'The assistant encountered an error. Please try again.',
+        ));
+    }
+
+    private function broadcastFollowUps(StreamedAgentResponse $streamedResponse): void
+    {
+        $conversationId = $streamedResponse->conversationId;
+        if ($conversationId === null) {
+            return;
+        }
+
+        $toolCalls = $streamedResponse->toolResults
+            ->map(static fn (ToolResult $toolResult): array => [
+                'name' => $toolResult->name,
+                'result' => $toolResult->result,
+            ])
+            ->all();
+
+        $chips = resolve(FollowUpService::class)->suggest($toolCalls);
+
+        if ($chips === []) {
+            return;
+        }
+
+        broadcast(new FollowUpsSuggested(
+            conversationId: $conversationId,
+            chips: $chips,
         ));
     }
 
