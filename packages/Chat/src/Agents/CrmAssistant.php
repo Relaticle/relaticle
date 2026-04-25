@@ -43,7 +43,7 @@ use Relaticle\Chat\Tools\Task\GetTaskTool as ChatGetTaskTool;
 use Relaticle\Chat\Tools\Task\ListTasksTool as ChatListTasksTool;
 use Relaticle\Chat\Tools\Task\UpdateTaskTool as ChatUpdateTaskTool;
 
-#[Provider(['anthropic', 'openai'])]
+#[Provider(['anthropic', 'openai', 'gemini'])]
 #[MaxSteps(15)]
 #[Temperature(0.3)]
 #[Timeout(120)]

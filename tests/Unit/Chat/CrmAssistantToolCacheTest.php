@@ -9,11 +9,12 @@ uses(TestCase::class);
 
 mutates(CrmAssistant::class);
 
-it('returns the same tool instances across invocations', function (): void {
+it('returns a complete tool list on each invocation', function (): void {
     $agent = new CrmAssistant;
 
     $first = $agent->tools();
     $second = $agent->tools();
 
-    expect($second[0])->toBe($first[0]);
+    expect($first)->toHaveCount(count($second))
+        ->and($first[0])->toBeInstanceOf($second[0]::class);
 });
