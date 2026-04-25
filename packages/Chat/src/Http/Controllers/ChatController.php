@@ -69,10 +69,28 @@ final readonly class ChatController
             TitleSanitizer::clean($validated['message']),
         );
 
-        DB::table('agent_conversations')
-            ->where('id', $conversation)
-            ->whereNull('team_id')
-            ->update(['team_id' => $team->getKey()]);
+        DB::transaction(function () use ($conversation, $user, $team): void {
+            $row = DB::table('agent_conversations')
+                ->where('id', $conversation)
+                ->lockForUpdate()
+                ->first();
+
+            if ($row === null) {
+                return;
+            }
+
+            if ($row->user_id !== (string) $user->getKey()) {
+                abort(403);
+            }
+
+            if ($row->team_id !== null) {
+                return;
+            }
+
+            DB::table('agent_conversations')
+                ->where('id', $conversation)
+                ->update(['team_id' => $team->getKey(), 'updated_at' => now()]);
+        });
 
         $resolved = $this->modelResolver->resolve($user, $validated['model'] ?? null);
 
