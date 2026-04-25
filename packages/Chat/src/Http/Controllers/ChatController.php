@@ -128,7 +128,9 @@ final readonly class ChatController
                 ->whereBelongsTo($team)
                 ->where('name', 'ilike', "%{$search}%")
                 ->limit($limit)
-                ->get(['id', 'name'])
+                ->get(['id', 'name', 'team_id'])
+                ->filter(fn (Company $r): bool => $user->can('view', $r))
+                ->values()
                 ->map(fn (Company $r): array => ['id' => $r->id, 'name' => $r->name, 'type' => 'company'])
         );
 
@@ -137,7 +139,9 @@ final readonly class ChatController
                 ->whereBelongsTo($team)
                 ->where('name', 'ilike', "%{$search}%")
                 ->limit($limit)
-                ->get(['id', 'name'])
+                ->get(['id', 'name', 'team_id'])
+                ->filter(fn (People $r): bool => $user->can('view', $r))
+                ->values()
                 ->map(fn (People $r): array => ['id' => $r->id, 'name' => $r->name, 'type' => 'people'])
         );
 
@@ -146,7 +150,9 @@ final readonly class ChatController
                 ->whereBelongsTo($team)
                 ->where('name', 'ilike', "%{$search}%")
                 ->limit($limit)
-                ->get(['id', 'name'])
+                ->get(['id', 'name', 'team_id'])
+                ->filter(fn (Opportunity $r): bool => $user->can('view', $r))
+                ->values()
                 ->map(fn (Opportunity $r): array => ['id' => $r->id, 'name' => $r->name, 'type' => 'opportunity'])
         );
 
@@ -155,7 +161,9 @@ final readonly class ChatController
                 ->whereBelongsTo($team)
                 ->where('title', 'ilike', "%{$search}%")
                 ->limit($limit)
-                ->get(['id', 'title'])
+                ->get(['id', 'title', 'team_id'])
+                ->filter(fn (Task $r): bool => $user->can('view', $r))
+                ->values()
                 ->map(fn (Task $r): array => ['id' => $r->id, 'name' => $r->title, 'type' => 'task'])
         );
 
