@@ -63,12 +63,34 @@
                     </template>
 
                     {{-- Assistant message --}}
-                    <template x-if="msg.role === 'assistant'">
+                    <template x-if="msg.role === 'assistant' && (msg.rendered || msg.content || (index === messages.length - 1 && isStreaming && currentToolStatus))">
                         <div class="flex justify-start">
                             <div
                                 class="prose prose-sm dark:prose-invert max-w-[85%] rounded-2xl rounded-bl-md bg-white px-4 py-3 text-gray-900 shadow-sm ring-1 ring-gray-200 dark:bg-gray-800 dark:text-gray-100 dark:ring-gray-700 prose-p:my-2 prose-headings:mb-2 prose-headings:mt-3 prose-headings:text-gray-900 dark:prose-headings:text-white prose-pre:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0.5 prose-table:my-2 prose-table:border-collapse prose-thead:border-b prose-thead:border-gray-300 dark:prose-thead:border-gray-600 prose-th:px-2 prose-th:py-1 prose-th:text-left prose-td:border-t prose-td:border-gray-100 prose-td:px-2 prose-td:py-1 dark:prose-td:border-gray-700 prose-code:rounded prose-code:bg-gray-100 prose-code:px-1 prose-code:py-0.5 prose-code:text-[0.85em] prose-code:before:content-none prose-code:after:content-none dark:prose-code:bg-gray-900 prose-pre:rounded-lg prose-pre:bg-gray-900 prose-pre:text-gray-100 first:prose-headings:mt-0"
-                                x-html="window.renderMarkdown(msg.content)"
-                            ></div>
+                            >
+                                <template x-if="msg.rendered && msg.prerendered">
+                                    <div x-html="msg.content"></div>
+                                </template>
+                                <template x-if="msg.rendered && !msg.prerendered">
+                                    <div x-html="window.renderMarkdown(msg.content)"></div>
+                                </template>
+                                <template x-if="!msg.rendered">
+                                    <div>
+                                        <template x-if="msg.content">
+                                            <div x-text="msg.content" class="whitespace-pre-wrap"></div>
+                                        </template>
+                                        <template x-if="index === messages.length - 1 && isStreaming && currentToolStatus">
+                                            <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400" role="status" :class="{ 'mt-2': msg.content }">
+                                                <svg class="h-3 w-3 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"/>
+                                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                                                </svg>
+                                                <span x-text="currentToolStatus"></span>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </template>
+                            </div>
                         </div>
                     </template>
 
@@ -167,7 +189,7 @@
             </template>
 
             {{-- Streaming indicator (only before first token arrives) --}}
-            <template x-if="isStreaming && (messages.length === 0 || messages[messages.length-1].role !== 'assistant' || !messages[messages.length-1].content)">
+            <template x-if="isStreaming && !currentToolStatus && (messages.length === 0 || messages[messages.length-1].role !== 'assistant' || !messages[messages.length-1].content)">
                 <div class="flex justify-start" aria-label="Assistant is typing" role="status">
                     <div class="rounded-2xl rounded-bl-md bg-white px-4 py-3 shadow-sm ring-1 ring-gray-200 dark:bg-gray-800 dark:ring-gray-700">
                         <div class="flex items-center gap-1.5 motion-reduce:animate-none" aria-hidden="true">
@@ -201,17 +223,24 @@
                         :disabled="isStreaming"
                     ></textarea>
                     <button
+                        x-show="!isStreaming"
                         type="submit"
                         class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary-600 text-white shadow-sm transition hover:bg-primary-700 disabled:cursor-not-allowed disabled:bg-gray-200 disabled:text-gray-400 disabled:shadow-none dark:disabled:bg-gray-700 dark:disabled:text-gray-500"
-                        :disabled="isStreaming || !input.trim() || input.length > 5000"
+                        :disabled="!input.trim() || input.length > 5000"
                         aria-label="Send message"
                     >
-                        <template x-if="!isStreaming">
-                            <x-heroicon-s-arrow-up class="h-4 w-4" />
-                        </template>
-                        <template x-if="isStreaming">
-                            <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
-                        </template>
+                        <x-heroicon-s-arrow-up class="h-4 w-4" />
+                    </button>
+                    <button
+                        x-show="isStreaming"
+                        type="button"
+                        x-on:click="cancelStream()"
+                        class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gray-900 text-white shadow-sm transition hover:bg-gray-700 dark:bg-gray-200 dark:text-gray-900 dark:hover:bg-gray-300"
+                        aria-label="Stop generation"
+                    >
+                        <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                            <rect x="6" y="6" width="12" height="12" rx="2"/>
+                        </svg>
                     </button>
                 </div>
                 <div class="mt-1.5 flex items-center justify-between px-1 text-[11px] text-gray-400 dark:text-gray-500">
@@ -251,6 +280,8 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
     streamTimeoutId: null,
     streamTimeoutMs: 60000,
     prependScrollAnchor: null,
+    streamAbortController: null,
+    currentToolStatus: null,
 
     starterPrompts: [
         'Give me a CRM overview',
@@ -265,6 +296,13 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
     },
 
     init() {
+        this.messages.forEach((m) => {
+            if (m.role === 'assistant') {
+                m.rendered = true;
+                m.prerendered = true;
+            }
+        });
+
         if (this.conversationId) {
             this.subscribeToConversation(this.conversationId);
         }
@@ -295,6 +333,12 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
             const earlier = (payload && payload.messages) || [];
             const hasMore = payload ? !!payload.hasMore : false;
             if (earlier.length > 0) {
+                earlier.forEach((m) => {
+                    if (m.role === 'assistant') {
+                        m.rendered = true;
+                        m.prerendered = true;
+                    }
+                });
                 this.messages = [...earlier, ...this.messages];
             }
             this.hasMoreMessages = hasMore;
@@ -340,10 +384,29 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
 
         this.channel
             .listen('.text_delta', (e) => this.handleTextDelta(e))
+            .listen('.tool_call', (e) => this.handleToolCall(e))
             .listen('.tool_result', (e) => this.handleToolResult(e))
             .listen('.stream_end', () => this.handleStreamEnd())
             .listen('.stream.failed', (e) => this.handleStreamFailed(e))
             .listen('.conversation.resolved', (e) => this.handleConversationResolved(e));
+    },
+
+    friendlyToolStatus(toolName) {
+        if (!toolName) return 'Running tool…';
+        const name = String(toolName);
+
+        if (name === 'get_crm_summary') return 'Reading CRM summary…';
+        if (name === 'search_crm') return 'Searching CRM…';
+
+        const m = name.match(/^(list|get|create|update|delete)_(.+)$/);
+        if (!m) return `Running ${name}…`;
+
+        const [, op, rest] = m;
+        const entity = rest.replace(/_/g, ' ');
+
+        if (op === 'list') return `Searching ${entity}…`;
+        if (op === 'get') return `Looking up ${entity}…`;
+        return `Preparing ${op} ${entity} proposal…`;
     },
 
     startStreamTimeout() {
@@ -351,9 +414,14 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
         this.streamTimeoutId = setTimeout(() => {
             if (!this.isStreaming) return;
             const assistantMsg = this.messages[this.messages.length - 1];
-            if (assistantMsg?.role === 'assistant' && !assistantMsg.content) {
-                assistantMsg.content = 'The assistant took too long to respond. Please try again.';
+            if (assistantMsg?.role === 'assistant') {
+                if (!assistantMsg.content) {
+                    assistantMsg.content = 'The assistant took too long to respond. Please try again.';
+                }
+                assistantMsg.rendered = true;
+                assistantMsg.prerendered = false;
             }
+            this.currentToolStatus = null;
             this.isStreaming = false;
         }, this.streamTimeoutMs);
     },
@@ -369,17 +437,24 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
         const text = this.input.trim();
         if (!text || this.isStreaming) return;
 
+        if (this.conversationId && !this.channel) {
+            this.subscribeToConversation(this.conversationId);
+        }
+
         this.messages.push({ role: 'user', content: text });
         this.input = '';
         this.isStreaming = true;
+        this.currentToolStatus = null;
 
-        this.messages.push({ role: 'assistant', content: '', pending_actions: [], paywall: null, sessionExpired: false });
+        this.messages.push({ role: 'assistant', content: '', pending_actions: [], paywall: null, sessionExpired: false, rendered: false, prerendered: false });
 
         const url = this.conversationId
             ? sendUrl.replace(/\/$/, '') + '/' + this.conversationId
             : sendUrl;
 
         this.startStreamTimeout();
+
+        this.streamAbortController = new AbortController();
 
         try {
             const response = await fetch(url, {
@@ -390,6 +465,7 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
                 },
                 body: JSON.stringify({ message: text }),
+                signal: this.streamAbortController.signal,
             });
 
             if (!response.ok) {
@@ -400,6 +476,7 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
                     try { localStorage.setItem('chat:draft', text); } catch (_) { /* ignore */ }
                     assistantMsg.content = 'Your session expired. Please sign in again — your message is saved locally.';
                     assistantMsg.sessionExpired = true;
+                    assistantMsg.rendered = true;
                     this.isStreaming = false;
                     this.clearStreamTimeout();
                     return;
@@ -417,6 +494,7 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
                     assistantMsg.content = body.message || `Error ${response.status}: ${response.statusText}`;
                 }
 
+                assistantMsg.rendered = true;
                 this.isStreaming = false;
                 this.clearStreamTimeout();
                 return;
@@ -439,9 +517,14 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
                     detail: { id: body.conversation_id }
                 }));
             }
-        } catch {
+        } catch (error) {
+            if (error?.name === 'AbortError') {
+                return;
+            }
+
             const assistantMsg = this.messages[this.messages.length - 1];
             assistantMsg.content = 'Network error. Please try again.';
+            assistantMsg.rendered = true;
             this.isStreaming = false;
             this.clearStreamTimeout();
         }
@@ -449,8 +532,29 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
         this.scrollToBottom();
     },
 
+    cancelStream() {
+        try { this.streamAbortController?.abort(); } catch (_) { /* ignore */ }
+        this.streamAbortController = null;
+
+        this.unsubscribe();
+        this.clearStreamTimeout();
+
+        const assistantMsg = this.messages[this.messages.length - 1];
+        if (assistantMsg?.role === 'assistant') {
+            if (!assistantMsg.content) {
+                assistantMsg.content = 'Cancelled.';
+            }
+            assistantMsg.rendered = true;
+            assistantMsg.prerendered = false;
+        }
+
+        this.currentToolStatus = null;
+        this.isStreaming = false;
+    },
+
     handleTextDelta(event) {
         this.startStreamTimeout();
+        this.currentToolStatus = null;
         const assistantMsg = this.messages[this.messages.length - 1];
         if (assistantMsg?.role === 'assistant') {
             assistantMsg.content += event.delta || '';
@@ -458,8 +562,15 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
         }
     },
 
+    handleToolCall(event) {
+        this.startStreamTimeout();
+        this.currentToolStatus = this.friendlyToolStatus(event?.tool_name);
+        this.scrollToBottom();
+    },
+
     handleToolResult(event) {
         this.startStreamTimeout();
+        this.currentToolStatus = null;
         const assistantMsg = this.messages[this.messages.length - 1];
         if (assistantMsg?.role === 'assistant' && event.result) {
             try {
@@ -474,15 +585,26 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
     },
 
     handleStreamEnd() {
+        this.currentToolStatus = null;
+        const assistantMsg = this.messages[this.messages.length - 1];
+        if (assistantMsg?.role === 'assistant') {
+            assistantMsg.rendered = true;
+            assistantMsg.prerendered = false;
+        }
         this.isStreaming = false;
         this.clearStreamTimeout();
         this.scrollToBottom();
     },
 
     handleStreamFailed(event) {
+        this.currentToolStatus = null;
         const assistantMsg = this.messages[this.messages.length - 1];
-        if (assistantMsg?.role === 'assistant' && !assistantMsg.content) {
-            assistantMsg.content = event?.message || 'The assistant encountered an error. Please try again.';
+        if (assistantMsg?.role === 'assistant') {
+            if (!assistantMsg.content) {
+                assistantMsg.content = event?.message || 'The assistant encountered an error. Please try again.';
+            }
+            assistantMsg.rendered = true;
+            assistantMsg.prerendered = false;
         }
         this.isStreaming = false;
         this.clearStreamTimeout();
