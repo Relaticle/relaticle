@@ -47,7 +47,10 @@ abstract class BaseWriteDeleteTool implements Tool
 
         $id = $request->string('id');
         $modelClass = $this->modelClass();
-        $model = $modelClass::query()->find($id);
+        $model = $modelClass::query()
+            ->whereBelongsTo($user->currentTeam)
+            ->whereKey($id)
+            ->first();
 
         if (! $model instanceof Model) {
             return (string) json_encode(['error' => "{$this->entityLabel()} with ID [{$id}] not found."]);
