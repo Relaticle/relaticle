@@ -926,6 +926,10 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
     },
 
     async approveAction(action) {
+        const previousStatus = action.status;
+        action.status = 'approved';
+        action.error = null;
+
         try {
             const res = await fetch(@js(url('/chat/actions')) + '/' + action.pending_action_id + '/approve', {
                 method: 'POST',
@@ -937,20 +941,25 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
 
             if (res.ok) {
                 const body = await res.json().catch(() => ({}));
-                action.status = 'approved';
                 if (body.record) {
                     action.record = body.record;
                 }
             } else {
                 const body = await res.json().catch(() => ({}));
+                action.status = previousStatus;
                 action.error = body.error || 'Failed to approve';
             }
         } catch {
+            action.status = previousStatus;
             action.error = 'Network error';
         }
     },
 
     async rejectAction(action) {
+        const previousStatus = action.status;
+        action.status = 'rejected';
+        action.error = null;
+
         try {
             const res = await fetch(@js(url('/chat/actions')) + '/' + action.pending_action_id + '/reject', {
                 method: 'POST',
@@ -960,13 +969,13 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
                 },
             });
 
-            if (res.ok) {
-                action.status = 'rejected';
-            } else {
-                const body = await res.json();
+            if (! res.ok) {
+                const body = await res.json().catch(() => ({}));
+                action.status = previousStatus;
                 action.error = body.error || 'Failed to reject';
             }
         } catch {
+            action.status = previousStatus;
             action.error = 'Network error';
         }
     },
