@@ -1,5 +1,5 @@
 <div
-    x-data="chatInterface(@js($conversationId), @js(route('chat.send')), @js($initialMessage), @js($messages), @js(auth()->id()), @js($hasMoreMessages))"
+    x-data="chatInterface(@js($conversationId), @js(route('chat.send')), @js($initialMessage), @js($messages), @js(auth()->id()), @js($hasMoreMessages), @js(auth()->user()?->ai_preferences['default_model'] ?? 'auto'))"
     x-init="init()"
     class="flex h-full flex-col"
 >
@@ -342,14 +342,50 @@
                         </svg>
                     </button>
                 </div>
-                <div class="mt-1.5 flex items-center justify-between px-1 text-[11px] text-gray-400 dark:text-gray-500">
-                    <div>
-                        <kbd class="rounded border border-gray-200 bg-gray-50 px-1 py-0.5 font-sans text-[10px] dark:border-gray-700 dark:bg-gray-900">Enter</kbd> to send
-                        <span class="mx-1 text-gray-300 dark:text-gray-600">·</span>
-                        <kbd class="rounded border border-gray-200 bg-gray-50 px-1 py-0.5 font-sans text-[10px] dark:border-gray-700 dark:bg-gray-900">Shift</kbd>
-                        +
-                        <kbd class="rounded border border-gray-200 bg-gray-50 px-1 py-0.5 font-sans text-[10px] dark:border-gray-700 dark:bg-gray-900">Enter</kbd>
-                        for newline
+                <div class="mt-1.5 flex items-center justify-between gap-2 px-1 text-[11px] text-gray-400 dark:text-gray-500">
+                    <div class="flex items-center gap-2">
+                        <div x-data="{ menuOpen: false }" class="relative">
+                            <button
+                                type="button"
+                                x-on:click="menuOpen = !menuOpen"
+                                class="inline-flex items-center gap-1 rounded-md border border-gray-200 bg-white px-2 py-0.5 text-[11px] font-medium text-gray-600 transition hover:bg-gray-50 hover:text-gray-900 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
+                                :aria-expanded="menuOpen"
+                                aria-haspopup="listbox"
+                                aria-label="Select AI model"
+                            >
+                                <span x-text="modelLabel(selectedModel)"></span>
+                                <x-heroicon-o-chevron-up-down class="h-3 w-3" aria-hidden="true" />
+                            </button>
+                            <div
+                                x-show="menuOpen"
+                                x-on:click.away="menuOpen = false"
+                                x-transition.opacity.duration.100ms
+                                role="listbox"
+                                class="absolute bottom-full left-0 z-10 mb-1 w-48 overflow-hidden rounded-lg border border-gray-200 bg-white py-1 shadow-lg dark:border-gray-700 dark:bg-gray-800"
+                                style="display: none;"
+                            >
+                                <template x-for="opt in modelOptions" :key="opt.value">
+                                    <button
+                                        type="button"
+                                        role="option"
+                                        :aria-selected="selectedModel === opt.value"
+                                        x-on:click="selectModel(opt.value); menuOpen = false"
+                                        class="block w-full px-3 py-1.5 text-left text-xs text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700"
+                                        :class="{ 'bg-gray-100 font-semibold dark:bg-gray-700': selectedModel === opt.value }"
+                                    >
+                                        <span x-text="opt.label"></span>
+                                    </button>
+                                </template>
+                            </div>
+                        </div>
+                        <span class="hidden sm:inline">
+                            <kbd class="rounded border border-gray-200 bg-gray-50 px-1 py-0.5 font-sans text-[10px] dark:border-gray-700 dark:bg-gray-900">Enter</kbd> to send
+                            <span class="mx-1 text-gray-300 dark:text-gray-600">·</span>
+                            <kbd class="rounded border border-gray-200 bg-gray-50 px-1 py-0.5 font-sans text-[10px] dark:border-gray-700 dark:bg-gray-900">Shift</kbd>
+                            +
+                            <kbd class="rounded border border-gray-200 bg-gray-50 px-1 py-0.5 font-sans text-[10px] dark:border-gray-700 dark:bg-gray-900">Enter</kbd>
+                            for newline
+                        </span>
                     </div>
                     <span
                         x-show="input.length > 4000"
@@ -369,7 +405,7 @@
 
 @script
 <script>
-Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, initialMessages, userId, initialHasMoreMessages) => ({
+Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, initialMessages, userId, initialHasMoreMessages, initialModel) => ({
     conversationId: initialConversationId,
     messages: initialMessages || [],
     hasMoreMessages: !!initialHasMoreMessages,
@@ -383,6 +419,26 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
     currentToolStatus: null,
     now: Date.now(),
     copyTickerId: null,
+    selectedModel: 'auto',
+
+    modelOptions: [
+        { value: 'auto', label: 'Auto' },
+        { value: 'claude-haiku', label: 'Fast (Haiku)' },
+        { value: 'claude-sonnet', label: 'Claude Sonnet' },
+        { value: 'claude-opus', label: 'Claude Opus' },
+        { value: 'gpt-4o', label: 'GPT-4o' },
+        { value: 'gemini-pro', label: 'Gemini Pro' },
+    ],
+
+    modelLabel(value) {
+        const found = this.modelOptions.find((o) => o.value === value);
+        return (found || this.modelOptions[0]).label;
+    },
+
+    selectModel(value) {
+        this.selectedModel = value;
+        try { localStorage.setItem('chat:model', value); } catch (_) { /* ignore */ }
+    },
 
     starterPrompts: [
         'Give me a CRM overview',
@@ -397,6 +453,12 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
     },
 
     init() {
+        const validModels = this.modelOptions.map((o) => o.value);
+        let stored = null;
+        try { stored = localStorage.getItem('chat:model'); } catch (_) { /* ignore */ }
+        const candidate = stored || initialModel || 'auto';
+        this.selectedModel = validModels.includes(candidate) ? candidate : 'auto';
+
         this.messages.forEach((m) => {
             if (m.role === 'assistant') {
                 m.rendered = true;
@@ -700,7 +762,7 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
                     'Accept': 'application/json',
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
                 },
-                body: JSON.stringify({ message: text }),
+                body: JSON.stringify({ message: text, model: this.selectedModel }),
                 signal: this.streamAbortController.signal,
             });
 

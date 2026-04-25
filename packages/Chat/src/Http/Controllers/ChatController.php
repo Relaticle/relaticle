@@ -92,7 +92,7 @@ final readonly class ChatController
                 ->update(['team_id' => $team->getKey(), 'updated_at' => now()]);
         });
 
-        $resolved = $this->modelResolver->resolve($user, $validated['model'] ?? null);
+        $resolved = $this->modelResolver->resolve($user, $validated['model'] ?? null, $validated['message']);
 
         dispatch(new ProcessChatMessage(
             user: $user,

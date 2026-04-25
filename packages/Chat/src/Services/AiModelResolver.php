@@ -12,11 +12,18 @@ final readonly class AiModelResolver
     /**
      * Resolve the provider and model for a chat request.
      *
+     * When the resolved model is `Auto`, a lightweight heuristic picks
+     * Haiku for short, mention-free messages and Sonnet otherwise.
+     *
      * @return array{provider: string|null, model: string|null}
      */
-    public function resolve(User $user, ?string $override = null): array
+    public function resolve(User $user, ?string $override = null, ?string $message = null): array
     {
         $aiModel = $this->resolveModel($user, $override);
+
+        if ($aiModel === AiModel::Auto) {
+            $aiModel = $this->autoRoute($message);
+        }
 
         return [
             'provider' => $aiModel->provider(),
@@ -42,5 +49,14 @@ final readonly class AiModelResolver
         }
 
         return AiModel::Auto;
+    }
+
+    private function autoRoute(?string $message): AiModel
+    {
+        if ($message !== null && strlen($message) < 120 && ! str_contains($message, '@')) {
+            return AiModel::ClaudeHaiku;
+        }
+
+        return AiModel::ClaudeSonnet;
     }
 }
