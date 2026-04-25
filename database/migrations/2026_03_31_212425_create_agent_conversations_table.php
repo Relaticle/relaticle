@@ -29,11 +29,11 @@ return new class extends AiMigration
             $table->string('agent');
             $table->string('role', 25);
             $table->text('content');
-            $table->text('attachments');
-            $table->text('tool_calls');
-            $table->text('tool_results');
-            $table->text('usage');
-            $table->text('meta');
+            $table->jsonb('attachments');
+            $table->jsonb('tool_calls');
+            $table->jsonb('tool_results');
+            $table->jsonb('usage');
+            $table->jsonb('meta');
             $table->timestamps();
 
             $table->index(['conversation_id', 'user_id', 'updated_at'], 'conversation_index');
