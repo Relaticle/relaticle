@@ -22,8 +22,8 @@ return new class extends Migration
             $table->jsonb('action_data');
             $table->jsonb('display_data');
             $table->string('status')->default('pending');
-            $table->timestamp('expires_at');
-            $table->timestamp('resolved_at')->nullable();
+            $table->timestampTz('expires_at');
+            $table->timestampTz('resolved_at')->nullable();
             $table->jsonb('result_data')->nullable();
             $table->timestamps();
 

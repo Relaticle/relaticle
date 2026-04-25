@@ -16,8 +16,8 @@ return new class extends Migration
             $table->foreignUlid('team_id')->constrained()->cascadeOnDelete();
             $table->unsignedInteger('credits_remaining')->default(0);
             $table->unsignedInteger('credits_used')->default(0);
-            $table->timestamp('period_starts_at');
-            $table->timestamp('period_ends_at');
+            $table->timestampTz('period_starts_at');
+            $table->timestampTz('period_ends_at');
             $table->timestamps();
 
             $table->unique('team_id');
