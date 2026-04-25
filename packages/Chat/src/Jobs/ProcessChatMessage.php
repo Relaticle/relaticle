@@ -94,6 +94,7 @@ final class ProcessChatMessage implements ShouldQueue
                     outputTokens: $streamedResponse->usage->completionTokens,
                     toolCallsCount: $streamedResponse->toolCalls->count(),
                     conversationId: $streamedResponse->conversationId,
+                    idempotencyKey: $streamedResponse->invocationId,
                 );
             });
         } finally {

@@ -99,14 +99,22 @@ final readonly class CreditService
         int $outputTokens,
         int $toolCallsCount = 0,
         ?string $conversationId = null,
+        ?string $idempotencyKey = null,
     ): void {
         if ((bool) config('ai.unlimited_credits', false)) {
             return;
         }
 
+        if ($idempotencyKey !== null && AiCreditTransaction::query()
+            ->where('idempotency_key', $idempotencyKey)
+            ->exists()
+        ) {
+            return;
+        }
+
         $creditsCharged = $this->calculateCredits($model, $toolCallsCount);
 
-        DB::transaction(function () use ($team, $user, $type, $model, $inputTokens, $outputTokens, $creditsCharged, $toolCallsCount, $conversationId): void {
+        DB::transaction(function () use ($team, $user, $type, $model, $inputTokens, $outputTokens, $creditsCharged, $toolCallsCount, $conversationId, $idempotencyKey): void {
             $balance = AiCreditBalance::query()
                 ->where('team_id', $team->getKey())
                 ->lockForUpdate()
@@ -131,6 +139,7 @@ final readonly class CreditService
                 'team_id' => $team->getKey(),
                 'user_id' => $user->getKey(),
                 'conversation_id' => $conversationId,
+                'idempotency_key' => $idempotencyKey,
                 'type' => $type,
                 'model' => $model,
                 'input_tokens' => $inputTokens,
@@ -156,15 +165,23 @@ final readonly class CreditService
         int $toolCallsCount = 0,
         ?string $conversationId = null,
         int $reservedCredits = 1,
+        ?string $idempotencyKey = null,
     ): void {
         if ((bool) config('ai.unlimited_credits', false)) {
+            return;
+        }
+
+        if ($idempotencyKey !== null && AiCreditTransaction::query()
+            ->where('idempotency_key', $idempotencyKey)
+            ->exists()
+        ) {
             return;
         }
 
         $creditsCharged = $this->calculateCredits($model, $toolCallsCount);
         $adjustment = $creditsCharged - $reservedCredits;
 
-        DB::transaction(function () use ($team, $user, $type, $model, $inputTokens, $outputTokens, $creditsCharged, $toolCallsCount, $conversationId, $adjustment): void {
+        DB::transaction(function () use ($team, $user, $type, $model, $inputTokens, $outputTokens, $creditsCharged, $toolCallsCount, $conversationId, $adjustment, $idempotencyKey): void {
             if ($adjustment !== 0) {
                 $balance = AiCreditBalance::query()
                     ->where('team_id', $team->getKey())
@@ -199,6 +216,7 @@ final readonly class CreditService
                 'team_id' => $team->getKey(),
                 'user_id' => $user->getKey(),
                 'conversation_id' => $conversationId,
+                'idempotency_key' => $idempotencyKey,
                 'type' => $type,
                 'model' => $model,
                 'input_tokens' => $inputTokens,

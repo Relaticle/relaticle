@@ -18,6 +18,7 @@ use Relaticle\Chat\Enums\AiCreditType;
  * @property string $team_id
  * @property string $user_id
  * @property string|null $conversation_id
+ * @property string|null $idempotency_key
  * @property AiCreditType $type
  * @property string $model
  * @property int $input_tokens
@@ -40,6 +41,7 @@ final class AiCreditTransaction extends Model
         'team_id',
         'user_id',
         'conversation_id',
+        'idempotency_key',
         'type',
         'model',
         'input_tokens',
