@@ -731,13 +731,17 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
 
     friendlyToolStatus(toolName) {
         if (!toolName) return 'Running tool…';
-        const name = String(toolName);
+        const normalized = String(toolName)
+            .replace(/Tool$/, '')
+            .replace(/([a-z])([A-Z])/g, '$1_$2')
+            .replace(/([A-Z]+)([A-Z][a-z])/g, '$1_$2')
+            .toLowerCase();
 
-        if (name === 'get_crm_summary') return 'Reading CRM summary…';
-        if (name === 'search_crm') return 'Searching CRM…';
+        if (normalized === 'get_crm_summary') return 'Reading CRM summary…';
+        if (normalized === 'search_crm') return 'Searching CRM…';
 
-        const m = name.match(/^(list|get|create|update|delete)_(.+)$/);
-        if (!m) return `Running ${name}…`;
+        const m = normalized.match(/^(list|get|create|update|delete)_(.+)$/);
+        if (!m) return `Running ${normalized}…`;
 
         const [, op, rest] = m;
         const entity = rest.replace(/_/g, ' ');
