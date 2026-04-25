@@ -22,6 +22,7 @@ use Relaticle\Chat\Agents\CrmAssistant;
 use Relaticle\Chat\Enums\AiCreditType;
 use Relaticle\Chat\Events\ChatStreamFailed;
 use Relaticle\Chat\Events\ConversationResolved;
+use Relaticle\Chat\Models\AiCreditTransaction;
 use Relaticle\Chat\Services\CreditService;
 use Relaticle\Chat\Support\ChatTelemetry;
 use Throwable;
@@ -104,7 +105,15 @@ final class ProcessChatMessage implements ShouldQueue
 
     public function failed(?Throwable $exception): void
     {
-        resolve(CreditService::class)->refundReservation($this->team);
+        $alreadySettled = AiCreditTransaction::query()
+            ->where('conversation_id', $this->conversationId)
+            ->where('user_id', $this->user->getKey())
+            ->where('created_at', '>=', now()->subMinutes(10))
+            ->exists();
+
+        if (! $alreadySettled) {
+            resolve(CreditService::class)->refundReservation($this->team);
+        }
 
         ChatTelemetry::breadcrumb('job.failed', [
             'exception' => $exception?->getMessage(),
