@@ -52,45 +52,144 @@
             </template>
 
             <template x-for="(msg, index) in messages" :key="index">
-                <div>
+                <div class="group/message">
                     {{-- User message --}}
                     <template x-if="msg.role === 'user'">
                         <div class="flex justify-end">
-                            <div class="max-w-[80%] [overflow-wrap:anywhere] break-words rounded-2xl rounded-br-md bg-primary-600 px-4 py-3 text-sm text-white">
-                                <span x-text="msg.content" class="whitespace-pre-wrap"></span>
+                            <div class="flex max-w-[80%] flex-col items-end gap-1">
+                                <template x-if="!msg.editing">
+                                    <div class="[overflow-wrap:anywhere] break-words rounded-2xl rounded-br-md bg-primary-600 px-4 py-3 text-sm text-white">
+                                        <span x-text="msg.content" class="whitespace-pre-wrap"></span>
+                                    </div>
+                                </template>
+
+                                <template x-if="msg.editing">
+                                    <div class="w-full min-w-[16rem] rounded-2xl rounded-br-md bg-primary-600 p-2">
+                                        <label :for="'chat-edit-' + index" class="sr-only">Edit message</label>
+                                        <textarea
+                                            :id="'chat-edit-' + index"
+                                            x-ref="editArea"
+                                            x-model="msg.editText"
+                                            @input="autosize($event.target)"
+                                            @keydown.escape.prevent="cancelEdit(msg)"
+                                            @keydown.enter="if (!$event.shiftKey) { $event.preventDefault(); saveEdit(msg, index) }"
+                                            rows="1"
+                                            maxlength="5000"
+                                            aria-label="Edit message"
+                                            class="block min-h-[28px] w-full resize-none rounded-xl border-0 bg-primary-700/40 px-3 py-2 text-sm leading-6 text-white placeholder:text-primary-100/70 focus:outline-none focus:ring-2 focus:ring-white/40"
+                                            style="max-height: 200px;"
+                                        ></textarea>
+                                        <div class="mt-2 flex items-center justify-between gap-2 px-1">
+                                            <span
+                                                class="text-[11px]"
+                                                :class="{
+                                                    'text-primary-100/80': (msg.editText || '').length <= 4900,
+                                                    'text-amber-200': (msg.editText || '').length > 4900 && (msg.editText || '').length <= 5000,
+                                                    'text-red-200': (msg.editText || '').length > 5000,
+                                                }"
+                                                x-text="(msg.editText || '').length > 4000 ? `${(msg.editText || '').length.toLocaleString()} / 5,000` : ''"
+                                            ></span>
+                                            <div class="flex gap-2">
+                                                <button
+                                                    type="button"
+                                                    x-on:click="cancelEdit(msg)"
+                                                    class="rounded-lg bg-primary-700/40 px-2.5 py-1 text-xs font-medium text-white hover:bg-primary-700/70"
+                                                >
+                                                    Cancel
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    x-on:click="saveEdit(msg, index)"
+                                                    :disabled="!(msg.editText || '').trim() || (msg.editText || '').length > 5000 || isStreaming"
+                                                    class="rounded-lg bg-white px-2.5 py-1 text-xs font-medium text-primary-700 hover:bg-primary-50 disabled:cursor-not-allowed disabled:bg-white/60 disabled:text-primary-400"
+                                                >
+                                                    Save &amp; resend
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </template>
+
+                                <template x-if="!msg.editing && !isStreaming">
+                                    <div class="flex items-center gap-1 px-1 opacity-0 transition group-hover/message:opacity-100 focus-within:opacity-100">
+                                        <button
+                                            type="button"
+                                            x-on:click="canEdit(index) && startEdit(msg, index)"
+                                            :disabled="!canEdit(index)"
+                                            :title="canEdit(index) ? 'Edit message' : 'Cannot edit — pending approval'"
+                                            :aria-label="canEdit(index) ? 'Edit message' : 'Cannot edit — pending approval'"
+                                            class="inline-flex h-7 w-7 items-center justify-center rounded-md text-gray-400 transition hover:bg-gray-100 hover:text-gray-700 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-transparent disabled:hover:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-200"
+                                        >
+                                            <x-heroicon-o-pencil-square class="h-3.5 w-3.5" aria-hidden="true" />
+                                        </button>
+                                    </div>
+                                </template>
                             </div>
                         </div>
                     </template>
 
                     {{-- Assistant message --}}
                     <template x-if="msg.role === 'assistant' && (msg.rendered || msg.content || (index === messages.length - 1 && isStreaming && currentToolStatus))">
-                        <div class="flex justify-start">
-                            <div
-                                class="prose prose-sm dark:prose-invert max-w-[85%] rounded-2xl rounded-bl-md bg-white px-4 py-3 text-gray-900 shadow-sm ring-1 ring-gray-200 dark:bg-gray-800 dark:text-gray-100 dark:ring-gray-700 prose-p:my-2 prose-headings:mb-2 prose-headings:mt-3 prose-headings:text-gray-900 dark:prose-headings:text-white prose-pre:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0.5 prose-table:my-2 prose-table:border-collapse prose-thead:border-b prose-thead:border-gray-300 dark:prose-thead:border-gray-600 prose-th:px-2 prose-th:py-1 prose-th:text-left prose-td:border-t prose-td:border-gray-100 prose-td:px-2 prose-td:py-1 dark:prose-td:border-gray-700 prose-code:rounded prose-code:bg-gray-100 prose-code:px-1 prose-code:py-0.5 prose-code:text-[0.85em] prose-code:before:content-none prose-code:after:content-none dark:prose-code:bg-gray-900 prose-pre:rounded-lg prose-pre:bg-gray-900 prose-pre:text-gray-100 first:prose-headings:mt-0"
-                            >
-                                <template x-if="msg.rendered && msg.prerendered">
-                                    <div x-html="msg.content"></div>
-                                </template>
-                                <template x-if="msg.rendered && !msg.prerendered">
-                                    <div x-html="window.renderMarkdown(msg.content)"></div>
-                                </template>
-                                <template x-if="!msg.rendered">
-                                    <div>
-                                        <template x-if="msg.content">
-                                            <div x-text="msg.content" class="whitespace-pre-wrap"></div>
-                                        </template>
-                                        <template x-if="index === messages.length - 1 && isStreaming && currentToolStatus">
-                                            <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400" role="status" :class="{ 'mt-2': msg.content }">
-                                                <svg class="h-3 w-3 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"/>
-                                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-                                                </svg>
-                                                <span x-text="currentToolStatus"></span>
-                                            </div>
-                                        </template>
-                                    </div>
-                                </template>
+                        <div class="flex flex-col items-start">
+                            <div class="flex w-full justify-start">
+                                <div
+                                    class="prose prose-sm dark:prose-invert max-w-[85%] rounded-2xl rounded-bl-md bg-white px-4 py-3 text-gray-900 shadow-sm ring-1 ring-gray-200 dark:bg-gray-800 dark:text-gray-100 dark:ring-gray-700 prose-p:my-2 prose-headings:mb-2 prose-headings:mt-3 prose-headings:text-gray-900 dark:prose-headings:text-white prose-pre:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0.5 prose-table:my-2 prose-table:border-collapse prose-thead:border-b prose-thead:border-gray-300 dark:prose-thead:border-gray-600 prose-th:px-2 prose-th:py-1 prose-th:text-left prose-td:border-t prose-td:border-gray-100 prose-td:px-2 prose-td:py-1 dark:prose-td:border-gray-700 prose-code:rounded prose-code:bg-gray-100 prose-code:px-1 prose-code:py-0.5 prose-code:text-[0.85em] prose-code:before:content-none prose-code:after:content-none dark:prose-code:bg-gray-900 prose-pre:rounded-lg prose-pre:bg-gray-900 prose-pre:text-gray-100 first:prose-headings:mt-0"
+                                >
+                                    <template x-if="msg.rendered && msg.prerendered">
+                                        <div x-html="msg.content"></div>
+                                    </template>
+                                    <template x-if="msg.rendered && !msg.prerendered">
+                                        <div x-html="window.renderMarkdown(msg.content)"></div>
+                                    </template>
+                                    <template x-if="!msg.rendered">
+                                        <div>
+                                            <template x-if="msg.content">
+                                                <div x-text="msg.content" class="whitespace-pre-wrap"></div>
+                                            </template>
+                                            <template x-if="index === messages.length - 1 && isStreaming && currentToolStatus">
+                                                <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400" role="status" :class="{ 'mt-2': msg.content }">
+                                                    <svg class="h-3 w-3 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"/>
+                                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                                                    </svg>
+                                                    <span x-text="currentToolStatus"></span>
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </template>
+                                </div>
                             </div>
+
+                            <template x-if="msg.rendered && msg.content">
+                                <div class="mt-1 flex items-center gap-1 px-1 opacity-0 transition group-hover/message:opacity-100 focus-within:opacity-100">
+                                    <button
+                                        type="button"
+                                        x-on:click="copyMessage(msg)"
+                                        :aria-label="(now - (msg.copiedAt || 0) < 1500) ? 'Copied' : 'Copy message'"
+                                        :title="(now - (msg.copiedAt || 0) < 1500) ? 'Copied' : 'Copy message'"
+                                        class="inline-flex h-7 w-7 items-center justify-center rounded-md text-gray-400 transition hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-800 dark:hover:text-gray-200"
+                                    >
+                                        <template x-if="now - (msg.copiedAt || 0) < 1500">
+                                            <x-heroicon-s-check class="h-3.5 w-3.5 text-green-600 dark:text-green-400" aria-hidden="true" />
+                                        </template>
+                                        <template x-if="!(now - (msg.copiedAt || 0) < 1500)">
+                                            <x-heroicon-o-document-duplicate class="h-3.5 w-3.5" aria-hidden="true" />
+                                        </template>
+                                    </button>
+                                    <template x-if="!isStreaming && canRegenerate(index)">
+                                        <button
+                                            type="button"
+                                            x-on:click="regenerateMessage(index)"
+                                            aria-label="Regenerate response"
+                                            title="Regenerate response"
+                                            class="inline-flex h-7 items-center gap-1 rounded-md px-2 text-xs text-gray-400 transition hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-800 dark:hover:text-gray-200"
+                                        >
+                                            <x-heroicon-o-arrow-path class="h-3.5 w-3.5" aria-hidden="true" />
+                                            <span>Regenerate</span>
+                                        </button>
+                                    </template>
+                                </div>
+                            </template>
                         </div>
                     </template>
 
@@ -282,6 +381,8 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
     prependScrollAnchor: null,
     streamAbortController: null,
     currentToolStatus: null,
+    now: Date.now(),
+    copyTickerId: null,
 
     starterPrompts: [
         'Give me a CRM overview',
@@ -300,6 +401,13 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
             if (m.role === 'assistant') {
                 m.rendered = true;
                 m.prerendered = true;
+            }
+            if (m.role === 'user') {
+                m.editing = false;
+                m.editText = '';
+            }
+            if (typeof m.copiedAt === 'undefined') {
+                m.copiedAt = 0;
             }
         });
 
@@ -338,6 +446,13 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
                         m.rendered = true;
                         m.prerendered = true;
                     }
+                    if (m.role === 'user') {
+                        m.editing = false;
+                        m.editText = '';
+                    }
+                    if (typeof m.copiedAt === 'undefined') {
+                        m.copiedAt = 0;
+                    }
                 });
                 this.messages = [...earlier, ...this.messages];
             }
@@ -360,8 +475,129 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
 
     destroy() {
         this.clearStreamTimeout();
+        this.stopCopyTicker();
         this.unsubscribe();
         window.removeEventListener('beforeunload', this.beforeUnloadHandler);
+    },
+
+    startCopyTicker() {
+        if (this.copyTickerId) return;
+        this.copyTickerId = setInterval(() => {
+            this.now = Date.now();
+            const stillActive = this.messages.some((m) => m.copiedAt && this.now - m.copiedAt < 1500);
+            if (!stillActive) {
+                this.stopCopyTicker();
+            }
+        }, 200);
+    },
+
+    stopCopyTicker() {
+        if (this.copyTickerId) {
+            clearInterval(this.copyTickerId);
+            this.copyTickerId = null;
+        }
+    },
+
+    async copyMessage(msg) {
+        const text = msg?.content || '';
+        if (!text) return;
+
+        try {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                await navigator.clipboard.writeText(text);
+            } else {
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                textarea.setAttribute('readonly', '');
+                textarea.style.position = 'absolute';
+                textarea.style.left = '-9999px';
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+            }
+            msg.copiedAt = Date.now();
+            this.now = msg.copiedAt;
+            this.startCopyTicker();
+        } catch (_) { /* clipboard blocked — silently ignore */ }
+    },
+
+    canRegenerate(index) {
+        for (let i = index - 1; i >= 0; i--) {
+            if (this.messages[i].role === 'user') {
+                return true;
+            }
+        }
+        return false;
+    },
+
+    regenerateMessage(index) {
+        if (this.isStreaming) return;
+
+        let userIndex = -1;
+        for (let i = index - 1; i >= 0; i--) {
+            if (this.messages[i].role === 'user') {
+                userIndex = i;
+                break;
+            }
+        }
+        if (userIndex === -1) return;
+
+        const userText = this.messages[userIndex].content;
+        this.messages.splice(userIndex);
+
+        this.input = userText;
+        this.$nextTick(() => this.sendMessage());
+    },
+
+    canEdit(index) {
+        if (this.isStreaming) return false;
+
+        for (let i = index + 1; i < this.messages.length; i++) {
+            const next = this.messages[i];
+            if (next.role !== 'assistant') continue;
+            const hasPending = (next.pending_actions || []).some((a) => a.status === 'pending');
+            if (hasPending) return false;
+            break;
+        }
+        return true;
+    },
+
+    startEdit(msg, index) {
+        if (!this.canEdit(index)) return;
+        this.messages.forEach((m) => {
+            if (m.role === 'user' && m.editing) {
+                m.editing = false;
+                m.editText = '';
+            }
+        });
+        msg.editText = msg.content;
+        msg.editing = true;
+
+        this.$nextTick(() => {
+            const el = this.$refs.editArea;
+            if (!el) return;
+            el.focus();
+            el.setSelectionRange(el.value.length, el.value.length);
+            this.autosize(el);
+        });
+    },
+
+    cancelEdit(msg) {
+        msg.editing = false;
+        msg.editText = '';
+    },
+
+    saveEdit(msg, index) {
+        if (this.isStreaming) return;
+
+        const newText = (msg.editText || '').trim();
+        if (!newText || newText.length > 5000) return;
+
+        this.messages.splice(index);
+
+        this.input = newText;
+        this.$nextTick(() => this.sendMessage());
     },
 
     unsubscribe() {
@@ -441,12 +677,12 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
             this.subscribeToConversation(this.conversationId);
         }
 
-        this.messages.push({ role: 'user', content: text });
+        this.messages.push({ role: 'user', content: text, editing: false, editText: '', copiedAt: 0 });
         this.input = '';
         this.isStreaming = true;
         this.currentToolStatus = null;
 
-        this.messages.push({ role: 'assistant', content: '', pending_actions: [], paywall: null, sessionExpired: false, rendered: false, prerendered: false });
+        this.messages.push({ role: 'assistant', content: '', pending_actions: [], paywall: null, sessionExpired: false, rendered: false, prerendered: false, copiedAt: 0 });
 
         const url = this.conversationId
             ? sendUrl.replace(/\/$/, '') + '/' + this.conversationId
