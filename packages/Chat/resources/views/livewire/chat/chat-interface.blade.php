@@ -268,7 +268,7 @@
 
                                     {{-- Resolved state --}}
                                     <template x-if="action.status !== 'pending' && !action.error">
-                                        <div class="mt-3">
+                                        <div class="mt-3 flex items-center gap-2">
                                             <span
                                                 class="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium"
                                                 :class="{
@@ -278,6 +278,16 @@
                                                 }"
                                                 x-text="action.status.charAt(0).toUpperCase() + action.status.slice(1)"
                                             ></span>
+                                            <template x-if="action.status === 'approved' && action.record && action.record.url">
+                                                <a
+                                                    :href="action.record.url"
+                                                    wire:navigate
+                                                    class="inline-flex items-center gap-1 text-xs font-medium text-primary-600 hover:underline dark:text-primary-400"
+                                                >
+                                                    View
+                                                    <x-heroicon-o-arrow-top-right-on-square class="h-3 w-3" aria-hidden="true" />
+                                                </a>
+                                            </template>
                                         </div>
                                     </template>
                                 </div>
@@ -926,9 +936,13 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
             });
 
             if (res.ok) {
+                const body = await res.json().catch(() => ({}));
                 action.status = 'approved';
+                if (body.record) {
+                    action.record = body.record;
+                }
             } else {
-                const body = await res.json();
+                const body = await res.json().catch(() => ({}));
                 action.error = body.error || 'Failed to approve';
             }
         } catch {
