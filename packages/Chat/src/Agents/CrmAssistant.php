@@ -85,15 +85,12 @@ For any create, update, or delete operation:
 PROMPT;
     }
 
-    /** @var list<Tool>|null */
-    private static ?array $toolsCache = null;
-
     /**
      * @return list<Tool>
      */
     public function tools(): array
     {
-        return self::$toolsCache ??= array_map(
+        return array_map(
             static fn (string $class): Tool => resolve($class),
             $this->toolClasses(),
         );
