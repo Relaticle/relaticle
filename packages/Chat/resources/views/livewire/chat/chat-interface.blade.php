@@ -58,7 +58,10 @@
                         <div class="flex justify-end">
                             <div class="flex max-w-[80%] flex-col items-end gap-1">
                                 <template x-if="!msg.editing">
-                                    <div class="[overflow-wrap:anywhere] break-words rounded-2xl rounded-br-md bg-primary-600 px-4 py-3 text-sm text-white">
+                                    <div
+                                        :title="msg.created_at ? new Date(msg.created_at).toLocaleString() : ''"
+                                        class="[overflow-wrap:anywhere] break-words rounded-2xl rounded-br-md bg-primary-600 px-4 py-3 text-sm text-white"
+                                    >
                                         <span x-text="msg.content" class="whitespace-pre-wrap"></span>
                                     </div>
                                 </template>
@@ -133,6 +136,7 @@
                         <div class="flex flex-col items-start">
                             <div class="flex w-full justify-start">
                                 <div
+                                    :title="msg.created_at ? new Date(msg.created_at).toLocaleString() : ''"
                                     class="prose prose-sm dark:prose-invert max-w-[85%] rounded-2xl rounded-bl-md bg-white px-4 py-3 text-gray-900 shadow-sm ring-1 ring-gray-200 dark:bg-gray-800 dark:text-gray-100 dark:ring-gray-700 prose-p:my-2 prose-headings:mb-2 prose-headings:mt-3 prose-headings:text-gray-900 dark:prose-headings:text-white prose-pre:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0.5 prose-table:my-2 prose-table:border-collapse prose-thead:border-b prose-thead:border-gray-300 dark:prose-thead:border-gray-600 prose-th:px-2 prose-th:py-1 prose-th:text-left prose-td:border-t prose-td:border-gray-100 prose-td:px-2 prose-td:py-1 dark:prose-td:border-gray-700 prose-code:rounded prose-code:bg-gray-100 prose-code:px-1 prose-code:py-0.5 prose-code:text-[0.85em] prose-code:before:content-none prose-code:after:content-none dark:prose-code:bg-gray-900 prose-pre:rounded-lg prose-pre:bg-gray-900 prose-pre:text-gray-100 first:prose-headings:mt-0"
                                 >
                                     <template x-if="msg.rendered && msg.prerendered">
@@ -812,12 +816,13 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
             this.subscribeToConversation(this.conversationId);
         }
 
-        this.messages.push({ role: 'user', content: text, editing: false, editText: '', copiedAt: 0 });
+        const nowIso = new Date().toISOString();
+        this.messages.push({ role: 'user', content: text, editing: false, editText: '', copiedAt: 0, created_at: nowIso });
         this.input = '';
         this.isStreaming = true;
         this.currentToolStatus = null;
 
-        this.messages.push({ role: 'assistant', content: '', pending_actions: [], paywall: null, sessionExpired: false, rendered: false, prerendered: false, copiedAt: 0, follow_ups: [] });
+        this.messages.push({ role: 'assistant', content: '', pending_actions: [], paywall: null, sessionExpired: false, rendered: false, prerendered: false, copiedAt: 0, follow_ups: [], created_at: nowIso });
 
         const url = this.conversationId
             ? sendUrl.replace(/\/$/, '') + '/' + this.conversationId

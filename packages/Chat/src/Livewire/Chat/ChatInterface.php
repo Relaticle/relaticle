@@ -21,7 +21,7 @@ final class ChatInterface extends BaseLivewireComponent
     private const int PAGE_SIZE = 50;
 
     /**
-     * @var array<int, array{id?: string, role: string, content: string, pending_actions?: array<int, mixed>}>
+     * @var array<int, array{id?: string, role: string, content: string, created_at?: ?string, pending_actions?: array<int, mixed>}>
      */
     public array $messages = [];
 
@@ -41,7 +41,7 @@ final class ChatInterface extends BaseLivewireComponent
     }
 
     /**
-     * @return array<int, array{id: string, role: string, content: string, pending_actions: array<int, mixed>}>
+     * @return array<int, array{id: string, role: string, content: string, created_at: ?string, pending_actions: array<int, mixed>}>
      */
     public function fetchMessages(): array
     {

@@ -17,7 +17,7 @@ final readonly class ListConversationMessages
     ) {}
 
     /**
-     * @return array<int, array{id: string, role: string, content: string, pending_actions: array<int, mixed>}>
+     * @return array<int, array{id: string, role: string, content: string, created_at: ?string, pending_actions: array<int, mixed>}>
      */
     public function execute(User $user, string $conversationId, ?string $beforeMessageId = null, int $limit = 50): array
     {
@@ -34,7 +34,7 @@ final readonly class ListConversationMessages
         $messages = $query
             ->orderByDesc('m.id')
             ->limit($limit)
-            ->get(['m.id', 'm.role', 'm.content', 'm.tool_results'])
+            ->get(['m.id', 'm.role', 'm.content', 'm.tool_results', 'm.created_at'])
             ->reverse()
             ->values();
 
@@ -54,6 +54,7 @@ final readonly class ListConversationMessages
             'content' => $msg->role === 'assistant'
                 ? $this->markdown->render((string) ($msg->content ?? ''))
                 : (string) ($msg->content ?? ''),
+            'created_at' => $msg->created_at === null ? null : (string) $msg->created_at,
             'pending_actions' => $this->extractPendingActions(
                 $msg->tool_results === null ? null : (string) $msg->tool_results,
                 $statuses,
