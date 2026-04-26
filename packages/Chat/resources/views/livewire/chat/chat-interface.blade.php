@@ -368,6 +368,21 @@
                         style="max-height: 200px;"
                         :disabled="isStreaming"
                     ></textarea>
+                    <button type="button"
+                        x-show="speechSupported"
+                        @click="toggleVoice()"
+                        :aria-label="recording ? 'Stop voice input' : 'Start voice input'"
+                        :title="recording ? 'Stop' : 'Voice input'"
+                        class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition disabled:cursor-not-allowed"
+                        :class="recording ? 'bg-red-600 text-white animate-pulse' : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'"
+                        :disabled="isStreaming">
+                        <template x-if="!recording">
+                            <x-heroicon-o-microphone class="h-4 w-4" />
+                        </template>
+                        <template x-if="recording">
+                            <x-heroicon-s-stop class="h-4 w-4" />
+                        </template>
+                    </button>
                     <button
                         x-show="!isStreaming"
                         type="submit"
@@ -468,6 +483,9 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
     copyTickerId: null,
     selectedModel: 'auto',
     undoToast: null,
+    recording: false,
+    recognition: null,
+    speechSupported: typeof window !== 'undefined' && ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window),
 
     modelOptions: [
         { value: 'auto', label: 'Auto' },
@@ -597,6 +615,7 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
             clearTimeout(this.undoToast.timeoutId);
         }
         this.undoToast = null;
+        this.recognition?.stop();
         window.removeEventListener('beforeunload', this.beforeUnloadHandler);
     },
 
@@ -1105,6 +1124,42 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
             action.status = previousStatus;
             action.error = 'Network error';
         }
+    },
+
+    toggleVoice() {
+        if (this.recording) {
+            this.recognition?.stop();
+            return;
+        }
+        if (!this.speechSupported) return;
+
+        const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+        this.recognition = new SR();
+        this.recognition.continuous = false;
+        this.recognition.interimResults = true;
+        this.recognition.lang = navigator.language || 'en-US';
+
+        let finalText = '';
+        this.recognition.onresult = (event) => {
+            let interim = '';
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                const result = event.results[i];
+                if (result.isFinal) finalText += result[0].transcript;
+                else interim += result[0].transcript;
+            }
+            this.input = (finalText + interim).trim();
+        };
+        this.recognition.onend = () => {
+            this.recording = false;
+            const ta = this.$refs.chatInput;
+            if (ta) this.autosize(ta);
+        };
+        this.recognition.onerror = () => {
+            this.recording = false;
+        };
+
+        this.recording = true;
+        this.recognition.start();
     },
 
     scrollToBottom() {
