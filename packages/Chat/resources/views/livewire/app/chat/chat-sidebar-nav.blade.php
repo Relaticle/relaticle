@@ -1,5 +1,32 @@
 <li
-    x-data="{ label: 'Chats' }"
+    x-data="{
+        label: 'Chats',
+        onKeydown(e) {
+            const tag = e.target?.tagName;
+            if (tag === 'INPUT' || tag === 'TEXTAREA' || e.target?.isContentEditable) return;
+            if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+
+            if (e.key === 'n') {
+                e.preventDefault();
+                window.location = @js(\App\Filament\Pages\ChatConversation::getUrl());
+                return;
+            }
+
+            if (e.key !== 'j' && e.key !== 'k') return;
+
+            const chats = $el.querySelectorAll('a[wire\\:navigate]');
+            if (chats.length === 0) return;
+            const active = $el.querySelector('.fi-active a[wire\\:navigate]');
+            const list = Array.from(chats);
+            const idx = active ? list.indexOf(active) : -1;
+            const next = e.key === 'j'
+                ? Math.min(list.length - 1, idx + 1)
+                : Math.max(0, idx - 1);
+            e.preventDefault();
+            list[next]?.click();
+        }
+    }"
+    @keydown.window="onKeydown($event)"
     data-group-label="Chats"
     x-bind:class="{ 'fi-collapsed': $store.sidebar.groupIsCollapsed(label) }"
     class="fi-sidebar-group fi-collapsible"
