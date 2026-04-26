@@ -18,6 +18,7 @@ use Laravel\Ai\Contracts\ConversationStore;
 use Relaticle\Chat\Actions\DeleteConversation;
 use Relaticle\Chat\Actions\FindConversation;
 use Relaticle\Chat\Actions\ListConversations;
+use Relaticle\Chat\Actions\RenameConversation;
 use Relaticle\Chat\Enums\AiModel;
 use Relaticle\Chat\Jobs\ProcessChatMessage;
 use Relaticle\Chat\Models\AiCreditBalance;
@@ -203,6 +204,28 @@ final readonly class ChatController
         }
 
         return response()->json(['success' => true]);
+    }
+
+    public function rename(Request $request, string $conversationId): JsonResponse
+    {
+        $validated = $request->validate([
+            'title' => ['required', 'string', 'max:255'],
+        ]);
+
+        /** @var User $user */
+        $user = $request->user();
+
+        try {
+            $title = (new RenameConversation)->execute(
+                $user,
+                $conversationId,
+                $validated['title'],
+            );
+        } catch (\RuntimeException) {
+            abort(404);
+        }
+
+        return response()->json(['title' => $title]);
     }
 
     private function escapeLikeWildcards(string $value): string

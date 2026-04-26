@@ -21,5 +21,8 @@ Route::middleware(['auth:web', ApplyChatTenantScopes::class])->group(function ()
     Route::post('/chat/conversations/{conversationId}/cancel', [ChatController::class, 'cancel'])
         ->name('chat.cancel');
 
+    Route::post('/chat/conversations/{conversationId}/rename', [ChatController::class, 'rename'])
+        ->name('chat.rename');
+
     Route::post('/chat/{conversation?}', [ChatController::class, 'send'])->name('chat.send');
 });
