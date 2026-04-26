@@ -119,20 +119,35 @@ it('scopes insights to the team and ignores other teams', function (): void {
     expect($insights->firstWhere('key', 'stalled-deals'))->toBeNull();
 });
 
-it('caches results for the configured TTL', function (): void {
+it('caches results across calls when no writes occur', function (): void {
     $user = User::factory()->withPersonalTeam()->create();
     $team = $user->currentTeam;
     $service = new CrmInsightsService;
-
-    $first = $service->forTeam($team);
 
     Opportunity::factory()
         ->for($team)
         ->create(['updated_at' => now()->subDays(45)]);
 
+    $first = $service->forTeam($team);
     $second = $service->forTeam($team);
 
-    expect($first->count())->toBe($second->count());
+    expect($first->count())->toBe($second->count())
+        ->and($first->firstWhere('key', 'stalled-deals'))->not->toBeNull();
+});
+
+it('invalidates insights cache on opportunity write', function (): void {
+    $user = User::factory()->withPersonalTeam()->create();
+    $team = $user->currentTeam;
+    $service = app(CrmInsightsService::class);
+
+    $opp = Opportunity::factory()->for($team)->create(['updated_at' => now()->subDays(45)]);
+    $first = $service->forTeam($team);
+    expect($first->firstWhere('key', 'stalled-deals'))->not->toBeNull();
+
+    $opp->update(['updated_at' => now()]);
+
+    $second = $service->forTeam($team);
+    expect($second->firstWhere('key', 'stalled-deals'))->toBeNull();
 });
 
 it('flags overdue tasks via due_date custom field', function (): void {

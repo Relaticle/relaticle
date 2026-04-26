@@ -4,11 +4,18 @@ declare(strict_types=1);
 
 namespace Relaticle\Chat;
 
+use App\Models\Company;
+use App\Models\Note;
+use App\Models\Opportunity;
+use App\Models\People;
+use App\Models\Task;
 use Filament\Support\Facades\FilamentView;
 use Filament\View\PanelsRenderHook;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
@@ -34,6 +41,7 @@ final class ChatServiceProvider extends ServiceProvider
         $this->registerLivewireComponents();
         $this->registerMigrations();
         $this->registerRenderHooks();
+        $this->registerInsightsCacheInvalidation();
     }
 
     private function registerCommands(): void
@@ -73,6 +81,27 @@ final class ChatServiceProvider extends ServiceProvider
     private function registerMigrations(): void
     {
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
+    }
+
+    private function registerInsightsCacheInvalidation(): void
+    {
+        $invalidate = function (Model $model): void {
+            $teamId = $model->getAttribute('team_id');
+            if (is_string($teamId) || is_int($teamId)) {
+                Cache::forget("crm_insights_{$teamId}");
+            }
+        };
+
+        Company::saved($invalidate);
+        Company::deleted($invalidate);
+        People::saved($invalidate);
+        People::deleted($invalidate);
+        Opportunity::saved($invalidate);
+        Opportunity::deleted($invalidate);
+        Task::saved($invalidate);
+        Task::deleted($invalidate);
+        Note::saved($invalidate);
+        Note::deleted($invalidate);
     }
 
     private function registerRenderHooks(): void
