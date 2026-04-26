@@ -28,8 +28,11 @@ final class ArrayExistsForTeam implements DataAwareRule, ValidationRule
     /** @param array<string, mixed> $data */
     public function setData(array $data): static
     {
+        if (Arr::get($this->data, $this->arrayKey) !== Arr::get($data, $this->arrayKey)) {
+            $this->validIds = null;
+        }
+
         $this->data = $data;
-        $this->validIds = null;
 
         return $this;
     }
