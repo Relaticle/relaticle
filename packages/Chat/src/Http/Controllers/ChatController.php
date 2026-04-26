@@ -80,9 +80,7 @@ final readonly class ChatController
                 return;
             }
 
-            if ($row->user_id !== (string) $user->getKey()) {
-                abort(403);
-            }
+            abort_if($row->user_id !== (string) $user->getKey(), 403);
 
             if ($row->team_id !== null) {
                 return;
