@@ -569,6 +569,7 @@ it('validates large arrays of relationship ids in a bounded number of queries', 
     $opportunities = Opportunity::factory()->count(10)->recycle([$this->user, $this->team])->create();
 
     DB::enableQueryLog();
+    DB::flushQueryLog();
 
     $this->postJson('/api/v1/notes', [
         'title' => 'Large note',

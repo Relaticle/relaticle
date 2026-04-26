@@ -60,6 +60,7 @@ it('validates large arrays in bounded queries via MCP', function (): void {
     $companies = Company::factory()->count(10)->recycle([$this->user, $this->team])->create();
 
     DB::enableQueryLog();
+    DB::flushQueryLog();
 
     RelaticleServer::actingAs($this->user)
         ->tool(CreateNoteTool::class, [

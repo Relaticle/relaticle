@@ -47,6 +47,7 @@ it('prefetches valid ids in a single query regardless of array size', function (
     $companies = Company::factory()->count(8)->recycle([$this->user, $this->team])->create();
 
     DB::enableQueryLog();
+    DB::flushQueryLog();
 
     $validator = Validator::make(
         ['company_ids' => $companies->pluck('id')->all()],
@@ -63,6 +64,7 @@ it('prefetches valid ids in a single query regardless of array size', function (
 
 it('returns empty-valid-set without querying when input array is empty', function (): void {
     DB::enableQueryLog();
+    DB::flushQueryLog();
 
     $validator = Validator::make(
         ['company_ids' => []],
@@ -92,6 +94,7 @@ it('rebuilds the prefetched id set when setData is called again', function (): v
     $rule = new ArrayExistsForTeam('companies', 'company_ids', $this->team->id);
 
     DB::enableQueryLog();
+    DB::flushQueryLog();
 
     Validator::make(['company_ids' => [$first->id]], ['company_ids.*' => [$rule]])->passes();
     Validator::make(['company_ids' => [$second->id]], ['company_ids.*' => [$rule]])->passes();
