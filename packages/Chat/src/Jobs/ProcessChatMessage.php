@@ -16,6 +16,7 @@ use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Laravel\Ai\Responses\Data\ToolResult;
 use Laravel\Ai\Responses\StreamedAgentResponse;
 use Laravel\Ai\Streaming\Events\StreamEvent;
@@ -74,9 +75,29 @@ final class ProcessChatMessage implements ShouldQueue
                 model: $this->resolved['model'],
             );
 
-            $response->each(function (StreamEvent $event) use ($channel): void {
+            $cancelled = false;
+            $cacheKey = "chat:cancel:{$this->conversationId}";
+
+            $response->each(function (StreamEvent $event) use ($channel, $cacheKey, &$cancelled): void {
+                if (! $cancelled && Cache::pull($cacheKey) !== null) {
+                    $cancelled = true;
+
+                    return;
+                }
+
+                if ($cancelled) {
+                    return;
+                }
+
                 $event->broadcastNow($channel);
             });
+
+            if ($cancelled) {
+                $creditService->refundReservation($this->team);
+                ChatTelemetry::breadcrumb('stream.cancelled', []);
+
+                return;
+            }
 
             $response->then(function (StreamedAgentResponse $streamedResponse) use ($creditService): void {
                 ChatTelemetry::breadcrumb('stream.completed', [

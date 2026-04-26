@@ -899,7 +899,18 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
         this.scrollToBottom();
     },
 
-    cancelStream() {
+    async cancelStream() {
+        if (this.conversationId) {
+            try {
+                await fetch(@js(url('/chat/conversations')) + '/' + this.conversationId + '/cancel', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                    },
+                });
+            } catch (_) { /* best-effort */ }
+        }
+
         try { this.streamAbortController?.abort(); } catch (_) { /* ignore */ }
         this.streamAbortController = null;
 

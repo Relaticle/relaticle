@@ -11,6 +11,7 @@ use App\Models\Task;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Laravel\Ai\Contracts\ConversationStore;
@@ -106,6 +107,20 @@ final readonly class ChatController
             'status' => 'processing',
             'conversation_id' => $conversation,
         ]);
+    }
+
+    public function cancel(Request $request, string $conversationId): JsonResponse
+    {
+        /** @var User $user */
+        $user = $request->user();
+
+        Cache::put(
+            "chat:cancel:{$conversationId}",
+            (string) $user->getKey(),
+            now()->addMinutes(5),
+        );
+
+        return response()->json(['cancelled' => true]);
     }
 
     public function mentions(Request $request): JsonResponse
