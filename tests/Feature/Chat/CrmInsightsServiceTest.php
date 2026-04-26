@@ -8,7 +8,6 @@ use App\Models\Opportunity;
 use App\Models\People;
 use App\Models\Task;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Laravel\Pennant\Feature;
@@ -16,9 +15,6 @@ use Relaticle\Chat\Data\CrmInsight;
 use Relaticle\Chat\Services\CrmInsightsService;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldValue;
-use Tests\TestCase;
-
-uses(TestCase::class, RefreshDatabase::class);
 
 mutates(CrmInsightsService::class);
 
