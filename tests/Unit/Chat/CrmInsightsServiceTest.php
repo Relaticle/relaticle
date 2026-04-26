@@ -6,12 +6,16 @@ use App\Features\OnboardSeed;
 use App\Models\Company;
 use App\Models\Opportunity;
 use App\Models\People;
+use App\Models\Task;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
 use Laravel\Pennant\Feature;
 use Relaticle\Chat\Data\CrmInsight;
 use Relaticle\Chat\Services\CrmInsightsService;
+use Relaticle\CustomFields\Models\CustomField;
+use Relaticle\CustomFields\Models\CustomFieldValue;
 use Tests\TestCase;
 
 uses(TestCase::class, RefreshDatabase::class);
@@ -129,4 +133,99 @@ it('caches results for the configured TTL', function (): void {
     $second = $service->forTeam($team);
 
     expect($first->count())->toBe($second->count());
+});
+
+it('flags overdue tasks via due_date custom field', function (): void {
+    $user = User::factory()->withPersonalTeam()->create();
+    $team = $user->currentTeam;
+
+    $tasks = Task::factory()->for($team)->count(2)->create();
+    $dueFieldId = (string) Str::ulid();
+    CustomField::query()->create([
+        'id' => $dueFieldId,
+        'code' => 'due_date',
+        'name' => 'Due Date',
+        'type' => 'date',
+        'entity_type' => Task::class,
+        'tenant_id' => $team->id,
+        'active' => true,
+        'system_defined' => true,
+    ]);
+    foreach ($tasks as $task) {
+        CustomFieldValue::query()->create([
+            'id' => (string) Str::ulid(),
+            'entity_type' => Task::class,
+            'entity_id' => $task->id,
+            'custom_field_id' => $dueFieldId,
+            'tenant_id' => $team->id,
+            'date_value' => now()->subDays(2)->toDateString(),
+        ]);
+    }
+
+    $insights = (new CrmInsightsService)->forTeam($team);
+    expect($insights->firstWhere('key', 'overdue-tasks'))
+        ->toBeInstanceOf(CrmInsight::class)
+        ->and($insights->firstWhere('key', 'overdue-tasks')->count)->toBe(2);
+});
+
+it('flags closed-won opportunities this week via stage custom field', function (): void {
+    $user = User::factory()->withPersonalTeam()->create();
+    $team = $user->currentTeam;
+
+    $opportunity = Opportunity::factory()->for($team)->create();
+    $stageFieldId = (string) Str::ulid();
+    CustomField::query()->create([
+        'id' => $stageFieldId,
+        'code' => 'stage',
+        'name' => 'Stage',
+        'type' => 'select',
+        'entity_type' => Opportunity::class,
+        'tenant_id' => $team->id,
+        'active' => true,
+        'system_defined' => true,
+    ]);
+    CustomFieldValue::query()->create([
+        'id' => (string) Str::ulid(),
+        'entity_type' => Opportunity::class,
+        'entity_id' => $opportunity->id,
+        'custom_field_id' => $stageFieldId,
+        'tenant_id' => $team->id,
+        'string_value' => 'Won',
+    ]);
+
+    $insights = (new CrmInsightsService)->forTeam($team);
+    expect($insights->firstWhere('key', 'recent-wins'))->not->toBeNull();
+});
+
+it('reports pipeline value across opportunities', function (): void {
+    $user = User::factory()->withPersonalTeam()->create();
+    $team = $user->currentTeam;
+
+    $opportunities = Opportunity::factory()->for($team)->count(3)->create();
+    $amountFieldId = (string) Str::ulid();
+    CustomField::query()->create([
+        'id' => $amountFieldId,
+        'code' => 'amount',
+        'name' => 'Amount',
+        'type' => 'number',
+        'entity_type' => Opportunity::class,
+        'tenant_id' => $team->id,
+        'active' => true,
+        'system_defined' => true,
+    ]);
+    foreach ($opportunities as $i => $opportunity) {
+        CustomFieldValue::query()->create([
+            'id' => (string) Str::ulid(),
+            'entity_type' => Opportunity::class,
+            'entity_id' => $opportunity->id,
+            'custom_field_id' => $amountFieldId,
+            'tenant_id' => $team->id,
+            'integer_value' => 5000 * ($i + 1),
+        ]);
+    }
+
+    $insights = (new CrmInsightsService)->forTeam($team);
+    $pipeline = $insights->firstWhere('key', 'pipeline-value');
+    expect($pipeline)->not->toBeNull()
+        ->and($pipeline->count)->toBe(30000);
 });

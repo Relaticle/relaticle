@@ -7,9 +7,12 @@ namespace Relaticle\Chat\Services;
 use App\Models\Company;
 use App\Models\Opportunity;
 use App\Models\People;
+use App\Models\Task;
 use App\Models\Team;
+use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Relaticle\Chat\Data\CrmInsight;
 
 final readonly class CrmInsightsService
@@ -46,6 +49,21 @@ final readonly class CrmInsightsService
         $cold = $this->coldContacts($team);
         if ($cold instanceof CrmInsight) {
             $insights->push($cold);
+        }
+
+        $overdue = $this->overdueTasks($team);
+        if ($overdue instanceof CrmInsight) {
+            $insights->push($overdue);
+        }
+
+        $wins = $this->recentWins($team);
+        if ($wins instanceof CrmInsight) {
+            $insights->push($wins);
+        }
+
+        $pipelineValue = $this->pipelineValue($team);
+        if ($pipelineValue instanceof CrmInsight) {
+            $insights->push($pipelineValue);
         }
 
         $newCompanies = $this->newCompanies($team);
@@ -168,6 +186,93 @@ final readonly class CrmInsightsService
             count: $count,
             severity: 'success',
             prompt: 'Show opportunities created this week',
+        );
+    }
+
+    private function overdueTasks(Team $team): ?CrmInsight
+    {
+        $count = DB::table('custom_field_values as cfv')
+            ->join('custom_fields as cf', 'cf.id', '=', 'cfv.custom_field_id')
+            ->join('tasks as t', function (JoinClause $join): void {
+                $join->on('t.id', '=', 'cfv.entity_id')
+                    ->whereNull('t.deleted_at');
+            })
+            ->where('cf.code', 'due_date')
+            ->where('cf.entity_type', Task::class)
+            ->where('cf.tenant_id', $team->getKey())
+            ->where('t.team_id', $team->getKey())
+            ->where('cfv.date_value', '<', now()->toDateString())
+            ->count();
+
+        if ($count === 0) {
+            return null;
+        }
+
+        return new CrmInsight(
+            key: 'overdue-tasks',
+            title: 'Overdue tasks',
+            description: "{$count} tasks past their due date",
+            count: $count,
+            severity: 'warning',
+            prompt: 'Show me my overdue tasks',
+        );
+    }
+
+    private function recentWins(Team $team): ?CrmInsight
+    {
+        $count = DB::table('custom_field_values as cfv')
+            ->join('custom_fields as cf', 'cf.id', '=', 'cfv.custom_field_id')
+            ->join('opportunities as o', function (JoinClause $join): void {
+                $join->on('o.id', '=', 'cfv.entity_id')
+                    ->whereNull('o.deleted_at');
+            })
+            ->where('cf.code', 'stage')
+            ->where('cf.entity_type', Opportunity::class)
+            ->where('cf.tenant_id', $team->getKey())
+            ->where('o.team_id', $team->getKey())
+            ->whereIn('cfv.string_value', ['Won', 'Closed Won', 'won', 'closed_won'])
+            ->where('o.updated_at', '>=', now()->startOfWeek())
+            ->count();
+
+        if ($count === 0) {
+            return null;
+        }
+
+        return new CrmInsight(
+            key: 'recent-wins',
+            title: 'Recent wins',
+            description: "{$count} deals closed this week",
+            count: $count,
+            severity: 'success',
+            prompt: 'Show closed-won deals from this week',
+        );
+    }
+
+    private function pipelineValue(Team $team): ?CrmInsight
+    {
+        $sum = (float) DB::table('custom_field_values as cfv')
+            ->join('custom_fields as cf', 'cf.id', '=', 'cfv.custom_field_id')
+            ->join('opportunities as o', function (JoinClause $join): void {
+                $join->on('o.id', '=', 'cfv.entity_id')
+                    ->whereNull('o.deleted_at');
+            })
+            ->where('cf.code', 'amount')
+            ->where('cf.entity_type', Opportunity::class)
+            ->where('cf.tenant_id', $team->getKey())
+            ->where('o.team_id', $team->getKey())
+            ->sum(DB::raw('coalesce(cfv.float_value, cfv.integer_value, 0)'));
+
+        if ($sum <= 0.0) {
+            return null;
+        }
+
+        return new CrmInsight(
+            key: 'pipeline-value',
+            title: 'Open pipeline',
+            description: '$'.number_format($sum, 0).' across active opportunities',
+            count: (int) round($sum),
+            severity: 'info',
+            prompt: 'Show me my open opportunity pipeline by stage',
         );
     }
 }
