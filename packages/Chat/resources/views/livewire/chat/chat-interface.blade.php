@@ -189,18 +189,18 @@
                                             <x-heroicon-o-document-duplicate class="h-3.5 w-3.5" aria-hidden="true" />
                                         </template>
                                     </button>
-                                    <template x-if="!isStreaming && canRegenerate(index)">
-                                        <button
-                                            type="button"
-                                            x-on:click="regenerateMessage(index)"
-                                            aria-label="Regenerate response"
-                                            title="Regenerate response"
-                                            class="inline-flex h-7 items-center gap-1 rounded-md px-2 text-xs text-gray-400 transition hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-800 dark:hover:text-gray-200"
-                                        >
-                                            <x-heroicon-o-arrow-path class="h-3.5 w-3.5" aria-hidden="true" />
-                                            <span>Regenerate</span>
-                                        </button>
-                                    </template>
+                                    <button
+                                        type="button"
+                                        x-show="!isStreaming"
+                                        x-on:click="regenerateMessage(index)"
+                                        :disabled="!canRegenerate(index)"
+                                        :aria-label="canRegenerate(index) ? 'Regenerate response' : 'Cannot regenerate — pending approval'"
+                                        :title="canRegenerate(index) ? 'Regenerate response' : 'Cannot regenerate — pending approval'"
+                                        class="inline-flex h-7 items-center gap-1 rounded-md px-2 text-xs text-gray-400 transition hover:bg-gray-100 hover:text-gray-700 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-200 dark:disabled:hover:bg-transparent dark:disabled:hover:text-gray-400"
+                                    >
+                                        <x-heroicon-o-arrow-path class="h-3.5 w-3.5" aria-hidden="true" />
+                                        <span>Regenerate</span>
+                                    </button>
                                 </div>
                             </template>
                         </div>
@@ -639,6 +639,10 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
     },
 
     canRegenerate(index) {
+        const msg = this.messages[index];
+        if (msg?.pending_actions?.some((a) => a.status === 'pending')) {
+            return false;
+        }
         for (let i = index - 1; i >= 0; i--) {
             if (this.messages[i].role === 'user') {
                 return true;
