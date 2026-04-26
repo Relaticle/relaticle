@@ -17,6 +17,7 @@ use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Relaticle\Chat\Actions\DeleteConversation as DeleteConversationAction;
+use Relaticle\Chat\Actions\SearchConversations;
 use Relaticle\Chat\Models\AgentConversation;
 use Relaticle\Chat\Support\TitleSanitizer;
 
@@ -48,7 +49,18 @@ final class ChatsIndex extends Page implements HasTable
                 TextColumn::make('title')
                     ->label('Conversation')
                     ->formatStateUsing(fn (?string $state): string => TitleSanitizer::clean($state ?? 'Untitled'))
-                    ->searchable(),
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+                        /** @var User $user */
+                        $user = Filament::auth()->user();
+
+                        $matchingIds = (new SearchConversations)->execute($user, $search)->pluck('id')->all();
+
+                        if ($matchingIds === []) {
+                            return $query->whereRaw('1 = 0');
+                        }
+
+                        return $query->whereIn('id', $matchingIds);
+                    }),
                 TextColumn::make('updated_at')
                     ->label('Updated')
                     ->dateTime()

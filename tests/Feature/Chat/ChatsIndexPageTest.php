@@ -45,3 +45,36 @@ it('does not list other teams conversations', function (): void {
 it('shows empty state when no conversations exist', function (): void {
     Livewire::test(ChatsIndex::class)->assertSee('Start your first chat');
 });
+
+it('searches conversations by title and message content', function (): void {
+    DB::table('agent_conversations')->insert([
+        ['id' => 's1', 'user_id' => $this->user->getKey(), 'team_id' => $this->team->getKey(), 'title' => 'About Acme Corp', 'created_at' => now(), 'updated_at' => now()],
+        ['id' => 's2', 'user_id' => $this->user->getKey(), 'team_id' => $this->team->getKey(), 'title' => 'Generic title', 'created_at' => now(), 'updated_at' => now()],
+        ['id' => 's3', 'user_id' => $this->user->getKey(), 'team_id' => $this->team->getKey(), 'title' => 'Pipeline review', 'created_at' => now(), 'updated_at' => now()],
+    ]);
+    DB::table('agent_conversation_messages')->insert([
+        'id' => 'sm1',
+        'conversation_id' => 's2',
+        'user_id' => $this->user->getKey(),
+        'agent' => 'Relaticle\\Chat\\Agents\\CrmAssistant',
+        'role' => 'user',
+        'content' => 'Find me companies in Berlin please',
+        'attachments' => '[]',
+        'tool_calls' => '[]',
+        'tool_results' => '[]',
+        'usage' => '{}',
+        'meta' => '{}',
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+
+    Livewire::test(ChatsIndex::class)
+        ->searchTable('Berlin')
+        ->assertCanSeeTableRecords(AgentConversation::query()->whereIn('id', ['s2'])->get())
+        ->assertCanNotSeeTableRecords(AgentConversation::query()->whereIn('id', ['s1', 's3'])->get());
+
+    Livewire::test(ChatsIndex::class)
+        ->searchTable('Acme')
+        ->assertCanSeeTableRecords(AgentConversation::query()->whereIn('id', ['s1'])->get())
+        ->assertCanNotSeeTableRecords(AgentConversation::query()->whereIn('id', ['s2', 's3'])->get());
+});
