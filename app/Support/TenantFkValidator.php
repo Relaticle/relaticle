@@ -8,7 +8,7 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Validation\ValidationException;
 
-final class TenantFkValidator
+final readonly class TenantFkValidator
 {
     /**
      * @param  array<string, mixed>  $data
