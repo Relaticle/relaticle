@@ -27,6 +27,7 @@
         "laravel/jetstream": "^5.2",
         "laravel/mcp": "^0.6.2",
         "laravel/passport": "^13.7",
+        "laravel/pennant": "^1.23",
         "laravel/sanctum": "^4.0",
         "laravel/socialite": "^5.16",
         "laravel/tinker": "^2.9",
