@@ -13,6 +13,8 @@ use Filament\Models\Contracts\HasDefaultTenant;
 use Filament\Models\Contracts\HasTenants;
 use Filament\Panel;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -36,7 +38,11 @@ use Laravel\Sanctum\HasApiTokens;
  * @property string|null $profile_photo_path
  * @property-read string $profile_photo_url
  * @property Carbon|null $email_verified_at
+ * @property Carbon|null $last_login_at
+ * @property string|null $mailcoach_subscriber_uuid
+ * @property string|null $subscriber_recency_bucket
  * @property string|null $remember_token
+ * @property Carbon|null $scheduled_deletion_at
  * @property string|null $two_factor_recovery_codes
  * @property string|null $two_factor_secret
  * @property-read Team|null $currentTeam
@@ -75,6 +81,8 @@ final class User extends Authenticatable implements FilamentUser, HasAvatar, Has
         'remember_token',
         'two_factor_recovery_codes',
         'two_factor_secret',
+        'mailcoach_subscriber_uuid',
+        'subscriber_recency_bucket',
     ];
 
     /**
@@ -95,7 +103,9 @@ final class User extends Authenticatable implements FilamentUser, HasAvatar, Has
     {
         return [
             'email_verified_at' => 'datetime',
+            'last_login_at' => 'datetime',
             'password' => 'hashed',
+            'scheduled_deletion_at' => 'datetime',
         ];
     }
 
@@ -110,6 +120,32 @@ final class User extends Authenticatable implements FilamentUser, HasAvatar, Has
     public function hasPassword(): bool
     {
         return $this->password !== null;
+    }
+
+    public function isScheduledForDeletion(): bool
+    {
+        return $this->scheduled_deletion_at !== null;
+    }
+
+    /**
+     * @param  Builder<User>  $query
+     * @return Builder<User>
+     */
+    #[Scope]
+    protected function scheduledForDeletion(Builder $query): Builder
+    {
+        return $query->whereNotNull('scheduled_deletion_at');
+    }
+
+    /**
+     * @param  Builder<User>  $query
+     * @return Builder<User>
+     */
+    #[Scope]
+    protected function expiredDeletion(Builder $query): Builder
+    {
+        return $query->whereNotNull('scheduled_deletion_at')
+            ->where('scheduled_deletion_at', '<=', now());
     }
 
     /**
