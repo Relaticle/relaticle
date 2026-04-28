@@ -33,7 +33,7 @@ final class SearchTool extends Tool
     /**
      * @var array<string, array{0: class-string<Model>, 1: string, 2: string}>
      */
-    private const ENTITY_MAP = [
+    private const array ENTITY_MAP = [
         'company' => [Company::class, 'name', 'companies'],
         'person' => [People::class, 'name', 'people'],
         'opportunity' => [Opportunity::class, 'name', 'opportunities'],

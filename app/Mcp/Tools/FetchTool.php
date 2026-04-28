@@ -31,7 +31,7 @@ final class FetchTool extends Tool
     use ChecksTokenAbility;
 
     /** @var array<string, array{0: string, 1: class-string<Model>}> */
-    private const SEGMENT_MAP = [
+    private const array SEGMENT_MAP = [
         'companies' => ['company', Company::class],
         'people' => ['person', People::class],
         'opportunities' => ['opportunity', Opportunity::class],
