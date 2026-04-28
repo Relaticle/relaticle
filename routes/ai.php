@@ -9,7 +9,9 @@ use Laravel\Mcp\Facades\Mcp;
 
 $mcpDomain = config('app.mcp_domain');
 $mcpPath = $mcpDomain ? '/' : '/mcp';
-$mcpMiddleware = ['auth:sanctum', 'throttle:mcp', SetApiTeamContext::class];
+$mcpMiddleware = ['auth:sanctum,api', 'throttle:mcp', SetApiTeamContext::class];
+
+Mcp::oauthRoutes();
 
 if ($mcpDomain) {
     Route::domain($mcpDomain)->group(function () use ($mcpPath, $mcpMiddleware): void {
