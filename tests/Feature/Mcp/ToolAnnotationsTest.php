@@ -16,6 +16,7 @@ use App\Mcp\Tools\Company\ListCompaniesTool;
 use App\Mcp\Tools\Company\UpdateCompanyTool;
 use App\Mcp\Tools\Note\AttachNoteToEntitiesTool;
 use App\Mcp\Tools\Note\DetachNoteFromEntitiesTool;
+use Laravel\Mcp\Server\Tool;
 
 mutates(
     BaseListTool::class,
@@ -38,9 +39,13 @@ dataset('annotation_matrix', [
 ]);
 
 it('exposes the required annotation matrix', function (string $toolClass, array $expected): void {
-    $annotations = (new $toolClass)->annotations();
+    $tool = new $toolClass;
+    assert($tool instanceof Tool);
+
+    $annotations = $tool->annotations();
 
     foreach ($expected as $key => $value) {
-        expect($annotations)->toHaveKey($key)->and($annotations[$key])->toBe($value);
+        expect($annotations)->toHaveKey($key);
+        expect($annotations[$key])->toBe($value);
     }
 })->with('annotation_matrix');
