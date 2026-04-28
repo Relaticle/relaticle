@@ -79,6 +79,7 @@ return Application::configure(basePath: dirname(__DIR__))
             ->withoutOverlapping()
             ->onOneServer();
         $schedule->command('app:purge-scheduled-deletions')->daily()->withoutOverlapping()->onOneServer();
+        $schedule->command('app:refresh-demo-account')->dailyAt('03:00')->onOneServer();
 
         if (config('app.health_checks_enabled')) {
             $schedule->command(RunHealthChecksCommand::class)->everyMinute();
