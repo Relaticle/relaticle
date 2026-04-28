@@ -3,13 +3,14 @@
 declare(strict_types=1);
 
 use App\Mcp\Servers\RelaticleServer;
+use App\Mcp\Tools\FetchTool;
 use App\Mcp\Tools\SearchTool;
 use App\Models\Company;
 use App\Models\People;
 use App\Models\User;
 use Illuminate\Testing\Fluent\AssertableJson;
 
-mutates(SearchTool::class);
+mutates(SearchTool::class, FetchTool::class);
 
 beforeEach(function (): void {
     $this->user = User::factory()->withPersonalTeam()->create();
@@ -45,4 +46,34 @@ it('returns empty results for no matches', function (): void {
         ->tool(SearchTool::class, ['query' => 'ZZZnonexistent999'])
         ->assertOk()
         ->assertStructuredContent(['results' => [], 'count' => 0]);
+});
+
+it('fetches a company record by canonical url and returns the full payload', function (): void {
+    $company = Company::factory()->for($this->team)->create(['name' => 'Acme Corp']);
+    $base = rtrim((string) config('app.url'), '/');
+    $url = "{$base}/app/companies/{$company->getKey()}";
+
+    RelaticleServer::actingAs($this->user)
+        ->tool(FetchTool::class, ['url' => $url])
+        ->assertOk()
+        ->assertStructuredContent(function (AssertableJson $json) use ($company, $url): void {
+            $json->where('type', 'company')
+                ->where('url', $url)
+                ->where('data.id', $company->getKey())
+                ->etc();
+        });
+});
+
+it('returns an error for unknown urls', function (): void {
+    RelaticleServer::actingAs($this->user)
+        ->tool(FetchTool::class, ['url' => 'https://example.com/nope'])
+        ->assertHasErrors();
+});
+
+it('returns an error when the record does not exist', function (): void {
+    $base = rtrim((string) config('app.url'), '/');
+
+    RelaticleServer::actingAs($this->user)
+        ->tool(FetchTool::class, ['url' => "{$base}/app/companies/01HZZZZZZZZZZZZZZZZZZZZZZZ"])
+        ->assertHasErrors();
 });
