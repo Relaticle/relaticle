@@ -25,9 +25,7 @@ trait ChecksTokenAbility
         $token = $user?->currentAccessToken();
 
         if ($token instanceof PassportAccessToken) {
-            /** @var bool $can */
-            $can = $token->can($ability);
-            throw_unless($can, MissingAbilityException::class, [$ability]);
+            throw_unless($token->can($ability), MissingAbilityException::class, [$ability]);
 
             return;
         }
@@ -36,8 +34,6 @@ trait ChecksTokenAbility
             return;
         }
 
-        /** @var bool $can */
-        $can = $token->can($ability);
-        throw_unless($can, MissingAbilityException::class, [$ability]);
+        throw_unless($token->can($ability), MissingAbilityException::class, [$ability]);
     }
 }
