@@ -33,6 +33,7 @@ use App\Mcp\Tools\People\DeletePeopleTool;
 use App\Mcp\Tools\People\GetPeopleTool;
 use App\Mcp\Tools\People\ListPeopleTool;
 use App\Mcp\Tools\People\UpdatePeopleTool;
+use App\Mcp\Tools\SearchTool;
 use App\Mcp\Tools\Task\AttachTaskToEntitiesTool;
 use App\Mcp\Tools\Task\CreateTaskTool;
 use App\Mcp\Tools\Task\DeleteTaskTool;
@@ -58,6 +59,7 @@ final class RelaticleServer extends Server
     /** @var array<int, class-string<Tool>> */
     protected array $tools = [
         WhoAmiTool::class,
+        SearchTool::class,
         ListCompaniesTool::class,
         GetCompanyTool::class,
         CreateCompanyTool::class,
