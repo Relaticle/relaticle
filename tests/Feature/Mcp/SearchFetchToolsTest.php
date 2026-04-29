@@ -77,3 +77,11 @@ it('returns an error when the record does not exist', function (): void {
         ->tool(FetchTool::class, ['url' => "{$base}/app/companies/01HZZZZZZZZZZZZZZZZZZZZZZZ"])
         ->assertHasErrors();
 });
+
+it('rejects search queries longer than 255 characters', function (): void {
+    $oversize = str_repeat('a', 256);
+
+    RelaticleServer::actingAs($this->user)
+        ->tool(SearchTool::class, ['query' => $oversize])
+        ->assertHasErrors(['query']);
+});
