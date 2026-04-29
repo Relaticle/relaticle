@@ -164,6 +164,11 @@ final class AppServiceProvider extends ServiceProvider
         });
 
         RateLimiter::for('mcp', fn (Request $request) => Limit::perMinute(120)->by($request->user()?->id ?: $request->ip()));
+
+        RateLimiter::for(
+            'mcp-oauth',
+            fn (Request $request) => Limit::perMinute(20)->by($request->ip()),
+        );
     }
 
     private function configureScribe(): void

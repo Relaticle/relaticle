@@ -11,7 +11,7 @@ $mcpDomain = config('app.mcp_domain');
 $mcpPath = $mcpDomain ? '/' : '/mcp';
 $mcpMiddleware = ['auth:sanctum,api', 'throttle:mcp', SetApiTeamContext::class];
 
-Mcp::oauthRoutes();
+Route::middleware('throttle:mcp-oauth')->group(static fn () => Mcp::oauthRoutes());
 
 if ($mcpDomain) {
     Route::domain($mcpDomain)->group(function () use ($mcpPath, $mcpMiddleware): void {
