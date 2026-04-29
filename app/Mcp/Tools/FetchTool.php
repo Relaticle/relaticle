@@ -4,7 +4,11 @@ declare(strict_types=1);
 
 namespace App\Mcp\Tools;
 
-use App\Mcp\Tools\Concerns\ChecksTokenAbility;
+use App\Http\Resources\V1\CompanyResource;
+use App\Http\Resources\V1\NoteResource;
+use App\Http\Resources\V1\OpportunityResource;
+use App\Http\Resources\V1\PeopleResource;
+use App\Http\Resources\V1\TaskResource;
 use App\Models\Company;
 use App\Models\Note;
 use App\Models\Opportunity;
@@ -13,6 +17,7 @@ use App\Models\Task;
 use App\Models\User;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Resources\Json\JsonResource;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
@@ -28,15 +33,15 @@ use Laravel\Mcp\Server\Tools\Annotations\IsReadOnly;
 #[IsOpenWorld(false)]
 final class FetchTool extends Tool
 {
-    use ChecksTokenAbility;
+    use Concerns\ChecksTokenAbility;
 
-    /** @var array<string, array{0: string, 1: class-string<Model>}> */
+    /** @var array<string, array{0: string, 1: class-string<Model>, 2: class-string<JsonResource>}> */
     private const array SEGMENT_MAP = [
-        'companies' => ['company', Company::class],
-        'people' => ['person', People::class],
-        'opportunities' => ['opportunity', Opportunity::class],
-        'tasks' => ['task', Task::class],
-        'notes' => ['note', Note::class],
+        'companies' => ['company', Company::class, CompanyResource::class],
+        'people' => ['person', People::class, PeopleResource::class],
+        'opportunities' => ['opportunity', Opportunity::class, OpportunityResource::class],
+        'tasks' => ['task', Task::class, TaskResource::class],
+        'notes' => ['note', Note::class, NoteResource::class],
     ];
 
     public function schema(JsonSchema $schema): array
@@ -64,7 +69,7 @@ final class FetchTool extends Tool
             return Response::error("URL [{$validated['url']}] is not a recognized record URL.");
         }
 
-        [$type, $modelClass] = self::SEGMENT_MAP[$segments[1]];
+        [$type, $modelClass, $resourceClass] = self::SEGMENT_MAP[$segments[1]];
         $id = $segments[2];
 
         /** @var class-string<Model> $modelClass */
@@ -78,10 +83,21 @@ final class FetchTool extends Tool
             return Response::error('You do not have permission to view this record.');
         }
 
+        $model->loadMissing('customFieldValues.customField.options');
+
+        /** @var class-string<JsonResource> $resourceClass */
+        $resource = new $resourceClass($model);
+
+        /** @var array<string, mixed> $envelope */
+        $envelope = json_decode((string) $resource->toJson(), true);
+
+        /** @var array<string, mixed> $data */
+        $data = $envelope['data'] ?? $envelope;
+
         return Response::structured([
             'type' => $type,
             'url' => $validated['url'],
-            'data' => $model->loadMissing('customFieldValues.customField.options')->toArray(),
+            'data' => $data,
         ]);
     }
 }

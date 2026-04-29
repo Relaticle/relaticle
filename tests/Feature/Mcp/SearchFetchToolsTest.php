@@ -85,3 +85,23 @@ it('rejects search queries longer than 255 characters', function (): void {
         ->tool(SearchTool::class, ['query' => $oversize])
         ->assertHasErrors(['query']);
 });
+
+it('returns sanitized fetch payload without internal columns', function (): void {
+    $company = Company::factory()->for($this->team)->create(['name' => 'Acme Corp']);
+    $base = rtrim((string) config('app.url'), '/');
+    $url = "{$base}/app/companies/{$company->getKey()}";
+
+    RelaticleServer::actingAs($this->user)
+        ->tool(FetchTool::class, ['url' => $url])
+        ->assertOk()
+        ->assertStructuredContent(function (AssertableJson $json): void {
+            $json->has('data')
+                ->where('data', function (mixed $data): bool {
+                    expect($data)->not->toHaveKey('deleted_at');
+                    expect($data)->not->toHaveKey('creation_source');
+
+                    return true;
+                })
+                ->etc();
+        });
+});
