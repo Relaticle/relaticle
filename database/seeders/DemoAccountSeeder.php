@@ -53,6 +53,12 @@ final class DemoAccountSeeder extends Seeder
                 return;
             }
 
+            $taskIdsForTeam = Task::query()->where('team_id', $team->getKey())->pluck('id');
+            $noteIdsForTeam = Note::query()->where('team_id', $team->getKey())->pluck('id');
+
+            DB::table('taskables')->whereIn('task_id', $taskIdsForTeam)->delete();
+            DB::table('noteables')->whereIn('note_id', $noteIdsForTeam)->delete();
+
             Company::query()->where('team_id', $team->getKey())->forceDelete();
             People::query()->where('team_id', $team->getKey())->forceDelete();
             Opportunity::query()->where('team_id', $team->getKey())->forceDelete();
