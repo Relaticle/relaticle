@@ -35,7 +35,7 @@ it('honours forwarded headers from a private network proxy so HTTPS is detected 
 it('refuses to honour forwarded headers from a public IP so attackers cannot spoof X-Forwarded-* directly against the FPM port', function (): void {
     $this->call(
         method: 'GET',
-        uri: '/_trust-proxy-probe',
+        uri: 'http://crm.example.com/_trust-proxy-probe',
         server: [
             'REMOTE_ADDR' => '203.0.113.99',
             'HTTP_X_FORWARDED_PROTO' => 'https',
@@ -45,6 +45,7 @@ it('refuses to honour forwarded headers from a public IP so attackers cannot spo
     )->assertOk()->assertJson([
         'isSecure' => false,
         'scheme' => 'http',
+        'host' => 'crm.example.com',
         'clientIp' => '203.0.113.99',
     ]);
 });
@@ -60,4 +61,43 @@ it('honours forwarded headers from loopback so reverse proxies on the host work'
     )->assertOk()->assertJson([
         'isSecure' => true,
     ]);
+});
+
+it('emits https asset URLs when the proxy forwards X-Forwarded-Proto: https — the actual mechanism behind the unstyled-CSS bug', function (): void {
+    Route::get('/_vite-asset-probe', fn (): array => [
+        'asset' => asset('build/app.css'),
+        'scheme' => request()->getScheme(),
+    ]);
+
+    $response = $this->call(
+        method: 'GET',
+        uri: '/_vite-asset-probe',
+        server: [
+            'REMOTE_ADDR' => '172.18.0.2',
+            'HTTP_X_FORWARDED_PROTO' => 'https',
+            'HTTP_X_FORWARDED_HOST' => 'crm.example.com',
+        ],
+    )->assertOk();
+
+    expect($response->json('scheme'))->toBe('https');
+    expect($response->json('asset'))->toStartWith('https://');
+});
+
+it('emits http asset URLs when forwarded headers come from an untrusted public IP — confirming this would cause the unstyled-CSS bug if trust were misconfigured', function (): void {
+    Route::get('/_vite-asset-probe', fn (): array => [
+        'asset' => asset('build/app.css'),
+        'scheme' => request()->getScheme(),
+    ]);
+
+    $response = $this->call(
+        method: 'GET',
+        uri: '/_vite-asset-probe',
+        server: [
+            'REMOTE_ADDR' => '203.0.113.99',
+            'HTTP_X_FORWARDED_PROTO' => 'https',
+        ],
+    )->assertOk();
+
+    expect($response->json('scheme'))->toBe('http');
+    expect($response->json('asset'))->toStartWith('http://');
 });
