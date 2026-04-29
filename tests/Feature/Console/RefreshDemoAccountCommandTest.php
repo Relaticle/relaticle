@@ -24,3 +24,13 @@ it('is idempotent and resets demo data on re-run', function (): void {
 
     expect(User::query()->where('email', 'demo@relaticle.com')->count())->toBe(1);
 });
+
+it('refuses to run in production', function (): void {
+    app()->detectEnvironment(fn (): string => 'production');
+
+    $this->artisan('app:refresh-demo-account')
+        ->expectsOutputToContain('Refusing to run in production')
+        ->assertFailed();
+
+    expect(User::query()->where('email', 'demo@relaticle.com')->exists())->toBeFalse();
+});
