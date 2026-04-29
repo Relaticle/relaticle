@@ -17,10 +17,12 @@ trait ChecksTokenAbility
     {
         $user = auth()->user();
 
-        // The User model uses Sanctum's HasApiTokens trait, so currentAccessToken()
-        // is typed as PersonalAccessToken|null upstream. At runtime, Passport
-        // hydrates an AccessToken instance through the same accessor — widen the
-        // inferred type so both branches are reachable for static analysis.
+        // currentAccessToken() returns null when:
+        //   1. The request authenticated via $this->actingAs($user) in tests (no token).
+        //   2. The request authenticated via session/web guard (no API token).
+        // Both are acceptable bypasses today: feature tests rely on (1), and the
+        // MCP route is only reachable via the auth:sanctum,api guard, which never
+        // produces case (2). If you ADD a non-API guard to routes/ai.php, revisit.
         /** @var PersonalAccessToken|PassportAccessToken|object|null $token */
         $token = $user?->currentAccessToken();
 
