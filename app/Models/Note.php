@@ -20,15 +20,20 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use Relaticle\ActivityLog\Concerns\InteractsWithTimeline;
+use Relaticle\ActivityLog\Contracts\HasTimeline;
+use Relaticle\ActivityLog\Timeline\TimelineBuilder;
 use Relaticle\CustomFields\Models\Concerns\UsesCustomFields;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
+use Spatie\Activitylog\Models\Concerns\LogsActivity;
+use Spatie\Activitylog\Support\LogOptions;
 
 /**
  * @property Carbon|null $deleted_at
  * @property CreationSource $creation_source
  */
 #[ObservedBy(NoteObserver::class)]
-final class Note extends Model implements HasCustomFields
+final class Note extends Model implements HasCustomFields, HasTimeline
 {
     use BelongsToTeamCreator;
     use HasCreator;
@@ -38,7 +43,9 @@ final class Note extends Model implements HasCustomFields
 
     use HasTeam;
     use HasUlids;
+    use InteractsWithTimeline;
     use InvalidatesRelatedAiSummaries;
+    use LogsActivity;
     use SoftDeletes;
     use UsesCustomFields;
 
@@ -120,5 +127,24 @@ final class Note extends Model implements HasCustomFields
                 ->orWhereHas('people', fn (Builder $sub) => $sub->where('noteables.noteable_id', $id))
                 ->orWhereHas('opportunities', fn (Builder $sub) => $sub->where('noteables.noteable_id', $id));
         });
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logAll()
+            ->logOnlyDirty()
+            ->dontLogEmptyChanges()
+            ->logExcept([
+                'id', 'team_id', 'creator_id', 'creation_source', 'custom_fields',
+                'created_at', 'updated_at', 'deleted_at',
+            ])
+            ->useLogName('crm')
+            ->setDescriptionForEvent(fn (string $eventName): string => $eventName);
+    }
+
+    public function timeline(): TimelineBuilder
+    {
+        return TimelineBuilder::make($this)->fromActivityLog();
     }
 }
