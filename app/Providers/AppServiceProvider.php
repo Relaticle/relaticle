@@ -41,6 +41,7 @@ use Illuminate\View\View;
 use Knuckles\Scribe\Scribe;
 use Laravel\Jetstream\Events\TeamCreated;
 use Laravel\Jetstream\Events\TeamMemberAdded;
+use Laravel\Passport\Passport;
 use Laravel\Sanctum\Sanctum;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\SystemAdmin\Models\SystemAdministrator;
@@ -67,6 +68,8 @@ final class AppServiceProvider extends ServiceProvider
         Event::listen(TeamCreated::class, TeamCreatedTagListener::class);
 
         Sanctum::usePersonalAccessTokenModel(PersonalAccessToken::class);
+
+        Passport::authorizationView(fn (array $parameters) => response()->view('mcp.authorize', $parameters));
 
         $this->configurePolicies();
         $this->configureModels();
@@ -161,6 +164,11 @@ final class AppServiceProvider extends ServiceProvider
         });
 
         RateLimiter::for('mcp', fn (Request $request) => Limit::perMinute(120)->by($request->user()?->id ?: $request->ip()));
+
+        RateLimiter::for(
+            'mcp-oauth',
+            fn (Request $request) => Limit::perMinute(20)->by($request->ip()),
+        );
     }
 
     private function configureScribe(): void
