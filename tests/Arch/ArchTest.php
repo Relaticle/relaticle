@@ -31,6 +31,7 @@ arch()->preset()
         'App\Enums\EnumValues',
         'App\Enums\CustomFields\CustomFieldTrait',
         'App\Mcp',
+        'Relaticle\Chat',
     ]);
 
 arch('strict types')
@@ -84,6 +85,7 @@ arch('avoid mutation')
         'App\Exceptions',
         'App\Filament',
         'App\Health',
+        'App\Http\Controllers\Chat',
         'App\Http\Requests',
         'App\Http\Resources',
         'App\Jobs',
@@ -124,11 +126,6 @@ arch('avoid inheritance')
         'App\Scribe',
         'App\View',
     ]);
-
-// arch('annotations')
-//    ->expect('App')
-//    ->toHavePropertiesDocumented()
-//    ->toHaveMethodsDocumented();
 
 arch('main app must not depend on SystemAdmin module')
     ->expect('App')

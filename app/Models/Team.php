@@ -69,7 +69,7 @@ final class Team extends JetstreamTeam implements HasAvatar
         // App routes
         'companies', 'people', 'tasks', 'opportunities', 'notes',
         'api-tokens', 'import-history', 'profile', 'scheduled-deletion',
-        'opportunities-board', 'tasks-board',
+        'opportunities-board', 'tasks-board', 'chat',
 
         // Content & info pages
         'about', 'blog', 'docs', 'documentation', 'faq', 'help', 'support',
@@ -88,6 +88,7 @@ final class Team extends JetstreamTeam implements HasAvatar
 
         // Infrastructure & framework
         'filament', 'livewire', 'storage', 'imports', 'horizon', 'scalar', 'engagement',
+        'broadcasting',
         'system-administrators',
         'up', 'health', 'status', 'metrics',
         'static', 'assets', 'cdn', 'public', 'uploads',

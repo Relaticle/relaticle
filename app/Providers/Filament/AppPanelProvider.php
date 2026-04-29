@@ -9,9 +9,9 @@ use App\Filament\Pages\AccessTokens;
 use App\Filament\Pages\Auth\Login;
 use App\Filament\Pages\Auth\Register;
 use App\Filament\Pages\CreateTeam;
+use App\Filament\Pages\Dashboard;
 use App\Filament\Pages\EditProfile;
 use App\Filament\Pages\EditTeam;
-use App\Filament\Resources\CompanyResource;
 use App\Http\Middleware\ApplyTenantScopes;
 use App\Http\Middleware\CheckScheduledDeletion;
 use App\Listeners\SwitchTeam;
@@ -92,7 +92,7 @@ final class AppPanelProvider extends PanelProvider
         }
 
         $panel
-            ->homeUrl(fn (): string => CompanyResource::getUrl())
+            ->homeUrl(fn (): string => Dashboard::getUrl())
             ->brandName('Relaticle')
             ->brandLogo(fn (): View|Factory => Auth::user()?->hasVerifiedEmail()
                 ? view('filament.app.logo-empty')
@@ -135,6 +135,7 @@ final class AppPanelProvider extends PanelProvider
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->discoverPages(in: base_path('packages/ImportWizard/src/Filament/Pages'), for: 'Relaticle\\ImportWizard\\Filament\\Pages')
+            ->discoverPages(in: base_path('packages/Chat/src/Filament/Pages'), for: 'Relaticle\\Chat\\Filament\\Pages')
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->discoverClusters(in: app_path('Filament/Clusters'), for: 'App\\Filament\\Clusters')
             ->readOnlyRelationManagersOnResourceViewPagesByDefault(false)

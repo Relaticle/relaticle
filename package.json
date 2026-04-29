@@ -14,17 +14,21 @@
         "@tailwindcss/typography": "^0.5.19",
         "autoprefixer": "^10.5.0",
         "chokidar": "^5.0.0",
+        "laravel-echo": "^2.3.4",
         "laravel-vite-plugin": "^3.0",
         "playwright": "^1.59.1",
-        "postcss": "^8.5.10",
+        "postcss": "^8.5.12",
         "postcss-nesting": "^14.0.0",
-        "tailwindcss": "^4.2.2",
+        "pusher-js": "^8.5.0",
+        "tailwindcss": "^4.2.4",
         "vite": "^8.0"
     },
     "dependencies": {
         "@alpinejs/collapse": "^3.15.11",
-        "@tailwindcss/vite": "^4.2.2",
+        "@tailwindcss/vite": "^4.2.4",
         "alpinejs": "^3.15.11",
+        "dompurify": "^3.4.1",
+        "marked": "^18.0.2",
         "motion": "^12.38.0",
         "shiki": "^4.0.2"
     }

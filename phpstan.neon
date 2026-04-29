@@ -33,5 +33,6 @@ parameters:
 
     configDirectories:
         - config
+        - packages/Chat/config
         - packages/ImportWizard/config
         - packages/Documentation/config

@@ -31,6 +31,7 @@ use Laravel\Sanctum\HasApiTokens;
 /**
  * @property string $name
  * @property string $email
+ * @property string|null $timezone
  * @property string|null $password
  * @property string|null $profile_photo_path
  * @property-read string $profile_photo_url
@@ -42,6 +43,7 @@ use Laravel\Sanctum\HasApiTokens;
  * @property Carbon|null $scheduled_deletion_at
  * @property string|null $two_factor_recovery_codes
  * @property string|null $two_factor_secret
+ * @property array<string, mixed>|null $ai_preferences
  * @property-read Team|null $currentTeam
  */
 final class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaultTenant, HasTenants, MustVerifyEmail
@@ -65,7 +67,9 @@ final class User extends Authenticatable implements FilamentUser, HasAvatar, Has
     protected $fillable = [
         'name',
         'email',
+        'timezone',
         'password',
+        'ai_preferences',
     ];
 
     /**
@@ -102,6 +106,7 @@ final class User extends Authenticatable implements FilamentUser, HasAvatar, Has
             'email_verified_at' => 'datetime',
             'last_login_at' => 'datetime',
             'password' => 'hashed',
+            'ai_preferences' => 'array',
             'scheduled_deletion_at' => 'datetime',
         ];
     }
