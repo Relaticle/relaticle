@@ -12,9 +12,13 @@ return new class extends Migration
     {
         Schema::create('oauth_refresh_tokens', function (Blueprint $table): void {
             $table->char('id', 80)->primary();
-            $table->char('access_token_id', 80)->index();
+            $table->char('access_token_id', 80);
             $table->boolean('revoked');
             $table->dateTime('expires_at')->nullable();
+
+            $table->foreign('access_token_id')
+                ->references('id')->on('oauth_access_tokens')
+                ->cascadeOnDelete();
         });
     }
 };
