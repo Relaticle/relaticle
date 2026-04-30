@@ -85,6 +85,11 @@ For any create, update, or delete operation:
 PROMPT;
     }
 
+    protected function maxConversationMessages(): int
+    {
+        return (int) config('chat.max_conversation_messages', 100);
+    }
+
     /**
      * @return list<Tool>
      */

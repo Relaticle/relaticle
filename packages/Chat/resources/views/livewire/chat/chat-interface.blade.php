@@ -460,6 +460,13 @@
                         aria-live="polite"
                     ></span>
                 </div>
+                <p
+                    x-show="voiceError"
+                    x-text="voiceError"
+                    role="alert"
+                    aria-live="assertive"
+                    class="mt-1 px-1 text-[11px] text-red-600 dark:text-red-400"
+                ></p>
             </form>
         </div>
     </div>
@@ -485,6 +492,8 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
     undoToast: null,
     recording: false,
     recognition: null,
+    voiceError: '',
+    voiceErrorTimeoutId: null,
     speechSupported: typeof window !== 'undefined' && ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window),
 
     modelOptions: [
@@ -616,6 +625,10 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
         }
         this.undoToast = null;
         this.recognition?.stop();
+        if (this.voiceErrorTimeoutId) {
+            clearTimeout(this.voiceErrorTimeoutId);
+            this.voiceErrorTimeoutId = null;
+        }
         window.removeEventListener('beforeunload', this.beforeUnloadHandler);
     },
 
@@ -1126,6 +1139,17 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
         }
     },
 
+    showVoiceError(message) {
+        this.voiceError = message;
+        if (this.voiceErrorTimeoutId) {
+            clearTimeout(this.voiceErrorTimeoutId);
+        }
+        this.voiceErrorTimeoutId = setTimeout(() => {
+            this.voiceError = '';
+            this.voiceErrorTimeoutId = null;
+        }, 5000);
+    },
+
     toggleVoice() {
         if (this.recording) {
             this.recognition?.stop();
@@ -1139,7 +1163,14 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
         this.recognition.interimResults = true;
         this.recognition.lang = navigator.language || 'en-US';
 
+        const baseInput = this.input;
+        const separator = baseInput && !/\s$/.test(baseInput) ? ' ' : '';
         let finalText = '';
+
+        this.recognition.onstart = () => {
+            this.recording = true;
+            this.voiceError = '';
+        };
         this.recognition.onresult = (event) => {
             let interim = '';
             for (let i = event.resultIndex; i < event.results.length; i++) {
@@ -1147,19 +1178,36 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
                 if (result.isFinal) finalText += result[0].transcript;
                 else interim += result[0].transcript;
             }
-            this.input = (finalText + interim).trim();
+            this.input = (baseInput + separator + finalText + interim).trimStart();
         };
         this.recognition.onend = () => {
             this.recording = false;
             const ta = this.$refs.chatInput;
             if (ta) this.autosize(ta);
         };
-        this.recognition.onerror = () => {
+        this.recognition.onerror = (event) => {
             this.recording = false;
+            const messages = {
+                'not-allowed': 'Microphone permission denied. Allow access in your browser settings.',
+                'service-not-allowed': 'Microphone is blocked by your browser or system.',
+                'audio-capture': 'No microphone detected.',
+                'no-speech': 'No speech detected. Try again.',
+                'network': 'Voice recognition needs internet. Check your connection.',
+                'language-not-supported': "Your browser doesn't support voice input for this language.",
+                'aborted': '',
+            };
+            const message = messages[event.error] ?? `Voice input failed (${event.error}).`;
+            if (message) {
+                this.showVoiceError(message);
+            }
         };
 
-        this.recording = true;
-        this.recognition.start();
+        try {
+            this.recognition.start();
+        } catch (e) {
+            this.recording = false;
+            this.showVoiceError('Could not start voice input. Try again.');
+        }
     },
 
     scrollToBottom() {

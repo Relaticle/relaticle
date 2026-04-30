@@ -15,6 +15,7 @@ use Illuminate\Http\Request;
 use Relaticle\Chat\Models\PendingAction;
 use Relaticle\Chat\Services\PendingActionService;
 use RuntimeException;
+use Throwable;
 
 final readonly class PendingActionController
 {
@@ -76,14 +77,18 @@ final readonly class PendingActionController
 
     private function resolveResourceUrl(string $entityType, string $recordId): ?string
     {
-        return match ($entityType) {
-            'company' => CompanyResource::getUrl('view', ['record' => $recordId]),
-            'people' => PeopleResource::getUrl('view', ['record' => $recordId]),
-            'opportunity' => OpportunityResource::getUrl('view', ['record' => $recordId]),
-            'task' => TaskResource::getUrl('index'),
-            'note' => NoteResource::getUrl('index'),
-            default => null,
-        };
+        try {
+            return match ($entityType) {
+                'company' => CompanyResource::getUrl('view', ['record' => $recordId]),
+                'people' => PeopleResource::getUrl('view', ['record' => $recordId]),
+                'opportunity' => OpportunityResource::getUrl('view', ['record' => $recordId]),
+                'task' => TaskResource::getUrl('index'),
+                'note' => NoteResource::getUrl('index'),
+                default => null,
+            };
+        } catch (Throwable) {
+            return null;
+        }
     }
 
     public function reject(Request $request, PendingAction $pendingAction): JsonResponse
