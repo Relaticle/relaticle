@@ -359,8 +359,11 @@
                         id="chat-message-input"
                         x-model="input"
                         x-ref="chatInput"
-                        @keydown.enter="if (!$event.shiftKey) { $event.preventDefault(); sendMessage() }"
-                        @input="autosize($event.target)"
+                        @keydown.enter="if ($event.shiftKey) return; if (mention.open && mention.results.length > 0) { $event.preventDefault(); selectMention(mention.results[mention.activeIndex]); return; } $event.preventDefault(); sendMessage()"
+                        @keydown.escape="if (mention.open) { $event.preventDefault(); closeMention() }"
+                        @keydown.arrow-up="if (mention.open && mention.results.length > 0) { $event.preventDefault(); mentionMoveActive(-1) }"
+                        @keydown.arrow-down="if (mention.open && mention.results.length > 0) { $event.preventDefault(); mentionMoveActive(1) }"
+                        @input="onTextareaInput($event)"
                         placeholder="Ask anything..."
                         rows="1"
                         aria-label="Message the assistant"
@@ -368,6 +371,29 @@
                         style="max-height: 200px;"
                         :disabled="isStreaming"
                     ></textarea>
+                    <div
+                        x-show="mention.open && mention.results.length > 0"
+                        x-cloak
+                        @click.outside="closeMention()"
+                        role="listbox"
+                        aria-label="Mention suggestions"
+                        class="absolute bottom-full left-0 right-8 z-50 mb-2 max-h-64 overflow-auto rounded-xl border border-gray-200 bg-white py-1 shadow-lg dark:border-gray-700 dark:bg-gray-800"
+                    >
+                        <template x-for="(item, idx) in mention.results" :key="`${item.type}-${item.id}`">
+                            <button
+                                type="button"
+                                role="option"
+                                :aria-selected="idx === mention.activeIndex"
+                                @click="selectMention(item)"
+                                @mouseenter="mention.activeIndex = idx"
+                                :class="{ 'bg-primary-50 dark:bg-primary-900/30': idx === mention.activeIndex }"
+                                class="flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left text-sm text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700"
+                            >
+                                <span x-text="item.label" class="truncate"></span>
+                                <span x-text="item.type" class="text-xs uppercase text-gray-400"></span>
+                            </button>
+                        </template>
+                    </div>
                     <button type="button"
                         x-show="speechSupported"
                         @click="toggleVoice()"
@@ -480,6 +506,15 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
     hasMoreMessages: !!initialHasMoreMessages,
     input: '',
     isStreaming: false,
+    mention: {
+        open: false,
+        query: '',
+        results: [],
+        activeIndex: 0,
+        triggerStart: -1,
+        fetching: false,
+        abort: null,
+    },
     channel: null,
     streamTimeoutId: null,
     streamTimeoutMs: 60000,
@@ -874,6 +909,109 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
             clearTimeout(this.streamTimeoutId);
             this.streamTimeoutId = null;
         }
+    },
+
+    onTextareaInput(event) {
+        this.input = event.target.value;
+        this.detectMentionTrigger(event.target);
+        this.autosize(event.target);
+    },
+
+    detectMentionTrigger(textarea) {
+        const cursor = textarea.selectionStart ?? this.input.length;
+        const text = this.input.slice(0, cursor);
+        const match = text.match(/(?:^|\s)@([a-z0-9_-]*)$/i);
+
+        if (!match) {
+            this.closeMention();
+            return;
+        }
+
+        this.mention.open = true;
+        this.mention.triggerStart = cursor - match[1].length - 1;
+        this.mention.query = match[1];
+
+        if (match[1].length >= 2) {
+            this.fetchMentions(match[1]);
+        } else {
+            this.mention.results = [];
+            this.mention.activeIndex = 0;
+        }
+    },
+
+    async fetchMentions(query) {
+        if (this.mention.abort) {
+            this.mention.abort.abort();
+        }
+        this.mention.abort = new AbortController();
+        this.mention.fetching = true;
+
+        try {
+            const url = '/chat/mentions?q=' + encodeURIComponent(query);
+            const res = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+                signal: this.mention.abort.signal,
+                credentials: 'same-origin',
+            });
+
+            if (!res.ok) {
+                this.mention.results = [];
+                this.mention.activeIndex = 0;
+                return;
+            }
+
+            const body = await res.json();
+            this.mention.results = (body.data || []).map((item) => ({
+                type: item.type,
+                id: item.id,
+                label: item.name,
+            }));
+            this.mention.activeIndex = 0;
+        } catch (e) {
+            if (e.name !== 'AbortError') {
+                this.mention.results = [];
+                this.mention.activeIndex = 0;
+            }
+        } finally {
+            this.mention.fetching = false;
+        }
+    },
+
+    selectMention(item) {
+        if (!item) return;
+        const before = this.input.slice(0, this.mention.triggerStart);
+        const afterCursor = this.input.slice(this.mention.triggerStart + 1 + this.mention.query.length);
+        const token = `@${item.label.replace(/\s+/g, '_')}`;
+        const newInput = `${before}${token} ${afterCursor}`;
+        this.input = newInput;
+        this.closeMention();
+        this.$nextTick(() => {
+            const ta = this.$refs.chatInput;
+            if (ta) {
+                ta.value = newInput;
+                const pos = (before + token + ' ').length;
+                ta.focus();
+                ta.setSelectionRange(pos, pos);
+                this.autosize(ta);
+            }
+        });
+    },
+
+    closeMention() {
+        if (this.mention.abort) {
+            this.mention.abort.abort();
+        }
+        this.mention = { open: false, query: '', results: [], activeIndex: 0, triggerStart: -1, fetching: false, abort: null };
+    },
+
+    mentionMoveActive(delta) {
+        if (!this.mention.open || this.mention.results.length === 0) return;
+        const len = this.mention.results.length;
+        this.mention.activeIndex = (this.mention.activeIndex + delta + len) % len;
     },
 
     async sendMessage() {
