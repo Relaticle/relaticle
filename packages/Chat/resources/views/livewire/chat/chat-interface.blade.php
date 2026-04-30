@@ -763,6 +763,17 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
         }
     },
 
+    generateConversationId() {
+        const ts = Date.now();
+        const tsHex = ts.toString(16).padStart(12, '0');
+        const rand = new Uint8Array(10);
+        crypto.getRandomValues(rand);
+        rand[0] = (rand[0] & 0x0f) | 0x70;
+        rand[2] = (rand[2] & 0x3f) | 0x80;
+        const hex = Array.from(rand, (b) => b.toString(16).padStart(2, '0')).join('');
+        return `${tsHex.slice(0, 8)}-${tsHex.slice(8, 12)}-${hex.slice(0, 4)}-${hex.slice(4, 8)}-${hex.slice(8, 20)}`;
+    },
+
     subscribeToConversation(conversationId) {
         if (!window.Echo) return;
         if (this.channel && this.channel.conversationId === conversationId) return;
@@ -845,7 +856,12 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
         if (!text || this.isStreaming) return;
         if (text.length > 5000) return;
 
-        if (this.conversationId && !this.channel) {
+        const isFirstMessage = !this.conversationId;
+        if (isFirstMessage) {
+            this.conversationId = this.generateConversationId();
+        }
+
+        if (!this.channel) {
             this.subscribeToConversation(this.conversationId);
         }
 
@@ -873,7 +889,11 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
                     'Accept': 'application/json',
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
                 },
-                body: JSON.stringify({ message: text, model: this.selectedModel }),
+                body: JSON.stringify({
+                    message: text,
+                    model: this.selectedModel,
+                    conversation_id: this.conversationId,
+                }),
                 signal: this.streamAbortController.signal,
             });
 
@@ -910,10 +930,11 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
             }
 
             const body = await response.json();
-            if (body.conversation_id && !this.conversationId) {
+            if (body.conversation_id && body.conversation_id !== this.conversationId) {
                 this.conversationId = body.conversation_id;
                 this.subscribeToConversation(body.conversation_id);
-
+            }
+            if (isFirstMessage && body.conversation_id) {
                 const url = new URL(window.location.href);
                 url.pathname = url.pathname
                     .replace(/\/chats\/.*$/, `/chats/${body.conversation_id}`)

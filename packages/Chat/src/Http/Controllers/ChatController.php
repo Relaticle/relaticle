@@ -16,7 +16,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Laravel\Ai\Contracts\ConversationStore;
 use Relaticle\Chat\Actions\DeleteConversation;
-use Relaticle\Chat\Actions\FindConversation;
 use Relaticle\Chat\Actions\ListConversations;
 use Relaticle\Chat\Actions\RenameConversation;
 use Relaticle\Chat\Enums\AiModel;
@@ -39,17 +38,20 @@ final readonly class ChatController
         $validated = $request->validate([
             'message' => ['required', 'string', 'max:5000'],
             'model' => ['nullable', 'string', Rule::enum(AiModel::class)],
+            'conversation_id' => ['nullable', 'string', 'uuid'],
         ]);
 
         /** @var User $user */
         $user = $request->user();
         $team = $user->currentTeam;
 
-        if ($conversation !== null) {
-            $found = (new FindConversation)->execute($user, $conversation);
+        $conversation ??= $validated['conversation_id'] ?? null;
 
-            if (! $found instanceof \stdClass) {
-                return response()->json(['error' => 'Conversation not found'], 404);
+        if ($conversation !== null) {
+            $existing = DB::table('agent_conversations')->where('id', $conversation)->first();
+
+            if ($existing !== null) {
+                abort_if($existing->user_id !== (string) $user->getKey(), 403);
             }
         }
 
@@ -66,10 +68,21 @@ final readonly class ChatController
             ], 402);
         }
 
-        $conversation ??= $this->conversationStore->storeConversation(
-            (string) $user->getKey(),
-            TitleSanitizer::clean($validated['message']),
-        );
+        if ($conversation === null) {
+            $conversation = $this->conversationStore->storeConversation(
+                (string) $user->getKey(),
+                TitleSanitizer::clean($validated['message']),
+            );
+        } elseif (! DB::table('agent_conversations')->where('id', $conversation)->exists()) {
+            DB::table('agent_conversations')->insert([
+                'id' => $conversation,
+                'user_id' => (string) $user->getKey(),
+                'team_id' => $team->getKey(),
+                'title' => TitleSanitizer::clean($validated['message']),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
 
         DB::transaction(function () use ($conversation, $user, $team): void {
             $row = DB::table('agent_conversations')
