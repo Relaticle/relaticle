@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Models\Team;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
@@ -61,6 +62,27 @@ it('rejects a client-supplied conversation_id that already belongs to another us
     $response = $this->postJson(route('chat.send'), [
         'message' => 'hi',
         'conversation_id' => $sharedId,
+    ]);
+
+    $response->assertStatus(403);
+});
+
+it('rejects a client-supplied conversation_id pinned to a different team', function (): void {
+    $otherTeam = Team::factory()->create();
+    $crossTeamId = '019dded5-cccc-7bbb-8ccc-666600000000';
+
+    DB::table('agent_conversations')->insert([
+        'id' => $crossTeamId,
+        'user_id' => $this->user->getKey(),
+        'team_id' => $otherTeam->getKey(),
+        'title' => 'cross-team',
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+
+    $response = $this->postJson(route('chat.send'), [
+        'message' => 'hi',
+        'conversation_id' => $crossTeamId,
     ]);
 
     $response->assertStatus(403);

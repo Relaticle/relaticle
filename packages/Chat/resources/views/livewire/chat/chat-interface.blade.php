@@ -775,8 +775,10 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
     },
 
     subscribeToConversation(conversationId) {
-        if (!window.Echo) return;
-        if (this.channel && this.channel.conversationId === conversationId) return;
+        if (!window.Echo) return Promise.resolve();
+        if (this.channel && this.channel.conversationId === conversationId) {
+            return this.channel.subscribed ? Promise.resolve() : (this.channel.readyPromise || Promise.resolve());
+        }
 
         this.unsubscribe();
 
@@ -784,6 +786,27 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
         this.channel = window.Echo.private(channelName);
         this.channel.name = channelName;
         this.channel.conversationId = conversationId;
+        this.channel.subscribed = false;
+
+        const readyPromise = new Promise((resolve) => {
+            const pusherChannel = this.channel.subscription ?? this.channel;
+            const onSucceeded = () => {
+                this.channel.subscribed = true;
+                resolve();
+            };
+            const onError = () => {
+                resolve();
+            };
+            if (typeof pusherChannel.bind === 'function') {
+                pusherChannel.bind('pusher:subscription_succeeded', onSucceeded);
+                pusherChannel.bind('pusher:subscription_error', onError);
+            } else {
+                setTimeout(resolve, 0);
+            }
+            setTimeout(() => resolve(), 1500);
+        });
+
+        this.channel.readyPromise = readyPromise;
 
         this.channel
             .listen('.text_delta', (e) => this.handleTextDelta(e))
@@ -793,6 +816,8 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
             .listen('.stream.failed', (e) => this.handleStreamFailed(e))
             .listen('.conversation.resolved', (e) => this.handleConversationResolved(e))
             .listen('.follow_ups', (e) => this.handleFollowUps(e));
+
+        return readyPromise;
     },
 
     handleFollowUps(event) {
@@ -862,7 +887,9 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
         }
 
         if (!this.channel) {
-            this.subscribeToConversation(this.conversationId);
+            await this.subscribeToConversation(this.conversationId);
+        } else if (this.channel.readyPromise) {
+            await this.channel.readyPromise;
         }
 
         const nowIso = new Date().toISOString();

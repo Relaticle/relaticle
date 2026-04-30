@@ -51,7 +51,11 @@ final readonly class ChatController
             $existing = DB::table('agent_conversations')->where('id', $conversation)->first();
 
             if ($existing !== null) {
-                abort_if($existing->user_id !== (string) $user->getKey(), 403);
+                abort_if(
+                    $existing->user_id !== (string) $user->getKey()
+                        || ($existing->team_id !== null && $existing->team_id !== $team->getKey()),
+                    403
+                );
             }
         }
 
@@ -73,8 +77,8 @@ final readonly class ChatController
                 (string) $user->getKey(),
                 TitleSanitizer::clean($validated['message']),
             );
-        } elseif (! DB::table('agent_conversations')->where('id', $conversation)->exists()) {
-            DB::table('agent_conversations')->insert([
+        } else {
+            DB::table('agent_conversations')->insertOrIgnore([
                 'id' => $conversation,
                 'user_id' => (string) $user->getKey(),
                 'team_id' => $team->getKey(),
