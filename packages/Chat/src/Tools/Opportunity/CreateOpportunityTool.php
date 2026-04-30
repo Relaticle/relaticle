@@ -39,8 +39,8 @@ final class CreateOpportunityTool extends BaseWriteCreateTool
     {
         return array_filter([
             'name' => (string) $request->string('name'),
-            'company_id' => $request['company_id'],
-            'contact_id' => $request['contact_id'],
+            'company_id' => $request['company_id'] ?? null,
+            'contact_id' => $request['contact_id'] ?? null,
         ], fn (mixed $v): bool => $v !== null && $v !== '');
     }
 
