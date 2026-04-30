@@ -1,3 +1,36 @@
+<style>
+    @keyframes chat-shimmer {
+        0%   { background-position: 200% 0%; }
+        100% { background-position: -200% 0%; }
+    }
+
+    [data-chat-loading-label] {
+        background-image: linear-gradient(90deg, #9ca3af 0%, #f3f4f6 50%, #9ca3af 100%);
+        background-size: 200% 100%;
+        background-clip: text;
+        -webkit-background-clip: text;
+        color: transparent;
+        animation: chat-shimmer 1.8s linear infinite;
+    }
+
+    .dark [data-chat-loading-label] {
+        background-image: linear-gradient(90deg, #6b7280 0%, #e5e7eb 50%, #6b7280 100%);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        [data-chat-loading-label] {
+            animation: none;
+            background: none;
+            color: #6b7280;
+            -webkit-background-clip: unset;
+            background-clip: unset;
+        }
+        .dark [data-chat-loading-label] {
+            color: #9ca3af;
+        }
+    }
+</style>
+
 <div
     x-data="chatInterface(@js($conversationId), @js(route('chat.send')), @js($initialMessage), @js($messages), @js(auth()->id()), @js($hasMoreMessages), @js(auth()->user()?->ai_preferences['default_model'] ?? 'auto'))"
     x-init="init()"
@@ -151,12 +184,9 @@
                                                 <div x-text="msg.content" class="whitespace-pre-wrap"></div>
                                             </template>
                                             <template x-if="index === messages.length - 1 && isStreaming && currentToolStatus">
-                                                <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400" role="status" :class="{ 'mt-2': msg.content }">
-                                                    <svg class="h-3 w-3 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"/>
-                                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-                                                    </svg>
-                                                    <span x-text="currentToolStatus"></span>
+                                                <div data-chat-loading-indicator class="flex items-center gap-2 text-xs" role="status" :class="{ 'mt-2': msg.content }">
+                                                    <span class="h-1.5 w-1.5 rounded-full bg-gray-400 motion-safe:animate-pulse dark:bg-gray-500" aria-hidden="true"></span>
+                                                    <span data-chat-loading-label x-text="pendingLabel"></span>
                                                 </div>
                                             </template>
                                         </div>
@@ -315,14 +345,13 @@
                 </div>
             </template>
 
-            {{-- Streaming indicator (only before first token arrives) --}}
+            {{-- Pre-token streaming indicator: shimmer label inside an empty assistant bubble --}}
             <template x-if="isStreaming && !currentToolStatus && (messages.length === 0 || messages[messages.length-1].role !== 'assistant' || !messages[messages.length-1].content)">
-                <div class="flex justify-start" aria-label="Assistant is typing" role="status">
+                <div class="flex justify-start" aria-label="Assistant is thinking" role="status">
                     <div class="rounded-2xl rounded-bl-md bg-white px-4 py-3 shadow-sm ring-1 ring-gray-200 dark:bg-gray-800 dark:ring-gray-700">
-                        <div class="flex items-center gap-1.5 motion-reduce:animate-none" aria-hidden="true">
-                            <span class="h-1.5 w-1.5 animate-bounce rounded-full bg-gray-400 [animation-delay:-0.3s] motion-reduce:animate-none"></span>
-                            <span class="h-1.5 w-1.5 animate-bounce rounded-full bg-gray-400 [animation-delay:-0.15s] motion-reduce:animate-none"></span>
-                            <span class="h-1.5 w-1.5 animate-bounce rounded-full bg-gray-400 motion-reduce:animate-none"></span>
+                        <div data-chat-loading-indicator class="flex items-center gap-2 text-sm">
+                            <span class="h-1.5 w-1.5 rounded-full bg-gray-400 motion-safe:animate-pulse dark:bg-gray-500" aria-hidden="true"></span>
+                            <span data-chat-loading-label x-text="pendingLabel"></span>
                         </div>
                     </div>
                 </div>
@@ -864,6 +893,10 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
                 break;
             }
         }
+    },
+
+    get pendingLabel() {
+        return this.currentToolStatus ?? 'Thinking…';
     },
 
     friendlyToolStatus(toolName) {
