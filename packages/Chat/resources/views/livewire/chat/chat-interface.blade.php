@@ -1028,6 +1028,11 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
         if (!text || this.isStreaming) return;
         if (text.length > 5000) return;
 
+        // Claim the lock SYNCHRONOUSLY so a second tick of sendMessage() bails at the
+        // guard above. Any failure path between here and the existing isStreaming=false
+        // resets must keep that invariant.
+        this.isStreaming = true;
+
         const isFirstMessage = !this.conversationId;
         if (isFirstMessage) {
             this.conversationId = this.generateConversationId();
@@ -1045,7 +1050,6 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
         this.messages.push({ role: 'user', content: text, editing: false, editText: '', copiedAt: 0, created_at: nowIso });
         this.input = '';
         this.selectedMentions = [];
-        this.isStreaming = true;
         this.currentToolStatus = null;
 
         this.messages.push({ role: 'assistant', content: '', pending_actions: [], paywall: null, sessionExpired: false, rendered: false, prerendered: false, copiedAt: 0, follow_ups: [], created_at: nowIso });
