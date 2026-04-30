@@ -53,6 +53,6 @@ it('does not send when input exceeds the character cap and Enter is pressed', fu
         (() => Alpine.$data(window.__charCapHost).messages.length)()
     JS);
 
-    expect($messageCountBefore)->toBeGreaterThanOrEqual(0);
+    expect($messageCountBefore)->toBe(0);
     expect($messageCountAfter)->toBe($messageCountBefore);
 });
