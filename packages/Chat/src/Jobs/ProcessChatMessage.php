@@ -68,11 +68,12 @@ final class ProcessChatMessage implements ShouldQueue
         try {
             $agent = resolve(CrmAssistant::class);
             $agent->continue($this->conversationId, as: $this->user);
+            $agent->withMentions($this->mentions);
 
             $channel = new PrivateChannel("chat.conversation.{$this->conversationId}");
 
             $response = $agent->stream(
-                prompt: $this->buildAugmentedMessage(),
+                prompt: $this->message,
                 provider: $this->resolved['provider'],
                 model: $this->resolved['model'],
             );
@@ -178,25 +179,6 @@ final class ProcessChatMessage implements ShouldQueue
             conversationId: $conversationId,
             chips: $chips,
         ));
-    }
-
-    private function buildAugmentedMessage(): string
-    {
-        if ($this->mentions === []) {
-            return $this->message;
-        }
-
-        $lines = ['<context>', 'The user referenced these CRM records:'];
-
-        foreach ($this->mentions as $mention) {
-            $lines[] = "- {$mention['type']} \"{$mention['label']}\" (id: {$mention['id']})";
-        }
-
-        $lines[] = '</context>';
-        $lines[] = '';
-        $lines[] = $this->message;
-
-        return implode("\n", $lines);
     }
 
     private function bindAuthAndScopes(): void

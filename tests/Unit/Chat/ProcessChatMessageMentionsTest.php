@@ -2,48 +2,52 @@
 
 declare(strict_types=1);
 
-use App\Models\Team;
-use App\Models\User;
+use Relaticle\Chat\Agents\CrmAssistant;
 use Relaticle\Chat\Jobs\ProcessChatMessage;
 
+mutates(CrmAssistant::class);
 mutates(ProcessChatMessage::class);
 
-it('returns the message unchanged when no mentions are present', function (): void {
-    $job = new ProcessChatMessage(
-        user: new User,
-        team: new Team,
-        message: 'hello',
-        conversationId: '019dded5-0000-7000-8000-000000000000',
-        resolved: ['provider' => 'anthropic', 'model' => 'claude-haiku-4-5'],
-        mentions: [],
-    );
+it('returns the base instructions unchanged when no mentions are set', function (): void {
+    $agent = new CrmAssistant;
 
-    $reflection = new ReflectionMethod($job, 'buildAugmentedMessage');
-    $reflection->setAccessible(true);
-
-    expect($reflection->invoke($job))->toBe('hello');
+    expect($agent->instructions())
+        ->not->toContain('## Referenced Records')
+        ->toContain('Relaticle CRM Assistant');
 });
 
-it('prepends a context block when mentions are present', function (): void {
-    $job = new ProcessChatMessage(
-        user: new User,
-        team: new Team,
-        message: 'Tell me about @Acme_Corp',
-        conversationId: '019dded5-0000-7000-8000-000000000000',
-        resolved: ['provider' => 'anthropic', 'model' => 'claude-haiku-4-5'],
-        mentions: [
-            ['type' => 'company', 'id' => '01H8QWERTYUIOP1234567890AB', 'label' => 'Acme Corp'],
-        ],
-    );
+it('appends a referenced-records section to instructions when mentions are set', function (): void {
+    $agent = (new CrmAssistant)->withMentions([
+        ['type' => 'company', 'id' => '01H8QWERTYUIOP1234567890AB', 'label' => 'Acme Corp'],
+    ]);
 
-    $reflection = new ReflectionMethod($job, 'buildAugmentedMessage');
-    $reflection->setAccessible(true);
+    $instructions = $agent->instructions();
 
-    $result = $reflection->invoke($job);
-
-    expect($result)
-        ->toContain('<context>')
+    expect($instructions)
+        ->toContain('## Referenced Records')
         ->toContain('company "Acme Corp" (id: 01H8QWERTYUIOP1234567890AB)')
-        ->toContain('</context>')
-        ->toContain('Tell me about @Acme_Corp');
+        ->toContain('Relaticle CRM Assistant');
+});
+
+it('lists every mention provided', function (): void {
+    $agent = (new CrmAssistant)->withMentions([
+        ['type' => 'company', 'id' => 'cmp-1', 'label' => 'Acme'],
+        ['type' => 'person', 'id' => 'per-2', 'label' => 'Jane Doe'],
+        ['type' => 'opportunity', 'id' => 'opp-3', 'label' => 'Big Deal'],
+    ]);
+
+    $instructions = $agent->instructions();
+
+    expect($instructions)
+        ->toContain('company "Acme" (id: cmp-1)')
+        ->toContain('person "Jane Doe" (id: per-2)')
+        ->toContain('opportunity "Big Deal" (id: opp-3)');
+});
+
+it('does not augment the user-facing chat message itself', function (): void {
+    $job = new ReflectionClass(ProcessChatMessage::class);
+
+    expect($job->hasMethod('buildAugmentedMessage'))->toBeFalse(
+        'buildAugmentedMessage should be removed; mention context now flows through the system prompt instead.',
+    );
 });

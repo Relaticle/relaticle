@@ -52,9 +52,21 @@ final class CrmAssistant implements Agent, Conversational, HasMiddleware, HasToo
     use Promptable;
     use RemembersConversations;
 
+    /**
+     * Per-turn mention context injected into the system prompt.
+     *
+     * Setting this BEFORE invoking stream()/prompt() augments the LLM's
+     * system prompt with a <context> block describing the referenced records.
+     * The user's chat message itself stays clean, so the value persisted to
+     * agent_conversation_messages.content is exactly what the user typed.
+     *
+     * @var list<array{type: string, id: string, label: string}>
+     */
+    public array $mentions = [];
+
     public function instructions(): string
     {
-        return <<<'PROMPT'
+        $base = <<<'PROMPT'
 You are the Relaticle CRM Assistant, a helpful AI that helps users manage their CRM data.
 
 ## Capabilities
@@ -83,6 +95,32 @@ For any create, update, or delete operation:
 - Use tables for list results
 - Keep responses focused and actionable
 PROMPT;
+
+        if ($this->mentions === []) {
+            return $base;
+        }
+
+        $lines = ['', '## Referenced Records (this turn)', 'The user referenced these CRM records in their latest message:'];
+
+        foreach ($this->mentions as $mention) {
+            $lines[] = "- {$mention['type']} \"{$mention['label']}\" (id: {$mention['id']})";
+        }
+
+        $lines[] = 'Use these IDs when calling tools instead of asking the user to clarify.';
+
+        return $base."\n".implode("\n", $lines);
+    }
+
+    /**
+     * Set the per-turn mention context that will be appended to instructions().
+     *
+     * @param  list<array{type: string, id: string, label: string}>  $mentions
+     */
+    public function withMentions(array $mentions): self
+    {
+        $this->mentions = $mentions;
+
+        return $this;
     }
 
     protected function maxConversationMessages(): int
