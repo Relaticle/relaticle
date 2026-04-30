@@ -843,6 +843,7 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
     async sendMessage() {
         const text = this.input.trim();
         if (!text || this.isStreaming) return;
+        if (text.length > 5000) return;
 
         if (this.conversationId && !this.channel) {
             this.subscribeToConversation(this.conversationId);
