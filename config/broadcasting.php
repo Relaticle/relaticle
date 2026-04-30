@@ -2,6 +2,12 @@
 
 declare(strict_types=1);
 
+$reverbBroadcastHost = env('BROADCAST_REVERB_HOST', env('REVERB_HOST'));
+$reverbHostIsLoopback = in_array($reverbBroadcastHost, ['127.0.0.1', '::1', 'localhost'], true);
+$reverbBroadcastScheme = env('BROADCAST_REVERB_SCHEME', $reverbHostIsLoopback ? 'http' : env('REVERB_SCHEME', 'https'));
+$reverbBroadcastVerify = env('BROADCAST_REVERB_VERIFY', ! $reverbHostIsLoopback);
+$reverbBroadcastPort = (int) env('BROADCAST_REVERB_PORT', env('REVERB_PORT', 443));
+
 return [
 
     /*
@@ -38,14 +44,14 @@ return [
             'secret' => env('REVERB_APP_SECRET'),
             'app_id' => env('REVERB_APP_ID'),
             'options' => [
-                'host' => env('BROADCAST_REVERB_HOST', env('REVERB_HOST')),
-                'port' => env('BROADCAST_REVERB_PORT', env('REVERB_PORT', 443)),
-                'scheme' => env('BROADCAST_REVERB_SCHEME', env('REVERB_SCHEME', 'https')),
-                'useTLS' => env('BROADCAST_REVERB_SCHEME', env('REVERB_SCHEME', 'https')) === 'https',
+                'host' => $reverbBroadcastHost,
+                'port' => $reverbBroadcastPort,
+                'scheme' => $reverbBroadcastScheme,
+                'useTLS' => $reverbBroadcastScheme === 'https',
             ],
             'client_options' => [
                 // Guzzle client options: https://docs.guzzlephp.org/en/stable/request-options.html
-                'verify' => env('BROADCAST_REVERB_VERIFY', true),
+                'verify' => $reverbBroadcastVerify,
             ],
         ],
 
