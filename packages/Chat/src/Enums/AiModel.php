@@ -40,8 +40,8 @@ enum AiModel: string
         return match ($this) {
             self::Auto => null,
             self::ClaudeHaiku => 'claude-haiku-4-5',
-            self::ClaudeSonnet => 'claude-sonnet-4-5-20250514',
-            self::ClaudeOpus => 'claude-opus-4-20250514',
+            self::ClaudeSonnet => 'claude-sonnet-4-5',
+            self::ClaudeOpus => 'claude-opus-4-5',
             self::Gpt4o => 'gpt-4o',
             self::GeminiPro => 'gemini-2.5-pro',
         };
