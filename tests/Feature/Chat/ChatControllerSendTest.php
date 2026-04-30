@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Models\Company;
 use App\Models\Team;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -105,4 +106,73 @@ it('falls back to server-generated id when none provided', function (): void {
     $response->assertOk();
     $id = $response->json('conversation_id');
     expect($id)->toBeString()->and(strlen($id))->toBe(36);
+});
+
+it('accepts a valid mentions array', function (): void {
+    Queue::fake();
+    $company = Company::factory()->for($this->team)->create(['name' => 'Acme Corp']);
+
+    $response = $this->postJson(route('chat.send'), [
+        'message' => 'Tell me about @Acme_Corp',
+        'mentions' => [
+            ['type' => 'company', 'id' => $company->id],
+        ],
+    ]);
+
+    $response->assertOk();
+    Queue::assertPushed(ProcessChatMessage::class, function (ProcessChatMessage $job) use ($company): bool {
+        return count($job->mentions) === 1
+            && $job->mentions[0]['id'] === $company->id
+            && $job->mentions[0]['type'] === 'company'
+            && $job->mentions[0]['label'] === 'Acme Corp';
+    });
+});
+
+it('silently drops mentions whose records do not belong to the current team', function (): void {
+    Queue::fake();
+    $otherTeam = Team::factory()->create();
+    $foreignCompany = Company::factory()->for($otherTeam)->create();
+
+    $response = $this->postJson(route('chat.send'), [
+        'message' => 'Tell me about that company',
+        'mentions' => [
+            ['type' => 'company', 'id' => $foreignCompany->id],
+        ],
+    ]);
+
+    $response->assertOk();
+    Queue::assertPushed(ProcessChatMessage::class, function (ProcessChatMessage $job): bool {
+        return $job->mentions === [];
+    });
+});
+
+it('rejects mentions with invalid type', function (): void {
+    $response = $this->postJson(route('chat.send'), [
+        'message' => 'hi',
+        'mentions' => [
+            ['type' => 'invalid', 'id' => '01H8QWERTYUIOP1234567890AB'],
+        ],
+    ]);
+
+    $response->assertStatus(422);
+});
+
+it('rejects mentions with invalid ulid', function (): void {
+    $response = $this->postJson(route('chat.send'), [
+        'message' => 'hi',
+        'mentions' => [
+            ['type' => 'company', 'id' => 'not-a-ulid'],
+        ],
+    ]);
+
+    $response->assertStatus(422);
+});
+
+it('rejects mentions arrays larger than 15', function (): void {
+    $response = $this->postJson(route('chat.send'), [
+        'message' => 'hi',
+        'mentions' => array_fill(0, 16, ['type' => 'company', 'id' => '01H8QWERTYUIOP1234567890AB']),
+    ]);
+
+    $response->assertStatus(422);
 });

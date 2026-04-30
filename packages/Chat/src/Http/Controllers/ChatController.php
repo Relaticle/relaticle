@@ -8,6 +8,7 @@ use App\Models\Company;
 use App\Models\Opportunity;
 use App\Models\People;
 use App\Models\Task;
+use App\Models\Team;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -39,6 +40,9 @@ final readonly class ChatController
             'message' => ['required', 'string', 'max:5000'],
             'model' => ['nullable', 'string', Rule::enum(AiModel::class)],
             'conversation_id' => ['nullable', 'string', 'uuid'],
+            'mentions' => ['nullable', 'array', 'max:15'],
+            'mentions.*.type' => ['required_with:mentions', 'string', 'in:company,people,opportunity,task'],
+            'mentions.*.id' => ['required_with:mentions', 'string', 'ulid'],
         ]);
 
         /** @var User $user */
@@ -111,12 +115,18 @@ final readonly class ChatController
 
         $resolved = $this->modelResolver->resolve($user, $validated['model'] ?? null, $validated['message']);
 
+        $resolvedMentions = $this->resolveMentions(
+            $validated['mentions'] ?? [],
+            $team,
+        );
+
         dispatch(new ProcessChatMessage(
             user: $user,
             team: $team,
             message: $validated['message'],
             conversationId: $conversation,
             resolved: $resolved,
+            mentions: $resolvedMentions,
         ));
 
         return response()->json([
@@ -248,5 +258,40 @@ final readonly class ChatController
     private function escapeLikeWildcards(string $value): string
     {
         return str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $value);
+    }
+
+    /**
+     * @param  list<array{type: string, id: string}>  $mentions
+     * @return list<array{type: string, id: string, label: string}>
+     */
+    private function resolveMentions(array $mentions, Team $team): array
+    {
+        if ($mentions === []) {
+            return [];
+        }
+
+        $resolved = [];
+
+        foreach ($mentions as $mention) {
+            $record = match ($mention['type']) {
+                'company' => Company::query()->whereBelongsTo($team)->find($mention['id']),
+                'people' => People::query()->whereBelongsTo($team)->find($mention['id']),
+                'opportunity' => Opportunity::query()->whereBelongsTo($team)->find($mention['id']),
+                'task' => Task::query()->whereBelongsTo($team)->find($mention['id']),
+                default => null,
+            };
+
+            if ($record === null) {
+                continue;
+            }
+
+            $resolved[] = [
+                'type' => $mention['type'],
+                'id' => $mention['id'],
+                'label' => $record instanceof Task ? $record->title : $record->name,
+            ];
+        }
+
+        return $resolved;
     }
 }

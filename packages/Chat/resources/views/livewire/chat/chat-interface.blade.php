@@ -515,6 +515,7 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
         fetching: false,
         abort: null,
     },
+    selectedMentions: [],
     channel: null,
     streamTimeoutId: null,
     streamTimeoutMs: 60000,
@@ -991,6 +992,12 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
         const newInput = `${before}${token} ${afterCursor}`;
         this.input = newInput;
         this.closeMention();
+        this.selectedMentions.push({
+            id: item.id,
+            type: item.type,
+            label: item.label,
+            token,
+        });
         this.$nextTick(() => {
             const ta = this.$refs.chatInput;
             if (ta) {
@@ -1032,9 +1039,12 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
             await this.channel.readyPromise;
         }
 
+        const liveMentions = this.selectedMentions.filter((m) => text.includes(m.token));
+
         const nowIso = new Date().toISOString();
         this.messages.push({ role: 'user', content: text, editing: false, editText: '', copiedAt: 0, created_at: nowIso });
         this.input = '';
+        this.selectedMentions = [];
         this.isStreaming = true;
         this.currentToolStatus = null;
 
@@ -1060,6 +1070,7 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
                     message: text,
                     model: this.selectedModel,
                     conversation_id: this.conversationId,
+                    mentions: liveMentions.map((m) => ({ type: m.type, id: m.id })),
                 }),
                 signal: this.streamAbortController.signal,
             });

@@ -41,6 +41,7 @@ final class ProcessChatMessage implements ShouldQueue
 
     /**
      * @param  array{provider: string|null, model: string|null}  $resolved
+     * @param  list<array{type: string, id: string, label: string}>  $mentions
      */
     public function __construct(
         private readonly User $user,
@@ -48,6 +49,7 @@ final class ProcessChatMessage implements ShouldQueue
         private readonly string $message,
         private readonly string $conversationId,
         private readonly array $resolved,
+        public readonly array $mentions = [],
     ) {
         $this->onQueue('chat');
     }
@@ -70,7 +72,7 @@ final class ProcessChatMessage implements ShouldQueue
             $channel = new PrivateChannel("chat.conversation.{$this->conversationId}");
 
             $response = $agent->stream(
-                prompt: $this->message,
+                prompt: $this->buildAugmentedMessage(),
                 provider: $this->resolved['provider'],
                 model: $this->resolved['model'],
             );
@@ -176,6 +178,25 @@ final class ProcessChatMessage implements ShouldQueue
             conversationId: $conversationId,
             chips: $chips,
         ));
+    }
+
+    private function buildAugmentedMessage(): string
+    {
+        if ($this->mentions === []) {
+            return $this->message;
+        }
+
+        $lines = ['<context>', 'The user referenced these CRM records:'];
+
+        foreach ($this->mentions as $mention) {
+            $lines[] = "- {$mention['type']} \"{$mention['label']}\" (id: {$mention['id']})";
+        }
+
+        $lines[] = '</context>';
+        $lines[] = '';
+        $lines[] = $this->message;
+
+        return implode("\n", $lines);
     }
 
     private function bindAuthAndScopes(): void
