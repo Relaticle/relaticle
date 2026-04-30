@@ -160,3 +160,51 @@ it('does not open the picker for queries shorter than 2 chars', function (): voi
     expect($state['open'])->toBeTrue();
     expect($state['results'])->toBe(0);
 });
+
+it('aborts the in-flight fetch when the query drops below the 2-char minimum', function (): void {
+    $user = User::factory()->withTeam()->create();
+    $team = $user->ownedTeams()->first();
+    Company::factory()->for($team)->create(['name' => 'AcmeQA']);
+
+    $page = $this->visit('/app/login')
+        ->type('[id="form.email"]', $user->email)
+        ->type('[id="form.password"]', 'password')
+        ->click('button.fi-btn')
+        ->assertPathIs("/app/{$team->slug}/companies")
+        ->navigate("/app/{$team->slug}/chats");
+
+    // Simulate: user types @ac (triggers fetch), then backspaces to @a (should abort)
+    $page->script(<<<'JS'
+        (() => {
+            const candidates = Array.from(document.querySelectorAll('[x-data^="chatInterface"]'));
+            const visible = candidates.find((el) => el.offsetParent !== null) ?? candidates[0];
+            window.__mentionHost = visible;
+            const data = Alpine.$data(visible);
+            const ta = visible.querySelector('#chat-message-input');
+
+            data.input = '@ac';
+            ta.value = '@ac';
+            ta.focus();
+            ta.setSelectionRange(3, 3);
+            data.detectMentionTrigger(ta);
+
+            // Immediately backspace to @a before fetch resolves
+            data.input = '@a';
+            ta.value = '@a';
+            ta.setSelectionRange(2, 2);
+            data.detectMentionTrigger(ta);
+            return true;
+        })();
+    JS);
+
+    // Wait long enough for any pending fetch to have completed
+    $page->script(<<<'JS'
+        (() => new Promise((resolve) => setTimeout(resolve, 500)))();
+    JS);
+
+    $resultsLength = $page->script(<<<'JS'
+        (() => Alpine.$data(window.__mentionHost).mention.results.length)();
+    JS);
+
+    expect($resultsLength)->toBe(0);
+});

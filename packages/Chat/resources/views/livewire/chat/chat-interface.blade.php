@@ -920,7 +920,7 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
     detectMentionTrigger(textarea) {
         const cursor = textarea.selectionStart ?? this.input.length;
         const text = this.input.slice(0, cursor);
-        const match = text.match(/(?:^|\s)@([a-z0-9_-]*)$/i);
+        const match = text.match(/(?:^|\s)@([\p{L}\p{N}_-]*)$/iu);
 
         if (!match) {
             this.closeMention();
@@ -934,6 +934,8 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
         if (match[1].length >= 2) {
             this.fetchMentions(match[1]);
         } else {
+            this.mention.abort?.abort();
+            this.mention.abort = null;
             this.mention.results = [];
             this.mention.activeIndex = 0;
         }
