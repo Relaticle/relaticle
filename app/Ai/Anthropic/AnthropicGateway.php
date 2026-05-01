@@ -23,8 +23,9 @@ final class AnthropicGateway extends BaseAnthropicGateway
      */
     protected function mapAssistantMessage(AssistantMessage|Message $message, array &$mapped): void
     {
+        // @phpstan-ignore parameterByRef.type (vendor signature has no shape docblock)
         parent::mapAssistantMessage($message, $mapped);
-
+        /** @var array<int, array<string, mixed>> $mapped */
         $lastIndex = array_key_last($mapped);
 
         if ($lastIndex === null || ($mapped[$lastIndex]['role'] ?? null) !== 'assistant') {
