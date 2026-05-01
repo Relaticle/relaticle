@@ -9,16 +9,18 @@ use App\Jobs\Email\ModifySubscriberTagsJob;
 use App\Models\Team;
 use App\Models\User;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Queue\Attributes\Backoff;
+use Illuminate\Queue\Attributes\Tries;
 use Illuminate\Queue\InteractsWithQueue;
 use Laravel\Jetstream\Events\TeamCreated;
 
+#[Backoff(15)]
+#[Tries(10)]
 final class TeamCreatedTagListener implements ShouldQueue
 {
+    public $backoff;
+
     use InteractsWithQueue;
-
-    public int $tries = 10;
-
-    public int $backoff = 15;
 
     public function handle(TeamCreated $event): void
     {

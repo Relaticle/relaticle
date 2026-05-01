@@ -9,6 +9,8 @@ use App\Enums\OnboardingUseCase;
 use App\Services\AvatarService;
 use Database\Factories\TeamFactory;
 use Filament\Models\Contracts\HasAvatar;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
@@ -33,6 +35,17 @@ use Spatie\Sluggable\SlugOptions;
  * @property ?OnboardingReferralSource $onboarding_referral_source
  * @property Carbon|null $scheduled_deletion_at
  */
+#[Fillable([
+    'name',
+    'slug',
+    'personal_team',
+    'onboarding_use_case',
+    'onboarding_context',
+    'onboarding_referral_source',
+])]
+#[Hidden([
+    'invite_link_token',
+])]
 final class Team extends JetstreamTeam implements HasAvatar
 {
     /** @use HasFactory<TeamFactory> */
@@ -105,25 +118,6 @@ final class Team extends JetstreamTeam implements HasAvatar
      * How many days an invite-link token stays valid after creation/rotation.
      */
     public const int INVITE_LINK_TTL_DAYS = 7;
-
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
-    protected $fillable = [
-        'name',
-        'slug',
-        'personal_team',
-        'onboarding_use_case',
-        'onboarding_context',
-        'onboarding_referral_source',
-    ];
-
-    /** @var list<string> */
-    protected $hidden = [
-        'invite_link_token',
-    ];
 
     /**
      * The event map for the model.

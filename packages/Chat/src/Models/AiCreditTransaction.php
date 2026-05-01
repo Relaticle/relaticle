@@ -6,6 +6,7 @@ namespace Relaticle\Chat\Models;
 
 use App\Models\Concerns\HasTeam;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -26,6 +27,19 @@ use Relaticle\Chat\Enums\AiCreditType;
  * @property int $credits_charged
  * @property array<string, mixed>|null $metadata
  */
+#[Fillable([
+    'team_id',
+    'user_id',
+    'conversation_id',
+    'idempotency_key',
+    'type',
+    'model',
+    'input_tokens',
+    'output_tokens',
+    'credits_charged',
+    'metadata',
+    'created_at',
+])]
 final class AiCreditTransaction extends Model
 {
     /** @use HasFactory<Factory<static>> */
@@ -35,21 +49,6 @@ final class AiCreditTransaction extends Model
     use HasUlids;
 
     public $timestamps = false;
-
-    /** @var list<string> */
-    protected $fillable = [
-        'team_id',
-        'user_id',
-        'conversation_id',
-        'idempotency_key',
-        'type',
-        'model',
-        'input_tokens',
-        'output_tokens',
-        'credits_charged',
-        'metadata',
-        'created_at',
-    ];
 
     /** @return array<string, string> */
     protected function casts(): array

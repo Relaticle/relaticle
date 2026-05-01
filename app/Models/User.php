@@ -13,6 +13,9 @@ use Filament\Models\Contracts\HasDefaultTenant;
 use Filament\Models\Contracts\HasTenants;
 use Filament\Panel;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Attributes\Appends;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
@@ -46,6 +49,24 @@ use Laravel\Sanctum\HasApiTokens;
  * @property array<string, mixed>|null $ai_preferences
  * @property-read Team|null $currentTeam
  */
+#[Appends([
+    'profile_photo_url',
+])]
+#[Fillable([
+    'name',
+    'email',
+    'timezone',
+    'password',
+    'ai_preferences',
+])]
+#[Hidden([
+    'password',
+    'remember_token',
+    'two_factor_recovery_codes',
+    'two_factor_secret',
+    'mailcoach_subscriber_uuid',
+    'subscriber_recency_bucket',
+])]
 final class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaultTenant, HasTenants, MustVerifyEmail
 {
     use HasApiTokens;
@@ -58,42 +79,6 @@ final class User extends Authenticatable implements FilamentUser, HasAvatar, Has
     use HasUlids;
     use Notifiable;
     use TwoFactorAuthenticatable;
-
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
-    protected $fillable = [
-        'name',
-        'email',
-        'timezone',
-        'password',
-        'ai_preferences',
-    ];
-
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
-    protected $hidden = [
-        'password',
-        'remember_token',
-        'two_factor_recovery_codes',
-        'two_factor_secret',
-        'mailcoach_subscriber_uuid',
-        'subscriber_recency_bucket',
-    ];
-
-    /**
-     * The accessors to append to the model's array form.
-     *
-     * @var list<string>
-     */
-    protected $appends = [
-        'profile_photo_url',
-    ];
 
     /**
      * Get the attributes that should be cast.

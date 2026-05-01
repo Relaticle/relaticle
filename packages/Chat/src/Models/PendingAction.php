@@ -6,6 +6,7 @@ namespace Relaticle\Chat\Models;
 
 use App\Models\Concerns\HasTeam;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
@@ -33,6 +34,21 @@ use Relaticle\Chat\Enums\PendingActionStatus;
  * @property Carbon|null $resolved_at
  * @property array<string, mixed>|null $result_data
  */
+#[Fillable([
+    'team_id',
+    'user_id',
+    'conversation_id',
+    'message_id',
+    'action_class',
+    'operation',
+    'entity_type',
+    'action_data',
+    'display_data',
+    'status',
+    'expires_at',
+    'resolved_at',
+    'result_data',
+])]
 final class PendingAction extends Model
 {
     /** @use HasFactory<Factory<static>> */
@@ -40,23 +56,6 @@ final class PendingAction extends Model
 
     use HasTeam;
     use HasUlids;
-
-    /** @var list<string> */
-    protected $fillable = [
-        'team_id',
-        'user_id',
-        'conversation_id',
-        'message_id',
-        'action_class',
-        'operation',
-        'entity_type',
-        'action_data',
-        'display_data',
-        'status',
-        'expires_at',
-        'resolved_at',
-        'result_data',
-    ];
 
     /** @return array<string, string> */
     protected function casts(): array

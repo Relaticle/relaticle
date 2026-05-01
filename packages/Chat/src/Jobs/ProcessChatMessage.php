@@ -15,6 +15,8 @@ use App\Models\User;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Queue\Attributes\Timeout;
+use Illuminate\Queue\Attributes\Tries;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Laravel\Ai\Responses\Data\ToolResult;
@@ -31,13 +33,11 @@ use Relaticle\Chat\Services\FollowUpService;
 use Relaticle\Chat\Support\ChatTelemetry;
 use Throwable;
 
+#[Timeout(120)]
+#[Tries(1)]
 final class ProcessChatMessage implements ShouldQueue
 {
     use Queueable;
-
-    public int $timeout = 120;
-
-    public int $tries = 1;
 
     /**
      * @param  array{provider: string|null, model: string|null}  $resolved

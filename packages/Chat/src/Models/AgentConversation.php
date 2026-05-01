@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Relaticle\Chat\Models;
 
 use App\Models\User;
+use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -19,14 +20,11 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
+#[Table(name: 'agent_conversations', keyType: 'string')]
 final class AgentConversation extends Model
 {
     /** @use HasFactory<Factory<static>> */
     use HasFactory;
-
-    protected $table = 'agent_conversations';
-
-    protected $keyType = 'string';
 
     public $incrementing = false;
 
