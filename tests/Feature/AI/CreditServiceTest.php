@@ -57,7 +57,7 @@ it('deducts credits and logs a transaction', function (): void {
         team: $this->team,
         user: $this->user,
         type: AiCreditType::Chat,
-        model: 'claude-sonnet-4-5-20250514',
+        model: 'claude-sonnet-4-5',
         inputTokens: 500,
         outputTokens: 200,
         toolCallsCount: 2,
@@ -73,14 +73,14 @@ it('deducts credits and logs a transaction', function (): void {
         'user_id' => $this->user->getKey(),
         'conversation_id' => 'conv-123',
         'type' => 'chat',
-        'model' => 'claude-sonnet-4-5-20250514',
+        'model' => 'claude-sonnet-4-5',
         'credits_charged' => 2,
     ]);
 });
 
 it('calculates credits with model multiplier', function (): void {
     $credits = $this->service->calculateCredits(
-        model: 'claude-opus-4-20250514',
+        model: 'claude-opus-4-5',
         toolCallsCount: 0,
     );
 
@@ -89,7 +89,7 @@ it('calculates credits with model multiplier', function (): void {
 
 it('adds tool call bonus to credit calculation', function (): void {
     $credits = $this->service->calculateCredits(
-        model: 'claude-sonnet-4-5-20250514',
+        model: 'claude-sonnet-4-5',
         toolCallsCount: 4,
     );
 
@@ -135,7 +135,7 @@ it('auto-creates a zero balance when deduct is called on a missing team', functi
         team: $team,
         user: $user,
         type: AiCreditType::Chat,
-        model: 'claude-sonnet-4-5-20250514',
+        model: 'claude-sonnet-4-5',
         inputTokens: 100,
         outputTokens: 50,
     );

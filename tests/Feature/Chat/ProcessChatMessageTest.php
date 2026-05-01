@@ -20,7 +20,7 @@ it('broadcasts a stream.failed event when the job fails', function (): void {
         team: $team,
         message: 'hello',
         conversationId: 'conv-123',
-        resolved: ['provider' => 'anthropic', 'model' => 'claude-sonnet-4-5-20250514'],
+        resolved: ['provider' => 'anthropic', 'model' => 'claude-sonnet-4-5'],
     );
 
     $job->failed(new RuntimeException('boom'));
@@ -47,7 +47,7 @@ it('refunds the reserved credit when the job fails', function (): void {
         team: $team,
         message: 'hello',
         conversationId: 'conv-123',
-        resolved: ['provider' => 'anthropic', 'model' => 'claude-sonnet-4-5-20250514'],
+        resolved: ['provider' => 'anthropic', 'model' => 'claude-sonnet-4-5'],
     );
 
     $job->failed(new RuntimeException('boom'));
