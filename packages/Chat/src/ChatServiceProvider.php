@@ -21,6 +21,7 @@ use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
 use Relaticle\Chat\Commands\ExpirePendingActionsCommand;
 use Relaticle\Chat\Commands\ResetCreditsCommand;
+use Relaticle\Chat\Livewire\App\Chat\ChatAllChatsPanel;
 use Relaticle\Chat\Livewire\App\Chat\ChatSidebarNav;
 use Relaticle\Chat\Livewire\App\Chat\ChatSidePanel;
 use Relaticle\Chat\Livewire\Chat\ChatInterface;
@@ -76,6 +77,7 @@ final class ChatServiceProvider extends ServiceProvider
         Livewire::component('chat.chat-interface', ChatInterface::class);
         Livewire::component('app.chat.chat-side-panel', ChatSidePanel::class);
         Livewire::component('app.chat.chat-sidebar-nav', ChatSidebarNav::class);
+        Livewire::component('app.chat.chat-all-chats-panel', ChatAllChatsPanel::class);
     }
 
     private function registerMigrations(): void
