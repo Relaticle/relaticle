@@ -176,6 +176,26 @@
                     </button>
                 </li>
             @endforeach
+
+                <li class="fi-sidebar-item">
+                    <button
+                        type="button"
+                        @click="window.dispatchEvent(new CustomEvent('chat:open-all-chats'))"
+                        class="fi-sidebar-item-btn w-full"
+                        aria-label="Open all chats"
+                    >
+                        <x-heroicon-o-list-bullet class="fi-sidebar-item-icon h-5 w-5" />
+                        <span
+                            x-show="$store.sidebar.isOpen"
+                            x-transition:enter="fi-transition-enter"
+                            x-transition:enter-start="fi-transition-enter-start"
+                            x-transition:enter-end="fi-transition-enter-end"
+                            class="fi-sidebar-item-label"
+                        >
+                            All chats
+                        </span>
+                    </button>
+                </li>
         @endif
     </ul>
 </li>

@@ -62,3 +62,18 @@ it('shows empty state when no conversations exist', function (): void {
     Livewire::test(ChatSidebarNav::class)
         ->assertSee('No chats yet');
 });
+
+it('renders an "All chats" trigger that opens the second sidebar', function (): void {
+    DB::table('agent_conversations')->insert([
+        'id' => 'all1',
+        'user_id' => $this->user->getKey(),
+        'team_id' => $this->user->current_team_id,
+        'title' => 'Existing chat',
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+
+    Livewire::test(ChatSidebarNav::class)
+        ->assertSee('All chats')
+        ->assertSeeHtml("dispatchEvent(new CustomEvent('chat:open-all-chats'))");
+});
