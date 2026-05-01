@@ -18,8 +18,6 @@ use Laravel\Jetstream\Events\TeamCreated;
 #[Tries(10)]
 final class TeamCreatedTagListener implements ShouldQueue
 {
-    public $backoff;
-
     use InteractsWithQueue;
 
     public function handle(TeamCreated $event): void
@@ -49,7 +47,7 @@ final class TeamCreatedTagListener implements ShouldQueue
         $owner = $team->owner()->first();
 
         if (! $owner->mailcoach_subscriber_uuid) {
-            $this->release($this->backoff);
+            $this->release(15);
 
             return;
         }
