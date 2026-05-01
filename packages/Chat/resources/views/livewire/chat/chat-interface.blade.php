@@ -935,6 +935,7 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
             }
             this.currentToolStatus = null;
             this.isStreaming = false;
+            this.restoreInputFocus();
         }, this.streamTimeoutMs);
     },
 
@@ -1123,6 +1124,7 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
                     assistantMsg.rendered = true;
                     this.isStreaming = false;
                     this.clearStreamTimeout();
+                    this.restoreInputFocus();
                     return;
                 }
 
@@ -1141,6 +1143,7 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
                 assistantMsg.rendered = true;
                 this.isStreaming = false;
                 this.clearStreamTimeout();
+                this.restoreInputFocus();
                 return;
             }
 
@@ -1172,6 +1175,7 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
             assistantMsg.rendered = true;
             this.isStreaming = false;
             this.clearStreamTimeout();
+            this.restoreInputFocus();
         }
 
         this.scrollToBottom();
@@ -1206,6 +1210,7 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
 
         this.currentToolStatus = null;
         this.isStreaming = false;
+        this.restoreInputFocus();
     },
 
     handleTextDelta(event) {
@@ -1250,6 +1255,7 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
         this.isStreaming = false;
         this.clearStreamTimeout();
         this.scrollToBottom();
+        this.restoreInputFocus();
     },
 
     handleStreamFailed(event) {
@@ -1264,6 +1270,17 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
         }
         this.isStreaming = false;
         this.clearStreamTimeout();
+        this.restoreInputFocus();
+    },
+
+    restoreInputFocus() {
+        this.$nextTick(() => {
+            const ta = this.$refs.chatInput;
+            // Don't focus a hidden textarea (panel closed) or when editing a prior message.
+            if (!ta || ! ta.offsetParent) return;
+            if (this.messages.some((m) => m.editing)) return;
+            ta.focus();
+        });
     },
 
     handleConversationResolved(event) {
