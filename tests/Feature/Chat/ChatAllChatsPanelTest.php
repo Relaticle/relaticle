@@ -153,3 +153,7 @@ it('renders a no-matches message when search returns empty', function (): void {
         ->set('search', 'doesnotmatchanything')
         ->assertSee('No matches');
 });
+
+it('registers the all-chats panel render hook view', function (): void {
+    expect(view()->exists('chat::filament.app.chat-all-chats-panel-hook'))->toBeTrue();
+});

@@ -122,5 +122,10 @@ final class ChatServiceProvider extends ServiceProvider
             PanelsRenderHook::BODY_END,
             fn (): View|Factory => view('chat::filament.app.chat-side-panel-hook'),
         );
+
+        FilamentView::registerRenderHook(
+            PanelsRenderHook::BODY_END,
+            fn (): View|Factory => view('chat::filament.app.chat-all-chats-panel-hook'),
+        );
     }
 }
