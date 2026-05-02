@@ -1,12 +1,17 @@
 @props([
     'role' => 'user',
     'content' => '',
+    'mentions' => [],
 ])
 
 @if($role === 'user')
     <div class="flex justify-end">
         <div class="max-w-[80%] rounded-2xl rounded-br-md bg-primary-600 px-4 py-3 text-sm text-white">
-            {{ $content }}
+            @if(!empty($mentions))
+                {!! \Relaticle\Chat\Support\MentionRenderer::render($content, $mentions) !!}
+            @else
+                {{ $content }}
+            @endif
         </div>
     </div>
 @else

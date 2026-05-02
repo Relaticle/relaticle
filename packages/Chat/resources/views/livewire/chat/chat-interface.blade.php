@@ -95,7 +95,12 @@
                                         :title="msg.created_at ? new Date(msg.created_at).toLocaleString() : ''"
                                         class="[overflow-wrap:anywhere] break-words rounded-2xl rounded-br-md bg-primary-600 px-4 py-3 text-sm text-white"
                                     >
-                                        <span x-text="msg.content" class="whitespace-pre-wrap"></span>
+                                        <template x-if="msg.mentions && msg.mentions.length > 0">
+                                            <span x-html="renderMentions(msg.content, msg.mentions)" class="whitespace-pre-wrap"></span>
+                                        </template>
+                                        <template x-if="!msg.mentions || msg.mentions.length === 0">
+                                            <span x-text="msg.content" class="whitespace-pre-wrap"></span>
+                                        </template>
                                     </div>
                                 </template>
 
@@ -590,6 +595,35 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
     autosize(el) {
         el.style.height = 'auto';
         el.style.height = Math.min(el.scrollHeight, 200) + 'px';
+    },
+
+    renderMentions(content, mentions) {
+        if (!mentions || mentions.length === 0) {
+            return this.escapeHtml(content);
+        }
+        let escaped = this.escapeHtml(content);
+        mentions.forEach((mention) => {
+            const token = '@' + mention.label.replace(/\s+/g, '_');
+            const tokenEscaped = this.escapeHtml(token);
+            const chip = `<a href="#" class="inline-flex items-center gap-1 rounded-md bg-primary-50 px-1.5 py-0.5 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300 no-underline hover:bg-primary-100 dark:hover:bg-primary-900/50" data-mention-id="${this.escapeAttr(mention.id)}" data-mention-type="${this.escapeAttr(mention.type)}">@${this.escapeHtml(mention.label)}</a>`;
+            escaped = escaped.split(tokenEscaped).join(chip);
+        });
+        return escaped;
+    },
+
+    escapeHtml(str) {
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    },
+
+    escapeAttr(str) {
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/"/g, '&quot;');
     },
 
     init() {

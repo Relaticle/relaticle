@@ -19,6 +19,8 @@ use Illuminate\Queue\Attributes\Timeout;
 use Illuminate\Queue\Attributes\Tries;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Laravel\Ai\Responses\Data\ToolResult;
 use Laravel\Ai\Responses\StreamedAgentResponse;
 use Laravel\Ai\Streaming\Events\StreamEvent;
@@ -125,6 +127,7 @@ final class ProcessChatMessage implements ShouldQueue
                     idempotencyKey: $streamedResponse->invocationId,
                 );
 
+                $this->persistMentions();
                 $this->broadcastFollowUps($streamedResponse);
             });
         } finally {
@@ -153,6 +156,35 @@ final class ProcessChatMessage implements ShouldQueue
             conversationId: $this->conversationId,
             message: 'The assistant encountered an error. Please try again.',
         ));
+    }
+
+    private function persistMentions(): void
+    {
+        if ($this->mentions === []) {
+            return;
+        }
+
+        $userMessageId = DB::table('agent_conversation_messages')
+            ->where('conversation_id', $this->conversationId)
+            ->where('role', 'user')
+            ->latest('created_at')
+            ->value('id');
+
+        if ($userMessageId === null) {
+            return;
+        }
+
+        $rows = array_map(static fn (array $m): array => [
+            'id' => (string) Str::ulid(),
+            'message_id' => $userMessageId,
+            'type' => $m['type'],
+            'record_id' => $m['id'],
+            'label' => $m['label'],
+            'created_at' => now(),
+            'updated_at' => now(),
+        ], $this->mentions);
+
+        DB::table('agent_conversation_message_mentions')->insert($rows);
     }
 
     private function broadcastFollowUps(StreamedAgentResponse $streamedResponse): void

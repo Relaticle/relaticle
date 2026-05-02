@@ -17,7 +17,7 @@ final readonly class ListConversationMessages
     ) {}
 
     /**
-     * @return array<int, array{id: string, role: string, content: string, created_at: ?string, pending_actions: array<int, mixed>}>
+     * @return array<int, array{id: string, role: string, content: string, created_at: ?string, pending_actions: array<int, mixed>, mentions: list<array{type: string, id: string, label: string}>}>
      */
     public function execute(User $user, string $conversationId, ?string $beforeMessageId = null, int $limit = 50): array
     {
@@ -37,6 +37,11 @@ final readonly class ListConversationMessages
             ->get(['m.id', 'm.role', 'm.content', 'm.tool_results', 'm.created_at'])
             ->reverse()
             ->values();
+
+        $mentionsByMessage = DB::table('agent_conversation_message_mentions')
+            ->whereIn('message_id', $messages->pluck('id'))
+            ->get(['message_id', 'type', 'record_id', 'label'])
+            ->groupBy('message_id');
 
         $pendingIds = $this->collectPendingActionIds($messages);
 
@@ -58,6 +63,15 @@ final readonly class ListConversationMessages
             'pending_actions' => $this->extractPendingActions(
                 $msg->tool_results === null ? null : (string) $msg->tool_results,
                 $statuses,
+            ),
+            'mentions' => array_values(
+                ($mentionsByMessage[$msg->id] ?? collect())
+                    ->map(fn (object $row): array => [
+                        'type' => (string) $row->type,
+                        'id' => (string) $row->record_id,
+                        'label' => (string) $row->label,
+                    ])
+                    ->all()
             ),
         ])->values()->all();
     }
