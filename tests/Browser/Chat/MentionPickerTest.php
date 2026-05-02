@@ -252,3 +252,55 @@ it('searches for a multi-word company name', function (): void {
     expect($resultsCount)->toContain('Acme Corp');
     expect($resultsCount)->not->toContain('Globex');
 });
+
+it('removes a selected mention via chip × button', function (): void {
+    $user = User::factory()->withTeam()->create();
+    $team = $user->ownedTeams()->first();
+    Company::factory()->for($team)->create(['name' => 'AcmeQA']);
+
+    $page = $this->visit('/app/login')
+        ->type('[id="form.email"]', $user->email)
+        ->type('[id="form.password"]', 'password')
+        ->click('button.fi-btn')
+        ->assertPathIs("/app/{$team->slug}/companies")
+        ->navigate("/app/{$team->slug}/chats");
+
+    $page->script(<<<'JS'
+        (() => {
+            const candidates = Array.from(document.querySelectorAll('[x-data^="chatInterface"]'));
+            const visible = candidates.find((el) => el.offsetParent !== null) ?? candidates[0];
+            window.__mentionHost = visible;
+            const data = Alpine.$data(visible);
+            data.input = '@ac';
+            const ta = visible.querySelector('#chat-message-input');
+            ta.value = '@ac';
+            ta.focus();
+            ta.setSelectionRange(3, 3);
+            data.detectMentionTrigger(ta);
+            return true;
+        })();
+    JS);
+
+    $page->script('(() => new Promise(r => setTimeout(r, 500)))();');
+
+    $page->script(<<<'JS'
+        (() => {
+            const data = Alpine.$data(window.__mentionHost);
+            if (data.mention.results.length > 0) {
+                data.selectMention(data.mention.results[0]);
+            }
+            return true;
+        })();
+    JS);
+
+    $countBefore = $page->script('(() => Alpine.$data(window.__mentionHost).selectedMentions.length)();');
+    expect($countBefore)->toBe(1);
+
+    $page->click('button[data-mention-remove]');
+
+    $countAfter = $page->script('(() => Alpine.$data(window.__mentionHost).selectedMentions.length)();');
+    expect($countAfter)->toBe(0);
+
+    $inputAfter = $page->script('(() => Alpine.$data(window.__mentionHost).input)();');
+    expect($inputAfter)->not->toContain('@AcmeQA');
+});

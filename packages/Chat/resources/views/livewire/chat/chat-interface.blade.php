@@ -387,8 +387,23 @@
     <div class="border-t border-gray-200 bg-white px-4 py-4 dark:border-gray-700 dark:bg-gray-900">
         <div class="mx-auto max-w-3xl">
             <form x-on:submit.prevent="sendMessage()">
-                <div class="relative flex items-end gap-2 rounded-2xl border border-gray-200 bg-white px-3 py-2 shadow-sm transition focus-within:border-primary-500 focus-within:ring-2 focus-within:ring-primary-500/20 dark:border-gray-700 dark:bg-gray-800">
-                    <label for="chat-message-input" class="sr-only">Message the assistant</label>
+                <div class="relative flex flex-col rounded-2xl border border-gray-200 bg-white px-3 py-2 shadow-sm transition focus-within:border-primary-500 focus-within:ring-2 focus-within:ring-primary-500/20 dark:border-gray-700 dark:bg-gray-800">
+                    <div x-show="selectedMentions.length > 0" class="flex flex-wrap gap-1 pb-1.5">
+                        <template x-for="mention in selectedMentions" :key="`${mention.type}-${mention.id}`">
+                            <span class="inline-flex items-center gap-1 rounded-md bg-primary-100 px-1.5 py-0.5 text-xs text-primary-800 dark:bg-primary-900/30 dark:text-primary-200">
+                                <span x-text="mention.label"></span>
+                                <button
+                                    type="button"
+                                    data-mention-remove
+                                    @click="removeMention(mention)"
+                                    aria-label="Remove mention"
+                                    class="text-primary-500 hover:text-primary-700 dark:text-primary-300 dark:hover:text-primary-100"
+                                >×</button>
+                            </span>
+                        </template>
+                    </div>
+                    <div class="flex items-end gap-2">
+                        <label for="chat-message-input" class="sr-only">Message the assistant</label>
                     <textarea
                         id="chat-message-input"
                         x-model="input"
@@ -487,6 +502,7 @@
                             <rect x="6" y="6" width="12" height="12" rx="2"/>
                         </svg>
                     </button>
+                    </div>{{-- end .flex.items-end --}}
                 </div>
                 <div class="mt-1.5 flex items-center justify-between gap-2 px-1 text-[11px] text-gray-400 dark:text-gray-500">
                     <div class="flex items-center gap-2">
@@ -1121,6 +1137,20 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
             this.mention.abort.abort();
         }
         this.mention = { open: false, query: '', results: [], activeIndex: 0, triggerStart: -1, fetching: false, error: null, abort: null };
+    },
+
+    removeMention(mention) {
+        this.selectedMentions = this.selectedMentions.filter((m) => !(m.type === mention.type && m.id === mention.id));
+        const escaped = mention.token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        this.input = this.input
+            .replace(new RegExp(escaped + '\\s?', 'g'), '')
+            .replace(/\s{2,}/g, ' ')
+            .trimStart();
+        const ta = this.$refs.chatInput;
+        if (ta) {
+            ta.value = this.input;
+            this.autosize(ta);
+        }
     },
 
     mentionMoveActive(delta) {
