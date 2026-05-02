@@ -208,3 +208,47 @@ it('aborts the in-flight fetch when the query drops below the 2-char minimum', f
 
     expect($resultsLength)->toBe(0);
 });
+
+it('searches for a multi-word company name', function (): void {
+    $user = User::factory()->withTeam()->create();
+    $team = $user->ownedTeams()->first();
+    Company::factory()->for($team)->create(['name' => 'Acme Corp']);
+    Company::factory()->for($team)->create(['name' => 'Globex']);
+
+    $page = $this->visit('/app/login')
+        ->type('[id="form.email"]', $user->email)
+        ->type('[id="form.password"]', 'password')
+        ->click('button.fi-btn')
+        ->assertPathIs("/app/{$team->slug}/companies")
+        ->navigate("/app/{$team->slug}/chats");
+
+    $page->script(<<<'JS'
+        (() => {
+            const candidates = Array.from(document.querySelectorAll('[x-data^="chatInterface"]'));
+            const visible = candidates.find((el) => el.offsetParent !== null) ?? candidates[0];
+            window.__mentionHost = visible;
+            const data = Alpine.$data(visible);
+            data.input = '@Acme C';
+            const ta = visible.querySelector('#chat-message-input');
+            ta.value = '@Acme C';
+            ta.focus();
+            ta.setSelectionRange(7, 7);
+            data.detectMentionTrigger(ta);
+            return true;
+        })();
+    JS);
+
+    $resultsCount = $page->script(<<<'JS'
+        (async () => {
+            const data = Alpine.$data(window.__mentionHost);
+            const start = Date.now();
+            while (data.mention.results.length === 0 && Date.now() - start < 5000) {
+                await new Promise((r) => setTimeout(r, 50));
+            }
+            return data.mention.results.map((r) => r.label);
+        })();
+    JS);
+
+    expect($resultsCount)->toContain('Acme Corp');
+    expect($resultsCount)->not->toContain('Globex');
+});

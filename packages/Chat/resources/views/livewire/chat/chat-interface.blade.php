@@ -955,7 +955,7 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
     detectMentionTrigger(textarea) {
         const cursor = textarea.selectionStart ?? this.input.length;
         const text = this.input.slice(0, cursor);
-        const match = text.match(/(?:^|\s)@([\p{L}\p{N}_-]*)$/iu);
+        const match = text.match(/(?:^|\s)@([\p{L}\p{N}_-]+(?:\s[\p{L}\p{N}_-]+)*)?$/iu);
 
         if (!match) {
             this.closeMention();
@@ -963,11 +963,11 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
         }
 
         this.mention.open = true;
-        this.mention.triggerStart = cursor - match[1].length - 1;
-        this.mention.query = match[1];
+        this.mention.query = match[1] ?? '';
+        this.mention.triggerStart = cursor - this.mention.query.length - 1;
 
-        if (match[1].length >= 2) {
-            this.fetchMentions(match[1]);
+        if (this.mention.query.length >= 2) {
+            this.fetchMentions(this.mention.query);
         } else {
             this.mention.abort?.abort();
             this.mention.abort = null;
