@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Relaticle\Chat\Http\Controllers;
 
 use App\Models\Company;
+use App\Models\Note;
 use App\Models\Opportunity;
 use App\Models\People;
 use App\Models\Task;
@@ -41,7 +42,7 @@ final readonly class ChatController
             'model' => ['nullable', 'string', Rule::enum(AiModel::class)],
             'conversation_id' => ['nullable', 'string', 'uuid'],
             'mentions' => ['nullable', 'array', 'max:15'],
-            'mentions.*.type' => ['required_with:mentions', 'string', 'in:company,people,opportunity,task'],
+            'mentions.*.type' => ['required_with:mentions', 'string', 'in:company,people,opportunity,task,note'],
             'mentions.*.id' => ['required_with:mentions', 'string', 'ulid'],
         ]);
 
@@ -208,6 +209,17 @@ final readonly class ChatController
                 ->map(fn (Task $r): array => ['id' => $r->id, 'name' => $r->title, 'type' => 'task'])
         );
 
+        $results = $results->merge(
+            Note::query()
+                ->whereBelongsTo($team)
+                ->where('title', 'ilike', "%{$search}%")
+                ->limit($limit)
+                ->get(['id', 'title', 'team_id'])
+                ->filter(fn (Note $r): bool => $user->can('view', $r))
+                ->values()
+                ->map(fn (Note $r): array => ['id' => $r->id, 'name' => $r->title, 'type' => 'note'])
+        );
+
         return response()->json(['data' => $results->take(15)->values()]);
     }
 
@@ -278,6 +290,7 @@ final readonly class ChatController
                 'people' => People::query()->whereBelongsTo($team)->find($mention['id']),
                 'opportunity' => Opportunity::query()->whereBelongsTo($team)->find($mention['id']),
                 'task' => Task::query()->whereBelongsTo($team)->find($mention['id']),
+                'note' => Note::query()->whereBelongsTo($team)->find($mention['id']),
                 default => null,
             };
 
@@ -288,7 +301,7 @@ final readonly class ChatController
             $resolved[] = [
                 'type' => $mention['type'],
                 'id' => $mention['id'],
-                'label' => $record instanceof Task ? $record->title : $record->name,
+                'label' => $record instanceof Task || $record instanceof Note ? $record->title : $record->name,
             ];
         }
 
