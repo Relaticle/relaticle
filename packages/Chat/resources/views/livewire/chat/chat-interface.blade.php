@@ -406,26 +406,50 @@
                         :disabled="isStreaming"
                     ></textarea>
                     <div
-                        x-show="mention.open && mention.results.length > 0"
+                        x-show="mention.open && mention.query.length >= 2"
                         x-cloak
                         @click.outside="closeMention()"
                         role="listbox"
                         aria-label="Mention suggestions"
                         class="absolute bottom-full left-0 right-8 z-50 mb-2 max-h-64 overflow-auto rounded-xl border border-gray-200 bg-white py-1 shadow-lg dark:border-gray-700 dark:bg-gray-800"
                     >
-                        <template x-for="(item, idx) in mention.results" :key="`${item.type}-${item.id}`">
-                            <button
-                                type="button"
-                                role="option"
-                                :aria-selected="idx === mention.activeIndex"
-                                @click="selectMention(item)"
-                                @mouseenter="mention.activeIndex = idx"
-                                :class="{ 'bg-primary-50 dark:bg-primary-900/30': idx === mention.activeIndex }"
-                                class="flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left text-sm text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700"
-                            >
-                                <span x-text="item.label" class="truncate"></span>
-                                <span x-text="item.type" class="text-xs uppercase text-gray-400"></span>
-                            </button>
+                        {{-- Loading skeleton --}}
+                        <div x-show="mention.fetching && mention.results.length === 0" class="px-3 py-3 text-center text-xs text-gray-500 dark:text-gray-400">
+                            <span class="inline-flex items-center gap-2">
+                                <span class="h-2 w-2 animate-pulse rounded-full bg-primary-500"></span>
+                                Searching…
+                            </span>
+                        </div>
+
+                        {{-- Error --}}
+                        <div x-show="!mention.fetching && mention.error" class="px-3 py-3 text-center text-xs text-red-600 dark:text-red-400" role="alert">
+                            <span x-text="mention.error"></span>
+                            <button type="button" @click="fetchMentions(mention.query)" class="ml-2 underline">Retry</button>
+                        </div>
+
+                        {{-- Empty (no matches) --}}
+                        <div x-show="!mention.fetching && !mention.error && mention.results.length === 0" class="px-3 py-3 text-center text-xs text-gray-500 dark:text-gray-400">
+                            No matches for "<span x-text="mention.query"></span>".
+                        </div>
+
+                        {{-- Results --}}
+                        <template x-if="!mention.fetching && !mention.error && mention.results.length > 0">
+                            <div>
+                                <template x-for="(item, idx) in mention.results" :key="`${item.type}-${item.id}`">
+                                    <button
+                                        type="button"
+                                        role="option"
+                                        :aria-selected="idx === mention.activeIndex"
+                                        @click="selectMention(item)"
+                                        @mouseenter="mention.activeIndex = idx"
+                                        :class="{ 'bg-primary-50 dark:bg-primary-900/30': idx === mention.activeIndex }"
+                                        class="flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left text-sm text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700"
+                                    >
+                                        <span x-text="item.label" class="truncate"></span>
+                                        <span x-text="mentionTypeLabel(item.type)" class="text-xs uppercase text-gray-400"></span>
+                                    </button>
+                                </template>
+                            </div>
                         </template>
                     </div>
                     <button type="button"
@@ -547,6 +571,7 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
         activeIndex: 0,
         triggerStart: -1,
         fetching: false,
+        error: null,
         abort: null,
     },
     selectedMentions: [],
@@ -578,6 +603,16 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
     modelLabel(value) {
         const found = this.modelOptions.find((o) => o.value === value);
         return (found || this.modelOptions[0]).label;
+    },
+
+    mentionTypeLabel(type) {
+        return ({
+            company: 'Company',
+            people: 'Person',
+            opportunity: 'Deal',
+            task: 'Task',
+            note: 'Note',
+        })[type] ?? type;
     },
 
     selectModel(value) {
@@ -1016,6 +1051,7 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
         }
         this.mention.abort = new AbortController();
         this.mention.fetching = true;
+        this.mention.error = null;
 
         try {
             const url = '/chat/mentions?q=' + encodeURIComponent(query);
@@ -1032,6 +1068,7 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
             if (!res.ok) {
                 this.mention.results = [];
                 this.mention.activeIndex = 0;
+                this.mention.error = "Couldn't load suggestions.";
                 return;
             }
 
@@ -1046,6 +1083,7 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
             if (e.name !== 'AbortError') {
                 this.mention.results = [];
                 this.mention.activeIndex = 0;
+                this.mention.error = "Couldn't load suggestions.";
             }
         } finally {
             this.mention.fetching = false;
@@ -1082,7 +1120,7 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
         if (this.mention.abort) {
             this.mention.abort.abort();
         }
-        this.mention = { open: false, query: '', results: [], activeIndex: 0, triggerStart: -1, fetching: false, abort: null };
+        this.mention = { open: false, query: '', results: [], activeIndex: 0, triggerStart: -1, fetching: false, error: null, abort: null };
     },
 
     mentionMoveActive(delta) {
