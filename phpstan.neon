@@ -33,5 +33,6 @@ parameters:
 
     configDirectories:
         - config
+        - packages/ActivityLog/config
         - packages/ImportWizard/config
         - packages/Documentation/config

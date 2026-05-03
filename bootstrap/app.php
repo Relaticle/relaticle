@@ -86,6 +86,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $schedule->command('import:cleanup')->hourly();
         $schedule->command('queue:prune-batches --hours=24')->daily();
         $schedule->command('invitations:cleanup')->daily();
+        $schedule->command('activitylog:clean')->daily();
         $schedule->command('subscribers:sync-recency-tags')->dailyAt('02:00')
             ->withoutOverlapping()
             ->onOneServer();
