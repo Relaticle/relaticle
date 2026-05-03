@@ -22,6 +22,8 @@ use App\Models\PersonalAccessToken;
 use App\Models\Task;
 use App\Models\Team;
 use App\Models\User;
+use App\Policies\Blog\CategoryPolicy;
+use App\Policies\Blog\PostPolicy;
 use App\Services\GitHubService;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
@@ -42,6 +44,8 @@ use Knuckles\Scribe\Scribe;
 use Laravel\Jetstream\Events\TeamCreated;
 use Laravel\Jetstream\Events\TeamMemberAdded;
 use Laravel\Sanctum\Sanctum;
+use ManukMinasyan\FilamentBlog\Models\Category;
+use ManukMinasyan\FilamentBlog\Models\Post;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\SystemAdmin\Models\SystemAdministrator;
 
@@ -79,6 +83,9 @@ final class AppServiceProvider extends ServiceProvider
 
     private function configurePolicies(): void
     {
+        Gate::policy(Post::class, PostPolicy::class);
+        Gate::policy(Category::class, CategoryPolicy::class);
+
         Gate::guessPolicyNamesUsing(function (string $modelClass): ?string {
             try {
                 $currentPanelId = Filament::getCurrentPanel()?->getId();
@@ -215,6 +222,8 @@ final class AppServiceProvider extends ServiceProvider
             'task' => Task::class,
             'note' => Note::class,
             'system_administrator' => SystemAdministrator::class,
+            'blog_post' => Post::class,
+            'blog_category' => Category::class,
         ]);
 
         // Use custom models for custom-fields package
