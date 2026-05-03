@@ -78,6 +78,7 @@ These must be set or the containers will refuse to start.
 | `APP_URL` | `http://localhost` | Full URL where Relaticle is accessible. Include the scheme. |
 | `APP_PORT` | `80` | Host port the app container binds to. |
 | `APP_PANEL_DOMAIN` | (empty) | Set for subdomain routing (e.g., `app.example.com`). Leave empty for path mode (`/app`). |
+| `REQUIRE_EMAIL_VERIFICATION` | `false` | When `false`, users sign in without verifying their email. Defaults to `false` in Docker so a fresh install works without SMTP. Set to `true` once you have a real mailer configured. |
 | `LOG_CHANNEL` | `stderr` | Where logs go. `stderr` is recommended for Docker. |
 | `LOG_LEVEL` | `warning` | Minimum log level. Use `debug` for troubleshooting. |
 
