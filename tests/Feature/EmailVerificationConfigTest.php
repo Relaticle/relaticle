@@ -2,7 +2,13 @@
 
 declare(strict_types=1);
 
+use App\Models\Company;
+use App\Models\Team;
+use App\Models\User;
+use App\Support\EmailVerificationGate;
 use Filament\Facades\Filament;
+
+mutates(EmailVerificationGate::class);
 
 it('keeps email verification required by default so cloud and production behave like before', function (): void {
     expect(config('app.require_email_verification'))->toBeTrue()
@@ -10,20 +16,40 @@ it('keeps email verification required by default so cloud and production behave 
         ->and(Filament::getPanel('sysadmin')->isEmailVerificationRequired())->toBeTrue();
 });
 
-it('disables the verification gate on both panels when self-hosters set REQUIRE_EMAIL_VERIFICATION=false', function (): void {
-    config(['app.require_email_verification' => false]);
+it('treats unverified users as gated when the flag is on so cloud behavior is unchanged', function (): void {
+    config(['app.require_email_verification' => true]);
+    $unverified = User::factory()->unverified()->create();
+    $verified = User::factory()->create();
 
-    Filament::getPanel('app')->emailVerification(isRequired: config('app.require_email_verification'));
-    Filament::getPanel('sysadmin')->emailVerification(isRequired: config('app.require_email_verification'));
-
-    expect(Filament::getPanel('app')->isEmailVerificationRequired())->toBeFalse()
-        ->and(Filament::getPanel('sysadmin')->isEmailVerificationRequired())->toBeFalse();
+    expect(EmailVerificationGate::passes($unverified))->toBeFalse()
+        ->and(EmailVerificationGate::passes($verified))->toBeTrue()
+        ->and(EmailVerificationGate::passes(null))->toBeFalse();
 });
 
-it('coerces string env values like "false" to a real boolean so .env files behave intuitively', function (): void {
-    config(['app.require_email_verification' => filter_var('false', FILTER_VALIDATE_BOOL)]);
-    expect(config('app.require_email_verification'))->toBeFalse();
+it('lets unverified users through every authorization gate when the flag is off so SMTP-less self-hosters can use the app', function (): void {
+    config(['app.require_email_verification' => false]);
 
-    config(['app.require_email_verification' => filter_var('true', FILTER_VALIDATE_BOOL)]);
-    expect(config('app.require_email_verification'))->toBeTrue();
+    $unverified = User::factory()->unverified()->create();
+
+    expect(EmailVerificationGate::passes($unverified))->toBeTrue()
+        ->and(EmailVerificationGate::passes(null))->toBeFalse();
+
+    // Spot-check that the helper's effect actually reaches policies.
+    $team = Team::factory()->create(['user_id' => $unverified->id]);
+    $unverified->forceFill(['current_team_id' => $team->id])->save();
+    $unverified->refresh()->setRelation('currentTeam', $team);
+
+    expect($unverified->can('viewAny', Company::class))->toBeTrue();
+});
+
+it('reads the config value through env coercion so REQUIRE_EMAIL_VERIFICATION="false" disables the gate end-to-end', function (): void {
+    putenv('REQUIRE_EMAIL_VERIFICATION=false');
+    $reloaded = filter_var(env('REQUIRE_EMAIL_VERIFICATION', true), FILTER_VALIDATE_BOOL);
+    expect($reloaded)->toBeFalse();
+
+    putenv('REQUIRE_EMAIL_VERIFICATION=true');
+    $reloaded = filter_var(env('REQUIRE_EMAIL_VERIFICATION', true), FILTER_VALIDATE_BOOL);
+    expect($reloaded)->toBeTrue();
+
+    putenv('REQUIRE_EMAIL_VERIFICATION');
 });
