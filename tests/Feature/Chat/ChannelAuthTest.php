@@ -70,16 +70,11 @@ it('rejects channel ids that are not UUIDs', function (): void {
     expect(chatChannelAuth($user, 'not-a-uuid'))->toBeFalse();
 });
 
-it('optimistically claims a fresh UUID for the authenticated user when the row does not exist', function (): void {
+it('denies access for a fresh UUID when the conversation row does not exist yet', function (): void {
     $user = User::factory()->withPersonalTeam()->create();
 
-    expect(chatChannelAuth($user, CONV_FRESH))->toBeTrue();
-
-    $row = DB::table('agent_conversations')->where('id', CONV_FRESH)->first();
-
-    expect($row)->not->toBeNull()
-        ->and($row->user_id)->toBe((string) $user->getKey())
-        ->and($row->team_id)->toBe($user->current_team_id);
+    expect(chatChannelAuth($user, CONV_FRESH))->toBeFalse();
+    expect(DB::table('agent_conversations')->where('id', CONV_FRESH)->exists())->toBeFalse();
 });
 
 it('refuses optimistic claim when another user already holds the conversation id', function (): void {

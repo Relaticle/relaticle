@@ -136,6 +136,42 @@ final readonly class ChatController
         ]);
     }
 
+    public function init(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'conversation_id' => ['required', 'string', 'uuid'],
+        ]);
+
+        /** @var User $user */
+        $user = $request->user();
+        $team = $user->currentTeam;
+
+        abort_if($team === null, 403);
+
+        $existing = DB::table('agent_conversations')->where('id', $validated['conversation_id'])->first();
+
+        if ($existing !== null) {
+            abort_if(
+                $existing->user_id !== (string) $user->getKey()
+                    || ($existing->team_id !== null && $existing->team_id !== $team->getKey()),
+                403
+            );
+
+            return response()->json(['conversation_id' => $validated['conversation_id']]);
+        }
+
+        DB::table('agent_conversations')->insert([
+            'id' => $validated['conversation_id'],
+            'user_id' => (string) $user->getKey(),
+            'team_id' => $team->getKey(),
+            'title' => '',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        return response()->json(['conversation_id' => $validated['conversation_id']]);
+    }
+
     public function cancel(Request $request, string $conversationId): JsonResponse
     {
         /** @var User $user */

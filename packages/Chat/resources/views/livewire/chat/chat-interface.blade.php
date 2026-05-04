@@ -924,6 +924,22 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
         return `${tsHex.slice(0, 8)}-${tsHex.slice(8, 12)}-${hex.slice(0, 4)}-${hex.slice(4, 8)}-${hex.slice(8, 20)}`;
     },
 
+    async initConversation(conversationId) {
+        const response = await fetch(@js(route('chat.conversations.init')), {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content ?? '',
+            },
+            body: JSON.stringify({ conversation_id: conversationId }),
+        });
+        if (!response.ok) {
+            throw new Error('Failed to initialize conversation');
+        }
+    },
+
     subscribeToConversation(conversationId) {
         if (!window.Echo) return Promise.resolve();
         if (this.channel && this.channel.conversationId === conversationId) {
@@ -1172,6 +1188,14 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
         const isFirstMessage = !this.conversationId;
         if (isFirstMessage) {
             this.conversationId = this.generateConversationId();
+            try {
+                await this.initConversation(this.conversationId);
+            } catch (_) {
+                this.conversationId = null;
+                this.isStreaming = false;
+                this.restoreInputFocus();
+                return;
+            }
         }
 
         if (!this.channel) {

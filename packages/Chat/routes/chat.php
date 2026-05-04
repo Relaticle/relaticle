@@ -11,6 +11,7 @@ Route::middleware(['auth:web', ApplyChatTenantScopes::class])->group(function ()
     Route::get('/chat/mentions', [ChatController::class, 'mentions'])
         ->middleware('throttle:60,1')
         ->name('chat.mentions');
+    Route::post('/chat/conversations', [ChatController::class, 'init'])->name('chat.conversations.init');
     Route::get('/chat/conversations', [ChatController::class, 'conversations'])->name('chat.conversations');
     Route::delete('/chat/conversations/{conversation}', [ChatController::class, 'destroyConversation'])->name('chat.conversations.destroy');
 
