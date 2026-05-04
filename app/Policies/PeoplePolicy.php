@@ -6,6 +6,7 @@ namespace App\Policies;
 
 use App\Models\People;
 use App\Models\User;
+use App\Support\EmailVerificationGate;
 use Filament\Facades\Filament;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
@@ -15,7 +16,7 @@ final readonly class PeoplePolicy
 
     public function viewAny(User $user): bool
     {
-        return $user->hasVerifiedEmail() && $user->currentTeam !== null;
+        return EmailVerificationGate::passes($user) && $user->currentTeam !== null;
     }
 
     public function view(User $user, People $people): bool
@@ -25,7 +26,7 @@ final readonly class PeoplePolicy
 
     public function create(User $user): bool
     {
-        return $user->hasVerifiedEmail() && $user->currentTeam !== null;
+        return EmailVerificationGate::passes($user) && $user->currentTeam !== null;
     }
 
     public function update(User $user, People $people): bool
@@ -40,7 +41,7 @@ final readonly class PeoplePolicy
 
     public function deleteAny(User $user): bool
     {
-        return $user->hasVerifiedEmail() && $user->currentTeam !== null;
+        return EmailVerificationGate::passes($user) && $user->currentTeam !== null;
     }
 
     public function restore(User $user, People $people): bool
@@ -50,7 +51,7 @@ final readonly class PeoplePolicy
 
     public function restoreAny(User $user): bool
     {
-        return $user->hasVerifiedEmail() && $user->currentTeam !== null;
+        return EmailVerificationGate::passes($user) && $user->currentTeam !== null;
     }
 
     public function forceDelete(User $user, People $people): bool

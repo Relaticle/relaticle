@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\SystemAdmin\Models;
 
+use App\Support\EmailVerificationGate;
 use Database\Factories\SystemAdministratorFactory;
 use Exception;
 use Filament\Models\Contracts\FilamentUser;
@@ -82,7 +83,7 @@ final class SystemAdministrator extends Authenticatable implements FilamentUser,
      */
     public function canAccessPanel(Panel $panel): bool
     {
-        return $panel->getId() === 'sysadmin' && $this->hasVerifiedEmail();
+        return $panel->getId() === 'sysadmin' && EmailVerificationGate::passes($this);
     }
 
     public function getFilamentAvatarUrl(): ?string

@@ -6,6 +6,7 @@ namespace App\Policies;
 
 use App\Models\Team;
 use App\Models\User;
+use App\Support\EmailVerificationGate;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 final readonly class TeamPolicy
@@ -17,7 +18,7 @@ final readonly class TeamPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->hasVerifiedEmail() && $user->currentTeam !== null;
+        return EmailVerificationGate::passes($user) && $user->currentTeam !== null;
     }
 
     /**
