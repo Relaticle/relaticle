@@ -14,11 +14,11 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
  * true. Cloud / production deployments leave the config at true and behavior is
  * unchanged.
  */
-final class EmailVerificationGate
+final readonly class EmailVerificationGate
 {
     public static function passes(?MustVerifyEmail $user): bool
     {
-        if ($user === null) {
+        if (! $user instanceof MustVerifyEmail) {
             return false;
         }
 

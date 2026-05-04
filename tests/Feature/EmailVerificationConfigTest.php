@@ -10,6 +10,11 @@ use Filament\Facades\Filament;
 
 mutates(EmailVerificationGate::class);
 
+afterEach(function (): void {
+    config(['app.require_email_verification' => true]);
+    putenv('REQUIRE_EMAIL_VERIFICATION');
+});
+
 it('keeps email verification required by default so cloud and production behave like before', function (): void {
     expect(config('app.require_email_verification'))->toBeTrue()
         ->and(Filament::getPanel('app')->isEmailVerificationRequired())->toBeTrue()
