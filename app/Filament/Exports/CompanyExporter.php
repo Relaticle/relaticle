@@ -22,7 +22,7 @@ final class CompanyExporter extends BaseExporter
             ExportColumn::make('name')
                 ->label('Company Name'),
             ExportColumn::make('team.name')
-                ->label('Team'),
+                ->label('Workspace'),
             ExportColumn::make('accountOwner.name')
                 ->label('Account Owner'),
             ExportColumn::make('creator.name')

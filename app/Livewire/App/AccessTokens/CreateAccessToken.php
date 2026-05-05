@@ -61,7 +61,7 @@ final class CreateAccessToken extends BaseLivewireComponent
                                     ),
                             ]),
                         Select::make('team_id')
-                            ->label('Team')
+                            ->label('Workspace')
                             ->required()
                             ->options(
                                 $this->authUser()->allTeams()->pluck('name', 'id'),

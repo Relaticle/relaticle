@@ -45,8 +45,6 @@ final class TaskResource extends Resource
 
     protected static ?int $navigationSort = 3;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Workspace';
-
     public static function form(Schema $schema): Schema
     {
         return TaskForm::get($schema);

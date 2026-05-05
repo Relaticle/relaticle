@@ -5,10 +5,15 @@ declare(strict_types=1);
 namespace App\Actions\Task;
 
 use App\Enums\CreationSource;
+use App\Models\Company;
+use App\Models\Opportunity;
+use App\Models\People;
 use App\Models\Task;
 use App\Models\User;
+use App\Support\TenantFkValidator;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 final readonly class CreateTask
 {
@@ -22,6 +27,14 @@ final readonly class CreateTask
     public function execute(User $user, array $data, CreationSource $source = CreationSource::WEB): Task
     {
         abort_unless($user->can('create', Task::class), 403);
+
+        TenantFkValidator::assertOwnedMany($user, $data, [
+            'company_ids' => Company::class,
+            'people_ids' => People::class,
+            'opportunity_ids' => Opportunity::class,
+        ]);
+
+        $this->assertAssigneesInWorkspace($user, $data['assignee_ids'] ?? null);
 
         $companyIds = Arr::pull($data, 'company_ids');
         $peopleIds = Arr::pull($data, 'people_ids');
@@ -53,5 +66,31 @@ final readonly class CreateTask
         $this->notifyAssignees->execute($task);
 
         return $task->load('customFieldValues.customField.options');
+    }
+
+    private function assertAssigneesInWorkspace(User $user, mixed $assigneeIds): void
+    {
+        if (! is_array($assigneeIds) || $assigneeIds === []) {
+            return;
+        }
+
+        $team = $user->currentTeam;
+
+        if ($team === null) {
+            throw ValidationException::withMessages(['team' => 'No active workspace.']);
+        }
+
+        $memberIds = $team->users()->pluck('users.id')->all();
+        $memberIds[] = $team->user_id;
+        $memberIdsStr = array_map(strval(...), $memberIds);
+
+        foreach ($assigneeIds as $assigneeId) {
+            throw_unless(
+                in_array((string) $assigneeId, $memberIdsStr, true),
+                ValidationException::withMessages([
+                    'assignee_ids' => 'One or more assignees are not in your workspace.',
+                ])
+            );
+        }
     }
 }

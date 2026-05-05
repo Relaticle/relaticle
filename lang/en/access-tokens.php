@@ -18,7 +18,7 @@ return [
 
     'form' => [
         'name' => 'Token Name',
-        'team' => 'Team',
+        'team' => 'Workspace',
         'expiration' => 'Expiration',
         'permissions' => 'Permissions',
     ],

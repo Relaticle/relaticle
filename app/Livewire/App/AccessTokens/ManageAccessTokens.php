@@ -42,7 +42,7 @@ final class ManageAccessTokens extends BaseLivewireComponent implements HasTable
             ->columns([
                 TextColumn::make('name')->label('Name')->searchable(),
                 TextColumn::make('team.name')
-                    ->label('Team')
+                    ->label('Workspace')
                     ->placeholder('—'),
                 TextColumn::make('abilities')
                     ->label('Permissions')
