@@ -56,7 +56,9 @@
         </form>
 
         {{-- Suggested prompts --}}
-        @php($suggestedPrompts = $this->getSuggestedPrompts())
+        @php
+            $suggestedPrompts = $this->getSuggestedPrompts();
+        @endphp
         @if(!empty($suggestedPrompts))
             <div class="mt-3 flex flex-wrap justify-center gap-1.5">
                 @foreach($suggestedPrompts as $prompt)
@@ -72,7 +74,9 @@
         @endif
 
         {{-- Proactive insights --}}
-        @php($insights = $this->getInsights())
+        @php
+            $insights = $this->getInsights();
+        @endphp
         @if($insights->isNotEmpty())
             <div class="mt-14">
                 <h2 class="mb-3 text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Quick insights</h2>
