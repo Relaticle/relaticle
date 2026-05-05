@@ -17,6 +17,7 @@ use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Carbon;
 use Override;
 use Relaticle\Chat\Models\AiCreditBalance;
 use Relaticle\SystemAdmin\Filament\Resources\AiCreditBalanceResource\Pages\EditAiCreditBalance;
@@ -106,7 +107,7 @@ final class AiCreditBalanceResource extends Resource
                     ->date()
                     ->sortable()
                     ->badge()
-                    ->color(fn ($state): string => $state?->isPast() ? 'danger' : 'gray'),
+                    ->color(fn (?Carbon $state): string => $state?->isPast() ? 'danger' : 'gray'),
                 TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()

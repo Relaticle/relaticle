@@ -5,9 +5,12 @@ declare(strict_types=1);
 use App\Models\Team;
 use Filament\Facades\Filament;
 use Relaticle\Chat\Models\AiCreditBalance;
+use Relaticle\SystemAdmin\Filament\Resources\AiCreditBalanceResource;
 use Relaticle\SystemAdmin\Filament\Resources\AiCreditBalanceResource\Pages\ListAiCreditBalances;
 use Relaticle\SystemAdmin\Filament\Resources\AiCreditBalanceResource\Pages\ViewAiCreditBalance;
 use Relaticle\SystemAdmin\Models\SystemAdministrator;
+
+mutates(AiCreditBalanceResource::class);
 
 beforeEach(function (): void {
     $this->actingAs(SystemAdministrator::factory()->create(), 'sysadmin');
@@ -37,6 +40,24 @@ it('filters by low balance', function (): void {
         ->filterTable('low_balance')
         ->assertCanSeeTableRecords([$low])
         ->assertCanNotSeeTableRecords([$high]);
+});
+
+it('filters by expired period', function (): void {
+    $team1 = Team::factory()->create();
+    $team2 = Team::factory()->create();
+    $expired = AiCreditBalance::factory()->create([
+        'team_id' => $team1->getKey(),
+        'period_ends_at' => now()->subDay(),
+    ]);
+    $current = AiCreditBalance::factory()->create([
+        'team_id' => $team2->getKey(),
+        'period_ends_at' => now()->addDays(10),
+    ]);
+
+    livewire(ListAiCreditBalances::class)
+        ->filterTable('period_expired')
+        ->assertCanSeeTableRecords([$expired])
+        ->assertCanNotSeeTableRecords([$current]);
 });
 
 it('shows the balance detail page', function (): void {
