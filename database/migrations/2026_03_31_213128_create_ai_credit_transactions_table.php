@@ -15,7 +15,7 @@ return new class extends Migration
             $table->foreignUlid('team_id')->constrained()->cascadeOnDelete();
             $table->foreignUlid('user_id')->constrained()->cascadeOnDelete();
             $table->string('conversation_id', 36)->nullable();
-            $table->string('idempotency_key')->nullable()->unique();
+            $table->string('idempotency_key')->nullable();
             $table->string('type');
             $table->string('model');
             $table->unsignedInteger('input_tokens')->default(0);
@@ -27,6 +27,8 @@ return new class extends Migration
             $table->index(['team_id', 'created_at']);
             $table->index('conversation_id');
             $table->index(['team_id', 'user_id', 'created_at']);
+
+            $table->unique(['team_id', 'idempotency_key']);
         });
     }
 };

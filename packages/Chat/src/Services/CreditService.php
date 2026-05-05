@@ -117,6 +117,7 @@ final readonly class CreditService
         }
 
         if ($idempotencyKey !== null && AiCreditTransaction::query()
+            ->where('team_id', $team->getKey())
             ->where('idempotency_key', $idempotencyKey)
             ->exists()
         ) {
@@ -183,6 +184,7 @@ final readonly class CreditService
         }
 
         if ($idempotencyKey !== null && AiCreditTransaction::query()
+            ->where('team_id', $team->getKey())
             ->where('idempotency_key', $idempotencyKey)
             ->exists()
         ) {
