@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Filament\Clusters\Settings;
 use App\Filament\Resources\CompanyResource;
 use App\Filament\Resources\NoteResource;
 use App\Filament\Resources\PeopleResource;
@@ -130,7 +131,7 @@ return [
         'slug' => 'custom-fields',
         'navigation_sort' => 100,
         'navigation_group' => true,
-        'cluster' => null,
+        'cluster' => Settings::class,
     ],
 
     /*
