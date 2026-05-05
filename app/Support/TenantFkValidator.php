@@ -19,7 +19,7 @@ final readonly class TenantFkValidator
         $teamId = $user->current_team_id;
 
         if ($teamId === null) {
-            throw ValidationException::withMessages(['team' => 'No active team.']);
+            throw ValidationException::withMessages(['team' => 'No active workspace.']);
         }
 
         foreach ($fkToModelMap as $field => $modelClass) {
@@ -38,7 +38,7 @@ final readonly class TenantFkValidator
 
             if (! $owned) {
                 throw ValidationException::withMessages([
-                    $field => "Referenced {$field} is not in your team.",
+                    $field => "Referenced {$field} is not in your workspace.",
                 ]);
             }
         }

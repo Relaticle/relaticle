@@ -26,7 +26,7 @@ final class OpportunityExporter extends BaseExporter
             ExportColumn::make('contact.name')
                 ->label('Contact Person'),
             ExportColumn::make('team.name')
-                ->label('Team'),
+                ->label('Workspace'),
             ExportColumn::make('creator.name')
                 ->label('Created By'),
             ExportColumn::make('notes_count')

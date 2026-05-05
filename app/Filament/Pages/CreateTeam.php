@@ -57,7 +57,7 @@ final class CreateTeam extends RegisterTenant
     #[Override]
     public static function getLabel(): string
     {
-        return 'Create Team';
+        return 'Create Workspace';
     }
 
     #[Override]
