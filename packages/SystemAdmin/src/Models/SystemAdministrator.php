@@ -82,13 +82,21 @@ final class SystemAdministrator extends Authenticatable implements FilamentUser,
      */
     public function canAccessPanel(Panel $panel): bool
     {
-        if ($panel->getId() !== 'sysadmin') {
-            return false;
+        return $panel->getId() === 'sysadmin' && $this->hasVerifiedEmail();
+    }
+
+    /**
+     * Mirrors App\Models\User: REQUIRE_EMAIL_VERIFICATION=false short-circuits
+     * the gate everywhere hasVerifiedEmail() is consulted (Filament prompt,
+     * canAccessPanel, etc).
+     */
+    public function hasVerifiedEmail(): bool
+    {
+        if (! config('app.require_email_verification')) {
+            return true;
         }
 
-        // Mirrors App\Support\EmailVerificationGate so the SystemAdmin package stays
-        // arch-clean (no App\ imports outside Models/Enums/Rules).
-        return ! config('app.require_email_verification') || $this->hasVerifiedEmail();
+        return parent::hasVerifiedEmail();
     }
 
     public function getFilamentAvatarUrl(): ?string

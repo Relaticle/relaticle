@@ -17,8 +17,6 @@ use App\Http\Middleware\CheckScheduledDeletion;
 use App\Listeners\SwitchTeam;
 use App\Livewire\App\Profile\ScheduledDeletionInterstitial;
 use App\Models\Team;
-use App\Models\User;
-use App\Support\EmailVerificationGate;
 use Asmit\ResizedColumn\ResizedColumnPlugin;
 use Exception;
 use Filament\Actions\Action;
@@ -235,12 +233,10 @@ final class AppPanelProvider extends PanelProvider
 
     public function shouldRegisterMenuItem(): bool
     {
-        /** @var User|null $user */
-        $user = Auth::user();
-        $passes = EmailVerificationGate::passes($user);
+        $hasVerifiedEmail = Auth::user()?->hasVerifiedEmail();
 
         return Filament::hasTenancy()
-            ? $passes && Filament::getTenant() !== null
-            : $passes;
+            ? $hasVerifiedEmail && Filament::getTenant()
+            : $hasVerifiedEmail;
     }
 }

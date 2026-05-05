@@ -5,10 +5,10 @@ declare(strict_types=1);
 use App\Models\Company;
 use App\Models\Team;
 use App\Models\User;
-use App\Support\EmailVerificationGate;
 use Filament\Facades\Filament;
+use Relaticle\SystemAdmin\Models\SystemAdministrator;
 
-mutates(EmailVerificationGate::class);
+mutates(User::class, SystemAdministrator::class);
 
 afterEach(function (): void {
     config(['app.require_email_verification' => true]);
@@ -26,20 +26,18 @@ it('treats unverified users as gated when the flag is on so cloud behavior is un
     $unverified = User::factory()->unverified()->create();
     $verified = User::factory()->create();
 
-    expect(EmailVerificationGate::passes($unverified))->toBeFalse()
-        ->and(EmailVerificationGate::passes($verified))->toBeTrue()
-        ->and(EmailVerificationGate::passes(null))->toBeFalse();
+    expect($unverified->hasVerifiedEmail())->toBeFalse()
+        ->and($verified->hasVerifiedEmail())->toBeTrue();
 });
 
-it('lets unverified users through every authorization gate when the flag is off so SMTP-less self-hosters can use the app', function (): void {
+it('reports every user as verified when the flag is off so framework, Filament, and policy checks all agree', function (): void {
     config(['app.require_email_verification' => false]);
 
     $unverified = User::factory()->unverified()->create();
 
-    expect(EmailVerificationGate::passes($unverified))->toBeTrue()
-        ->and(EmailVerificationGate::passes(null))->toBeFalse();
+    expect($unverified->hasVerifiedEmail())->toBeTrue();
 
-    // Spot-check that the helper's effect actually reaches policies.
+    // Spot-check that the override actually unblocks ordinary policy checks.
     $team = Team::factory()->create(['user_id' => $unverified->id]);
     $unverified->forceFill(['current_team_id' => $team->id])->save();
     $unverified->refresh()->setRelation('currentTeam', $team);
@@ -47,14 +45,18 @@ it('lets unverified users through every authorization gate when the flag is off 
     expect($unverified->can('viewAny', Company::class))->toBeTrue();
 });
 
+it('mirrors the override on SystemAdministrator so unverified sysadmins also pass canAccessPanel when the flag is off', function (): void {
+    config(['app.require_email_verification' => false]);
+    $unverified = SystemAdministrator::factory()->unverified()->create();
+
+    expect($unverified->hasVerifiedEmail())->toBeTrue()
+        ->and($unverified->canAccessPanel(Filament::getPanel('sysadmin')))->toBeTrue();
+});
+
 it('reads the config value through env coercion so REQUIRE_EMAIL_VERIFICATION="false" disables the gate end-to-end', function (): void {
     putenv('REQUIRE_EMAIL_VERIFICATION=false');
-    $reloaded = filter_var(env('REQUIRE_EMAIL_VERIFICATION', true), FILTER_VALIDATE_BOOL);
-    expect($reloaded)->toBeFalse();
+    expect(filter_var(env('REQUIRE_EMAIL_VERIFICATION', true), FILTER_VALIDATE_BOOL))->toBeFalse();
 
     putenv('REQUIRE_EMAIL_VERIFICATION=true');
-    $reloaded = filter_var(env('REQUIRE_EMAIL_VERIFICATION', true), FILTER_VALIDATE_BOOL);
-    expect($reloaded)->toBeTrue();
-
-    putenv('REQUIRE_EMAIL_VERIFICATION');
+    expect(filter_var(env('REQUIRE_EMAIL_VERIFICATION', true), FILTER_VALIDATE_BOOL))->toBeTrue();
 });
