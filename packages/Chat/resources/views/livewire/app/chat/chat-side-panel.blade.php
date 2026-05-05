@@ -127,8 +127,19 @@
 
     {{-- Floating Toggle Button (visible when panel is closed) --}}
     <div
-        x-data="{ panelOpen: @entangle('isOpen') }"
-        x-show="!panelOpen"
+        x-data="{
+            panelOpen: @entangle('isOpen'),
+            onChatPage: false,
+            check() {
+                const p = window.location.pathname;
+                this.onChatPage = /\/dashboard\/?$/.test(p) || /\/chats(\/|$)/.test(p);
+            },
+            init() {
+                this.check();
+                document.addEventListener('livewire:navigated', () => this.check());
+            }
+        }"
+        x-show="!panelOpen && !onChatPage"
         x-transition
         class="fixed bottom-6 right-6 z-40"
     >
