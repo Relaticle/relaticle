@@ -550,3 +550,8 @@
         color: #9ca3af;
     }
 }
+
+/* Hide Custom Fields from main sidebar — accessible via tenant menu (Settings dropdown). */
+.fi-sidebar-item:has(a[href$="/custom-fields"]) {
+    display: none;
+}
