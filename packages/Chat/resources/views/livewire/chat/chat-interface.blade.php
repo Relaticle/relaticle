@@ -354,7 +354,7 @@
     <div class="border-t border-gray-200 bg-white px-4 py-4 dark:border-gray-700 dark:bg-gray-900">
         <div class="mx-auto max-w-3xl">
             <form x-on:submit.prevent="sendMessage()">
-                <div class="relative flex flex-col rounded-2xl border border-gray-200 bg-white px-3 py-2 shadow-sm transition focus-within:border-primary-500 focus-within:ring-2 focus-within:ring-primary-500/20 dark:border-gray-700 dark:bg-gray-800">
+                <div class="relative flex flex-col rounded-2xl border border-gray-200 bg-white px-3 py-2 transition focus-within:border-primary-500 dark:border-gray-700 dark:bg-gray-800">
                     <div x-show="selectedMentions.length > 0" class="flex flex-wrap gap-1 pb-1.5">
                         <template x-for="mention in selectedMentions" :key="`${mention.type}-${mention.id}`">
                             <span class="inline-flex items-center gap-1 rounded-md bg-primary-100 px-1.5 py-0.5 text-xs text-primary-800 dark:bg-primary-900/30 dark:text-primary-200">
@@ -1020,7 +1020,20 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
 
     detectMentionTrigger(textarea) {
         const cursor = textarea.selectionStart ?? this.input.length;
-        const text = this.input.slice(0, cursor);
+        let text = this.input.slice(0, cursor);
+
+        // Mask already-committed mention tokens so their @ doesn't re-open the picker
+        // when the user types more text after them. Longest tokens first to avoid
+        // partial-prefix collisions (e.g. @AB vs @A).
+        const tokens = this.selectedMentions
+            .map((m) => m.token)
+            .filter((t) => typeof t === 'string' && t.length > 0)
+            .sort((a, b) => b.length - a.length);
+        for (const token of tokens) {
+            const escaped = token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            text = text.replace(new RegExp(escaped, 'g'), (m) => '\0'.repeat(m.length));
+        }
+
         const match = text.match(/(?:^|\s)@([\p{L}\p{N}_-]+(?:\s[\p{L}\p{N}_-]+)*)?$/iu);
 
         if (!match) {
