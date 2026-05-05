@@ -126,13 +126,18 @@ Push the limits.
 
 ## Supermodel
 
-Visual / layout-only.
+Visual / layout. Hybrid: deterministic probes (`references/visual-probes.md`) plus Claude reading screenshots and applying the Image-oracle rubric (`references/oracles.md`).
 
 **Relaticle steps:**
-1. Mobile viewport (`agent-browser set viewport 375 812`). Re-walk the changed pages — is anything broken?
-2. If dark mode exists, toggle and re-walk.
-3. Empty state: render the changed page with zero data. Look right?
-4. Error state: trigger a 500 / validation error. Is the page graceful?
-5. Long content overflow: a Company name 200 chars long, a Note 5000 chars long. Does layout hold?
 
-**Bug class hunted:** Visual inconsistency, mobile layout breakage, content overflow, AI-slop patterns.
+For every page the diff plausibly touched:
+
+1. **Viewport sweep** — set viewport to each of `320×568`, `375×812`, `768×1024`, `1024×768`, `1440×900`. At each: open the page, `agent-browser wait --load networkidle`, sleep 1s, run probes P1–P8 from `references/visual-probes.md`, take `agent-browser screenshot --annotate`. Skip-rules per viewport are in `visual-probes.md`'s viewport sweep table.
+2. **State explosion** — at the developer's default viewport (1440×900), walk every applicable state in `visual-probes.md`'s state-explosion checklist: empty, one-row, many-rows (100+), loading (network throttled), error (`/0` or invalid input), disabled, hover, focus, dark mode. Screenshot each.
+3. **Long-content stress** — Company name 200 chars, Note 5000 chars, custom-field text 10000 chars. Re-run P1 (overflow) and P2 (clipping) after each insertion.
+4. **Image-oracle pass** — open the screenshots from steps 1–3, answer the Image-oracle Y/N rubric in `oracles.md`. Each "No" is a candidate finding.
+5. **Aggregate** — merge probe offenders that fire at multiple viewports into one finding (record viewports as `viewports: [320, 375]`). Drop offenders that aren't in or downstream of the diff (move to "neutral notes").
+
+**Bug class hunted:** Visual inconsistency, mobile/tablet layout breakage, content overflow, low contrast, missing focus rings, undersized tap targets, broken images, layout shift, AI-slop alignment, inconsistent typography.
+
+**Always-include rule:** Supermodel is **mandatory** for any matrix that contains a Filament UI or Livewire surface, regardless of risk tier. The tier-cap on tour count (smoke=1, light=2, …) does not apply — Supermodel does not count against that cap. Reason: the diffs most likely to ship visual bugs (CSS, Blade, Tailwind config, view-component changes) score smoke or light on the risk rubric, and skipping the only visual tour at those tiers is exactly when bugs slip through.

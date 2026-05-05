@@ -32,6 +32,31 @@ Save filled to: .context/testing/reports/YYYY-MM-DD-HHMM-<task-slug>.md -->
 | 2 | Cross-Tenant Spy | REST API | (n/a) | other-team-id | F1 (Critical) |
 | 3 | ... | | | | |
 
+## Visual sweep
+
+(Only when a Filament UI / Livewire surface is in the matrix. One block per page touched.)
+
+### Page: <route> (<viewport>)
+
+| Probe | Count | Notes |
+|---|---|---|
+| P1 horizontal-overflow | <N> | <one-liner if N>0> |
+| P2 text-clipping | <N> | |
+| P3 tap-target-undersize | <N> | |
+| P4 stuck-loading | <N> | |
+| P5 image-hygiene | <N> | |
+| P6 no-focus-ring | <N>/<sampled> | |
+| P7 low-contrast | <N> | |
+| P8 cls | <value> | |
+
+**Image-oracle rubric** (`oracles.md` items 1-12, default viewport): <Y/Y/Y/N/Y/...> · mobile re-check (1,2,5,9,12): <Y/Y/N/Y/Y>
+
+**State sweep:** empty=<OK|F-N|N/A> · one=<...> · many=<...> · loading=<...> · error=<...> · disabled=<...> · hover=<...> · focus=<...> · dark=<...>
+
+**Screenshots:** `.context/testing/reports/<run-slug>/<page>-<viewport>.png` (one per state × viewport)
+
+(Repeat block per page.)
+
 ## Findings
 
 ### F1 — <Severity> · <Title>

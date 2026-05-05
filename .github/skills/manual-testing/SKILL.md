@@ -113,9 +113,10 @@ For each cell in the matrix (in order — multi-tenant checklist runs **first** 
 2. Log in as the persona via login-link.
 3. Drive the surface through the tour's steps.
 4. Apply the data-nasty payload (if the cell is a boundary-value cell).
-5. Observe.
-6. Cite an oracle (`references/oracles.md`) if anything went wrong. If no oracle applies, log a "neutral note" and move on.
-7. Capture: screenshot, console output, page errors, network 4xx/5xx, DB state if mutation was attempted.
+5. **Visual sweep (Filament UI / Livewire surfaces only):** if the cell's tour is Supermodel — or if any browser-touching cell hasn't yet been visually swept — run the probes from `references/visual-probes.md` (P1–P8) at the viewports listed there, plus the state-explosion checklist. Take an annotated screenshot per state and per viewport. Then answer the Image-oracle rubric in `references/oracles.md` against the captured screenshots.
+6. Observe.
+7. Cite an oracle (`references/oracles.md`) if anything went wrong. If no oracle applies, log a "neutral note" and move on.
+8. Capture: screenshot, console output, page errors, network 4xx/5xx, DB state if mutation was attempted.
 
 Update the matrix table in the report with the cell outcome (OK / Finding F-N / Skipped <reason>).
 
@@ -247,9 +248,10 @@ The skill loads references conditionally based on the current charter. The full 
 
 - `references/risk-rubric.md` — Likelihood × Impact scoring + high-impact tag list + score → action gates + surface scoping
 - `references/personas.md` — 8 personas (Default + 7 archetypes) and tier → persona-set mapping
-- `references/oracles.md` — FEW HICCUPPS oracle catalogue
-- `references/tours.md` — 8 Whittaker-style exploration tours and surface → tour mapping
+- `references/oracles.md` — FEW HICCUPPS oracle catalogue + Image-oracle 12-item rubric
+- `references/tours.md` — 8 Whittaker-style exploration tours and surface → tour mapping; Supermodel is mandatory on browser surfaces and uncapped by tier
 - `references/surfaces.md` — Filament UI / Livewire / REST API / MCP playbooks
+- `references/visual-probes.md` — 8 deterministic `agent-browser eval` probes (overflow, clipping, tap-target, stuck-loading, image hygiene, focus, contrast, layout shift) + viewport sweep + state-explosion checklist (loaded in EXECUTE on browser surfaces)
 - `references/multi-tenant-checklist.md` — Cross-Tenant Spy 5-check protocol (non-negotiable when policy/model/scope path touched)
 - `references/data-nasties.md` — boundary/garbage payload library, including 22-custom-field-type sub-sections
 
