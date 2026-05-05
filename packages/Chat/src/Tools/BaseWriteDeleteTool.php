@@ -95,6 +95,7 @@ abstract class BaseWriteDeleteTool implements Tool
             'operation' => 'delete',
             'data' => ['id' => $model->getKey(), 'name' => $entityName],
             'display' => $pending->display_data,
+            'meta' => ['agent_should_stop' => true],
         ], JSON_PRETTY_PRINT);
     }
 }

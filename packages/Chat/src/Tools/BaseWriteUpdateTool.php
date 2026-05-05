@@ -92,6 +92,7 @@ abstract class BaseWriteUpdateTool implements Tool
             'operation' => 'update',
             'data' => array_diff_key($pending->action_data, array_flip(['_record_id', '_model_class'])),
             'display' => $pending->display_data,
+            'meta' => ['agent_should_stop' => true],
         ], JSON_PRETTY_PRINT);
     }
 }

@@ -3,10 +3,13 @@
 declare(strict_types=1);
 
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Laravel\Ai\Enums\Lab;
+use Laravel\Ai\Tools\Request;
 use Relaticle\Chat\Agents\CrmAssistant;
+use Relaticle\Chat\Tools\Company\CreateCompanyTool;
 
 it('passes disable_parallel_tool_use to Anthropic via tool_choice', function (): void {
     $user = User::factory()->withPersonalTeam()->create();
@@ -51,4 +54,28 @@ it('returns no tool_choice override for non-anthropic providers', function (): v
     expect($agent->providerOptions('openai'))->toBe([]);
     expect($agent->providerOptions('gemini'))->toBe([]);
     expect($agent->providerOptions(Lab::Anthropic))->toHaveKey('tool_choice');
+});
+
+it('write tool result includes agent_should_stop=true in meta', function (): void {
+    $user = User::factory()->withPersonalTeam()->create();
+    Auth::guard('web')->setUser($user);
+
+    DB::table('agent_conversations')->insert([
+        'id' => '019df800-0000-7000-8000-000000000010',
+        'user_id' => (string) $user->getKey(),
+        'team_id' => $user->currentTeam->getKey(),
+        'title' => '',
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+
+    /** @var CreateCompanyTool $tool */
+    $tool = resolve(CreateCompanyTool::class);
+    $tool->setConversationId('019df800-0000-7000-8000-000000000010');
+
+    $resultJson = $tool->handle(new Request(['name' => 'Acme']));
+    $result = json_decode($resultJson, true);
+
+    expect($result)->toHaveKey('meta')
+        ->and($result['meta']['agent_should_stop'] ?? null)->toBeTrue();
 });

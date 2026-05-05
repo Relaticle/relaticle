@@ -63,6 +63,7 @@ abstract class BaseWriteCreateTool implements Tool
             'operation' => 'create',
             'data' => $pending->action_data,
             'display' => $pending->display_data,
+            'meta' => ['agent_should_stop' => true],
         ], JSON_PRETTY_PRINT);
     }
 }
