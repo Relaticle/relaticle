@@ -57,6 +57,8 @@ final class SystemAdminPanelProvider extends PanelProvider
                 NavigationGroup::make()
                     ->label('User Management'),
                 NavigationGroup::make()
+                    ->label('AI'),
+                NavigationGroup::make()
                     ->label('CRM'),
                 NavigationGroup::make()
                     ->label('Task Management'),
