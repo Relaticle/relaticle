@@ -19,28 +19,22 @@
         x-show="open"
         x-cloak
         role="dialog"
-        aria-modal="true"
+        aria-modal="false"
         aria-label="All chats"
         tabindex="-1"
         class="fi-chat-all-chats-panel fixed inset-y-0 left-[var(--fi-sidebar-width,_280px)] z-40 flex w-[360px] max-w-full"
         data-chat-all-chats-panel
     >
-        {{-- Click-outside backdrop --}}
-        <div
-            @click="$wire.close()"
-            class="fixed inset-0 z-30"
-            aria-hidden="true"
-        ></div>
-
         {{-- Panel body --}}
         <div
+            @click.outside="if (open) $wire.close()"
             x-transition:enter="transition ease-out duration-200"
             x-transition:enter-start="-translate-x-full"
             x-transition:enter-end="translate-x-0"
             x-transition:leave="transition ease-in duration-150"
             x-transition:leave-start="translate-x-0"
             x-transition:leave-end="-translate-x-full"
-            class="flex flex-1 flex-col overflow-hidden border-r border-gray-200 bg-white shadow-xl dark:border-gray-700 dark:bg-gray-900"
+            class="relative flex flex-1 flex-col overflow-hidden border-r border-gray-200 bg-white shadow-xl dark:border-gray-700 dark:bg-gray-900"
         >
             {{-- Header --}}
             <div class="flex items-center justify-between border-b border-gray-200 px-4 py-3 dark:border-gray-700">

@@ -63,17 +63,39 @@ it('shows empty state when no conversations exist', function (): void {
         ->assertSee('No chats yet');
 });
 
-it('renders an "All chats" trigger that opens the second sidebar', function (): void {
-    DB::table('agent_conversations')->insert([
-        'id' => 'all1',
-        'user_id' => $this->user->getKey(),
-        'team_id' => $this->user->current_team_id,
-        'title' => 'Existing chat',
-        'created_at' => now(),
-        'updated_at' => now(),
-    ]);
+it('renders an "All chats" trigger when more than 7 chats exist', function (): void {
+    $rows = [];
+    for ($i = 1; $i <= 8; $i++) {
+        $rows[] = [
+            'id' => "all-{$i}",
+            'user_id' => $this->user->getKey(),
+            'team_id' => $this->user->current_team_id,
+            'title' => "Chat {$i}",
+            'created_at' => now()->subMinutes($i),
+            'updated_at' => now()->subMinutes($i),
+        ];
+    }
+    DB::table('agent_conversations')->insert($rows);
 
     Livewire::test(ChatSidebarNav::class)
         ->assertSee('All chats')
         ->assertSeeHtml("dispatchEvent(new CustomEvent('chat:open-all-chats'))");
+});
+
+it('hides the "All chats" trigger when 7 or fewer chats exist', function (): void {
+    $rows = [];
+    for ($i = 1; $i <= 7; $i++) {
+        $rows[] = [
+            'id' => "few-{$i}",
+            'user_id' => $this->user->getKey(),
+            'team_id' => $this->user->current_team_id,
+            'title' => "Chat {$i}",
+            'created_at' => now()->subMinutes($i),
+            'updated_at' => now()->subMinutes($i),
+        ];
+    }
+    DB::table('agent_conversations')->insert($rows);
+
+    Livewire::test(ChatSidebarNav::class)
+        ->assertDontSee('Open all chats');
 });

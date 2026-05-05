@@ -177,6 +177,7 @@
                 </li>
             @endforeach
 
+            @if($hasMore)
                 <li class="fi-sidebar-item">
                     <button
                         type="button"
@@ -196,6 +197,7 @@
                         </span>
                     </button>
                 </li>
+            @endif
         @endif
     </ul>
 </li>

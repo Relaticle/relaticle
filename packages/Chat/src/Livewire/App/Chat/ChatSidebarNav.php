@@ -34,6 +34,8 @@ final class ChatSidebarNav extends BaseLivewireComponent
         $this->dispatch('chat:conversation-deleted');
     }
 
+    private const SIDEBAR_LIMIT = 7;
+
     public function render(): View
     {
         $user = Filament::auth()->user();
@@ -42,8 +44,12 @@ final class ChatSidebarNav extends BaseLivewireComponent
             return view('chat::components.empty-container');
         }
 
+        $conversations = (new ListConversations)->execute($user, self::SIDEBAR_LIMIT + 1);
+        $hasMore = $conversations->count() > self::SIDEBAR_LIMIT;
+
         return view('chat::livewire.app.chat.chat-sidebar-nav', [
-            'conversations' => (new ListConversations)->execute($user, 10),
+            'conversations' => $conversations->take(self::SIDEBAR_LIMIT),
+            'hasMore' => $hasMore,
             'newChatUrl' => ChatConversation::getUrl(),
         ]);
     }
