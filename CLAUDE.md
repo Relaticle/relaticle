@@ -182,7 +182,7 @@ This application is a Laravel application and its main Laravel ecosystems packag
 - filament/filament (FILAMENT) - v5
 - laravel/ai (AI) - v0
 - laravel/fortify (FORTIFY) - v1
-- laravel/framework (LARAVEL) - v12
+- laravel/framework (LARAVEL) - v13
 - laravel/horizon (HORIZON) - v5
 - laravel/mcp (MCP) - v0
 - laravel/pennant (PENNANT) - v1
@@ -346,26 +346,27 @@ This project has domain-specific skills available. You MUST activate the relevan
 
 - If you receive an "Illuminate\Foundation\ViteException: Unable to locate file in Vite manifest" error, you can run `npm run build` or ask the user to run `npm run dev` or `composer run dev`.
 
-=== laravel/v12 rules ===
+=== laravel/v13 rules ===
 
-# Laravel 12
+# Laravel 13
 
 - CRITICAL: ALWAYS use `search-docs` tool for version-specific Laravel documentation and updated code examples.
 - Since Laravel 11, Laravel has a new streamlined file structure which this project uses.
 
-## Laravel 12 Structure
+## Laravel 13 Structure
 
-- In Laravel 12, middleware are no longer registered in `app/Http/Kernel.php`.
+- Middleware are not registered in `app/Http/Kernel.php`.
 - Middleware are configured declaratively in `bootstrap/app.php` using `Application::configure()->withMiddleware()`.
 - `bootstrap/app.php` is the file to register middleware, exceptions, and routing files.
 - `bootstrap/providers.php` contains application specific service providers.
-- The `app/Console/Kernel.php` file no longer exists; use `bootstrap/app.php` or `routes/console.php` for console configuration.
+- The `app/Console/Kernel.php` file does not exist; use `bootstrap/app.php` or `routes/console.php` for console configuration.
 - Console commands in `app/Console/Commands/` are automatically available and do not require manual registration.
+- Laravel 13 promotes attribute-based job configuration: `#[Tries(N)]`, `#[Backoff([...])]`, `#[Timeout(N)]` on the job class instead of `public int $tries`/`$backoff`/`$timeout` properties. Follow the pattern already established in `app/Jobs/`.
 
 ## Database
 
 - When modifying a column, the migration must include all of the attributes that were previously defined on the column. Otherwise, they will be dropped and lost.
-- Laravel 12 allows limiting eagerly loaded records natively, without external packages: `$query->latest()->limit(10);`.
+- Laravel 13 allows limiting eagerly loaded records natively, without external packages: `$query->latest()->limit(10);`.
 
 ### Models
 
