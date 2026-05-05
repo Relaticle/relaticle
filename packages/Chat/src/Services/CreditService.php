@@ -6,6 +6,7 @@ namespace Relaticle\Chat\Services;
 
 use App\Models\Team;
 use App\Models\User;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Relaticle\Chat\Enums\AiCreditType;
 use Relaticle\Chat\Models\AiCreditBalance;
@@ -53,11 +54,21 @@ final readonly class CreditService
 
     /**
      * Refund a previously reserved credit (e.g. when the downstream job fails).
+     *
+     * Pass an `$idempotencyToken` to ensure the refund only happens once across
+     * cancel and failure paths for the same logical job invocation.
      */
-    public function refundReservation(Team $team, int $credits = 1): void
+    public function refundReservation(Team $team, int $credits = 1, ?string $idempotencyToken = null): void
     {
         if ((bool) config('ai.unlimited_credits', false)) {
             return;
+        }
+
+        if ($idempotencyToken !== null) {
+            $cacheKey = "chat:refund-lock:{$team->getKey()}:{$idempotencyToken}";
+            if (! Cache::add($cacheKey, '1', now()->addHour())) {
+                return;
+            }
         }
 
         DB::transaction(function () use ($team, $credits): void {

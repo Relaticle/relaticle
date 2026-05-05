@@ -23,7 +23,6 @@ use Relaticle\Chat\Enums\AiCreditType;
 use Relaticle\Chat\Events\ChatStreamFailed;
 use Relaticle\Chat\Events\ConversationResolved;
 use Relaticle\Chat\Events\FollowUpsSuggested;
-use Relaticle\Chat\Models\AiCreditTransaction;
 use Relaticle\Chat\Services\CreditService;
 use Relaticle\Chat\Services\FollowUpService;
 use Relaticle\Chat\Support\ChatTelemetry;
@@ -93,7 +92,7 @@ final class ProcessChatMessage implements ShouldQueue
             });
 
             if ($cancelled) {
-                $creditService->refundReservation($this->team);
+                $creditService->refundReservation($this->team, idempotencyToken: $this->settlementToken());
                 ChatTelemetry::breadcrumb('stream.cancelled', []);
 
                 return;
@@ -109,6 +108,12 @@ final class ProcessChatMessage implements ShouldQueue
                     userId: (string) $this->user->getKey(),
                     conversationId: $streamedResponse->conversationId,
                 ));
+
+                Cache::add(
+                    "chat:refund-lock:{$this->team->getKey()}:{$this->settlementToken()}",
+                    '1',
+                    now()->addHour(),
+                );
 
                 $creditService->settleReservation(
                     team: $this->team,
@@ -132,15 +137,10 @@ final class ProcessChatMessage implements ShouldQueue
 
     public function failed(?Throwable $exception): void
     {
-        $alreadySettled = AiCreditTransaction::query()
-            ->where('conversation_id', $this->conversationId)
-            ->where('user_id', $this->user->getKey())
-            ->where('created_at', '>=', now()->subMinutes(10))
-            ->exists();
-
-        if (! $alreadySettled) {
-            resolve(CreditService::class)->refundReservation($this->team);
-        }
+        resolve(CreditService::class)->refundReservation(
+            $this->team,
+            idempotencyToken: $this->settlementToken(),
+        );
 
         ChatTelemetry::breadcrumb('job.failed', [
             'exception' => $exception?->getMessage(),
@@ -216,5 +216,10 @@ final class ProcessChatMessage implements ShouldQueue
     private function releaseAuth(): void
     {
         Auth::guard('web')->forgetUser();
+    }
+
+    private function settlementToken(): string
+    {
+        return "{$this->conversationId}:".($this->job?->uuid() ?? spl_object_hash($this));
     }
 }
