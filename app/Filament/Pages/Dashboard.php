@@ -8,6 +8,7 @@ use App\Models\User;
 use BackedEnum;
 use Filament\Facades\Filament;
 use Filament\Pages\Page;
+use Filament\Panel;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Date;
 use Relaticle\Chat\Actions\ListConversations;
@@ -27,6 +28,11 @@ final class Dashboard extends Page
     protected ?string $heading = '';
 
     protected string $view = 'chat::filament.pages.dashboard';
+
+    public static function getRoutePath(Panel $panel): string
+    {
+        return '/';
+    }
 
     public ?string $recentChatTitle = null;
 

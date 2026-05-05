@@ -4,7 +4,9 @@
         onChatPage: false,
         check() {
             const p = window.location.pathname;
-            this.onChatPage = /\/dashboard\/?$/.test(p) || /\/chats(\/|$)/.test(p);
+            const segments = p.split('/').filter(Boolean);
+            // Hide on the tenant root (dashboard, single-segment path) and on any /chats route.
+            this.onChatPage = segments.length === 1 || /\/chats(\/|$)/.test(p);
         },
         init() {
             this.check();
