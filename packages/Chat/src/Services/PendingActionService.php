@@ -36,7 +36,7 @@ final readonly class PendingActionService
      */
     public function createProposal(
         User $user,
-        string $conversationId,
+        ?string $conversationId,
         string $actionClass,
         PendingActionOperation $operation,
         string $entityType,

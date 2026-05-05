@@ -37,18 +37,9 @@ it('persists the active conversation id on pending actions when a tool handles a
     expect($pending->conversation_id)->toBe($conversationId);
 });
 
-it('falls back to "unknown" when no conversation id is set on the tool', function (): void {
+it('persists null conversation id when none is set on the tool', function (): void {
     $user = User::factory()->withPersonalTeam()->create();
     $this->actingAs($user);
-
-    DB::table('agent_conversations')->insert([
-        'id' => 'unknown',
-        'user_id' => $user->getKey(),
-        'team_id' => $user->currentTeam->getKey(),
-        'title' => 'Unknown fallback',
-        'created_at' => now(),
-        'updated_at' => now(),
-    ]);
 
     /** @var CreateCompanyTool $tool */
     $tool = app(CreateCompanyTool::class);
@@ -60,5 +51,5 @@ it('falls back to "unknown" when no conversation id is set on the tool', functio
         ->latest()
         ->firstOrFail();
 
-    expect($pending->conversation_id)->toBe('unknown');
+    expect($pending->conversation_id)->toBeNull();
 });

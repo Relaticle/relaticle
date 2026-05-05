@@ -14,7 +14,7 @@ return new class extends Migration
             $table->ulid('id')->primary();
             $table->foreignUlid('team_id')->constrained()->cascadeOnDelete();
             $table->foreignUlid('user_id')->constrained()->cascadeOnDelete();
-            $table->string('conversation_id', 36);
+            $table->string('conversation_id', 36)->nullable();
             $table->string('message_id', 36)->nullable();
             $table->string('action_class');
             $table->string('operation');

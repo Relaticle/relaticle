@@ -15,8 +15,8 @@ trait WithConversationContext
         return $this;
     }
 
-    protected function resolveConversationId(): string
+    protected function resolveConversationId(): ?string
     {
-        return $this->conversationId ?? 'unknown';
+        return $this->conversationId;
     }
 }

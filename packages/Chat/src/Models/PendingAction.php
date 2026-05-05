@@ -22,7 +22,7 @@ use Relaticle\Chat\Enums\PendingActionStatus;
  * @property string $id
  * @property string $team_id
  * @property string $user_id
- * @property string $conversation_id
+ * @property string|null $conversation_id
  * @property string|null $message_id
  * @property string $action_class
  * @property PendingActionOperation $operation
