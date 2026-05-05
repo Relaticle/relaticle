@@ -67,7 +67,7 @@ beforeEach(function (): void {
 it('fetches pending_actions in a single batch', function (): void {
     DB::enableQueryLog();
 
-    (new ListConversationMessages)->execute($this->user, 'c-perf');
+    resolve(ListConversationMessages::class)->execute($this->user, 'c-perf');
 
     $queries = collect(DB::getQueryLog())
         ->filter(fn (array $q): bool => str_contains($q['query'], 'pending_actions'));

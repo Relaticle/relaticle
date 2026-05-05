@@ -8,11 +8,13 @@ use App\Models\User;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Relaticle\Chat\Support\MarkdownRenderer;
+use Relaticle\Chat\Support\RecordReferenceResolver;
 use stdClass;
 
 final readonly class ListConversationMessages
 {
     public function __construct(
+        private RecordReferenceResolver $resolver,
         private MarkdownRenderer $markdown = new MarkdownRenderer,
     ) {}
 
@@ -47,12 +49,24 @@ final readonly class ListConversationMessages
 
         $pendingIds = $this->collectPendingActionIds($messages);
 
-        /** @var array<string, string> $statuses */
-        $statuses = $pendingIds === []
+        /** @var array<string, array{status: string, entity_type: ?string, result_data: ?array<string, mixed>}> $records */
+        $records = $pendingIds === []
             ? []
             : DB::table('pending_actions')
                 ->whereIn('id', $pendingIds)
-                ->pluck('status', 'id')
+                ->where('user_id', $user->getKey())
+                ->where('team_id', $user->current_team_id)
+                ->get(['id', 'status', 'entity_type', 'result_data'])
+                ->keyBy('id')
+                ->map(fn (object $row): array => [
+                    'status' => (string) $row->status,
+                    'entity_type' => $row->entity_type === null ? null : (string) $row->entity_type,
+                    'result_data' => $row->result_data === null ? null : (function (mixed $raw): ?array {
+                        $decoded = json_decode((string) $raw, true);
+
+                        return is_array($decoded) ? $decoded : null;
+                    })($row->result_data),
+                ])
                 ->all();
 
         return $messages->map(fn (object $msg): array => [
@@ -64,7 +78,7 @@ final readonly class ListConversationMessages
             'created_at' => $msg->created_at === null ? null : (string) $msg->created_at,
             'pending_actions' => $this->extractPendingActions(
                 $msg->tool_results === null ? null : (string) $msg->tool_results,
-                $statuses,
+                $records,
             ),
             'mentions' => array_values(
                 ($mentionsByMessage[$msg->id] ?? collect())
@@ -113,10 +127,10 @@ final readonly class ListConversationMessages
     }
 
     /**
-     * @param  array<string, string>  $statuses
+     * @param  array<string, array{status: string, entity_type: ?string, result_data: ?array<string, mixed>}>  $records
      * @return array<int, mixed>
      */
-    private function extractPendingActions(?string $toolResults, array $statuses): array
+    private function extractPendingActions(?string $toolResults, array $records): array
     {
         if ($toolResults === null) {
             return [];
@@ -138,12 +152,31 @@ final readonly class ListConversationMessages
                 continue;
             }
             $inner = json_decode((string) $toolResult['result'], true);
-
-            if (is_array($inner) && ($inner['type'] ?? null) === 'pending_action') {
-                $pendingId = (string) ($inner['pending_action_id'] ?? '');
-                $inner['status'] = $statuses[$pendingId] ?? 'expired';
-                $actions[] = $inner;
+            if (! is_array($inner)) {
+                continue;
             }
+            if (($inner['type'] ?? null) !== 'pending_action') {
+                continue;
+            }
+
+            $pendingId = (string) ($inner['pending_action_id'] ?? '');
+            $info = $records[$pendingId] ?? null;
+            $inner['status'] = $info['status'] ?? 'expired';
+
+            if (in_array($inner['status'], ['approved', 'restored'], true) && $info !== null) {
+                $resultData = $info['result_data'];
+                $recordId = is_array($resultData) ? ($resultData['id'] ?? null) : null;
+                $entityType = $info['entity_type'] ?? (isset($inner['entity_type']) ? (string) $inner['entity_type'] : null);
+
+                if ((is_string($recordId) || is_int($recordId)) && is_string($entityType)) {
+                    $ref = $this->resolver->resolve($entityType, (string) $recordId);
+                    if ($ref !== null) {
+                        $inner['record'] = $ref;
+                    }
+                }
+            }
+
+            $actions[] = $inner;
         }
 
         return $actions;

@@ -49,7 +49,7 @@ final class ChatInterface extends BaseLivewireComponent
             return [];
         }
 
-        return (new ListConversationMessages)->execute(
+        return resolve(ListConversationMessages::class)->execute(
             $this->authUser(),
             $this->conversationId,
         );
@@ -61,7 +61,7 @@ final class ChatInterface extends BaseLivewireComponent
             return;
         }
 
-        $earlier = (new ListConversationMessages)->execute(
+        $earlier = resolve(ListConversationMessages::class)->execute(
             $this->authUser(),
             $this->conversationId,
             beforeMessageId: $this->oldestMessageId,

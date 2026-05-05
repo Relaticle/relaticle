@@ -40,7 +40,7 @@ it('hides synthetic [approval] user messages from the visible message list', fun
         ['id' => '019df800-2222-7000-8000-000000000013', 'role' => 'assistant', 'content' => 'Now proposing the linked task.', 'created_at' => now(), 'updated_at' => now()] + $base,
     ]);
 
-    $messages = (new ListConversationMessages)->execute($user, $convId);
+    $messages = resolve(ListConversationMessages::class)->execute($user, $convId);
 
     $contents = collect($messages)->pluck('content')->all();
 

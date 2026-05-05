@@ -44,13 +44,13 @@ beforeEach(function (): void {
 });
 
 it('returns the last 50 messages by default', function (): void {
-    $result = (new ListConversationMessages)->execute($this->user, 'c-page');
+    $result = resolve(ListConversationMessages::class)->execute($this->user, 'c-page');
 
     expect($result)->toHaveCount(50);
 });
 
 it('returns earlier messages with beforeMessageId cursor', function (): void {
-    $result = (new ListConversationMessages)->execute($this->user, 'c-page', beforeMessageId: 'm-026');
+    $result = resolve(ListConversationMessages::class)->execute($this->user, 'c-page', beforeMessageId: 'm-026');
 
     expect($result)->toHaveCount(25);
     expect($result[0]['content'])->toContain('msg 1');
