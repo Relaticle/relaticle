@@ -45,7 +45,7 @@ it('persists a clean user message even when mentions are resolved', function ():
         team: $team,
         message: $cleanMessage,
         conversationId: $conversationId,
-        resolved: ['provider' => 'anthropic', 'model' => 'claude-haiku-4-5'],
+        resolved: ['provider' => 'anthropic', 'model' => 'claude-sonnet-4-5'],
         mentions: [
             ['type' => 'company', 'id' => (string) $company->id, 'label' => 'Acme Corp'],
         ],
@@ -94,7 +94,7 @@ it('still gives the LLM the mention context via the system prompt', function ():
         team: $team,
         message: 'Tell me about @Acme_Corp',
         conversationId: $conversationId,
-        resolved: ['provider' => 'anthropic', 'model' => 'claude-haiku-4-5'],
+        resolved: ['provider' => 'anthropic', 'model' => 'claude-sonnet-4-5'],
         mentions: [
             ['type' => 'company', 'id' => (string) $company->id, 'label' => 'Acme Corp'],
         ],

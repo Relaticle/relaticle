@@ -576,7 +576,6 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
 
     modelOptions: [
         { value: 'auto', label: 'Auto' },
-        { value: 'claude-haiku', label: 'Fast (Haiku)' },
         { value: 'claude-sonnet', label: 'Claude Sonnet' },
         { value: 'claude-opus', label: 'Claude Opus' },
         { value: 'gpt-4o', label: 'GPT-4o' },

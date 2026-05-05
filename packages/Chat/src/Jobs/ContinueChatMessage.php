@@ -57,7 +57,7 @@ final class ContinueChatMessage implements ShouldQueue
             return;
         }
 
-        $resolved = $modelResolver->resolve($this->user, null, $this->prompt);
+        $resolved = $modelResolver->resolve($this->user, null);
 
         try {
             $agent = resolve(CrmAssistant::class);

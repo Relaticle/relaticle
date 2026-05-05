@@ -42,7 +42,7 @@ it('writes a row to agent_conversation_message_mentions for each mention', funct
         team: $team,
         message: 'Tell me about @Acme_Corp',
         conversationId: $conversationId,
-        resolved: ['provider' => 'anthropic', 'model' => 'claude-haiku-4-5'],
+        resolved: ['provider' => 'anthropic', 'model' => 'claude-sonnet-4-5'],
         mentions: [['type' => 'company', 'id' => (string) $company->id, 'label' => 'Acme Corp']],
     );
 
@@ -92,7 +92,7 @@ it('writes no mention rows when the mentions list is empty', function (): void {
         team: $team,
         message: 'plain message',
         conversationId: $conversationId,
-        resolved: ['provider' => 'anthropic', 'model' => 'claude-haiku-4-5'],
+        resolved: ['provider' => 'anthropic', 'model' => 'claude-sonnet-4-5'],
         mentions: [],
     ))->handle(resolve(CreditService::class));
 

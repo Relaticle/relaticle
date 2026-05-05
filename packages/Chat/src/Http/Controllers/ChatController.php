@@ -114,7 +114,7 @@ final readonly class ChatController
                 ->update(['team_id' => $team->getKey(), 'updated_at' => now()]);
         });
 
-        $resolved = $this->modelResolver->resolve($user, $validated['model'] ?? null, $validated['message']);
+        $resolved = $this->modelResolver->resolve($user, $validated['model'] ?? null);
 
         $resolvedMentions = $this->resolveMentions(
             $validated['mentions'] ?? [],
