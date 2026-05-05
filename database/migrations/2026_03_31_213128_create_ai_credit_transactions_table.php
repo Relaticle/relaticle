@@ -29,6 +29,8 @@ return new class extends Migration
             $table->index(['team_id', 'user_id', 'created_at']);
 
             $table->unique(['team_id', 'idempotency_key']);
+
+            $table->foreign('conversation_id')->references('id')->on('agent_conversations')->nullOnDelete();
         });
     }
 };

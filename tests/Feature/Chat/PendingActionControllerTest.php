@@ -5,8 +5,10 @@ declare(strict_types=1);
 use App\Actions\Company\CreateCompany;
 use App\Actions\Company\DeleteCompany;
 use App\Models\Company;
+use App\Models\Team;
 use App\Models\User;
 use Filament\Facades\Filament;
+use Illuminate\Support\Facades\DB;
 use Relaticle\Chat\Enums\PendingActionOperation;
 use Relaticle\Chat\Enums\PendingActionStatus;
 use Relaticle\Chat\Http\Controllers\PendingActionController;
@@ -22,7 +24,21 @@ beforeEach(function () {
     Filament::setTenant($this->team);
 });
 
+function insertConversation(string $id, User $user, Team $team): void
+{
+    DB::table('agent_conversations')->insert([
+        'id' => $id,
+        'user_id' => $user->getKey(),
+        'team_id' => $team->getKey(),
+        'title' => 'Test conversation',
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+}
+
 it('approves a pending action and creates the record', function (): void {
+    insertConversation('conv-123', $this->user, $this->team);
+
     $pending = PendingAction::query()->create([
         'team_id' => $this->team->getKey(),
         'user_id' => $this->user->getKey(),
@@ -44,6 +60,8 @@ it('approves a pending action and creates the record', function (): void {
 });
 
 it('rejects a pending action without creating the record', function (): void {
+    insertConversation('conv-123', $this->user, $this->team);
+
     $pending = PendingAction::query()->create([
         'team_id' => $this->team->getKey(),
         'user_id' => $this->user->getKey(),
@@ -65,6 +83,8 @@ it('rejects a pending action without creating the record', function (): void {
 });
 
 it('returns 422 for expired actions', function (): void {
+    insertConversation('conv-123', $this->user, $this->team);
+
     $pending = PendingAction::query()->create([
         'team_id' => $this->team->getKey(),
         'user_id' => $this->user->getKey(),
@@ -84,6 +104,8 @@ it('returns 422 for expired actions', function (): void {
 });
 
 it('returns 422 for already resolved actions', function (): void {
+    insertConversation('conv-123', $this->user, $this->team);
+
     $pending = PendingAction::query()->create([
         'team_id' => $this->team->getKey(),
         'user_id' => $this->user->getKey(),
@@ -105,6 +127,7 @@ it('returns 422 for already resolved actions', function (): void {
 
 it('returns 404 for actions from another team', function (): void {
     $otherUser = User::factory()->withPersonalTeam()->create();
+    insertConversation('conv-other', $otherUser, $otherUser->currentTeam);
 
     $pending = PendingAction::query()->create([
         'team_id' => $otherUser->currentTeam->getKey(),
@@ -126,6 +149,7 @@ it('returns 404 for actions from another team', function (): void {
 it('returns 404 for actions belonging to another user on same team', function (): void {
     $otherUser = User::factory()->create();
     $this->team->users()->attach($otherUser, ['role' => 'member']);
+    insertConversation('conv-other-user', $otherUser, $this->team);
 
     $pending = PendingAction::query()->create([
         'team_id' => $this->team->getKey(),
@@ -145,6 +169,8 @@ it('returns 404 for actions belonging to another user on same team', function ()
 });
 
 it('rejects unauthenticated approve request', function (): void {
+    insertConversation('conv-123', $this->user, $this->team);
+
     $pending = PendingAction::query()->create([
         'team_id' => $this->team->getKey(),
         'user_id' => $this->user->getKey(),
@@ -165,6 +191,8 @@ it('rejects unauthenticated approve request', function (): void {
 });
 
 it('rejects are idempotent under second call', function (): void {
+    insertConversation('conv-x', $this->user, $this->team);
+
     $pending = PendingAction::query()->create([
         'team_id' => $this->team->getKey(),
         'user_id' => $this->user->getKey(),
@@ -188,6 +216,7 @@ it('rejects are idempotent under second call', function (): void {
 it('restores a soft-deleted record within the undo window', function (): void {
     $company = Company::factory()->for($this->team)->create(['name' => 'Restore Me Corp']);
     $company->delete();
+    insertConversation('conv-restore', $this->user, $this->team);
 
     $pending = PendingAction::query()->create([
         'team_id' => $this->team->getKey(),
@@ -219,6 +248,7 @@ it('restores a soft-deleted record within the undo window', function (): void {
 it('rejects restore after the 5-minute window', function (): void {
     $company = Company::factory()->for($this->team)->create();
     $company->delete();
+    insertConversation('conv-restore-late', $this->user, $this->team);
 
     $pending = PendingAction::query()->create([
         'team_id' => $this->team->getKey(),
@@ -245,6 +275,8 @@ it('rejects restore after the 5-minute window', function (): void {
 });
 
 it('rejects restore for non-delete operations', function (): void {
+    insertConversation('conv-restore-create', $this->user, $this->team);
+
     $pending = PendingAction::query()->create([
         'team_id' => $this->team->getKey(),
         'user_id' => $this->user->getKey(),
@@ -268,6 +300,7 @@ it('rejects restore for cross-team users', function (): void {
     $otherUser = User::factory()->withPersonalTeam()->create();
     $company = Company::factory()->for($otherUser->currentTeam)->create();
     $company->delete();
+    insertConversation('conv-restore-cross', $otherUser, $otherUser->currentTeam);
 
     $pending = PendingAction::query()->create([
         'team_id' => $otherUser->currentTeam->getKey(),

@@ -20,6 +20,8 @@ return new class extends AiMigration
             $table->timestamps();
 
             $table->index(['user_id', 'updated_at']);
+
+            $table->foreign('user_id')->references('id')->on('users')->nullOnDelete();
         });
 
         Schema::create('agent_conversation_messages', function (Blueprint $table): void {
@@ -39,6 +41,7 @@ return new class extends AiMigration
             $table->index(['conversation_id', 'user_id', 'updated_at'], 'conversation_index');
 
             $table->foreign('conversation_id')->references('id')->on('agent_conversations')->cascadeOnDelete();
+            $table->foreign('user_id')->references('id')->on('users')->nullOnDelete();
         });
     }
 };

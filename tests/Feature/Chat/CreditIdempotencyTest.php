@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Relaticle\Chat\Enums\AiCreditType;
 use Relaticle\Chat\Models\AiCreditTransaction;
 use Relaticle\Chat\Services\CreditService;
@@ -12,6 +13,15 @@ it('does not double-charge when settle is called twice with the same idempotency
     $team = $user->currentTeam;
     $service = app(CreditService::class);
     $service->resetPeriod($team, 100);
+
+    DB::table('agent_conversations')->insert([
+        'id' => 'conv_1',
+        'user_id' => $user->getKey(),
+        'team_id' => $team->getKey(),
+        'title' => 'Credit idempotency',
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
 
     $args = [
         'team' => $team,

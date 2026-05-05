@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('type', 32);
             $table->ulid('record_id');
             $table->string('label', 255);
-            $table->timestampsTz();
+            $table->timestamps();
 
             $table->foreign('message_id')
                 ->references('id')->on('agent_conversation_messages')
