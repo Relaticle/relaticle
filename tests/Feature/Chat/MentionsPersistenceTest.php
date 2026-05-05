@@ -105,7 +105,7 @@ it('still gives the LLM the mention context via the system prompt', function ():
     CrmAssistant::assertPrompted(function ($prompt) use ($company): bool {
         $instructions = (string) $prompt->agent->instructions();
 
-        return str_contains($instructions, '## Referenced Records')
+        return str_contains($instructions, '<context type="user_data">')
             && str_contains($instructions, "company \"Acme Corp\" (id: {$company->id})")
             && $prompt->prompt === 'Tell me about @Acme_Corp';
     });
