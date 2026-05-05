@@ -8,6 +8,7 @@ use App\Models\Team;
 use App\Models\User;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Relaticle\Chat\Enums\AiCreditType;
 use Relaticle\Chat\Models\AiCreditBalance;
 use Relaticle\Chat\Models\AiCreditTransaction;
@@ -264,5 +265,59 @@ final readonly class CreditService
                 'period_ends_at' => now()->endOfMonth(),
             ],
         );
+    }
+
+    public function adjust(Team $team, int $delta, string $reason, string $sysadminId): void
+    {
+        if ($delta === 0) {
+            return;
+        }
+
+        DB::transaction(function () use ($team, $delta, $reason, $sysadminId): void {
+            $balance = AiCreditBalance::query()
+                ->where('team_id', $team->getKey())
+                ->lockForUpdate()
+                ->first();
+
+            if (! $balance instanceof AiCreditBalance) {
+                $balance = AiCreditBalance::query()->create([
+                    'team_id' => $team->getKey(),
+                    'credits_remaining' => 0,
+                    'credits_used' => 0,
+                    'period_starts_at' => now()->startOfMonth(),
+                    'period_ends_at' => now()->endOfMonth(),
+                ]);
+            }
+
+            if ($delta > 0) {
+                $balance->update([
+                    'credits_remaining' => $balance->credits_remaining + $delta,
+                ]);
+            } else {
+                $revoke = abs($delta);
+                $balance->update([
+                    'credits_remaining' => max($balance->credits_remaining - $revoke, 0),
+                    'credits_used' => max($balance->credits_used - $revoke, 0),
+                ]);
+            }
+
+            AiCreditTransaction::query()->create([
+                'team_id' => $team->getKey(),
+                'user_id' => null,
+                'conversation_id' => null,
+                'idempotency_key' => 'sysadmin-adjust-'.Str::ulid(),
+                'type' => AiCreditType::Adjustment,
+                'model' => 'sysadmin',
+                'input_tokens' => 0,
+                'output_tokens' => 0,
+                'credits_charged' => abs($delta),
+                'metadata' => [
+                    'delta' => $delta,
+                    'reason' => $reason,
+                    'sysadmin_id' => $sysadminId,
+                ],
+                'created_at' => now(),
+            ]);
+        });
     }
 }
