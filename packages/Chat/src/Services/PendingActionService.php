@@ -4,6 +4,21 @@ declare(strict_types=1);
 
 namespace Relaticle\Chat\Services;
 
+use App\Actions\Company\CreateCompany;
+use App\Actions\Company\DeleteCompany;
+use App\Actions\Company\UpdateCompany;
+use App\Actions\Note\CreateNote;
+use App\Actions\Note\DeleteNote;
+use App\Actions\Note\UpdateNote;
+use App\Actions\Opportunity\CreateOpportunity;
+use App\Actions\Opportunity\DeleteOpportunity;
+use App\Actions\Opportunity\UpdateOpportunity;
+use App\Actions\People\CreatePeople;
+use App\Actions\People\DeletePeople;
+use App\Actions\People\UpdatePeople;
+use App\Actions\Task\CreateTask;
+use App\Actions\Task\DeleteTask;
+use App\Actions\Task\UpdateTask;
 use App\Enums\CreationSource;
 use App\Models\Company;
 use App\Models\Note;
@@ -28,6 +43,25 @@ final readonly class PendingActionService
         Opportunity::class,
         Task::class,
         Note::class,
+    ];
+
+    /** @var list<class-string> */
+    private const array ALLOWED_ACTION_CLASSES = [
+        CreateCompany::class,
+        UpdateCompany::class,
+        DeleteCompany::class,
+        CreatePeople::class,
+        UpdatePeople::class,
+        DeletePeople::class,
+        CreateOpportunity::class,
+        UpdateOpportunity::class,
+        DeleteOpportunity::class,
+        CreateTask::class,
+        UpdateTask::class,
+        DeleteTask::class,
+        CreateNote::class,
+        UpdateNote::class,
+        DeleteNote::class,
     ];
 
     /**
@@ -177,6 +211,13 @@ final readonly class PendingActionService
     private function executeAction(PendingAction $pendingAction, User $user): mixed
     {
         $actionClass = $pendingAction->action_class;
+
+        throw_unless(
+            in_array($actionClass, self::ALLOWED_ACTION_CLASSES, true),
+            RuntimeException::class,
+            'Action class not allowlisted',
+        );
+
         $action = app()->make($actionClass);
         $data = $pendingAction->action_data;
 
