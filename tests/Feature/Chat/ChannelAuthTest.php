@@ -4,29 +4,7 @@ declare(strict_types=1);
 
 use App\Models\Team;
 use App\Models\User;
-use Illuminate\Contracts\Broadcasting\Broadcaster as BroadcasterContract;
 use Illuminate\Support\Facades\DB;
-
-function chatChannelAuth(User $user, string $conversationId): bool
-{
-    $broadcaster = app(BroadcasterContract::class);
-    $reflection = new ReflectionClass($broadcaster);
-    $prop = $reflection->getProperty('channels');
-    $prop->setAccessible(true);
-    $channels = $prop->getValue($broadcaster);
-
-    $callback = $channels['chat.conversation.{conversationId}'] ?? null;
-
-    if ($callback === null) {
-        // The conversation channel is registered on boot; forcing the package
-        // provider to reboot re-registers it in rare worker-restart scenarios.
-        require __DIR__.'/../../../packages/Chat/routes/channels.php';
-
-        return chatChannelAuth($user, $conversationId);
-    }
-
-    return (bool) $callback($user, $conversationId);
-}
 
 const CONV_MINE = '019dded5-aaaa-7bbb-8ccc-444400000001';
 const CONV_OTHER = '019dded5-aaaa-7bbb-8ccc-444400000002';

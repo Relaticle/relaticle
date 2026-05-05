@@ -1190,10 +1190,29 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
             this.conversationId = this.generateConversationId();
             try {
                 await this.initConversation(this.conversationId);
-            } catch (_) {
+            } catch (error) {
+                console.error('Failed to initialize conversation', error);
+                const nowIso = new Date().toISOString();
+                this.messages.push({ role: 'user', content: text, editing: false, editText: '', copiedAt: 0, created_at: nowIso });
+                this.messages.push({
+                    role: 'assistant',
+                    content: 'Could not start conversation. Please try again.',
+                    pending_actions: [],
+                    paywall: null,
+                    sessionExpired: false,
+                    rendered: true,
+                    prerendered: false,
+                    copiedAt: 0,
+                    follow_ups: [],
+                    created_at: nowIso,
+                });
+                this.input = '';
+                this.selectedMentions = [];
+                this.currentToolStatus = null;
                 this.conversationId = null;
                 this.isStreaming = false;
                 this.restoreInputFocus();
+                this.scrollToBottom();
                 return;
             }
         }
