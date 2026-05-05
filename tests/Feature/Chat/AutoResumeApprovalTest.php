@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Actions\People\CreatePeople;
 use App\Models\User;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\DB;
@@ -10,6 +11,7 @@ use Relaticle\Chat\Enums\PendingActionStatus;
 use Relaticle\Chat\Jobs\ContinueChatMessage;
 use Relaticle\Chat\Models\PendingAction;
 use Relaticle\Chat\Services\ApprovalContinuationService;
+use Relaticle\Chat\Services\PendingActionService;
 
 beforeEach(function (): void {
     $this->user = User::factory()->withPersonalTeam()->create();
@@ -119,4 +121,49 @@ it('skips dispatch after 5 consecutive [approval] continuations without real use
     resolve(ApprovalContinuationService::class)->dispatchAfterApproval($action, 'approved');
 
     Bus::assertNotDispatched(ContinueChatMessage::class);
+});
+
+it('approving a pending action via the service dispatches a continuation job', function (): void {
+    Bus::fake();
+    $this->actingAs($this->user);
+
+    $action = PendingAction::query()->create([
+        'team_id' => $this->team->getKey(),
+        'user_id' => $this->user->getKey(),
+        'conversation_id' => $this->convId,
+        'action_class' => CreatePeople::class,
+        'operation' => PendingActionOperation::Create,
+        'entity_type' => 'people',
+        'action_data' => ['name' => 'Angel'],
+        'display_data' => ['title' => 'Create Person'],
+        'status' => PendingActionStatus::Pending,
+        'expires_at' => now()->addMinutes(15),
+    ]);
+
+    resolve(PendingActionService::class)->approve($action, $this->user);
+
+    Bus::assertDispatched(ContinueChatMessage::class);
+});
+
+it('rejecting a pending action also dispatches a continuation', function (): void {
+    Bus::fake();
+
+    $action = PendingAction::query()->create([
+        'team_id' => $this->team->getKey(),
+        'user_id' => $this->user->getKey(),
+        'conversation_id' => $this->convId,
+        'action_class' => CreatePeople::class,
+        'operation' => PendingActionOperation::Create,
+        'entity_type' => 'people',
+        'action_data' => ['name' => 'Angel'],
+        'display_data' => ['title' => 'Create Person'],
+        'status' => PendingActionStatus::Pending,
+        'expires_at' => now()->addMinutes(15),
+    ]);
+
+    resolve(PendingActionService::class)->reject($action);
+
+    Bus::assertDispatched(ContinueChatMessage::class, function (ContinueChatMessage $job): bool {
+        return str_contains($job->prompt, 'status: rejected');
+    });
 });

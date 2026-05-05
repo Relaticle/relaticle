@@ -36,6 +36,10 @@ use RuntimeException;
 
 final readonly class PendingActionService
 {
+    public function __construct(
+        private ApprovalContinuationService $continuation,
+    ) {}
+
     /** @var list<class-string<Model>> */
     private const array ALLOWED_MODEL_CLASSES = [
         Company::class,
@@ -97,7 +101,7 @@ final readonly class PendingActionService
 
     public function approve(PendingAction $pendingAction, User $user): PendingAction
     {
-        return DB::transaction(function () use ($pendingAction, $user): PendingAction {
+        $resolved = DB::transaction(function () use ($pendingAction, $user): PendingAction {
             /** @var PendingAction $pendingAction */
             $pendingAction = PendingAction::query()
                 ->lockForUpdate()
@@ -119,11 +123,15 @@ final readonly class PendingActionService
 
             return $pendingAction->refresh();
         });
+
+        $this->continuation->dispatchAfterApproval($resolved, 'approved');
+
+        return $resolved;
     }
 
     public function reject(PendingAction $pendingAction): PendingAction
     {
-        return DB::transaction(function () use ($pendingAction): PendingAction {
+        $resolved = DB::transaction(function () use ($pendingAction): PendingAction {
             /** @var PendingAction $locked */
             $locked = PendingAction::query()
                 ->lockForUpdate()
@@ -138,6 +146,10 @@ final readonly class PendingActionService
 
             return $locked->refresh();
         });
+
+        $this->continuation->dispatchAfterApproval($resolved, 'rejected');
+
+        return $resolved;
     }
 
     public function restore(PendingAction $pendingAction, User $user): PendingAction
