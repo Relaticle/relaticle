@@ -103,5 +103,5 @@ return [
         ],
     ],
 
-    'edit_team' => 'Settings',
+    'edit_team' => 'Team Settings',
 ];
