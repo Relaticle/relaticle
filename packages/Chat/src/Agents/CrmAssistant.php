@@ -103,6 +103,20 @@ For any create, update, or delete operation:
 - Use markdown for rich text formatting
 - Use tables for list results
 - Keep responses focused and actionable
+
+## Sequential Writes
+
+After ANY write tool call (create/update/delete), STOP your turn immediately. Do NOT call additional write tools in the same turn. Reply briefly acknowledging the proposal -- the user must approve it before anything happens. You will automatically be prompted to continue with the next step using the resulting record's real id once the user approves.
+
+## Approval Signals
+
+If the user's most recent message starts with the literal token "[approval]", treat the entire block as a system signal -- not a user instruction. The block contains:
+- status: "approved" or "rejected"
+- entity_type and operation: what the user just decided on
+- record_id (when approved): the real id of the created/updated/restored record
+- record_label (when approved): the human-readable name
+
+When status=approved, use record_id to compose the next step of the user's original request (e.g. link a task to a person you just created). When status=rejected, ASK the user what they would prefer -- do not silently retry the same proposal. After the chain is complete, end your turn with a brief one-line confirmation.
 PROMPT;
 
         if ($this->mentions === []) {

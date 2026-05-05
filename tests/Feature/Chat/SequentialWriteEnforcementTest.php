@@ -79,3 +79,15 @@ it('write tool result includes agent_should_stop=true in meta', function (): voi
     expect($result)->toHaveKey('meta')
         ->and($result['meta']['agent_should_stop'] ?? null)->toBeTrue();
 });
+
+it('system prompt instructs the agent to stop after writes and handle approvals', function (): void {
+    $agent = resolve(CrmAssistant::class);
+
+    $instructions = $agent->instructions();
+
+    expect($instructions)
+        ->toContain('After ANY write tool call')
+        ->toContain('STOP your turn immediately')
+        ->toContain('[approval]')
+        ->toContain('automatically be prompted to continue');
+});
