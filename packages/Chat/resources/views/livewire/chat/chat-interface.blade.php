@@ -639,9 +639,7 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
     },
 
     escapeAttr(str) {
-        return String(str)
-            .replace(/&/g, '&amp;')
-            .replace(/"/g, '&quot;');
+        return this.escapeHtml(str);
     },
 
     init() {
