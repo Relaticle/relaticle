@@ -31,7 +31,6 @@ use Relaticle\Flowforge\BoardPage;
 use Relaticle\Flowforge\Column;
 use Relaticle\Flowforge\Components\CardFlex;
 use Throwable;
-use UnitEnum;
 
 final class TasksBoard extends BoardPage
 {
@@ -40,8 +39,6 @@ final class TasksBoard extends BoardPage
     protected static ?string $title = 'Tasks';
 
     protected static ?string $navigationParentItem = 'Tasks';
-
-    protected static string|null|UnitEnum $navigationGroup = 'Workspace';
 
     protected static string|null|BackedEnum $navigationIcon = 'heroicon-o-view-columns';
 

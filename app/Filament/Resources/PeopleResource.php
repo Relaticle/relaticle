@@ -51,8 +51,6 @@ final class PeopleResource extends Resource
 
     protected static ?int $navigationSort = 1;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Workspace';
-
     public static function form(Schema $schema): Schema
     {
         return $schema
