@@ -65,6 +65,7 @@ The auto-fix permission column is a **ceiling**. At smoke tier, even a High find
 | `app/Policies/**` | Every surface that consumes the policy (grep callers) |
 | `database/migrations/**` | `migrate:fresh --seed` smoke + every surface touching the changed tables |
 | `app/Actions/**` | Every caller of the action (grep) |
+| `resources/views/**`, `resources/css/**`, `resources/js/**`, `app/View/**`, `tailwind.config.*`, `vite.config.*`, `app/Filament/Components/**`, `app/Filament/Theme*` | Filament UI + Livewire (visual change — Supermodel mandatory; consult `references/visual-probes.md`) |
 
 A change to `TaskPolicy.php` therefore expands to Filament UI + REST API + MCP because the same policy gates all three.
 
