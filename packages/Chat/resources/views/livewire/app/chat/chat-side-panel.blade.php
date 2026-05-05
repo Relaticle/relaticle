@@ -125,38 +125,5 @@
         </div>
     </div>
 
-    {{-- Floating Toggle Button (visible when panel is closed) --}}
-    <div
-        x-data="{
-            panelOpen: @entangle('isOpen'),
-            onChatPage: false,
-            check() {
-                const p = window.location.pathname;
-                this.onChatPage = /\/dashboard\/?$/.test(p) || /\/chats(\/|$)/.test(p);
-            },
-            init() {
-                this.check();
-                document.addEventListener('livewire:navigated', () => this.check());
-            }
-        }"
-        x-show="!panelOpen && !onChatPage"
-        x-transition
-        class="fixed bottom-6 right-6 z-40"
-    >
-        <button
-            wire:click="togglePanel"
-            type="button"
-            x-data="{ isMac: navigator.platform.toLowerCase().includes('mac') }"
-            :aria-label="isMac ? 'Open chat panel (Cmd+J)' : 'Open chat panel (Ctrl+J)'"
-            :title="isMac ? 'Open Chat (Cmd+J)' : 'Open Chat (Ctrl+J)'"
-            class="flex items-center gap-2 rounded-full bg-primary-600 px-4 py-3 text-white shadow-lg transition hover:bg-primary-700 hover:shadow-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-500"
-            data-chat-toggle
-        >
-            <x-heroicon-s-chat-bubble-left-right class="h-5 w-5" aria-hidden="true" />
-            <span class="text-sm font-medium">Chat</span>
-            <kbd class="hidden items-center rounded bg-primary-500 px-1.5 py-0.5 font-mono text-xs text-primary-100 sm:inline-flex" aria-hidden="true">
-                <span x-text="isMac ? '⌘J' : 'Ctrl+J'"></span>
-            </kbd>
-        </button>
-    </div>
+    {{-- Toggle button is now rendered in the topbar via GLOBAL_SEARCH_BEFORE render hook (chat-topbar-toggle-hook). Cmd+J keyboard shortcut still works via the keydown handler above. --}}
 </div>
