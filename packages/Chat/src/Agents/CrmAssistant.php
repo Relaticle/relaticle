@@ -145,22 +145,21 @@ PROMPT;
     }
 
     /**
-     * @return array<string, mixed>
+     * Force one tool call per turn on Anthropic so the sequential approval flow can't be bypassed.
      */
     public function providerOptions(Lab|string $provider): array
     {
         $providerKey = $provider instanceof Lab ? $provider->value : $provider;
 
-        if ($providerKey !== 'anthropic') {
-            return [];
-        }
-
-        return [
-            'tool_choice' => [
-                'type' => 'auto',
-                'disable_parallel_tool_use' => true,
+        return match ($providerKey) {
+            Lab::Anthropic->value => [
+                'tool_choice' => [
+                    'type' => 'auto',
+                    'disable_parallel_tool_use' => true,
+                ],
             ],
-        ];
+            default => [],
+        };
     }
 
     /**
