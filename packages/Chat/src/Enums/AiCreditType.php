@@ -9,4 +9,5 @@ enum AiCreditType: string
     case Chat = 'chat';
     case Summary = 'summary';
     case Embedding = 'embedding';
+    case Adjustment = 'adjustment';
 }
