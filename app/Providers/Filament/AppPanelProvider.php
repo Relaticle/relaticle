@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Providers\Filament;
 
 use App\Features\SocialAuth;
-use App\Filament\Clusters\Settings;
 use App\Filament\Pages\AccessTokens;
 use App\Filament\Pages\Auth\Login;
 use App\Filament\Pages\Auth\Register;
@@ -52,6 +51,7 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Laravel\Jetstream\Features;
 use Laravel\Pennant\Feature;
 use Relaticle\CustomFields\CustomFieldsPlugin;
+use Relaticle\CustomFields\Filament\Management\Pages\CustomFieldsManagementPage;
 use Relaticle\ImportWizard\Filament\Pages\ImportHistory;
 
 final class AppPanelProvider extends PanelProvider
@@ -226,8 +226,8 @@ final class AppPanelProvider extends PanelProvider
             ->tenantMenuItems([
                 Action::make('custom_fields')
                     ->label('Custom Fields')
-                    ->icon(Heroicon::OutlinedDocumentText)
-                    ->url(fn (): string => Settings::getUrl()),
+                    ->icon(Heroicon::OutlinedCube)
+                    ->url(fn (): string => CustomFieldsManagementPage::getUrl()),
                 Action::make('import_history')
                     ->label('Import History')
                     ->icon(Heroicon::OutlinedClock)
