@@ -4,12 +4,6 @@ declare(strict_types=1);
 
 namespace Relaticle\Chat\Jobs;
 
-use App\Models\Company;
-use App\Models\Note;
-use App\Models\Opportunity;
-use App\Models\People;
-use App\Models\Scopes\TeamScope;
-use App\Models\Task;
 use App\Models\Team;
 use App\Models\User;
 use Illuminate\Broadcasting\PrivateChannel;
@@ -58,7 +52,7 @@ final class ProcessChatMessage implements ShouldQueue
 
     public function handle(CreditService $creditService): void
     {
-        $this->bindAuthAndScopes();
+        $this->bindAuth();
 
         ChatTelemetry::tagCurrentScope(
             $this->conversationId,
@@ -131,7 +125,7 @@ final class ProcessChatMessage implements ShouldQueue
                 $this->broadcastFollowUps($streamedResponse);
             });
         } finally {
-            $this->releaseScopes();
+            $this->releaseAuth();
         }
     }
 
@@ -213,18 +207,12 @@ final class ProcessChatMessage implements ShouldQueue
         ));
     }
 
-    private function bindAuthAndScopes(): void
+    private function bindAuth(): void
     {
         Auth::guard('web')->setUser($this->user);
-
-        Company::addGlobalScope(new TeamScope);
-        People::addGlobalScope(new TeamScope);
-        Opportunity::addGlobalScope(new TeamScope);
-        Task::addGlobalScope(new TeamScope);
-        Note::addGlobalScope(new TeamScope);
     }
 
-    private function releaseScopes(): void
+    private function releaseAuth(): void
     {
         Auth::guard('web')->forgetUser();
     }
