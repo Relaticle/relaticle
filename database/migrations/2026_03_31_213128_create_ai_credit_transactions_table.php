@@ -13,7 +13,7 @@ return new class extends Migration
         Schema::create('ai_credit_transactions', function (Blueprint $table): void {
             $table->ulid('id')->primary();
             $table->foreignUlid('team_id')->constrained()->cascadeOnDelete();
-            $table->foreignUlid('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignUlid('user_id')->nullable()->constrained()->nullOnDelete();
             $table->string('conversation_id', 36)->nullable();
             $table->string('idempotency_key')->nullable();
             $table->string('type');
