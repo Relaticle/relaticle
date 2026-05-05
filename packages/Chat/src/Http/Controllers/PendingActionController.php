@@ -4,23 +4,19 @@ declare(strict_types=1);
 
 namespace Relaticle\Chat\Http\Controllers;
 
-use App\Filament\Resources\CompanyResource;
-use App\Filament\Resources\NoteResource;
-use App\Filament\Resources\OpportunityResource;
-use App\Filament\Resources\PeopleResource;
-use App\Filament\Resources\TaskResource;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Relaticle\Chat\Models\PendingAction;
 use Relaticle\Chat\Services\PendingActionService;
+use Relaticle\Chat\Support\RecordReferenceResolver;
 use RuntimeException;
-use Throwable;
 
 final readonly class PendingActionController
 {
     public function __construct(
         private PendingActionService $service,
+        private RecordReferenceResolver $resolver,
     ) {}
 
     public function approve(Request $request, PendingAction $pendingAction): JsonResponse
@@ -61,34 +57,7 @@ final readonly class PendingActionController
             return null;
         }
 
-        $entityType = $pendingAction->entity_type;
-        $url = $this->resolveResourceUrl($entityType, (string) $recordId);
-
-        if ($url === null) {
-            return null;
-        }
-
-        return [
-            'id' => (string) $recordId,
-            'type' => $entityType,
-            'url' => $url,
-        ];
-    }
-
-    private function resolveResourceUrl(string $entityType, string $recordId): ?string
-    {
-        try {
-            return match ($entityType) {
-                'company' => CompanyResource::getUrl('view', ['record' => $recordId]),
-                'people' => PeopleResource::getUrl('view', ['record' => $recordId]),
-                'opportunity' => OpportunityResource::getUrl('view', ['record' => $recordId]),
-                'task' => TaskResource::getUrl('index'),
-                'note' => NoteResource::getUrl('index'),
-                default => null,
-            };
-        } catch (Throwable) {
-            return null;
-        }
+        return $this->resolver->resolve($pendingAction->entity_type, (string) $recordId);
     }
 
     public function reject(Request $request, PendingAction $pendingAction): JsonResponse
@@ -153,17 +122,6 @@ final readonly class PendingActionController
             return null;
         }
 
-        $entityType = $pendingAction->entity_type;
-        $url = $this->resolveResourceUrl($entityType, (string) $recordId);
-
-        if ($url === null) {
-            return null;
-        }
-
-        return [
-            'id' => (string) $recordId,
-            'type' => $entityType,
-            'url' => $url,
-        ];
+        return $this->resolver->resolve($pendingAction->entity_type, (string) $recordId);
     }
 }
