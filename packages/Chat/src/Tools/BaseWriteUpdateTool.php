@@ -11,9 +11,12 @@ use Laravel\Ai\Contracts\Tool;
 use Laravel\Ai\Tools\Request;
 use Relaticle\Chat\Enums\PendingActionOperation;
 use Relaticle\Chat\Services\PendingActionService;
+use Relaticle\Chat\Tools\Concerns\WithConversationContext;
 
 abstract class BaseWriteUpdateTool implements Tool
 {
+    use WithConversationContext;
+
     /** @return class-string<Model> */
     abstract protected function modelClass(): string;
 
@@ -65,7 +68,7 @@ abstract class BaseWriteUpdateTool implements Tool
             return (string) json_encode(['error' => "You do not have permission to update this {$this->entityLabel()}."]);
         }
 
-        $conversationId = $request['_conversation_id'] ?? 'unknown';
+        $conversationId = $this->resolveConversationId();
         $actionData = $this->extractActionData($request);
         $actionData['_record_id'] = $model->getKey();
         $actionData['_model_class'] = $model::class;

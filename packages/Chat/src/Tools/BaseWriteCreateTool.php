@@ -10,9 +10,12 @@ use Laravel\Ai\Contracts\Tool;
 use Laravel\Ai\Tools\Request;
 use Relaticle\Chat\Enums\PendingActionOperation;
 use Relaticle\Chat\Services\PendingActionService;
+use Relaticle\Chat\Tools\Concerns\WithConversationContext;
 
 abstract class BaseWriteCreateTool implements Tool
 {
+    use WithConversationContext;
+
     /** @return class-string */
     abstract protected function actionClass(): string;
 
@@ -39,7 +42,7 @@ abstract class BaseWriteCreateTool implements Tool
         /** @var User $user */
         $user = auth()->user();
 
-        $conversationId = $request['_conversation_id'] ?? 'unknown';
+        $conversationId = $this->resolveConversationId();
 
         $service = resolve(PendingActionService::class);
         $pending = $service->createProposal(

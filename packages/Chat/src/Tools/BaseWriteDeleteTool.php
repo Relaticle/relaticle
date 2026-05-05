@@ -11,9 +11,12 @@ use Laravel\Ai\Contracts\Tool;
 use Laravel\Ai\Tools\Request;
 use Relaticle\Chat\Enums\PendingActionOperation;
 use Relaticle\Chat\Services\PendingActionService;
+use Relaticle\Chat\Tools\Concerns\WithConversationContext;
 
 abstract class BaseWriteDeleteTool implements Tool
 {
+    use WithConversationContext;
+
     /** @return class-string<Model> */
     abstract protected function modelClass(): string;
 
@@ -60,7 +63,7 @@ abstract class BaseWriteDeleteTool implements Tool
             return (string) json_encode(['error' => "You do not have permission to delete this {$this->entityLabel()}."]);
         }
 
-        $conversationId = $request['_conversation_id'] ?? 'unknown';
+        $conversationId = $this->resolveConversationId();
         $entityName = $model->{$this->nameAttribute()};
 
         $service = resolve(PendingActionService::class);

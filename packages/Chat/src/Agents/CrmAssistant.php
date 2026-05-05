@@ -64,6 +64,15 @@ final class CrmAssistant implements Agent, Conversational, HasMiddleware, HasToo
      */
     public array $mentions = [];
 
+    protected ?string $conversationId = null;
+
+    public function withConversationId(?string $conversationId): self
+    {
+        $this->conversationId = $conversationId;
+
+        return $this;
+    }
+
     public function instructions(): string
     {
         $base = <<<'PROMPT'
@@ -134,9 +143,18 @@ PROMPT;
     public function tools(): array
     {
         return array_map(
-            static fn (string $class): Tool => resolve($class),
+            fn (string $class): Tool => $this->configureTool(resolve($class)),
             $this->toolClasses(),
         );
+    }
+
+    private function configureTool(Tool $tool): Tool
+    {
+        if (method_exists($tool, 'setConversationId')) {
+            $tool->setConversationId($this->conversationId);
+        }
+
+        return $tool;
     }
 
     /**
