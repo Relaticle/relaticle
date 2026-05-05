@@ -64,8 +64,6 @@ final class CrmAssistant implements Agent, Conversational, HasMiddleware, HasToo
      */
     public array $mentions = [];
 
-    protected ?string $conversationId = null;
-
     public function withConversationId(?string $conversationId): self
     {
         $this->conversationId = $conversationId;

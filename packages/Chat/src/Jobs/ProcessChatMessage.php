@@ -63,8 +63,8 @@ final class ProcessChatMessage implements ShouldQueue
 
         try {
             $agent = resolve(CrmAssistant::class);
-            $agent->continue($this->conversationId, as: $this->user);
             $agent->withConversationId($this->conversationId);
+            $agent->continue($this->conversationId, as: $this->user);
             $agent->withMentions($this->mentions);
 
             $channel = new PrivateChannel("chat.conversation.{$this->conversationId}");
