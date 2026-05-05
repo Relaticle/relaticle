@@ -1,36 +1,3 @@
-<style>
-    @keyframes chat-shimmer {
-        0%   { background-position: 200% 0%; }
-        100% { background-position: -200% 0%; }
-    }
-
-    [data-chat-loading-label] {
-        background-image: linear-gradient(90deg, #9ca3af 0%, #f3f4f6 50%, #9ca3af 100%);
-        background-size: 200% 100%;
-        background-clip: text;
-        -webkit-background-clip: text;
-        color: transparent;
-        animation: chat-shimmer 1.8s linear infinite;
-    }
-
-    .dark [data-chat-loading-label] {
-        background-image: linear-gradient(90deg, #6b7280 0%, #e5e7eb 50%, #6b7280 100%);
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-        [data-chat-loading-label] {
-            animation: none;
-            background: none;
-            color: #6b7280;
-            -webkit-background-clip: unset;
-            background-clip: unset;
-        }
-        .dark [data-chat-loading-label] {
-            color: #9ca3af;
-        }
-    }
-</style>
-
 <div
     x-data="chatInterface(@js($conversationId), @js(route('chat.send')), @js($initialMessage), @js($messages), @js(auth()->id()), @js($hasMoreMessages), @js(auth()->user()?->ai_preferences['default_model'] ?? 'auto'))"
     x-init="init()"
