@@ -12,8 +12,10 @@ use Laravel\Ai\Concerns\RemembersConversations;
 use Laravel\Ai\Contracts\Agent;
 use Laravel\Ai\Contracts\Conversational;
 use Laravel\Ai\Contracts\HasMiddleware;
+use Laravel\Ai\Contracts\HasProviderOptions;
 use Laravel\Ai\Contracts\HasTools;
 use Laravel\Ai\Contracts\Tool;
+use Laravel\Ai\Enums\Lab;
 use Laravel\Ai\Promptable;
 use Relaticle\Chat\Tools\Company\CreateCompanyTool as ChatCreateCompanyTool;
 use Relaticle\Chat\Tools\Company\DeleteCompanyTool as ChatDeleteCompanyTool;
@@ -47,7 +49,7 @@ use Relaticle\Chat\Tools\Task\UpdateTaskTool as ChatUpdateTaskTool;
 #[MaxSteps(15)]
 #[Temperature(0.3)]
 #[Timeout(120)]
-final class CrmAssistant implements Agent, Conversational, HasMiddleware, HasTools
+final class CrmAssistant implements Agent, Conversational, HasMiddleware, HasProviderOptions, HasTools
 {
     use Promptable;
     use RemembersConversations;
@@ -140,6 +142,25 @@ PROMPT;
     protected function maxConversationMessages(): int
     {
         return (int) config('chat.max_conversation_messages', 100);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function providerOptions(Lab|string $provider): array
+    {
+        $providerKey = $provider instanceof Lab ? $provider->value : $provider;
+
+        if ($providerKey !== 'anthropic') {
+            return [];
+        }
+
+        return [
+            'tool_choice' => [
+                'type' => 'auto',
+                'disable_parallel_tool_use' => true,
+            ],
+        ];
     }
 
     /**
