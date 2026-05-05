@@ -43,4 +43,40 @@ final readonly class TenantFkValidator
             }
         }
     }
+
+    /**
+     * @param  array<string, mixed>  $data
+     * @param  array<string, class-string<Model>>  $fkArrayToModelMap
+     */
+    public static function assertOwnedMany(User $user, array $data, array $fkArrayToModelMap): void
+    {
+        $teamId = $user->current_team_id;
+
+        if ($teamId === null) {
+            throw ValidationException::withMessages(['team' => 'No active workspace.']);
+        }
+
+        foreach ($fkArrayToModelMap as $field => $modelClass) {
+            $values = $data[$field] ?? null;
+            if (! is_array($values)) {
+                continue;
+            }
+            if ($values === []) {
+                continue;
+            }
+
+            $unique = array_values(array_unique(array_map(strval(...), $values)));
+
+            $owned = $modelClass::query()
+                ->where('team_id', $teamId)
+                ->whereIn((new $modelClass)->getKeyName(), $unique)
+                ->count();
+
+            if ($owned !== count($unique)) {
+                throw ValidationException::withMessages([
+                    $field => "One or more {$field} are not in your workspace.",
+                ]);
+            }
+        }
+    }
 }
