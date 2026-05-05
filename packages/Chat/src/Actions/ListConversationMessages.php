@@ -36,6 +36,8 @@ final readonly class ListConversationMessages
             ->limit($limit)
             ->get(['m.id', 'm.role', 'm.content', 'm.tool_results', 'm.created_at'])
             ->reverse()
+            ->reject(fn (object $msg): bool => (string) $msg->role === 'user'
+                && str_starts_with((string) ($msg->content ?? ''), '[approval]'))
             ->values();
 
         $mentionsByMessage = DB::table('agent_conversation_message_mentions')
