@@ -162,7 +162,7 @@ After starting the containers, create your first admin user:
 docker compose exec app php artisan make:filament-user
 ```
 
-You will be prompted to pick a panel (`app` or `sysadmin`), then a name, email, and password. Once created, access the CRM panel at `{APP_URL}/app`.
+When prompted to pick a panel, choose `app`, then enter a name, email, and password. Once created, access the CRM panel at `{APP_URL}/app`. (To create the instance-wide system administrator instead, see the next section.)
 
 **Note**: By default the CRM panel is available at the `/app` path. To use subdomain routing instead (e.g., `app.example.com`), set the `APP_PANEL_DOMAIN` environment variable.
 
