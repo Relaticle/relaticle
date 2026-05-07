@@ -188,7 +188,7 @@
                         class="fi-sidebar-item-btn w-full text-start"
                         aria-label="Open all chats"
                     >
-                        <x-heroicon-o-list-bullet class="fi-icon fi-size-lg fi-sidebar-item-icon" />
+                        <x-heroicon-o-ellipsis-horizontal class="fi-icon fi-size-lg fi-sidebar-item-icon" />
                         <span
                             x-show="$store.sidebar.isOpen"
                             x-transition:enter="fi-transition-enter"
