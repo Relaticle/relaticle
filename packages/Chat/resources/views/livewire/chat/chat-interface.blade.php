@@ -472,6 +472,12 @@
                                     aria-haspopup="listbox"
                                     aria-label="Select AI model"
                                 >
+                                    <span
+                                        x-show="modelProvider(selectedModel)"
+                                        x-html="providerIconHtml(modelProvider(selectedModel))"
+                                        :class="providerIconColor(modelProvider(selectedModel)) + ' inline-flex h-3.5 w-3.5 shrink-0 items-center justify-center'"
+                                        aria-hidden="true"
+                                    ></span>
                                     <span x-text="modelLabel(selectedModel)"></span>
                                     <x-heroicon-o-chevron-up-down class="h-3 w-3" aria-hidden="true" />
                                 </button>
@@ -598,6 +604,11 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
     modelLabel(value) {
         const found = this.modelOptions.find((o) => o.value === value);
         return (found || this.modelOptions[0]).label;
+    },
+
+    modelProvider(value) {
+        const found = this.modelOptions.find((o) => o.value === value);
+        return found?.provider ?? null;
     },
 
     mentionTypeLabel(type) {
