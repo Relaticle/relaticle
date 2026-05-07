@@ -683,6 +683,20 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
             this.subscribeToConversation(this.conversationId);
         }
 
+        // Pick up any mentions stashed by the dashboard input before this page loaded.
+        try {
+            const stashed = localStorage.getItem('chat:mentions');
+            if (stashed) {
+                const parsed = JSON.parse(stashed);
+                if (Array.isArray(parsed)) {
+                    this.selectedMentions = parsed
+                        .filter((m) => m && m.id && m.type && m.label && m.token)
+                        .map((m) => ({ id: m.id, type: m.type, label: m.label, token: m.token }));
+                }
+                localStorage.removeItem('chat:mentions');
+            }
+        } catch (_) { /* ignore malformed payload */ }
+
         if (initialMessage) {
             this.$nextTick(() => {
                 this.input = initialMessage;
