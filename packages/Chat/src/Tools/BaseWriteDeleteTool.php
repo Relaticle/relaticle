@@ -82,7 +82,6 @@ abstract class BaseWriteDeleteTool implements Tool
                 'summary' => "Delete {$this->entityLabel()} \"{$entityName}\"",
                 'fields' => [
                     ['label' => 'Name', 'value' => $entityName],
-                    ['label' => 'ID', 'value' => $model->getKey()],
                 ],
             ],
         );

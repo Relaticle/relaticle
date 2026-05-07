@@ -12,7 +12,7 @@ it('returns the base instructions unchanged when no mentions are set', function 
     $agent = new CrmAssistant;
 
     expect($agent->instructions())
-        ->not->toContain('## Referenced Records')
+        ->not->toContain('<context type="user_data">')
         ->toContain('Relaticle CRM Assistant');
 });
 
@@ -24,7 +24,7 @@ it('appends a referenced-records section to instructions when mentions are set',
     $instructions = $agent->instructions();
 
     expect($instructions)
-        ->toContain('## Referenced Records')
+        ->toContain('<context type="user_data">')
         ->toContain('company "Acme Corp" (id: 01H8QWERTYUIOP1234567890AB)')
         ->toContain('Relaticle CRM Assistant');
 });
