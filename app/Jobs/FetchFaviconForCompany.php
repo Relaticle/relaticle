@@ -7,12 +7,12 @@ namespace App\Jobs;
 use App\Enums\CustomFields\CompanyField;
 use App\Models\Company;
 use AshAllenDesign\FaviconFetcher\Facades\Favicon;
-use Exception;
 use Illuminate\Contracts\Broadcasting\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Str;
+use Throwable;
 
 final class FetchFaviconForCompany implements ShouldBeUnique, ShouldQueue
 {
@@ -20,6 +20,12 @@ final class FetchFaviconForCompany implements ShouldBeUnique, ShouldQueue
     use Queueable;
 
     public bool $deleteWhenMissingModels = true;
+
+    public int $tries = 1;
+
+    public int $timeout = 30;
+
+    public int $uniqueFor = 600;
 
     public function __construct(public readonly Company $company) {}
 
@@ -47,6 +53,10 @@ final class FetchFaviconForCompany implements ShouldBeUnique, ShouldQueue
                 return;
             }
 
+            if (filter_var($url, FILTER_VALIDATE_URL) === false) {
+                return;
+            }
+
             $path = parse_url($url, PHP_URL_PATH);
             $extension = $path ? pathinfo($path, PATHINFO_EXTENSION) : '';
 
@@ -70,7 +80,7 @@ final class FetchFaviconForCompany implements ShouldBeUnique, ShouldQueue
                 ->toMediaCollection('logo');
 
             $this->company->clearMediaCollectionExcept('logo', $logo);
-        } catch (Exception $exception) {
+        } catch (Throwable $exception) {
             report($exception);
         }
     }
