@@ -464,7 +464,10 @@
                                 <button
                                     type="button"
                                     x-on:click="menuOpen = !menuOpen"
-                                    class="inline-flex h-7 items-center gap-1 rounded-md border border-transparent bg-transparent px-2 text-xs font-medium text-gray-600 transition hover:border-gray-200 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:border-gray-700 dark:hover:bg-gray-700 dark:hover:text-white"
+                                    class="inline-flex h-7 items-center gap-1 rounded-md border px-2 text-xs font-medium transition"
+                                    :class="menuOpen
+                                        ? 'border-gray-200 bg-gray-50 text-gray-900 dark:border-gray-700 dark:bg-gray-700 dark:text-white'
+                                        : 'border-transparent bg-transparent text-gray-600 hover:border-gray-200 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:border-gray-700 dark:hover:bg-gray-700 dark:hover:text-white'"
                                     :aria-expanded="menuOpen"
                                     aria-haspopup="listbox"
                                     aria-label="Select AI model"
