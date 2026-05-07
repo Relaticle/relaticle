@@ -21,7 +21,7 @@ it('passes disable_parallel_tool_use to Anthropic via tool_choice', function ():
             'type' => 'message',
             'role' => 'assistant',
             'content' => [['type' => 'text', 'text' => 'Hello!']],
-            'model' => 'claude-sonnet-4-5',
+            'model' => 'claude-sonnet-4-6',
             'stop_reason' => 'end_turn',
             'usage' => ['input_tokens' => 5, 'output_tokens' => 3],
         ]),
@@ -39,7 +39,7 @@ it('passes disable_parallel_tool_use to Anthropic via tool_choice', function ():
     $agent = resolve(CrmAssistant::class);
     $agent->withConversationId('019df800-0000-7000-8000-000000000001');
 
-    $agent->prompt('hi', provider: 'anthropic', model: 'claude-sonnet-4-5');
+    $agent->prompt('hi', provider: 'anthropic', model: 'claude-sonnet-4-6');
 
     Http::assertSent(function ($request): bool {
         $body = $request->data();

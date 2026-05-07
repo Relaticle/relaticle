@@ -26,12 +26,12 @@ it('allows the same idempotency key in two different teams', function (): void {
 
     $service->settleReservation(
         team: $userA->currentTeam, user: $userA, type: AiCreditType::Chat,
-        model: 'claude-sonnet-4-5', inputTokens: 0, outputTokens: 0,
+        model: 'claude-sonnet-4-6', inputTokens: 0, outputTokens: 0,
         idempotencyKey: 'shared-key',
     );
     $service->settleReservation(
         team: $userB->currentTeam, user: $userB, type: AiCreditType::Chat,
-        model: 'claude-sonnet-4-5', inputTokens: 0, outputTokens: 0,
+        model: 'claude-sonnet-4-6', inputTokens: 0, outputTokens: 0,
         idempotencyKey: 'shared-key',
     );
 

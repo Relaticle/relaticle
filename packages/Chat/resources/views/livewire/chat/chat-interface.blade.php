@@ -496,7 +496,7 @@
                                 x-transition.opacity.duration.100ms
                                 role="listbox"
                                 aria-label="AI model options"
-                                class="absolute bottom-full left-0 z-10 mb-2 w-48 overflow-hidden rounded-lg border border-gray-200 bg-white py-1 shadow-lg dark:border-gray-700 dark:bg-gray-800"
+                                class="absolute bottom-full left-0 z-10 mb-2 w-56 overflow-hidden rounded-lg border border-gray-200 bg-white py-1 shadow-lg dark:border-gray-700 dark:bg-gray-800"
                                 style="display: none;"
                             >
                                 <template x-for="opt in modelOptions" :key="opt.value">
@@ -505,10 +505,20 @@
                                         role="option"
                                         :aria-selected="selectedModel === opt.value"
                                         x-on:click="selectModel(opt.value); menuOpen = false"
-                                        class="block w-full px-3 py-1.5 text-left text-xs text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700"
-                                        :class="{ 'bg-gray-100 font-semibold dark:bg-gray-700': selectedModel === opt.value }"
+                                        class="flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700"
+                                        :class="{ 'bg-gray-50 dark:bg-gray-700/50': selectedModel === opt.value }"
                                     >
-                                        <span x-text="opt.label"></span>
+                                        <span
+                                            x-html="providerIconHtml(opt.provider)"
+                                            :class="providerIconColor(opt.provider) + ' inline-flex h-4 w-4 shrink-0 items-center justify-center'"
+                                            aria-hidden="true"
+                                        ></span>
+                                        <span class="flex-1 truncate" x-text="opt.label"></span>
+                                        <x-heroicon-s-check-circle
+                                            x-show="selectedModel === opt.value"
+                                            class="h-3.5 w-3.5 shrink-0 text-primary-600 dark:text-primary-400"
+                                            aria-hidden="true"
+                                        />
                                     </button>
                                 </template>
                             </div>
@@ -581,12 +591,33 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
     speechSupported: typeof window !== 'undefined' && ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window),
 
     modelOptions: [
-        { value: 'auto', label: 'Auto' },
-        { value: 'claude-sonnet', label: 'Claude Sonnet' },
-        { value: 'claude-opus', label: 'Claude Opus' },
-        { value: 'gpt-4o', label: 'GPT-4o' },
-        { value: 'gemini-pro', label: 'Gemini Pro' },
+        { value: 'auto', label: 'Auto', provider: null },
+        { value: 'claude-sonnet', label: 'Sonnet 4.6', provider: 'anthropic' },
+        { value: 'claude-opus', label: 'Opus 4.7', provider: 'anthropic' },
+        { value: 'gpt-5-5', label: 'GPT 5.5', provider: 'openai' },
+        { value: 'gpt-5-4', label: 'GPT 5.4', provider: 'openai' },
+        { value: 'gemini-3-flash', label: 'Gemini 3 Flash', provider: 'gemini' },
+        { value: 'gemini-3-1-pro', label: 'Gemini 3.1 Pro', provider: 'gemini' },
     ],
+
+    providerIcons: @js([
+        'anthropic' => svg('ri-claude-fill')->toHtml(),
+        'openai' => svg('ri-openai-fill')->toHtml(),
+        'gemini' => svg('ri-gemini-fill')->toHtml(),
+    ]),
+
+    providerIconHtml(provider) {
+        if (!provider) return '';
+        return this.providerIcons[provider] || '';
+    },
+
+    providerIconColor(provider) {
+        return ({
+            anthropic: 'text-[#D4763C]',
+            openai: 'text-gray-900 dark:text-gray-200',
+            gemini: 'text-blue-500',
+        })[provider] || '';
+    },
 
     modelLabel(value) {
         const found = this.modelOptions.find((o) => o.value === value);

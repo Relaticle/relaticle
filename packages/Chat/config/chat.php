@@ -24,10 +24,12 @@ return [
     */
 
     'model_multipliers' => [
-        'claude-opus-4-5' => 3.0,
-        'claude-sonnet-4-5' => 1.0,
-        'gpt-4o' => 1.5,
-        'gemini-2.5-pro' => 1.0,
+        'claude-opus-4-7' => 3.0,
+        'claude-sonnet-4-6' => 1.0,
+        'gpt-5.5' => 1.5,
+        'gpt-5.4' => 1.5,
+        'gemini-3-flash' => 1.0,
+        'gemini-3.1-pro' => 1.5,
     ],
 
     /*
