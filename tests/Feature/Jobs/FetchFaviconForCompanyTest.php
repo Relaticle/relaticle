@@ -53,3 +53,31 @@ test('job swallows throwable from favicon driver instead of letting it escape', 
 
     expect(true)->toBeTrue();
 });
+
+test('job rejects favicon url that resolves to private address', function (): void {
+    $company = Company::factory()->for($this->user->currentTeam)->create();
+
+    $domainsField = CustomField::query()
+        ->where('code', CompanyField::DOMAINS->value)
+        ->forEntity(Company::class)
+        ->firstOrFail();
+
+    CustomFieldValue::forceCreate([
+        'tenant_id' => $this->user->currentTeam->getKey(),
+        'entity_type' => 'company',
+        'entity_id' => $company->getKey(),
+        'custom_field_id' => $domainsField->getKey(),
+        'json_value' => ['example.com'],
+    ]);
+
+    $favicon = Mockery::mock(AshAllenDesign\FaviconFetcher\Favicon::class);
+    $favicon->shouldReceive('getFaviconUrl')->andReturn('http://127.0.0.1/favicon.png');
+    $favicon->shouldReceive('getIconSize')->andReturn(180);
+    $favicon->shouldReceive('getIconType')->andReturn('apple-touch-icon');
+
+    Favicon::shouldReceive('driver->fetch')->andReturn($favicon);
+
+    (new FetchFaviconForCompany($company->fresh()))->handle();
+
+    expect($company->fresh()->getMedia('logo'))->toHaveCount(0);
+});

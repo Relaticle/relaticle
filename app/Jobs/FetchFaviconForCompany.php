@@ -6,6 +6,8 @@ namespace App\Jobs;
 
 use App\Enums\CustomFields\CompanyField;
 use App\Models\Company;
+use App\Services\Favicon\SsrfGuard;
+use App\Services\Favicon\SsrfGuardException;
 use AshAllenDesign\FaviconFetcher\Facades\Favicon;
 use Illuminate\Contracts\Broadcasting\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -54,6 +56,14 @@ final class FetchFaviconForCompany implements ShouldBeUnique, ShouldQueue
             }
 
             if (filter_var($url, FILTER_VALIDATE_URL) === false) {
+                return;
+            }
+
+            try {
+                SsrfGuard::assertPublicHost($url);
+            } catch (SsrfGuardException $exception) {
+                report($exception);
+
                 return;
             }
 

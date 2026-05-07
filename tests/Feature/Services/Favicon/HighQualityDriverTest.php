@@ -114,3 +114,11 @@ test('high-res pattern prefers larger sizes when multiple are present', function
 
     expect($favicon->getFaviconUrl())->toBe('https://example.com/icon-512.png');
 });
+
+test('refuses to fetch from private addresses', function (): void {
+    $driver = new HighQualityDriver;
+
+    expect($driver->fetch('http://127.0.0.1/'))->toBeNull()
+        ->and($driver->fetch('http://10.0.0.1/'))->toBeNull()
+        ->and($driver->fetch('http://169.254.169.254/'))->toBeNull();
+});

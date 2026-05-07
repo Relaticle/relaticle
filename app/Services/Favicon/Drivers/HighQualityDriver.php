@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Services\Favicon\Drivers;
 
+use App\Services\Favicon\SsrfGuard;
+use App\Services\Favicon\SsrfGuardException;
 use AshAllenDesign\FaviconFetcher\Collections\FaviconCollection;
 use AshAllenDesign\FaviconFetcher\Concerns\HasDefaultFunctionality;
 use AshAllenDesign\FaviconFetcher\Concerns\MakesHttpRequests;
@@ -31,6 +33,14 @@ final class HighQualityDriver implements Fetcher
     public function fetch(string $url): ?Favicon
     {
         throw_unless($this->urlIsValid($url), InvalidUrlException::class, $url.' is not a valid URL');
+
+        try {
+            SsrfGuard::assertPublicHost($url);
+        } catch (SsrfGuardException $exception) {
+            report($exception);
+
+            return null;
+        }
 
         if ($this->useCache && $favicon = $this->attemptToFetchFromCache($url)) {
             return $favicon;
@@ -173,6 +183,14 @@ final class HighQualityDriver implements Fetcher
 
             $faviconUrl = 'https://www.google.com/s2/favicons?sz=256&domain='.$urlWithoutProtocol;
 
+            try {
+                SsrfGuard::assertPublicHost($faviconUrl);
+            } catch (SsrfGuardException $exception) {
+                report($exception);
+
+                return null;
+            }
+
             $response = $this->withRequestExceptionHandling(
                 fn () => $this->httpClient()->get($faviconUrl)
             );
@@ -196,6 +214,14 @@ final class HighQualityDriver implements Fetcher
     {
         $urlWithoutProtocol = str_replace(['https://', 'http://'], '', $url);
         $faviconUrl = 'https://icons.duckduckgo.com/ip3/'.$urlWithoutProtocol.'.ico';
+
+        try {
+            SsrfGuard::assertPublicHost($faviconUrl);
+        } catch (SsrfGuardException $exception) {
+            report($exception);
+
+            return null;
+        }
 
         try {
             $response = $this->withRequestExceptionHandling(
