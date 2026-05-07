@@ -119,7 +119,7 @@
                             wire:navigate
                             class="fi-sidebar-item-btn pe-16"
                         >
-                            <x-heroicon-o-chat-bubble-left class="fi-sidebar-item-icon h-5 w-5" />
+                            <x-heroicon-o-chat-bubble-left class="fi-icon fi-size-lg fi-sidebar-item-icon" />
                             <span
                                 data-title
                                 x-show="$store.sidebar.isOpen"
@@ -185,7 +185,7 @@
                         class="fi-sidebar-item-btn w-full"
                         aria-label="Open all chats"
                     >
-                        <x-heroicon-o-list-bullet class="fi-sidebar-item-icon h-5 w-5" />
+                        <x-heroicon-o-list-bullet class="fi-icon fi-size-lg fi-sidebar-item-icon" />
                         <span
                             x-show="$store.sidebar.isOpen"
                             x-transition:enter="fi-transition-enter"
