@@ -355,8 +355,9 @@
     <div class="border-t border-gray-200 bg-white px-4 py-4 dark:border-gray-700 dark:bg-gray-900">
         <div class="mx-auto max-w-3xl">
             <form x-on:submit.prevent="sendMessage()">
-                <div class="relative flex flex-col rounded-2xl border border-gray-200 bg-white px-3 py-2 transition focus-within:border-primary-500 dark:border-gray-700 dark:bg-gray-800">
-                    <div x-show="selectedMentions.length > 0" class="flex flex-wrap gap-1 pb-1.5">
+                <div class="relative rounded-2xl border border-gray-200 bg-white transition focus-within:border-primary-500 dark:border-gray-700 dark:bg-gray-800">
+                    {{-- Mention pills --}}
+                    <div x-show="selectedMentions.length > 0" class="flex flex-wrap gap-1 px-3 pt-2">
                         <template x-for="mention in selectedMentions" :key="`${mention.type}-${mention.id}`">
                             <span class="inline-flex items-center gap-1 rounded-md bg-primary-100 px-1.5 py-0.5 text-xs text-primary-800 dark:bg-primary-900/30 dark:text-primary-200">
                                 <span x-text="mention.label"></span>
@@ -370,8 +371,8 @@
                             </span>
                         </template>
                     </div>
-                    <div class="flex items-end gap-2">
-                        <label for="chat-message-input" class="sr-only">Message the assistant</label>
+
+                    <label for="chat-message-input" class="sr-only">Message the assistant</label>
                     <textarea
                         id="chat-message-input"
                         x-model="input"
@@ -382,12 +383,14 @@
                         @keydown.arrow-down="if (mention.open && mention.results.length > 0) { $event.preventDefault(); mentionMoveActive(1) }"
                         @input="onTextareaInput($event)"
                         placeholder="Ask anything..."
-                        rows="1"
+                        rows="3"
                         aria-label="Message the assistant"
-                        class="block min-h-[28px] w-full resize-none border-0 bg-transparent px-1 py-1 text-sm leading-6 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-0 dark:text-white dark:placeholder:text-gray-500"
+                        class="block min-h-[64px] w-full resize-none rounded-t-2xl border-0 bg-transparent px-4 pt-3 pb-2 text-sm leading-6 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-0 dark:text-white dark:placeholder:text-gray-500"
                         style="max-height: 200px;"
                         :disabled="isStreaming"
                     ></textarea>
+
+                    {{-- Mention dropdown --}}
                     <div
                         x-show="mention.open && mention.query.length >= 2"
                         x-cloak
@@ -396,7 +399,6 @@
                         aria-label="Mention suggestions"
                         class="absolute bottom-full left-0 right-8 z-50 mb-2 max-h-64 overflow-auto rounded-xl border border-gray-200 bg-white py-1 shadow-lg dark:border-gray-700 dark:bg-gray-800"
                     >
-                        {{-- Loading skeleton --}}
                         <div x-show="mention.fetching && mention.results.length === 0" class="px-3 py-3 text-center text-xs text-gray-500 dark:text-gray-400">
                             <span class="inline-flex items-center gap-2">
                                 <span class="h-2 w-2 animate-pulse rounded-full bg-primary-500"></span>
@@ -404,18 +406,15 @@
                             </span>
                         </div>
 
-                        {{-- Error --}}
                         <div x-show="!mention.fetching && mention.error" class="px-3 py-3 text-center text-xs text-red-600 dark:text-red-400" role="alert">
                             <span x-text="mention.error"></span>
                             <button type="button" @click="fetchMentions(mention.query)" class="ml-2 underline">Retry</button>
                         </div>
 
-                        {{-- Empty (no matches) --}}
                         <div x-show="!mention.fetching && !mention.error && mention.results.length === 0" class="px-3 py-3 text-center text-xs text-gray-500 dark:text-gray-400">
                             No matches for "<span x-text="mention.query"></span>".
                         </div>
 
-                        {{-- Results --}}
                         <template x-if="!mention.fetching && !mention.error && mention.results.length > 0">
                             <div>
                                 <template x-for="(item, idx) in mention.results" :key="`${item.type}-${item.id}`">
@@ -435,98 +434,104 @@
                             </div>
                         </template>
                     </div>
-                    <button
-                        x-show="!isStreaming"
-                        type="submit"
-                        class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary-600 text-white shadow-sm transition hover:bg-primary-700 disabled:cursor-not-allowed disabled:bg-gray-200 disabled:text-gray-400 disabled:shadow-none dark:disabled:bg-gray-700 dark:disabled:text-gray-500"
-                        :disabled="!input.trim() || input.length > 5000"
-                        aria-label="Send message"
-                    >
-                        <x-heroicon-s-arrow-up class="h-4 w-4" />
-                    </button>
-                    <button
-                        x-show="isStreaming"
-                        type="button"
-                        x-on:click="cancelStream()"
-                        class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gray-900 text-white shadow-sm transition hover:bg-gray-700 dark:bg-gray-200 dark:text-gray-900 dark:hover:bg-gray-300"
-                        aria-label="Stop generation"
-                    >
-                        <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                            <rect x="6" y="6" width="12" height="12" rx="2"/>
-                        </svg>
-                    </button>
-                    </div>{{-- end .flex.items-end --}}
-                </div>
-                <div class="mt-1.5 flex items-center justify-between gap-2 px-1 text-[11px] text-gray-400 dark:text-gray-500">
-                    <div class="flex items-center gap-2">
-                        <div
-                            x-data="{ menuOpen: false }"
-                            x-on:keydown.escape.window="menuOpen = false"
-                            class="relative"
-                        >
-                            <button
-                                type="button"
-                                x-on:click="menuOpen = !menuOpen"
-                                class="inline-flex items-center gap-1 rounded-md border border-gray-200 bg-white px-2 py-0.5 text-[11px] font-medium text-gray-600 transition hover:bg-gray-50 hover:text-gray-900 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
-                                :aria-expanded="menuOpen"
-                                aria-haspopup="listbox"
-                                aria-label="Select AI model"
-                            >
-                                <span x-text="modelLabel(selectedModel)"></span>
-                                <x-heroicon-o-chevron-up-down class="h-3 w-3" aria-hidden="true" />
-                            </button>
+
+                    {{-- Controls row --}}
+                    <div class="flex items-center justify-between gap-2 px-3 pb-2">
+                        {{-- Left: char counter (only shown near limit) --}}
+                        <span
+                            x-show="input.length > 4000"
+                            x-cloak
+                            x-text="`${input.length.toLocaleString()} / 5,000`"
+                            :class="{
+                                'text-gray-500 dark:text-gray-400': input.length <= 4900,
+                                'text-amber-600 dark:text-amber-400': input.length > 4900 && input.length <= 5000,
+                                'text-red-600 dark:text-red-400': input.length > 5000,
+                            }"
+                            class="text-[11px]"
+                            aria-live="polite"
+                        ></span>
+                        <div x-show="input.length <= 4000" class="flex-1"></div>
+
+                        {{-- Right: model picker, slash hint, send/stop --}}
+                        <div class="flex items-center gap-2">
                             <div
-                                x-show="menuOpen"
-                                x-on:click.away="menuOpen = false"
-                                x-transition.opacity.duration.100ms
-                                role="listbox"
-                                aria-label="AI model options"
-                                class="absolute bottom-full left-0 z-10 mb-2 w-56 overflow-hidden rounded-lg border border-gray-200 bg-white py-1 shadow-lg dark:border-gray-700 dark:bg-gray-800"
-                                style="display: none;"
+                                x-data="{ menuOpen: false }"
+                                x-on:keydown.escape.window="menuOpen = false"
+                                class="relative"
                             >
-                                <template x-for="opt in modelOptions" :key="opt.value">
-                                    <button
-                                        type="button"
-                                        role="option"
-                                        :aria-selected="selectedModel === opt.value"
-                                        x-on:click="selectModel(opt.value); menuOpen = false"
-                                        class="flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700"
-                                        :class="{ 'bg-gray-50 dark:bg-gray-700/50': selectedModel === opt.value }"
-                                    >
-                                        <span
-                                            x-html="providerIconHtml(opt.provider)"
-                                            :class="providerIconColor(opt.provider) + ' inline-flex h-4 w-4 shrink-0 items-center justify-center'"
-                                            aria-hidden="true"
-                                        ></span>
-                                        <span class="flex-1 truncate" x-text="opt.label"></span>
-                                        <x-heroicon-s-check-circle
-                                            x-show="selectedModel === opt.value"
-                                            class="h-3.5 w-3.5 shrink-0 text-primary-600 dark:text-primary-400"
-                                            aria-hidden="true"
-                                        />
-                                    </button>
-                                </template>
+                                <button
+                                    type="button"
+                                    x-on:click="menuOpen = !menuOpen"
+                                    class="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-medium text-gray-600 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
+                                    :aria-expanded="menuOpen"
+                                    aria-haspopup="listbox"
+                                    aria-label="Select AI model"
+                                >
+                                    <span x-text="modelLabel(selectedModel)"></span>
+                                    <x-heroicon-o-chevron-up-down class="h-3 w-3" aria-hidden="true" />
+                                </button>
+                                <div
+                                    x-show="menuOpen"
+                                    x-on:click.away="menuOpen = false"
+                                    x-transition.opacity.duration.100ms
+                                    role="listbox"
+                                    aria-label="AI model options"
+                                    class="absolute bottom-full right-0 z-10 mb-2 w-56 overflow-hidden rounded-lg border border-gray-200 bg-white py-1 shadow-lg dark:border-gray-700 dark:bg-gray-800"
+                                    style="display: none;"
+                                >
+                                    <template x-for="opt in modelOptions" :key="opt.value">
+                                        <button
+                                            type="button"
+                                            role="option"
+                                            :aria-selected="selectedModel === opt.value"
+                                            x-on:click="selectModel(opt.value); menuOpen = false"
+                                            class="flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700"
+                                            :class="{ 'bg-gray-50 dark:bg-gray-700/50': selectedModel === opt.value }"
+                                        >
+                                            <span
+                                                x-html="providerIconHtml(opt.provider)"
+                                                :class="providerIconColor(opt.provider) + ' inline-flex h-4 w-4 shrink-0 items-center justify-center'"
+                                                aria-hidden="true"
+                                            ></span>
+                                            <span class="flex-1 truncate" x-text="opt.label"></span>
+                                            <x-heroicon-s-check-circle
+                                                x-show="selectedModel === opt.value"
+                                                class="h-3.5 w-3.5 shrink-0 text-primary-600 dark:text-primary-400"
+                                                aria-hidden="true"
+                                            />
+                                        </button>
+                                    </template>
+                                </div>
                             </div>
+
+                            <kbd
+                                class="hidden h-6 select-none items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-1.5 font-mono text-[11px] text-gray-500 sm:inline-flex dark:border-gray-700 dark:bg-gray-900 dark:text-gray-400"
+                                title="Press Enter to send · Shift+Enter for newline"
+                                aria-hidden="true"
+                            >/</kbd>
+
+                            <button
+                                x-show="!isStreaming"
+                                type="submit"
+                                class="flex h-7 w-7 items-center justify-center rounded-lg bg-primary-600 text-white transition hover:bg-primary-700 disabled:bg-primary-200 disabled:text-white dark:disabled:bg-primary-900/40 dark:disabled:text-primary-300"
+                                :disabled="!input.trim() || input.length > 5000"
+                                aria-label="Send message"
+                            >
+                                <x-heroicon-s-arrow-up class="h-4 w-4" />
+                            </button>
+                            <button
+                                x-show="isStreaming"
+                                type="button"
+                                x-on:click="cancelStream()"
+                                class="flex h-7 w-7 items-center justify-center rounded-lg bg-gray-900 text-white transition hover:bg-gray-700 dark:bg-gray-200 dark:text-gray-900 dark:hover:bg-gray-300"
+                                aria-label="Stop generation"
+                            >
+                                <svg class="h-3 w-3" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                                    <rect x="6" y="6" width="12" height="12" rx="2"/>
+                                </svg>
+                            </button>
                         </div>
-                        <span class="hidden sm:inline">
-                            <kbd class="rounded border border-gray-200 bg-gray-50 px-1 py-0.5 font-sans text-[10px] dark:border-gray-700 dark:bg-gray-900">Enter</kbd> to send
-                            <span class="mx-1 text-gray-300 dark:text-gray-600">·</span>
-                            <kbd class="rounded border border-gray-200 bg-gray-50 px-1 py-0.5 font-sans text-[10px] dark:border-gray-700 dark:bg-gray-900">Shift</kbd>
-                            +
-                            <kbd class="rounded border border-gray-200 bg-gray-50 px-1 py-0.5 font-sans text-[10px] dark:border-gray-700 dark:bg-gray-900">Enter</kbd>
-                            for newline
-                        </span>
                     </div>
-                    <span
-                        x-show="input.length > 4000"
-                        x-text="`${input.length.toLocaleString()} / 5,000`"
-                        :class="{
-                            'text-gray-500 dark:text-gray-400': input.length <= 4900,
-                            'text-amber-600 dark:text-amber-400': input.length > 4900 && input.length <= 5000,
-                            'text-red-600 dark:text-red-400': input.length > 5000,
-                        }"
-                        aria-live="polite"
-                    ></span>
                 </div>
             </form>
         </div>
