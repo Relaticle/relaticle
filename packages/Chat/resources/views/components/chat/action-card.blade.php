@@ -1,12 +1,13 @@
 @props([
     'pendingActionId' => null,
     'operation' => 'create',
-    'entityType' => 'company', 
+    'entityType' => 'company',
     'title' => '',
     'summary' => '',
     'fields' => [],
     'status' => 'pending',
     'resultMessage' => null,
+    'recordUrl' => null,
 ])
 
 @php
@@ -18,6 +19,7 @@
     $operationColor = $operationColors[$operation] ?? $operationColors['create'];
     $isPending = $status === 'pending';
     $isApproved = $status === 'approved';
+    $isRestored = $status === 'restored';
     $isRejected = $status === 'rejected';
     $isExpired = $status === 'expired';
 @endphp
@@ -72,12 +74,24 @@
                 Reject
             </button>
         </div>
-    @elseif($isApproved)
-        <div class="flex items-center gap-2">
-            <x-heroicon-s-check-circle class="h-4 w-4 text-emerald-500" />
-            <span class="text-xs font-medium text-emerald-600 dark:text-emerald-400">
-                {{ $resultMessage ?? 'Approved' }}
-            </span>
+    @elseif($isApproved || $isRestored)
+        <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2">
+                <x-heroicon-s-check-circle class="h-4 w-4 text-emerald-500" />
+                <span class="text-xs font-medium text-emerald-600 dark:text-emerald-400">
+                    {{ $resultMessage ?? ($isRestored ? 'Restored' : 'Approved') }}
+                </span>
+            </div>
+            @if($recordUrl)
+                <a
+                    href="{{ $recordUrl }}"
+                    wire:navigate
+                    class="inline-flex items-center gap-1 text-xs font-medium text-primary-600 hover:underline dark:text-primary-400"
+                >
+                    View
+                    <x-heroicon-o-arrow-top-right-on-square class="h-3 w-3" aria-hidden="true" />
+                </a>
+            @endif
         </div>
     @elseif($isRejected)
         <div class="flex items-center gap-2">
