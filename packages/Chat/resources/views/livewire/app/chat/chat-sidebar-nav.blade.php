@@ -29,7 +29,10 @@
     @keydown.window="onKeydown($event)"
     data-group-label="Chats"
     x-bind:class="{ 'fi-collapsed': $store.sidebar.groupIsCollapsed(label) }"
-    class="fi-sidebar-group fi-collapsible"
+    {{-- -ml-2 matches Filament's .fi-sidebar-nav-groups list which has margin-left: -8px;
+         this hook renders as a sibling of that list inside .fi-sidebar-nav, so without
+         the offset our chat icons sit 8px to the right of Home/People/Companies/etc. --}}
+    class="fi-sidebar-group fi-collapsible -ml-2"
 >
     {{-- Group header --}}
     <div
@@ -182,7 +185,7 @@
                     <button
                         type="button"
                         @click="window.dispatchEvent(new CustomEvent('chat:open-all-chats'))"
-                        class="fi-sidebar-item-btn w-full"
+                        class="fi-sidebar-item-btn w-full text-start"
                         aria-label="Open all chats"
                     >
                         <x-heroicon-o-list-bullet class="fi-icon fi-size-lg fi-sidebar-item-icon" />
