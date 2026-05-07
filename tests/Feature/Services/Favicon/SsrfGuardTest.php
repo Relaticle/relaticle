@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
+use App\Exceptions\SsrfGuardException;
 use App\Services\Favicon\SsrfGuard;
-use App\Services\Favicon\SsrfGuardException;
 
 mutates(SsrfGuard::class);
 

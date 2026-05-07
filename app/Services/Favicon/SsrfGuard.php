@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Services\Favicon;
 
-final class SsrfGuard
+use App\Exceptions\SsrfGuardException;
+
+final readonly class SsrfGuard
 {
     public static function assertPublicHost(string $url): void
     {

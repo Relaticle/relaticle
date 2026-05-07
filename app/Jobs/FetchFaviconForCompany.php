@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Jobs;
 
 use App\Enums\CustomFields\CompanyField;
+use App\Exceptions\SsrfGuardException;
 use App\Models\Company;
 use App\Services\Favicon\SsrfGuard;
-use App\Services\Favicon\SsrfGuardException;
 use AshAllenDesign\FaviconFetcher\Facades\Favicon;
 use Illuminate\Contracts\Broadcasting\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
