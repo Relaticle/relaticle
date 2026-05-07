@@ -9,7 +9,7 @@ use App\Exceptions\SsrfGuardException;
 use App\Models\Company;
 use App\Services\Favicon\SsrfGuard;
 use AshAllenDesign\FaviconFetcher\Facades\Favicon;
-use Illuminate\Contracts\Broadcasting\ShouldBeUnique;
+use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Foundation\Queue\Queueable;
