@@ -116,6 +116,27 @@ it('does not consume a credit when the document text is too long', function (): 
     expect($balanceAfter->credits_remaining)->toBe($balanceBefore->credits_remaining);
 });
 
+it('does not duplicate mention labels when text already contains @Tokens', function (): void {
+    Queue::fake();
+    Company::factory()->for($this->team)->create(['name' => 'Acme Corp']);
+
+    $document = [
+        'type' => 'doc',
+        'content' => [[
+            'type' => 'paragraph',
+            'content' => [
+                ['type' => 'text', 'text' => 'Hi @Acme_Corp please'],
+            ],
+        ]],
+    ];
+
+    $this->postJson(route('chat.conversations.create'), [
+        'document' => $document,
+    ])->assertOk();
+
+    Queue::assertPushed(ProcessChatMessage::class, fn ($job): bool => $job->message === 'Hi @Acme_Corp please');
+});
+
 it('returns 403 when the user has no current team', function (): void {
     $teamlessUser = User::factory()->create(['current_team_id' => null]);
     $this->actingAs($teamlessUser);

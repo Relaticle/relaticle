@@ -40,13 +40,8 @@ final class ChatConversation extends Page
                 ->execute($user, $this->conversationId)?->title;
         }
 
-        /** @var string|null $message */
-        $message = request()->query('message');
-        $this->initialMessage = $message;
-
-        /** @var string|null $model */
-        $model = request()->query('model');
-        $this->initialModel = $model;
+        $this->initialMessage = null;
+        $this->initialModel = null;
     }
 
     public function getTitle(): string

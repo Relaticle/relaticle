@@ -168,6 +168,14 @@
                     </button>
                 </div>
             </div>
+
+            <div
+                x-show="error"
+                x-cloak
+                role="alert"
+                class="mt-2 text-xs text-red-600 dark:text-red-400"
+                x-text="error"
+            ></div>
         </form>
 
         {{-- Suggested prompts --}}
@@ -226,6 +234,7 @@
         Alpine.data('dashboardChatInput', (chatUrl, defaultModel) => ({
             input: '',
             submitting: false,
+            error: null,
             selectedModel: defaultModel || 'auto',
             menuOpen: false,
             selectedMentions: [],
@@ -391,30 +400,68 @@
                 this.mention.activeIndex = (this.mention.activeIndex + delta + len) % len;
             },
 
-            submit() {
+            async submit() {
                 const text = this.input.trim();
                 if (!text || this.submitting) return;
                 this.submitting = true;
+                this.error = null;
 
-                if (this.selectedMentions.length > 0) {
-                    try {
-                        const payload = this.selectedMentions.map((m) => ({
-                            id: m.id,
-                            type: m.type,
-                            label: m.label,
-                            token: m.token,
-                        }));
-                        localStorage.setItem('chat:mentions', JSON.stringify(payload));
-                    } catch (_) { /* localStorage unavailable, fall through */ }
+                const document = this.documentFromInput(text);
+
+                try {
+                    const res = await fetch(@js(route('chat.conversations.create')), {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': window.document.querySelector('meta[name="csrf-token"]')?.content ?? '',
+                        },
+                        body: JSON.stringify({
+                            document,
+                            model: this.selectedModel !== 'auto' ? this.selectedModel : undefined,
+                        }),
+                    });
+
+                    if (!res.ok) {
+                        this.submitting = false;
+                        if (res.status === 422) {
+                            const body = await res.json().catch(() => ({}));
+                            this.error = body?.errors?.document?.[0] ?? 'Message is empty.';
+                        } else if (res.status === 402) {
+                            window.location.href = @js(url('/app/billing'));
+                        } else {
+                            this.error = 'Could not send. Try again.';
+                        }
+                        return;
+                    }
+
+                    const { conversation_id } = await res.json();
+                    const target = chatUrl.replace(/\/?$/, '/' + conversation_id);
+                    window.location.href = target;
+                } catch (_) {
+                    this.submitting = false;
+                    this.error = 'Network error. Try again.';
+                }
+            },
+
+            documentFromInput(text) {
+                const trimmed = text.trim();
+                if (trimmed === '') {
+                    return { type: 'doc', content: [] };
                 }
 
-                const url = new URL(chatUrl, window.location.origin);
-                url.searchParams.set('message', text);
-                if (this.selectedModel && this.selectedModel !== 'auto') {
-                    url.searchParams.set('model', this.selectedModel);
-                }
-
-                window.location.href = url.toString();
+                // Note: dashboard textarea text already contains @Tokens for selected mentions
+                // (inserted by selectMention()). Don't append mention nodes here — that would
+                // cause server-side text duplication via the parser. Mention IDs are not
+                // forwarded for the dashboard transition; Tasks 9-11 introduce TipTap chips
+                // that fix this properly.
+                return {
+                    type: 'doc',
+                    content: [{
+                        type: 'paragraph',
+                        content: [{ type: 'text', text: trimmed }],
+                    }],
+                };
             },
         }));
     </script>
