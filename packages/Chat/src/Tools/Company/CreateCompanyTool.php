@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Relaticle\Chat\Tools\Company;
 
 use App\Actions\Company\CreateCompany;
+use App\Models\User;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Ai\Tools\Request;
 use Relaticle\Chat\Tools\BaseWriteCreateTool;
@@ -35,7 +36,13 @@ final class CreateCompanyTool extends BaseWriteCreateTool
 
     protected function extractActionData(Request $request): array
     {
-        return ['name' => (string) $request->string('name')];
+        /** @var User $user */
+        $user = auth()->user();
+
+        return [
+            'name' => (string) $request->string('name'),
+            'account_owner_id' => $user->getKey(),
+        ];
     }
 
     protected function buildDisplayData(Request $request): array
