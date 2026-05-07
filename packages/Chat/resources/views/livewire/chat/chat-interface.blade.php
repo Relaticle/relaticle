@@ -1440,6 +1440,12 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
                 if (action.operation === 'delete') {
                     this.showUndoToast(action);
                 }
+                if (window.Livewire?.dispatch) {
+                    window.Livewire.dispatch('ai-write-completed', {
+                        entityType: action.entity_type ?? null,
+                        operation: action.operation ?? null,
+                    });
+                }
             } else {
                 const body = await res.json().catch(() => ({}));
                 action.status = previousStatus;

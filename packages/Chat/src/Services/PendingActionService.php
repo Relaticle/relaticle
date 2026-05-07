@@ -31,6 +31,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 use Relaticle\Chat\Enums\PendingActionOperation;
 use Relaticle\Chat\Enums\PendingActionStatus;
+use Relaticle\Chat\Events\AiWriteCompleted;
 use Relaticle\Chat\Models\PendingAction;
 use RuntimeException;
 
@@ -125,6 +126,12 @@ final readonly class PendingActionService
         });
 
         $this->continuation->dispatchAfterApproval($resolved, 'approved');
+
+        event(new AiWriteCompleted(
+            teamId: (string) $resolved->team_id,
+            entityType: $resolved->entity_type,
+            operation: $resolved->operation->value,
+        ));
 
         return $resolved;
     }
