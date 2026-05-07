@@ -72,8 +72,21 @@ final class HighQualityDriver implements Fetcher
 
             $html = $response->body();
 
-            if (preg_match('/<link[^>]+rel=["\']apple-touch-icon["\'][^>]+href=["\'](.*?)["\']/i', (string) $html, $matches)) {
-                $iconUrl = $this->convertToAbsoluteUrl($url, $matches[1]);
+            $appleTouchPatterns = [
+                '/<link\b[^>]*\brel=["\']apple-touch-icon["\'][^>]*\bhref=["\']([^"\']+)["\']/i',
+                '/<link\b[^>]*\bhref=["\']([^"\']+)["\'][^>]*\brel=["\']apple-touch-icon["\']/i',
+            ];
+
+            $matchedIconUrl = null;
+            foreach ($appleTouchPatterns as $appleTouchPattern) {
+                if (preg_match($appleTouchPattern, (string) $html, $matches)) {
+                    $matchedIconUrl = $matches[1];
+                    break;
+                }
+            }
+
+            if ($matchedIconUrl !== null) {
+                $iconUrl = $this->convertToAbsoluteUrl($url, $matchedIconUrl);
 
                 return new Favicon(
                     url: $url,
@@ -117,12 +130,12 @@ final class HighQualityDriver implements Fetcher
             $html = $response->body();
 
             $patterns = [
-                '/sizes=["\']512x512["\'][^>]+href=["\'](.*?)["\']/i',
-                '/href=["\'](.*?)["\']\s+[^>]*sizes=["\']512x512["\']/i',
-                '/sizes=["\']256x256["\'][^>]+href=["\'](.*?)["\']/i',
-                '/href=["\'](.*?)["\']\s+[^>]*sizes=["\']256x256["\']/i',
-                '/sizes=["\']192x192["\'][^>]+href=["\'](.*?)["\']/i',
-                '/href=["\'](.*?)["\']\s+[^>]*sizes=["\']192x192["\']/i',
+                '/<link\b[^>]*\bsizes=["\']512x512["\'][^>]*\bhref=["\']([^"\']+)["\']/i',
+                '/<link\b[^>]*\bhref=["\']([^"\']+)["\'][^>]*\bsizes=["\']512x512["\']/i',
+                '/<link\b[^>]*\bsizes=["\']256x256["\'][^>]*\bhref=["\']([^"\']+)["\']/i',
+                '/<link\b[^>]*\bhref=["\']([^"\']+)["\'][^>]*\bsizes=["\']256x256["\']/i',
+                '/<link\b[^>]*\bsizes=["\']192x192["\'][^>]*\bhref=["\']([^"\']+)["\']/i',
+                '/<link\b[^>]*\bhref=["\']([^"\']+)["\'][^>]*\bsizes=["\']192x192["\']/i',
             ];
 
             foreach ($patterns as $pattern) {
