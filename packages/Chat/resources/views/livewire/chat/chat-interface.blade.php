@@ -1,6 +1,7 @@
 <div
     x-data="chatInterface(@js($conversationId), @js(route('chat.send')), @js($initialMessage), @js($messages), @js(auth()->id()), @js($hasMoreMessages), @js(auth()->user()?->ai_preferences['default_model'] ?? 'auto'))"
     x-init="init()"
+    data-chat-context="{{ $context ?? 'conversation' }}"
     class="flex h-full flex-col"
 >
     {{-- Messages --}}
@@ -473,7 +474,11 @@
                 </div>
                 <div class="mt-1.5 flex items-center justify-between gap-2 px-1 text-[11px] text-gray-400 dark:text-gray-500">
                     <div class="flex items-center gap-2">
-                        <div x-data="{ menuOpen: false }" class="relative">
+                        <div
+                            x-data="{ menuOpen: false }"
+                            x-on:keydown.escape.window="menuOpen = false"
+                            class="relative"
+                        >
                             <button
                                 type="button"
                                 x-on:click="menuOpen = !menuOpen"
@@ -490,7 +495,8 @@
                                 x-on:click.away="menuOpen = false"
                                 x-transition.opacity.duration.100ms
                                 role="listbox"
-                                class="absolute bottom-full left-0 z-10 mb-1 w-48 overflow-hidden rounded-lg border border-gray-200 bg-white py-1 shadow-lg dark:border-gray-700 dark:bg-gray-800"
+                                aria-label="AI model options"
+                                class="absolute bottom-full left-0 z-10 mb-2 w-48 overflow-hidden rounded-lg border border-gray-200 bg-white py-1 shadow-lg dark:border-gray-700 dark:bg-gray-800"
                                 style="display: none;"
                             >
                                 <template x-for="opt in modelOptions" :key="opt.value">

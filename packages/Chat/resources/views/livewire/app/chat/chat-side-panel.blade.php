@@ -113,6 +113,7 @@
             <div class="flex-1 overflow-y-auto" data-chat-messages>
                 @livewire('chat.chat-interface', [
                     'conversationId' => $conversationId,
+                    'context' => 'side-panel',
                 ], key('side-panel-chat-' . ($conversationId ?? 'new')))
             </div>
 
