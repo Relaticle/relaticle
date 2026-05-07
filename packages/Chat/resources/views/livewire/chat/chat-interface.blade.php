@@ -1185,6 +1185,20 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
         this.mention.activeIndex = (this.mention.activeIndex + delta + len) % len;
     },
 
+    documentFromInput(text) {
+        const trimmed = text.trim();
+        if (trimmed === '') {
+            return { type: 'doc', content: [] };
+        }
+        return {
+            type: 'doc',
+            content: [{
+                type: 'paragraph',
+                content: [{ type: 'text', text: trimmed }],
+            }],
+        };
+    },
+
     async sendMessage() {
         const text = this.input.trim();
         if (!text || this.isStreaming) return;
@@ -1196,35 +1210,85 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
         this.isStreaming = true;
 
         const isFirstMessage = !this.conversationId;
+        const payload = this.documentFromInput(text);
+
         if (isFirstMessage) {
-            this.conversationId = this.generateConversationId();
+            const nowIso = new Date().toISOString();
+            this.messages.push({ role: 'user', content: text, editing: false, editText: '', copiedAt: 0, created_at: nowIso });
+            this.messages.push({ role: 'assistant', content: '', pending_actions: [], paywall: null, sessionExpired: false, rendered: false, prerendered: false, copiedAt: 0, follow_ups: [], created_at: nowIso });
+            this.input = '';
+            this.selectedMentions = [];
+            this.currentToolStatus = null;
+
             try {
-                await this.initConversation(this.conversationId);
-            } catch (error) {
-                console.error('Failed to initialize conversation', error);
-                const nowIso = new Date().toISOString();
-                this.messages.push({ role: 'user', content: text, editing: false, editText: '', copiedAt: 0, created_at: nowIso });
-                this.messages.push({
-                    role: 'assistant',
-                    content: 'Could not start conversation. Please try again.',
-                    pending_actions: [],
-                    paywall: null,
-                    sessionExpired: false,
-                    rendered: true,
-                    prerendered: false,
-                    copiedAt: 0,
-                    follow_ups: [],
-                    created_at: nowIso,
+                const response = await fetch(@js(route('chat.conversations.create')), {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': window.document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                    },
+                    body: JSON.stringify({
+                        document: payload,
+                        model: this.selectedModel !== 'auto' ? this.selectedModel : undefined,
+                    }),
                 });
-                this.input = '';
-                this.selectedMentions = [];
-                this.currentToolStatus = null;
-                this.conversationId = null;
+
+                if (!response.ok) {
+                    const body = await response.json().catch(() => ({}));
+                    const assistantMsg = this.messages[this.messages.length - 1];
+
+                    if (response.status === 401 || response.status === 419) {
+                        try { localStorage.setItem('chat:draft', text); } catch (_) { /* ignore */ }
+                        assistantMsg.content = 'Your session expired. Please sign in again — your message is saved locally.';
+                        assistantMsg.sessionExpired = true;
+                        assistantMsg.rendered = true;
+                    } else if (response.status === 402 && body?.error === 'credits_exhausted') {
+                        const resetLabel = body.reset_at ? new Date(body.reset_at).toLocaleDateString() : null;
+                        assistantMsg.paywall = {
+                            heading: "You've used all your AI credits",
+                            body: resetLabel ? `Your plan resets on ${resetLabel}.` : 'Add credits to keep chatting.',
+                            upgrade_url: body.upgrade_url || '/app',
+                        };
+                        assistantMsg.content = '';
+                        assistantMsg.rendered = true;
+                    } else {
+                        assistantMsg.content = body?.message || `Error ${response.status}: ${response.statusText}`;
+                        assistantMsg.rendered = true;
+                    }
+
+                    this.isStreaming = false;
+                    this.restoreInputFocus();
+                    return;
+                }
+
+                const body = await response.json();
+                const newId = body.conversation_id;
+
+                this.conversationId = newId;
+                await this.subscribeToConversation(newId);
+
+                const url = new URL(window.location.href);
+                url.pathname = url.pathname.replace(/\/chats\/?$/, `/chats/${newId}`);
+                url.search = '';
+                url.hash = '';
+                history.replaceState(null, '', url.toString());
+
+                window.dispatchEvent(new CustomEvent('chat:conversation-created', {
+                    detail: { id: newId },
+                }));
+
+                this.startStreamTimeout();
+                this.scrollToBottom();
+            } catch (error) {
+                const assistantMsg = this.messages[this.messages.length - 1];
+                assistantMsg.content = 'Network error. Please try again.';
+                assistantMsg.rendered = true;
                 this.isStreaming = false;
                 this.restoreInputFocus();
-                this.scrollToBottom();
-                return;
             }
+
+            return;
         }
 
         if (!this.channel) {
@@ -1232,8 +1296,6 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
         } else if (this.channel.readyPromise) {
             await this.channel.readyPromise;
         }
-
-        const liveMentions = this.selectedMentions.filter((m) => text.includes(m.token));
 
         const nowIso = new Date().toISOString();
         this.messages.push({ role: 'user', content: text, editing: false, editText: '', copiedAt: 0, created_at: nowIso });
@@ -1257,13 +1319,12 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                    'X-CSRF-TOKEN': window.document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
                 },
                 body: JSON.stringify({
-                    message: text,
-                    model: this.selectedModel,
+                    document: payload,
                     conversation_id: this.conversationId,
-                    mentions: liveMentions.map((m) => ({ type: m.type, id: m.id })),
+                    model: this.selectedModel,
                 }),
                 signal: this.streamAbortController.signal,
             });
@@ -1306,19 +1367,6 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
             if (body.conversation_id && body.conversation_id !== this.conversationId) {
                 this.conversationId = body.conversation_id;
                 this.subscribeToConversation(body.conversation_id);
-            }
-            if (isFirstMessage && body.conversation_id) {
-                const url = new URL(window.location.href);
-                url.pathname = url.pathname
-                    .replace(/\/chats\/.*$/, `/chats/${body.conversation_id}`)
-                    .replace(/\/chats\/?$/, `/chats/${body.conversation_id}`);
-                url.search = '';
-                url.hash = '';
-                history.replaceState(null, '', url.toString());
-
-                window.dispatchEvent(new CustomEvent('chat:conversation-created', {
-                    detail: { id: body.conversation_id }
-                }));
             }
         } catch (error) {
             if (error?.name === 'AbortError') {
