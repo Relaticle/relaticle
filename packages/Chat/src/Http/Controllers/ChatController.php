@@ -83,14 +83,22 @@ final readonly class ChatController
                 TitleSanitizer::clean($validated['message']),
             );
         } else {
+            $title = TitleSanitizer::clean($validated['message']);
+
             DB::table('agent_conversations')->insertOrIgnore([
                 'id' => $conversation,
                 'user_id' => (string) $user->getKey(),
                 'team_id' => $team->getKey(),
-                'title' => TitleSanitizer::clean($validated['message']),
+                'title' => $title,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
+
+            DB::table('agent_conversations')
+                ->where('id', $conversation)
+                ->where('user_id', (string) $user->getKey())
+                ->where('title', '')
+                ->update(['title' => $title, 'updated_at' => now()]);
         }
 
         DB::transaction(function () use ($conversation, $user, $team): void {
