@@ -3,6 +3,36 @@
         x-data="{
             message: '',
             submitting: false,
+            selectedModel: @js(auth()->user()?->ai_preferences['default_model'] ?? 'auto'),
+            menuOpen: false,
+            modelOptions: [
+                { value: 'auto', label: 'Auto', provider: null },
+                { value: 'claude-sonnet', label: 'Sonnet 4.6', provider: 'anthropic' },
+                { value: 'claude-opus', label: 'Opus 4.7', provider: 'anthropic' },
+                { value: 'gpt-5-5', label: 'GPT 5.5', provider: 'openai' },
+                { value: 'gpt-5-4', label: 'GPT 5.4', provider: 'openai' },
+                { value: 'gemini-3-flash', label: 'Gemini 3 Flash', provider: 'gemini' },
+                { value: 'gemini-3-1-pro', label: 'Gemini 3.1 Pro', provider: 'gemini' },
+            ],
+            providerIcons: @js([
+                'anthropic' => svg('ri-claude-fill')->toHtml(),
+                'openai' => svg('ri-openai-fill')->toHtml(),
+                'gemini' => svg('ri-gemini-fill')->toHtml(),
+            ]),
+            providerIconHtml(provider) {
+                return provider ? (this.providerIcons[provider] || '') : '';
+            },
+            providerIconColor(provider) {
+                return ({
+                    anthropic: 'text-[#D4763C]',
+                    openai: 'text-gray-900 dark:text-gray-200',
+                    gemini: 'text-blue-500',
+                })[provider] || '';
+            },
+            modelLabel(value) {
+                const found = this.modelOptions.find((o) => o.value === value);
+                return (found || this.modelOptions[0]).label;
+            },
 
             submit() {
                 const text = this.message.trim();
@@ -11,10 +41,14 @@
 
                 const url = new URL(@js(\App\Filament\Pages\ChatConversation::getUrl()), window.location.origin);
                 url.searchParams.set('message', text);
+                if (this.selectedModel && this.selectedModel !== 'auto') {
+                    url.searchParams.set('model', this.selectedModel);
+                }
 
                 window.location.href = url.toString();
             }
         }"
+        x-on:keydown.escape.window="menuOpen = false"
         class="mx-auto max-w-2xl py-16"
     >
         {{-- Greeting --}}
@@ -36,22 +70,80 @@
 
         {{-- Chat input --}}
         <form @submit.prevent="submit()" class="mt-10">
-            <div class="relative rounded-2xl border border-gray-200 bg-white transition focus-within:border-primary-500 dark:border-gray-700 dark:bg-gray-800">
+            <div class="rounded-2xl border border-gray-200 bg-white transition focus-within:border-primary-500 dark:border-gray-700 dark:bg-gray-800">
                 <textarea
                     x-model="message"
                     @keydown.enter.prevent="if(!$event.shiftKey) submit()"
                     placeholder="Ask anything..."
                     rows="3"
-                    class="block w-full resize-none rounded-2xl border-0 bg-transparent px-4 py-3 pr-12 text-sm leading-6 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-0 dark:text-white dark:placeholder:text-gray-500"
+                    class="block w-full resize-none rounded-t-2xl border-0 bg-transparent px-4 pt-3 pb-2 text-sm leading-6 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-0 dark:text-white dark:placeholder:text-gray-500"
                     :disabled="submitting"
                 ></textarea>
-                <button
-                    type="submit"
-                    class="absolute bottom-2.5 right-2.5 flex h-7 w-7 items-center justify-center rounded-lg bg-primary-600 text-white transition hover:bg-primary-700 disabled:opacity-40"
-                    :disabled="!message.trim() || submitting"
-                >
-                    <x-heroicon-s-arrow-up class="h-4 w-4" />
-                </button>
+                <div class="flex items-center justify-end gap-2 px-3 pb-2">
+                    {{-- Model picker --}}
+                    <div class="relative">
+                        <button
+                            type="button"
+                            x-on:click="menuOpen = !menuOpen"
+                            class="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-medium text-gray-600 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
+                            :aria-expanded="menuOpen"
+                            aria-haspopup="listbox"
+                            aria-label="Select AI model"
+                        >
+                            <span x-text="modelLabel(selectedModel)"></span>
+                            <x-heroicon-o-chevron-up-down class="h-3 w-3" aria-hidden="true" />
+                        </button>
+                        <div
+                            x-show="menuOpen"
+                            x-on:click.away="menuOpen = false"
+                            x-transition.opacity.duration.100ms
+                            role="listbox"
+                            aria-label="AI model options"
+                            class="absolute bottom-full right-0 z-10 mb-2 w-56 overflow-hidden rounded-lg border border-gray-200 bg-white py-1 shadow-lg dark:border-gray-700 dark:bg-gray-800"
+                            style="display: none;"
+                        >
+                            <template x-for="opt in modelOptions" :key="opt.value">
+                                <button
+                                    type="button"
+                                    role="option"
+                                    :aria-selected="selectedModel === opt.value"
+                                    x-on:click="selectedModel = opt.value; menuOpen = false"
+                                    class="flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700"
+                                    :class="{ 'bg-gray-50 dark:bg-gray-700/50': selectedModel === opt.value }"
+                                >
+                                    <span
+                                        x-html="providerIconHtml(opt.provider)"
+                                        :class="providerIconColor(opt.provider) + ' inline-flex h-4 w-4 shrink-0 items-center justify-center'"
+                                        aria-hidden="true"
+                                    ></span>
+                                    <span class="flex-1 truncate" x-text="opt.label"></span>
+                                    <x-heroicon-s-check-circle
+                                        x-show="selectedModel === opt.value"
+                                        class="h-3.5 w-3.5 shrink-0 text-primary-600 dark:text-primary-400"
+                                        aria-hidden="true"
+                                    />
+                                </button>
+                            </template>
+                        </div>
+                    </div>
+
+                    {{-- Slash-command hint --}}
+                    <kbd
+                        class="hidden h-6 select-none items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-1.5 font-mono text-[11px] text-gray-500 sm:inline-flex dark:border-gray-700 dark:bg-gray-900 dark:text-gray-400"
+                        title="Type / for shortcuts"
+                        aria-hidden="true"
+                    >/</kbd>
+
+                    {{-- Send --}}
+                    <button
+                        type="submit"
+                        class="flex h-7 w-7 items-center justify-center rounded-lg bg-primary-600 text-white transition hover:bg-primary-700 disabled:bg-primary-200 disabled:text-white dark:disabled:bg-primary-900/40 dark:disabled:text-primary-300"
+                        :disabled="!message.trim() || submitting"
+                        aria-label="Send message"
+                    >
+                        <x-heroicon-s-arrow-up class="h-4 w-4" />
+                    </button>
+                </div>
             </div>
         </form>
 

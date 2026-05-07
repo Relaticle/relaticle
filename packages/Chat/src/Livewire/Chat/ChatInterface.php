@@ -14,6 +14,8 @@ final class ChatInterface extends BaseLivewireComponent
 
     public ?string $initialMessage = null;
 
+    public ?string $initialModel = null;
+
     public ?string $oldestMessageId = null;
 
     public bool $hasMoreMessages = false;
@@ -27,7 +29,7 @@ final class ChatInterface extends BaseLivewireComponent
      */
     public array $messages = [];
 
-    public function mount(?string $conversationId = null, ?string $initialMessage = null, string $context = 'conversation'): void
+    public function mount(?string $conversationId = null, ?string $initialMessage = null, string $context = 'conversation', ?string $initialModel = null): void
     {
         $this->conversationId = $conversationId;
         $this->context = $context;
@@ -35,6 +37,10 @@ final class ChatInterface extends BaseLivewireComponent
         /** @var string|null $promptQuery */
         $promptQuery = request()->query('prompt');
         $this->initialMessage = $initialMessage ?? $promptQuery;
+
+        /** @var string|null $modelQuery */
+        $modelQuery = request()->query('model');
+        $this->initialModel = $initialModel ?? $modelQuery;
 
         if ($this->conversationId !== null) {
             $this->messages = $this->fetchMessages();

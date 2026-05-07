@@ -24,6 +24,8 @@ final class ChatConversation extends Page
 
     public ?string $initialMessage = null;
 
+    public ?string $initialModel = null;
+
     public ?string $conversationTitle = null;
 
     public function mount(?string $conversationId = null): void
@@ -41,6 +43,10 @@ final class ChatConversation extends Page
         /** @var string|null $message */
         $message = request()->query('message');
         $this->initialMessage = $message;
+
+        /** @var string|null $model */
+        $model = request()->query('model');
+        $this->initialModel = $model;
     }
 
     public function getTitle(): string

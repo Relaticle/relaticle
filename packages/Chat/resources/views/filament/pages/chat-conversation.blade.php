@@ -3,6 +3,7 @@
         <livewire:chat.chat-interface
             :conversation-id="$conversationId"
             :initial-message="$initialMessage"
+            :initial-model="$initialModel"
         />
     </div>
 </x-filament-panels::page>
