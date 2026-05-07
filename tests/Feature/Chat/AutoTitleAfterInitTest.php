@@ -8,6 +8,7 @@ use Illuminate\Support\Str;
 use Relaticle\Chat\Http\Controllers\ChatController;
 use Relaticle\Chat\Models\AgentConversation;
 use Relaticle\Chat\Models\AiCreditBalance;
+use Tests\Helpers\ChatDocument;
 
 mutates(ChatController::class);
 
@@ -37,8 +38,7 @@ it('updates the title from the first message when conversation was pre-minted by
 
     $this->postJson(route('chat.send'), [
         'conversation_id' => $conversationId,
-        'message' => 'Show me my recent companies please',
-        'mentions' => [],
+        'document' => ChatDocument::fromText('Show me my recent companies please'),
     ])->assertOk();
 
     expect(AgentConversation::query()->find($conversationId)?->title)
@@ -55,16 +55,14 @@ it('does not overwrite a non-empty title on subsequent sends', function (): void
 
     $this->postJson(route('chat.send'), [
         'conversation_id' => $conversationId,
-        'message' => 'first message',
-        'mentions' => [],
+        'document' => ChatDocument::fromText('first message'),
     ])->assertOk();
 
     AgentConversation::query()->where('id', $conversationId)->update(['title' => 'manual rename']);
 
     $this->postJson(route('chat.send'), [
         'conversation_id' => $conversationId,
-        'message' => 'a second message',
-        'mentions' => [],
+        'document' => ChatDocument::fromText('a second message'),
     ])->assertOk();
 
     expect(AgentConversation::query()->find($conversationId)?->title)->toBe('manual rename');

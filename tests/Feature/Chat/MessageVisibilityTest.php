@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Relaticle\Chat\Actions\ListConversationMessages;
+use Tests\Helpers\ChatDocument;
 
 mutates(ListConversationMessages::class);
 
@@ -26,6 +27,7 @@ it('hides synthetic [approval] user messages from the visible message list', fun
         'conversation_id' => $convId,
         'user_id' => (string) $user->getKey(),
         'agent' => 'crm',
+        'document' => ChatDocument::emptyJson(),
         'attachments' => '[]',
         'tool_calls' => '[]',
         'tool_results' => '[]',

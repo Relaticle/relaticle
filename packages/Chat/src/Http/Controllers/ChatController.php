@@ -9,13 +9,13 @@ use App\Models\Note;
 use App\Models\Opportunity;
 use App\Models\People;
 use App\Models\Task;
-use App\Models\Team;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Laravel\Ai\Contracts\ConversationStore;
 use Relaticle\Chat\Actions\DeleteConversation;
 use Relaticle\Chat\Actions\ListConversations;
@@ -25,6 +25,7 @@ use Relaticle\Chat\Jobs\ProcessChatMessage;
 use Relaticle\Chat\Models\AiCreditBalance;
 use Relaticle\Chat\Services\AiModelResolver;
 use Relaticle\Chat\Services\CreditService;
+use Relaticle\Chat\Services\TipTapDocumentParser;
 use Relaticle\Chat\Support\TitleSanitizer;
 
 final readonly class ChatController
@@ -33,22 +34,34 @@ final readonly class ChatController
         private CreditService $creditService,
         private AiModelResolver $modelResolver,
         private ConversationStore $conversationStore,
+        private TipTapDocumentParser $documentParser,
     ) {}
 
     public function send(Request $request, ?string $conversation = null): JsonResponse
     {
         $validated = $request->validate([
-            'message' => ['required', 'string', 'max:5000'],
+            'document' => ['required', 'array'],
             'model' => ['nullable', 'string', Rule::enum(AiModel::class)],
             'conversation_id' => ['nullable', 'string', 'uuid'],
-            'mentions' => ['nullable', 'array', 'max:15'],
-            'mentions.*.type' => ['required_with:mentions', 'string', 'in:company,people,opportunity,task,note'],
-            'mentions.*.id' => ['required_with:mentions', 'string', 'ulid'],
         ]);
 
         /** @var User $user */
         $user = $request->user();
         $team = $user->currentTeam;
+
+        $parsed = $this->documentParser->parse($validated['document'], $team);
+
+        if ($parsed['text'] === '') {
+            throw ValidationException::withMessages([
+                'document' => 'Message is empty.',
+            ]);
+        }
+
+        if (mb_strlen($parsed['text']) > 5000) {
+            throw ValidationException::withMessages([
+                'document' => 'Message is too long.',
+            ]);
+        }
 
         $conversation ??= $validated['conversation_id'] ?? null;
 
@@ -80,10 +93,10 @@ final readonly class ChatController
         if ($conversation === null) {
             $conversation = $this->conversationStore->storeConversation(
                 (string) $user->getKey(),
-                TitleSanitizer::clean($validated['message']),
+                TitleSanitizer::clean($parsed['text']),
             );
         } else {
-            $title = TitleSanitizer::clean($validated['message']);
+            $title = TitleSanitizer::clean($parsed['text']);
 
             DB::table('agent_conversations')->insertOrIgnore([
                 'id' => $conversation,
@@ -124,18 +137,14 @@ final readonly class ChatController
 
         $resolved = $this->modelResolver->resolve($user, $validated['model'] ?? null);
 
-        $resolvedMentions = $this->resolveMentions(
-            $validated['mentions'] ?? [],
-            $team,
-        );
-
         dispatch(new ProcessChatMessage(
             user: $user,
             team: $team,
-            message: $validated['message'],
+            message: $parsed['text'],
             conversationId: $conversation,
             resolved: $resolved,
-            mentions: $resolvedMentions,
+            mentions: $parsed['mentions'],
+            document: $validated['document'],
         ));
 
         return response()->json([
@@ -334,41 +343,5 @@ final readonly class ChatController
     private function escapeLikeWildcards(string $value): string
     {
         return str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $value);
-    }
-
-    /**
-     * @param  list<array{type: string, id: string}>  $mentions
-     * @return list<array{type: string, id: string, label: string}>
-     */
-    private function resolveMentions(array $mentions, Team $team): array
-    {
-        if ($mentions === []) {
-            return [];
-        }
-
-        $resolved = [];
-
-        foreach ($mentions as $mention) {
-            $record = match ($mention['type']) {
-                'company' => Company::query()->whereBelongsTo($team)->find($mention['id']),
-                'people' => People::query()->whereBelongsTo($team)->find($mention['id']),
-                'opportunity' => Opportunity::query()->whereBelongsTo($team)->find($mention['id']),
-                'task' => Task::query()->whereBelongsTo($team)->find($mention['id']),
-                'note' => Note::query()->whereBelongsTo($team)->find($mention['id']),
-                default => null,
-            };
-
-            if ($record === null) {
-                continue;
-            }
-
-            $resolved[] = [
-                'type' => $mention['type'],
-                'id' => $mention['id'],
-                'label' => $record instanceof Task || $record instanceof Note ? $record->title : $record->name,
-            ];
-        }
-
-        return $resolved;
     }
 }

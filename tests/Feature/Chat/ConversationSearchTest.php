@@ -6,6 +6,7 @@ use App\Models\Team;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Relaticle\Chat\Actions\SearchConversations;
+use Tests\Helpers\ChatDocument;
 
 mutates(SearchConversations::class);
 
@@ -42,6 +43,7 @@ it('matches by message content', function (): void {
         'agent' => 'Relaticle\\Chat\\Agents\\CrmAssistant',
         'role' => 'user',
         'content' => 'Show me companies in Berlin',
+        'document' => ChatDocument::emptyJson(),
         'attachments' => '[]',
         'tool_calls' => '[]',
         'tool_results' => '[]',

@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Queue;
 use Relaticle\Chat\Http\Controllers\ChatController;
 use Relaticle\Chat\Jobs\ProcessChatMessage;
 use Relaticle\Chat\Models\AiCreditBalance;
+use Tests\Helpers\ChatDocument;
 
 mutates(ChatController::class);
 
@@ -30,8 +31,9 @@ beforeEach(function () {
 it('rejects unauthenticated requests', function (): void {
     auth()->logout();
 
-    $this->postJson(route('chat.send'), ['message' => 'hello'])
-        ->assertUnauthorized();
+    $this->postJson(route('chat.send'), [
+        'document' => ChatDocument::fromText('hello'),
+    ])->assertUnauthorized();
 });
 
 it('returns 402 when credits are exhausted', function (): void {
@@ -39,27 +41,33 @@ it('returns 402 when credits are exhausted', function (): void {
         ->where('team_id', $this->team->getKey())
         ->update(['credits_remaining' => 0]);
 
-    $this->postJson(route('chat.send'), ['message' => 'hello'])
+    $this->postJson(route('chat.send'), [
+        'document' => ChatDocument::fromText('hello'),
+    ])
         ->assertStatus(402)
         ->assertJsonPath('error', 'credits_exhausted');
 });
 
-it('validates message is required', function (): void {
+it('validates document is required', function (): void {
     $this->postJson(route('chat.send'), [])
         ->assertUnprocessable()
-        ->assertJsonValidationErrors('message');
+        ->assertJsonValidationErrors('document');
 });
 
-it('validates message max length', function (): void {
-    $this->postJson(route('chat.send'), ['message' => str_repeat('a', 5001)])
+it('rejects empty documents', function (): void {
+    $this->postJson(route('chat.send'), [
+        'document' => ['type' => 'doc', 'content' => []],
+    ])
         ->assertUnprocessable()
-        ->assertJsonValidationErrors('message');
+        ->assertJsonValidationErrors('document');
 });
 
 it('dispatches a chat job when credits are available', function (): void {
     Queue::fake();
 
-    $response = $this->postJson(route('chat.send'), ['message' => 'hello']);
+    $response = $this->postJson(route('chat.send'), [
+        'document' => ChatDocument::fromText('hello'),
+    ]);
 
     $response->assertOk();
     $response->assertJson(['status' => 'processing']);
@@ -79,7 +87,7 @@ it('continues an existing conversation', function (): void {
     ]);
 
     $response = $this->postJson(route('chat.send', ['conversation' => 'conv-existing']), [
-        'message' => 'continue please',
+        'document' => ChatDocument::fromText('continue please'),
     ]);
 
     $response->assertOk();
@@ -156,7 +164,7 @@ it('rejects unknown model overrides with 422', function (): void {
     Queue::fake();
 
     $this->postJson(route('chat.send'), [
-        'message' => 'hello',
+        'document' => ChatDocument::fromText('hello'),
         'model' => 'not-a-real-model',
     ])
         ->assertUnprocessable()
@@ -169,7 +177,7 @@ it('accepts known model override values', function (): void {
     Queue::fake();
 
     $this->postJson(route('chat.send'), [
-        'message' => 'hello',
+        'document' => ChatDocument::fromText('hello'),
         'model' => 'claude-sonnet',
     ])->assertOk();
 
@@ -179,7 +187,9 @@ it('accepts known model override values', function (): void {
 it('returns the conversation id so the client can subscribe', function (): void {
     Queue::fake();
 
-    $response = $this->postJson(route('chat.send'), ['message' => 'hello']);
+    $response = $this->postJson(route('chat.send'), [
+        'document' => ChatDocument::fromText('hello'),
+    ]);
 
     $response->assertOk()
         ->assertJsonStructure(['status', 'conversation_id']);
@@ -194,8 +204,12 @@ it('atomically reserves a credit so concurrent sends cannot overspend', function
 
     Queue::fake();
 
-    $first = $this->postJson(route('chat.send'), ['message' => 'first']);
-    $second = $this->postJson(route('chat.send'), ['message' => 'second']);
+    $first = $this->postJson(route('chat.send'), [
+        'document' => ChatDocument::fromText('first'),
+    ]);
+    $second = $this->postJson(route('chat.send'), [
+        'document' => ChatDocument::fromText('second'),
+    ]);
 
     $first->assertOk();
     $second->assertStatus(402);
@@ -204,8 +218,9 @@ it('atomically reserves a credit so concurrent sends cannot overspend', function
 });
 
 it('does not reserve a credit when the request fails validation', function (): void {
-    $this->postJson(route('chat.send'), ['message' => ''])
-        ->assertUnprocessable();
+    $this->postJson(route('chat.send'), [
+        'document' => ['type' => 'doc', 'content' => []],
+    ])->assertUnprocessable();
 
     expect(AiCreditBalance::query()->where('team_id', $this->team->getKey())->value('credits_remaining'))->toBe(100);
 });
@@ -215,7 +230,9 @@ it('returns reset_at and upgrade_url on 402', function (): void {
         ->where('team_id', $this->team->getKey())
         ->update(['credits_remaining' => 0, 'period_ends_at' => now()->endOfMonth()]);
 
-    $this->postJson(route('chat.send'), ['message' => 'hi'])
+    $this->postJson(route('chat.send'), [
+        'document' => ChatDocument::fromText('hi'),
+    ])
         ->assertStatus(402)
         ->assertJsonStructure(['error', 'message', 'reset_at', 'upgrade_url'])
         ->assertJsonPath('error', 'credits_exhausted');
@@ -224,7 +241,9 @@ it('returns reset_at and upgrade_url on 402', function (): void {
 it('dispatches a chat job on the chat queue', function (): void {
     Queue::fake();
 
-    $this->postJson(route('chat.send'), ['message' => 'hello'])->assertOk();
+    $this->postJson(route('chat.send'), [
+        'document' => ChatDocument::fromText('hello'),
+    ])->assertOk();
 
     Queue::assertPushedOn('chat', ProcessChatMessage::class);
 });
@@ -246,6 +265,7 @@ it('cleans up messages when deleting a conversation', function (): void {
         'agent' => CrmAssistant::class,
         'role' => 'user',
         'content' => 'Hello',
+        'document' => ChatDocument::emptyJson(),
         'attachments' => '[]',
         'tool_calls' => '[]',
         'tool_results' => '[]',

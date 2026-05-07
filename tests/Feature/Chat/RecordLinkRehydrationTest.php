@@ -11,6 +11,7 @@ use Relaticle\Chat\Actions\ListConversationMessages;
 use Relaticle\Chat\Enums\PendingActionOperation;
 use Relaticle\Chat\Enums\PendingActionStatus;
 use Relaticle\Chat\Models\PendingAction;
+use Tests\Helpers\ChatDocument;
 
 mutates(ListConversationMessages::class);
 
@@ -65,6 +66,7 @@ it('approved actions expose record.url after conversation reload', function (): 
         'conversation_id' => $convId,
         'user_id' => (string) $user->getKey(),
         'agent' => 'crm',
+        'document' => ChatDocument::emptyJson(),
         'attachments' => '[]',
         'tool_calls' => '[]',
         'usage' => '{}',
@@ -138,6 +140,7 @@ it('does not expose record on pending or rejected actions', function (): void {
         'conversation_id' => $convId,
         'user_id' => (string) $user->getKey(),
         'agent' => 'crm',
+        'document' => ChatDocument::emptyJson(),
         'attachments' => '[]',
         'tool_calls' => '[]',
         'usage' => '{}',

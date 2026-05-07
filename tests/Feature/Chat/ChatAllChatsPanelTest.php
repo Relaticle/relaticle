@@ -7,6 +7,7 @@ use Filament\Facades\Filament;
 use Illuminate\Support\Facades\DB;
 use Livewire\Livewire;
 use Relaticle\Chat\Livewire\App\Chat\ChatAllChatsPanel;
+use Tests\Helpers\ChatDocument;
 
 mutates(ChatAllChatsPanel::class);
 
@@ -117,6 +118,7 @@ it('matches by message content via SearchConversations', function (): void {
         'agent' => 'Relaticle\\Chat\\Agents\\CrmAssistant',
         'role' => 'user',
         'content' => 'Find me companies in Berlin please',
+        'document' => ChatDocument::emptyJson(),
         'attachments' => '[]',
         'tool_calls' => '[]',
         'tool_results' => '[]',

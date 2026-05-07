@@ -40,6 +40,14 @@ return Application::configure(basePath: dirname(__DIR__))
         },
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->trimStrings(except: [
+            'document.*',
+        ]);
+
+        $middleware->convertEmptyStringsToNull(except: [
+            fn (Request $request): bool => $request->is('chat') || $request->is('chat/*'),
+        ]);
+
         $middleware->trustProxies(at: [
             '127.0.0.0/8',
             '10.0.0.0/8',

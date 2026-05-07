@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\RateLimiter;
 use Relaticle\Chat\Http\Controllers\ChatController;
 use Relaticle\Chat\Jobs\ProcessChatMessage;
 use Relaticle\Chat\Models\AiCreditBalance;
+use Tests\Helpers\ChatDocument;
 
 mutates(ChatController::class);
 
@@ -46,8 +47,9 @@ it('accepts a note type in the send mentions payload', function (): void {
     $note = Note::factory()->for($this->team)->create(['title' => 'Q3 retro']);
 
     $response = $this->postJson(route('chat.send'), [
-        'message' => 'Summarize @Q3_retro',
-        'mentions' => [['type' => 'note', 'id' => $note->id]],
+        'document' => ChatDocument::fromText('Summarize ', [
+            ['type' => 'note', 'id' => $note->id, 'label' => 'Q3 retro'],
+        ]),
     ])->assertOk();
 
     Queue::assertPushed(ProcessChatMessage::class, function (ProcessChatMessage $job) use ($note): bool {
@@ -64,8 +66,9 @@ it('drops note mentions belonging to another team', function (): void {
     $foreignNote = Note::factory()->for($otherTeam)->create(['title' => 'Cross-team']);
 
     $this->postJson(route('chat.send'), [
-        'message' => 'Tell me about that note',
-        'mentions' => [['type' => 'note', 'id' => $foreignNote->id]],
+        'document' => ChatDocument::fromText('Tell me about ', [
+            ['type' => 'note', 'id' => $foreignNote->id, 'label' => 'Cross-team'],
+        ]),
     ])->assertOk();
 
     Queue::assertPushed(ProcessChatMessage::class, function (ProcessChatMessage $job): bool {

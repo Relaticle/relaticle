@@ -37,14 +37,16 @@ final class ProcessChatMessage implements ShouldQueue
     /**
      * @param  array{provider: string|null, model: string|null}  $resolved
      * @param  list<array{type: string, id: string, label: string}>  $mentions
+     * @param  array<string, mixed>  $document
      */
     public function __construct(
         private readonly User $user,
         private readonly Team $team,
-        private readonly string $message,
+        public readonly string $message,
         private readonly string $conversationId,
         private readonly array $resolved,
         public readonly array $mentions = [],
+        public readonly array $document = ['type' => 'doc', 'content' => []],
     ) {
         $this->onQueue('chat');
     }
@@ -128,6 +130,7 @@ final class ProcessChatMessage implements ShouldQueue
                 );
 
                 $this->persistMentions();
+                $this->persistUserDocument();
                 $this->broadcastFollowUps($streamedResponse);
             });
         } finally {
@@ -180,6 +183,32 @@ final class ProcessChatMessage implements ShouldQueue
         ], $this->mentions);
 
         DB::table('agent_conversation_message_mentions')->insert($rows);
+    }
+
+    /**
+     * Update the latest user message row with the editor's document JSON.
+     *
+     * Runs in the post-stream `then()` callback after the agent's ConversationStore
+     * has inserted the user message row. If this UPDATE fails (DB blip), the row
+     * keeps its column DEFAULT of `{"type":"doc","content":[]}` — the user message
+     * is still readable, just without mention-chip rendering.
+     */
+    private function persistUserDocument(): void
+    {
+        $latestId = DB::table('agent_conversation_messages')
+            ->where('conversation_id', $this->conversationId)
+            ->where('role', 'user')
+            ->latest()
+            ->orderByDesc('id')
+            ->value('id');
+
+        if ($latestId === null) {
+            return;
+        }
+
+        DB::table('agent_conversation_messages')
+            ->where('id', $latestId)
+            ->update(['document' => json_encode($this->document, JSON_THROW_ON_ERROR)]);
     }
 
     private function broadcastFollowUps(StreamedAgentResponse $streamedResponse): void

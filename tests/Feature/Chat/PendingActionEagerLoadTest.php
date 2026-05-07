@@ -7,6 +7,7 @@ use Filament\Facades\Filament;
 use Illuminate\Support\Facades\DB;
 use Relaticle\Chat\Actions\ListConversationMessages;
 use Relaticle\Chat\Models\PendingAction;
+use Tests\Helpers\ChatDocument;
 
 mutates(ListConversationMessages::class);
 
@@ -33,6 +34,7 @@ beforeEach(function (): void {
             'agent' => 'Relaticle\\Chat\\Agents\\CrmAssistant',
             'role' => 'assistant',
             'content' => "message {$i}",
+            'document' => ChatDocument::emptyJson(),
             'attachments' => '[]',
             'tool_calls' => '[]',
             'tool_results' => json_encode([[

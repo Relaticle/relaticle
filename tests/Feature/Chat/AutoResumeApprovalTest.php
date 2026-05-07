@@ -12,6 +12,7 @@ use Relaticle\Chat\Jobs\ContinueChatMessage;
 use Relaticle\Chat\Models\PendingAction;
 use Relaticle\Chat\Services\ApprovalContinuationService;
 use Relaticle\Chat\Services\PendingActionService;
+use Tests\Helpers\ChatDocument;
 
 beforeEach(function (): void {
     $this->user = User::factory()->withPersonalTeam()->create();
@@ -93,6 +94,7 @@ it('skips dispatch after 5 consecutive [approval] continuations without real use
             'agent' => 'crm',
             'role' => 'user',
             'content' => "[approval]\nstatus: approved\nentity_type: people\n",
+            'document' => ChatDocument::emptyJson(),
             'attachments' => '[]',
             'tool_calls' => '[]',
             'tool_results' => '[]',
