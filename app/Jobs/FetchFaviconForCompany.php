@@ -46,7 +46,9 @@ final class FetchFaviconForCompany implements ShouldBeUnique, ShouldQueue
                 return;
             }
 
-            $domainName = Str::start($domainName, 'https://');
+            if (! Str::startsWith($domainName, ['http://', 'https://'])) {
+                $domainName = 'https://'.$domainName;
+            }
 
             $favicon = Favicon::driver('high-quality')->fetch($domainName);
             $url = $favicon?->getFaviconUrl();
