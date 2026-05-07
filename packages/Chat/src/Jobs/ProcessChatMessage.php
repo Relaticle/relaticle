@@ -25,6 +25,7 @@ use Relaticle\Chat\Events\ConversationResolved;
 use Relaticle\Chat\Events\FollowUpsSuggested;
 use Relaticle\Chat\Services\CreditService;
 use Relaticle\Chat\Services\FollowUpService;
+use Relaticle\Chat\Services\TipTapDocumentParser;
 use Relaticle\Chat\Support\ChatTelemetry;
 use Throwable;
 
@@ -131,6 +132,7 @@ final class ProcessChatMessage implements ShouldQueue
 
                 $this->persistMentions();
                 $this->persistUserDocument();
+                $this->materializeAssistantDocument($streamedResponse);
                 $this->broadcastFollowUps($streamedResponse);
             });
         } finally {
@@ -209,6 +211,45 @@ final class ProcessChatMessage implements ShouldQueue
         DB::table('agent_conversation_messages')
             ->where('id', $latestId)
             ->update(['document' => json_encode($this->document, JSON_THROW_ON_ERROR)]);
+    }
+
+    /**
+     * Materialize the assistant's response as a TipTap document on the
+     * latest assistant message row. Runs after the agent's ConversationStore
+     * has persisted the assistant message with its plain text `content`.
+     *
+     * v1 emits no mention chips in assistant prose — future work can extract
+     * structured entity references from tool results.
+     */
+    private function materializeAssistantDocument(StreamedAgentResponse $streamedResponse): void
+    {
+        $assistantContent = $streamedResponse->text;
+
+        if ($assistantContent === '') {
+            return;
+        }
+
+        $document = $this->getParser()->buildFromText($assistantContent, [], $this->team);
+
+        $latestId = DB::table('agent_conversation_messages')
+            ->where('conversation_id', $this->conversationId)
+            ->where('role', 'assistant')
+            ->latest()
+            ->orderByDesc('id')
+            ->value('id');
+
+        if ($latestId === null) {
+            return;
+        }
+
+        DB::table('agent_conversation_messages')
+            ->where('id', $latestId)
+            ->update(['document' => json_encode($document, JSON_THROW_ON_ERROR)]);
+    }
+
+    private function getParser(): TipTapDocumentParser
+    {
+        return resolve(TipTapDocumentParser::class);
     }
 
     private function broadcastFollowUps(StreamedAgentResponse $streamedResponse): void
