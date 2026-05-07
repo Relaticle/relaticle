@@ -245,9 +245,19 @@ final class HighQualityDriver implements Fetcher
 
     private function faviconIsAccessible(Favicon $favicon): bool
     {
+        $faviconUrl = $favicon->getFaviconUrl();
+
+        try {
+            SsrfGuard::assertPublicHost($faviconUrl);
+        } catch (SsrfGuardException $exception) {
+            report($exception);
+
+            return false;
+        }
+
         try {
             /** @var Response $response */
-            $response = $this->httpClient()->head($favicon->getFaviconUrl());
+            $response = $this->httpClient()->head($faviconUrl);
 
             return $response->successful();
         } catch (\Exception) {
