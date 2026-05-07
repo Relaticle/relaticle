@@ -31,7 +31,7 @@ beforeEach(function () {
 it('rejects unauthenticated requests', function (): void {
     auth()->logout();
 
-    $this->postJson(route('chat.send'), [
+    $this->postJson(route('chat.conversations.create'), [
         'document' => ChatDocument::fromText('hello'),
     ])->assertUnauthorized();
 });
@@ -41,7 +41,7 @@ it('returns 402 when credits are exhausted', function (): void {
         ->where('team_id', $this->team->getKey())
         ->update(['credits_remaining' => 0]);
 
-    $this->postJson(route('chat.send'), [
+    $this->postJson(route('chat.conversations.create'), [
         'document' => ChatDocument::fromText('hello'),
     ])
         ->assertStatus(402)
@@ -49,13 +49,13 @@ it('returns 402 when credits are exhausted', function (): void {
 });
 
 it('validates document is required', function (): void {
-    $this->postJson(route('chat.send'), [])
+    $this->postJson(route('chat.conversations.create'), [])
         ->assertUnprocessable()
         ->assertJsonValidationErrors('document');
 });
 
 it('rejects empty documents', function (): void {
-    $this->postJson(route('chat.send'), [
+    $this->postJson(route('chat.conversations.create'), [
         'document' => ['type' => 'doc', 'content' => []],
     ])
         ->assertUnprocessable()
@@ -65,12 +65,11 @@ it('rejects empty documents', function (): void {
 it('dispatches a chat job when credits are available', function (): void {
     Queue::fake();
 
-    $response = $this->postJson(route('chat.send'), [
+    $response = $this->postJson(route('chat.conversations.create'), [
         'document' => ChatDocument::fromText('hello'),
     ]);
 
     $response->assertOk();
-    $response->assertJson(['status' => 'processing']);
     Queue::assertPushed(ProcessChatMessage::class);
 });
 
@@ -163,7 +162,7 @@ it('cannot delete another user conversation', function (): void {
 it('rejects unknown model overrides with 422', function (): void {
     Queue::fake();
 
-    $this->postJson(route('chat.send'), [
+    $this->postJson(route('chat.conversations.create'), [
         'document' => ChatDocument::fromText('hello'),
         'model' => 'not-a-real-model',
     ])
@@ -176,7 +175,7 @@ it('rejects unknown model overrides with 422', function (): void {
 it('accepts known model override values', function (): void {
     Queue::fake();
 
-    $this->postJson(route('chat.send'), [
+    $this->postJson(route('chat.conversations.create'), [
         'document' => ChatDocument::fromText('hello'),
         'model' => 'claude-sonnet',
     ])->assertOk();
@@ -187,12 +186,12 @@ it('accepts known model override values', function (): void {
 it('returns the conversation id so the client can subscribe', function (): void {
     Queue::fake();
 
-    $response = $this->postJson(route('chat.send'), [
+    $response = $this->postJson(route('chat.conversations.create'), [
         'document' => ChatDocument::fromText('hello'),
     ]);
 
     $response->assertOk()
-        ->assertJsonStructure(['status', 'conversation_id']);
+        ->assertJsonStructure(['conversation_id']);
 
     expect($response->json('conversation_id'))->toBeString();
 });
@@ -204,10 +203,10 @@ it('atomically reserves a credit so concurrent sends cannot overspend', function
 
     Queue::fake();
 
-    $first = $this->postJson(route('chat.send'), [
+    $first = $this->postJson(route('chat.conversations.create'), [
         'document' => ChatDocument::fromText('first'),
     ]);
-    $second = $this->postJson(route('chat.send'), [
+    $second = $this->postJson(route('chat.conversations.create'), [
         'document' => ChatDocument::fromText('second'),
     ]);
 
@@ -218,7 +217,7 @@ it('atomically reserves a credit so concurrent sends cannot overspend', function
 });
 
 it('does not reserve a credit when the request fails validation', function (): void {
-    $this->postJson(route('chat.send'), [
+    $this->postJson(route('chat.conversations.create'), [
         'document' => ['type' => 'doc', 'content' => []],
     ])->assertUnprocessable();
 
@@ -230,7 +229,7 @@ it('returns reset_at and upgrade_url on 402', function (): void {
         ->where('team_id', $this->team->getKey())
         ->update(['credits_remaining' => 0, 'period_ends_at' => now()->endOfMonth()]);
 
-    $this->postJson(route('chat.send'), [
+    $this->postJson(route('chat.conversations.create'), [
         'document' => ChatDocument::fromText('hi'),
     ])
         ->assertStatus(402)
@@ -241,7 +240,7 @@ it('returns reset_at and upgrade_url on 402', function (): void {
 it('dispatches a chat job on the chat queue', function (): void {
     Queue::fake();
 
-    $this->postJson(route('chat.send'), [
+    $this->postJson(route('chat.conversations.create'), [
         'document' => ChatDocument::fromText('hello'),
     ])->assertOk();
 

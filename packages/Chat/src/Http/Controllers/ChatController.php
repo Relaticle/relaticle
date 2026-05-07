@@ -17,7 +17,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
-use Laravel\Ai\Contracts\ConversationStore;
 use Relaticle\Chat\Actions\DeleteConversation;
 use Relaticle\Chat\Actions\ListConversations;
 use Relaticle\Chat\Actions\RenameConversation;
@@ -34,7 +33,6 @@ final readonly class ChatController
     public function __construct(
         private CreditService $creditService,
         private AiModelResolver $modelResolver,
-        private ConversationStore $conversationStore,
         private TipTapDocumentParser $documentParser,
     ) {}
 
@@ -66,17 +64,17 @@ final readonly class ChatController
 
         $conversation ??= $validated['conversation_id'] ?? null;
 
-        if ($conversation !== null) {
-            $existing = DB::table('agent_conversations')->where('id', $conversation)->first();
+        abort_if($conversation === null, 422, 'conversation_id is required.');
 
-            if ($existing !== null) {
-                abort_if(
-                    $existing->user_id !== (string) $user->getKey()
-                        || ($existing->team_id !== null && $existing->team_id !== $team->getKey()),
-                    403
-                );
-            }
-        }
+        $existing = DB::table('agent_conversations')->where('id', $conversation)->first();
+
+        abort_if($existing === null, 404);
+
+        abort_if(
+            $existing->user_id !== (string) $user->getKey()
+                || ($existing->team_id !== null && $existing->team_id !== $team->getKey()),
+            403
+        );
 
         if (! $this->creditService->reserveCredit($team)) {
             $balance = AiCreditBalance::query()
@@ -89,30 +87,6 @@ final readonly class ChatController
                 'reset_at' => $balance?->period_ends_at?->toIso8601String(),
                 'upgrade_url' => url('/app/billing'),
             ], 402);
-        }
-
-        if ($conversation === null) {
-            $conversation = $this->conversationStore->storeConversation(
-                (string) $user->getKey(),
-                TitleSanitizer::clean($parsed['text']),
-            );
-        } else {
-            $title = TitleSanitizer::clean($parsed['text']);
-
-            DB::table('agent_conversations')->insertOrIgnore([
-                'id' => $conversation,
-                'user_id' => (string) $user->getKey(),
-                'team_id' => $team->getKey(),
-                'title' => $title,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
-
-            DB::table('agent_conversations')
-                ->where('id', $conversation)
-                ->where('user_id', (string) $user->getKey())
-                ->where('title', '')
-                ->update(['title' => $title, 'updated_at' => now()]);
         }
 
         DB::transaction(function () use ($conversation, $user, $team): void {
@@ -152,42 +126,6 @@ final readonly class ChatController
             'status' => 'processing',
             'conversation_id' => $conversation,
         ]);
-    }
-
-    public function init(Request $request): JsonResponse
-    {
-        $validated = $request->validate([
-            'conversation_id' => ['required', 'string', 'uuid'],
-        ]);
-
-        /** @var User $user */
-        $user = $request->user();
-        $team = $user->currentTeam;
-
-        abort_if($team === null, 403);
-
-        $existing = DB::table('agent_conversations')->where('id', $validated['conversation_id'])->first();
-
-        if ($existing !== null) {
-            abort_if(
-                $existing->user_id !== (string) $user->getKey()
-                    || ($existing->team_id !== null && $existing->team_id !== $team->getKey()),
-                403
-            );
-
-            return response()->json(['conversation_id' => $validated['conversation_id']]);
-        }
-
-        DB::table('agent_conversations')->insert([
-            'id' => $validated['conversation_id'],
-            'user_id' => (string) $user->getKey(),
-            'team_id' => $team->getKey(),
-            'title' => '',
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
-
-        return response()->json(['conversation_id' => $validated['conversation_id']]);
     }
 
     public function createConversation(Request $request): JsonResponse

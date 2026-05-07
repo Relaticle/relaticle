@@ -34,7 +34,7 @@ final class ChatSidebarNav extends BaseLivewireComponent
         $this->dispatch('chat:conversation-deleted');
     }
 
-    private const SIDEBAR_LIMIT = 7;
+    private const int SIDEBAR_LIMIT = 7;
 
     public function render(): View
     {

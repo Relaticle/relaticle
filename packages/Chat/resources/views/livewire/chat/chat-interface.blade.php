@@ -910,33 +910,6 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
         }
     },
 
-    generateConversationId() {
-        const ts = Date.now();
-        const tsHex = ts.toString(16).padStart(12, '0');
-        const rand = new Uint8Array(10);
-        crypto.getRandomValues(rand);
-        rand[0] = (rand[0] & 0x0f) | 0x70;
-        rand[2] = (rand[2] & 0x3f) | 0x80;
-        const hex = Array.from(rand, (b) => b.toString(16).padStart(2, '0')).join('');
-        return `${tsHex.slice(0, 8)}-${tsHex.slice(8, 12)}-${hex.slice(0, 4)}-${hex.slice(4, 8)}-${hex.slice(8, 20)}`;
-    },
-
-    async initConversation(conversationId) {
-        const response = await fetch(@js(route('chat.conversations.init')), {
-            method: 'POST',
-            credentials: 'same-origin',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content ?? '',
-            },
-            body: JSON.stringify({ conversation_id: conversationId }),
-        });
-        if (!response.ok) {
-            throw new Error('Failed to initialize conversation');
-        }
-    },
-
     subscribeToConversation(conversationId) {
         if (!window.Echo) return Promise.resolve();
         if (this.channel && this.channel.conversationId === conversationId) {

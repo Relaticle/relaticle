@@ -46,7 +46,7 @@ it('accepts a note type in the send mentions payload', function (): void {
     Queue::fake();
     $note = Note::factory()->for($this->team)->create(['title' => 'Q3 retro']);
 
-    $response = $this->postJson(route('chat.send'), [
+    $response = $this->postJson(route('chat.conversations.create'), [
         'document' => ChatDocument::fromText('Summarize ', [
             ['type' => 'note', 'id' => $note->id, 'label' => 'Q3 retro'],
         ]),
@@ -65,7 +65,7 @@ it('drops note mentions belonging to another team', function (): void {
     $otherTeam = Team::factory()->create();
     $foreignNote = Note::factory()->for($otherTeam)->create(['title' => 'Cross-team']);
 
-    $this->postJson(route('chat.send'), [
+    $this->postJson(route('chat.conversations.create'), [
         'document' => ChatDocument::fromText('Tell me about ', [
             ['type' => 'note', 'id' => $foreignNote->id, 'label' => 'Cross-team'],
         ]),
