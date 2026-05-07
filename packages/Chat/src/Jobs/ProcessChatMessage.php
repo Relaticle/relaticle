@@ -44,12 +44,13 @@ final class ProcessChatMessage implements ShouldQueue
         private readonly User $user,
         private readonly Team $team,
         public readonly string $message,
-        private readonly string $conversationId,
+        public readonly string $conversationId,
         private readonly array $resolved,
         public readonly array $mentions = [],
         public readonly array $document = ['type' => 'doc', 'content' => []],
     ) {
         $this->onQueue('chat');
+        $this->afterCommit = true;
     }
 
     public function handle(CreditService $creditService): void

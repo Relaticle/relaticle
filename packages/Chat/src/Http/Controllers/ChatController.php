@@ -14,6 +14,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Laravel\Ai\Contracts\ConversationStore;
@@ -187,6 +188,72 @@ final readonly class ChatController
         ]);
 
         return response()->json(['conversation_id' => $validated['conversation_id']]);
+    }
+
+    public function createConversation(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'document' => ['required', 'array'],
+            'model' => ['nullable', 'string', Rule::enum(AiModel::class)],
+        ]);
+
+        /** @var User $user */
+        $user = $request->user();
+        $team = $user->currentTeam;
+
+        abort_if($team === null, 403);
+
+        $parsed = $this->documentParser->parse($validated['document'], $team);
+
+        if ($parsed['text'] === '') {
+            throw ValidationException::withMessages([
+                'document' => 'Message is empty.',
+            ]);
+        }
+
+        if (mb_strlen($parsed['text']) > 5000) {
+            throw ValidationException::withMessages([
+                'document' => 'Message is too long.',
+            ]);
+        }
+
+        if (! $this->creditService->reserveCredit($team)) {
+            $balance = AiCreditBalance::query()
+                ->where('team_id', $team->getKey())
+                ->first();
+
+            return response()->json([
+                'error' => 'credits_exhausted',
+                'message' => 'You have used all your AI credits for this billing period.',
+                'reset_at' => $balance?->period_ends_at?->toIso8601String(),
+                'upgrade_url' => url('/app/billing'),
+            ], 402);
+        }
+
+        $conversationId = (string) Str::uuid7();
+
+        DB::table('agent_conversations')->insert([
+            'id' => $conversationId,
+            'user_id' => (string) $user->getKey(),
+            'team_id' => $team->getKey(),
+            'title' => TitleSanitizer::clean($parsed['text']),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $resolved = $this->modelResolver->resolve($user, $validated['model'] ?? null);
+
+        dispatch(new ProcessChatMessage(
+            user: $user,
+            team: $team,
+            message: $parsed['text'],
+            conversationId: $conversationId,
+            resolved: $resolved,
+            mentions: $parsed['mentions'],
+            document: $validated['document'],
+        ));
+
+        return response()->json(['conversation_id' => $conversationId]);
     }
 
     public function cancel(Request $request, string $conversationId): JsonResponse
