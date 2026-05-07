@@ -41,6 +41,7 @@
 
                 <textarea
                     x-ref="chatInput"
+                    x-init="$nextTick(() => $refs.chatInput?.focus())"
                     x-model="input"
                     @keydown.enter="if ($event.shiftKey) return; if (mention.open && mention.results.length > 0) { $event.preventDefault(); selectMention(mention.results[mention.activeIndex]); return; } $event.preventDefault(); submit()"
                     @keydown.escape="if (mention.open) { $event.preventDefault(); closeMention() }"
@@ -49,6 +50,7 @@
                     @input="onTextareaInput($event)"
                     placeholder="Ask anything..."
                     rows="3"
+                    autofocus
                     class="block w-full resize-none rounded-t-2xl border-0 bg-transparent px-4 pt-3 pb-2 text-sm leading-6 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-0 dark:text-white dark:placeholder:text-gray-500"
                     :disabled="submitting"
                 ></textarea>
@@ -104,7 +106,7 @@
                         <button
                             type="button"
                             x-on:click="menuOpen = !menuOpen"
-                            class="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-medium text-gray-600 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
+                            class="inline-flex h-7 items-center gap-1 rounded-md border border-gray-200 bg-white px-2 text-xs font-medium text-gray-600 transition hover:bg-gray-50 hover:text-gray-900 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
                             :aria-expanded="menuOpen"
                             aria-haspopup="listbox"
                             aria-label="Select AI model"
@@ -145,13 +147,6 @@
                             </template>
                         </div>
                     </div>
-
-                    {{-- Slash-command hint --}}
-                    <kbd
-                        class="hidden h-6 select-none items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-1.5 font-mono text-[11px] text-gray-500 sm:inline-flex dark:border-gray-700 dark:bg-gray-900 dark:text-gray-400"
-                        title="Type / for shortcuts"
-                        aria-hidden="true"
-                    >/</kbd>
 
                     {{-- Send --}}
                     <button
