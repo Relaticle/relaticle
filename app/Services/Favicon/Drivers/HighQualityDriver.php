@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Services\Favicon\Drivers;
 
-use App\Exceptions\SsrfGuardException;
 use App\Services\Favicon\SsrfGuard;
 use AshAllenDesign\FaviconFetcher\Collections\FaviconCollection;
 use AshAllenDesign\FaviconFetcher\Concerns\HasDefaultFunctionality;
@@ -34,11 +33,7 @@ final class HighQualityDriver implements Fetcher
     {
         throw_unless($this->urlIsValid($url), InvalidUrlException::class, $url.' is not a valid URL');
 
-        try {
-            SsrfGuard::assertPublicHost($url);
-        } catch (SsrfGuardException $exception) {
-            report($exception);
-
+        if (! SsrfGuard::isAllowed($url)) {
             return null;
         }
 
@@ -137,35 +132,22 @@ final class HighQualityDriver implements Fetcher
                 return null;
             }
 
-            $html = $response->body();
+            $html = (string) $response->body();
 
-            $patterns = [
-                '/<link\b[^>]*\bsizes=["\']512x512["\'][^>]*\bhref=["\']([^"\']+)["\']/i',
-                '/<link\b[^>]*\bhref=["\']([^"\']+)["\'][^>]*\bsizes=["\']512x512["\']/i',
-                '/<link\b[^>]*\bsizes=["\']256x256["\'][^>]*\bhref=["\']([^"\']+)["\']/i',
-                '/<link\b[^>]*\bhref=["\']([^"\']+)["\'][^>]*\bsizes=["\']256x256["\']/i',
-                '/<link\b[^>]*\bsizes=["\']192x192["\'][^>]*\bhref=["\']([^"\']+)["\']/i',
-                '/<link\b[^>]*\bhref=["\']([^"\']+)["\'][^>]*\bsizes=["\']192x192["\']/i',
-            ];
+            foreach ([512, 256, 192] as $size) {
+                $patterns = [
+                    "/<link\\b[^>]*\\bsizes=[\"']{$size}x{$size}[\"'][^>]*\\bhref=[\"']([^\"']+)[\"']/i",
+                    "/<link\\b[^>]*\\bhref=[\"']([^\"']+)[\"'][^>]*\\bsizes=[\"']{$size}x{$size}[\"']/i",
+                ];
 
-            foreach ($patterns as $pattern) {
-                if (preg_match($pattern, (string) $html, $matches)) {
-                    $iconUrl = $this->convertToAbsoluteUrl($url, $matches[1]);
-
-                    preg_match('/(\d+)x\d+/', $pattern, $sizeMatch);
-                    $size = isset($sizeMatch[1]) ? (int) $sizeMatch[1] : null;
-
-                    $favicon = new Favicon(
-                        url: $url,
-                        faviconUrl: $iconUrl,
-                        fromDriver: $this,
-                    );
-
-                    if ($size !== null) {
-                        $favicon->setIconSize($size);
+                foreach ($patterns as $pattern) {
+                    if (preg_match($pattern, $html, $matches)) {
+                        return new Favicon(
+                            url: $url,
+                            faviconUrl: $this->convertToAbsoluteUrl($url, $matches[1]),
+                            fromDriver: $this,
+                        )->setIconSize($size);
                     }
-
-                    return $favicon;
                 }
             }
 
@@ -183,11 +165,7 @@ final class HighQualityDriver implements Fetcher
 
             $faviconUrl = 'https://www.google.com/s2/favicons?sz=256&domain='.$urlWithoutProtocol;
 
-            try {
-                SsrfGuard::assertPublicHost($faviconUrl);
-            } catch (SsrfGuardException $exception) {
-                report($exception);
-
+            if (! SsrfGuard::isAllowed($faviconUrl)) {
                 return null;
             }
 
@@ -215,11 +193,7 @@ final class HighQualityDriver implements Fetcher
         $urlWithoutProtocol = str_replace(['https://', 'http://'], '', $url);
         $faviconUrl = 'https://icons.duckduckgo.com/ip3/'.$urlWithoutProtocol.'.ico';
 
-        try {
-            SsrfGuard::assertPublicHost($faviconUrl);
-        } catch (SsrfGuardException $exception) {
-            report($exception);
-
+        if (! SsrfGuard::isAllowed($faviconUrl)) {
             return null;
         }
 
@@ -247,11 +221,7 @@ final class HighQualityDriver implements Fetcher
     {
         $faviconUrl = $favicon->getFaviconUrl();
 
-        try {
-            SsrfGuard::assertPublicHost($faviconUrl);
-        } catch (SsrfGuardException $exception) {
-            report($exception);
-
+        if (! SsrfGuard::isAllowed($faviconUrl)) {
             return false;
         }
 

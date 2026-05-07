@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Jobs;
 
 use App\Enums\CustomFields\CompanyField;
-use App\Exceptions\SsrfGuardException;
 use App\Models\Company;
 use App\Services\Favicon\SsrfGuard;
 use AshAllenDesign\FaviconFetcher\Facades\Favicon;
@@ -61,11 +60,7 @@ final class FetchFaviconForCompany implements ShouldBeUnique, ShouldQueue
                 return;
             }
 
-            try {
-                SsrfGuard::assertPublicHost($url);
-            } catch (SsrfGuardException $exception) {
-                report($exception);
-
+            if (! SsrfGuard::isAllowed($url)) {
                 return;
             }
 
@@ -89,9 +84,9 @@ final class FetchFaviconForCompany implements ShouldBeUnique, ShouldQueue
                     'icon_type' => $favicon->getIconType(),
                     'fetched_at' => now()->toIso8601String(),
                 ])
-                ->toMediaCollection('logo');
+                ->toMediaCollection(Company::LOGO_MEDIA_COLLECTION);
 
-            $this->company->clearMediaCollectionExcept('logo', $logo);
+            $this->company->clearMediaCollectionExcept(Company::LOGO_MEDIA_COLLECTION, $logo);
         } catch (Throwable $exception) {
             report($exception);
         }

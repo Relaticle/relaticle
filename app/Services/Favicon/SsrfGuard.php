@@ -8,6 +8,19 @@ use App\Exceptions\SsrfGuardException;
 
 final readonly class SsrfGuard
 {
+    public static function isAllowed(string $url): bool
+    {
+        try {
+            self::assertPublicHost($url);
+
+            return true;
+        } catch (SsrfGuardException $exception) {
+            report($exception);
+
+            return false;
+        }
+    }
+
     public static function assertPublicHost(string $url): void
     {
         $host = parse_url($url, PHP_URL_HOST);

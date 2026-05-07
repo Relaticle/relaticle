@@ -30,7 +30,7 @@ final readonly class CompanyObserver
         // fires on every Company update and would otherwise flood the queue with
         // redundant favicon dispatches against slow remote sites. If the domain
         // changes, callers must clear the 'logo' media collection to trigger a refetch.
-        if ($company->hasMedia('logo')) {
+        if ($company->hasMedia(Company::LOGO_MEDIA_COLLECTION)) {
             return;
         }
 
