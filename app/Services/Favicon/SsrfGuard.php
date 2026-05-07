@@ -12,7 +12,7 @@ final readonly class SsrfGuard
     {
         $host = parse_url($url, PHP_URL_HOST);
 
-        throw_if(! is_string($host) || $host === '', SsrfGuardException::class, "Invalid host in URL: {$url}");
+        throw_if(! is_string($host) || $host === '', SsrfGuardException::class, 'Invalid host in URL');
 
         $host = trim($host, '[]');
 
