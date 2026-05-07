@@ -1346,7 +1346,12 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
         this.currentToolStatus = null;
         const assistantMsg = this.messages[this.messages.length - 1];
         if (assistantMsg?.role === 'assistant') {
-            assistantMsg.content += event.delta || '';
+            let delta = event.delta || '';
+            if (assistantMsg._needsSeparator && delta && !/^\s/.test(delta)) {
+                delta = ' ' + delta;
+            }
+            assistantMsg._needsSeparator = false;
+            assistantMsg.content += delta;
             this.scrollToBottom();
         }
     },
@@ -1354,6 +1359,10 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
     handleToolCall(event) {
         this.startStreamTimeout();
         this.currentToolStatus = this.friendlyToolStatus(event?.tool_name);
+        const assistantMsg = this.messages[this.messages.length - 1];
+        if (assistantMsg?.role === 'assistant' && assistantMsg.content && !/\s$/.test(assistantMsg.content)) {
+            assistantMsg._needsSeparator = true;
+        }
         this.scrollToBottom();
     },
 
@@ -1361,15 +1370,20 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
         this.startStreamTimeout();
         this.currentToolStatus = null;
         const assistantMsg = this.messages[this.messages.length - 1];
-        if (assistantMsg?.role === 'assistant' && event.result) {
-            try {
-                const result = typeof event.result === 'string' ? JSON.parse(event.result) : event.result;
-                if (result.type === 'pending_action') {
-                    result.status = 'pending';
-                    assistantMsg.pending_actions.push(result);
-                    this.scrollToBottom();
-                }
-            } catch { /* not pending action JSON */ }
+        if (assistantMsg?.role === 'assistant') {
+            if (assistantMsg.content && !/\s$/.test(assistantMsg.content)) {
+                assistantMsg._needsSeparator = true;
+            }
+            if (event.result) {
+                try {
+                    const result = typeof event.result === 'string' ? JSON.parse(event.result) : event.result;
+                    if (result.type === 'pending_action') {
+                        result.status = 'pending';
+                        assistantMsg.pending_actions.push(result);
+                        this.scrollToBottom();
+                    }
+                } catch { /* not pending action JSON */ }
+            }
         }
     },
 
