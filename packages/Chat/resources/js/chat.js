@@ -7,3 +7,11 @@ window.renderMarkdown = (text) => {
     if (!text) return ''
     return DOMPurify.sanitize(marked.parse(text))
 }
+
+import { chatEditor } from './chat-editor';
+
+document.addEventListener('alpine:init', () => {
+    if (window.Alpine) {
+        window.Alpine.data('chatEditor', chatEditor);
+    }
+});
