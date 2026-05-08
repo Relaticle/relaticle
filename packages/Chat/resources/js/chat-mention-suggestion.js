@@ -196,8 +196,16 @@ export function createMentionSuggestion() {
                         renderPopup({ query: '', fetching: false, error: false, results: items, activeIdx: activeIndex, onPick: onSelect });
                         return true;
                     }
-                    if (props.event.key === 'Enter' && items.length > 0) {
-                        onSelect?.(items[activeIndex]);
+                    // Always swallow Enter and Tab while the suggestion is active.
+                    // If we have a selectable item, pick it; otherwise just block the
+                    // event so the editor's submit-on-Enter handler doesn't fire
+                    // mid-mention. Without this, typing "Hello @" + Enter (query below
+                    // MIN_QUERY_LENGTH, fetch in flight, or no matches) submits the
+                    // message instead of giving the user a chance to finish typing.
+                    if (props.event.key === 'Enter' || props.event.key === 'Tab') {
+                        if (items.length > 0) {
+                            onSelect?.(items[activeIndex]);
+                        }
                         return true;
                     }
                     return false;

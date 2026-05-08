@@ -90,6 +90,18 @@ export function chatEditor({ initialDocument, placeholder, onSubmit, onChange, a
                     },
                     handleKeyDown: (view, event) => {
                         if (event.key === 'Enter' && !event.shiftKey) {
+                            // ProseMirror runs editorProps.handleKeyDown BEFORE plugin
+                            // handlers. If we submit here unconditionally, the mention
+                            // suggestion plugin never gets to intercept Enter — typing
+                            // "Hello @" + Enter would submit the message instead of
+                            // letting the user finish picking a mention. Defer to plugin
+                            // handlers when a mention suggestion is active.
+                            for (const plugin of view.state.plugins) {
+                                const state = plugin.getState?.(view.state);
+                                if (state && state.active === true) {
+                                    return false;
+                                }
+                            }
                             event.preventDefault();
                             onSubmit?.();
                             return true;
