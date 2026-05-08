@@ -29,7 +29,7 @@
                         <template x-for="prompt in starterPrompts" :key="prompt">
                             <button
                                 type="button"
-                                x-on:click="input = prompt; window.__chatEditor?.setText(prompt); $nextTick(() => sendMessage())"
+                                x-on:click="input = prompt; localEditor()?.setText(prompt); $nextTick(() => sendMessage())"
                                 x-text="prompt"
                                 class="rounded-full border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 transition hover:border-primary-300 hover:bg-primary-50 hover:text-primary-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-primary-700 dark:hover:bg-primary-900/20 dark:hover:text-primary-300"
                             ></button>
@@ -362,7 +362,7 @@
                     })"
                     x-on:chat:editor-submit.window="sendMessage()"
                     x-on:chat:editor-change.window="input = $event.detail.text"
-                    x-init="$nextTick(() => { window.__chatEditor = $data; })"
+                    {{-- No global setter needed — chatInterface uses localEditor() to scope-resolve. --}}
                     data-chat-context="conversation"
                     class="relative rounded-2xl border border-gray-200 bg-white transition focus-within:border-primary-500 dark:border-gray-700 dark:bg-gray-800"
                 >
@@ -432,6 +432,17 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
     copyTickerId: null,
     selectedModel: 'auto',
     undoToast: null,
+
+    // Scoped lookup of THIS chat-interface's TipTap editor. Avoids the
+    // window.__chatEditor global that breaks when multiple chat-interface
+    // instances render simultaneously (e.g. side panel + main page).
+    localEditor() {
+        const root = this.$root || this.$el;
+        if (! root) return null;
+        const wrapper = root.querySelector('[x-data*="chatEditor"]');
+        if (! wrapper || ! window.Alpine) return null;
+        return window.Alpine.$data(wrapper);
+    },
     modelOptions: [
         { value: 'auto', label: 'Auto', provider: null },
         { value: 'claude-sonnet', label: 'Sonnet 4.6', provider: 'anthropic' },
@@ -563,7 +574,7 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
         if (initialMessage) {
             this.$nextTick(() => {
                 this.input = initialMessage;
-                window.__chatEditor?.setText(initialMessage);
+                this.localEditor()?.setText(initialMessage);
                 this.sendMessage();
             });
         }
@@ -572,7 +583,7 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
             const draft = localStorage.getItem('chat:draft');
             if (draft) {
                 this.input = draft;
-                this.$nextTick(() => window.__chatEditor?.setText(draft));
+                this.$nextTick(() => this.localEditor()?.setText(draft));
                 localStorage.removeItem('chat:draft');
             }
         } catch (_) { /* ignore */ }
@@ -705,7 +716,7 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
         this.messages.splice(userIndex);
 
         this.input = userText;
-        window.__chatEditor?.setText(userText);
+        this.localEditor()?.setText(userText);
         this.$nextTick(() => this.sendMessage());
     },
 
@@ -756,7 +767,7 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
         this.messages.splice(index);
 
         this.input = newText;
-        window.__chatEditor?.setText(newText);
+        this.localEditor()?.setText(newText);
         this.$nextTick(() => this.sendMessage());
     },
 
@@ -899,13 +910,13 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
         this.isStreaming = true;
 
         const isFirstMessage = !this.conversationId;
-        const payload = window.__chatEditor?.getDocument() ?? this.documentFromInput(text);
+        const payload = this.localEditor()?.getDocument() ?? this.documentFromInput(text);
 
         if (isFirstMessage) {
             const nowIso = new Date().toISOString();
             this.messages.push({ role: 'user', content: text, editing: false, editText: '', copiedAt: 0, created_at: nowIso });
             this.messages.push({ role: 'assistant', content: '', pending_actions: [], paywall: null, sessionExpired: false, rendered: false, prerendered: false, copiedAt: 0, follow_ups: [], created_at: nowIso });
-            window.__chatEditor?.clear();
+            this.localEditor()?.clear();
             this.input = '';
             this.currentToolStatus = null;
 
@@ -988,7 +999,7 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
 
         const nowIso = new Date().toISOString();
         this.messages.push({ role: 'user', content: text, editing: false, editText: '', copiedAt: 0, created_at: nowIso });
-        window.__chatEditor?.clear();
+        this.localEditor()?.clear();
         this.input = '';
         this.currentToolStatus = null;
 
@@ -1182,7 +1193,7 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
     restoreInputFocus() {
         this.$nextTick(() => {
             if (this.messages.some((m) => m.editing)) return;
-            window.__chatEditor?.focus();
+            this.localEditor()?.focus();
         });
     },
 

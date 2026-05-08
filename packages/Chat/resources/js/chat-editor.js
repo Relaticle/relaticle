@@ -20,6 +20,18 @@ function deepClone(value) {
     return JSON.parse(JSON.stringify(value));
 }
 
+function hasContent(doc) {
+    if (! doc || ! Array.isArray(doc.content) || doc.content.length === 0) return false;
+    // A doc with a single empty paragraph is treated as no content.
+    if (doc.content.length === 1) {
+        const node = doc.content[0];
+        if (node?.type === 'paragraph' && (! Array.isArray(node.content) || node.content.length === 0)) {
+            return false;
+        }
+    }
+    return true;
+}
+
 export function chatEditor({ initialDocument, placeholder, onSubmit, onChange, autofocus } = {}) {
     return {
         editorEl: null,
@@ -66,7 +78,12 @@ export function chatEditor({ initialDocument, placeholder, onSubmit, onChange, a
                         suggestion: createMentionSuggestion(),
                     }),
                 ],
-                content: deepClone(initialDocument ?? { type: 'doc', content: [] }),
+                // ProseMirror requires `block+` content; pass an empty paragraph rather
+                // than an empty content array so the Placeholder extension has a node to
+                // attach to and the editor reports a non-zero selection range.
+                content: hasContent(initialDocument)
+                    ? deepClone(initialDocument)
+                    : { type: 'doc', content: [{ type: 'paragraph' }] },
                 editorProps: {
                     attributes: {
                         class: 'prose prose-sm max-w-none focus:outline-none min-h-[64px] px-4 pt-3 pb-2 text-sm leading-6',
@@ -114,11 +131,13 @@ export function chatEditor({ initialDocument, placeholder, onSubmit, onChange, a
             if (! editor) return;
             editor.commands.setContent({
                 type: 'doc',
-                content: text === '' ? [] : [{
-                    type: 'paragraph',
-                    content: [{ type: 'text', text }],
-                }],
+                content: [
+                    text === ''
+                        ? { type: 'paragraph' }
+                        : { type: 'paragraph', content: [{ type: 'text', text }] },
+                ],
             });
+            this.text = text;
         },
 
         clear() {

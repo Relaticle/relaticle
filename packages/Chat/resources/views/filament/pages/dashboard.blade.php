@@ -34,7 +34,7 @@
                 })"
                 x-on:dashboard:editor-submit.window="submit()"
                 x-on:dashboard:editor-change.window="input = $event.detail.text"
-                x-init="$nextTick(() => { window.__dashboardEditor = $data; })"
+                {{-- No global setter needed — dashboardChatInput uses localEditor() to scope-resolve. --}}
                 data-chat-context="dashboard"
                 class="relative rounded-2xl border border-gray-200 bg-white transition focus-within:border-primary-500 dark:border-gray-700 dark:bg-gray-800"
             >
@@ -72,7 +72,7 @@
                 @foreach($suggestedPrompts as $prompt)
                     <button
                         type="button"
-                        @click="input = @js($prompt['prompt']); window.__dashboardEditor?.setText(@js($prompt['prompt'])); $nextTick(() => submit())"
+                        @click="input = @js($prompt['prompt']); localEditor()?.setText(@js($prompt['prompt'])); $nextTick(() => submit())"
                         class="rounded-full border border-gray-200 bg-white px-3 py-1 text-xs text-gray-600 transition hover:border-gray-300 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:border-gray-600 dark:hover:bg-gray-700"
                     >
                         {{ $prompt['label'] }}
@@ -99,7 +99,7 @@
                         @endphp
                         <button
                             type="button"
-                            @click="input = @js($insight->prompt); window.__dashboardEditor?.setText(@js($insight->prompt)); $nextTick(() => submit())"
+                            @click="input = @js($insight->prompt); localEditor()?.setText(@js($insight->prompt)); $nextTick(() => submit())"
                             class="group flex items-start gap-3 rounded-xl border border-gray-200 bg-white px-3.5 py-3 text-left transition hover:border-gray-300 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:border-gray-600 dark:hover:bg-gray-700"
                         >
                             <span class="text-2xl font-semibold tabular-nums leading-none {{ $accentClasses }}">{{ $insight->count }}</span>
@@ -162,8 +162,19 @@
                 this.selectedModel = value;
             },
 
+            // Scoped lookup of the dashboard's TipTap editor — avoids the
+            // window.__dashboardEditor global which collides if any sibling
+            // chat-interface instance also writes its own global.
+            localEditor() {
+                const root = this.$root || this.$el;
+                if (! root) return null;
+                const wrapper = root.querySelector('[x-data*="chatEditor"]');
+                if (! wrapper || ! window.Alpine) return null;
+                return window.Alpine.$data(wrapper);
+            },
+
             async submit() {
-                const editor = window.__dashboardEditor;
+                const editor = this.localEditor();
                 if (!editor || editor.isEmpty() || this.submitting) return;
 
                 this.submitting = true;

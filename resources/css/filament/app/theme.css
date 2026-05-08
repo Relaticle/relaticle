@@ -9,6 +9,7 @@
 
 /* Chat */
 @source '../../../../packages/Chat/resources/views';
+@source '../../../../packages/Chat/resources/js';
 
 /* ImportWizard */
 @source '../../../../packages/ImportWizard/resources';

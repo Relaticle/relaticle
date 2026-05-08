@@ -8,6 +8,7 @@ window.renderMarkdown = (text) => {
     return DOMPurify.sanitize(marked.parse(text))
 }
 
+import '../css/chat-editor.css';
 import { chatEditor } from './chat-editor';
 
 document.addEventListener('alpine:init', () => {

@@ -2,7 +2,11 @@ const SUGGESTION_DEBOUNCE_MS = 150;
 const MIN_QUERY_LENGTH = 2;
 
 export function createMentionSuggestion() {
-    let abortController = null;
+    // Token-based supersede: each fetchResults call increments fetchToken; only
+    // the call whose token still matches at await-time renders. Avoids
+    // AbortController pattern where aborted promises occasionally surface as
+    // unhandled rejections in a TipTap mutation-observer flush.
+    let fetchToken = 0;
     let popupEl = null;
     let activeIndex = 0;
     let items = [];
@@ -61,42 +65,61 @@ export function createMentionSuggestion() {
     }
 
     async function fetchResults(query) {
-        if (abortController) abortController.abort();
-        abortController = new AbortController();
+        const myToken = ++fetchToken;
 
         try {
             const res = await fetch('/chat/mentions?q=' + encodeURIComponent(query), {
                 method: 'GET',
                 headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
-                signal: abortController.signal,
                 credentials: 'same-origin',
             });
+            if (myToken !== fetchToken) return null; // superseded by a newer query
             if (!res.ok) return { results: [], error: true };
             const body = await res.json();
+            if (myToken !== fetchToken) return null;
             return {
                 results: (body.data || []).map((item) => ({ type: item.type, id: item.id, label: item.name })),
                 error: false,
             };
-        } catch (e) {
-            if (e.name === 'AbortError') return null;
+        } catch (_e) {
+            if (myToken !== fetchToken) return null;
             return { results: [], error: true };
         }
     }
 
     function debouncedFetch(query, render) {
         clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(async () => {
-            const result = await fetchResults(query);
-            if (result === null) return;
-            render(result);
+        debounceTimer = setTimeout(() => {
+            // Use .then so any unexpected rejection is caught here and not
+            // surfaced as "Uncaught (in promise)" inside ProseMirror's flush.
+            fetchResults(query)
+                .then((result) => {
+                    if (result === null) return;
+                    render(result);
+                })
+                .catch(() => {
+                    render({ results: [], error: true });
+                });
         }, SUGGESTION_DEBOUNCE_MS);
     }
 
     function positionPopup(rect) {
         if (!popupEl || !rect) return;
+        const popupHeight = popupEl.offsetHeight || 64;
+        const gap = 8;
+        const viewportH = window.innerHeight;
+
+        // Prefer above cursor; flip below when insufficient room above.
+        const roomAbove = rect.top - gap;
+        const placeBelow = roomAbove < popupHeight && (viewportH - rect.bottom) > roomAbove;
+
+        const top = placeBelow
+            ? window.scrollY + rect.bottom + gap
+            : window.scrollY + rect.top - popupHeight - gap;
+
         popupEl.style.position = 'absolute';
         popupEl.style.left = `${window.scrollX + rect.left}px`;
-        popupEl.style.top = `${window.scrollY + rect.top - 280}px`;
+        popupEl.style.top = `${top}px`;
     }
 
     return {
@@ -124,6 +147,7 @@ export function createMentionSuggestion() {
                     debouncedFetch(props.query, ({ results, error }) => {
                         items = results;
                         renderPopup({ query: props.query, fetching: false, error, results, activeIdx: activeIndex, onPick: onSelect });
+                        positionPopup(clientRect()); // re-position after content height changes
                     });
                 },
 
@@ -153,6 +177,7 @@ export function createMentionSuggestion() {
                     debouncedFetch(props.query, ({ results, error }) => {
                         items = results;
                         renderPopup({ query: props.query, fetching: false, error, results, activeIdx: activeIndex, onPick: onSelect });
+                        positionPopup(clientRect());
                     });
                 },
 
