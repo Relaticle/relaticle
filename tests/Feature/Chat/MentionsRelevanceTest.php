@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Models\Company;
+use App\Models\People;
 use App\Models\Task;
 use App\Models\User;
 use Filament\Facades\Filament;
@@ -43,4 +44,15 @@ it('orders prefix matches before substring matches for tasks (title column)', fu
 
     // Prefix matches first, ordered by length ascending (shorter first). Substring match comes after.
     expect(array_slice($titles, 0, 2))->toBe(['Friday standup', 'Fri-only routine']);
+});
+
+it('returns people before companies for ambiguous queries', function (): void {
+    Company::factory()->for($this->team)->create(['name' => 'Acme Tim Co']);
+    People::factory()->for($this->team)->create(['name' => 'Tim Cook']);
+
+    $response = $this->getJson(route('chat.mentions', ['q' => 'Tim']))->assertOk();
+
+    $data = $response->json('data');
+    expect($data[0]['type'])->toBe('people');
+    expect($data[0]['name'])->toBe('Tim Cook');
 });

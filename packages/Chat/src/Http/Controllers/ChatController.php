@@ -224,21 +224,6 @@ final readonly class ChatController
         $results = collect();
 
         $results = $results->merge(
-            Company::query()
-                ->whereBelongsTo($team)
-                ->where('name', 'ilike', "%{$search}%")
-                ->orderByRaw('CASE WHEN name ilike ? THEN 0 ELSE 1 END', ["{$search}%"])
-                ->orderByRaw('LENGTH(name) ASC')
-                ->orderBy('name')
-                ->limit($limit)
-                ->with('team')
-                ->get(['id', 'name', 'team_id'])
-                ->filter(fn (Company $r): bool => $user->can('view', $r))
-                ->values()
-                ->map(fn (Company $r): array => ['id' => $r->id, 'name' => $r->name, 'type' => 'company'])
-        );
-
-        $results = $results->merge(
             People::query()
                 ->whereBelongsTo($team)
                 ->where('name', 'ilike', "%{$search}%")
@@ -251,6 +236,21 @@ final readonly class ChatController
                 ->filter(fn (People $r): bool => $user->can('view', $r))
                 ->values()
                 ->map(fn (People $r): array => ['id' => $r->id, 'name' => $r->name, 'type' => 'people'])
+        );
+
+        $results = $results->merge(
+            Company::query()
+                ->whereBelongsTo($team)
+                ->where('name', 'ilike', "%{$search}%")
+                ->orderByRaw('CASE WHEN name ilike ? THEN 0 ELSE 1 END', ["{$search}%"])
+                ->orderByRaw('LENGTH(name) ASC')
+                ->orderBy('name')
+                ->limit($limit)
+                ->with('team')
+                ->get(['id', 'name', 'team_id'])
+                ->filter(fn (Company $r): bool => $user->can('view', $r))
+                ->values()
+                ->map(fn (Company $r): array => ['id' => $r->id, 'name' => $r->name, 'type' => 'company'])
         );
 
         $results = $results->merge(
