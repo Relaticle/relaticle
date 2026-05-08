@@ -106,19 +106,33 @@ export function createMentionSuggestion() {
     function positionPopup(rect) {
         if (!popupEl || !rect) return;
         const popupHeight = popupEl.offsetHeight || 64;
+        const popupWidth = popupEl.offsetWidth || 224;
         const gap = 8;
         const viewportH = window.innerHeight;
+        const viewportW = window.innerWidth;
 
         // Prefer above cursor; flip below when insufficient room above.
         const roomAbove = rect.top - gap;
         const placeBelow = roomAbove < popupHeight && (viewportH - rect.bottom) > roomAbove;
 
-        const top = placeBelow
+        const rawTop = placeBelow
             ? window.scrollY + rect.bottom + gap
             : window.scrollY + rect.top - popupHeight - gap;
 
+        // Clamp top: above-cursor placement with many results can overflow
+        // the viewport top (e.g. 10 items ≈ 256px tall, cursor at y=260
+        // gives rawTop ≈ -4). Keep popup at least gap below scrollY.
+        const top = Math.max(window.scrollY + gap, rawTop);
+
+        // Clamp left so the popup doesn't overflow narrow viewports.
+        const rawLeft = window.scrollX + rect.left;
+        const left = Math.min(
+            Math.max(window.scrollX + gap, rawLeft),
+            window.scrollX + viewportW - popupWidth - gap,
+        );
+
         popupEl.style.position = 'absolute';
-        popupEl.style.left = `${window.scrollX + rect.left}px`;
+        popupEl.style.left = `${left}px`;
         popupEl.style.top = `${top}px`;
     }
 
