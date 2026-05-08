@@ -34,3 +34,15 @@ it('exits 0 when fr matches en exactly', function (): void {
     $this->artisan('locale:diff', ['locale' => 'fr', '--lang-path' => $this->fixturePath])
         ->assertExitCode(0);
 });
+
+it('exits 1 when the source en directory does not exist', function (): void {
+    $this->artisan('locale:diff', ['locale' => 'fr', '--lang-path' => '/nonexistent/path/that/does/not/exist'])
+        ->expectsOutputToContain('Source directory not found')
+        ->assertExitCode(1);
+});
+
+it('exits 1 when the target locale directory does not exist', function (): void {
+    $this->artisan('locale:diff', ['locale' => 'de', '--lang-path' => $this->fixturePath])
+        ->expectsOutputToContain('Target directory not found')
+        ->assertExitCode(1);
+});
