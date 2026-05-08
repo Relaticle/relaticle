@@ -4,7 +4,16 @@ declare(strict_types=1);
 
 use App\Providers\LocaleServiceProvider;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Number;
+
+afterEach(function (): void {
+    $defaultLocale = config('app.locale');
+
+    app()->setLocale($defaultLocale);
+    Date::setLocale($defaultLocale);
+    Number::useLocale($defaultLocale);
+});
 
 it('localizes Carbon dates when app locale is set', function (): void {
     app()->setLocale('fr');
