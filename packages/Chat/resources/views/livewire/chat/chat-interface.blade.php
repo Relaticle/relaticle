@@ -914,7 +914,7 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
 
         if (isFirstMessage) {
             const nowIso = new Date().toISOString();
-            this.messages.push({ role: 'user', content: text, editing: false, editText: '', copiedAt: 0, created_at: nowIso });
+            this.messages.push({ role: 'user', content: text, document: payload, editing: false, editText: '', copiedAt: 0, created_at: nowIso });
             this.messages.push({ role: 'assistant', content: '', pending_actions: [], paywall: null, sessionExpired: false, rendered: false, prerendered: false, copiedAt: 0, follow_ups: [], created_at: nowIso });
             this.localEditor()?.clear();
             this.input = '';
@@ -998,7 +998,7 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
         }
 
         const nowIso = new Date().toISOString();
-        this.messages.push({ role: 'user', content: text, editing: false, editText: '', copiedAt: 0, created_at: nowIso });
+        this.messages.push({ role: 'user', content: text, document: payload, editing: false, editText: '', copiedAt: 0, created_at: nowIso });
         this.localEditor()?.clear();
         this.input = '';
         this.currentToolStatus = null;
