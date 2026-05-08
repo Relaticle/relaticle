@@ -7,10 +7,27 @@ import Placeholder from '@tiptap/extension-placeholder';
 import Mention from '@tiptap/extension-mention';
 import { createMentionSuggestion } from './chat-mention-suggestion';
 
+// Editors live outside Alpine's reactive proxy. Wrapping a TipTap editor in a
+// Proxy breaks ProseMirror's identity checks ("Applying a mismatched
+// transaction") because internal doc/state references are compared by identity
+// when transactions are applied.
+const editorByEl = new WeakMap();
+
+function deepClone(value) {
+    if (typeof structuredClone === 'function') {
+        return structuredClone(value);
+    }
+    return JSON.parse(JSON.stringify(value));
+}
+
 export function chatEditor({ initialDocument, placeholder, onSubmit, onChange, autofocus } = {}) {
     return {
         editorEl: null,
-        editor: null,
+        // Reactive mirror of the editor's plain text. Alpine bindings depending
+        // on editor state (e.g. :disabled="isEmpty() || text.length > 5000")
+        // must read this, not call getText(), because the editor lives outside
+        // Alpine's reactive proxy.
+        text: '',
 
         init() {
             this.editorEl = this.$refs.editor;
@@ -36,7 +53,7 @@ export function chatEditor({ initialDocument, placeholder, onSubmit, onChange, a
                 },
             });
 
-            this.editor = new Editor({
+            const editor = new Editor({
                 element: this.editorEl,
                 extensions: [
                     Document,
@@ -49,7 +66,7 @@ export function chatEditor({ initialDocument, placeholder, onSubmit, onChange, a
                         suggestion: createMentionSuggestion(),
                     }),
                 ],
-                content: initialDocument ?? { type: 'doc', content: [] },
+                content: deepClone(initialDocument ?? { type: 'doc', content: [] }),
                 editorProps: {
                     attributes: {
                         class: 'prose prose-sm max-w-none focus:outline-none min-h-[64px] px-4 pt-3 pb-2 text-sm leading-6',
@@ -64,29 +81,38 @@ export function chatEditor({ initialDocument, placeholder, onSubmit, onChange, a
                     },
                 },
                 onUpdate: ({ editor }) => {
-                    onChange?.({ document: editor.getJSON(), text: editor.getText() });
+                    const text = editor.getText();
+                    this.text = text;
+                    onChange?.({ document: editor.getJSON(), text });
                 },
             });
 
+            editorByEl.set(this.editorEl, editor);
+            this.text = editor.getText();
+
             if (autofocus) {
-                this.$nextTick(() => this.editor?.commands.focus('end'));
+                this.$nextTick(() => editorByEl.get(this.editorEl)?.commands.focus('end'));
             }
         },
 
         destroy() {
-            this.editor?.destroy();
+            const editor = editorByEl.get(this.editorEl);
+            editor?.destroy();
+            editorByEl.delete(this.editorEl);
         },
 
         getDocument() {
-            return this.editor?.getJSON() ?? { type: 'doc', content: [] };
+            return editorByEl.get(this.editorEl)?.getJSON() ?? { type: 'doc', content: [] };
         },
 
         getText() {
-            return (this.editor?.getText() ?? '').trim();
+            return (editorByEl.get(this.editorEl)?.getText() ?? '').trim();
         },
 
         setText(text) {
-            this.editor?.commands.setContent({
+            const editor = editorByEl.get(this.editorEl);
+            if (! editor) return;
+            editor.commands.setContent({
                 type: 'doc',
                 content: text === '' ? [] : [{
                     type: 'paragraph',
@@ -96,15 +122,15 @@ export function chatEditor({ initialDocument, placeholder, onSubmit, onChange, a
         },
 
         clear() {
-            this.editor?.commands.clearContent();
+            editorByEl.get(this.editorEl)?.commands.clearContent();
         },
 
         focus() {
-            this.editor?.commands.focus('end');
+            editorByEl.get(this.editorEl)?.commands.focus('end');
         },
 
         isEmpty() {
-            return this.editor?.isEmpty ?? true;
+            return editorByEl.get(this.editorEl)?.isEmpty ?? true;
         },
     };
 }

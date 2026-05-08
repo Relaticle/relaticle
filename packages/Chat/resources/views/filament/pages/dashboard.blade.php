@@ -46,7 +46,7 @@
                     <button
                         type="submit"
                         class="flex h-7 w-7 items-center justify-center rounded-lg bg-primary-600 text-white transition hover:bg-primary-700 disabled:bg-primary-200 disabled:text-white dark:disabled:bg-primary-900/40 dark:disabled:text-primary-300"
-                        :disabled="isEmpty() || submitting"
+                        :disabled="text.trim().length === 0 || submitting"
                         aria-label="Send message"
                     >
                         <x-heroicon-s-arrow-up class="h-4 w-4" />
