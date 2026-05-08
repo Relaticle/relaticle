@@ -136,7 +136,18 @@ export function createMentionSuggestion() {
                         return;
                     }
 
-                    if (!popupEl?.parentNode) document.body.appendChild(popupEl);
+                    // popupEl may not exist yet if onStart bailed early (query too short),
+                    // so always go through renderPopup which lazily creates it.
+                    const el = renderPopup({
+                        query: props.query,
+                        fetching: items.length === 0,
+                        error: false,
+                        results: items,
+                        activeIdx: activeIndex,
+                        onPick: onSelect,
+                    });
+
+                    if (!el.parentNode) document.body.appendChild(el);
                     positionPopup(clientRect());
 
                     debouncedFetch(props.query, ({ results, error }) => {
