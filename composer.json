@@ -66,6 +66,7 @@
         "driftingly/rector-laravel": "^2.0",
         "fakerphp/faker": "^1.23",
         "itsgoingd/clockwork": "^5.3",
+        "jbboehr/phpstan-lost-in-translation": "dev-master",
         "larastan/larastan": "^3.0",
         "laravel-lang/lang": "^15.29",
         "laravel-lang/publisher": "^16.8",

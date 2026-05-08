@@ -1,5 +1,6 @@
 includes:
     - vendor/larastan/larastan/extension.neon
+    - vendor/jbboehr/phpstan-lost-in-translation/extension.neon
 
 parameters:
     level: 7
