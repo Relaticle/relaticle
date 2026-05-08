@@ -175,7 +175,7 @@
 
             async submit() {
                 const editor = this.localEditor();
-                if (!editor || editor.isEmpty() || this.submitting) return;
+                if (!editor || editor.getText().trim().length === 0 || this.submitting) return;
 
                 this.submitting = true;
                 this.error = null;
