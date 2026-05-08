@@ -19,7 +19,7 @@ final readonly class ListConversationMessages
     ) {}
 
     /**
-     * @return array<int, array{id: string, role: string, content: string, created_at: ?string, pending_actions: array<int, mixed>, mentions: list<array{type: string, id: string, label: string}>}>
+     * @return array<int, array{id: string, role: string, content: string, document: array<string, mixed>, created_at: ?string, pending_actions: array<int, mixed>, mentions: list<array{type: string, id: string, label: string}>}>
      */
     public function execute(User $user, string $conversationId, ?string $beforeMessageId = null, int $limit = 50): array
     {
@@ -36,7 +36,7 @@ final readonly class ListConversationMessages
         $messages = $query
             ->orderByDesc('m.id')
             ->limit($limit)
-            ->get(['m.id', 'm.role', 'm.content', 'm.tool_results', 'm.created_at'])
+            ->get(['m.id', 'm.role', 'm.content', 'm.document', 'm.tool_results', 'm.created_at'])
             ->reverse()
             ->reject(fn (object $msg): bool => (string) $msg->role === 'user'
                 && str_starts_with((string) ($msg->content ?? ''), '[approval]'))
@@ -75,6 +75,14 @@ final readonly class ListConversationMessages
             'content' => $msg->role === 'assistant'
                 ? $this->markdown->render((string) ($msg->content ?? ''))
                 : (string) ($msg->content ?? ''),
+            'document' => (function (mixed $raw): array {
+                if ($raw === null) {
+                    return ['type' => 'doc', 'content' => []];
+                }
+                $decoded = json_decode((string) $raw, true);
+
+                return is_array($decoded) ? $decoded : ['type' => 'doc', 'content' => []];
+            })($msg->document ?? null),
             'created_at' => $msg->created_at === null ? null : (string) $msg->created_at,
             'pending_actions' => $this->extractPendingActions(
                 $msg->tool_results === null ? null : (string) $msg->tool_results,

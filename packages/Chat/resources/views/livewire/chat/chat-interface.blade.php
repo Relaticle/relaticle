@@ -29,7 +29,7 @@
                         <template x-for="prompt in starterPrompts" :key="prompt">
                             <button
                                 type="button"
-                                x-on:click="input = prompt; $nextTick(() => sendMessage())"
+                                x-on:click="input = prompt; window.__chatEditor?.setText(prompt); $nextTick(() => sendMessage())"
                                 x-text="prompt"
                                 class="rounded-full border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 transition hover:border-primary-300 hover:bg-primary-50 hover:text-primary-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-primary-700 dark:hover:bg-primary-900/20 dark:hover:text-primary-300"
                             ></button>
@@ -63,12 +63,7 @@
                                         :title="msg.created_at ? new Date(msg.created_at).toLocaleString() : ''"
                                         class="[overflow-wrap:anywhere] break-words rounded-2xl rounded-br-md bg-primary-600 px-4 py-3 text-sm text-white"
                                     >
-                                        <template x-if="msg.mentions && msg.mentions.length > 0">
-                                            <span x-html="renderMentions(msg.content, msg.mentions)" class="whitespace-pre-wrap"></span>
-                                        </template>
-                                        <template x-if="!msg.mentions || msg.mentions.length === 0">
-                                            <span x-text="msg.content" class="whitespace-pre-wrap"></span>
-                                        </template>
+                                        <span x-html="renderMessageContent(msg)" class="whitespace-pre-wrap"></span>
                                     </div>
                                 </template>
 
@@ -355,171 +350,47 @@
     <div class="border-t border-gray-200 bg-white px-4 py-4 dark:border-gray-700 dark:bg-gray-900">
         <div class="mx-auto max-w-3xl">
             <form x-on:submit.prevent="sendMessage()">
-                <div class="relative rounded-2xl border border-gray-200 bg-white transition focus-within:border-primary-500 dark:border-gray-700 dark:bg-gray-800">
-                    {{-- Mention pills --}}
-                    <div x-show="selectedMentions.length > 0" class="flex flex-wrap gap-1 px-3 pt-2">
-                        <template x-for="mention in selectedMentions" :key="`${mention.type}-${mention.id}`">
-                            <span class="inline-flex items-center gap-1 rounded-md bg-primary-100 px-1.5 py-0.5 text-xs text-primary-800 dark:bg-primary-900/30 dark:text-primary-200">
-                                <span x-text="mention.label"></span>
-                                <button
-                                    type="button"
-                                    data-mention-remove
-                                    @click="removeMention(mention)"
-                                    aria-label="Remove mention"
-                                    class="text-primary-500 hover:text-primary-700 dark:text-primary-300 dark:hover:text-primary-100"
-                                >×</button>
-                            </span>
-                        </template>
-                    </div>
+                <div
+                    x-data="chatEditor({
+                        initialDocument: { type: 'doc', content: [] },
+                        placeholder: 'Ask anything...',
+                        autofocus: true,
+                        onSubmit: () => $root.dispatchEvent(new CustomEvent('chat:editor-submit', { bubbles: true })),
+                        onChange: ({ document, text }) => {
+                            $root.dispatchEvent(new CustomEvent('chat:editor-change', { bubbles: true, detail: { document, text } }));
+                        },
+                    })"
+                    x-on:chat:editor-submit.window="sendMessage()"
+                    x-on:chat:editor-change.window="input = $event.detail.text"
+                    x-init="$nextTick(() => { window.__chatEditor = $data; })"
+                    data-chat-context="conversation"
+                    class="relative rounded-2xl border border-gray-200 bg-white transition focus-within:border-primary-500 dark:border-gray-700 dark:bg-gray-800"
+                >
+                    <div x-ref="editor" class="relative"></div>
 
-                    <label for="chat-message-input" class="sr-only">Message the assistant</label>
-                    <textarea
-                        id="chat-message-input"
-                        x-model="input"
-                        x-ref="chatInput"
-                        x-init="$nextTick(() => { if (!isStreaming) $refs.chatInput?.focus() })"
-                        autofocus
-                        @keydown.enter="if ($event.shiftKey) return; if (mention.open && mention.results.length > 0) { $event.preventDefault(); selectMention(mention.results[mention.activeIndex]); return; } $event.preventDefault(); sendMessage()"
-                        @keydown.escape="if (mention.open) { $event.preventDefault(); closeMention() }"
-                        @keydown.arrow-up="if (mention.open && mention.results.length > 0) { $event.preventDefault(); mentionMoveActive(-1) }"
-                        @keydown.arrow-down="if (mention.open && mention.results.length > 0) { $event.preventDefault(); mentionMoveActive(1) }"
-                        @input="onTextareaInput($event)"
-                        placeholder="Ask anything..."
-                        rows="3"
-                        aria-label="Message the assistant"
-                        class="block min-h-[64px] w-full resize-none rounded-t-2xl border-0 bg-transparent px-4 pt-3 pb-2 text-sm leading-6 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-0 dark:text-white dark:placeholder:text-gray-500"
-                        style="max-height: 200px;"
-                        :disabled="isStreaming"
-                    ></textarea>
-
-                    {{-- Mention dropdown --}}
-                    <div
-                        x-show="mention.open && mention.query.length >= 2"
-                        x-cloak
-                        @click.outside="closeMention()"
-                        role="listbox"
-                        aria-label="Mention suggestions"
-                        class="absolute bottom-full left-0 right-8 z-50 mb-2 max-h-64 overflow-auto rounded-xl border border-gray-200 bg-white py-1 shadow-lg dark:border-gray-700 dark:bg-gray-800"
-                    >
-                        <div x-show="mention.fetching && mention.results.length === 0" class="px-3 py-3 text-center text-xs text-gray-500 dark:text-gray-400">
-                            <span class="inline-flex items-center gap-2">
-                                <span class="h-2 w-2 animate-pulse rounded-full bg-primary-500"></span>
-                                Searching…
-                            </span>
-                        </div>
-
-                        <div x-show="!mention.fetching && mention.error" class="px-3 py-3 text-center text-xs text-red-600 dark:text-red-400" role="alert">
-                            <span x-text="mention.error"></span>
-                            <button type="button" @click="fetchMentions(mention.query)" class="ml-2 underline">Retry</button>
-                        </div>
-
-                        <div x-show="!mention.fetching && !mention.error && mention.results.length === 0" class="px-3 py-3 text-center text-xs text-gray-500 dark:text-gray-400">
-                            No matches for "<span x-text="mention.query"></span>".
-                        </div>
-
-                        <template x-if="!mention.fetching && !mention.error && mention.results.length > 0">
-                            <div>
-                                <template x-for="(item, idx) in mention.results" :key="`${item.type}-${item.id}`">
-                                    <button
-                                        type="button"
-                                        role="option"
-                                        :aria-selected="idx === mention.activeIndex"
-                                        @click="selectMention(item)"
-                                        @mouseenter="mention.activeIndex = idx"
-                                        :class="{ 'bg-primary-50 dark:bg-primary-900/30': idx === mention.activeIndex }"
-                                        class="flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left text-sm text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700"
-                                    >
-                                        <span x-text="item.label" class="truncate"></span>
-                                        <span x-text="mentionTypeLabel(item.type)" class="text-xs uppercase text-gray-400"></span>
-                                    </button>
-                                </template>
-                            </div>
-                        </template>
-                    </div>
-
-                    {{-- Controls row --}}
                     <div class="flex items-center justify-between gap-2 px-3 pb-2">
-                        {{-- Left: char counter (only shown near limit) --}}
                         <span
-                            x-show="input.length > 4000"
+                            x-show="getText().length > 4000"
                             x-cloak
-                            x-text="`${input.length.toLocaleString()} / 5,000`"
+                            x-text="`${getText().length.toLocaleString()} / 5,000`"
                             :class="{
-                                'text-gray-500 dark:text-gray-400': input.length <= 4900,
-                                'text-amber-600 dark:text-amber-400': input.length > 4900 && input.length <= 5000,
-                                'text-red-600 dark:text-red-400': input.length > 5000,
+                                'text-gray-500 dark:text-gray-400': getText().length <= 4900,
+                                'text-amber-600 dark:text-amber-400': getText().length > 4900 && getText().length <= 5000,
+                                'text-red-600 dark:text-red-400': getText().length > 5000,
                             }"
                             class="text-[11px]"
                             aria-live="polite"
                         ></span>
-                        <div x-show="input.length <= 4000" class="flex-1"></div>
+                        <div x-show="getText().length <= 4000" class="flex-1"></div>
 
-                        {{-- Right: model picker, slash hint, send/stop --}}
                         <div class="flex items-center gap-2">
-                            <div
-                                x-data="{ menuOpen: false }"
-                                x-on:keydown.escape.window="menuOpen = false"
-                                class="relative"
-                            >
-                                <button
-                                    type="button"
-                                    x-on:click="menuOpen = !menuOpen"
-                                    class="inline-flex h-7 items-center gap-1 rounded-md border px-2 text-xs font-medium transition"
-                                    :class="menuOpen
-                                        ? 'border-gray-200 bg-gray-50 text-gray-900 dark:border-gray-700 dark:bg-gray-700 dark:text-white'
-                                        : 'border-transparent bg-transparent text-gray-600 hover:border-gray-200 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:border-gray-700 dark:hover:bg-gray-700 dark:hover:text-white'"
-                                    :aria-expanded="menuOpen"
-                                    aria-haspopup="listbox"
-                                    aria-label="Select AI model"
-                                >
-                                    <span
-                                        x-show="modelProvider(selectedModel)"
-                                        x-html="providerIconHtml(modelProvider(selectedModel))"
-                                        :class="providerIconColor(modelProvider(selectedModel)) + ' inline-flex h-3.5 w-3.5 shrink-0 items-center justify-center'"
-                                        aria-hidden="true"
-                                    ></span>
-                                    <span x-text="modelLabel(selectedModel)"></span>
-                                    <x-heroicon-o-chevron-up-down class="h-3 w-3" aria-hidden="true" />
-                                </button>
-                                <div
-                                    x-show="menuOpen"
-                                    x-on:click.away="menuOpen = false"
-                                    x-transition.opacity.duration.100ms
-                                    role="listbox"
-                                    aria-label="AI model options"
-                                    class="absolute bottom-full right-0 z-10 mb-2 w-56 overflow-hidden rounded-lg border border-gray-200 bg-white py-1 shadow-lg dark:border-gray-700 dark:bg-gray-800"
-                                    style="display: none;"
-                                >
-                                    <template x-for="opt in modelOptions" :key="opt.value">
-                                        <button
-                                            type="button"
-                                            role="option"
-                                            :aria-selected="selectedModel === opt.value"
-                                            x-on:click="selectModel(opt.value); menuOpen = false"
-                                            class="flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700"
-                                            :class="{ 'bg-gray-50 dark:bg-gray-700/50': selectedModel === opt.value }"
-                                        >
-                                            <span
-                                                x-html="providerIconHtml(opt.provider)"
-                                                :class="providerIconColor(opt.provider) + ' inline-flex h-4 w-4 shrink-0 items-center justify-center'"
-                                                aria-hidden="true"
-                                            ></span>
-                                            <span class="flex-1 truncate" x-text="opt.label"></span>
-                                            <x-heroicon-s-check-circle
-                                                x-show="selectedModel === opt.value"
-                                                class="h-3.5 w-3.5 shrink-0 text-primary-600 dark:text-primary-400"
-                                                aria-hidden="true"
-                                            />
-                                        </button>
-                                    </template>
-                                </div>
-                            </div>
+                            @include('chat::livewire.chat.partials._model-picker')
 
                             <button
                                 x-show="!isStreaming"
                                 type="submit"
                                 class="flex h-7 w-7 items-center justify-center rounded-lg bg-primary-600 text-white transition hover:bg-primary-700 disabled:bg-primary-200 disabled:text-white dark:disabled:bg-primary-900/40 dark:disabled:text-primary-300"
-                                :disabled="!input.trim() || input.length > 5000"
+                                :disabled="isEmpty() || getText().length > 5000"
                                 aria-label="Send message"
                             >
                                 <x-heroicon-s-arrow-up class="h-4 w-4" />
@@ -551,17 +422,6 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
     hasMoreMessages: !!initialHasMoreMessages,
     input: '',
     isStreaming: false,
-    mention: {
-        open: false,
-        query: '',
-        results: [],
-        activeIndex: 0,
-        triggerStart: -1,
-        fetching: false,
-        error: null,
-        abort: null,
-    },
-    selectedMentions: [],
     channel: null,
     streamTimeoutId: null,
     streamTimeoutMs: 60000,
@@ -611,16 +471,6 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
         return found?.provider ?? null;
     },
 
-    mentionTypeLabel(type) {
-        return ({
-            company: 'Company',
-            people: 'Person',
-            opportunity: 'Deal',
-            task: 'Task',
-            note: 'Note',
-        })[type] ?? type;
-    },
-
     selectModel(value) {
         this.selectedModel = value;
         try { localStorage.setItem('chat:model', value); } catch (_) { /* ignore */ }
@@ -638,18 +488,35 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
         el.style.height = Math.min(el.scrollHeight, 200) + 'px';
     },
 
-    renderMentions(content, mentions) {
-        if (!mentions || mentions.length === 0) {
-            return this.escapeHtml(content);
+    renderMessageContent(message) {
+        if (!message.document || (Array.isArray(message.document.content) && message.document.content.length === 0)) {
+            return this.escapeHtml(message.content ?? '');
         }
-        let escaped = this.escapeHtml(content);
-        mentions.forEach((mention) => {
-            const token = '@' + mention.label.replace(/\s+/g, '_');
-            const tokenEscaped = this.escapeHtml(token);
-            const chip = `<a href="#" class="inline-flex items-center gap-1 rounded-md bg-primary-50 px-1.5 py-0.5 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300 no-underline hover:bg-primary-100 dark:hover:bg-primary-900/50" data-mention-id="${this.escapeAttr(mention.id)}" data-mention-type="${this.escapeAttr(mention.type)}">@${this.escapeHtml(mention.label)}</a>`;
-            escaped = escaped.split(tokenEscaped).join(chip);
-        });
-        return escaped;
+        return this.walkDocumentToHtml(message.document);
+    },
+
+    walkDocumentToHtml(node) {
+        if (!node) return '';
+        if (node.type === 'doc') {
+            return (node.content ?? []).map((c) => this.walkDocumentToHtml(c)).join('');
+        }
+        if (node.type === 'paragraph') {
+            const children = (node.content ?? []).map((c) => this.walkDocumentToHtml(c)).join('');
+            return `<p>${children}</p>`;
+        }
+        if (node.type === 'text') {
+            return this.escapeHtml(node.text ?? '');
+        }
+        if (node.type === 'mention') {
+            const id = this.escapeAttr(node.attrs?.id ?? '');
+            const type = this.escapeAttr(node.attrs?.type ?? '');
+            const label = this.escapeHtml(node.attrs?.label ?? '');
+            return `<span data-mention-id="${id}" data-mention-type="${type}" class="inline-flex items-center rounded-md bg-primary-100 px-1.5 py-0.5 text-xs text-primary-800 dark:bg-primary-900/30 dark:text-primary-200">@${label}</span>`;
+        }
+        if (node.type === 'hardBreak') {
+            return '<br>';
+        }
+        return '';
     },
 
     escapeHtml(str) {
@@ -693,23 +560,10 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
             this.subscribeToConversation(this.conversationId);
         }
 
-        // Pick up any mentions stashed by the dashboard input before this page loaded.
-        try {
-            const stashed = localStorage.getItem('chat:mentions');
-            if (stashed) {
-                const parsed = JSON.parse(stashed);
-                if (Array.isArray(parsed)) {
-                    this.selectedMentions = parsed
-                        .filter((m) => m && m.id && m.type && m.label && m.token)
-                        .map((m) => ({ id: m.id, type: m.type, label: m.label, token: m.token }));
-                }
-                localStorage.removeItem('chat:mentions');
-            }
-        } catch (_) { /* ignore malformed payload */ }
-
         if (initialMessage) {
             this.$nextTick(() => {
                 this.input = initialMessage;
+                window.__chatEditor?.setText(initialMessage);
                 this.sendMessage();
             });
         }
@@ -718,6 +572,7 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
             const draft = localStorage.getItem('chat:draft');
             if (draft) {
                 this.input = draft;
+                this.$nextTick(() => window.__chatEditor?.setText(draft));
                 localStorage.removeItem('chat:draft');
             }
         } catch (_) { /* ignore */ }
@@ -850,6 +705,7 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
         this.messages.splice(userIndex);
 
         this.input = userText;
+        window.__chatEditor?.setText(userText);
         this.$nextTick(() => this.sendMessage());
     },
 
@@ -900,6 +756,7 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
         this.messages.splice(index);
 
         this.input = newText;
+        window.__chatEditor?.setText(newText);
         this.$nextTick(() => this.sendMessage());
     },
 
@@ -1017,147 +874,6 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
         }
     },
 
-    onTextareaInput(event) {
-        this.input = event.target.value;
-        this.detectMentionTrigger(event.target);
-        this.autosize(event.target);
-    },
-
-    detectMentionTrigger(textarea) {
-        const cursor = textarea.selectionStart ?? this.input.length;
-        let text = this.input.slice(0, cursor);
-
-        // Mask already-committed mention tokens so their @ doesn't re-open the picker
-        // when the user types more text after them. Longest tokens first to avoid
-        // partial-prefix collisions (e.g. @AB vs @A).
-        const tokens = this.selectedMentions
-            .map((m) => m.token)
-            .filter((t) => typeof t === 'string' && t.length > 0)
-            .sort((a, b) => b.length - a.length);
-        for (const token of tokens) {
-            const escaped = token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-            text = text.replace(new RegExp(escaped, 'g'), (m) => '\0'.repeat(m.length));
-        }
-
-        const match = text.match(/(?:^|\s)@([\p{L}\p{N}_-]+(?:\s[\p{L}\p{N}_-]+)*)?$/iu);
-
-        if (!match) {
-            this.closeMention();
-            return;
-        }
-
-        this.mention.open = true;
-        this.mention.query = match[1] ?? '';
-        this.mention.triggerStart = cursor - this.mention.query.length - 1;
-
-        if (this.mention.query.length >= 2) {
-            this.fetchMentions(this.mention.query);
-        } else {
-            this.mention.abort?.abort();
-            this.mention.abort = null;
-            this.mention.results = [];
-            this.mention.activeIndex = 0;
-        }
-    },
-
-    async fetchMentions(query) {
-        if (this.mention.abort) {
-            this.mention.abort.abort();
-        }
-        this.mention.abort = new AbortController();
-        this.mention.fetching = true;
-        this.mention.error = null;
-
-        try {
-            const url = '/chat/mentions?q=' + encodeURIComponent(query);
-            const res = await fetch(url, {
-                method: 'GET',
-                headers: {
-                    'Accept': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest',
-                },
-                signal: this.mention.abort.signal,
-                credentials: 'same-origin',
-            });
-
-            if (!res.ok) {
-                this.mention.results = [];
-                this.mention.activeIndex = 0;
-                this.mention.error = "Couldn't load suggestions.";
-                return;
-            }
-
-            const body = await res.json();
-            this.mention.results = (body.data || []).map((item) => ({
-                type: item.type,
-                id: item.id,
-                label: item.name,
-            }));
-            this.mention.activeIndex = 0;
-        } catch (e) {
-            if (e.name !== 'AbortError') {
-                this.mention.results = [];
-                this.mention.activeIndex = 0;
-                this.mention.error = "Couldn't load suggestions.";
-            }
-        } finally {
-            this.mention.fetching = false;
-        }
-    },
-
-    selectMention(item) {
-        if (!item) return;
-        const before = this.input.slice(0, this.mention.triggerStart);
-        const afterCursor = this.input.slice(this.mention.triggerStart + 1 + this.mention.query.length);
-        const token = `@${item.label.replace(/\s+/g, '_')}`;
-        const newInput = `${before}${token} ${afterCursor}`;
-        this.input = newInput;
-        this.closeMention();
-        this.selectedMentions.push({
-            id: item.id,
-            type: item.type,
-            label: item.label,
-            token,
-        });
-        this.$nextTick(() => {
-            const ta = this.$refs.chatInput;
-            if (ta) {
-                ta.value = newInput;
-                const pos = (before + token + ' ').length;
-                ta.focus();
-                ta.setSelectionRange(pos, pos);
-                this.autosize(ta);
-            }
-        });
-    },
-
-    closeMention() {
-        if (this.mention.abort) {
-            this.mention.abort.abort();
-        }
-        this.mention = { open: false, query: '', results: [], activeIndex: 0, triggerStart: -1, fetching: false, error: null, abort: null };
-    },
-
-    removeMention(mention) {
-        this.selectedMentions = this.selectedMentions.filter((m) => !(m.type === mention.type && m.id === mention.id));
-        const escaped = mention.token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        this.input = this.input
-            .replace(new RegExp(escaped + '\\s?', 'g'), '')
-            .replace(/\s{2,}/g, ' ')
-            .trimStart();
-        const ta = this.$refs.chatInput;
-        if (ta) {
-            ta.value = this.input;
-            this.autosize(ta);
-        }
-    },
-
-    mentionMoveActive(delta) {
-        if (!this.mention.open || this.mention.results.length === 0) return;
-        const len = this.mention.results.length;
-        this.mention.activeIndex = (this.mention.activeIndex + delta + len) % len;
-    },
-
     documentFromInput(text) {
         const trimmed = text.trim();
         if (trimmed === '') {
@@ -1183,14 +899,14 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
         this.isStreaming = true;
 
         const isFirstMessage = !this.conversationId;
-        const payload = this.documentFromInput(text);
+        const payload = window.__chatEditor?.getDocument() ?? this.documentFromInput(text);
 
         if (isFirstMessage) {
             const nowIso = new Date().toISOString();
             this.messages.push({ role: 'user', content: text, editing: false, editText: '', copiedAt: 0, created_at: nowIso });
             this.messages.push({ role: 'assistant', content: '', pending_actions: [], paywall: null, sessionExpired: false, rendered: false, prerendered: false, copiedAt: 0, follow_ups: [], created_at: nowIso });
+            window.__chatEditor?.clear();
             this.input = '';
-            this.selectedMentions = [];
             this.currentToolStatus = null;
 
             try {
@@ -1272,8 +988,8 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
 
         const nowIso = new Date().toISOString();
         this.messages.push({ role: 'user', content: text, editing: false, editText: '', copiedAt: 0, created_at: nowIso });
+        window.__chatEditor?.clear();
         this.input = '';
-        this.selectedMentions = [];
         this.currentToolStatus = null;
 
         this.messages.push({ role: 'assistant', content: '', pending_actions: [], paywall: null, sessionExpired: false, rendered: false, prerendered: false, copiedAt: 0, follow_ups: [], created_at: nowIso });
@@ -1465,11 +1181,8 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
 
     restoreInputFocus() {
         this.$nextTick(() => {
-            const ta = this.$refs.chatInput;
-            // Don't focus a hidden textarea (panel closed) or when editing a prior message.
-            if (!ta || ! ta.offsetParent) return;
             if (this.messages.some((m) => m.editing)) return;
-            ta.focus();
+            window.__chatEditor?.focus();
         });
     },
 
