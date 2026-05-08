@@ -125,10 +125,12 @@ export function createMentionSuggestion() {
         const top = Math.max(window.scrollY + gap, rawTop);
 
         // Clamp left so the popup doesn't overflow narrow viewports.
+        // The Math.max around the upper bound prevents a negative right-edge
+        // anchor when viewportW < popupWidth + 2 * gap (very narrow viewports).
         const rawLeft = window.scrollX + rect.left;
         const left = Math.min(
             Math.max(window.scrollX + gap, rawLeft),
-            window.scrollX + viewportW - popupWidth - gap,
+            Math.max(window.scrollX + gap, window.scrollX + viewportW - popupWidth - gap),
         );
 
         popupEl.style.position = 'absolute';
