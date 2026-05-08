@@ -10,6 +10,14 @@
             viewportWidth: window.innerWidth,
 
             init() {
+                this.$watch('open', (newValue) => {
+                    if (newValue === true) {
+                        this.$nextTick(() => {
+                            window.dispatchEvent(new CustomEvent('chat:focus-editor', { detail: { context: 'side-panel' } }));
+                        });
+                    }
+                });
+
                 this.keydownHandler = (e) => {
                     if ((e.metaKey || e.ctrlKey) && e.key === 'j') {
                         e.preventDefault();

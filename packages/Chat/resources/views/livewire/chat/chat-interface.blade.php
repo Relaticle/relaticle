@@ -1,6 +1,7 @@
 <div
     x-data="chatInterface(@js($conversationId), @js(route('chat.send')), @js($initialMessage), @js($messages), @js(auth()->id()), @js($hasMoreMessages), @js($initialModel ?? auth()->user()?->ai_preferences['default_model'] ?? 'auto'))"
     x-init="init()"
+    x-on:chat:focus-editor.window="if ($event.detail?.context === @js($context ?? 'conversation')) localEditor()?.focus()"
     data-chat-context="{{ $context ?? 'conversation' }}"
     class="flex h-full flex-col"
 >
@@ -354,7 +355,7 @@
                     x-data="chatEditor({
                         initialDocument: { type: 'doc', content: [] },
                         placeholder: 'Ask anything...',
-                        autofocus: true,
+                        autofocus: @js(($context ?? 'conversation') !== 'side-panel'),
                         onSubmit: () => $root.dispatchEvent(new CustomEvent('chat:editor-submit', { bubbles: true })),
                         onChange: ({ document, text }) => {
                             $root.dispatchEvent(new CustomEvent('chat:editor-change', { bubbles: true, detail: { document, text } }));
@@ -363,7 +364,7 @@
                     x-on:chat:editor-submit.window="sendMessage()"
                     x-on:chat:editor-change.window="input = $event.detail.text"
                     {{-- No global setter needed — chatInterface uses localEditor() to scope-resolve. --}}
-                    data-chat-context="conversation"
+                    data-chat-context="{{ $context ?? 'conversation' }}"
                     class="relative rounded-2xl border border-gray-200 bg-white transition focus-within:border-primary-500 dark:border-gray-700 dark:bg-gray-800"
                 >
                     <div x-ref="editor" class="relative"></div>
