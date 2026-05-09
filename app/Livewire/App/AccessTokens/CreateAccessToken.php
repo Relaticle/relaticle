@@ -100,7 +100,7 @@ final class CreateAccessToken extends BaseLivewireComponent
             )
             ->modalWidth(Width::Large)
             ->modalSubmitAction(false)
-            ->modalCancelActionLabel('Close')
+            ->modalCancelActionLabel(__('access-tokens.modals.show_token.cancel_label'))
             ->schema([
                 TextInput::make('plainTextToken')
                     ->label(__('access-tokens.form.token'))
@@ -109,10 +109,11 @@ final class CreateAccessToken extends BaseLivewireComponent
                     ->suffixAction(
                         Action::make('copyToken')
                             ->icon('heroicon-o-clipboard')
-                            ->tooltip('Copy to clipboard')->alpineClickHandler("
-                                window.navigator.clipboard.writeText(\$wire.plainTextToken);
-                                \$tooltip('Copied!');
-                            "),
+                            ->tooltip(__('access-tokens.modals.show_token.copy_to_clipboard_tooltip'))
+                            ->alpineClickHandler(sprintf(
+                                'window.navigator.clipboard.writeText($wire.plainTextToken); $tooltip(%s);',
+                                json_encode(__('access-tokens.modals.show_token.copied_tooltip'), JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR),
+                            )),
                     ),
             ])
             ->after(fn (): null => ($this->plainTextToken = null));

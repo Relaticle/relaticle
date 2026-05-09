@@ -49,7 +49,7 @@ final class ManageAccessTokens extends BaseLivewireComponent implements HasTable
                     ->badge()
                     ->formatStateUsing(
                         fn (string $state): string => $state === '*'
-                            ? 'All'
+                            ? __('access-tokens.permissions.all')
                             : ucfirst($state),
                     ),
                 TextColumn::make('expires_at')

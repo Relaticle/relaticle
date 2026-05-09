@@ -44,10 +44,17 @@ return [
         'create' => 'Create',
     ],
 
+    'permissions' => [
+        'all' => 'All',
+    ],
+
     'modals' => [
         'show_token' => [
             'title' => 'Access Token',
             'description' => 'Please copy your new access token. For your security, it won\'t be shown again.',
+            'cancel_label' => 'Close',
+            'copy_to_clipboard_tooltip' => 'Copy to clipboard',
+            'copied_tooltip' => 'Copied!',
         ],
         'permissions' => [
             'title' => 'Access Token Permissions',

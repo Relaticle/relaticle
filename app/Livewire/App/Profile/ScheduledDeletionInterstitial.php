@@ -71,8 +71,8 @@ final class ScheduledDeletionInterstitial extends BaseLivewireComponent
             ->extraAttributes(['class' => 'w-full justify-center'])
             ->requiresConfirmation()
             ->modalHeading(__('profile.scheduled_deletion_interstitial.actions.cancel_deletion.modal_heading'))
-            ->modalDescription('Your scheduled deletion will be cancelled and all your data will be preserved.')
-            ->modalSubmitActionLabel('Yes, keep my account')
+            ->modalDescription(__('profile.scheduled_deletion_interstitial.actions.cancel_deletion.modal_description'))
+            ->modalSubmitActionLabel(__('profile.scheduled_deletion_interstitial.actions.cancel_deletion.modal_submit_label'))
             ->action(fn (): Redirector|RedirectResponse => $this->cancelDeletion());
     }
 
