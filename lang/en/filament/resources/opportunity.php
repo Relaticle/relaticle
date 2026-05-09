@@ -3,8 +3,9 @@
 declare(strict_types=1);
 
 return [
-    'label' => 'Opportunity',
-    'plural_label' => 'Opportunities',
+    // Lowercase singular/plural so Filament's "New :label" button reads naturally.
+    'label' => 'opportunity',
+    'plural_label' => 'opportunities',
     'navigation_label' => 'Opportunities',
 
     'fields' => [

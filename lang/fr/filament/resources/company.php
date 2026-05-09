@@ -3,8 +3,9 @@
 declare(strict_types=1);
 
 return [
-    'label' => 'Entreprise',
-    'plural_label' => 'Entreprises',
+    // Lowercase to match the en/ convention (Filament title-cases for display contexts).
+    'label' => 'entreprise',
+    'plural_label' => 'entreprises',
     'navigation_label' => 'Entreprises',
 
     'fields' => [

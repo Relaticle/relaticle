@@ -3,8 +3,12 @@
 declare(strict_types=1);
 
 return [
-    'label' => 'Company',
-    'plural_label' => 'Companies',
+    // Filament title-cases the singular/plural labels for display contexts
+    // (navigation menu, page headings) but injects them raw into the
+    // "New :label" create button. Keep lowercase here so the button reads
+    // "New company" while titles render as "Company"/"Companies".
+    'label' => 'company',
+    'plural_label' => 'companies',
     'navigation_label' => 'Companies',
 
     'fields' => [

@@ -3,8 +3,9 @@
 declare(strict_types=1);
 
 return [
-    'label' => 'Task',
-    'plural_label' => 'Tasks',
+    // Lowercase singular/plural so Filament's "New :label" button reads naturally.
+    'label' => 'task',
+    'plural_label' => 'tasks',
     'navigation_label' => 'Tasks',
 
     'fields' => [
