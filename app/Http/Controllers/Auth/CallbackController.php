@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Contracts\User\CreatesNewSocialUsers;
 use App\Enums\SocialiteProvider;
+use App\Exceptions\UnverifiedSocialEmailException;
 use App\Models\User;
 use App\Models\UserSocialAccount;
 use Filament\Notifications\Notification;
@@ -38,6 +39,8 @@ final readonly class CallbackController
             $user = $this->resolveUser($provider, $socialUser, $creator);
 
             return $this->loginAndRedirect($user);
+        } catch (UnverifiedSocialEmailException) {
+            return $this->handleError('An account with this email already exists. Sign in with your existing method first, then link this provider from your profile.');
         } catch (InvalidStateException) {
             return $this->handleError('Authentication state mismatch. Please try again.');
         } catch (Throwable $e) {
@@ -73,16 +76,31 @@ final readonly class CallbackController
             }
 
             $email = $socialUser->getEmail();
-            $user = $email ? User::query()->where('email', $email)->first() : null;
+            $existingUser = $email ? User::query()->where('email', $email)->first() : null;
 
-            if (! $user) {
-                $user = $this->createUser($socialUser, $creator, $provider);
-            }
+            throw_if($existingUser !== null && ! $this->isProviderEmailTrusted($provider, $socialUser), UnverifiedSocialEmailException::class);
+
+            $user = $existingUser ?? $this->createUser($socialUser, $creator, $provider);
 
             $this->linkSocialAccount($user, $provider, $socialUser->getId());
 
             return $user;
         });
+    }
+
+    private function isProviderEmailTrusted(string $provider, SocialiteUser $socialUser): bool
+    {
+        $providerEnum = SocialiteProvider::tryFrom($provider);
+
+        if ($providerEnum === SocialiteProvider::Google || $providerEnum === SocialiteProvider::GitHub) {
+            return true;
+        }
+
+        if (! method_exists($socialUser, 'getRaw')) {
+            return false;
+        }
+
+        return ($socialUser->getRaw()['email_verified'] ?? false) === true;
     }
 
     private function createUser(

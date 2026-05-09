@@ -36,13 +36,7 @@ enum SocialiteProvider: string
             default => ['client_id', 'client_secret', 'base_url'],
         };
 
-        foreach ($required as $field) {
-            if (! filled(config("services.{$key}.{$field}"))) {
-                return false;
-            }
-        }
-
-        return true;
+        return array_all($required, fn (string $field): bool => filled(config("services.{$key}.{$field}")));
     }
 
     /** @return array<int, self> */
