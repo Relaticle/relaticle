@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Providers\Filament;
 
+use App\Enums\SocialiteProvider;
 use App\Features\SocialAuth;
 use App\Filament\Pages\AccessTokens;
 use App\Filament\Pages\Auth\Login;
@@ -192,11 +193,15 @@ final class AppPanelProvider extends PanelProvider
             $panel
                 ->renderHook(
                     PanelsRenderHook::AUTH_LOGIN_FORM_BEFORE,
-                    fn (): View|Factory => view('filament.auth.social_login_buttons')
+                    fn (): View|Factory => view('filament.auth.social_login_buttons', [
+                        'enabledProviders' => SocialiteProvider::enabledProviders(),
+                    ])
                 )
                 ->renderHook(
                     PanelsRenderHook::AUTH_REGISTER_FORM_BEFORE,
-                    fn (): View|Factory => view('filament.auth.social_login_buttons')
+                    fn (): View|Factory => view('filament.auth.social_login_buttons', [
+                        'enabledProviders' => SocialiteProvider::enabledProviders(),
+                    ])
                 );
         }
 
