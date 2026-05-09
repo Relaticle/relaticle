@@ -152,7 +152,7 @@ final class CompanyResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return __('filament/resources/company.navigation_group');
+        return __('filament/navigation.groups.workspace');
     }
 
     public static function getGloballySearchableAttributes(): array

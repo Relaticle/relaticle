@@ -6,7 +6,6 @@ return [
     'label' => 'Company',
     'plural_label' => 'Companies',
     'navigation_label' => 'Companies',
-    'navigation_group' => 'Workspace',
 
     'fields' => [
         'name' => [
