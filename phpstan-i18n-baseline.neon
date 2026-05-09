@@ -43,36 +43,6 @@ parameters:
 			path: app/Filament/Actions/GenerateRecordSummaryAction.php
 
 		-
-			message: '#^Hardcoded user\-facing string in \-\>label\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
-			identifier: app.i18n.hardcodedUserFacingString
-			count: 10
-			path: app/Filament/Exports/CompanyExporter.php
-
-		-
-			message: '#^Hardcoded user\-facing string in \-\>label\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
-			identifier: app.i18n.hardcodedUserFacingString
-			count: 1
-			path: app/Filament/Exports/NoteExporter.php
-
-		-
-			message: '#^Hardcoded user\-facing string in \-\>label\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
-			identifier: app.i18n.hardcodedUserFacingString
-			count: 11
-			path: app/Filament/Exports/OpportunityExporter.php
-
-		-
-			message: '#^Hardcoded user\-facing string in \-\>label\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
-			identifier: app.i18n.hardcodedUserFacingString
-			count: 2
-			path: app/Filament/Exports/PeopleExporter.php
-
-		-
-			message: '#^Hardcoded user\-facing string in \-\>label\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
-			identifier: app.i18n.hardcodedUserFacingString
-			count: 1
-			path: app/Filament/Exports/TaskExporter.php
-
-		-
 			message: '#^Hardcoded user\-facing string in \$navigationGroup — set property to null and override getNavigationGroup\(\) with __\(\)\.$#'
 			identifier: app.i18n.hardcodedStaticProperty
 			count: 1
