@@ -57,3 +57,14 @@ services:
                 - title
         tags:
             - phpstan.rules.rule
+    -
+        class: App\PHPStan\Rules\HardcodedStaticPropertyRule
+        arguments:
+            guardedProperties:
+                - navigationLabel
+                - navigationGroup
+                - modelLabel
+                - pluralModelLabel
+                - breadcrumb
+        tags:
+            - phpstan.rules.rule
