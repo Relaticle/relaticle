@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Relaticle\Chat\Http\Controllers;
 
 use App\Models\User;
+use Filament\Facades\Filament;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Relaticle\Chat\Models\PendingAction;
@@ -35,6 +36,8 @@ final readonly class PendingActionController
         try {
             $result = $this->service->approve($pendingAction, $user);
 
+            $this->ensureFilamentTenantContext($user);
+
             return response()->json([
                 'status' => 'approved',
                 'result_data' => $result->result_data,
@@ -43,6 +46,26 @@ final readonly class PendingActionController
         } catch (RuntimeException $e) {
             return response()->json(['error' => $e->getMessage()], 422);
         }
+    }
+
+    /**
+     * Filament v5 panel routes embed the tenant slug, so URL generation requires
+     * an active tenant. The /chat/actions/* routes don't run the panel middleware,
+     * so we set it from the authenticated user's current team here.
+     */
+    private function ensureFilamentTenantContext(User $user): void
+    {
+        if (Filament::getTenant() !== null) {
+            return;
+        }
+
+        $team = $user->currentTeam;
+
+        if ($team === null) {
+            return;
+        }
+
+        Filament::setTenant($team, isQuiet: true);
     }
 
     /**
@@ -97,6 +120,8 @@ final readonly class PendingActionController
 
         try {
             $result = $this->service->restore($pendingAction, $user);
+
+            $this->ensureFilamentTenantContext($user);
 
             return response()->json([
                 'status' => 'restored',
