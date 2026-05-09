@@ -1124,10 +1124,18 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
         const assistantMsg = this.messages[this.messages.length - 1];
         if (assistantMsg?.role === 'assistant') {
             let delta = event.delta || '';
-            if (assistantMsg._needsSeparator && delta && !/^\s/.test(delta)) {
+
+            // Higher-priority paragraph break (e.g. after approve/reject continuation)
+            // wins over the inline single-space separator from tool-call boundaries.
+            if (assistantMsg._pendingSeparator && delta) {
+                delta = assistantMsg._pendingSeparator + delta;
+                assistantMsg._pendingSeparator = null;
+                assistantMsg._needsSeparator = false;
+            } else if (assistantMsg._needsSeparator && delta && !/^\s/.test(delta)) {
                 delta = ' ' + delta;
+                assistantMsg._needsSeparator = false;
             }
-            assistantMsg._needsSeparator = false;
+
             assistantMsg.content += delta;
             this.scrollToBottom();
         }
@@ -1225,6 +1233,10 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
                 if (body.record) {
                     action.record = body.record;
                 }
+                const assistantMsg = this.messages[this.messages.length - 1];
+                if (assistantMsg?.role === 'assistant') {
+                    assistantMsg._pendingSeparator = '\n\n';
+                }
                 if (action.operation === 'delete') {
                     this.showUndoToast(action);
                 }
@@ -1304,7 +1316,12 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
                 },
             });
 
-            if (! res.ok) {
+            if (res.ok) {
+                const assistantMsg = this.messages[this.messages.length - 1];
+                if (assistantMsg?.role === 'assistant') {
+                    assistantMsg._pendingSeparator = '\n\n';
+                }
+            } else {
                 const body = await res.json().catch(() => ({}));
                 action.status = previousStatus;
                 action.error = body.error || 'Failed to reject';
