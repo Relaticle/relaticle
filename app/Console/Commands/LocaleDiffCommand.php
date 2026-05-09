@@ -65,7 +65,7 @@ final class LocaleDiffCommand extends Command
         $keys = [];
 
         foreach ((new Finder)->files()->in($directory)->name('*.php') as $file) {
-            $relative = str_replace(['/', '\\'], '.', mb_substr($file->getRelativePathname(), 0, -4));
+            $relative = str_replace('\\', '/', mb_substr($file->getRelativePathname(), 0, -4));
             $contents = require $file->getRealPath();
 
             if (! is_array($contents)) {

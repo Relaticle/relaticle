@@ -46,3 +46,15 @@ it('exits 1 when the target locale directory does not exist', function (): void 
         ->expectsOutputToContain('Target directory not found')
         ->assertExitCode(1);
 });
+
+it('preserves slash in nested file paths to match Laravel translation namespace syntax', function (): void {
+    File::ensureDirectoryExists($this->fixturePath.'/en/filament/resources');
+    File::ensureDirectoryExists($this->fixturePath.'/fr/filament/resources');
+
+    File::put($this->fixturePath.'/en/filament/resources/company.php', "<?php return ['label' => 'Company', 'plural_label' => 'Companies'];");
+    File::put($this->fixturePath.'/fr/filament/resources/company.php', "<?php return ['label' => 'Entreprise'];");
+
+    $this->artisan('locale:diff', ['locale' => 'fr', '--lang-path' => $this->fixturePath])
+        ->expectsOutputToContain('Missing in fr: filament/resources/company.plural_label')
+        ->assertExitCode(1);
+});
