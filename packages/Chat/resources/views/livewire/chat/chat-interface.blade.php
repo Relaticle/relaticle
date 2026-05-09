@@ -596,6 +596,20 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
         };
         window.addEventListener('beforeunload', this.beforeUnloadHandler);
 
+        window.addEventListener('chat:renamed', (e) => {
+            const detail = e.detail || {};
+            if (!detail.conversationId || detail.conversationId !== this.conversationId) return;
+
+            // Update document.title for the browser tab.
+            document.title = `${detail.title || 'Untitled'} - Relaticle`;
+
+            // Update the visible H1 if present (Filament page header).
+            const h1 = document.querySelector('main h1');
+            if (h1 && detail.title) {
+                h1.textContent = detail.title;
+            }
+        });
+
         this.$wire.$on('chat:messages-prepended', (payload) => {
             const earlier = (payload && payload.messages) || [];
             const hasMore = payload ? !!payload.hasMore : false;

@@ -342,7 +342,10 @@ final readonly class ChatController
             abort(404);
         }
 
-        return response()->json(['title' => $title]);
+        return response()->json([
+            'title' => $title,
+            'conversation_id' => $conversationId,
+        ]);
     }
 
     private function escapeLikeWildcards(string $value): string

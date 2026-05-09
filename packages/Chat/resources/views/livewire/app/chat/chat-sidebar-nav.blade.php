@@ -102,6 +102,22 @@
                                     const body = await res.json();
                                     const titleEl = $el.querySelector('[data-title]');
                                     if (titleEl) titleEl.textContent = body.title;
+
+                                    // Notify the conversation page H1 (Alpine listener).
+                                    window.dispatchEvent(new CustomEvent('chat:renamed', {
+                                        detail: {
+                                            conversationId: body.conversation_id,
+                                            title: body.title,
+                                        },
+                                    }));
+
+                                    // Notify the Livewire parent so its $refresh sees fresh state on the next render.
+                                    if (window.Livewire?.dispatch) {
+                                        window.Livewire.dispatch('chat:conversation-renamed', {
+                                            conversationId: body.conversation_id,
+                                            title: body.title,
+                                        });
+                                    }
                                 }
                             } catch (_) { /* network errors silently abort */ }
                             this.editing = false;
