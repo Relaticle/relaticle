@@ -142,48 +142,6 @@ parameters:
 			message: '#^Hardcoded user\-facing string in \$navigationGroup — set property to null and override getNavigationGroup\(\) with __\(\)\.$#'
 			identifier: app.i18n.hardcodedStaticProperty
 			count: 1
-			path: app/Filament/Resources/CompanyResource.php
-
-		-
-			message: '#^Hardcoded user\-facing string in \-\>label\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
-			identifier: app.i18n.hardcodedUserFacingString
-			count: 7
-			path: app/Filament/Resources/CompanyResource.php
-
-		-
-			message: '#^Hardcoded user\-facing string in \-\>label\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
-			identifier: app.i18n.hardcodedUserFacingString
-			count: 2
-			path: app/Filament/Resources/CompanyResource/Pages/ListCompanies.php
-
-		-
-			message: '#^Hardcoded user\-facing string in \-\>label\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
-			identifier: app.i18n.hardcodedUserFacingString
-			count: 8
-			path: app/Filament/Resources/CompanyResource/Pages/ViewCompany.php
-
-		-
-			message: '#^Hardcoded user\-facing string in \-\>label\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
-			identifier: app.i18n.hardcodedUserFacingString
-			count: 1
-			path: app/Filament/Resources/CompanyResource/RelationManagers/NotesRelationManager.php
-
-		-
-			message: '#^Hardcoded user\-facing string in \$modelLabel — set property to null and override getModelLabel\(\) with __\(\)\.$#'
-			identifier: app.i18n.hardcodedStaticProperty
-			count: 1
-			path: app/Filament/Resources/CompanyResource/RelationManagers/PeopleRelationManager.php
-
-		-
-			message: '#^Hardcoded user\-facing string in \-\>label\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
-			identifier: app.i18n.hardcodedUserFacingString
-			count: 3
-			path: app/Filament/Resources/CompanyResource/RelationManagers/TasksRelationManager.php
-
-		-
-			message: '#^Hardcoded user\-facing string in \$navigationGroup — set property to null and override getNavigationGroup\(\) with __\(\)\.$#'
-			identifier: app.i18n.hardcodedStaticProperty
-			count: 1
 			path: app/Filament/Resources/NoteResource.php
 
 		-

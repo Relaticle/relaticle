@@ -37,4 +37,75 @@ return [
             'label' => 'Deleted At',
         ],
     ],
+
+    'pages' => [
+        'list' => [
+            'actions' => [
+                'import' => [
+                    'label' => 'Import companies',
+                ],
+                'import_export' => [
+                    'label' => 'Import / Export',
+                ],
+            ],
+        ],
+        'view' => [
+            'actions' => [
+                'edit' => [
+                    'label' => 'Edit',
+                ],
+                'copy_page_url' => [
+                    'label' => 'Copy page URL',
+                ],
+                'copy_record_id' => [
+                    'label' => 'Copy record ID',
+                ],
+            ],
+            'infolist' => [
+                'fields' => [
+                    'logo' => [
+                        'label' => '',
+                    ],
+                    'creator' => [
+                        'label' => 'Created By',
+                    ],
+                    'account_owner' => [
+                        'label' => 'Account Owner',
+                    ],
+                    'created_at' => [
+                        'label' => 'Created Date',
+                    ],
+                    'updated_at' => [
+                        'label' => 'Last Updated',
+                    ],
+                ],
+            ],
+        ],
+    ],
+
+    'relation_managers' => [
+        'people' => [
+            'model_label' => 'person',
+        ],
+        'notes' => [
+            'fields' => [
+                'people' => [
+                    'label' => 'People',
+                ],
+            ],
+        ],
+        'tasks' => [
+            'fields' => [
+                'assignees' => [
+                    'label' => 'Assignee',
+                ],
+                'people' => [
+                    'label' => 'People',
+                ],
+                'created_at' => [
+                    'label' => 'Created At',
+                ],
+            ],
+        ],
+    ],
 ];
