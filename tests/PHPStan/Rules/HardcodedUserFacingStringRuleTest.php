@@ -13,19 +13,53 @@ use PHPStan\Testing\RuleTestCase;
  */
 final class HardcodedUserFacingStringRuleTest extends RuleTestCase
 {
+    /**
+     * Mirror the canonical allowlist from phpstan.neon's
+     * services -> App\PHPStan\Rules\HardcodedUserFacingStringRule.arguments.guardedMethods.
+     * The test below also asserts these stay in sync.
+     */
+    private const array GUARDED_METHODS = [
+        'label',
+        'placeholder',
+        'helperText',
+        'heading',
+        'description',
+        'modalHeading',
+        'emptyStateHeading',
+        'emptyStateDescription',
+        'subject',
+        'title',
+    ];
+
     protected function getRule(): Rule
     {
         return new HardcodedUserFacingStringRule(
-            guardedMethods: [
-                'label',
-                'placeholder',
-                'helperText',
-                'heading',
-                'description',
-                'modalHeading',
-                'subject',
-                'line',
-            ],
+            guardedMethods: self::GUARDED_METHODS,
+        );
+    }
+
+    public function test_guarded_methods_match_phpstan_config(): void
+    {
+        $configPath = dirname(__DIR__, 3).'/phpstan.neon';
+        $config = file_get_contents($configPath);
+
+        self::assertNotFalse($config, 'phpstan.neon must be readable');
+
+        if (preg_match('/HardcodedUserFacingStringRule\b.*?guardedMethods:\s*((?:\s*-\s*\w+)+)/s', $config, $matches) !== 1) {
+            self::fail('Could not locate HardcodedUserFacingStringRule.guardedMethods in phpstan.neon');
+        }
+
+        preg_match_all('/-\s*(\w+)/', $matches[1], $methodMatches);
+        $configMethods = $methodMatches[1];
+
+        sort($configMethods);
+        $testMethods = self::GUARDED_METHODS;
+        sort($testMethods);
+
+        self::assertSame(
+            $testMethods,
+            $configMethods,
+            'GUARDED_METHODS in this test must match guardedMethods in phpstan.neon',
         );
     }
 
