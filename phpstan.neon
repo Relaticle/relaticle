@@ -1,6 +1,5 @@
 includes:
     - vendor/larastan/larastan/extension.neon
-    - vendor/jbboehr/phpstan-lost-in-translation/extension.neon
     # i18n baseline: notification/mail strings deferred to Phase 2.
     # When Phase 2 lands, this baseline shrinks; delete the file when empty.
     - phpstan-i18n-baseline.neon
