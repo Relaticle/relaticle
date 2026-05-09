@@ -1,6 +1,8 @@
 includes:
     - vendor/larastan/larastan/extension.neon
     - vendor/jbboehr/phpstan-lost-in-translation/extension.neon
+    # Temporary: i18n refactor in progress. Empty when Phase 1 completes — delete this file then.
+    - phpstan-i18n-baseline.neon
 
 parameters:
     level: 7
@@ -36,3 +38,22 @@ parameters:
         - config
         - packages/ImportWizard/config
         - packages/Documentation/config
+
+services:
+    -
+        class: App\PHPStan\Rules\HardcodedUserFacingStringRule
+        arguments:
+            guardedMethods:
+                - label
+                - placeholder
+                - helperText
+                - heading
+                - description
+                - modalHeading
+                - emptyStateHeading
+                - emptyStateDescription
+                - subject
+                - line
+                - title
+        tags:
+            - phpstan.rules.rule

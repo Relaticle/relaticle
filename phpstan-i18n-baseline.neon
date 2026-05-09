@@ -1,0 +1,541 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Hardcoded user\-facing string in \-\>label\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 1
+			path: app/Actions/Task/NotifyTaskAssignees.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>line\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 2
+			path: app/Console/Commands/BackfillCustomFieldColorsCommand.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>line\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 5
+			path: app/Console/Commands/CreateSystemAdminCommand.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>line\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 22
+			path: app/Console/Commands/InstallCommand.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>label\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 3
+			path: app/Filament/Actions/GenerateRecordSummaryAction.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>modalHeading\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 1
+			path: app/Filament/Actions/GenerateRecordSummaryAction.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>title\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 2
+			path: app/Filament/Actions/GenerateRecordSummaryAction.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>label\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 10
+			path: app/Filament/Exports/CompanyExporter.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>label\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 1
+			path: app/Filament/Exports/NoteExporter.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>label\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 11
+			path: app/Filament/Exports/OpportunityExporter.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>label\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 2
+			path: app/Filament/Exports/PeopleExporter.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>label\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 1
+			path: app/Filament/Exports/TaskExporter.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>helperText\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 1
+			path: app/Filament/Pages/CreateTeam.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>label\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 8
+			path: app/Filament/Pages/CreateTeam.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>placeholder\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 2
+			path: app/Filament/Pages/CreateTeam.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>title\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 4
+			path: app/Filament/Pages/CreateTeam.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>label\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 5
+			path: app/Filament/Pages/OpportunitiesBoard.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>placeholder\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 1
+			path: app/Filament/Pages/OpportunitiesBoard.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>label\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 4
+			path: app/Filament/Pages/TasksBoard.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>label\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 7
+			path: app/Filament/Resources/CompanyResource.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>label\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 2
+			path: app/Filament/Resources/CompanyResource/Pages/ListCompanies.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>label\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 8
+			path: app/Filament/Resources/CompanyResource/Pages/ViewCompany.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>label\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 1
+			path: app/Filament/Resources/CompanyResource/RelationManagers/NotesRelationManager.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>label\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 3
+			path: app/Filament/Resources/CompanyResource/RelationManagers/TasksRelationManager.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>label\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 6
+			path: app/Filament/Resources/NoteResource.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>label\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 3
+			path: app/Filament/Resources/NoteResource/Forms/NoteForm.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>label\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 2
+			path: app/Filament/Resources/NoteResource/Pages/ManageNotes.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>label\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 2
+			path: app/Filament/Resources/OpportunityResource.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>placeholder\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 1
+			path: app/Filament/Resources/OpportunityResource/Forms/OpportunityForm.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>label\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 2
+			path: app/Filament/Resources/OpportunityResource/Pages/ListOpportunities.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>label\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 5
+			path: app/Filament/Resources/OpportunityResource/Pages/ViewOpportunity.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>label\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 5
+			path: app/Filament/Resources/PeopleResource.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>label\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 2
+			path: app/Filament/Resources/PeopleResource/Pages/ListPeople.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>label\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 6
+			path: app/Filament/Resources/PeopleResource/Pages/ViewPeople.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>label\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 4
+			path: app/Filament/Resources/TaskResource.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>label\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 3
+			path: app/Filament/Resources/TaskResource/Forms/TaskForm.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>label\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 2
+			path: app/Filament/Resources/TaskResource/Pages/ManageTasks.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>title\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 1
+			path: app/Http/Controllers/Auth/CallbackController.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>label\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 6
+			path: app/Livewire/App/AccessTokens/CreateAccessToken.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>placeholder\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 1
+			path: app/Livewire/App/AccessTokens/CreateAccessToken.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>label\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 7
+			path: app/Livewire/App/AccessTokens/ManageAccessTokens.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>placeholder\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 3
+			path: app/Livewire/App/AccessTokens/ManageAccessTokens.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>label\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 2
+			path: app/Livewire/App/Profile/ScheduledDeletionInterstitial.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>modalHeading\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 1
+			path: app/Livewire/App/Profile/ScheduledDeletionInterstitial.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>title\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 1
+			path: app/Livewire/BaseLivewireComponent.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>description\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 1
+			path: app/Mcp/Tools/BaseCreateTool.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>description\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 5
+			path: app/Mcp/Tools/BaseListTool.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>description\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 1
+			path: app/Mcp/Tools/BaseShowTool.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>description\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 1
+			path: app/Mcp/Tools/BaseUpdateTool.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>description\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 1
+			path: app/Mcp/Tools/Company/CreateCompanyTool.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>description\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 1
+			path: app/Mcp/Tools/Company/UpdateCompanyTool.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>description\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 3
+			path: app/Mcp/Tools/Note/AttachNoteToEntitiesTool.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>description\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 4
+			path: app/Mcp/Tools/Note/CreateNoteTool.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>description\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 3
+			path: app/Mcp/Tools/Note/DetachNoteFromEntitiesTool.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>description\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 2
+			path: app/Mcp/Tools/Note/ListNotesTool.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>description\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 4
+			path: app/Mcp/Tools/Note/UpdateNoteTool.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>description\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 3
+			path: app/Mcp/Tools/Opportunity/CreateOpportunityTool.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>description\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 2
+			path: app/Mcp/Tools/Opportunity/ListOpportunitiesTool.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>description\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 3
+			path: app/Mcp/Tools/Opportunity/UpdateOpportunityTool.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>description\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 2
+			path: app/Mcp/Tools/People/CreatePeopleTool.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>description\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 1
+			path: app/Mcp/Tools/People/ListPeopleTool.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>description\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 2
+			path: app/Mcp/Tools/People/UpdatePeopleTool.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>description\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 4
+			path: app/Mcp/Tools/Task/AttachTaskToEntitiesTool.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>description\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 5
+			path: app/Mcp/Tools/Task/CreateTaskTool.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>description\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 4
+			path: app/Mcp/Tools/Task/DetachTaskFromEntitiesTool.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>description\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 4
+			path: app/Mcp/Tools/Task/ListTasksTool.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>description\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 5
+			path: app/Mcp/Tools/Task/UpdateTaskTool.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>line\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 1
+			path: app/Notifications/TeamDeletionCancelledNotification.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>line\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 2
+			path: app/Notifications/TeamDeletionReminderNotification.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>line\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 2
+			path: app/Notifications/TeamDeletionScheduledNotification.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>line\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 1
+			path: app/Notifications/TeamMemberRemovedNotification.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>line\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 2
+			path: app/Notifications/UserDeletionCancelledNotification.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>subject\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 1
+			path: app/Notifications/UserDeletionCancelledNotification.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>line\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 2
+			path: app/Notifications/UserDeletionReminderNotification.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>line\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 2
+			path: app/Notifications/UserDeletionScheduledNotification.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>subject\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 1
+			path: app/Notifications/UserDeletionScheduledNotification.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>label\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 4
+			path: app/Providers/Filament/AppPanelProvider.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>description\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 2
+			path: app/Providers/JetstreamServiceProvider.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>label\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 10
+			path: packages/ImportWizard/src/Filament/Pages/ImportHistory.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>label\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 2
+			path: packages/ImportWizard/src/Importers/CompanyImporter.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>label\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 1
+			path: packages/ImportWizard/src/Importers/NoteImporter.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>label\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 1
+			path: packages/ImportWizard/src/Importers/OpportunityImporter.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>label\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 1
+			path: packages/ImportWizard/src/Importers/PeopleImporter.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>label\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 2
+			path: packages/ImportWizard/src/Importers/TaskImporter.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>label\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 1
+			path: packages/ImportWizard/src/Livewire/ImportWizard.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>modalHeading\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 1
+			path: packages/ImportWizard/src/Livewire/ImportWizard.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>label\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 1
+			path: packages/ImportWizard/src/Livewire/Steps/MappingStep.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>modalHeading\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 1
+			path: packages/ImportWizard/src/Livewire/Steps/MappingStep.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>label\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 1
+			path: packages/ImportWizard/src/Livewire/Steps/PreviewStep.php
+
+		-
+			message: '#^Hardcoded user\-facing string in \-\>modalHeading\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
+			identifier: app.i18n.hardcodedUserFacingString
+			count: 1
+			path: packages/ImportWizard/src/Livewire/Steps/PreviewStep.php
