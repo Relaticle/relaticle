@@ -73,30 +73,6 @@ parameters:
 			path: app/Filament/Exports/TaskExporter.php
 
 		-
-			message: '#^Hardcoded user\-facing string in \-\>helperText\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
-			identifier: app.i18n.hardcodedUserFacingString
-			count: 1
-			path: app/Filament/Pages/CreateTeam.php
-
-		-
-			message: '#^Hardcoded user\-facing string in \-\>label\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
-			identifier: app.i18n.hardcodedUserFacingString
-			count: 8
-			path: app/Filament/Pages/CreateTeam.php
-
-		-
-			message: '#^Hardcoded user\-facing string in \-\>placeholder\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
-			identifier: app.i18n.hardcodedUserFacingString
-			count: 2
-			path: app/Filament/Pages/CreateTeam.php
-
-		-
-			message: '#^Hardcoded user\-facing string in \-\>title\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
-			identifier: app.i18n.hardcodedUserFacingString
-			count: 4
-			path: app/Filament/Pages/CreateTeam.php
-
-		-
 			message: '#^Hardcoded user\-facing string in \$navigationGroup — set property to null and override getNavigationGroup\(\) with __\(\)\.$#'
 			identifier: app.i18n.hardcodedStaticProperty
 			count: 1
