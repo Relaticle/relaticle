@@ -55,6 +55,8 @@ final class Company extends Model implements HasCustomFields, HasMedia
     use SoftDeletes;
     use UsesCustomFields;
 
+    public const string LOGO_MEDIA_COLLECTION = 'logo';
+
     /**
      * @var array<string, mixed>
      */
@@ -76,7 +78,7 @@ final class Company extends Model implements HasCustomFields, HasMedia
 
     protected function getLogoAttribute(): string
     {
-        $logo = $this->getFirstMediaUrl('logo');
+        $logo = $this->getFirstMediaUrl(self::LOGO_MEDIA_COLLECTION);
 
         return $logo === '' || $logo === '0' ? resolve(AvatarService::class)->generateAuto(name: $this->name) : $logo;
     }
