@@ -142,25 +142,21 @@ parameters:
 			message: '#^Hardcoded user\-facing string in \$navigationGroup — set property to null and override getNavigationGroup\(\) with __\(\)\.$#'
 			identifier: app.i18n.hardcodedStaticProperty
 			count: 1
-			path: app/Filament/Resources/NoteResource.php
 
 		-
 			message: '#^Hardcoded user\-facing string in \-\>label\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
 			identifier: app.i18n.hardcodedUserFacingString
 			count: 6
-			path: app/Filament/Resources/NoteResource.php
 
 		-
 			message: '#^Hardcoded user\-facing string in \-\>label\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
 			identifier: app.i18n.hardcodedUserFacingString
 			count: 3
-			path: app/Filament/Resources/NoteResource/Forms/NoteForm.php
 
 		-
 			message: '#^Hardcoded user\-facing string in \-\>label\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
 			identifier: app.i18n.hardcodedUserFacingString
 			count: 2
-			path: app/Filament/Resources/NoteResource/Pages/ManageNotes.php
 
 		-
 			message: '#^Hardcoded user\-facing string in \$navigationGroup — set property to null and override getNavigationGroup\(\) with __\(\)\.$#'
