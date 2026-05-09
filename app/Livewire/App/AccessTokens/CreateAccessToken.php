@@ -46,7 +46,7 @@ final class CreateAccessToken extends BaseLivewireComponent
                     )
                     ->schema([
                         TextInput::make('name')
-                            ->label('Token Name')
+                            ->label(__('access-tokens.form.name'))
                             ->required()
                             ->maxLength(255)
                             ->rules([
@@ -61,15 +61,15 @@ final class CreateAccessToken extends BaseLivewireComponent
                                     ),
                             ]),
                         Select::make('team_id')
-                            ->label('Team')
+                            ->label(__('access-tokens.form.team'))
                             ->required()
                             ->options(
                                 $this->authUser()->allTeams()->pluck('name', 'id'),
                             ),
                         Select::make('expiration')
-                            ->label('Expiration')
+                            ->label(__('access-tokens.form.expiration'))
                             ->required()
-                            ->placeholder('Select expiration...')
+                            ->placeholder(__('access-tokens.form.expiration_placeholder'))
                             ->options([
                                 '1' => '1 Day',
                                 '7' => '7 Days',
@@ -83,7 +83,7 @@ final class CreateAccessToken extends BaseLivewireComponent
                         self::permissionsCheckboxList(),
                         Actions::make([
                             Action::make('create')
-                                ->label('Create')
+                                ->label(__('access-tokens.actions.create'))
                                 ->submit('createToken'),
                         ]),
                     ]),
@@ -103,7 +103,7 @@ final class CreateAccessToken extends BaseLivewireComponent
             ->modalCancelActionLabel('Close')
             ->schema([
                 TextInput::make('plainTextToken')
-                    ->label('Token')
+                    ->label(__('access-tokens.form.token'))
                     ->default($this->plainTextToken ?? '')
                     ->readOnly()
                     ->suffixAction(
@@ -173,7 +173,7 @@ final class CreateAccessToken extends BaseLivewireComponent
     public static function permissionsCheckboxList(): CheckboxList
     {
         return CheckboxList::make('permissions')
-            ->label('Permissions')
+            ->label(__('access-tokens.form.permissions'))
             ->required()
             ->options(
                 collect(Jetstream::$permissions)

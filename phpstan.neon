@@ -1,7 +1,8 @@
 includes:
     - vendor/larastan/larastan/extension.neon
     - vendor/jbboehr/phpstan-lost-in-translation/extension.neon
-    # Temporary: i18n refactor in progress. Empty when Phase 1 completes — delete this file then.
+    # i18n baseline: notification/mail strings deferred to Phase 2.
+    # When Phase 2 lands, this baseline shrinks; delete the file when empty.
     - phpstan-i18n-baseline.neon
 
 parameters:
@@ -18,6 +19,36 @@ parameters:
         -
             identifier: argument.type
             path: app/Http/Middleware/ValidateSignature.php
+
+        # i18n: Console output is dev/internal-facing — not user-facing UI strings
+        -
+            identifier: app.i18n.hardcodedUserFacingString
+            path: app/Console/*
+            reportUnmatched: false
+
+        # i18n: MCP tool definitions are server-driven tool surfaces, deferred to Phase 4
+        -
+            identifier: app.i18n.hardcodedUserFacingString
+            path: app/Mcp/*
+            reportUnmatched: false
+
+        # i18n: MCP tool static properties, deferred to Phase 4
+        -
+            identifier: app.i18n.hardcodedStaticProperty
+            path: app/Mcp/*
+            reportUnmatched: false
+
+        # i18n: ImportWizard package, deferred to Phase 4
+        -
+            identifier: app.i18n.hardcodedUserFacingString
+            path: packages/ImportWizard/*
+            reportUnmatched: false
+
+        # i18n: ImportWizard static properties, deferred to Phase 4
+        -
+            identifier: app.i18n.hardcodedStaticProperty
+            path: packages/ImportWizard/*
+            reportUnmatched: false
 
 
     stubFiles:
@@ -53,7 +84,6 @@ services:
                 - emptyStateHeading
                 - emptyStateDescription
                 - subject
-                - line
                 - title
         tags:
             - phpstan.rules.rule

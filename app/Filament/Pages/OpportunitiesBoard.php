@@ -57,7 +57,7 @@ final class OpportunitiesBoard extends BoardPage
         return __('filament/pages/boards.opportunities.title');
     }
 
-    public static function getNavigationGroup(): ?string
+    public static function getNavigationGroup(): string
     {
         return __('filament/navigation.groups.workspace');
     }

@@ -53,7 +53,7 @@ final class TasksBoard extends BoardPage
         return __('filament/pages/boards.tasks.title');
     }
 
-    public static function getNavigationGroup(): ?string
+    public static function getNavigationGroup(): string
     {
         return __('filament/navigation.groups.workspace');
     }

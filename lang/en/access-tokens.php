@@ -20,7 +20,24 @@ return [
         'name' => 'Token Name',
         'team' => 'Team',
         'expiration' => 'Expiration',
+        'expiration_placeholder' => 'Select expiration...',
         'permissions' => 'Permissions',
+        'token' => 'Token',
+    ],
+
+    'table' => [
+        'columns' => [
+            'name' => 'Name',
+            'team' => 'Team',
+            'abilities' => 'Permissions',
+            'expires_at' => 'Expires',
+            'last_used_at' => 'Last Used',
+            'created_at' => 'Created',
+        ],
+        'placeholders' => [
+            'no_team' => '—',
+            'never' => 'Never',
+        ],
     ],
 
     'actions' => [
@@ -34,6 +51,7 @@ return [
         ],
         'permissions' => [
             'title' => 'Access Token Permissions',
+            'action_label' => 'Permissions',
         ],
         'delete' => [
             'title' => 'Delete Access Token',

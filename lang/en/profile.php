@@ -88,4 +88,16 @@ return [
     ],
 
     'edit_profile' => 'Edit Profile',
+
+    'scheduled_deletion_interstitial' => [
+        'actions' => [
+            'cancel_deletion' => [
+                'label' => 'Keep my account',
+                'modal_heading' => 'Keep your account?',
+            ],
+            'logout' => [
+                'label' => 'Sign out',
+            ],
+        ],
+    ],
 ];

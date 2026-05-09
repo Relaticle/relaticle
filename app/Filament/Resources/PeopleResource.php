@@ -190,7 +190,7 @@ final class PeopleResource extends Resource
         return __('filament/resources/person.navigation_label');
     }
 
-    public static function getNavigationGroup(): ?string
+    public static function getNavigationGroup(): string
     {
         return __('filament/navigation.groups.workspace');
     }

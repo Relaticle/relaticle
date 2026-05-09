@@ -66,11 +66,11 @@ final class ScheduledDeletionInterstitial extends BaseLivewireComponent
     public function cancelDeletionAction(): Action
     {
         return Action::make('cancelDeletion')
-            ->label('Keep my account')
+            ->label(__('profile.scheduled_deletion_interstitial.actions.cancel_deletion.label'))
             ->color('primary')
             ->extraAttributes(['class' => 'w-full justify-center'])
             ->requiresConfirmation()
-            ->modalHeading('Keep your account?')
+            ->modalHeading(__('profile.scheduled_deletion_interstitial.actions.cancel_deletion.modal_heading'))
             ->modalDescription('Your scheduled deletion will be cancelled and all your data will be preserved.')
             ->modalSubmitActionLabel('Yes, keep my account')
             ->action(fn (): Redirector|RedirectResponse => $this->cancelDeletion());
@@ -79,7 +79,7 @@ final class ScheduledDeletionInterstitial extends BaseLivewireComponent
     public function logoutAction(): Action
     {
         return Action::make('logout')
-            ->label('Sign out')
+            ->label(__('profile.scheduled_deletion_interstitial.actions.logout.label'))
             ->color('gray')
             ->link()
             ->action(fn (): Redirector|RedirectResponse => $this->logout());

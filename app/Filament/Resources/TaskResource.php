@@ -62,7 +62,7 @@ final class TaskResource extends Resource
         return __('filament/resources/task.navigation_label');
     }
 
-    public static function getNavigationGroup(): ?string
+    public static function getNavigationGroup(): string
     {
         return __('filament/navigation.groups.workspace');
     }
