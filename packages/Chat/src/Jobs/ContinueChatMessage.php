@@ -134,6 +134,13 @@ final class ContinueChatMessage implements ShouldQueue
 
     private function settlementToken(): string
     {
-        return "{$this->conversationId}:".($this->job?->uuid() ?? spl_object_hash($this));
+        $payload = [
+            $this->conversationId,
+            (string) $this->user->getKey(),
+            (string) $this->team->getKey(),
+            $this->prompt,
+        ];
+
+        return $this->conversationId.':'.hash('xxh3', implode("\0", $payload));
     }
 }
