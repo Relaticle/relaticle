@@ -213,36 +213,6 @@ parameters:
 			count: 6
 
 		-
-			message: '#^Hardcoded user\-facing string in \$navigationGroup — set property to null and override getNavigationGroup\(\) with __\(\)\.$#'
-			identifier: app.i18n.hardcodedStaticProperty
-			count: 1
-			path: app/Filament/Resources/TaskResource.php
-
-		-
-			message: '#^Hardcoded user\-facing string in \$navigationLabel — set property to null and override getNavigationLabel\(\) with __\(\)\.$#'
-			identifier: app.i18n.hardcodedStaticProperty
-			count: 1
-			path: app/Filament/Resources/TaskResource.php
-
-		-
-			message: '#^Hardcoded user\-facing string in \-\>label\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
-			identifier: app.i18n.hardcodedUserFacingString
-			count: 4
-			path: app/Filament/Resources/TaskResource.php
-
-		-
-			message: '#^Hardcoded user\-facing string in \-\>label\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
-			identifier: app.i18n.hardcodedUserFacingString
-			count: 3
-			path: app/Filament/Resources/TaskResource/Forms/TaskForm.php
-
-		-
-			message: '#^Hardcoded user\-facing string in \-\>label\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
-			identifier: app.i18n.hardcodedUserFacingString
-			count: 2
-			path: app/Filament/Resources/TaskResource/Pages/ManageTasks.php
-
-		-
 			message: '#^Hardcoded user\-facing string in \-\>title\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
 			identifier: app.i18n.hardcodedUserFacingString
 			count: 1
