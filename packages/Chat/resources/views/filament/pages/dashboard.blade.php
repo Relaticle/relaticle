@@ -40,17 +40,33 @@
             >
                 <div x-ref="editor" class="relative"></div>
 
-                <div class="flex items-center justify-end gap-2 px-3 pb-2">
-                    @include('chat::livewire.chat.partials._model-picker')
+                <div class="flex items-center justify-between gap-2 px-3 pb-2">
+                    <span
+                        x-show="text.length > 4000"
+                        x-cloak
+                        x-text="`${text.length.toLocaleString()} / 5,000`"
+                        :class="{
+                            'text-gray-500 dark:text-gray-400': text.length <= 4900,
+                            'text-amber-600 dark:text-amber-400': text.length > 4900 && text.length <= 5000,
+                            'text-red-600 dark:text-red-400': text.length > 5000,
+                        }"
+                        class="text-[11px]"
+                        aria-live="polite"
+                    ></span>
+                    <div x-show="text.length <= 4000" class="flex-1"></div>
 
-                    <button
-                        type="submit"
-                        class="flex h-7 w-7 items-center justify-center rounded-lg bg-primary-600 text-white transition hover:bg-primary-700 disabled:bg-primary-200 disabled:text-white dark:disabled:bg-primary-900/40 dark:disabled:text-primary-300"
-                        :disabled="text.trim().length === 0 || submitting"
-                        aria-label="Send message"
-                    >
-                        <x-heroicon-s-arrow-up class="h-4 w-4" />
-                    </button>
+                    <div class="flex items-center gap-2">
+                        @include('chat::livewire.chat.partials._model-picker')
+
+                        <button
+                            type="submit"
+                            class="flex h-7 w-7 items-center justify-center rounded-lg bg-primary-600 text-white transition hover:bg-primary-700 disabled:bg-primary-200 disabled:text-white dark:disabled:bg-primary-900/40 dark:disabled:text-primary-300"
+                            :disabled="text.trim().length === 0 || text.length > 5000 || submitting"
+                            aria-label="Send message"
+                        >
+                            <x-heroicon-s-arrow-up class="h-4 w-4" />
+                        </button>
+                    </div>
                 </div>
             </div>
 
