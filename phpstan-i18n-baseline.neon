@@ -166,31 +166,26 @@ parameters:
 			message: '#^Hardcoded user\-facing string in \$navigationGroup — set property to null and override getNavigationGroup\(\) with __\(\)\.$#'
 			identifier: app.i18n.hardcodedStaticProperty
 			count: 1
-			path: app/Filament/Resources/OpportunityResource.php
 
 		-
 			message: '#^Hardcoded user\-facing string in \-\>label\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
 			identifier: app.i18n.hardcodedUserFacingString
 			count: 2
-			path: app/Filament/Resources/OpportunityResource.php
 
 		-
 			message: '#^Hardcoded user\-facing string in \-\>placeholder\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
 			identifier: app.i18n.hardcodedUserFacingString
 			count: 1
-			path: app/Filament/Resources/OpportunityResource/Forms/OpportunityForm.php
 
 		-
 			message: '#^Hardcoded user\-facing string in \-\>label\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
 			identifier: app.i18n.hardcodedUserFacingString
 			count: 2
-			path: app/Filament/Resources/OpportunityResource/Pages/ListOpportunities.php
 
 		-
 			message: '#^Hardcoded user\-facing string in \-\>label\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
 			identifier: app.i18n.hardcodedUserFacingString
 			count: 5
-			path: app/Filament/Resources/OpportunityResource/Pages/ViewOpportunity.php
 
 		-
 			message: '#^Hardcoded user\-facing string in \$modelLabel — set property to null and override getModelLabel\(\) with __\(\)\.$#'
