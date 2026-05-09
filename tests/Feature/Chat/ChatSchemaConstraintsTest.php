@@ -26,3 +26,17 @@ it('cascades agent_conversations when the team is hard-deleted', function (): vo
 
     expect(DB::table('agent_conversations')->where('id', $conversationId)->count())->toBe(0);
 });
+
+it('has a composite (status, expires_at) index on pending_actions', function (): void {
+    $rows = DB::select(
+        "SELECT indexname FROM pg_indexes WHERE tablename = 'pending_actions'"
+    );
+
+    $indexNames = array_map(fn (object $r): string => $r->indexname, $rows);
+
+    $found = collect($indexNames)->contains(
+        fn (string $name): bool => str_contains($name, 'status') && str_contains($name, 'expires_at')
+    );
+
+    expect($found)->toBeTrue();
+});
