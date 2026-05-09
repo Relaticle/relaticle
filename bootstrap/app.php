@@ -39,6 +39,17 @@ return Application::configure(basePath: dirname(__DIR__))
         },
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->trustProxies(at: [
+            '127.0.0.0/8',
+            '10.0.0.0/8',
+            '172.16.0.0/12',
+            '192.168.0.0/16',
+            '169.254.0.0/16',
+            '::1/128',
+            'fc00::/7',
+            'fe80::/10',
+        ]);
+
         $middleware->prepend(SubdomainRootResponse::class);
 
         $middleware->prependToPriorityList(
@@ -75,6 +86,10 @@ return Application::configure(basePath: dirname(__DIR__))
         $schedule->command('import:cleanup')->hourly();
         $schedule->command('queue:prune-batches --hours=24')->daily();
         $schedule->command('invitations:cleanup')->daily();
+        $schedule->command('subscribers:sync-recency-tags')->dailyAt('02:00')
+            ->withoutOverlapping()
+            ->onOneServer();
+        $schedule->command('app:purge-scheduled-deletions')->daily()->withoutOverlapping()->onOneServer();
 
         if (config('app.health_checks_enabled')) {
             $schedule->command(RunHealthChecksCommand::class)->everyMinute();

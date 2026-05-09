@@ -14,7 +14,9 @@ use App\Filament\Pages\EditProfile;
 use App\Filament\Pages\EditTeam;
 use App\Filament\Resources\CompanyResource;
 use App\Http\Middleware\ApplyTenantScopes;
+use App\Http\Middleware\CheckScheduledDeletion;
 use App\Listeners\SwitchTeam;
+use App\Livewire\App\Profile\ScheduledDeletionInterstitial;
 use App\Models\Team;
 use Asmit\ResizedColumn\ResizedColumnPlugin;
 use Exception;
@@ -37,7 +39,7 @@ use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
-use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
+use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
@@ -45,6 +47,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Route;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Laravel\Jetstream\Features;
 use Laravel\Pennant\Feature;
@@ -101,7 +104,7 @@ final class AppPanelProvider extends PanelProvider
             ->authGuard('web')
             ->authPasswordBroker('users')
             ->passwordReset()
-            ->emailVerification()
+            ->emailVerification(isRequired: config('app.require_email_verification'))
             ->emailChangeVerification()
             ->strictAuthorization()
             ->databaseNotifications()
@@ -141,6 +144,11 @@ final class AppPanelProvider extends PanelProvider
                 AccessTokens::class,
             ])
             ->spa()
+            ->routes(function (): void {
+                Route::get('/scheduled-deletion', ScheduledDeletionInterstitial::class)
+                    ->middleware('auth')
+                    ->name('scheduled-deletion');
+            })
             ->breadcrumbs(false)
             ->sidebarCollapsibleOnDesktop()
             ->navigationGroups([
@@ -154,7 +162,7 @@ final class AppPanelProvider extends PanelProvider
                 StartSession::class,
                 AuthenticateSession::class,
                 ShareErrorsFromSession::class,
-                VerifyCsrfToken::class,
+                PreventRequestForgery::class,
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
@@ -163,6 +171,7 @@ final class AppPanelProvider extends PanelProvider
             ->authPasswordBroker('users')
             ->authMiddleware([
                 Authenticate::class,
+                CheckScheduledDeletion::class,
             ])
             ->tenantMiddleware(
                 [

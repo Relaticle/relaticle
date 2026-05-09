@@ -4,19 +4,17 @@ declare(strict_types=1);
 
 namespace App\Livewire\App\Profile;
 
-use App\Actions\Jetstream\DeleteTeam;
+use App\Actions\Jetstream\ScheduleUserDeletion;
 use App\Livewire\BaseLivewireComponent;
-use App\Models\Team;
 use Filament\Actions\Action;
 use Filament\Forms;
 use Filament\Infolists\Components\TextEntry;
+use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Actions;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Redirector;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
@@ -53,18 +51,18 @@ final class DeleteAccount extends BaseLivewireComponent
                                         ->required()
                                         ->currentPassword(),
                                 ] : [])
-                                ->action(fn (array $data): Redirector|RedirectResponse => $this->deleteAccount($data['password'] ?? null)),
+                                ->action(fn (array $data): Redirector|RedirectResponse|null => $this->deleteAccount($data['password'] ?? null)),
                         ]),
                     ]),
             ]);
     }
 
     /**
-     * Delete the current user.
+     * Schedule deletion for the current user.
      *
      * @throws ValidationException
      */
-    public function deleteAccount(?string $password = null): Redirector|RedirectResponse
+    public function deleteAccount(?string $password = null): Redirector|RedirectResponse|null
     {
         $user = $this->authUser();
 
@@ -74,26 +72,20 @@ final class DeleteAccount extends BaseLivewireComponent
             ]);
         }
 
-        // Logout before deleting to prevent SessionGuard::logout() from
-        // re-inserting the user when it updates the remember token.
+        try {
+            resolve(ScheduleUserDeletion::class)->schedule($user);
+        } catch (ValidationException $e) {
+            Notification::make()
+                ->danger()
+                ->title(__('profile.notifications.delete_account_blocked.title'))
+                ->body($e->validator->errors()->first())
+                ->persistent()
+                ->send();
+
+            return null;
+        }
+
         filament()->auth()->logout();
-
-        DB::transaction(function () use ($user): void {
-            if (config('jetstream.features.teams', false)) {
-                $user->teams()->detach();
-
-                /** @var Collection<int, Team> $ownedTeams */
-                $ownedTeams = $user->ownedTeams;
-                $ownedTeams->each(function (Team $team): void {
-                    resolve(DeleteTeam::class)->delete($team);
-                });
-            }
-
-            $user->deleteProfilePhoto();
-            $user->tokens->each->delete();
-
-            $user->delete();
-        });
 
         return redirect(filament()->getLoginUrl());
     }

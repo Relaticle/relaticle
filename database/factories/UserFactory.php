@@ -33,6 +33,7 @@ final class UserFactory extends Factory
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
+            'last_login_at' => null,
             'password' => self::$password ??= Hash::make('password'),
             'two_factor_secret' => null,
             'two_factor_recovery_codes' => null,
@@ -101,7 +102,15 @@ final class UserFactory extends Factory
         ]);
     }
 
-    public function configure(): Factory
+    public function scheduledForDeletion(int $daysFromNow = 30): static
+    {
+        return $this->state(fn (array $attributes): array => [
+            'scheduled_deletion_at' => now()->addDays($daysFromNow),
+        ]);
+    }
+
+    /** @phpstan-return static */
+    public function configure(): static
     {
         return $this->sequence(fn (Sequence $sequence): array => [
             'created_at' => now()->subMinutes($sequence->index),
