@@ -159,7 +159,7 @@ PROMPT;
     }
 
     /**
-     * Force one tool call per turn on Anthropic so the sequential approval flow can't be bypassed.
+     * Force one tool call per turn so the sequential approval flow can't be bypassed.
      */
     public function providerOptions(Lab|string $provider): array
     {
@@ -171,6 +171,9 @@ PROMPT;
                     'type' => 'auto',
                     'disable_parallel_tool_use' => true,
                 ],
+            ],
+            Lab::OpenAI->value => [
+                'parallel_tool_calls' => false,
             ],
             default => [],
         };

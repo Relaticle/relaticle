@@ -48,10 +48,10 @@ it('passes disable_parallel_tool_use to Anthropic via tool_choice', function ():
     });
 });
 
-it('returns no tool_choice override for non-anthropic providers', function (): void {
+it('returns provider-specific options for parallel-tool-call control', function (): void {
     $agent = resolve(CrmAssistant::class);
 
-    expect($agent->providerOptions('openai'))->toBe([]);
+    expect($agent->providerOptions('openai'))->toBe(['parallel_tool_calls' => false]);
     expect($agent->providerOptions('gemini'))->toBe([]);
     expect($agent->providerOptions(Lab::Anthropic))->toHaveKey('tool_choice');
 });
