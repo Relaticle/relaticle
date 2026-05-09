@@ -79,4 +79,37 @@ final readonly class TenantFkValidator
             }
         }
     }
+
+    /**
+     * @param  array<string, mixed>  $data
+     * @param  list<string>  $fields
+     */
+    public static function assertUserInWorkspace(User $user, array $data, array $fields): void
+    {
+        $team = $user->currentTeam;
+
+        if ($team === null) {
+            throw ValidationException::withMessages(['team' => 'No active workspace.']);
+        }
+
+        $memberIds = $team->users()->pluck('users.id')->all();
+        $memberIds[] = $team->user_id;
+        $memberIds = array_map(strval(...), $memberIds);
+
+        foreach ($fields as $field) {
+            $value = $data[$field] ?? null;
+            if ($value === null) {
+                continue;
+            }
+            if ($value === '') {
+                continue;
+            }
+
+            if (! in_array((string) $value, $memberIds, true)) {
+                throw ValidationException::withMessages([
+                    $field => "Referenced {$field} is not a member of your workspace.",
+                ]);
+            }
+        }
+    }
 }

@@ -7,6 +7,7 @@ namespace App\Actions\Company;
 use App\Enums\CreationSource;
 use App\Models\Company;
 use App\Models\User;
+use App\Support\TenantFkValidator;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
@@ -18,6 +19,8 @@ final readonly class CreateCompany
     public function execute(User $user, array $data, CreationSource $source = CreationSource::WEB): Company
     {
         abort_unless($user->can('create', Company::class), 403);
+
+        TenantFkValidator::assertUserInWorkspace($user, $data, ['account_owner_id']);
 
         $attributes = Arr::only($data, ['name', 'account_owner_id', 'custom_fields']);
         $attributes['creation_source'] = $source;

@@ -68,6 +68,7 @@ final readonly class UpdateTask
         return $task->load('customFieldValues.customField.options');
     }
 
+    // FOLLOWUP: extract to TenantFkValidator::assertUsersInWorkspace($user, $data, ['assignee_ids'])
     private function assertAssigneesInWorkspace(User $user, mixed $assigneeIds): void
     {
         if (! is_array($assigneeIds) || $assigneeIds === []) {
