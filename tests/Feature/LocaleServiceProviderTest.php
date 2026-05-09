@@ -28,5 +28,8 @@ it('localizes Number formatting when app locale is set', function (): void {
     app()->setLocale('fr');
     (new LocaleServiceProvider(app()))->boot();
 
-    expect(Number::format(1234.5))->toBe("1\u{202F}234,5");
+    // ICU thousands separator for French is U+202F (narrow NBSP) on modern ICU,
+    // U+00A0 (NBSP) on older ICU, and a plain space on minimal builds.
+    // Assert behaviour rather than exact codepoint to stay portable across CI/runtime variants.
+    expect(Number::format(1234.5))->toMatch('/^1[\x{0020}\x{00A0}\x{202F}]234,5$/u');
 });
