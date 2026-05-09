@@ -24,7 +24,7 @@ return new class extends AiMigration
             $table->index(['team_id', 'user_id', 'updated_at']);
 
             $table->foreign('user_id')->references('id')->on('users')->nullOnDelete();
-            $table->foreign('team_id')->references('id')->on('teams')->nullOnDelete();
+            $table->foreign('team_id')->references('id')->on('teams')->cascadeOnDelete();
         });
 
         Schema::create('agent_conversation_messages', function (Blueprint $table): void {
