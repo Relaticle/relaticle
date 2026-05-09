@@ -596,7 +596,7 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
         };
         window.addEventListener('beforeunload', this.beforeUnloadHandler);
 
-        window.addEventListener('chat:renamed', (e) => {
+        this.renamedHandler = (e) => {
             const detail = e.detail || {};
             if (!detail.conversationId || detail.conversationId !== this.conversationId) return;
 
@@ -608,7 +608,8 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
             if (h1 && detail.title) {
                 h1.textContent = detail.title;
             }
-        });
+        };
+        window.addEventListener('chat:renamed', this.renamedHandler);
 
         this.$wire.$on('chat:messages-prepended', (payload) => {
             const earlier = (payload && payload.messages) || [];
@@ -658,6 +659,7 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
         }
         this.undoToast = null;
         window.removeEventListener('beforeunload', this.beforeUnloadHandler);
+        window.removeEventListener('chat:renamed', this.renamedHandler);
     },
 
     startCopyTicker() {
