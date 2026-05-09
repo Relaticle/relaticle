@@ -3,8 +3,10 @@
 declare(strict_types=1);
 
 use App\Models\User;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Relaticle\Chat\Models\AiCreditBalance;
 
 it('cascades agent_conversations when the team is hard-deleted', function (): void {
     $user = User::factory()->withPersonalTeam()->create();
@@ -39,4 +41,53 @@ it('has a composite (status, expires_at) index on pending_actions', function ():
     );
 
     expect($found)->toBeTrue();
+});
+
+it('rejects negative credits_used on ai_credit_balances', function (): void {
+    $user = User::factory()->withPersonalTeam()->create();
+    $teamId = $user->currentTeam->getKey();
+
+    expect(
+        fn () => AiCreditBalance::query()->create([
+            'team_id' => $teamId,
+            'credits_remaining' => 10,
+            'credits_used' => -5,
+            'period_starts_at' => now()->startOfMonth(),
+            'period_ends_at' => now()->endOfMonth(),
+        ])
+    )->toThrow(QueryException::class);
+});
+
+it('rejects period end-before-start on ai_credit_balances', function (): void {
+    $user = User::factory()->withPersonalTeam()->create();
+    $teamId = $user->currentTeam->getKey();
+
+    expect(
+        fn () => AiCreditBalance::query()->create([
+            'team_id' => $teamId,
+            'credits_remaining' => 10,
+            'credits_used' => 0,
+            'period_starts_at' => now()->endOfMonth(),
+            'period_ends_at' => now()->startOfMonth(),
+        ])
+    )->toThrow(QueryException::class);
+});
+
+it('rejects negative tokens on ai_credit_transactions', function (): void {
+    $user = User::factory()->withPersonalTeam()->create();
+    $teamId = $user->currentTeam->getKey();
+
+    expect(
+        fn () => DB::table('ai_credit_transactions')->insert([
+            'id' => (string) Str::ulid(),
+            'team_id' => $teamId,
+            'user_id' => $user->getKey(),
+            'type' => 'chat',
+            'model' => 'sonnet',
+            'input_tokens' => -1,
+            'output_tokens' => 0,
+            'credits_charged' => 1,
+            'created_at' => now(),
+        ])
+    )->toThrow(QueryException::class);
 });

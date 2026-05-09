@@ -24,5 +24,7 @@ return new class extends Migration
         });
 
         DB::statement('ALTER TABLE ai_credit_balances ADD CONSTRAINT ai_credit_balances_credits_nonneg CHECK (credits_remaining >= 0)');
+        DB::statement('ALTER TABLE ai_credit_balances ADD CONSTRAINT ai_credit_balances_credits_used_nonneg CHECK (credits_used >= 0)');
+        DB::statement('ALTER TABLE ai_credit_balances ADD CONSTRAINT ai_credit_balances_period_order CHECK (period_starts_at < period_ends_at)');
     }
 };

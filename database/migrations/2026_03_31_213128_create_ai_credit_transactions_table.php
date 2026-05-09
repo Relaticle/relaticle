@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -32,5 +33,9 @@ return new class extends Migration
 
             $table->foreign('conversation_id')->references('id')->on('agent_conversations')->nullOnDelete();
         });
+
+        DB::statement('ALTER TABLE ai_credit_transactions ADD CONSTRAINT ai_credit_transactions_input_tokens_nonneg CHECK (input_tokens >= 0)');
+        DB::statement('ALTER TABLE ai_credit_transactions ADD CONSTRAINT ai_credit_transactions_output_tokens_nonneg CHECK (output_tokens >= 0)');
+        DB::statement('ALTER TABLE ai_credit_transactions ADD CONSTRAINT ai_credit_transactions_credits_charged_nonneg CHECK (credits_charged >= 0)');
     }
 };
