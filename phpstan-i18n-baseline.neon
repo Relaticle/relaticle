@@ -196,31 +196,26 @@ parameters:
 			message: '#^Hardcoded user\-facing string in \$modelLabel — set property to null and override getModelLabel\(\) with __\(\)\.$#'
 			identifier: app.i18n.hardcodedStaticProperty
 			count: 1
-			path: app/Filament/Resources/PeopleResource.php
 
 		-
 			message: '#^Hardcoded user\-facing string in \$navigationGroup — set property to null and override getNavigationGroup\(\) with __\(\)\.$#'
 			identifier: app.i18n.hardcodedStaticProperty
 			count: 1
-			path: app/Filament/Resources/PeopleResource.php
 
 		-
 			message: '#^Hardcoded user\-facing string in \-\>label\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
 			identifier: app.i18n.hardcodedUserFacingString
 			count: 5
-			path: app/Filament/Resources/PeopleResource.php
 
 		-
 			message: '#^Hardcoded user\-facing string in \-\>label\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
 			identifier: app.i18n.hardcodedUserFacingString
 			count: 2
-			path: app/Filament/Resources/PeopleResource/Pages/ListPeople.php
 
 		-
 			message: '#^Hardcoded user\-facing string in \-\>label\(\) — wrap in __\(\) and add a key under lang/en/\.$#'
 			identifier: app.i18n.hardcodedUserFacingString
 			count: 6
-			path: app/Filament/Resources/PeopleResource/Pages/ViewPeople.php
 
 		-
 			message: '#^Hardcoded user\-facing string in \$navigationGroup — set property to null and override getNavigationGroup\(\) with __\(\)\.$#'
