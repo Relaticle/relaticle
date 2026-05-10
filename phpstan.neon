@@ -1,8 +1,5 @@
 includes:
     - vendor/larastan/larastan/extension.neon
-    # i18n baseline: notification/mail strings deferred to Phase 2.
-    # When Phase 2 lands, this baseline shrinks; delete the file when empty.
-    - phpstan-i18n-baseline.neon
 
 parameters:
     level: 7
@@ -47,6 +44,30 @@ parameters:
         -
             identifier: app.i18n.hardcodedStaticProperty
             path: packages/ImportWizard/*
+            reportUnmatched: false
+
+        # i18n: Notifications + mail templates, deferred to Phase 2
+        -
+            identifier: app.i18n.hardcodedUserFacingString
+            path: app/Notifications/*
+            reportUnmatched: false
+
+        # i18n: notification ->label() inside the NotifyTaskAssignees action
+        -
+            identifier: app.i18n.hardcodedUserFacingString
+            path: app/Actions/Task/NotifyTaskAssignees.php
+            reportUnmatched: false
+
+        # i18n: notification ->title() emitted by the shared Livewire base class
+        -
+            identifier: app.i18n.hardcodedUserFacingString
+            path: app/Livewire/BaseLivewireComponent.php
+            reportUnmatched: false
+
+        # i18n: notification ->title() on OAuth callback failure
+        -
+            identifier: app.i18n.hardcodedUserFacingString
+            path: app/Http/Controllers/Auth/CallbackController.php
             reportUnmatched: false
 
 
