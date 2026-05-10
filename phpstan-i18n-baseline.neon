@@ -1,8 +1,14 @@
 # i18n PHPStan baseline — residual deferred work
 #
-# Remaining entries are deferred to future phases:
-#   - Notifications + mail templates → Phase 2
-#   - BaseLivewireComponent, CallbackController, NotifyTaskAssignees → opportunistic cleanup
+# All remaining entries render user-facing strings via notification or
+# email rendering paths and belong to Phase 2 (Notifications + mail templates):
+#
+#   - app/Notifications/* → mail subject lines
+#   - app/Actions/Task/NotifyTaskAssignees.php → builds a notification ->label()
+#   - app/Livewire/BaseLivewireComponent.php → notification ->title() on the
+#     shared base class that App\Livewire/* extends
+#   - app/Http/Controllers/Auth/CallbackController.php → notification ->title()
+#     emitted on OAuth callback failure
 #
 # MCP Tools and ImportWizard are excluded via phpstan.neon path-level ignores (Phase 4).
 # When this file is empty, delete it and remove the include from phpstan.neon.
