@@ -107,7 +107,7 @@ it('writes a snapshot when --update-snapshot is set and skips diff output', func
     $contents = json_decode((string) file_get_contents($snapshotPath), true, flags: JSON_THROW_ON_ERROR);
     expect($contents['en_hashes'])->toHaveKey('sample.a')
         ->and($contents['en_hashes'])->toHaveKey('[json] Sign in')
-        ->and($contents['en_hashes']['sample.a'])->toBe(sha1('A'));
+        ->and($contents['en_hashes']['sample.a'])->toBe(hash('sha256', 'A'));
 });
 
 it('reports stale entries when en values drift after the snapshot was taken', function (): void {

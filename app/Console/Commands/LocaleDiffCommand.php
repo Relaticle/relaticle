@@ -223,7 +223,10 @@ final class LocaleDiffCommand extends Command
 
     private function hashValue(string $value): string
     {
-        return sha1($value);
+        // Content-equality hash, not cryptographic. sha256 picked because the
+        // pest security preset bans md5/sha1; hash() with an explicit algorithm
+        // reads as obviously non-crypto and keeps the arch test green.
+        return hash('sha256', $value);
     }
 
     /**
