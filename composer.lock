@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6f194cfbada79a40291223329ac54cd1",
+    "content-hash": "469a891678f54e08c069df22734a010b",
     "packages": [
         {
             "name": "andreiio/blade-remix-icon",
@@ -16757,81 +16757,6 @@
                 "source": "https://github.com/kelunik/certificate/tree/v1.1.3"
             },
             "time": "2023-02-03T21:26:53+00:00"
-        },
-        {
-            "name": "kkomelin/laravel-translatable-string-exporter",
-            "version": "1.26.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/kkomelin/laravel-translatable-string-exporter.git",
-                "reference": "6e8b5596df329d0678574982666ff4493b9be829"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/kkomelin/laravel-translatable-string-exporter/zipball/6e8b5596df329d0678574982666ff4493b9be829",
-                "reference": "6e8b5596df329d0678574982666ff4493b9be829",
-                "shasum": ""
-            },
-            "require": {
-                "ext-json": "*",
-                "illuminate/support": "^8|^9|^10.0|^11.0|^12.0|^13.0",
-                "illuminate/translation": "^8|^9|^10.0|^11.0|^12.0|^13.0",
-                "php": "^8.2",
-                "symfony/finder": "^5|^6|^7.0|^8.0"
-            },
-            "require-dev": {
-                "larastan/larastan": "^1.0|^2.0|^3.0",
-                "orchestra/testbench": "^6.0|^7.0|^8.0|^9.0|^10.0|^11.0",
-                "phpunit/phpunit": "^9.0|^10.5|^11.5|^12.0|^13.0"
-            },
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "providers": [
-                        "KKomelin\\TranslatableStringExporter\\Providers\\ExporterServiceProvider"
-                    ]
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "KKomelin\\TranslatableStringExporter\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Konstantin Komelin",
-                    "email": "konstantin.komelin@gmail.com"
-                }
-            ],
-            "description": "Translatable String Exporter for Laravel",
-            "keywords": [
-                "export",
-                "exporter",
-                "json",
-                "laravel",
-                "localization",
-                "translation",
-                "translations"
-            ],
-            "support": {
-                "issues": "https://github.com/kkomelin/laravel-translatable-string-exporter/issues",
-                "source": "https://github.com/kkomelin/laravel-translatable-string-exporter/tree/1.26.0"
-            },
-            "funding": [
-                {
-                    "url": "https://www.buymeacoffee.com/kkomelin",
-                    "type": "buy_me_a_coffee"
-                },
-                {
-                    "url": "https://github.com/kkomelin",
-                    "type": "github"
-                }
-            ],
-            "time": "2026-03-18T09:33:34+00:00"
         },
         {
             "name": "larastan/larastan",
