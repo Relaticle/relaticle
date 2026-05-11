@@ -127,6 +127,7 @@
                             this.editing = true;
                         }
                     }"
+                    x-show="$store.sidebar.isOpen"
                     @class([
                         'fi-sidebar-item group/chat-item relative',
                         'fi-active' => $isActive,
@@ -197,7 +198,10 @@
             @endforeach
 
             @if($hasMore)
-                <li class="fi-sidebar-item">
+                <li
+                    x-show="$store.sidebar.isOpen"
+                    class="fi-sidebar-item"
+                >
                     <button
                         type="button"
                         @click="window.dispatchEvent(new CustomEvent('chat:open-all-chats'))"

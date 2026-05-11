@@ -433,6 +433,10 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
     copyTickerId: null,
     selectedModel: 'auto',
     undoToast: null,
+    // When the user types + sends during an active stream, we stash the
+    // message here, clear the editor (so they see their intent was accepted),
+    // and auto-flush this on handleStreamEnd / cancel / failure.
+    queuedSend: null,
 
     // Scoped lookup of THIS chat-interface's TipTap editor. Avoids the
     // window.__chatEditor global that breaks when multiple chat-interface
@@ -952,8 +956,21 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
     async sendMessage() {
         const editor = this.localEditor();
         const text = (editor?.getText() ?? this.input).trim();
-        if (!text || this.isStreaming) return;
+        if (!text) return;
         if (text.length > 5000) return;
+
+        // If a previous turn is still streaming, queue this message and clear
+        // the editor so the user sees their intent was accepted. handleStreamEnd
+        // (or cancel / failure) will flush this queue.
+        if (this.isStreaming) {
+            this.queuedSend = {
+                document: this.localEditor()?.getDocument() ?? this.documentFromInput(text),
+                model: this.selectedModel,
+            };
+            this.localEditor()?.clear();
+            this.input = '';
+            return;
+        }
 
         // Claim the lock SYNCHRONOUSLY so a second tick of sendMessage() bails at the
         // guard above. Any failure path between here and the existing isStreaming=false
@@ -1164,6 +1181,7 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
 
         this.currentToolStatus = null;
         this.isStreaming = false;
+        this.queuedSend = null;
         this.restoreInputFocus();
     },
 
@@ -1232,6 +1250,20 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
         this.clearStreamTimeout();
         this.scrollToBottom();
         this.restoreInputFocus();
+        this.flushQueuedSend();
+    },
+
+    flushQueuedSend() {
+        if (!this.queuedSend) return;
+        const queued = this.queuedSend;
+        this.queuedSend = null;
+        if (queued.model && this.modelOptions.some((o) => o.value === queued.model)) {
+            this.selectedModel = queued.model;
+        }
+        this.$nextTick(() => {
+            this.localEditor()?.setDocument?.(queued.document);
+            this.sendMessage();
+        });
     },
 
     handleStreamFailed(event) {
@@ -1245,6 +1277,7 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
             assistantMsg.prerendered = false;
         }
         this.isStreaming = false;
+        this.queuedSend = null;
         this.clearStreamTimeout();
         this.restoreInputFocus();
     },
