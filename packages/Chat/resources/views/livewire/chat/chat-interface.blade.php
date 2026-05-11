@@ -572,6 +572,13 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
             this.subscribeToConversation(this.conversationId);
         }
 
+        // Land at the latest message when reopening an existing conversation.
+        // Without this, the messages container starts scrolled to the top
+        // (oldest message), forcing the user to scroll down to see context.
+        if (this.messages.length > 0) {
+            this.scrollToBottom();
+        }
+
         if (initialMessage) {
             this.$nextTick(() => {
                 this.input = initialMessage;
