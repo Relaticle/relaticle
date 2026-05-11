@@ -181,6 +181,14 @@ final readonly class ChatController
 
         $resolved = $this->modelResolver->resolve($user, $validated['model'] ?? null);
 
+        // Defer the job to after the HTTP response is sent. This buys the
+        // client time to receive the conversation_id and subscribe to the
+        // broadcast channel before the job starts emitting events — which
+        // is critical under QUEUE_CONNECTION=sync where the streaming job
+        // runs inside the request lifecycle and would otherwise broadcast
+        // before any subscriber exists. The fallback fetch in
+        // chat-interface.blade.php handles cases where the race is still
+        // lost (e.g. slow WebSocket handshake).
         dispatch(new ProcessChatMessage(
             user: $user,
             team: $team,
@@ -189,7 +197,7 @@ final readonly class ChatController
             resolved: $resolved,
             mentions: $parsed['mentions'],
             document: $validated['document'],
-        ));
+        ))->afterResponse();
 
         return response()->json(['conversation_id' => $conversationId]);
     }
