@@ -42,14 +42,23 @@ it('returns matching notes from the mentions endpoint', function (): void {
     expect($matches->first()['name'])->toBe('Customer feedback summary');
 });
 
-it('accepts a note type in the send mentions payload', function (): void {
+it('accepts a note type in the send mentions payload on chat.send', function (): void {
     Queue::fake();
     $note = Note::factory()->for($this->team)->create(['title' => 'Q3 retro']);
 
-    $response = $this->postJson(route('chat.conversations.create'), [
-        'document' => ChatDocument::fromText('Summarize ', [
-            ['type' => 'note', 'id' => $note->id, 'label' => 'Q3 retro'],
-        ]),
+    $document = ChatDocument::fromText('Summarize ', [
+        ['type' => 'note', 'id' => $note->id, 'label' => 'Q3 retro'],
+    ]);
+
+    $createRes = $this->postJson(route('chat.conversations.create'), [
+        'document' => $document,
+    ])->assertOk();
+    $conversationId = $createRes->json('conversation_id');
+
+    Queue::assertNotPushed(ProcessChatMessage::class);
+
+    $this->postJson(route('chat.send', ['conversation' => $conversationId]), [
+        'document' => $document,
     ])->assertOk();
 
     Queue::assertPushed(ProcessChatMessage::class, function (ProcessChatMessage $job) use ($note): bool {
@@ -60,15 +69,24 @@ it('accepts a note type in the send mentions payload', function (): void {
     });
 });
 
-it('drops note mentions belonging to another team', function (): void {
+it('drops note mentions belonging to another team on chat.send', function (): void {
     Queue::fake();
     $otherTeam = Team::factory()->create();
     $foreignNote = Note::factory()->for($otherTeam)->create(['title' => 'Cross-team']);
 
-    $this->postJson(route('chat.conversations.create'), [
-        'document' => ChatDocument::fromText('Tell me about ', [
-            ['type' => 'note', 'id' => $foreignNote->id, 'label' => 'Cross-team'],
-        ]),
+    $document = ChatDocument::fromText('Tell me about ', [
+        ['type' => 'note', 'id' => $foreignNote->id, 'label' => 'Cross-team'],
+    ]);
+
+    $createRes = $this->postJson(route('chat.conversations.create'), [
+        'document' => $document,
+    ])->assertOk();
+    $conversationId = $createRes->json('conversation_id');
+
+    Queue::assertNotPushed(ProcessChatMessage::class);
+
+    $this->postJson(route('chat.send', ['conversation' => $conversationId]), [
+        'document' => $document,
     ])->assertOk();
 
     Queue::assertPushed(ProcessChatMessage::class, function (ProcessChatMessage $job): bool {

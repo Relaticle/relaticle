@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Models\Company;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 use Relaticle\Chat\Jobs\ProcessChatMessage;
 use Relaticle\Chat\Models\AgentConversation;
@@ -24,23 +25,41 @@ beforeEach(function (): void {
     ]);
 });
 
-it('creates a conversation, dispatches the message, and returns the new id', function (): void {
+it('creates a conversation row and returns the new id WITHOUT dispatching a job', function (): void {
     Queue::fake();
 
     $response = $this->postJson(route('chat.conversations.create'), [
         'document' => ChatDocument::fromText('Hello world'),
-    ])->assertOk();
+    ])->assertOk()->assertJsonStructure(['conversation_id']);
 
     $conversationId = $response->json('conversation_id');
     expect($conversationId)->toBeString()->not->toBeEmpty();
 
-    expect(AgentConversation::query()->find($conversationId))->not->toBeNull();
+    expect(DB::table('agent_conversations')->where('id', $conversationId)->exists())->toBeTrue();
     expect(AgentConversation::query()->find($conversationId)->title)->toBe('Hello world');
 
-    Queue::assertPushed(ProcessChatMessage::class, function ($job) use ($conversationId): bool {
-        return $job->conversationId === $conversationId
-            && $job->message === 'Hello world';
-    });
+    Queue::assertNotPushed(ProcessChatMessage::class);
+});
+
+it('dispatches the chat job on chat.send for the first message of a fresh conversation', function (): void {
+    Queue::fake();
+
+    $createRes = $this->postJson(route('chat.conversations.create'), [
+        'document' => ChatDocument::fromText('Hello world'),
+    ])->assertOk();
+    $conversationId = $createRes->json('conversation_id');
+
+    Queue::assertNotPushed(ProcessChatMessage::class);
+
+    $this->postJson(route('chat.send', ['conversation' => $conversationId]), [
+        'document' => ChatDocument::fromText('Hello world'),
+    ])->assertOk();
+
+    Queue::assertPushed(
+        ProcessChatMessage::class,
+        fn (ProcessChatMessage $job): bool => $job->conversationId === $conversationId
+            && $job->message === 'Hello world',
+    );
 });
 
 it('returns 422 when document is missing', function (): void {
@@ -53,19 +72,28 @@ it('returns 422 when document text is empty', function (): void {
     ])->assertStatus(422);
 });
 
-it('returns 402 when credit balance is insufficient', function (): void {
+it('returns 402 on send when credit balance is insufficient', function (): void {
+    Queue::fake();
+
+    $createRes = $this->postJson(route('chat.conversations.create'), [
+        'document' => ChatDocument::fromText('Hi'),
+    ])->assertOk();
+    $conversationId = $createRes->json('conversation_id');
+
     AiCreditBalance::query()->where('team_id', $this->team->getKey())->update([
         'credits_remaining' => 0,
     ]);
 
-    $response = $this->postJson(route('chat.conversations.create'), [
+    $response = $this->postJson(route('chat.send', ['conversation' => $conversationId]), [
         'document' => ChatDocument::fromText('Hi'),
     ])->assertStatus(402);
 
     expect($response->json('error'))->toBe('credits_exhausted');
+
+    Queue::assertNotPushed(ProcessChatMessage::class);
 });
 
-it('filters cross-tenant mention IDs from the document before persisting', function (): void {
+it('filters cross-tenant mention IDs from the document before persisting on chat.send', function (): void {
     Queue::fake();
     $otherTeam = User::factory()->withPersonalTeam()->create()->currentTeam;
     $foreignCompany = Company::factory()->for($otherTeam)->create(['name' => 'Foreign']);
@@ -74,7 +102,14 @@ it('filters cross-tenant mention IDs from the document before persisting', funct
         ['type' => 'company', 'id' => $foreignCompany->getKey(), 'label' => 'Foreign'],
     ]);
 
-    $this->postJson(route('chat.conversations.create'), [
+    $createRes = $this->postJson(route('chat.conversations.create'), [
+        'document' => $document,
+    ])->assertOk();
+    $conversationId = $createRes->json('conversation_id');
+
+    Queue::assertNotPushed(ProcessChatMessage::class);
+
+    $this->postJson(route('chat.send', ['conversation' => $conversationId]), [
         'document' => $document,
     ])->assertOk();
 
@@ -94,10 +129,17 @@ it('returns 422 when document text exceeds 5000 characters', function (): void {
     expect(AgentConversation::query()->count())->toBe(0);
 });
 
-it('does not consume a credit when the document is empty', function (): void {
+it('does not consume a credit on send when the document is empty', function (): void {
+    Queue::fake();
+
+    $createRes = $this->postJson(route('chat.conversations.create'), [
+        'document' => ChatDocument::fromText('seed'),
+    ])->assertOk();
+    $conversationId = $createRes->json('conversation_id');
+
     $balanceBefore = AiCreditBalance::query()->where('team_id', $this->team->getKey())->first();
 
-    $this->postJson(route('chat.conversations.create'), [
+    $this->postJson(route('chat.send', ['conversation' => $conversationId]), [
         'document' => ['type' => 'doc', 'content' => []],
     ])->assertStatus(422);
 
@@ -105,10 +147,17 @@ it('does not consume a credit when the document is empty', function (): void {
     expect($balanceAfter->credits_remaining)->toBe($balanceBefore->credits_remaining);
 });
 
-it('does not consume a credit when the document text is too long', function (): void {
+it('does not consume a credit on send when the document text is too long', function (): void {
+    Queue::fake();
+
+    $createRes = $this->postJson(route('chat.conversations.create'), [
+        'document' => ChatDocument::fromText('seed'),
+    ])->assertOk();
+    $conversationId = $createRes->json('conversation_id');
+
     $balanceBefore = AiCreditBalance::query()->where('team_id', $this->team->getKey())->first();
 
-    $this->postJson(route('chat.conversations.create'), [
+    $this->postJson(route('chat.send', ['conversation' => $conversationId]), [
         'document' => ChatDocument::fromText(str_repeat('a', 5001)),
     ])->assertStatus(422);
 
@@ -116,7 +165,7 @@ it('does not consume a credit when the document text is too long', function (): 
     expect($balanceAfter->credits_remaining)->toBe($balanceBefore->credits_remaining);
 });
 
-it('does not duplicate mention labels when text already contains @Tokens', function (): void {
+it('does not duplicate mention labels when text already contains @Tokens on chat.send', function (): void {
     Queue::fake();
     Company::factory()->for($this->team)->create(['name' => 'Acme Corp']);
 
@@ -130,7 +179,14 @@ it('does not duplicate mention labels when text already contains @Tokens', funct
         ]],
     ];
 
-    $this->postJson(route('chat.conversations.create'), [
+    $createRes = $this->postJson(route('chat.conversations.create'), [
+        'document' => $document,
+    ])->assertOk();
+    $conversationId = $createRes->json('conversation_id');
+
+    Queue::assertNotPushed(ProcessChatMessage::class);
+
+    $this->postJson(route('chat.send', ['conversation' => $conversationId]), [
         'document' => $document,
     ])->assertOk();
 

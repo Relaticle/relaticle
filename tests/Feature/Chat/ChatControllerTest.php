@@ -36,16 +36,25 @@ it('rejects unauthenticated requests', function (): void {
     ])->assertUnauthorized();
 });
 
-it('returns 402 when credits are exhausted', function (): void {
+it('returns 402 when credits are exhausted on send', function (): void {
+    Queue::fake();
+
+    $createRes = $this->postJson(route('chat.conversations.create'), [
+        'document' => ChatDocument::fromText('hello'),
+    ])->assertOk();
+    $conversationId = $createRes->json('conversation_id');
+
     AiCreditBalance::query()
         ->where('team_id', $this->team->getKey())
         ->update(['credits_remaining' => 0]);
 
-    $this->postJson(route('chat.conversations.create'), [
+    $this->postJson(route('chat.send', ['conversation' => $conversationId]), [
         'document' => ChatDocument::fromText('hello'),
     ])
         ->assertStatus(402)
         ->assertJsonPath('error', 'credits_exhausted');
+
+    Queue::assertNotPushed(ProcessChatMessage::class);
 });
 
 it('validates document is required', function (): void {
@@ -62,7 +71,7 @@ it('rejects empty documents', function (): void {
         ->assertJsonValidationErrors('document');
 });
 
-it('dispatches a chat job when credits are available', function (): void {
+it('creates a conversation row without dispatching a chat job', function (): void {
     Queue::fake();
 
     $response = $this->postJson(route('chat.conversations.create'), [
@@ -70,6 +79,23 @@ it('dispatches a chat job when credits are available', function (): void {
     ]);
 
     $response->assertOk();
+    Queue::assertNotPushed(ProcessChatMessage::class);
+});
+
+it('dispatches a chat job when credits are available and chat.send is called', function (): void {
+    Queue::fake();
+
+    $createRes = $this->postJson(route('chat.conversations.create'), [
+        'document' => ChatDocument::fromText('hello'),
+    ])->assertOk();
+    $conversationId = $createRes->json('conversation_id');
+
+    Queue::assertNotPushed(ProcessChatMessage::class);
+
+    $this->postJson(route('chat.send', ['conversation' => $conversationId]), [
+        'document' => ChatDocument::fromText('hello'),
+    ])->assertOk();
+
     Queue::assertPushed(ProcessChatMessage::class);
 });
 
@@ -172,10 +198,18 @@ it('rejects unknown model overrides with 422', function (): void {
     Queue::assertNotPushed(ProcessChatMessage::class);
 });
 
-it('accepts known model override values', function (): void {
+it('accepts known model override values on chat.send', function (): void {
     Queue::fake();
 
-    $this->postJson(route('chat.conversations.create'), [
+    $createRes = $this->postJson(route('chat.conversations.create'), [
+        'document' => ChatDocument::fromText('hello'),
+        'model' => 'claude-sonnet',
+    ])->assertOk();
+    $conversationId = $createRes->json('conversation_id');
+
+    Queue::assertNotPushed(ProcessChatMessage::class);
+
+    $this->postJson(route('chat.send', ['conversation' => $conversationId]), [
         'document' => ChatDocument::fromText('hello'),
         'model' => 'claude-sonnet',
     ])->assertOk();
@@ -196,17 +230,25 @@ it('returns the conversation id so the client can subscribe', function (): void 
     expect($response->json('conversation_id'))->toBeString();
 });
 
-it('atomically reserves a credit so concurrent sends cannot overspend', function (): void {
+it('atomically reserves a credit on send so concurrent sends cannot overspend', function (): void {
     AiCreditBalance::query()
         ->where('team_id', $this->team->getKey())
         ->update(['credits_remaining' => 1, 'credits_used' => 99]);
 
     Queue::fake();
 
-    $first = $this->postJson(route('chat.conversations.create'), [
+    $firstConv = $this->postJson(route('chat.conversations.create'), [
+        'document' => ChatDocument::fromText('first'),
+    ])->assertOk()->json('conversation_id');
+
+    $secondConv = $this->postJson(route('chat.conversations.create'), [
+        'document' => ChatDocument::fromText('second'),
+    ])->assertOk()->json('conversation_id');
+
+    $first = $this->postJson(route('chat.send', ['conversation' => $firstConv]), [
         'document' => ChatDocument::fromText('first'),
     ]);
-    $second = $this->postJson(route('chat.conversations.create'), [
+    $second = $this->postJson(route('chat.send', ['conversation' => $secondConv]), [
         'document' => ChatDocument::fromText('second'),
     ]);
 
@@ -216,20 +258,34 @@ it('atomically reserves a credit so concurrent sends cannot overspend', function
     expect(AiCreditBalance::query()->where('team_id', $this->team->getKey())->value('credits_remaining'))->toBe(0);
 });
 
-it('does not reserve a credit when the request fails validation', function (): void {
-    $this->postJson(route('chat.conversations.create'), [
+it('does not reserve a credit on send when the request fails validation', function (): void {
+    Queue::fake();
+
+    $createRes = $this->postJson(route('chat.conversations.create'), [
+        'document' => ChatDocument::fromText('hello'),
+    ])->assertOk();
+    $conversationId = $createRes->json('conversation_id');
+
+    $this->postJson(route('chat.send', ['conversation' => $conversationId]), [
         'document' => ['type' => 'doc', 'content' => []],
     ])->assertUnprocessable();
 
     expect(AiCreditBalance::query()->where('team_id', $this->team->getKey())->value('credits_remaining'))->toBe(100);
 });
 
-it('returns reset_at and upgrade_url on 402', function (): void {
+it('returns reset_at and upgrade_url on 402 from send', function (): void {
+    Queue::fake();
+
+    $createRes = $this->postJson(route('chat.conversations.create'), [
+        'document' => ChatDocument::fromText('hi'),
+    ])->assertOk();
+    $conversationId = $createRes->json('conversation_id');
+
     AiCreditBalance::query()
         ->where('team_id', $this->team->getKey())
         ->update(['credits_remaining' => 0, 'period_ends_at' => now()->endOfMonth()]);
 
-    $this->postJson(route('chat.conversations.create'), [
+    $this->postJson(route('chat.send', ['conversation' => $conversationId]), [
         'document' => ChatDocument::fromText('hi'),
     ])
         ->assertStatus(402)
@@ -237,10 +293,17 @@ it('returns reset_at and upgrade_url on 402', function (): void {
         ->assertJsonPath('error', 'credits_exhausted');
 });
 
-it('dispatches a chat job on the chat queue', function (): void {
+it('dispatches a chat job on the chat queue when chat.send is called', function (): void {
     Queue::fake();
 
-    $this->postJson(route('chat.conversations.create'), [
+    $createRes = $this->postJson(route('chat.conversations.create'), [
+        'document' => ChatDocument::fromText('hello'),
+    ])->assertOk();
+    $conversationId = $createRes->json('conversation_id');
+
+    Queue::assertNotPushed(ProcessChatMessage::class);
+
+    $this->postJson(route('chat.send', ['conversation' => $conversationId]), [
         'document' => ChatDocument::fromText('hello'),
     ])->assertOk();
 

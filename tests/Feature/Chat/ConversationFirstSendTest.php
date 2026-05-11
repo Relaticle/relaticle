@@ -43,17 +43,23 @@ it('chat-interface view does not POST {message, mentions} on subsequent sends an
     $response->assertDontSee('mentions: liveMentions', false);
 });
 
-it('first-message POST to /chat/conversations/create dispatches and returns id', function (): void {
+it('first-message protocol: create returns id without dispatch, send dispatches', function (): void {
     Queue::fake();
 
-    $response = $this->postJson(route('chat.conversations.create'), [
+    $createRes = $this->postJson(route('chat.conversations.create'), [
         'document' => ChatDocument::fromText('Hello world'),
     ])->assertOk();
 
-    $conversationId = $response->json('conversation_id');
+    $conversationId = $createRes->json('conversation_id');
     expect($conversationId)->toBeString()->not->toBeEmpty();
-
     expect(AgentConversation::query()->find($conversationId))->not->toBeNull();
+
+    Queue::assertNotPushed(ProcessChatMessage::class);
+
+    $this->postJson(route('chat.send', ['conversation' => $conversationId]), [
+        'document' => ChatDocument::fromText('Hello world'),
+    ])->assertOk();
+
     Queue::assertPushed(
         ProcessChatMessage::class,
         fn (ProcessChatMessage $job): bool => $job->conversationId === $conversationId,
