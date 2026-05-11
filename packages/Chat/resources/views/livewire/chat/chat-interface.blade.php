@@ -995,8 +995,13 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
             this.input = '';
             this.currentToolStatus = null;
 
+            let newId = null;
             try {
-                const response = await fetch(@js(route('chat.conversations.create')), {
+                // Step 1: create the conversation row. Server returns the id
+                // immediately without dispatching the AI job. Channel auth
+                // requires this row to exist, so we must complete this before
+                // attempting to subscribe.
+                const createRes = await fetch(@js(route('chat.conversations.create')), {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -1009,40 +1014,32 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
                     }),
                 });
 
-                if (!response.ok) {
-                    const body = await response.json().catch(() => ({}));
+                if (!createRes.ok) {
+                    const body = await createRes.json().catch(() => ({}));
                     const assistantMsg = this.messages[this.messages.length - 1];
 
-                    if (response.status === 401 || response.status === 419) {
+                    if (createRes.status === 401 || createRes.status === 419) {
                         try { localStorage.setItem('chat:draft', text); } catch (_) { /* ignore */ }
                         assistantMsg.content = 'Your session expired. Please sign in again — your message is saved locally.';
                         assistantMsg.sessionExpired = true;
-                        assistantMsg.rendered = true;
-                    } else if (response.status === 402 && body?.error === 'credits_exhausted') {
-                        const resetLabel = body.reset_at ? new Date(body.reset_at).toLocaleDateString() : null;
-                        assistantMsg.paywall = {
-                            heading: "You've used all your AI credits",
-                            body: resetLabel ? `Your plan resets on ${resetLabel}.` : 'Add credits to keep chatting.',
-                            upgrade_url: body.upgrade_url || '/app',
-                        };
-                        assistantMsg.content = '';
-                        assistantMsg.rendered = true;
                     } else {
-                        assistantMsg.content = body?.message || `Error ${response.status}: ${response.statusText}`;
-                        assistantMsg.rendered = true;
+                        assistantMsg.content = body?.errors?.document?.[0] ?? body?.message ?? `Error ${createRes.status}: ${createRes.statusText}`;
                     }
-
+                    assistantMsg.rendered = true;
                     this.isStreaming = false;
                     this.restoreInputFocus();
                     return;
                 }
 
-                const body = await response.json();
-                const newId = body.conversation_id;
-
+                newId = (await createRes.json()).conversation_id;
                 this.conversationId = newId;
+
+                // Step 2: subscribe BEFORE dispatching the job so the broadcasts
+                // emitted during the streaming job land on a live channel. The
+                // row exists at this point so channel auth will succeed.
                 await this.subscribeToConversation(newId);
 
+                // Step 3: update the URL so a reload keeps the conversation.
                 const url = new URL(window.location.href);
                 url.pathname = url.pathname.replace(/\/chats\/?$/, `/chats/${newId}`);
                 url.search = '';
@@ -1053,14 +1050,59 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
                     detail: { id: newId },
                 }));
 
+                // Step 4: trigger the AI by hitting the existing send endpoint.
+                // It reserves a credit, dispatches ProcessChatMessage, and the
+                // job's broadcasts arrive on our already-subscribed channel.
                 this.startStreamTimeout();
-                this.scheduleFirstMessageFallback(newId);
                 this.scrollToBottom();
+
+                this.streamAbortController = new AbortController();
+
+                const sendRes = await fetch(sendUrl.replace(/\/$/, '') + '/' + newId, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': window.document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                    },
+                    body: JSON.stringify({
+                        document: payload,
+                        conversation_id: newId,
+                        model: this.selectedModel,
+                    }),
+                    signal: this.streamAbortController.signal,
+                });
+
+                if (!sendRes.ok) {
+                    const body = await sendRes.json().catch(() => ({}));
+                    const assistantMsg = this.messages[this.messages.length - 1];
+
+                    if (sendRes.status === 402 && body?.error === 'credits_exhausted') {
+                        const resetLabel = body.reset_at ? new Date(body.reset_at).toLocaleDateString() : null;
+                        assistantMsg.paywall = {
+                            heading: "You've used all your AI credits",
+                            body: resetLabel ? `Your plan resets on ${resetLabel}.` : 'Add credits to keep chatting.',
+                            upgrade_url: body.upgrade_url || '/app',
+                        };
+                        assistantMsg.content = '';
+                    } else {
+                        assistantMsg.content = body?.message || `Error ${sendRes.status}: ${sendRes.statusText}`;
+                    }
+                    assistantMsg.rendered = true;
+                    this.isStreaming = false;
+                    this.clearStreamTimeout();
+                    this.restoreInputFocus();
+                    return;
+                }
             } catch (error) {
+                if (error?.name === 'AbortError') {
+                    return;
+                }
                 const assistantMsg = this.messages[this.messages.length - 1];
                 assistantMsg.content = 'Network error. Please try again.';
                 assistantMsg.rendered = true;
                 this.isStreaming = false;
+                this.clearStreamTimeout();
                 this.restoreInputFocus();
             }
 
