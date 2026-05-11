@@ -163,7 +163,15 @@ export function chatEditor({ initialDocument, placeholder, onSubmit, onChange, a
         },
 
         clear() {
-            editorByEl.get(this.editorEl)?.commands.clearContent();
+            const editor = editorByEl.get(this.editorEl);
+            if (! editor) return;
+            // Use setContent({...emptyParagraph}) rather than clearContent(): the
+            // latter is silently dropped when invoked re-entrantly from inside
+            // ProseMirror's handleKeyDown (which is the path Enter -> onSubmit
+            // -> sendMessage -> clear takes), so the editor visibly kept its
+            // text. setContent doesn't share that re-entrancy bug.
+            editor.commands.setContent({ type: 'doc', content: [{ type: 'paragraph' }] });
+            this.text = '';
         },
 
         focus() {

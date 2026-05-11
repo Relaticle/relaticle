@@ -441,10 +441,17 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
     // Scoped lookup of THIS chat-interface's TipTap editor. Avoids the
     // window.__chatEditor global that breaks when multiple chat-interface
     // instances render simultaneously (e.g. side panel + main page).
+    //
+    // We deliberately use `document.querySelector` scoped by data-chat-context
+    // rather than `this.$root.querySelector` because Livewire's morphdom can
+    // briefly detach children from the chat-interface root during a re-render,
+    // and `this.$root.querySelector` returns null for the editor wrapper in
+    // that window — which is exactly when sendMessage() needs it most to
+    // call clear() after a send. Both this.$root and the chatEditor wrapper
+    // expose data-chat-context, so the selector is unambiguous.
     localEditor() {
-        const root = this.$root || this.$el;
-        if (! root) return null;
-        const wrapper = root.querySelector('[x-data*="chatEditor"]');
+        const ctx = (this.$root || this.$el)?.getAttribute?.('data-chat-context') ?? 'conversation';
+        const wrapper = document.querySelector(`[data-chat-context="${ctx}"][x-data*="chatEditor"]`);
         if (! wrapper || ! window.Alpine) return null;
         return window.Alpine.$data(wrapper);
     },

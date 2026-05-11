@@ -180,11 +180,12 @@
 
             // Scoped lookup of the dashboard's TipTap editor — avoids the
             // window.__dashboardEditor global which collides if any sibling
-            // chat-interface instance also writes its own global.
+            // chat-interface instance also writes its own global. We use
+            // document.querySelector keyed by data-chat-context to dodge the
+            // same Livewire-morph stale-root problem documented on the
+            // chatInterface.localEditor() helper.
             localEditor() {
-                const root = this.$root || this.$el;
-                if (! root) return null;
-                const wrapper = root.querySelector('[x-data*="chatEditor"]');
+                const wrapper = document.querySelector('[data-chat-context="dashboard"][x-data*="chatEditor"]');
                 if (! wrapper || ! window.Alpine) return null;
                 return window.Alpine.$data(wrapper);
             },
