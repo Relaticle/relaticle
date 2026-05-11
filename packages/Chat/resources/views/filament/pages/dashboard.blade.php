@@ -189,49 +189,30 @@
                 return window.Alpine.$data(wrapper);
             },
 
-            async submit() {
+            submit() {
                 const editor = this.localEditor();
                 if (!editor || editor.getText().trim().length === 0 || this.submitting) return;
 
                 this.submitting = true;
                 this.error = null;
 
-                const payload = editor.getDocument();
-
+                // Hand the editor document to the conversation page via sessionStorage
+                // and navigate immediately. The conversation page picks up the bootstrap
+                // payload in chatInterface.init(), restores the editor (preserving
+                // mentions), and fires the first-message POST from there. This avoids
+                // a long wait on the dashboard when the queue is slow or running sync.
                 try {
-                    const res = await fetch(@js(route('chat.conversations.create')), {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json',
-                            'X-CSRF-TOKEN': window.document.querySelector('meta[name="csrf-token"]')?.content ?? '',
-                        },
-                        body: JSON.stringify({
-                            document: payload,
-                            model: this.selectedModel !== 'auto' ? this.selectedModel : undefined,
-                        }),
-                    });
-
-                    if (!res.ok) {
-                        this.submitting = false;
-                        if (res.status === 422) {
-                            const body = await res.json().catch(() => ({}));
-                            this.error = body?.errors?.document?.[0] ?? 'Message is empty.';
-                        } else if (res.status === 402) {
-                            window.location.href = @js(url('/app/billing'));
-                        } else {
-                            this.error = 'Could not send. Try again.';
-                        }
-                        return;
-                    }
-
-                    const { conversation_id } = await res.json();
-                    const target = chatUrl.replace(/\/+$/, '') + '/' + conversation_id;
-                    window.location.href = target;
+                    sessionStorage.setItem('chat:bootstrap', JSON.stringify({
+                        document: editor.getDocument(),
+                        model: this.selectedModel,
+                    }));
                 } catch (_) {
+                    this.error = 'Could not save message. Try again.';
                     this.submitting = false;
-                    this.error = 'Network error. Try again.';
+                    return;
                 }
+
+                window.location.href = chatUrl;
             },
         }));
     </script>

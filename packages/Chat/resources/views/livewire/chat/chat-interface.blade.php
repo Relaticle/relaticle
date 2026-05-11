@@ -579,6 +579,32 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
             this.scrollToBottom();
         }
 
+        // Bootstrap payload from the dashboard: when the user submits their
+        // first message there, we stash the editor document in sessionStorage
+        // and navigate immediately. Restore the document (preserves mentions)
+        // and fire sendMessage() so this page does the actual POST without a
+        // server round-trip blocking the navigation.
+        try {
+            const raw = sessionStorage.getItem('chat:bootstrap');
+            if (raw && !this.conversationId) {
+                sessionStorage.removeItem('chat:bootstrap');
+                const parsed = JSON.parse(raw);
+                const bootstrapDoc = parsed?.document;
+                const bootstrapModel = parsed?.model;
+
+                if (bootstrapModel && this.modelOptions.some((o) => o.value === bootstrapModel)) {
+                    this.selectedModel = bootstrapModel;
+                }
+
+                if (bootstrapDoc) {
+                    this.$nextTick(() => {
+                        this.localEditor()?.setDocument?.(bootstrapDoc);
+                        this.sendMessage();
+                    });
+                }
+            }
+        } catch (_) { /* sessionStorage unavailable or malformed payload */ }
+
         if (initialMessage) {
             this.$nextTick(() => {
                 this.input = initialMessage;

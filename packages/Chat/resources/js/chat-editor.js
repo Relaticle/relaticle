@@ -152,6 +152,16 @@ export function chatEditor({ initialDocument, placeholder, onSubmit, onChange, a
             this.text = text;
         },
 
+        setDocument(doc) {
+            const editor = editorByEl.get(this.editorEl);
+            if (! editor) return;
+            const content = hasContent(doc)
+                ? deepClone(doc)
+                : { type: 'doc', content: [{ type: 'paragraph' }] };
+            editor.commands.setContent(content);
+            this.text = editor.getText();
+        },
+
         clear() {
             editorByEl.get(this.editorEl)?.commands.clearContent();
         },
