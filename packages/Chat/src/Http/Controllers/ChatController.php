@@ -155,19 +155,6 @@ final readonly class ChatController
             ]);
         }
 
-        if (! $this->creditService->reserveCredit($team)) {
-            $balance = AiCreditBalance::query()
-                ->where('team_id', $team->getKey())
-                ->first();
-
-            return response()->json([
-                'error' => 'credits_exhausted',
-                'message' => 'You have used all your AI credits for this billing period.',
-                'reset_at' => $balance?->period_ends_at?->toIso8601String(),
-                'upgrade_url' => url('/app/billing'),
-            ], 402);
-        }
-
         $conversationId = (string) Str::uuid7();
 
         DB::table('agent_conversations')->insert([
@@ -178,26 +165,6 @@ final readonly class ChatController
             'created_at' => now(),
             'updated_at' => now(),
         ]);
-
-        $resolved = $this->modelResolver->resolve($user, $validated['model'] ?? null);
-
-        // Defer the job to after the HTTP response is sent. This buys the
-        // client time to receive the conversation_id and subscribe to the
-        // broadcast channel before the job starts emitting events — which
-        // is critical under QUEUE_CONNECTION=sync where the streaming job
-        // runs inside the request lifecycle and would otherwise broadcast
-        // before any subscriber exists. The fallback fetch in
-        // chat-interface.blade.php handles cases where the race is still
-        // lost (e.g. slow WebSocket handshake).
-        dispatch(new ProcessChatMessage(
-            user: $user,
-            team: $team,
-            message: $parsed['text'],
-            conversationId: $conversationId,
-            resolved: $resolved,
-            mentions: $parsed['mentions'],
-            document: $validated['document'],
-        ))->afterResponse();
 
         return response()->json(['conversation_id' => $conversationId]);
     }
