@@ -1471,50 +1471,6 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
         });
     },
 
-    // Defensive fallback for the first-message broadcast race: when the
-    // client subscribes to a private channel only AFTER the POST that
-    // creates the conversation returns, any broadcasts that fired during
-    // the POST handler (which is every broadcast under QUEUE_CONNECTION=sync)
-    // were lost. The assistant message sits empty under "Thinking…" until
-    // the user reloads the page. This fallback waits a few seconds, then
-    // — if no text-delta arrived — pulls the persisted assistant content
-    // from the database via the Livewire fetchMessages() bridge.
-    scheduleFirstMessageFallback(conversationId) {
-        setTimeout(async () => {
-            if (this.conversationId !== conversationId) return;
-            const assistantMsg = this.messages[this.messages.length - 1];
-            if (!assistantMsg || assistantMsg.role !== 'assistant') return;
-            if (assistantMsg.content !== '' || assistantMsg.rendered) return;
-            if (assistantMsg.paywall || assistantMsg.sessionExpired) return;
-
-            try {
-                const fresh = await this.$wire.fetchMessages();
-                if (!Array.isArray(fresh) || fresh.length === 0) return;
-                if (this.conversationId !== conversationId) return;
-
-                fresh.forEach((m) => {
-                    if (m.role === 'assistant') {
-                        m.rendered = true;
-                        m.prerendered = true;
-                        if (!Array.isArray(m.follow_ups)) m.follow_ups = [];
-                        if (!Array.isArray(m.pending_actions)) m.pending_actions = [];
-                    }
-                    if (m.role === 'user') {
-                        m.editing = false;
-                        m.editText = '';
-                    }
-                    if (typeof m.copiedAt === 'undefined') m.copiedAt = 0;
-                });
-
-                this.messages = fresh;
-                this.isStreaming = false;
-                this.currentToolStatus = null;
-                this.clearStreamTimeout();
-                this.scrollToBottom();
-                this.restoreInputFocus();
-            } catch (_) { /* network error — leave the UI on Thinking; the user can reload */ }
-        }, 4000);
-    },
 }));
 </script>
 @endscript
