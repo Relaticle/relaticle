@@ -19,7 +19,7 @@ final readonly class UpdateCompany
     {
         abort_unless($user->can('update', $company), 403);
 
-        $attributes = Arr::only($data, ['name', 'custom_fields']);
+        $attributes = Arr::only($data, ['name', 'partner_source', 'geography', 'concentration_percentage', 'is_recurring', 'custom_fields']);
 
         $attributes = CustomFieldMerger::merge($company, $attributes);
 

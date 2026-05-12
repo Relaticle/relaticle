@@ -19,7 +19,7 @@ final readonly class CreateCompany
     {
         abort_unless($user->can('create', Company::class), 403);
 
-        $attributes = Arr::only($data, ['name', 'custom_fields']);
+        $attributes = Arr::only($data, ['name', 'partner_source', 'geography', 'concentration_percentage', 'is_recurring', 'custom_fields']);
         $attributes['creation_source'] = $source;
 
         $company = DB::transaction(fn (): Company => Company::query()->create($attributes));

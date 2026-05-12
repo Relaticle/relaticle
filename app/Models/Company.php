@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Data\PortfolioMetadata;
 use App\Enums\CreationSource;
+use App\Enums\PartnerSource;
 use App\Models\Concerns\BelongsToTeamCreator;
 use App\Models\Concerns\HasAiSummary;
 use App\Models\Concerns\HasCreator;
@@ -14,6 +16,7 @@ use App\Observers\CompanyObserver;
 use App\Services\AvatarService;
 use Database\Factories\CompanyFactory;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -31,7 +34,12 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  * @property string $name
  * @property Carbon|null $deleted_at
  * @property CreationSource $creation_source
+ * @property PartnerSource|null $partner_source
+ * @property string|null $geography ISO 3166-1 alpha-2 country code
+ * @property string|null $concentration_percentage decimal string, cast to float via ->portfolio
+ * @property bool $is_recurring
  * @property-read string $created_by
+ * @property-read PortfolioMetadata $portfolio
  */
 #[ObservedBy(CompanyObserver::class)]
 final class Company extends Model implements HasCustomFields, HasMedia
@@ -58,6 +66,11 @@ final class Company extends Model implements HasCustomFields, HasMedia
     protected $fillable = [
         'name',
         'creation_source',
+        'account_owner_id',
+        'partner_source',
+        'geography',
+        'concentration_percentage',
+        'is_recurring',
     ];
 
     /**
@@ -76,7 +89,29 @@ final class Company extends Model implements HasCustomFields, HasMedia
     {
         return [
             'creation_source' => CreationSource::class,
+            'partner_source' => PartnerSource::class,
+            'concentration_percentage' => 'decimal:2',
+            'is_recurring' => 'boolean',
         ];
+    }
+
+    /**
+     * Portfolio metadata value object — the typed seam for AI agents.
+     *
+     * @return Attribute<PortfolioMetadata, never>
+     */
+    protected function portfolio(): Attribute
+    {
+        return Attribute::make(
+            get: fn (): PortfolioMetadata => new PortfolioMetadata(
+                partnerSource: $this->partner_source,
+                geography: $this->geography,
+                concentrationPercentage: $this->concentration_percentage !== null
+                    ? (float) $this->concentration_percentage
+                    : null,
+                isRecurring: $this->is_recurring,
+            ),
+        );
     }
 
     protected function getLogoAttribute(): string

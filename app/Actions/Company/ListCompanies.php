@@ -37,9 +37,15 @@ final readonly class ListCompanies
         $query = QueryBuilder::for(Company::query()->withCustomFieldValues(), $request)
             ->allowedFilters(
                 AllowedFilter::partial('name'),
+                AllowedFilter::exact('partner_source'),
+                AllowedFilter::exact('geography'),
+                AllowedFilter::exact('is_recurring'),
                 AllowedFilter::custom('custom_fields', new CustomFieldFilter('company')),
             )
-            ->allowedFields('id', 'name', 'creator_id', 'account_owner_id', 'created_at', 'updated_at')
+            ->allowedFields(
+                'id', 'name', 'creator_id', 'account_owner_id', 'created_at', 'updated_at',
+                'partner_source', 'geography', 'concentration_percentage', 'is_recurring',
+            )
             ->allowedIncludes(
                 'creator', 'accountOwner', 'people', 'opportunities',
                 AllowedInclude::count('peopleCount', 'people'),
@@ -49,6 +55,7 @@ final readonly class ListCompanies
             )
             ->allowedSorts(
                 'name', 'created_at', 'updated_at',
+                'partner_source', 'geography', 'concentration_percentage', 'is_recurring',
                 ...$filterSchema->allowedSorts($user, 'company'),
             )
             ->defaultSort('-created_at')

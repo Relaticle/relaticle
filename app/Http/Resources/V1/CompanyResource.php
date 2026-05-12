@@ -24,6 +24,13 @@ final class CompanyResource extends JsonApiResource
         return [
             'name' => $this->name,
             'creation_source' => $this->creation_source,
+            'partner_source' => $this->partner_source,
+            'geography' => $this->geography,
+            'concentration_percentage' => $this->concentration_percentage !== null
+                ? (float) $this->concentration_percentage
+                : null,
+            'is_recurring' => $this->is_recurring,
+            'risk_band' => $this->portfolio->riskBand()->value,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'custom_fields' => $this->formatCustomFields($this->resource),
