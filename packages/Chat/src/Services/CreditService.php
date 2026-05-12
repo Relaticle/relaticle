@@ -78,7 +78,7 @@ final readonly class CreditService
             }
         }
 
-        DB::transaction(function () use ($team, $credits): void {
+        DB::transaction(function () use ($team, $credits, $idempotencyToken): void {
             $balance = AiCreditBalance::query()
                 ->where('team_id', $team->getKey())
                 ->lockForUpdate()
@@ -91,6 +91,25 @@ final readonly class CreditService
             $balance->update([
                 'credits_remaining' => $balance->credits_remaining + $credits,
                 'credits_used' => max($balance->credits_used - $credits, 0),
+            ]);
+
+            AiCreditTransaction::query()->create([
+                'team_id' => $team->getKey(),
+                'user_id' => null,
+                'conversation_id' => null,
+                'idempotency_key' => $idempotencyToken !== null
+                    ? 'refund-'.$idempotencyToken
+                    : 'refund-'.Str::ulid(),
+                'type' => AiCreditType::Refund,
+                'model' => 'system',
+                'input_tokens' => 0,
+                'output_tokens' => 0,
+                'credits_charged' => $credits,
+                'metadata' => [
+                    'idempotency_token' => $idempotencyToken,
+                    'reason' => 'reservation_refund',
+                ],
+                'created_at' => now(),
             ]);
         });
     }
