@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Models\User;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Relaticle\Chat\Enums\AiCreditType;
 use Relaticle\Chat\Models\AiCreditBalance;
 use Relaticle\Chat\Services\CreditService;
@@ -51,6 +52,15 @@ it('deducts credits and logs a transaction', function (): void {
         'credits_used' => 0,
         'period_starts_at' => now()->startOfMonth(),
         'period_ends_at' => now()->endOfMonth(),
+    ]);
+
+    DB::table('agent_conversations')->insert([
+        'id' => 'conv-123',
+        'user_id' => $this->user->getKey(),
+        'team_id' => $this->team->getKey(),
+        'title' => 'Deduct test',
+        'created_at' => now(),
+        'updated_at' => now(),
     ]);
 
     $this->service->deduct(
