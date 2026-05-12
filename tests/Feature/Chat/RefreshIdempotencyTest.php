@@ -13,7 +13,7 @@ beforeEach(function (): void {
     $this->team = $this->user->currentTeam;
     $this->actingAs($this->user);
 
-    AiCreditBalance::query()->create([
+    AiCreditBalance::query()->updateOrCreate(['team_id' => $this->team->getKey()], [
         'team_id' => $this->team->getKey(),
         'credits_remaining' => 100,
         'credits_used' => 0,

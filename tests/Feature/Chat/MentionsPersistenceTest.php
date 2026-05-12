@@ -19,7 +19,7 @@ it('persists a clean user message even when mentions are resolved', function ():
     $company = Company::factory()->for($team)->create(['name' => 'Acme Corp']);
     $conversationId = '019dded5-eeee-7000-8000-000000000000';
 
-    AiCreditBalance::query()->create([
+    AiCreditBalance::query()->updateOrCreate(['team_id' => $team->getKey()], [
         'team_id' => $team->getKey(),
         'credits_remaining' => 100,
         'credits_used' => 0,
@@ -70,7 +70,7 @@ it('still gives the LLM the mention context via the system prompt', function ():
     $company = Company::factory()->for($team)->create(['name' => 'Acme Corp']);
     $conversationId = '019dded5-ffff-7000-8000-000000000000';
 
-    AiCreditBalance::query()->create([
+    AiCreditBalance::query()->updateOrCreate(['team_id' => $team->getKey()], [
         'team_id' => $team->getKey(),
         'credits_remaining' => 100,
         'credits_used' => 0,

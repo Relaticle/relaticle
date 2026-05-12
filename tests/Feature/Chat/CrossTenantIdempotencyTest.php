@@ -13,7 +13,7 @@ it('allows the same idempotency key in two different teams', function (): void {
     $userB = User::factory()->withPersonalTeam()->create();
 
     foreach ([$userA, $userB] as $user) {
-        AiCreditBalance::query()->create([
+        AiCreditBalance::query()->updateOrCreate(['team_id' => $user->currentTeam->getKey()], [
             'team_id' => $user->currentTeam->getKey(),
             'credits_remaining' => 10,
             'credits_used' => 0,

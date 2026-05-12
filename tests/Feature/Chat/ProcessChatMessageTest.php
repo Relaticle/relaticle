@@ -34,7 +34,7 @@ it('refunds the reserved credit when the job fails', function (): void {
     $user = User::factory()->withPersonalTeam()->create();
     $team = $user->currentTeam;
 
-    AiCreditBalance::query()->create([
+    AiCreditBalance::query()->updateOrCreate(['team_id' => $team->getKey()], [
         'team_id' => $team->getKey(),
         'credits_remaining' => 99,
         'credits_used' => 1,

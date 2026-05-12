@@ -13,6 +13,8 @@ mutates(CreditService::class);
 
 it('grants credits and writes a positive ledger entry', function (): void {
     $team = Team::factory()->create();
+    AiCreditBalance::query()->where('team_id', $team->getKey())->delete();
+    AiCreditTransaction::query()->where('team_id', $team->getKey())->delete();
     AiCreditBalance::factory()->create([
         'team_id' => $team->getKey(),
         'credits_remaining' => 50,
@@ -38,6 +40,8 @@ it('grants credits and writes a positive ledger entry', function (): void {
 
 it('revokes credits without dropping balance below zero', function (): void {
     $team = Team::factory()->create();
+    AiCreditBalance::query()->where('team_id', $team->getKey())->delete();
+    AiCreditTransaction::query()->where('team_id', $team->getKey())->delete();
     AiCreditBalance::factory()->create([
         'team_id' => $team->getKey(),
         'credits_remaining' => 10,
@@ -58,6 +62,8 @@ it('revokes credits without dropping balance below zero', function (): void {
 
 it('creates a balance row if the team has none yet', function (): void {
     $team = Team::factory()->create();
+    AiCreditBalance::query()->where('team_id', $team->getKey())->delete();
+    AiCreditTransaction::query()->where('team_id', $team->getKey())->delete();
     $admin = SystemAdministrator::factory()->create();
 
     app(CreditService::class)->adjust($team, 100, 'initial seed', $admin->getKey());

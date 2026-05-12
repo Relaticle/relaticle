@@ -19,7 +19,7 @@ beforeEach(function () {
     $this->actingAs($this->user);
     Filament::setTenant($this->team);
 
-    AiCreditBalance::query()->create([
+    AiCreditBalance::query()->updateOrCreate(['team_id' => $this->team->getKey()], [
         'team_id' => $this->team->getKey(),
         'credits_remaining' => 100,
         'credits_used' => 0,

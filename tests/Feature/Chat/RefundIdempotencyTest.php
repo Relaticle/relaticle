@@ -10,7 +10,7 @@ it('does not double-refund when failed() runs after a cancel-path refund', funct
     $user = User::factory()->withPersonalTeam()->create();
     $team = $user->currentTeam;
 
-    AiCreditBalance::query()->create([
+    AiCreditBalance::query()->updateOrCreate(['team_id' => $team->getKey()], [
         'team_id' => $team->getKey(),
         'credits_remaining' => 10,
         'credits_used' => 0,

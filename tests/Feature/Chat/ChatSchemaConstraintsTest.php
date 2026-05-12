@@ -48,7 +48,7 @@ it('rejects negative credits_used on ai_credit_balances', function (): void {
     $teamId = $user->currentTeam->getKey();
 
     expect(
-        fn () => AiCreditBalance::query()->create([
+        fn () => AiCreditBalance::query()->updateOrCreate(['team_id' => $teamId], [
             'team_id' => $teamId,
             'credits_remaining' => 10,
             'credits_used' => -5,
@@ -63,7 +63,7 @@ it('rejects period end-before-start on ai_credit_balances', function (): void {
     $teamId = $user->currentTeam->getKey();
 
     expect(
-        fn () => AiCreditBalance::query()->create([
+        fn () => AiCreditBalance::query()->updateOrCreate(['team_id' => $teamId], [
             'team_id' => $teamId,
             'credits_remaining' => 10,
             'credits_used' => 0,

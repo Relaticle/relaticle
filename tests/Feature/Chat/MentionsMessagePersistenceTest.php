@@ -18,7 +18,7 @@ it('writes a row to agent_conversation_message_mentions for each mention', funct
     $company = Company::factory()->for($team)->create(['name' => 'Acme Corp']);
     $conversationId = '019dded5-1111-7000-8000-000000000000';
 
-    AiCreditBalance::query()->create([
+    AiCreditBalance::query()->updateOrCreate(['team_id' => $team->getKey()], [
         'team_id' => $team->getKey(),
         'credits_remaining' => 100,
         'credits_used' => 0,
@@ -68,7 +68,7 @@ it('writes no mention rows when the mentions list is empty', function (): void {
     $team = $user->currentTeam;
     $conversationId = '019dded5-2222-7000-8000-000000000000';
 
-    AiCreditBalance::query()->create([
+    AiCreditBalance::query()->updateOrCreate(['team_id' => $team->getKey()], [
         'team_id' => $team->getKey(),
         'credits_remaining' => 100,
         'credits_used' => 0,

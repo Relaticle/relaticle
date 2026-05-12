@@ -22,7 +22,7 @@ beforeEach(function (): void {
     Filament::setTenant($this->team);
     RateLimiter::clear('60|'.request()->ip());
 
-    AiCreditBalance::query()->create([
+    AiCreditBalance::query()->updateOrCreate(['team_id' => $this->team->getKey()], [
         'team_id' => $this->team->getKey(),
         'credits_remaining' => 100,
         'credits_used' => 0,

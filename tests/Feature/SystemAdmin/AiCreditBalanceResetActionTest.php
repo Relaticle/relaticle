@@ -24,6 +24,8 @@ it('resets the period using the chosen plan allowance and logs an audit transact
     config()->set('chat.credits.pro', 2_000);
 
     $team = Team::factory()->create();
+    AiCreditBalance::query()->where('team_id', $team->getKey())->delete();
+    AiCreditTransaction::query()->where('team_id', $team->getKey())->delete();
     $balance = AiCreditBalance::factory()->create([
         'team_id' => $team->getKey(),
         'credits_remaining' => 12,
@@ -60,7 +62,9 @@ it('resets multiple balances via the bulk action', function (): void {
 
     $team1 = Team::factory()->create();
     $team2 = Team::factory()->create();
+    AiCreditBalance::query()->where('team_id', $team1->getKey())->delete();
     $b1 = AiCreditBalance::factory()->create(['team_id' => $team1->getKey(), 'credits_remaining' => 0, 'credits_used' => 100]);
+    AiCreditBalance::query()->where('team_id', $team2->getKey())->delete();
     $b2 = AiCreditBalance::factory()->create(['team_id' => $team2->getKey(), 'credits_remaining' => 5, 'credits_used' => 200]);
 
     livewire(ListAiCreditBalances::class)

@@ -18,11 +18,13 @@ beforeEach(function () {
 });
 
 it('returns zero balance when no balance record exists', function (): void {
+    AiCreditBalance::query()->where('team_id', $this->team->getKey())->delete();
+
     expect($this->service->getBalance($this->team))->toBe(0);
 });
 
 it('reports has credits when balance is positive', function (): void {
-    AiCreditBalance::query()->create([
+    AiCreditBalance::query()->updateOrCreate(['team_id' => $this->team->getKey()], [
         'team_id' => $this->team->getKey(),
         'credits_remaining' => 50,
         'credits_used' => 0,
@@ -34,7 +36,7 @@ it('reports has credits when balance is positive', function (): void {
 });
 
 it('reports no credits when balance is zero', function (): void {
-    AiCreditBalance::query()->create([
+    AiCreditBalance::query()->updateOrCreate(['team_id' => $this->team->getKey()], [
         'team_id' => $this->team->getKey(),
         'credits_remaining' => 0,
         'credits_used' => 100,
@@ -46,7 +48,7 @@ it('reports no credits when balance is zero', function (): void {
 });
 
 it('deducts credits and logs a transaction', function (): void {
-    AiCreditBalance::query()->create([
+    AiCreditBalance::query()->updateOrCreate(['team_id' => $this->team->getKey()], [
         'team_id' => $this->team->getKey(),
         'credits_remaining' => 100,
         'credits_used' => 0,
@@ -110,7 +112,7 @@ it('adds tool call bonus to credit calculation', function (): void {
 it('resets period credits', function (): void {
     $this->travelTo(Carbon::create(2026, 4, 1));
 
-    AiCreditBalance::query()->create([
+    AiCreditBalance::query()->updateOrCreate(['team_id' => $this->team->getKey()], [
         'team_id' => $this->team->getKey(),
         'credits_remaining' => 5,
         'credits_used' => 95,
@@ -138,6 +140,7 @@ it('uses default multiplier for unknown models', function (): void {
 it('auto-creates a zero balance when deduct is called on a missing team', function (): void {
     $user = User::factory()->withPersonalTeam()->create();
     $team = $user->currentTeam;
+    AiCreditBalance::query()->where('team_id', $team->getKey())->delete();
 
     expect(AiCreditBalance::query()->where('team_id', $team->getKey())->exists())->toBeFalse();
 

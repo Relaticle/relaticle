@@ -13,7 +13,7 @@ beforeEach(function (): void {
     $this->user = User::factory()->withPersonalTeam()->create();
     $this->actingAs($this->user);
 
-    AiCreditBalance::query()->create([
+    AiCreditBalance::query()->updateOrCreate(['team_id' => $this->user->currentTeam->getKey()], [
         'team_id' => $this->user->currentTeam->getKey(),
         'credits_remaining' => 100,
         'credits_used' => 0,

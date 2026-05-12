@@ -22,6 +22,8 @@ beforeEach(function (): void {
 
 it('grants credits via the adjust action and logs an Adjustment transaction', function (): void {
     $team = Team::factory()->create();
+    AiCreditBalance::query()->where('team_id', $team->getKey())->delete();
+    AiCreditTransaction::query()->where('team_id', $team->getKey())->delete();
     $balance = AiCreditBalance::factory()->create([
         'team_id' => $team->getKey(),
         'credits_remaining' => 100,
@@ -51,6 +53,8 @@ it('grants credits via the adjust action and logs an Adjustment transaction', fu
 
 it('revokes credits when delta is negative', function (): void {
     $team = Team::factory()->create();
+    AiCreditBalance::query()->where('team_id', $team->getKey())->delete();
+    AiCreditTransaction::query()->where('team_id', $team->getKey())->delete();
     $balance = AiCreditBalance::factory()->create([
         'team_id' => $team->getKey(),
         'credits_remaining' => 100,
@@ -70,7 +74,8 @@ it('revokes credits when delta is negative', function (): void {
 });
 
 it('rejects an adjust action without a reason', function (): void {
-    $balance = AiCreditBalance::factory()->create();
+    $team = Team::factory()->create();
+    $balance = AiCreditBalance::query()->where('team_id', $team->getKey())->sole();
 
     livewire(ListAiCreditBalances::class)
         ->callAction(TestAction::make('adjust')->table($balance), [

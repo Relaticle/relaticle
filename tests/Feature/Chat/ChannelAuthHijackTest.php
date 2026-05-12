@@ -26,7 +26,7 @@ it('blocks user B from accessing a conversation created by user A', function ():
     $userA = User::factory()->withPersonalTeam()->create();
     $userB = User::factory()->withPersonalTeam()->create();
 
-    AiCreditBalance::query()->create([
+    AiCreditBalance::query()->updateOrCreate(['team_id' => $userA->currentTeam->getKey()], [
         'team_id' => $userA->currentTeam->getKey(),
         'credits_remaining' => 100,
         'credits_used' => 0,

@@ -10,6 +10,7 @@ use App\Listeners\Email\NewSubscriberListener;
 use App\Listeners\Email\RecordLoginTimestampListener;
 use App\Listeners\Email\TeamCreatedTagListener;
 use App\Listeners\Email\TeamMemberAddedListener;
+use App\Listeners\SeedTeamCreditBalanceListener;
 use App\Models\Company;
 use App\Models\CustomField;
 use App\Models\CustomFieldOption;
@@ -76,6 +77,7 @@ final class AppServiceProvider extends ServiceProvider
         Event::listen(Verified::class, NewSubscriberListener::class);
         Event::listen(TeamMemberAdded::class, TeamMemberAddedListener::class);
         Event::listen(TeamCreated::class, TeamCreatedTagListener::class);
+        Event::listen(TeamCreated::class, SeedTeamCreditBalanceListener::class);
 
         Sanctum::usePersonalAccessTokenModel(PersonalAccessToken::class);
 

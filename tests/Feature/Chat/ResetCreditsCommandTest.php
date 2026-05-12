@@ -12,7 +12,7 @@ it('resets credits for teams whose billing period has ended', function (): void 
     $user = User::factory()->withPersonalTeam()->create();
     $team = $user->currentTeam;
 
-    AiCreditBalance::query()->create([
+    AiCreditBalance::query()->updateOrCreate(['team_id' => $team->getKey()], [
         'team_id' => $team->getKey(),
         'credits_remaining' => 0,
         'credits_used' => 100,
@@ -32,7 +32,7 @@ it('does not reset credits for teams whose period has not yet ended', function (
     $user = User::factory()->withPersonalTeam()->create();
     $team = $user->currentTeam;
 
-    AiCreditBalance::query()->create([
+    AiCreditBalance::query()->updateOrCreate(['team_id' => $team->getKey()], [
         'team_id' => $team->getKey(),
         'credits_remaining' => 42,
         'credits_used' => 58,
