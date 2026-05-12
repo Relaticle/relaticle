@@ -17,13 +17,9 @@ final class ResetCreditsCommand extends Command
 
     public function handle(CreditService $service): int
     {
-        $defaultAllowance = (int) config('chat.credits.free', 100);
-
         $expired = AiCreditBalance::query()
             ->where('period_ends_at', '<', now())
             ->get();
-
-        $resetCount = 0;
 
         foreach ($expired as $balance) {
             /** @var Team|null $team */
@@ -33,11 +29,10 @@ final class ResetCreditsCommand extends Command
                 continue;
             }
 
-            $service->resetPeriod($team, $defaultAllowance);
-            $resetCount++;
+            $service->resetPeriod($team);
         }
 
-        $this->comment("Reset credits for {$resetCount} team(s).");
+        $this->comment("Reset credits for {$expired->count()} team(s).");
 
         return self::SUCCESS;
     }

@@ -271,7 +271,7 @@ final readonly class CreditService
 
     public function resetPeriod(
         Team $team,
-        int $creditAllowance,
+        ?int $creditAllowance = null,
         ?string $plan = null,
         ?string $sysadminId = null,
     ): void {
@@ -281,10 +281,16 @@ final readonly class CreditService
                 ->lockForUpdate()
                 ->first();
 
+            $previousPlan = $previous instanceof AiCreditBalance ? $previous->plan : null;
+            $resolvedPlan = $plan ?? $previousPlan ?? 'free';
+            $resolvedAllowance = $creditAllowance
+                ?? (int) config('chat.credits.'.$resolvedPlan, 0);
+
             AiCreditBalance::query()->updateOrCreate(
                 ['team_id' => $team->getKey()],
                 [
-                    'credits_remaining' => $creditAllowance,
+                    'plan' => $resolvedPlan,
+                    'credits_remaining' => $resolvedAllowance,
                     'credits_used' => 0,
                     'period_starts_at' => now()->startOfMonth(),
                     'period_ends_at' => now()->endOfMonth(),
@@ -303,8 +309,8 @@ final readonly class CreditService
                 'credits_charged' => 0,
                 'metadata' => [
                     'action' => 'reset_period',
-                    'plan' => $plan,
-                    'allowance_granted' => $creditAllowance,
+                    'plan' => $resolvedPlan,
+                    'allowance_granted' => $resolvedAllowance,
                     'previous_credits_remaining' => $previous?->credits_remaining,
                     'previous_credits_used' => $previous?->credits_used,
                     'sysadmin_id' => $sysadminId,
