@@ -11,8 +11,14 @@ window.renderMarkdown = (text) => {
 import '../css/chat-editor.css';
 import { chatEditor } from './chat-editor';
 
-document.addEventListener('alpine:init', () => {
-    if (window.Alpine) {
-        window.Alpine.data('chatEditor', chatEditor);
+const registerChatEditor = () => {
+    if (!window.Alpine) {
+        return false;
     }
-});
+    window.Alpine.data('chatEditor', chatEditor);
+    return true;
+};
+
+if (!registerChatEditor()) {
+    document.addEventListener('alpine:init', registerChatEditor);
+}
