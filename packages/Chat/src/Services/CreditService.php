@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\Chat\Services;
 
+use App\Actions\Chat\SeedTeamCreditBalance;
 use App\Models\Team;
 use App\Models\User;
 use Illuminate\Support\Facades\Cache;
@@ -22,7 +23,9 @@ final readonly class CreditService
             return true;
         }
 
-        return $this->getBalance($team) > 0;
+        $balance = $this->ensureBalance($team);
+
+        return $balance->credits_remaining > 0;
     }
 
     /**
@@ -34,6 +37,8 @@ final readonly class CreditService
         if ((bool) config('ai.unlimited_credits', false)) {
             return true;
         }
+
+        $this->ensureBalance($team);
 
         return DB::transaction(function () use ($team): bool {
             $balance = AiCreditBalance::query()
@@ -101,6 +106,17 @@ final readonly class CreditService
         }
 
         return $balance->credits_remaining;
+    }
+
+    private function ensureBalance(Team $team): AiCreditBalance
+    {
+        $balance = AiCreditBalance::query()->where('team_id', $team->getKey())->first();
+
+        if ($balance instanceof AiCreditBalance) {
+            return $balance;
+        }
+
+        return app(SeedTeamCreditBalance::class)->handle($team);
     }
 
     public function deduct(
