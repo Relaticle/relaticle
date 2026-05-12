@@ -17,6 +17,7 @@ use Illuminate\Support\Carbon;
  * @property string $team_id
  * @property int $credits_remaining
  * @property int $credits_used
+ * @property string $plan
  * @property Carbon $period_starts_at
  * @property Carbon $period_ends_at
  */
@@ -24,6 +25,7 @@ use Illuminate\Support\Carbon;
     'team_id',
     'credits_remaining',
     'credits_used',
+    'plan',
     'period_starts_at',
     'period_ends_at',
 ])]
