@@ -1,0 +1,76 @@
+<?php
+
+declare(strict_types=1);
+
+use App\Models\Team;
+use Filament\Actions\Testing\TestAction;
+use Filament\Facades\Filament;
+use Relaticle\Chat\Enums\AiCreditType;
+use Relaticle\Chat\Models\AiCreditBalance;
+use Relaticle\Chat\Models\AiCreditTransaction;
+use Relaticle\SystemAdmin\Filament\Resources\AiCreditBalanceResource;
+use Relaticle\SystemAdmin\Filament\Resources\AiCreditBalanceResource\Pages\ListAiCreditBalances;
+use Relaticle\SystemAdmin\Models\SystemAdministrator;
+
+mutates(AiCreditBalanceResource::class);
+
+beforeEach(function (): void {
+    $this->admin = SystemAdministrator::factory()->create();
+    $this->actingAs($this->admin, 'sysadmin');
+    Filament::setCurrentPanel(Filament::getPanel('sysadmin'));
+});
+
+it('resets the period using the chosen plan allowance and logs an audit transaction', function (): void {
+    config()->set('chat.credits.pro', 2_000);
+
+    $team = Team::factory()->create();
+    $balance = AiCreditBalance::factory()->create([
+        'team_id' => $team->getKey(),
+        'credits_remaining' => 12,
+        'credits_used' => 488,
+    ]);
+
+    livewire(ListAiCreditBalances::class)
+        ->callAction(TestAction::make('resetPeriod')->table($balance), [
+            'plan' => 'pro',
+        ])
+        ->assertHasNoActionErrors();
+
+    $balance->refresh();
+    expect($balance->credits_remaining)->toBe(2_000)
+        ->and($balance->credits_used)->toBe(0);
+
+    $transaction = AiCreditTransaction::query()
+        ->where('team_id', $team->getKey())
+        ->where('type', AiCreditType::Adjustment)
+        ->first();
+
+    expect($transaction)->not->toBeNull()
+        ->and($transaction->credits_charged)->toBe(0)
+        ->and($transaction->metadata['action'])->toBe('reset_period')
+        ->and($transaction->metadata['plan'])->toBe('pro')
+        ->and($transaction->metadata['allowance_granted'])->toBe(2_000)
+        ->and($transaction->metadata['previous_credits_remaining'])->toBe(12)
+        ->and($transaction->metadata['previous_credits_used'])->toBe(488)
+        ->and($transaction->metadata['sysadmin_id'])->toBe((string) $this->admin->getKey());
+});
+
+it('resets multiple balances via the bulk action', function (): void {
+    config()->set('chat.credits.starter', 500);
+
+    $team1 = Team::factory()->create();
+    $team2 = Team::factory()->create();
+    $b1 = AiCreditBalance::factory()->create(['team_id' => $team1->getKey(), 'credits_remaining' => 0, 'credits_used' => 100]);
+    $b2 = AiCreditBalance::factory()->create(['team_id' => $team2->getKey(), 'credits_remaining' => 5, 'credits_used' => 200]);
+
+    livewire(ListAiCreditBalances::class)
+        ->selectTableRecords([$b1->getKey(), $b2->getKey()])
+        ->callAction(
+            [['name' => 'resetPeriod', 'context' => ['table' => true, 'bulk' => true]]],
+            data: ['plan' => 'starter'],
+        )
+        ->assertHasNoActionErrors();
+
+    expect($b1->refresh()->credits_remaining)->toBe(500)
+        ->and($b2->refresh()->credits_remaining)->toBe(500);
+});

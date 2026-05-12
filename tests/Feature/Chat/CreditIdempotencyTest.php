@@ -38,5 +38,5 @@ it('does not double-charge when settle is called twice with the same idempotency
     $service->settleReservation(...$args);
     $service->settleReservation(...$args);
 
-    expect(AiCreditTransaction::query()->count())->toBe(1);
+    expect(AiCreditTransaction::query()->where('type', AiCreditType::Chat)->count())->toBe(1);
 });

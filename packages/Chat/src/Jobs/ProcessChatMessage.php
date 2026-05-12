@@ -23,8 +23,11 @@ use Relaticle\Chat\Enums\AiCreditType;
 use Relaticle\Chat\Events\ChatStreamFailed;
 use Relaticle\Chat\Events\ConversationResolved;
 use Relaticle\Chat\Events\FollowUpsSuggested;
+use Relaticle\Chat\Events\PendingActionsSuperseded;
+use Relaticle\Chat\Models\PendingAction;
 use Relaticle\Chat\Services\CreditService;
 use Relaticle\Chat\Services\FollowUpService;
+use Relaticle\Chat\Services\PendingActionService;
 use Relaticle\Chat\Services\TipTapDocumentParser;
 use Relaticle\Chat\Support\ChatTelemetry;
 use Throwable;
@@ -64,11 +67,28 @@ final class ProcessChatMessage implements ShouldQueue
         );
         ChatTelemetry::breadcrumb('job.started', ['message_length' => strlen($this->message)]);
 
+        $superseded = resolve(PendingActionService::class)
+            ->supersedePendingForConversation($this->conversationId);
+
+        if ($superseded !== []) {
+            ChatTelemetry::breadcrumb('pending_actions.superseded', [
+                'count' => count($superseded),
+            ]);
+            broadcast(new PendingActionsSuperseded(
+                conversationId: $this->conversationId,
+                pendingActionIds: array_map(
+                    static fn (PendingAction $action): string => (string) $action->getKey(),
+                    $superseded,
+                ),
+            ));
+        }
+
         try {
             $agent = resolve(CrmAssistant::class);
             $agent->withConversationId($this->conversationId);
             $agent->continue($this->conversationId, as: $this->user);
             $agent->withMentions($this->mentions);
+            $agent->withSupersededProposals($this->summarizeSuperseded($superseded));
 
             $channel = new PrivateChannel("chat.conversation.{$this->conversationId}");
 
@@ -157,6 +177,36 @@ final class ProcessChatMessage implements ShouldQueue
             conversationId: $this->conversationId,
             message: 'The assistant encountered an error. Please try again.',
         ));
+    }
+
+    /**
+     * @param  list<PendingAction>  $superseded
+     * @return list<array{operation: string, entity_type: string, label: string|null}>
+     */
+    private function summarizeSuperseded(array $superseded): array
+    {
+        return array_map(static function (PendingAction $action): array {
+            $data = $action->action_data;
+            $display = $action->display_data;
+
+            $label = null;
+            foreach (['name', 'title'] as $field) {
+                if (isset($display[$field]) && is_string($display[$field]) && $display[$field] !== '') {
+                    $label = $display[$field];
+                    break;
+                }
+                if (isset($data[$field]) && is_string($data[$field]) && $data[$field] !== '') {
+                    $label = $data[$field];
+                    break;
+                }
+            }
+
+            return [
+                'operation' => $action->operation->value,
+                'entity_type' => $action->entity_type,
+                'label' => $label,
+            ];
+        }, $superseded);
     }
 
     private function persistMentions(): void

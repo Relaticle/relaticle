@@ -290,7 +290,7 @@
                                                 :class="{
                                                     'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400': action.status === 'approved',
                                                     'bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400': action.status === 'rejected',
-                                                    'bg-gray-50 text-gray-700 dark:bg-gray-900/20 dark:text-gray-400': action.status === 'expired',
+                                                    'bg-gray-50 text-gray-700 dark:bg-gray-900/20 dark:text-gray-400': action.status === 'expired' || action.status === 'superseded',
                                                     'bg-gradient-to-r from-green-50 to-blue-50 text-blue-700 dark:from-green-900/20 dark:to-blue-900/20 dark:text-blue-300': action.status === 'restored',
                                                 }"
                                                 x-text="action.status.charAt(0).toUpperCase() + action.status.slice(1)"
@@ -880,7 +880,8 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
             .listen('.stream_end', () => this.handleStreamEnd())
             .listen('.stream.failed', (e) => this.handleStreamFailed(e))
             .listen('.conversation.resolved', (e) => this.handleConversationResolved(e))
-            .listen('.follow_ups', (e) => this.handleFollowUps(e));
+            .listen('.follow_ups', (e) => this.handleFollowUps(e))
+            .listen('.pending_actions_superseded', (e) => this.handlePendingActionsSuperseded(e));
 
         return readyPromise;
     },
@@ -891,6 +892,30 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
             if (this.messages[i].role === 'assistant') {
                 this.messages[i].follow_ups = chips;
                 break;
+            }
+        }
+    },
+
+    // Server marked pending actions as superseded (user sent a new message without
+    // acting on them). Update the local cards by id so the UI reflects state even
+    // if our optimistic mark missed something.
+    handlePendingActionsSuperseded(event) {
+        const ids = Array.isArray(event?.ids) ? new Set(event.ids) : null;
+        if (!ids || ids.size === 0) return;
+        this.markPendingActionsSuperseded(ids);
+    },
+
+    // Optimistic local supersede when the user sends a new message. The server
+    // confirms via .pending_actions_superseded; both paths converge on the same
+    // visual state so a single broadcast loss doesn't leave stale "pending" CTAs.
+    markPendingActionsSuperseded(idFilter = null) {
+        for (const msg of this.messages) {
+            if (msg.role !== 'assistant' || !Array.isArray(msg.pending_actions)) continue;
+            for (const action of msg.pending_actions) {
+                if (action.status !== 'pending') continue;
+                if (idFilter && !idFilter.has(action.pending_action_id)) continue;
+                action.status = 'superseded';
+                action.error = null;
             }
         }
     },
@@ -983,6 +1008,11 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
         // guard above. Any failure path between here and the existing isStreaming=false
         // resets must keep that invariant.
         this.isStreaming = true;
+
+        // The user moved on without acting on any prior proposals. Server will
+        // confirm via .pending_actions_superseded; we update locally so the
+        // approve/reject buttons disappear immediately.
+        this.markPendingActionsSuperseded();
 
         const isFirstMessage = !this.conversationId;
         const payload = this.localEditor()?.getDocument() ?? this.documentFromInput(text);
@@ -1242,13 +1272,7 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
         if (assistantMsg?.role === 'assistant') {
             let delta = event.delta || '';
 
-            // Higher-priority paragraph break (e.g. after approve/reject continuation)
-            // wins over the inline single-space separator from tool-call boundaries.
-            if (assistantMsg._pendingSeparator && delta) {
-                delta = assistantMsg._pendingSeparator + delta;
-                assistantMsg._pendingSeparator = null;
-                assistantMsg._needsSeparator = false;
-            } else if (assistantMsg._needsSeparator && delta && !/^\s/.test(delta)) {
+            if (assistantMsg._needsSeparator && delta && !/^\s/.test(delta)) {
                 delta = ' ' + delta;
                 assistantMsg._needsSeparator = false;
             }
@@ -1256,6 +1280,30 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
             assistantMsg.content += delta;
             this.scrollToBottom();
         }
+    },
+
+    // Approve/reject triggers a backend continuation that streams a fresh
+    // assistant turn on the same channel. We mint an empty assistant stub so
+    // the incoming text_delta/tool_result events land in a new bubble instead
+    // of being appended to the message that originally proposed the action.
+    beginContinuationTurn() {
+        if (this.isStreaming) return;
+        this.messages.push({
+            role: 'assistant',
+            content: '',
+            pending_actions: [],
+            paywall: null,
+            sessionExpired: false,
+            rendered: false,
+            prerendered: false,
+            copiedAt: 0,
+            follow_ups: [],
+            created_at: new Date().toISOString(),
+        });
+        this.currentToolStatus = null;
+        this.isStreaming = true;
+        this.startStreamTimeout();
+        this.scrollToBottom();
     },
 
     handleToolCall(event) {
@@ -1365,10 +1413,7 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
                 if (body.record) {
                     action.record = body.record;
                 }
-                const assistantMsg = this.messages[this.messages.length - 1];
-                if (assistantMsg?.role === 'assistant') {
-                    assistantMsg._pendingSeparator = '\n\n';
-                }
+                this.beginContinuationTurn();
                 if (action.operation === 'delete') {
                     this.showUndoToast(action);
                 }
@@ -1449,10 +1494,7 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
             });
 
             if (res.ok) {
-                const assistantMsg = this.messages[this.messages.length - 1];
-                if (assistantMsg?.role === 'assistant') {
-                    assistantMsg._pendingSeparator = '\n\n';
-                }
+                this.beginContinuationTurn();
             } else {
                 const body = await res.json().catch(() => ({}));
                 action.status = previousStatus;

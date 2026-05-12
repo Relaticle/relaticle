@@ -66,6 +66,15 @@ final class CrmAssistant implements Agent, Conversational, HasMiddleware, HasPro
      */
     public array $mentions = [];
 
+    /**
+     * Proposals that were auto-superseded because the user typed a new message
+     * before approving/rejecting them. Injected into the system prompt so the
+     * model knows not to silently re-propose them.
+     *
+     * @var list<array{operation: string, entity_type: string, label: string|null}>
+     */
+    public array $supersededProposals = [];
+
     public function withConversationId(?string $conversationId): self
     {
         $this->conversationId = $conversationId;
@@ -117,10 +126,21 @@ If the user's most recent message starts with the literal token "[approval]", tr
 - record_label (when approved): the human-readable name
 
 When status=approved, use record_id to compose the next step of the user's original request (e.g. link a task to a person you just created). When status=rejected, ASK the user what they would prefer -- do not silently retry the same proposal. After the chain is complete, end your turn with a brief one-line confirmation.
+
+## Superseded Proposals
+
+A <superseded_proposals> block in this turn's context means the user moved on without approving or rejecting those proposals. Treat them as abandoned: do NOT silently re-propose the same operation. If the user's new message is unrelated, just handle it. If it relates to the abandoned proposal, briefly acknowledge ("I see you moved on from the earlier proposal to delete X") and ask what they want now -- do not auto-retry.
 PROMPT;
 
+        $suffix = $this->mentionsBlock().$this->supersededBlock();
+
+        return $suffix === '' ? $base : $base.$suffix;
+    }
+
+    private function mentionsBlock(): string
+    {
         if ($this->mentions === []) {
-            return $base;
+            return '';
         }
 
         $lines = [
@@ -138,7 +158,32 @@ PROMPT;
         $lines[] = '</context>';
         $lines[] = 'Use these IDs when calling tools instead of asking the user to clarify.';
 
-        return $base."\n".implode("\n", $lines);
+        return "\n".implode("\n", $lines);
+    }
+
+    private function supersededBlock(): string
+    {
+        if ($this->supersededProposals === []) {
+            return '';
+        }
+
+        $lines = [
+            '',
+            '<superseded_proposals>',
+            'These prior proposals were auto-cancelled when the user sent a new message.',
+            'Do not re-propose the same operation unless the user explicitly asks for it.',
+        ];
+
+        foreach ($this->supersededProposals as $proposal) {
+            $label = $proposal['label'] !== null
+                ? '"'.$this->sanitizeLabel($proposal['label']).'"'
+                : '(unnamed)';
+            $lines[] = "- {$proposal['operation']} {$proposal['entity_type']} {$label}";
+        }
+
+        $lines[] = '</superseded_proposals>';
+
+        return "\n".implode("\n", $lines);
     }
 
     /**
@@ -149,6 +194,16 @@ PROMPT;
     public function withMentions(array $mentions): self
     {
         $this->mentions = $mentions;
+
+        return $this;
+    }
+
+    /**
+     * @param  list<array{operation: string, entity_type: string, label: string|null}>  $proposals
+     */
+    public function withSupersededProposals(array $proposals): self
+    {
+        $this->supersededProposals = $proposals;
 
         return $this;
     }

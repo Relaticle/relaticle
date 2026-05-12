@@ -70,24 +70,6 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Model Credit Multipliers
-    |--------------------------------------------------------------------------
-    |
-    | Cost multipliers per AI model. A multiplier of 1.0 means one credit
-    | per message; higher values cost more credits per interaction.
-    |
-    */
-
-    'model_multipliers' => [
-        'claude-opus-4-20250514' => 3.0,
-        'claude-sonnet-4-5-20250514' => 1.0,
-        'claude-haiku-4-5' => 0.5,
-        'gpt-4o' => 1.5,
-        'gpt-4o-mini' => 0.5,
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
     | Tool Call Credit Bonus
     |--------------------------------------------------------------------------
     |

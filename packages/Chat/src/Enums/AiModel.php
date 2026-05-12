@@ -59,4 +59,15 @@ enum AiModel: string
             self::Gemini31Pro => 1.5,
         };
     }
+
+    public static function multiplierForModelId(string $modelId): float
+    {
+        foreach (self::cases() as $case) {
+            if ($case->modelId() === $modelId) {
+                return $case->creditMultiplier();
+            }
+        }
+
+        return 1.0;
+    }
 }

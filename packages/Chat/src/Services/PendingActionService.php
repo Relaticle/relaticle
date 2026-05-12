@@ -203,6 +203,42 @@ final readonly class PendingActionService
             ]);
     }
 
+    /**
+     * Atomically mark every still-pending action on a conversation as superseded.
+     *
+     * Called when a new user message arrives on the same conversation thread —
+     * the user has effectively moved on without approving or rejecting. Returns
+     * the rows in their pre-update state so callers can surface them to the model.
+     *
+     * @return list<PendingAction>
+     */
+    public function supersedePendingForConversation(string $conversationId): array
+    {
+        return DB::transaction(function () use ($conversationId): array {
+            $pending = array_values(PendingAction::query()
+                ->where('conversation_id', $conversationId)
+                ->pending()
+                ->lockForUpdate()
+                ->get()
+                ->all());
+
+            if ($pending === []) {
+                return [];
+            }
+
+            $resolvedAt = now();
+
+            foreach ($pending as $action) {
+                $action->update([
+                    'status' => PendingActionStatus::Superseded,
+                    'resolved_at' => $resolvedAt,
+                ]);
+            }
+
+            return $pending;
+        });
+    }
+
     private function validateResolvable(PendingAction $pendingAction): void
     {
         if ($pendingAction->isPending() && $pendingAction->isExpired()) {

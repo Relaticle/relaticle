@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Relaticle\Chat\Enums\AiCreditType;
+use Relaticle\Chat\Enums\AiModel;
 use Relaticle\Chat\Models\AiCreditBalance;
 use Relaticle\Chat\Models\AiCreditTransaction;
 
@@ -244,27 +245,57 @@ final readonly class CreditService
 
     public function calculateCredits(string $model, int $toolCallsCount): int
     {
-        /** @var array<string, float> $multipliers */
-        $multipliers = config('chat.model_multipliers', []);
-        $multiplier = $multipliers[$model] ?? 1.0;
+        $multiplier = AiModel::multiplierForModelId($model);
         $toolBonus = (float) config('chat.tool_call_credit_bonus', 0.5);
 
-        $raw = (1 * $multiplier) + ($toolCallsCount * $toolBonus);
+        $raw = ($multiplier) + ($toolCallsCount * $toolBonus);
 
         return max(1, (int) ceil($raw));
     }
 
-    public function resetPeriod(Team $team, int $creditAllowance): void
-    {
-        AiCreditBalance::query()->updateOrCreate(
-            ['team_id' => $team->getKey()],
-            [
-                'credits_remaining' => $creditAllowance,
-                'credits_used' => 0,
-                'period_starts_at' => now()->startOfMonth(),
-                'period_ends_at' => now()->endOfMonth(),
-            ],
-        );
+    public function resetPeriod(
+        Team $team,
+        int $creditAllowance,
+        ?string $plan = null,
+        ?string $sysadminId = null,
+    ): void {
+        DB::transaction(function () use ($team, $creditAllowance, $plan, $sysadminId): void {
+            $previous = AiCreditBalance::query()
+                ->where('team_id', $team->getKey())
+                ->lockForUpdate()
+                ->first();
+
+            AiCreditBalance::query()->updateOrCreate(
+                ['team_id' => $team->getKey()],
+                [
+                    'credits_remaining' => $creditAllowance,
+                    'credits_used' => 0,
+                    'period_starts_at' => now()->startOfMonth(),
+                    'period_ends_at' => now()->endOfMonth(),
+                ],
+            );
+
+            AiCreditTransaction::query()->create([
+                'team_id' => $team->getKey(),
+                'user_id' => null,
+                'conversation_id' => null,
+                'idempotency_key' => 'sysadmin-reset-'.Str::ulid(),
+                'type' => AiCreditType::Adjustment,
+                'model' => 'sysadmin',
+                'input_tokens' => 0,
+                'output_tokens' => 0,
+                'credits_charged' => 0,
+                'metadata' => [
+                    'action' => 'reset_period',
+                    'plan' => $plan,
+                    'allowance_granted' => $creditAllowance,
+                    'previous_credits_remaining' => $previous?->credits_remaining,
+                    'previous_credits_used' => $previous?->credits_used,
+                    'sysadmin_id' => $sysadminId,
+                ],
+                'created_at' => now(),
+            ]);
+        });
     }
 
     public function adjust(Team $team, int $delta, string $reason, string $sysadminId): void

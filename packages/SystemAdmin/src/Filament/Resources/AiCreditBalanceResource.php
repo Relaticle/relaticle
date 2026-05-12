@@ -4,11 +4,17 @@ declare(strict_types=1);
 
 namespace Relaticle\SystemAdmin\Filament\Resources;
 
+use Filament\Actions\Action;
+use Filament\Actions\BulkAction;
+use Filament\Actions\BulkActionGroup;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\TextEntry;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -17,9 +23,11 @@ use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Carbon;
 use Override;
 use Relaticle\Chat\Models\AiCreditBalance;
+use Relaticle\Chat\Services\CreditService;
 use Relaticle\SystemAdmin\Filament\Resources\AiCreditBalanceResource\Pages\EditAiCreditBalance;
 use Relaticle\SystemAdmin\Filament\Resources\AiCreditBalanceResource\Pages\ListAiCreditBalances;
 use Relaticle\SystemAdmin\Filament\Resources\AiCreditBalanceResource\Pages\ViewAiCreditBalance;
@@ -52,8 +60,7 @@ final class AiCreditBalanceResource extends Resource
                 TextInput::make('credits_used')
                     ->numeric()
                     ->minValue(0)
-                    ->disabled()
-                    ->helperText('Read-only. Use the Adjust action to mutate.'),
+                    ->disabled(),
                 DateTimePicker::make('period_starts_at')
                     ->required(),
                 DateTimePicker::make('period_ends_at')
@@ -127,6 +134,13 @@ final class AiCreditBalanceResource extends Resource
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),
+                self::adjustAction(),
+                self::resetPeriodAction(),
+            ])
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    self::resetPeriodBulkAction(),
+                ]),
             ]);
     }
 
@@ -137,6 +151,128 @@ final class AiCreditBalanceResource extends Resource
             'index' => ListAiCreditBalances::route('/'),
             'view' => ViewAiCreditBalance::route('/{record}'),
             'edit' => EditAiCreditBalance::route('/{record}/edit'),
+        ];
+    }
+
+    private static function adjustAction(): Action
+    {
+        return Action::make('adjust')
+            ->label('Adjust')
+            ->icon('heroicon-o-adjustments-horizontal')
+            ->color('warning')
+            ->authorize('update')
+            ->modalHeading('Adjust credit balance')
+            ->modalDescription('Add or subtract credits. Positive values grant credits; negative values revoke them.')
+            ->schema([
+                TextInput::make('delta')
+                    ->label('Credit delta')
+                    ->integer()
+                    ->required()
+                    ->helperText('Use a negative number to revoke credits.'),
+                Textarea::make('reason')
+                    ->required()
+                    ->minLength(3)
+                    ->maxLength(500),
+            ])
+            ->action(function (array $data, AiCreditBalance $record, CreditService $service): void {
+                $sysadminId = (string) auth('sysadmin')->id();
+
+                $service->adjust(
+                    team: $record->team,
+                    delta: (int) $data['delta'],
+                    reason: (string) $data['reason'],
+                    sysadminId: $sysadminId,
+                );
+
+                Notification::make()
+                    ->title('Credit balance adjusted')
+                    ->success()
+                    ->send();
+            });
+    }
+
+    private static function resetPeriodAction(): Action
+    {
+        return Action::make('resetPeriod')
+            ->label('Reset period')
+            ->icon('heroicon-o-arrow-path')
+            ->color('danger')
+            ->authorize('update')
+            ->requiresConfirmation()
+            ->modalHeading('Reset billing period')
+            ->modalDescription('Wipes credits_used and grants the allowance for the chosen plan. Starts a fresh monthly period.')
+            ->schema([
+                Select::make('plan')
+                    ->options(self::planOptions())
+                    ->required(),
+            ])
+            ->action(function (array $data, AiCreditBalance $record, CreditService $service): void {
+                $plan = (string) $data['plan'];
+                $allowance = (int) config('chat.credits.'.$plan, 0);
+
+                $service->resetPeriod(
+                    team: $record->team,
+                    creditAllowance: $allowance,
+                    plan: $plan,
+                    sysadminId: (string) auth('sysadmin')->id(),
+                );
+
+                Notification::make()
+                    ->title('Billing period reset')
+                    ->body("Granted {$allowance} credits.")
+                    ->success()
+                    ->send();
+            });
+    }
+
+    private static function resetPeriodBulkAction(): BulkAction
+    {
+        return BulkAction::make('resetPeriod')
+            ->label('Reset period')
+            ->icon('heroicon-o-arrow-path')
+            ->color('danger')
+            ->authorize('update')
+            ->requiresConfirmation()
+            ->modalHeading('Reset billing period for selected teams')
+            ->schema([
+                Select::make('plan')
+                    ->options(self::planOptions())
+                    ->required(),
+            ])
+            ->action(function (array $data, EloquentCollection $records, CreditService $service): void {
+                $plan = (string) $data['plan'];
+                $allowance = (int) config('chat.credits.'.$plan, 0);
+                $sysadminId = (string) auth('sysadmin')->id();
+
+                foreach ($records as $record) {
+                    /** @var AiCreditBalance $record */
+                    $service->resetPeriod(
+                        team: $record->team,
+                        creditAllowance: $allowance,
+                        plan: $plan,
+                        sysadminId: $sysadminId,
+                    );
+                }
+
+                Notification::make()
+                    ->title('Billing periods reset')
+                    ->body("Granted {$allowance} credits to {$records->count()} teams.")
+                    ->success()
+                    ->send();
+            })
+            ->deselectRecordsAfterCompletion();
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private static function planOptions(): array
+    {
+        return [
+            'free' => 'Free',
+            'starter' => 'Starter',
+            'pro' => 'Pro',
+            'enterprise' => 'Enterprise',
         ];
     }
 }
