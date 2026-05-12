@@ -10,7 +10,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        $action = app(SeedTeamCreditBalance::class);
+        $action = resolve(SeedTeamCreditBalance::class);
 
         Team::query()
             ->whereDoesntHave('aiCreditBalance')

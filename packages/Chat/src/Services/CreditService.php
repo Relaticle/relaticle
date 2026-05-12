@@ -135,7 +135,7 @@ final readonly class CreditService
             return $balance;
         }
 
-        return app(SeedTeamCreditBalance::class)->handle($team);
+        return resolve(SeedTeamCreditBalance::class)->handle($team);
     }
 
     public function deduct(
