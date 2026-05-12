@@ -6,12 +6,14 @@ namespace App\Filament\Widgets;
 
 use App\Enums\RiskBand;
 use App\Models\Company;
+use App\Services\Portfolio\PortfolioRiskContextService;
 use App\Support\CountryFlag;
 use Filament\Actions\Action;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget;
+use Illuminate\Support\HtmlString;
 
 final class ConcentrationRiskTableWidget extends TableWidget
 {
@@ -65,17 +67,12 @@ final class ConcentrationRiskTableWidget extends TableWidget
                     ->label('Explain risk with AI')
                     ->icon(Heroicon::OutlinedSparkles)
                     ->color('gray')
-                    ->modalHeading(fn (Company $record): string => 'Risk Explanation — '.$record->name)
-                    ->modalDescription(fn (Company $record): string => sprintf(
-                        'Concentration: %s%%  ·  Risk Band: %s  ·  Source: %s  ·  Geography: %s',
-                        number_format((float) ($record->concentration_percentage ?? 0), 1),
-                        $record->portfolio->riskBand()->getLabel(),
-                        $record->partner_source?->getLabel() ?? '—',
-                        $record->geography !== null
-                            ? CountryFlag::emoji($record->geography).' '.CountryFlag::name($record->geography)
-                            : '—',
+                    ->modalHeading(fn (Company $record): string => 'Risk Context — '.$record->name)
+                    ->modalContent(fn (Company $record): HtmlString => new HtmlString(
+                        view('filament.widgets.risk-explain-modal', [
+                            'context' => resolve(PortfolioRiskContextService::class)->riskContext($record),
+                        ])->render()
                     ))
-                    ->modalContent(view('filament.widgets.risk-explain-placeholder'))
                     ->modalSubmitAction(false)
                     ->modalCancelActionLabel('Close'),
             ])

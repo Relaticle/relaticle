@@ -15,6 +15,9 @@ use App\Mcp\Tools\Company\CreateCompanyTool;
 use App\Mcp\Tools\Company\DeleteCompanyTool;
 use App\Mcp\Tools\Company\GetCompanyTool;
 use App\Mcp\Tools\Company\ListCompaniesTool;
+use App\Mcp\Tools\Company\PortfolioConcentrationReportTool;
+use App\Mcp\Tools\Company\PortfolioRiskExplainTool;
+use App\Mcp\Tools\Company\PortfolioWhatIfTool;
 use App\Mcp\Tools\Company\UpdateCompanyTool;
 use App\Mcp\Tools\Note\AttachNoteToEntitiesTool;
 use App\Mcp\Tools\Note\CreateNoteTool;
@@ -63,6 +66,9 @@ final class RelaticleServer extends Server
         CreateCompanyTool::class,
         UpdateCompanyTool::class,
         DeleteCompanyTool::class,
+        PortfolioConcentrationReportTool::class,
+        PortfolioRiskExplainTool::class,
+        PortfolioWhatIfTool::class,
         ListPeopleTool::class,
         GetPeopleTool::class,
         CreatePeopleTool::class,

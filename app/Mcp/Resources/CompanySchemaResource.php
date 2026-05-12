@@ -44,6 +44,18 @@ final class CompanySchemaResource extends Resource
             'description' => 'Organizations and businesses tracked in the CRM.',
             'fields' => [
                 'name' => ['type' => 'string', 'required' => true],
+                'partner_source' => ['type' => 'string', 'nullable' => true, 'description' => 'Acquisition channel. Values: direct, referral_partner, channel_partner, reseller, marketing_inbound, event.'],
+                'geography' => ['type' => 'string', 'nullable' => true, 'description' => 'ISO 3166-1 alpha-2 country code (e.g. US, GB, DE).'],
+                'concentration_percentage' => ['type' => 'number', 'nullable' => true, 'description' => 'Revenue concentration as a % of total portfolio (0–100). Returned read-only as risk_band (low/medium/high).'],
+                'is_recurring' => ['type' => 'boolean', 'default' => false, 'description' => 'Whether the account has recurring revenue.'],
+            ],
+            'read_only_fields' => [
+                'risk_band' => 'Derived from concentration_percentage: low (<10%), medium (10–30%), high (≥30%).',
+            ],
+            'portfolio_tools' => [
+                'portfolio_concentration_report' => 'Full portfolio summary with HHI risk index and per-band breakdowns.',
+                'portfolio_risk_explain' => 'Structured risk context for a single company (peer comparison, percentile, narrative prompt).',
+                'portfolio_what_if' => 'Simulate the portfolio impact of changing a company\'s concentration.',
             ],
             'custom_fields' => $this->resolveCustomFields($user, 'company'),
             'filterable_fields' => $this->resolveFilterableFields($user, 'company'),
