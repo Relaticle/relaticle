@@ -78,6 +78,7 @@ final class Company extends Model implements HasCustomFields, HasMedia
      */
     protected $attributes = [
         'creation_source' => CreationSource::WEB,
+        'is_recurring' => false,
     ];
 
     /**
