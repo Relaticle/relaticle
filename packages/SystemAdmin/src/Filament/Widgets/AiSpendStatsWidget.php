@@ -18,6 +18,20 @@ final class AiSpendStatsWidget extends StatsOverviewWidget
 
     protected ?string $pollingInterval = null;
 
+    /**
+     * @var list<AiCreditType>
+     *
+     * Refund/Adjustment rows are ledger artifacts (failed-job rollbacks,
+     * sysadmin grants/clawbacks), not consumption — excluding them keeps the
+     * "credits this month" figure aligned with the team-level credits_used
+     * meter shown on the balances page.
+     */
+    private const array SPENDABLE_TYPES = [
+        AiCreditType::Chat,
+        AiCreditType::Summary,
+        AiCreditType::Embedding,
+    ];
+
     protected function getStats(): array
     {
         $now = Date::now();
@@ -26,13 +40,13 @@ final class AiSpendStatsWidget extends StatsOverviewWidget
         $lastMonthStart = $monthStart->copy()->subMonth();
 
         $currentMonthCredits = (int) AiCreditTransaction::query()
-            ->whereNot('type', AiCreditType::Adjustment)
+            ->whereIn('type', self::SPENDABLE_TYPES)
             ->where('created_at', '>=', $monthStart)
             ->where('created_at', '<', $nextMonthStart)
             ->sum('credits_charged');
 
         $previousMonthCredits = (int) AiCreditTransaction::query()
-            ->whereNot('type', AiCreditType::Adjustment)
+            ->whereIn('type', self::SPENDABLE_TYPES)
             ->where('created_at', '>=', $lastMonthStart)
             ->where('created_at', '<', $monthStart)
             ->sum('credits_charged');
@@ -41,7 +55,7 @@ final class AiSpendStatsWidget extends StatsOverviewWidget
 
         $topModelRow = AiCreditTransaction::query()
             ->selectRaw('model, SUM(credits_charged) AS total')
-            ->whereNot('type', AiCreditType::Adjustment)
+            ->whereIn('type', self::SPENDABLE_TYPES)
             ->where('created_at', '>=', $monthStart)
             ->where('created_at', '<', $nextMonthStart)
             ->groupBy('model')

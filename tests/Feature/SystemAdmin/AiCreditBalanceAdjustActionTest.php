@@ -51,7 +51,7 @@ it('grants credits via the adjust action and logs an Adjustment transaction', fu
         ->and($transaction->metadata['sysadmin_id'])->toBe((string) $this->admin->getKey());
 });
 
-it('revokes credits when delta is negative', function (): void {
+it('revokes credits when delta is negative and leaves the spend meter untouched', function (): void {
     $team = Team::factory()->create();
     AiCreditBalance::query()->where('team_id', $team->getKey())->delete();
     AiCreditTransaction::query()->where('team_id', $team->getKey())->delete();
@@ -70,7 +70,7 @@ it('revokes credits when delta is negative', function (): void {
 
     $balance->refresh();
     expect($balance->credits_remaining)->toBe(70)
-        ->and($balance->credits_used)->toBe(0);
+        ->and($balance->credits_used)->toBe(20);
 });
 
 it('rejects an adjust action without a reason', function (): void {

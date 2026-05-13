@@ -369,7 +369,6 @@ final readonly class CreditService
                 $revoke = abs($delta);
                 $balance->update([
                     'credits_remaining' => max($balance->credits_remaining - $revoke, 0),
-                    'credits_used' => max($balance->credits_used - $revoke, 0),
                 ]);
             }
 

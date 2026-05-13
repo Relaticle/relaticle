@@ -38,7 +38,7 @@ it('grants credits and writes a positive ledger entry', function (): void {
         ->and($tx->metadata['sysadmin_id'])->toBe($admin->getKey());
 });
 
-it('revokes credits without dropping balance below zero', function (): void {
+it('revokes credits without dropping balance below zero, keeping the period spend meter intact', function (): void {
     $team = Team::factory()->create();
     AiCreditBalance::query()->where('team_id', $team->getKey())->delete();
     AiCreditTransaction::query()->where('team_id', $team->getKey())->delete();
@@ -53,7 +53,7 @@ it('revokes credits without dropping balance below zero', function (): void {
 
     $balance = AiCreditBalance::query()->where('team_id', $team->getKey())->sole();
     expect($balance->credits_remaining)->toBe(0)
-        ->and($balance->credits_used)->toBe(40);
+        ->and($balance->credits_used)->toBe(90);
 
     $tx = AiCreditTransaction::query()->where('team_id', $team->getKey())->sole();
     expect($tx->credits_charged)->toBe(50)

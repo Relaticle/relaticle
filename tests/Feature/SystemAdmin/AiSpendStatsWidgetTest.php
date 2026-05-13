@@ -39,6 +39,27 @@ it('excludes Adjustment transactions from spend totals', function (): void {
     expect($stats[0]->getValue())->toBe(number_format(25));
 });
 
+it('excludes Refund transactions so a failed/refunded job does not inflate spend', function (): void {
+    AiCreditTransaction::factory()->create([
+        'type' => AiCreditType::Chat,
+        'model' => 'claude-sonnet-4-6',
+        'credits_charged' => 10,
+        'created_at' => now(),
+    ]);
+
+    AiCreditTransaction::factory()->create([
+        'type' => AiCreditType::Refund,
+        'model' => 'system',
+        'credits_charged' => 1,
+        'created_at' => now(),
+    ]);
+
+    $component = livewire(AiSpendStatsWidget::class)->assertOk();
+    $stats = invade($component->instance())->getStats();
+
+    expect($stats[0]->getValue())->toBe(number_format(10));
+});
+
 it('uses a half-open range so the previous-month boundary is not double-counted', function (): void {
     $monthStart = now()->startOfMonth();
 
