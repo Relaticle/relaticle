@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use Relaticle\Ink\BlogSitemapGenerator;
 use Spatie\Sitemap\SitemapGenerator;
 
 final class GenerateSitemapCommand extends Command
@@ -28,7 +29,10 @@ final class GenerateSitemapCommand extends Command
      */
     public function handle(): void
     {
-        SitemapGenerator::create(config('app.url'))
-            ->writeToFile(public_path('sitemap.xml'));
+        $sitemap = SitemapGenerator::create(config('app.url'))->getSitemap();
+
+        BlogSitemapGenerator::addToSitemap($sitemap);
+
+        $sitemap->writeToFile(public_path('sitemap.xml'));
     }
 }
