@@ -9,10 +9,12 @@ use App\Models\Company;
 use App\Models\CustomField;
 use App\Models\User;
 use Filament\Facades\Filament;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Laravel\Ai\Tools\Request;
 use Relaticle\Chat\Enums\PendingActionOperation;
+use Relaticle\Chat\Jobs\ContinueChatMessage;
 use Relaticle\Chat\Models\PendingAction;
 use Relaticle\Chat\Services\PendingActionService;
 use Relaticle\Chat\Tools\Company\CreateCompanyTool;
@@ -21,6 +23,8 @@ mutates(CreateCompany::class);
 mutates(CreateCompanyTool::class);
 
 beforeEach(function (): void {
+    Bus::fake([ContinueChatMessage::class]);
+
     $this->user = User::factory()->withPersonalTeam()->create();
     $this->user->switchTeam($this->user->ownedTeams()->first());
     $this->actingAs($this->user);
