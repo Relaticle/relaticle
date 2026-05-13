@@ -45,9 +45,9 @@ use Knuckles\Scribe\Scribe;
 use Laravel\Jetstream\Events\TeamCreated;
 use Laravel\Jetstream\Events\TeamMemberAdded;
 use Laravel\Sanctum\Sanctum;
-use ManukMinasyan\FilamentBlog\Models\Category;
-use ManukMinasyan\FilamentBlog\Models\Post;
 use Relaticle\CustomFields\CustomFields;
+use Relaticle\Ink\Models\Category;
+use Relaticle\Ink\Models\Post;
 use Relaticle\SystemAdmin\Models\SystemAdministrator;
 
 final class AppServiceProvider extends ServiceProvider

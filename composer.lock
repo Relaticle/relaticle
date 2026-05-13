@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "53b92d2a9b00a13df0fafafcb7a891ab",
+    "content-hash": "e53d96d2b8e5f0fe8f710d3224caaca9",
     "packages": [
         {
             "name": "andreiio/blade-remix-icon",
@@ -5055,67 +5055,6 @@
             "time": "2026-04-28T13:33:29+00:00"
         },
         {
-            "name": "manukminasyan/filament-blog",
-            "version": "v1.4.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/ManukMinasyan/filament-blog.git",
-                "reference": "f9edecf9c628d2918be0e37d76f6e303242e8fe7"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/ManukMinasyan/filament-blog/zipball/f9edecf9c628d2918be0e37d76f6e303242e8fe7",
-                "reference": "f9edecf9c628d2918be0e37d76f6e303242e8fe7",
-                "shasum": ""
-            },
-            "require": {
-                "filament/filament": "^5.0",
-                "illuminate/contracts": "^12.0|^13.0",
-                "php": "^8.4",
-                "ralphjsmit/laravel-filament-seo": "^2.0",
-                "ralphjsmit/laravel-seo": "^1.7",
-                "spatie/laravel-markdown": "^2.7",
-                "spatie/laravel-package-tools": "^1.15",
-                "spatie/laravel-sitemap": "^7.0 || ^8.0",
-                "spatie/laravel-sluggable": "^3.0"
-            },
-            "require-dev": {
-                "laravel/mcp": "^0.5",
-                "laravel/pint": "^1.14",
-                "orchestra/testbench": "^10.0|^11.0",
-                "pestphp/pest": "^3.0",
-                "pestphp/pest-plugin-laravel": "^3.0"
-            },
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "providers": [
-                        "ManukMinasyan\\FilamentBlog\\FilamentBlogServiceProvider"
-                    ]
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "ManukMinasyan\\FilamentBlog\\": "src/",
-                    "ManukMinasyan\\FilamentBlog\\Database\\Factories\\": "database/factories/"
-                }
-            },
-            "autoload-dev": {
-                "psr-4": {
-                    "ManukMinasyan\\FilamentBlog\\Tests\\": "tests/"
-                }
-            },
-            "license": [
-                "MIT"
-            ],
-            "description": "Headless blog package for Filament with SEO, MCP tools, and publishable components.",
-            "support": {
-                "source": "https://github.com/ManukMinasyan/filament-blog/tree/v1.4.1",
-                "issues": "https://github.com/ManukMinasyan/filament-blog/issues"
-            },
-            "time": "2026-05-09T23:21:32+00:00"
-        },
-        {
             "name": "masterminds/html5",
             "version": "2.10.0",
             "source": {
@@ -8197,6 +8136,76 @@
                 }
             ],
             "time": "2026-05-12T16:26:49+00:00"
+        },
+        {
+            "name": "relaticle/ink",
+            "version": "v2.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/relaticle/ink.git",
+                "reference": "2f663704b3ae87b653f51288e4762527f6be3128"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/relaticle/ink/zipball/2f663704b3ae87b653f51288e4762527f6be3128",
+                "reference": "2f663704b3ae87b653f51288e4762527f6be3128",
+                "shasum": ""
+            },
+            "require": {
+                "filament/filament": "^5.0",
+                "illuminate/contracts": "^12.0|^13.0",
+                "php": "^8.4",
+                "ralphjsmit/laravel-filament-seo": "^2.0",
+                "ralphjsmit/laravel-seo": "^1.7",
+                "spatie/laravel-markdown": "^2.7",
+                "spatie/laravel-package-tools": "^1.15",
+                "spatie/laravel-sitemap": "^7.0 || ^8.0",
+                "spatie/laravel-sluggable": "^3.0"
+            },
+            "require-dev": {
+                "laravel/mcp": "^0.5",
+                "laravel/pint": "^1.14",
+                "orchestra/testbench": "^10.0|^11.0",
+                "pestphp/pest": "^3.0",
+                "pestphp/pest-plugin-laravel": "^3.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Relaticle\\Ink\\InkServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Relaticle\\Ink\\": "src/",
+                    "Relaticle\\Ink\\Database\\Factories\\": "database/factories/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Filament-native content publishing for blog, docs, and AI-citable articles. Headless by default, with opt-in public routes.",
+            "homepage": "https://github.com/relaticle/ink",
+            "keywords": [
+                "blog",
+                "cms",
+                "content",
+                "filament",
+                "headless",
+                "ink",
+                "laravel",
+                "markdown",
+                "mcp",
+                "seo"
+            ],
+            "support": {
+                "issues": "https://github.com/relaticle/ink/issues",
+                "source": "https://github.com/relaticle/ink"
+            },
+            "time": "2026-05-13T21:04:44+00:00"
         },
         {
             "name": "ryangjchandler/blade-capture-directive",
