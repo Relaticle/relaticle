@@ -4,13 +4,22 @@ declare(strict_types=1);
 
 namespace App\Filament\Pages;
 
+use App\Actions\Task\NotifyTaskAssignees;
+use App\Filament\Resources\TaskResource;
+use App\Filament\Resources\TaskResource\Forms\TaskForm;
+use App\Models\Task;
 use App\Models\User;
 use BackedEnum;
+use Filament\Actions\CreateAction;
 use Filament\Facades\Filament;
 use Filament\Pages\Page;
 use Filament\Panel;
+use Filament\Schemas\Schema;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Date;
 use Relaticle\Chat\Actions\ListConversations;
+use Relaticle\Chat\Data\MyTaskItem;
+use Relaticle\Chat\Services\MyTasksService;
 
 final class Dashboard extends Page
 {
@@ -73,5 +82,39 @@ final class Dashboard extends Page
             $hour < 18 => "Good afternoon, {$firstName}.",
             default => "Good evening, {$firstName}.",
         };
+    }
+
+    /**
+     * @return Collection<int, MyTaskItem>
+     */
+    public function getMyTasks(): Collection
+    {
+        /** @var User $user */
+        $user = Filament::auth()->user();
+        $team = $user->currentTeam;
+
+        return $team
+            ? resolve(MyTasksService::class)->forUser($user, $team)
+            : new Collection;
+    }
+
+    public function getTasksIndexUrl(): string
+    {
+        return TaskResource::getUrl('index', [
+            'tableFilters' => ['assigned_to_me' => ['isActive' => true]],
+        ]);
+    }
+
+    public function createTaskAction(): CreateAction
+    {
+        return CreateAction::make('createTask')
+            ->model(Task::class)
+            ->icon('heroicon-o-plus')
+            ->label(__('filament/pages/dashboard.tasks.create_action_label'))
+            ->slideOver()
+            ->schema(fn (Schema $schema): Schema => TaskForm::get($schema))
+            ->after(function (Task $record): void {
+                resolve(NotifyTaskAssignees::class)->execute($record);
+            });
     }
 }
