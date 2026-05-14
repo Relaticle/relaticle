@@ -10,6 +10,7 @@ use App\Models\User;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Relaticle\Chat\Data\MyTaskItem;
 
@@ -22,8 +23,8 @@ final readonly class MyTasksService
      */
     public function forUser(User $user, Team $team): Collection
     {
-        $startOfToday = \Illuminate\Support\Facades\Date::now()->startOfDay();
-        $endOfTomorrow = \Illuminate\Support\Facades\Date::now()->addDay()->endOfDay();
+        $startOfToday = Date::now()->startOfDay();
+        $endOfTomorrow = Date::now()->addDay()->endOfDay();
 
         $dueFieldId = DB::table('custom_fields')
             ->where('tenant_id', $team->getKey())
@@ -72,13 +73,17 @@ final readonly class MyTasksService
             ->limit(self::MAX_ITEMS)
             ->get();
 
-        return $rows->map(fn (object $row): MyTaskItem => new MyTaskItem(
-            id: (string) $row->id,
-            title: (string) $row->title,
-            dueAt: \Illuminate\Support\Facades\Date::parse($row->due_at),
-            severity: $this->severity(\Illuminate\Support\Facades\Date::parse($row->due_at), $startOfToday),
-            editUrl: TaskResource::getUrl('index', ['tenant' => $team]).'?tableFilters[assigned_to_me][isActive]=true#task-'.$row->id,
-        ))->values();
+        return $rows->map(function (object $row) use ($team, $startOfToday): MyTaskItem {
+            $dueAt = Date::parse($row->due_at);
+
+            return new MyTaskItem(
+                id: (string) $row->id,
+                title: (string) $row->title,
+                dueAt: $dueAt,
+                severity: $this->severity($dueAt, $startOfToday),
+                editUrl: TaskResource::getUrl('index', ['tenant' => $team]).'?tableFilters[assigned_to_me][isActive]=true#task-'.$row->id,
+            );
+        })->values();
     }
 
     private function severity(Carbon $dueAt, Carbon $startOfToday): string
