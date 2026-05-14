@@ -17,7 +17,9 @@
             >
                 {{ __('filament/pages/dashboard.tasks.view_all') }}
             </a>
-            {{ $this->createTaskAction }}
+            @if($count > 0)
+                {{ $this->createTaskAction }}
+            @endif
         </div>
     </div>
 

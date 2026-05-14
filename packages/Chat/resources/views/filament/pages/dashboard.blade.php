@@ -1,7 +1,7 @@
 <x-filament-panels::page>
     <div
         x-data="dashboardChatInput(@js(\App\Filament\Pages\ChatConversation::getUrl()), @js(auth()->user()?->ai_preferences['default_model'] ?? 'auto'))"
-        class="mx-auto max-w-2xl py-16"
+        class="mx-auto w-full max-w-3xl py-16"
     >
         {{-- Greeting --}}
         <div class="text-center">
