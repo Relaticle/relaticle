@@ -38,7 +38,7 @@
                 data-chat-context="dashboard"
                 class="relative rounded-2xl border border-gray-200 bg-white transition focus-within:border-primary-500 dark:border-gray-700 dark:bg-gray-800"
             >
-                <div x-ref="editor" class="relative"></div>
+                <div x-ref="editor" wire:ignore class="relative"></div>
 
                 <div class="flex items-center justify-between gap-2 px-3 pb-2">
                     <span
