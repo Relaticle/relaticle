@@ -46,9 +46,11 @@ final class CreateTaskTool extends BaseWriteCreateTool
 
     protected function extractActionData(Request $request): array
     {
+        $description = $request['description'] ?? null;
+
         return array_filter([
             'title' => (string) $request->string('title'),
-            'description' => $request['description'] ?? null,
+            'custom_fields' => is_string($description) && $description !== '' ? ['description' => $description] : null,
             'assignee_ids' => $this->idArray($request, 'assignee_ids'),
             'people_ids' => $this->idArray($request, 'people_ids'),
             'company_ids' => $this->idArray($request, 'company_ids'),

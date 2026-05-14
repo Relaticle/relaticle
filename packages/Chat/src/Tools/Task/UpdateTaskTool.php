@@ -63,7 +63,7 @@ final class UpdateTaskTool extends BaseWriteUpdateTool
             $data['title'] = $request['title'];
         }
         if (array_key_exists('description', $request->all())) {
-            $data['description'] = $request['description'];
+            $data['custom_fields'] = ['description' => $request['description']];
         }
         foreach (['assignee_ids', 'people_ids', 'company_ids', 'opportunity_ids'] as $key) {
             if (! array_key_exists($key, $request->all())) {
