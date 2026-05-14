@@ -10,6 +10,7 @@ use Filament\Auth\Notifications\VerifyEmailChange;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 
@@ -274,5 +275,44 @@ describe('validation', function () {
             ])
             ->call('updateProfile')
             ->assertHasFormErrors(['email']);
+    });
+});
+
+describe('photo url generation', function () {
+    beforeEach(function () {
+        Storage::fake('public');
+
+        Route::get('/_test/avatar-url', function () {
+            return auth()->user()->getFilamentAvatarUrl();
+        })->middleware('web');
+    });
+
+    test('avatar url uses current request host instead of APP_URL', function () {
+        config(['app.url' => 'https://relaticle.test']);
+
+        $user = User::factory()->create([
+            'profile_photo_path' => 'profile-photos/test.png',
+        ]);
+
+        $response = $this->actingAs($user)
+            ->get('https://app.relaticle.test/_test/avatar-url');
+
+        $response->assertOk();
+        expect($response->getContent())->toBe('https://app.relaticle.test/storage/profile-photos/test.png');
+    });
+
+    test('avatar url falls back to absolute disk url when no request', function () {
+        config(['app.url' => 'https://relaticle.test']);
+        Storage::fake('public', ['url' => 'https://relaticle.test/storage']);
+
+        $user = User::factory()->make([
+            'profile_photo_path' => 'profile-photos/test.png',
+        ]);
+
+        // Simulate no HTTP request bound to the container
+        app()->forgetInstance('request');
+
+        expect($user->getFilamentAvatarUrl())
+            ->toStartWith('https://relaticle.test/storage/profile-photos/');
     });
 });
