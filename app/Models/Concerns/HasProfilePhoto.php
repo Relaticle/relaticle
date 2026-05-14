@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models\Concerns;
 
 use App\Services\AvatarService;
+use App\Support\SameOriginUrl;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Support\Facades\Storage;
 
@@ -72,35 +73,8 @@ trait HasProfilePhoto
 
     private function resolveSameOriginUrl(string $path): string
     {
-        $absolute = (string) Storage::disk($this->profilePhotoDisk())->url($path);
-
-        if (! app()->bound('request')) {
-            return $absolute;
-        }
-
-        $request = resolve('request');
-        $host = $request->getHost();
-
-        // `request` is registered as a singleton, so `bound('request')` is always true.
-        // In queue workers / scheduler / artisan contexts, the resolved Request is hydrated
-        // from empty CLI $_SERVER globals and yields an empty or `localhost` host — which
-        // would produce broken `http://localhost/...` URLs in emails and notifications.
-        if ($host === '' || $host === 'localhost') {
-            return $absolute;
-        }
-
-        $parsed = parse_url($absolute);
-
-        if ($parsed === false || ! isset($parsed['path']) || blank($parsed['path'])) {
-            return $absolute;
-        }
-
-        $url = $request->getSchemeAndHttpHost().$parsed['path'];
-
-        if (isset($parsed['query'])) {
-            $url .= '?'.$parsed['query'];
-        }
-
-        return $url;
+        return SameOriginUrl::rewrite(
+            (string) Storage::disk($this->profilePhotoDisk())->url($path)
+        );
     }
 }

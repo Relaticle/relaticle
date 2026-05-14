@@ -7,6 +7,7 @@ namespace App\Livewire\App\Profile;
 use App\Actions\Fortify\UpdateUserProfileInformation as UpdateUserProfileInformationAction;
 use App\Actions\Profile\RemoveUserProfilePhoto;
 use App\Livewire\BaseLivewireComponent;
+use App\Support\SameOriginUrl;
 use DanHarrin\LivewireRateLimiting\Exceptions\TooManyRequestsException;
 use Filament\Actions\Action;
 use Filament\Auth\Notifications\NoticeOfEmailChangeRequest;
@@ -19,7 +20,9 @@ use Filament\Schemas\Components\Actions;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Illuminate\Contracts\View\View;
+use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Support\Facades\Notification as NotificationFacade;
+use League\Flysystem\UnableToCheckFileExistence;
 use League\Uri\Components\Query;
 use Throwable;
 
@@ -51,7 +54,45 @@ final class UpdateProfileInformation extends BaseLivewireComponent
                             ->disk(config('jetstream.profile_photo_disk'))
                             ->directory('profile-photos')
                             ->visibility('public')
-                            ->formatStateUsing(fn () => auth('web')->user()?->profile_photo_path),
+                            ->formatStateUsing(fn () => auth('web')->user()?->profile_photo_path)
+                            ->getUploadedFileUsing(function (FileUpload $component, string $file, string|array|null $storedFileNames): ?array {
+                                /** @var FilesystemAdapter $storage */
+                                $storage = $component->getDisk();
+
+                                $shouldFetchFileInformation = $component->shouldFetchFileInformation();
+
+                                if ($shouldFetchFileInformation) {
+                                    try {
+                                        if (! $storage->exists($file)) {
+                                            return null;
+                                        }
+                                    } catch (UnableToCheckFileExistence) {
+                                        return null;
+                                    }
+                                }
+
+                                $url = null;
+
+                                if ($component->getVisibility() === 'private') {
+                                    try {
+                                        $url = $storage->temporaryUrl(
+                                            $file,
+                                            now()->addMinutes(config('filament.temporary_file_url_expiry_minutes', 30))->endOfHour(),
+                                        );
+                                    } catch (Throwable) {
+                                        // Driver does not support temporary URLs; fall back to public URL.
+                                    }
+                                }
+
+                                $url ??= $storage->url($file);
+
+                                return [
+                                    'name' => ($component->isMultiple() ? ($storedFileNames[$file] ?? null) : $storedFileNames) ?? basename($file),
+                                    'size' => $shouldFetchFileInformation ? $storage->size($file) : 0,
+                                    'type' => $shouldFetchFileInformation ? $storage->mimeType($file) : null,
+                                    'url' => SameOriginUrl::rewrite((string) $url),
+                                ];
+                            }),
                         Actions::make([
                             Action::make('removeProfilePhoto')
                                 ->label(__('profile.actions.remove_photo'))

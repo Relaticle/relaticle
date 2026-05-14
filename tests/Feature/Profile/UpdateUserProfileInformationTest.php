@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Actions\Fortify\UpdateUserProfileInformation;
 use App\Livewire\App\Profile\UpdateProfileInformation as UpdateProfileInformationComponent;
 use App\Models\User;
+use App\Support\SameOriginUrl;
 use Filament\Auth\Notifications\NoticeOfEmailChangeRequest;
 use Filament\Auth\Notifications\VerifyEmailChange;
 use Illuminate\Auth\Notifications\VerifyEmail;
@@ -379,6 +380,18 @@ describe('photo url generation', function () {
 
         expect($user->getFilamentAvatarUrl())
             ->toStartWith('https://relaticle.test/storage/profile-photos/');
+    });
+
+    test('SameOriginUrl rewrites disk url to current request host', function () {
+        config(['app.url' => 'https://relaticle.test']);
+
+        Route::get('/_test/rewrite-url', fn () => SameOriginUrl::rewrite('https://relaticle.test/storage/profile-photos/x.png'))
+            ->middleware('web');
+
+        $response = $this->get('https://app.relaticle.test/_test/rewrite-url');
+
+        $response->assertOk();
+        expect($response->getContent())->toBe('https://app.relaticle.test/storage/profile-photos/x.png');
     });
 
     test('avatar url preserves query string from disk url', function () {
