@@ -1,6 +1,6 @@
 @php
     /** @var \Illuminate\Support\Collection<int, \Relaticle\Chat\Data\MyTaskItem> $myTasks */
-    $myTasks = $this->getMyTasks();
+    $myTasks = $this->myTasks;
     $count = $myTasks->count();
 @endphp
 

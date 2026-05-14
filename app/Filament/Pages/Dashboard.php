@@ -17,6 +17,7 @@ use Filament\Panel;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Date;
+use Livewire\Attributes\Computed;
 use Relaticle\Chat\Actions\ListConversations;
 use Relaticle\Chat\Data\MyTaskItem;
 use Relaticle\Chat\Services\MyTasksService;
@@ -87,7 +88,8 @@ final class Dashboard extends Page
     /**
      * @return Collection<int, MyTaskItem>
      */
-    public function getMyTasks(): Collection
+    #[Computed]
+    public function myTasks(): Collection
     {
         /** @var User $user */
         $user = Filament::auth()->user();

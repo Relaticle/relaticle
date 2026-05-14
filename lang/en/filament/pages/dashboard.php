@@ -10,12 +10,6 @@ return [
         'empty' => [
             'title' => 'Stay on top of work',
             'description' => 'Create tasks for yourself or your team to track next steps',
-            'cta' => 'New task',
-        ],
-        'severity' => [
-            'overdue' => 'Overdue',
-            'today' => 'Today',
-            'tomorrow' => 'Tomorrow',
         ],
     ],
 ];

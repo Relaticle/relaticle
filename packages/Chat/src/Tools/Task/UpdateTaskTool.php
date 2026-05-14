@@ -13,6 +13,7 @@ use App\Models\Team;
 use App\Models\User;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 use Laravel\Ai\Tools\Request;
 use Relaticle\Chat\Tools\BaseWriteUpdateTool;
 
@@ -57,16 +58,17 @@ final class UpdateTaskTool extends BaseWriteUpdateTool
 
     protected function extractActionData(Request $request): array
     {
+        $payload = $request->all();
         $data = [];
 
-        if (array_key_exists('title', $request->all())) {
-            $data['title'] = $request['title'];
+        if (array_key_exists('title', $payload)) {
+            $data['title'] = $payload['title'];
         }
-        if (array_key_exists('description', $request->all())) {
-            $data['custom_fields'] = ['description' => $request['description']];
+        if (array_key_exists('description', $payload)) {
+            $data['custom_fields'] = ['description' => $payload['description']];
         }
         foreach (['assignee_ids', 'people_ids', 'company_ids', 'opportunity_ids'] as $key) {
-            if (! array_key_exists($key, $request->all())) {
+            if (! array_key_exists($key, $payload)) {
                 continue;
             }
 
@@ -81,13 +83,14 @@ final class UpdateTaskTool extends BaseWriteUpdateTool
         /** @var User $user */
         $user = auth()->user();
         $team = $user->currentTeam;
+        $payload = $request->all();
 
         $fields = [];
-        if (array_key_exists('title', $request->all())) {
-            $fields[] = ['label' => 'Title', 'old' => $model->getAttribute('title'), 'new' => $request['title']];
+        if (array_key_exists('title', $payload)) {
+            $fields[] = ['label' => 'Title', 'old' => $model->getAttribute('title'), 'new' => $payload['title']];
         }
-        if (array_key_exists('description', $request->all())) {
-            $fields[] = ['label' => 'Description', 'old' => $model->getAttribute('description'), 'new' => $request['description']];
+        if (array_key_exists('description', $payload)) {
+            $fields[] = ['label' => 'Description', 'old' => $this->currentDescription($model), 'new' => $payload['description']];
         }
 
         $peopleIds = $this->idArray($request, 'people_ids');
@@ -115,6 +118,22 @@ final class UpdateTaskTool extends BaseWriteUpdateTool
             'summary' => "Update task \"{$model->getAttribute('title')}\"",
             'fields' => $fields,
         ];
+    }
+
+    private function currentDescription(Model $model): string
+    {
+        $stored = DB::table('custom_field_values as cfv')
+            ->join('custom_fields as cf', 'cf.id', '=', 'cfv.custom_field_id')
+            ->where('cf.code', 'description')
+            ->where('cf.entity_type', 'task')
+            ->where('cfv.entity_id', $model->getKey())
+            ->value('cfv.text_value');
+
+        if (! is_string($stored) || $stored === '') {
+            return '';
+        }
+
+        return trim(strip_tags($stored));
     }
 
     /**

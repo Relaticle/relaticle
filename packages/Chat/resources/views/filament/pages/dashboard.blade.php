@@ -34,7 +34,6 @@
                 })"
                 x-on:dashboard:editor-submit.window="submit()"
                 x-on:dashboard:editor-change.window="input = $event.detail.text"
-                {{-- No global setter needed — dashboardChatInput uses localEditor() to scope-resolve. --}}
                 data-chat-context="dashboard"
                 class="relative rounded-2xl border border-gray-200 bg-white transition focus-within:border-primary-500 dark:border-gray-700 dark:bg-gray-800"
             >

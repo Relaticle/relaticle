@@ -21,7 +21,7 @@ beforeEach(function (): void {
  *
  * The `TeamCreated` listener seeds task custom fields, so this helper just looks them up.
  */
-function seedDueDateField(string $teamId): string
+function resolveDueDateField(string $teamId): string
 {
     $row = DB::table('custom_fields')
         ->where('tenant_id', $teamId)
@@ -39,7 +39,7 @@ function seedDueDateField(string $teamId): string
  *
  * @return array{0: string, 1: string, 2: string}
  */
-function seedStatusField(string $teamId): array
+function resolveStatusField(string $teamId): array
 {
     $field = DB::table('custom_fields')
         ->where('tenant_id', $teamId)
@@ -104,7 +104,7 @@ it('only returns tasks assigned to the given user', function (): void {
     $other = User::factory()->create();
     $team->users()->attach($other, ['role' => 'editor']);
 
-    $dueFieldId = seedDueDateField($team->id);
+    $dueFieldId = resolveDueDateField($team->id);
 
     $mine = Task::factory()->for($team)->create(['title' => 'mine']);
     $mine->assignees()->attach($owner);
@@ -123,7 +123,7 @@ it('only returns tasks assigned to the given user', function (): void {
 it('includes tasks at any due date plus tasks without a due date', function (): void {
     $user = User::factory()->withPersonalTeam()->create();
     $team = $user->currentTeam;
-    $dueFieldId = seedDueDateField($team->id);
+    $dueFieldId = resolveDueDateField($team->id);
 
     $cases = [
         'overdue' => now()->subDay(),
@@ -151,8 +151,8 @@ it('excludes tasks whose status is Done', function (): void {
     $user = User::factory()->withPersonalTeam()->create();
     $team = $user->currentTeam;
 
-    $dueFieldId = seedDueDateField($team->id);
-    [$statusFieldId, $doneId, $todoId] = seedStatusField($team->id);
+    $dueFieldId = resolveDueDateField($team->id);
+    [$statusFieldId, $doneId, $todoId] = resolveStatusField($team->id);
 
     $done = Task::factory()->for($team)->create(['title' => 'done']);
     $done->assignees()->attach($user);
@@ -177,7 +177,7 @@ it('excludes tasks whose status is Done', function (): void {
 it('sorts ascending by due date and tags severity correctly', function (): void {
     $user = User::factory()->withPersonalTeam()->create();
     $team = $user->currentTeam;
-    $dueFieldId = seedDueDateField($team->id);
+    $dueFieldId = resolveDueDateField($team->id);
 
     $a = Task::factory()->for($team)->create(['title' => 'a']);
     $a->assignees()->attach($user);
@@ -202,7 +202,7 @@ it('sorts ascending by due date and tags severity correctly', function (): void 
 it('caps results at five tasks', function (): void {
     $user = User::factory()->withPersonalTeam()->create();
     $team = $user->currentTeam;
-    $dueFieldId = seedDueDateField($team->id);
+    $dueFieldId = resolveDueDateField($team->id);
 
     foreach (range(1, 8) as $i) {
         $task = Task::factory()->for($team)->create(['title' => "t{$i}"]);
@@ -221,7 +221,7 @@ it('does not leak tasks from another team where the user is also a member', func
     $teamB = User::factory()->withPersonalTeam()->create()->currentTeam;
     $teamB->users()->attach($user, ['role' => 'editor']);
 
-    $dueFieldB = seedDueDateField($teamB->id);
+    $dueFieldB = resolveDueDateField($teamB->id);
 
     $leaked = Task::factory()->for($teamB)->create(['title' => 'leaked']);
     $leaked->assignees()->attach($user);
