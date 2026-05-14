@@ -78,6 +78,8 @@
                 x-text="error"
             ></div>
         </form>
+
+        @include('chat::filament.pages.partials.my-tasks')
     </div>
 
     @script
