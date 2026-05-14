@@ -44,14 +44,19 @@
                         default => 'text-gray-500 dark:text-gray-400',
                     };
                 @endphp
-                <li class="flex items-center gap-3 px-4 py-3" data-testid="my-task-row" data-severity="{{ $task->severity ?? 'none' }}">
-                    <span aria-hidden="true" class="h-4 w-4 flex-shrink-0 rounded-full border border-gray-300 dark:border-gray-600"></span>
-                    <span class="flex-1 truncate text-sm text-gray-900 dark:text-white">{{ $task->title }}</span>
-                    @if($task->dueAt)
-                        <span class="text-xs {{ $dateClass }}">
-                            {{ $task->dueAt->isoFormat('MMM D, YYYY') }}
-                        </span>
-                    @endif
+                <li data-testid="my-task-row" data-severity="{{ $task->severity ?? 'none' }}">
+                    <a
+                        href="{{ $task->editUrl }}"
+                        class="flex items-center gap-3 px-4 py-3 transition hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                    >
+                        <span aria-hidden="true" class="h-4 w-4 flex-shrink-0 rounded-full border border-gray-300 dark:border-gray-600"></span>
+                        <span class="flex-1 truncate text-sm text-gray-900 dark:text-white">{{ $task->title }}</span>
+                        @if($task->dueAt)
+                            <span class="text-xs {{ $dateClass }}">
+                                {{ $task->dueAt->isoFormat('MMM D, YYYY') }}
+                            </span>
+                        @endif
+                    </a>
                 </li>
             @endforeach
         </ul>

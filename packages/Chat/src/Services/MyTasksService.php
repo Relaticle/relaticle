@@ -78,7 +78,12 @@ final readonly class MyTasksService
             ->limit(self::MAX_ITEMS)
             ->get();
 
-        return $rows->map(function (object $row) use ($team, $startOfToday): MyTaskItem {
+        $tasksUrl = TaskResource::getUrl('index', [
+            'tenant' => $team,
+            'tableFilters' => ['assigned_to_me' => ['isActive' => true]],
+        ]);
+
+        return $rows->map(function (object $row) use ($tasksUrl, $startOfToday): MyTaskItem {
             $dueAt = $row->due_at !== null ? Date::parse($row->due_at) : null;
 
             return new MyTaskItem(
@@ -86,7 +91,7 @@ final readonly class MyTasksService
                 title: (string) $row->title,
                 dueAt: $dueAt,
                 severity: $dueAt instanceof Carbon ? $this->severity($dueAt, $startOfToday) : null,
-                editUrl: TaskResource::getUrl('index', ['tenant' => $team]).'?tableFilters[assigned_to_me][isActive]=true#task-'.$row->id,
+                editUrl: $tasksUrl.'#task-'.$row->id,
             );
         })->values();
     }
