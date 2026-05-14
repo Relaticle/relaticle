@@ -36,7 +36,6 @@ final class CreateTaskTool extends BaseWriteCreateTool
     {
         return [
             'title' => $schema->string()->description('The task title.')->required(),
-            'description' => $schema->string()->description('Optional task description.'),
             'assignee_ids' => $schema->array()->description('User ULIDs to assign.'),
             'people_ids' => $schema->array()->description('People (contact) ULIDs to link.'),
             'company_ids' => $schema->array()->description('Company ULIDs to link.'),
@@ -46,11 +45,8 @@ final class CreateTaskTool extends BaseWriteCreateTool
 
     protected function extractActionData(Request $request): array
     {
-        $description = $request['description'] ?? null;
-
         return array_filter([
             'title' => (string) $request->string('title'),
-            'custom_fields' => is_string($description) && $description !== '' ? ['description' => $description] : null,
             'assignee_ids' => $this->idArray($request, 'assignee_ids'),
             'people_ids' => $this->idArray($request, 'people_ids'),
             'company_ids' => $this->idArray($request, 'company_ids'),
@@ -66,11 +62,6 @@ final class CreateTaskTool extends BaseWriteCreateTool
 
         $title = (string) $request->string('title');
         $fields = [['label' => 'Title', 'value' => $title]];
-
-        $description = $request['description'] ?? null;
-        if (is_string($description) && $description !== '') {
-            $fields[] = ['label' => 'Description', 'value' => $description];
-        }
 
         $peopleNames = $this->namesForIds($this->idArray($request, 'people_ids'), People::class, 'name', $team);
         if ($peopleNames !== '') {

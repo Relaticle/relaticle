@@ -13,7 +13,6 @@ use App\Models\Team;
 use App\Models\User;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\DB;
 use Laravel\Ai\Tools\Request;
 use Relaticle\Chat\Tools\BaseWriteUpdateTool;
 
@@ -48,7 +47,6 @@ final class UpdateTaskTool extends BaseWriteUpdateTool
     {
         return [
             'title' => $schema->string()->description('The new task title.'),
-            'description' => $schema->string()->description('The new task description.'),
             'assignee_ids' => $schema->array()->description('User ULIDs to assign. Pass [] to clear assignees.'),
             'people_ids' => $schema->array()->description('People ULIDs to link. Pass [] to clear linked people.'),
             'company_ids' => $schema->array()->description('Company ULIDs to link. Pass [] to clear linked companies.'),
@@ -63,9 +61,6 @@ final class UpdateTaskTool extends BaseWriteUpdateTool
 
         if (array_key_exists('title', $payload)) {
             $data['title'] = $payload['title'];
-        }
-        if (array_key_exists('description', $payload)) {
-            $data['custom_fields'] = ['description' => $payload['description']];
         }
         foreach (['assignee_ids', 'people_ids', 'company_ids', 'opportunity_ids'] as $key) {
             if (! array_key_exists($key, $payload)) {
@@ -88,9 +83,6 @@ final class UpdateTaskTool extends BaseWriteUpdateTool
         $fields = [];
         if (array_key_exists('title', $payload)) {
             $fields[] = ['label' => 'Title', 'old' => $model->getAttribute('title'), 'new' => $payload['title']];
-        }
-        if (array_key_exists('description', $payload)) {
-            $fields[] = ['label' => 'Description', 'old' => $this->currentDescription($model), 'new' => $payload['description']];
         }
 
         $peopleIds = $this->idArray($request, 'people_ids');
@@ -118,22 +110,6 @@ final class UpdateTaskTool extends BaseWriteUpdateTool
             'summary' => "Update task \"{$model->getAttribute('title')}\"",
             'fields' => $fields,
         ];
-    }
-
-    private function currentDescription(Model $model): string
-    {
-        $stored = DB::table('custom_field_values as cfv')
-            ->join('custom_fields as cf', 'cf.id', '=', 'cfv.custom_field_id')
-            ->where('cf.code', 'description')
-            ->where('cf.entity_type', 'task')
-            ->where('cfv.entity_id', $model->getKey())
-            ->value('cfv.text_value');
-
-        if (! is_string($stored) || $stored === '') {
-            return '';
-        }
-
-        return trim(strip_tags($stored));
     }
 
     /**

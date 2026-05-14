@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use App\Actions\Task\CreateTask;
-use App\Actions\Task\UpdateTask;
 use App\Enums\CreationSource;
 use App\Models\People;
 use App\Models\Task;
@@ -15,12 +14,9 @@ use Illuminate\Validation\ValidationException;
 use Laravel\Ai\Tools\Request;
 use Relaticle\Chat\Models\PendingAction;
 use Relaticle\Chat\Tools\Task\CreateTaskTool;
-use Relaticle\Chat\Tools\Task\UpdateTaskTool;
 
 mutates(CreateTaskTool::class);
 mutates(CreateTask::class);
-mutates(UpdateTaskTool::class);
-mutates(UpdateTask::class);
 
 beforeEach(function (): void {
     $this->user = User::factory()->withPersonalTeam()->create();
@@ -43,7 +39,6 @@ it('CreateTaskTool exposes people_ids, assignee_ids, and other linkage fields in
 
     expect($schema)
         ->toHaveKey('title')
-        ->toHaveKey('description')
         ->toHaveKey('people_ids')
         ->toHaveKey('assignee_ids')
         ->toHaveKey('company_ids')
@@ -114,61 +109,4 @@ it('renders linked names in the proposal display data', function (): void {
     $fields = collect($pending->display_data['fields'] ?? []);
     expect($fields->pluck('label')->all())->toContain('Linked people');
     expect($fields->firstWhere('label', 'Linked people')['value'] ?? '')->toContain('Angel');
-});
-
-it('CreateTaskTool wraps description as a custom_fields proposal payload', function (): void {
-    $tool = resolve(CreateTaskTool::class);
-    $tool->setConversationId('019df800-3333-7000-8000-000000000001');
-
-    $tool->handle(new Request([
-        'title' => 'Document the spike',
-        'description' => 'Compare DuckDB vs SQLite for the ledger.',
-    ]));
-
-    $pending = PendingAction::query()
-        ->where('team_id', $this->team->getKey())
-        ->latest()
-        ->firstOrFail();
-
-    expect($pending->action_data)
-        ->toHaveKey('title', 'Document the spike')
-        ->toHaveKey('custom_fields.description', 'Compare DuckDB vs SQLite for the ledger.');
-});
-
-it('UpdateTaskTool wraps description as a custom_fields proposal payload', function (): void {
-    $task = Task::factory()->for($this->team)->create(['title' => 'Existing task']);
-
-    $tool = resolve(UpdateTaskTool::class);
-    $tool->setConversationId('019df800-3333-7000-8000-000000000001');
-
-    $tool->handle(new Request([
-        'id' => (string) $task->id,
-        'description' => 'New description text',
-    ]));
-
-    $pending = PendingAction::query()
-        ->where('team_id', $this->team->getKey())
-        ->latest()
-        ->firstOrFail();
-
-    expect($pending->action_data)
-        ->toHaveKey('custom_fields.description', 'New description text');
-});
-
-it('approving an UpdateTask with custom_fields.description persists it to text_value', function (): void {
-    $task = Task::factory()->for($this->team)->create(['title' => 'Existing']);
-
-    resolve(UpdateTask::class)->execute(
-        $this->user,
-        $task,
-        ['custom_fields' => ['description' => 'Persisted body']],
-    );
-
-    $stored = DB::table('custom_field_values as cfv')
-        ->join('custom_fields as cf', 'cf.id', '=', 'cfv.custom_field_id')
-        ->where('cf.code', 'description')
-        ->where('cfv.entity_id', $task->id)
-        ->value('cfv.text_value');
-
-    expect($stored)->toContain('Persisted body');
 });
