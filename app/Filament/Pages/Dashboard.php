@@ -9,11 +9,8 @@ use BackedEnum;
 use Filament\Facades\Filament;
 use Filament\Pages\Page;
 use Filament\Panel;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Date;
 use Relaticle\Chat\Actions\ListConversations;
-use Relaticle\Chat\Data\CrmInsight;
-use Relaticle\Chat\Services\CrmInsightsService;
 
 final class Dashboard extends Page
 {
@@ -61,20 +58,6 @@ final class Dashboard extends Page
         }
     }
 
-    /**
-     * @return Collection<int, CrmInsight>
-     */
-    public function getInsights(): Collection
-    {
-        /** @var User $user */
-        $user = Filament::auth()->user();
-        $team = $user->currentTeam;
-
-        return $team
-            ? resolve(CrmInsightsService::class)->forTeam($team)
-            : collect();
-    }
-
     public function getGreeting(): string
     {
         /** @var User $user */
@@ -90,18 +73,5 @@ final class Dashboard extends Page
             $hour < 18 => "Good afternoon, {$firstName}.",
             default => "Good evening, {$firstName}.",
         };
-    }
-
-    /**
-     * @return array<int, array{label: string, prompt: string}>
-     */
-    public function getSuggestedPrompts(): array
-    {
-        return [
-            ['label' => 'CRM overview', 'prompt' => 'Give me a summary of my CRM data'],
-            ['label' => 'Overdue tasks', 'prompt' => 'Show my overdue tasks'],
-            ['label' => 'Recent companies', 'prompt' => 'List companies added this week'],
-            ['label' => 'Pipeline summary', 'prompt' => 'Show my opportunity pipeline summary'],
-        ];
     }
 }

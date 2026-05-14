@@ -32,16 +32,3 @@ it('shows greeting on the dashboard', function (): void {
         ->navigate("/app/{$team->slug}")
         ->assertSee('Good');
 });
-
-it('shows suggested prompts on the dashboard', function (): void {
-    $user = User::factory()->withTeam()->create();
-    $team = $user->ownedTeams()->first();
-
-    $this->visit('/app/login')
-        ->type('[id="form.email"]', $user->email)
-        ->type('[id="form.password"]', 'password')
-        ->click('button.fi-btn')
-        ->assertPathIs("/app/{$team->slug}/companies")
-        ->navigate("/app/{$team->slug}")
-        ->assertSee('CRM overview');
-});

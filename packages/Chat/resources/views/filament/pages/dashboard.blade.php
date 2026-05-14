@@ -78,56 +78,6 @@
                 x-text="error"
             ></div>
         </form>
-
-        {{-- Suggested prompts --}}
-        @php
-            $suggestedPrompts = $this->getSuggestedPrompts();
-        @endphp
-        @if(!empty($suggestedPrompts))
-            <div class="mt-3 flex flex-wrap justify-center gap-1.5">
-                @foreach($suggestedPrompts as $prompt)
-                    <button
-                        type="button"
-                        @click="input = @js($prompt['prompt']); localEditor()?.setText(@js($prompt['prompt'])); $nextTick(() => submit())"
-                        class="rounded-full border border-gray-200 bg-white px-3 py-1 text-xs text-gray-600 transition hover:border-gray-300 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:border-gray-600 dark:hover:bg-gray-700"
-                    >
-                        {{ $prompt['label'] }}
-                    </button>
-                @endforeach
-            </div>
-        @endif
-
-        {{-- Proactive insights --}}
-        @php
-            $insights = $this->getInsights();
-        @endphp
-        @if($insights->isNotEmpty())
-            <div class="mt-14">
-                <h2 class="mb-3 text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Quick insights</h2>
-                <div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-                    @foreach($insights as $insight)
-                        @php
-                            $accentClasses = match ($insight->severity) {
-                                'warning' => 'text-amber-600 dark:text-amber-400',
-                                'success' => 'text-emerald-600 dark:text-emerald-400',
-                                default => 'text-blue-600 dark:text-blue-400',
-                            };
-                        @endphp
-                        <button
-                            type="button"
-                            @click="input = @js($insight->prompt); localEditor()?.setText(@js($insight->prompt)); $nextTick(() => submit())"
-                            class="group flex items-start gap-3 rounded-xl border border-gray-200 bg-white px-3.5 py-3 text-left transition hover:border-gray-300 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:border-gray-600 dark:hover:bg-gray-700"
-                        >
-                            <span class="text-2xl font-semibold tabular-nums leading-none {{ $accentClasses }}">{{ $insight->count }}</span>
-                            <div class="min-w-0 flex-1">
-                                <div class="text-sm font-medium text-gray-900 dark:text-white">{{ $insight->title }}</div>
-                                <div class="mt-0.5 line-clamp-2 text-xs text-gray-500 dark:text-gray-400">{{ $insight->description }}</div>
-                            </div>
-                        </button>
-                    @endforeach
-                </div>
-            </div>
-        @endif
     </div>
 
     @script
