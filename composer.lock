@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6199df7c79db6600e1659a0a5d1560de",
+    "content-hash": "46326837a04a9e73de3cba1b7855bd75",
     "packages": [
         {
             "name": "andreiio/blade-remix-icon",
@@ -3290,16 +3290,16 @@
         },
         {
             "name": "laravel/ai",
-            "version": "v0.6.7",
+            "version": "v0.6.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/ai.git",
-                "reference": "ab1426ee26ae9b7fa96bc35eb70597e2ab00d30d"
+                "reference": "b457ea4c0ec0fb1bca5504666332b653f7648d7e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/ai/zipball/ab1426ee26ae9b7fa96bc35eb70597e2ab00d30d",
-                "reference": "ab1426ee26ae9b7fa96bc35eb70597e2ab00d30d",
+                "url": "https://api.github.com/repos/laravel/ai/zipball/b457ea4c0ec0fb1bca5504666332b653f7648d7e",
+                "reference": "b457ea4c0ec0fb1bca5504666332b653f7648d7e",
                 "shasum": ""
             },
             "require": {
@@ -3354,7 +3354,7 @@
                 "issues": "https://github.com/laravel/ai/issues",
                 "source": "https://github.com/laravel/ai"
             },
-            "time": "2026-05-07T13:47:00+00:00"
+            "time": "2026-05-11T10:46:54+00:00"
         },
         {
             "name": "laravel/fortify",
@@ -3791,16 +3791,16 @@
         },
         {
             "name": "laravel/mcp",
-            "version": "v0.6.7",
+            "version": "v0.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/mcp.git",
-                "reference": "c3775e57b95d7eadb580d543689d9971ec8721f2"
+                "reference": "3513b4feca5f1678be4d2261dcfa8e456436d02a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/mcp/zipball/c3775e57b95d7eadb580d543689d9971ec8721f2",
-                "reference": "c3775e57b95d7eadb580d543689d9971ec8721f2",
+                "url": "https://api.github.com/repos/laravel/mcp/zipball/3513b4feca5f1678be4d2261dcfa8e456436d02a",
+                "reference": "3513b4feca5f1678be4d2261dcfa8e456436d02a",
                 "shasum": ""
             },
             "require": {
@@ -3860,7 +3860,7 @@
                 "issues": "https://github.com/laravel/mcp/issues",
                 "source": "https://github.com/laravel/mcp"
             },
-            "time": "2026-04-15T08:30:42+00:00"
+            "time": "2026-04-21T10:23:03+00:00"
         },
         {
             "name": "laravel/pennant",
@@ -3999,16 +3999,16 @@
         },
         {
             "name": "laravel/reverb",
-            "version": "v1.10.1",
+            "version": "v1.10.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/reverb.git",
-                "reference": "a96310ae8b844d4862b2188a3cd6e79434893a6b"
+                "reference": "43a5c0a99b1aaba33dc32f97fcf51f182dd8c8ac"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/reverb/zipball/a96310ae8b844d4862b2188a3cd6e79434893a6b",
-                "reference": "a96310ae8b844d4862b2188a3cd6e79434893a6b",
+                "url": "https://api.github.com/repos/laravel/reverb/zipball/43a5c0a99b1aaba33dc32f97fcf51f182dd8c8ac",
+                "reference": "43a5c0a99b1aaba33dc32f97fcf51f182dd8c8ac",
                 "shasum": ""
             },
             "require": {
@@ -4072,9 +4072,9 @@
             ],
             "support": {
                 "issues": "https://github.com/laravel/reverb/issues",
-                "source": "https://github.com/laravel/reverb/tree/v1.10.1"
+                "source": "https://github.com/laravel/reverb/tree/v1.10.2"
             },
-            "time": "2026-04-30T12:07:26+00:00"
+            "time": "2026-05-10T15:47:52+00:00"
         },
         {
             "name": "laravel/sanctum",
