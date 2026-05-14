@@ -11,6 +11,9 @@ use Laravel\Ai\Contracts\Tool;
 use Laravel\Ai\Tools\Request;
 use Relaticle\Chat\Enums\PendingActionOperation;
 use Relaticle\Chat\Services\PendingActionService;
+use Relaticle\Chat\Services\Tools\CustomFieldsDisplayFormatter;
+use Relaticle\Chat\Services\Tools\CustomFieldsRequestValidator;
+use Relaticle\Chat\Services\Tools\CustomFieldsSchemaDescriber;
 use Relaticle\Chat\Tools\Concerns\WithConversationContext;
 
 abstract class BaseWriteUpdateTool implements Tool
@@ -40,11 +43,18 @@ abstract class BaseWriteUpdateTool implements Tool
 
     public function schema(JsonSchema $schema): array
     {
+        $user = auth()->user();
+
+        $customFieldsDescription = $user instanceof User
+            ? resolve(CustomFieldsSchemaDescriber::class)->describe($user->currentTeam, $this->entityType())
+            : 'Custom field values as key-value pairs.';
+
         $label = strtolower($this->entityLabel());
 
         return array_merge(
             ['id' => $schema->string()->description("The {$label} ID to update.")->required()],
             $this->entitySchema($schema),
+            ['custom_fields' => $schema->object()->description($customFieldsDescription)],
         );
     }
 
@@ -68,10 +78,30 @@ abstract class BaseWriteUpdateTool implements Tool
             return (string) json_encode(['error' => "You do not have permission to update this {$this->entityLabel()}."]);
         }
 
+        $validation = resolve(CustomFieldsRequestValidator::class)
+            ->validate($user, $this->entityType(), $request['custom_fields'] ?? null);
+
+        if ($validation->error !== null) {
+            return (string) json_encode(['error' => $validation->error]);
+        }
+
         $conversationId = $this->resolveConversationId();
         $actionData = $this->extractActionData($request);
         $actionData['_record_id'] = $model->getKey();
         $actionData['_model_class'] = $model::class;
+
+        if ($validation->cleanFields !== []) {
+            $actionData['custom_fields'] = $validation->cleanFields;
+        }
+
+        $displayData = $this->buildDisplayData($request, $model);
+        $customFieldRows = resolve(CustomFieldsDisplayFormatter::class)
+            ->format($user, $this->entityType(), $validation->cleanFields, oldModel: $model);
+
+        if ($customFieldRows !== []) {
+            $existingFields = $displayData['fields'] ?? [];
+            $displayData['fields'] = array_merge(is_array($existingFields) ? $existingFields : [], $customFieldRows);
+        }
 
         $service = resolve(PendingActionService::class);
         $pending = $service->createProposal(
@@ -81,7 +111,7 @@ abstract class BaseWriteUpdateTool implements Tool
             operation: PendingActionOperation::Update,
             entityType: $this->entityType(),
             actionData: $actionData,
-            displayData: $this->buildDisplayData($request, $model),
+            displayData: $displayData,
         );
 
         return (string) json_encode([
