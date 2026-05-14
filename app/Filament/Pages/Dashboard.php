@@ -107,10 +107,23 @@ final class Dashboard extends Page
 
     public function createTaskAction(): CreateAction
     {
-        return CreateAction::make('createTask')
+        return $this->configureCreateTaskAction(CreateAction::make('createTask'))
+            ->label(__('filament/pages/dashboard.tasks.create_action_label'));
+    }
+
+    public function createTaskHeaderAction(): CreateAction
+    {
+        return $this->configureCreateTaskAction(CreateAction::make('createTaskHeader'))
+            ->iconButton()
+            ->color('gray')
+            ->label(__('filament/pages/dashboard.tasks.create_action_label'));
+    }
+
+    private function configureCreateTaskAction(CreateAction $action): CreateAction
+    {
+        return $action
             ->model(Task::class)
             ->icon('heroicon-o-plus')
-            ->label(__('filament/pages/dashboard.tasks.create_action_label'))
             ->slideOver()
             ->schema(fn (Schema $schema): Schema => TaskForm::get($schema))
             ->after(function (Task $record): void {
