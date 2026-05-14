@@ -12,8 +12,6 @@ use Laravel\Fortify\Contracts\UpdatesUserProfileInformation;
 final readonly class UpdateUserProfileInformation implements UpdatesUserProfileInformation
 {
     /**
-     * Validate and update the given user's profile information.
-     *
      * @param  array<string, mixed>  $input
      */
     public function update(User $user, array $input): void
@@ -24,12 +22,8 @@ final readonly class UpdateUserProfileInformation implements UpdatesUserProfileI
             'profile_photo_path' => ['nullable', 'string', 'max:255'],
         ])->validateWithBag('updateProfileInformation');
 
-        if (array_key_exists('profile_photo_path', $input)) {
-            if ($input['profile_photo_path']) {
-                $user->updateProfilePhoto($input['profile_photo_path']);
-            } else {
-                $user->deleteProfilePhoto();
-            }
+        if (filled($input['profile_photo_path']) && $input['profile_photo_path'] !== $user->profile_photo_path) {
+            $user->updateProfilePhoto($input['profile_photo_path']);
         }
 
         if ($input['email'] !== $user->email) {
@@ -43,8 +37,6 @@ final readonly class UpdateUserProfileInformation implements UpdatesUserProfileI
     }
 
     /**
-     * Update the given verified user's profile information.
-     *
      * @param  array<string, string>  $input
      */
     private function updateVerifiedUser(User $user, array $input): void

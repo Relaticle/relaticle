@@ -199,10 +199,9 @@ describe('photo upload', function () {
         Notification::assertSentTo($this->user, VerifyEmail::class);
     });
 
-    test('can delete profile photo', function () {
+    test('null profile_photo_path does not delete existing photo', function () {
         Storage::fake('public');
 
-        // First set a photo
         $photo = UploadedFile::fake()->image('avatar.png', 300, 300);
         $photoPath = $photo->storePublicly('profile-photos', ['disk' => 'public']);
 
@@ -214,14 +213,57 @@ describe('photo upload', function () {
 
         expect($this->user->fresh()->profile_photo_path)->toBe($photoPath);
 
-        // Then delete it
         $this->action->update($this->user, [
             'name' => $this->user->name,
             'email' => $this->user->email,
             'profile_photo_path' => null,
         ]);
 
-        expect($this->user->fresh()->profile_photo_path)->toBeNull();
+        expect($this->user->fresh()->profile_photo_path)->toBe($photoPath)
+            ->and(Storage::disk('public')->exists($photoPath))->toBeTrue();
+    });
+
+    test('empty string profile_photo_path does not delete existing photo', function () {
+        Storage::fake('public');
+
+        $photo = UploadedFile::fake()->image('avatar.png', 300, 300);
+        $photoPath = $photo->storePublicly('profile-photos', ['disk' => 'public']);
+
+        $this->action->update($this->user, [
+            'name' => $this->user->name,
+            'email' => $this->user->email,
+            'profile_photo_path' => $photoPath,
+        ]);
+
+        $this->action->update($this->user, [
+            'name' => $this->user->name,
+            'email' => $this->user->email,
+            'profile_photo_path' => '',
+        ]);
+
+        expect($this->user->fresh()->profile_photo_path)->toBe($photoPath)
+            ->and(Storage::disk('public')->exists($photoPath))->toBeTrue();
+    });
+
+    test('removeProfilePhoto livewire method deletes photo and file', function () {
+        Storage::fake('public');
+        $user = User::factory()->withTeam()->create([
+            'email' => 'remove-photo@example.com',
+        ]);
+        $this->actingAs($user);
+
+        $photo = UploadedFile::fake()->image('avatar.png', 300, 300);
+        $photoPath = $photo->storePublicly('profile-photos', ['disk' => 'public']);
+
+        $user->forceFill(['profile_photo_path' => $photoPath])->save();
+        expect(Storage::disk('public')->exists($photoPath))->toBeTrue();
+
+        Livewire::test(UpdateProfileInformationComponent::class)
+            ->call('removeProfilePhoto')
+            ->assertNotified();
+
+        expect($user->fresh()->profile_photo_path)->toBeNull()
+            ->and(Storage::disk('public')->exists($photoPath))->toBeFalse();
     });
 
     test('can update profile through livewire component with photo', function () {

@@ -50,6 +50,14 @@ final class UpdateProfileInformation extends BaseLivewireComponent
                             ->directory('profile-photos')
                             ->visibility('public')
                             ->formatStateUsing(fn () => auth('web')->user()?->profile_photo_path),
+                        Actions::make([
+                            Action::make('removeProfilePhoto')
+                                ->label(__('profile.actions.remove_photo'))
+                                ->color('danger')
+                                ->requiresConfirmation()
+                                ->visible(fn (): bool => filled($this->authUser()->profile_photo_path))
+                                ->action(fn () => $this->removeProfilePhoto()),
+                        ]),
                         TextInput::make('name')
                             ->label(__('profile.form.name.label'))
                             ->string()
@@ -91,6 +99,18 @@ final class UpdateProfileInformation extends BaseLivewireComponent
         resolve(UpdateUserProfileInformationAction::class)->update($this->authUser(), $data);
 
         $this->sendNotification();
+    }
+
+    public function removeProfilePhoto(): void
+    {
+        $this->authUser()->deleteProfilePhoto();
+
+        $this->form->fill($this->authUser()->only(['name', 'email']));
+
+        Notification::make()
+            ->success()
+            ->title(__('profile.notifications.photo_removed'))
+            ->send();
     }
 
     /**
