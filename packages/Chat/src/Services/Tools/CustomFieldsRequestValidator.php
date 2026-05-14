@@ -37,7 +37,7 @@ final readonly class CustomFieldsRequestValidator
             return $translated;
         }
 
-        $rules = (new ValidCustomFields($teamId, $entityType, isUpdate: true))
+        $rules = new ValidCustomFields($teamId, $entityType, isUpdate: true)
             ->toRules($translated->cleanFields);
 
         $validator = Validator::make(['custom_fields' => $translated->cleanFields], $rules);
