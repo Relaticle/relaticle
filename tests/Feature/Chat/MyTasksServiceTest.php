@@ -120,7 +120,7 @@ it('only returns tasks assigned to the given user', function (): void {
         ->and($items->first()->title)->toBe('mine');
 });
 
-it('includes overdue, today, and tomorrow but excludes day-after-tomorrow', function (): void {
+it('includes tasks at any due date plus tasks without a due date', function (): void {
     $user = User::factory()->withPersonalTeam()->create();
     $team = $user->currentTeam;
     $dueFieldId = seedDueDateField($team->id);
@@ -129,7 +129,7 @@ it('includes overdue, today, and tomorrow but excludes day-after-tomorrow', func
         'overdue' => now()->subDay(),
         'today' => now(),
         'tomorrow' => now()->addDay(),
-        'after_tomorrow' => now()->addDays(2),
+        'far_future' => now()->addMonths(6),
     ];
 
     foreach ($cases as $label => $when) {
@@ -138,10 +138,13 @@ it('includes overdue, today, and tomorrow but excludes day-after-tomorrow', func
         attachDueDate($task, $dueFieldId, $when);
     }
 
+    $noDate = Task::factory()->for($team)->create(['title' => 'no_due_date']);
+    $noDate->assignees()->attach($user);
+
     $items = (new MyTasksService)->forUser($user, $team);
 
     expect($items->pluck('title')->all())
-        ->toEqualCanonicalizing(['overdue', 'today', 'tomorrow']);
+        ->toEqualCanonicalizing(['overdue', 'today', 'tomorrow', 'far_future', 'no_due_date']);
 });
 
 it('excludes tasks whose status is Done', function (): void {
