@@ -8,6 +8,7 @@ use App\Providers\FortifyServiceProvider;
 use App\Providers\HealthServiceProvider;
 use App\Providers\HorizonServiceProvider;
 use App\Providers\JetstreamServiceProvider;
+use App\Providers\LocaleServiceProvider;
 use App\Providers\MacroServiceProvider;
 use Relaticle\Chat\ChatServiceProvider;
 use Relaticle\Documentation\DocumentationServiceProvider;
@@ -22,6 +23,7 @@ return [
     HealthServiceProvider::class,
     HorizonServiceProvider::class,
     JetstreamServiceProvider::class,
+    LocaleServiceProvider::class,
     MacroServiceProvider::class,
     ChatServiceProvider::class,
     DocumentationServiceProvider::class,

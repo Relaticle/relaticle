@@ -19,9 +19,19 @@ final class Dashboard extends Page
 {
     protected static string|null|BackedEnum $navigationIcon = 'heroicon-o-home';
 
-    protected static ?string $navigationLabel = 'Home';
+    protected static ?string $navigationLabel = null;
 
-    protected static ?string $title = 'Home';
+    protected static ?string $title = null;
+
+    public static function getNavigationLabel(): string
+    {
+        return __('filament/navigation.items.dashboard');
+    }
+
+    public function getTitle(): string
+    {
+        return __('filament/navigation.items.dashboard');
+    }
 
     protected static ?int $navigationSort = -2;
 

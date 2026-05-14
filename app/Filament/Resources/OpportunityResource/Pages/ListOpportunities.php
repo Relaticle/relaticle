@@ -31,7 +31,7 @@ final class ListOpportunities extends ListRecords
         return [
             ActionGroup::make([
                 Action::make('import')
-                    ->label('Import opportunities')
+                    ->label(__('filament/resources/opportunity.pages.list.actions.import.label'))
                     ->icon('heroicon-o-arrow-up-tray')
                     ->url(ImportOpportunities::getUrl()),
                 ExportAction::make()->exporter(OpportunityExporter::class),
@@ -39,7 +39,7 @@ final class ListOpportunities extends ListRecords
                 ->icon('heroicon-o-arrows-up-down')
                 ->color('gray')
                 ->button()
-                ->label('Import / Export')
+                ->label(__('filament/resources/opportunity.pages.list.actions.import_export.label'))
                 ->size(Size::Small),
             CreateAction::make()->icon('heroicon-o-plus')->size(Size::Small),
         ];

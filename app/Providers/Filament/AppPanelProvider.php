@@ -70,7 +70,7 @@ final class AppPanelProvider extends PanelProvider
         );
 
         Action::configureUsing(fn (Action $action): Action => $action->size(Size::Small)->iconPosition('before'));
-        DeleteAction::configureUsing(fn (DeleteAction $action): DeleteAction => $action->label('Delete record'));
+        DeleteAction::configureUsing(fn (DeleteAction $action): DeleteAction => $action->label(__('filament/panel.actions.delete_record')));
         Section::configureUsing(fn (Section $section): Section => $section->compact());
         Table::configureUsing(fn (Table $table): Table => $table);
     }
@@ -127,7 +127,7 @@ final class AppPanelProvider extends PanelProvider
             ->viteTheme('resources/css/filament/app/theme.css')
             ->userMenuItems([
                 Action::make('profile')
-                    ->label('Profile')
+                    ->label(__('filament/panel.user_menu.profile'))
                     ->icon('heroicon-m-user-circle')
                     ->url(fn (): string => $this->shouldRegisterMenuItem()
                         ? url(EditProfile::getUrl())
@@ -154,7 +154,7 @@ final class AppPanelProvider extends PanelProvider
             ->sidebarCollapsibleOnDesktop()
             ->navigationGroups([
                 NavigationGroup::make()
-                    ->label('Tasks')
+                    ->label(__('filament/panel.navigation_groups.tasks'))
                     ->icon('heroicon-o-shopping-cart'),
             ])
             ->middleware([
@@ -225,11 +225,11 @@ final class AppPanelProvider extends PanelProvider
             ->tenantProfile(EditTeam::class)
             ->tenantMenuItems([
                 Action::make('custom_fields')
-                    ->label('Custom Fields')
+                    ->label(__('filament/panel.tenant_menu.custom_fields'))
                     ->icon(Heroicon::OutlinedCube)
                     ->url(fn (): string => CustomFieldsManagementPage::getUrl()),
                 Action::make('import_history')
-                    ->label('Import History')
+                    ->label(__('filament/panel.tenant_menu.import_history'))
                     ->icon(Heroicon::OutlinedClock)
                     ->url(fn (): string => ImportHistory::getUrl()),
             ]);
