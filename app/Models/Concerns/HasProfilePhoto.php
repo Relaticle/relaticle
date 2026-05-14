@@ -91,7 +91,7 @@ trait HasProfilePhoto
 
         $parsed = parse_url($absolute);
 
-        if ($parsed === false || blank($parsed['path'])) {
+        if ($parsed === false || ! isset($parsed['path']) || blank($parsed['path'])) {
             return $absolute;
         }
 
