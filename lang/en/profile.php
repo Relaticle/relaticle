@@ -69,6 +69,7 @@ return [
             'success' => 'Saved.',
         ],
         'photo_removed' => 'Profile photo removed.',
+        'photo_remove_failed' => 'Could not remove your profile photo. Please try again.',
         'logged_out_other_sessions' => [
             'success' => 'All other browser sessions have been logged out successfully.',
         ],

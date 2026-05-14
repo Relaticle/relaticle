@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Livewire\App\Profile;
 
 use App\Actions\Fortify\UpdateUserProfileInformation as UpdateUserProfileInformationAction;
+use App\Actions\Profile\RemoveUserProfilePhoto;
 use App\Livewire\BaseLivewireComponent;
 use DanHarrin\LivewireRateLimiting\Exceptions\TooManyRequestsException;
 use Filament\Actions\Action;
@@ -20,6 +21,7 @@ use Filament\Schemas\Schema;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Notification as NotificationFacade;
 use League\Uri\Components\Query;
+use Throwable;
 
 final class UpdateProfileInformation extends BaseLivewireComponent
 {
@@ -103,9 +105,23 @@ final class UpdateProfileInformation extends BaseLivewireComponent
 
     public function removeProfilePhoto(): void
     {
-        $this->authUser()->deleteProfilePhoto();
+        try {
+            resolve(RemoveUserProfilePhoto::class)->handle($this->authUser());
+        } catch (Throwable $e) {
+            report($e);
 
-        $this->form->fill($this->authUser()->only(['name', 'email']));
+            Notification::make()
+                ->danger()
+                ->title(__('profile.notifications.photo_remove_failed'))
+                ->send();
+
+            return;
+        }
+
+        $this->form->fill([
+            ...$this->authUser()->only(['name', 'email']),
+            'profile_photo_path' => null,
+        ]);
 
         Notification::make()
             ->success()

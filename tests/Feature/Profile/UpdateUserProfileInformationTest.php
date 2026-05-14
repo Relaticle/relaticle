@@ -266,6 +266,27 @@ describe('photo upload', function () {
             ->and(Storage::disk('public')->exists($photoPath))->toBeFalse();
     });
 
+    test('removeProfilePhoto also clears pending FileUpload state', function () {
+        $user = User::factory()->withTeam()->create([
+            'email' => 'pending-photo@example.com',
+        ]);
+        $this->actingAs($user);
+
+        $photo = UploadedFile::fake()->image('avatar.png', 300, 300);
+        $photoPath = $photo->storePublicly('profile-photos', ['disk' => 'public']);
+        $user->forceFill(['profile_photo_path' => $photoPath])->save();
+
+        $component = Livewire::test(UpdateProfileInformationComponent::class)
+            ->fillForm(['profile_photo_path' => UploadedFile::fake()->image('pending.png', 200, 200)])
+            ->call('removeProfilePhoto')
+            ->assertNotified();
+
+        $state = $component->get('data.profile_photo_path');
+
+        expect($state)->toBeIn([null, []])
+            ->and($user->fresh()->profile_photo_path)->toBeNull();
+    });
+
     test('can update profile through livewire component with photo', function () {
         Storage::fake('public');
         $user = User::factory()->withTeam()->create([
