@@ -1286,9 +1286,18 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
     // assistant turn on the same channel. We mint an empty assistant stub so
     // the incoming text_delta/tool_result events land in a new bubble instead
     // of being appended to the message that originally proposed the action.
+    //
+    // Call this BEFORE the /approve|/reject POST resolves — the backend
+    // dispatches ContinueChatMessage as part of the request handler, so
+    // text_delta events can start arriving on the broadcast channel before
+    // the HTTP response returns. If we wait, the first deltas land in the
+    // proposal bubble and a short continuation can finish before we even
+    // mint the stub (leaving isStreaming permanently true on an empty bubble).
+    // Returns a revert handle for use when the POST fails.
     beginContinuationTurn() {
-        if (this.isStreaming) return;
-        this.messages.push({
+        if (this.isStreaming) return () => {};
+
+        const stub = {
             role: 'assistant',
             content: '',
             pending_actions: [],
@@ -1299,11 +1308,25 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
             copiedAt: 0,
             follow_ups: [],
             created_at: new Date().toISOString(),
-        });
+        };
+        this.messages.push(stub);
         this.currentToolStatus = null;
         this.isStreaming = true;
         this.startStreamTimeout();
         this.scrollToBottom();
+
+        return () => {
+            // Only revert if the stub is still untouched (no deltas arrived
+            // before the POST's failure path ran). If the backend already
+            // streamed into it, the user's better off seeing whatever did
+            // land than a flicker that erases it.
+            const last = this.messages[this.messages.length - 1];
+            if (last === stub && stub.content === '' && stub.pending_actions.length === 0) {
+                this.messages.pop();
+                this.isStreaming = false;
+                this.clearStreamTimeout();
+            }
+        };
     },
 
     handleToolCall(event) {
@@ -1399,6 +1422,10 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
         action.status = 'approved';
         action.error = null;
 
+        // Mint the continuation stub BEFORE the POST so text_delta events that
+        // arrive during the fetch land in a fresh bubble, not the proposal.
+        const revertContinuation = this.beginContinuationTurn();
+
         try {
             const res = await fetch(@js(url('/chat/actions')) + '/' + action.pending_action_id + '/approve', {
                 method: 'POST',
@@ -1413,7 +1440,6 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
                 if (body.record) {
                     action.record = body.record;
                 }
-                this.beginContinuationTurn();
                 if (action.operation === 'delete') {
                     this.showUndoToast(action);
                 }
@@ -1424,11 +1450,13 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
                     });
                 }
             } else {
+                revertContinuation();
                 const body = await res.json().catch(() => ({}));
                 action.status = previousStatus;
                 action.error = body.error || 'Failed to approve';
             }
         } catch {
+            revertContinuation();
             action.status = previousStatus;
             action.error = 'Network error';
         }
@@ -1484,6 +1512,9 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
         action.status = 'rejected';
         action.error = null;
 
+        // Mint the continuation stub BEFORE the POST — see approveAction for why.
+        const revertContinuation = this.beginContinuationTurn();
+
         try {
             const res = await fetch(@js(url('/chat/actions')) + '/' + action.pending_action_id + '/reject', {
                 method: 'POST',
@@ -1493,14 +1524,14 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
                 },
             });
 
-            if (res.ok) {
-                this.beginContinuationTurn();
-            } else {
+            if (! res.ok) {
+                revertContinuation();
                 const body = await res.json().catch(() => ({}));
                 action.status = previousStatus;
                 action.error = body.error || 'Failed to reject';
             }
         } catch {
+            revertContinuation();
             action.status = previousStatus;
             action.error = 'Network error';
         }
