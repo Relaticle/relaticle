@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Relaticle\Chat\Tools\Company;
 
 use App\Actions\Company\CreateCompany;
-use App\Enums\CustomFields\CompanyField;
 use App\Models\User;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Ai\Tools\Request;
@@ -32,9 +31,6 @@ final class CreateCompanyTool extends BaseWriteCreateTool
     {
         return [
             'name' => $schema->string()->description('The company name.')->required(),
-            'domains' => $schema->array()
-                ->items($schema->string())
-                ->description('Optional list of website domains for the company (e.g. ["acme.com"]). Omit if unknown.'),
         ];
     }
 
@@ -43,55 +39,20 @@ final class CreateCompanyTool extends BaseWriteCreateTool
         /** @var User $user */
         $user = auth()->user();
 
-        $data = [
+        return [
             'name' => (string) $request->string('name'),
             'account_owner_id' => $user->getKey(),
         ];
-
-        $domains = $this->cleanDomains($request);
-        if ($domains !== []) {
-            $data['custom_fields'] = [
-                CompanyField::DOMAINS->value => $domains,
-            ];
-        }
-
-        return $data;
     }
 
     protected function buildDisplayData(Request $request): array
     {
         $name = (string) $request->string('name');
-        $fields = [['label' => 'Name', 'value' => $name]];
-
-        $domains = $this->cleanDomains($request);
-        if ($domains !== []) {
-            $fields[] = ['label' => 'Domains', 'value' => implode(', ', $domains)];
-        }
 
         return [
             'title' => 'Create Company',
             'summary' => "Create company \"{$name}\"",
-            'fields' => $fields,
+            'fields' => [['label' => 'Name', 'value' => $name]],
         ];
-    }
-
-    /**
-     * @return list<string>
-     */
-    private function cleanDomains(Request $request): array
-    {
-        $value = $request['domains'] ?? null;
-        if (! is_array($value)) {
-            return [];
-        }
-
-        $clean = [];
-        foreach ($value as $domain) {
-            if (is_string($domain) && $domain !== '') {
-                $clean[] = $domain;
-            }
-        }
-
-        return $clean;
     }
 }
