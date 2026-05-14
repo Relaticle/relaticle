@@ -8,6 +8,7 @@ use App\Models\User;
 use Filament\Auth\Notifications\NoticeOfEmailChangeRequest;
 use Filament\Auth\Notifications\VerifyEmailChange;
 use Illuminate\Auth\Notifications\VerifyEmail;
+use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Route;
@@ -301,7 +302,7 @@ describe('photo url generation', function () {
         expect($response->getContent())->toBe('https://app.relaticle.test/storage/profile-photos/test.png');
     });
 
-    test('avatar url falls back to absolute disk url when no request', function () {
+    test('avatar url falls back to absolute disk url when request host is localhost', function () {
         config(['app.url' => 'https://relaticle.test']);
         Storage::fake('public', ['url' => 'https://relaticle.test/storage']);
 
@@ -309,10 +310,40 @@ describe('photo url generation', function () {
             'profile_photo_path' => 'profile-photos/test.png',
         ]);
 
-        // Simulate no HTTP request bound to the container
-        app()->forgetInstance('request');
+        // Queue workers / scheduler hydrate Request from empty CLI globals, which
+        // yields a `localhost` host — the helper must fall back to the disk URL.
+        app()->instance('request', Request::create('http://localhost/'));
 
         expect($user->getFilamentAvatarUrl())
             ->toStartWith('https://relaticle.test/storage/profile-photos/');
+    });
+
+    test('avatar url preserves query string from disk url', function () {
+        config(['app.url' => 'https://relaticle.test']);
+
+        $user = User::factory()->create([
+            'profile_photo_path' => 'profile-photos/test.png',
+        ]);
+
+        Route::get('/_test/avatar-url-query', function () {
+            // Force a disk URL that includes a query string (e.g. signed URL style).
+            Storage::shouldReceive('disk')
+                ->andReturn(new class
+                {
+                    public function url(string $path): string
+                    {
+                        return 'https://relaticle.test/storage/'.$path.'?signature=abc123';
+                    }
+                });
+
+            return auth()->user()->getFilamentAvatarUrl();
+        })->middleware('web');
+
+        $response = $this->actingAs($user)
+            ->get('https://app.relaticle.test/_test/avatar-url-query');
+
+        $response->assertOk();
+        expect($response->getContent())
+            ->toBe('https://app.relaticle.test/storage/profile-photos/test.png?signature=abc123');
     });
 });
