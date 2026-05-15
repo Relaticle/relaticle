@@ -45,6 +45,8 @@ it('rejects an Opus request from a Free user with a 403', function (): void {
         'error' => 'model_not_allowed',
         'plan' => 'free',
     ]);
+    expect($response->json('upgrade_available'))->toBeTrue();
+    expect($response->json('upgrade_url'))->toBeString();
 });
 
 it('allows an Opus request from a Pro user', function (): void {

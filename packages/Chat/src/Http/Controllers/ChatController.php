@@ -81,12 +81,15 @@ final readonly class ChatController
             $requestedModel = AiModel::from($validated['model']);
 
             if (! $team->plan->allowsModel($requestedModel)) {
+                $isFree = $team->plan === Plan::Free;
+
                 return response()->json([
                     'error' => 'model_not_allowed',
                     'message' => "The {$requestedModel->label()} model is not available on the {$team->plan->label()} plan.",
                     'plan' => $team->plan->value,
                     'requested_model' => $requestedModel->value,
-                    'upgrade_url' => url('/app/billing'),
+                    'upgrade_available' => $isFree,
+                    'upgrade_url' => $isFree ? url('/app/billing') : null,
                 ], 403);
             }
         }
