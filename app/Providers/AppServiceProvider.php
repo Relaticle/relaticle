@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use App\Console\Commands\MakeFilamentUserCommand;
+use App\Enums\Plan;
 use App\Http\Responses\LoginResponse;
 use App\Listeners\Email\NewSubscriberListener;
 use App\Listeners\Email\RecordLoginTimestampListener;
@@ -46,6 +47,7 @@ use Laravel\Ai\AiManager;
 use Laravel\Jetstream\Events\TeamCreated;
 use Laravel\Jetstream\Events\TeamMemberAdded;
 use Laravel\Sanctum\Sanctum;
+use Relaticle\Chat\Support\ChatTelemetry;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\SystemAdmin\Models\SystemAdministrator;
 
@@ -174,6 +176,31 @@ final class AppServiceProvider extends ServiceProvider
         });
 
         RateLimiter::for('mcp', fn (Request $request) => Limit::perMinute(120)->by($request->user()?->id ?: $request->ip()));
+
+        RateLimiter::for('chat-send', function (Request $request) {
+            /** @var User|null $user */
+            $user = $request->user();
+            $team = $user?->currentTeam;
+
+            if ($team === null) {
+                return Limit::perMinute(Plan::default()->rateLimit())->by('chat-anon');
+            }
+
+            return Limit::perMinute($team->plan->rateLimit())
+                ->by($team->getKey())
+                ->response(function (Request $request, array $headers) use ($team) {
+                    ChatTelemetry::rateLimited(
+                        teamId: (string) $team->getKey(),
+                        plan: $team->plan->value,
+                    );
+
+                    return response()->json([
+                        'error' => 'rate_limited',
+                        'retry_after_seconds' => (int) ($headers['Retry-After'] ?? 0),
+                        'plan' => $team->plan->value,
+                    ], 429, $headers);
+                });
+        });
     }
 
     private function configureScribe(): void

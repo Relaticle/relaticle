@@ -31,4 +31,18 @@ final class ChatTelemetry
             $scope->setTag('chat.model', $model);
         });
     }
+
+    public static function rateLimited(string $teamId, string $plan): void
+    {
+        \Sentry\addBreadcrumb(new Breadcrumb(
+            level: Breadcrumb::LEVEL_INFO,
+            type: Breadcrumb::TYPE_DEFAULT,
+            category: 'chat.rate_limit',
+            message: 'rate_limited',
+            metadata: [
+                'team_id' => $teamId,
+                'plan' => $plan,
+            ],
+        ));
+    }
 }

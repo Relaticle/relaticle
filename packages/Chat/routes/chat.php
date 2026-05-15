@@ -25,5 +25,7 @@ Route::middleware(['auth:web'])->group(function (): void {
     Route::post('/chat/conversations/{conversationId}/rename', [ChatController::class, 'rename'])
         ->name('chat.rename');
 
-    Route::post('/chat/{conversation?}', [ChatController::class, 'send'])->name('chat.send');
+    Route::post('/chat/{conversation?}', [ChatController::class, 'send'])
+        ->middleware('throttle:chat-send')
+        ->name('chat.send');
 });
