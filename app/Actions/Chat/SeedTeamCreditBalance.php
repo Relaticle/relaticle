@@ -13,9 +13,9 @@ use Relaticle\Chat\Models\AiCreditTransaction;
 
 final readonly class SeedTeamCreditBalance
 {
-    public function handle(Team $team, string $plan = 'free'): AiCreditBalance
+    public function handle(Team $team): AiCreditBalance
     {
-        return DB::transaction(function () use ($team, $plan): AiCreditBalance {
+        return DB::transaction(function () use ($team): AiCreditBalance {
             $existing = AiCreditBalance::query()
                 ->where('team_id', $team->getKey())
                 ->lockForUpdate()
@@ -25,7 +25,8 @@ final readonly class SeedTeamCreditBalance
                 return $existing;
             }
 
-            $allowance = (int) config('chat.credits.'.$plan, 0);
+            $plan = $team->plan;
+            $allowance = $plan->credits();
 
             $balance = AiCreditBalance::query()->create([
                 'team_id' => $team->getKey(),
@@ -47,7 +48,7 @@ final readonly class SeedTeamCreditBalance
                 'credits_charged' => 0,
                 'metadata' => [
                     'action' => 'seed_initial_balance',
-                    'plan' => $plan,
+                    'plan' => $plan->value,
                     'allowance_granted' => $allowance,
                 ],
                 'created_at' => now(),

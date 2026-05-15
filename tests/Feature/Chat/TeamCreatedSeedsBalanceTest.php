@@ -17,6 +17,7 @@ it('seeds a free-plan balance when a Team is created via the normal flow', funct
         'name' => 'New Team',
         'personal_team' => false,
         'slug' => 'new-team-'.now()->timestamp,
+        'plan' => 'free',
     ]);
 
     expect(AiCreditBalance::query()->where('team_id', $team->getKey())->exists())->toBeTrue();
