@@ -75,7 +75,17 @@ final class AppServiceProvider extends ServiceProvider
         Passport::useAuthCodeModel(McpAuthCode::class);
         Event::listen(AccessTokenCreated::class, CopyTeamIdToAccessToken::class);
 
-        Passport::authorizationView(fn (array $parameters) => response()->view('mcp.authorize', $parameters));
+        Passport::authorizationView(function (array $parameters) {
+            $user = $parameters['user'] ?? null;
+
+            $parameters['teams'] = $user instanceof User
+                ? $user->allTeams()
+                : collect();
+
+            $parameters['selectedTeamId'] = $user?->currentTeam?->getKey();
+
+            return response()->view('mcp.authorize', $parameters);
+        });
 
         $this->configurePolicies();
         $this->configureModels();
