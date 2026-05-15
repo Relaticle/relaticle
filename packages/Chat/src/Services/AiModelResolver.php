@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\Chat\Services;
 
+use App\Enums\Plan;
 use App\Models\User;
 use Relaticle\Chat\Enums\AiModel;
 
@@ -21,6 +22,12 @@ final readonly class AiModelResolver
     public function resolve(User $user, ?string $override = null): array
     {
         $aiModel = $this->resolveModel($user, $override);
+
+        $plan = $user->currentTeam?->plan ?? Plan::default();
+
+        if (! $plan->allowsModel($aiModel)) {
+            $aiModel = AiModel::ClaudeSonnet;
+        }
 
         if ($aiModel === AiModel::Auto) {
             $aiModel = AiModel::ClaudeSonnet;
