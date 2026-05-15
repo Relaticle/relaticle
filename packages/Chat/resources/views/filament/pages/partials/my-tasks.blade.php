@@ -36,7 +36,7 @@
             </div>
         </div>
     @else
-        <ul class="divide-y divide-gray-100 rounded-xl border border-gray-200 bg-white dark:divide-gray-700 dark:border-gray-700 dark:bg-gray-800">
+        <ul class="divide-y divide-gray-100 overflow-hidden rounded-xl border border-gray-200 bg-white dark:divide-gray-700 dark:border-gray-700 dark:bg-gray-800">
             @foreach($myTasks as $task)
                 @php
                     $dateClass = match ($task->severity) {
