@@ -161,6 +161,17 @@ describe('email change verification', function () {
 describe('photo upload', function () {
     beforeEach(fn () => Storage::fake('public'));
 
+    test('action does not error when profile_photo_path key is absent from input', function () {
+        $this->action->update($this->user, [
+            'name' => 'Renamed Without Photo Key',
+            'email' => $this->user->email,
+        ]);
+
+        expect($this->user->fresh())
+            ->name->toBe('Renamed Without Photo Key')
+            ->profile_photo_path->toBeNull();
+    });
+
     test('can upload valid photo', function ($format) {
         $photo = UploadedFile::fake()->image("avatar.{$format}", 300, 300);
 
