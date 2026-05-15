@@ -131,6 +131,36 @@
                     <x-chat.suggested-prompts :prompts="$suggestedPrompts" />
                 </div>
             @endif
+
+            {{-- Credit balance footer --}}
+            @php
+                $usedPct = $this->plan->credits() > 0
+                    ? 1 - ($this->creditsRemaining / $this->plan->credits())
+                    : 0;
+            @endphp
+            <div class="border-t border-gray-200 px-4 py-2.5 dark:border-gray-700">
+                <div class="flex items-center justify-between text-xs">
+                    <span class="font-medium text-gray-700 dark:text-gray-300">
+                        {{ $this->plan->label() }}
+                    </span>
+                    <span @class([
+                        'tabular-nums',
+                        'text-gray-500 dark:text-gray-400' => $usedPct < 0.5,
+                        'text-amber-600 dark:text-amber-400' => $usedPct >= 0.5 && $usedPct < 0.8,
+                        'text-red-600 dark:text-red-400' => $usedPct >= 0.8,
+                    ])>
+                        {{ number_format($this->creditsRemaining) }} / {{ number_format($this->plan->credits()) }}
+                    </span>
+                </div>
+                @if ($this->plan === \App\Enums\Plan::Free)
+                    <a
+                        href="{{ url('/app/billing') }}"
+                        class="mt-1 inline-block text-xs text-primary-600 hover:underline dark:text-primary-400"
+                    >
+                        Upgrade to Pro →
+                    </a>
+                @endif
+            </div>
         </div>
     </div>
 

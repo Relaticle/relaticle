@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace Relaticle\Chat\Livewire\App\Chat;
 
+use App\Enums\Plan;
 use App\Livewire\BaseLivewireComponent;
 use Illuminate\Contracts\View\View;
+use Livewire\Attributes\Computed;
+use Relaticle\Chat\Models\AiCreditBalance;
 use Relaticle\Chat\Services\ChatContextService;
 
 final class ChatSidePanel extends BaseLivewireComponent
@@ -73,6 +76,26 @@ final class ChatSidePanel extends BaseLivewireComponent
         $contextService = resolve(ChatContextService::class);
         $context = $contextService->getContext();
         $this->suggestedPrompts = $contextService->getSuggestedPrompts($context);
+    }
+
+    #[Computed]
+    public function plan(): Plan
+    {
+        return auth()->user()?->currentTeam?->plan ?? Plan::default();
+    }
+
+    #[Computed]
+    public function creditsRemaining(): int
+    {
+        $teamId = auth()->user()?->currentTeam?->getKey();
+
+        if ($teamId === null) {
+            return 0;
+        }
+
+        return AiCreditBalance::query()
+            ->where('team_id', $teamId)
+            ->value('credits_remaining') ?? 0;
     }
 
     public function render(): View
