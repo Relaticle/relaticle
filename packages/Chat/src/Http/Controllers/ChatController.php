@@ -76,6 +76,20 @@ final readonly class ChatController
             403
         );
 
+        if (! empty($validated['model']) && $validated['model'] !== AiModel::Auto->value) {
+            $requestedModel = AiModel::from($validated['model']);
+
+            if (! $team->plan->allowsModel($requestedModel)) {
+                return response()->json([
+                    'error' => 'model_not_allowed',
+                    'message' => "The {$requestedModel->label()} model is not available on the {$team->plan->label()} plan.",
+                    'plan' => $team->plan->value,
+                    'requested_model' => $requestedModel->value,
+                    'upgrade_url' => url('/app/billing'),
+                ], 403);
+            }
+        }
+
         if (! $this->creditService->reserveCredit($team)) {
             $balance = AiCreditBalance::query()
                 ->where('team_id', $team->getKey())
