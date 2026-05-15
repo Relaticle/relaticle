@@ -80,3 +80,15 @@ it('resets multiple balances via the bulk action', function (): void {
     expect($b1->refresh()->credits_remaining)->toBe(Plan::Enterprise->credits())
         ->and($b2->refresh()->credits_remaining)->toBe(Plan::Enterprise->credits());
 });
+
+it('renders all Plan enum cases as reset-action plan options', function (): void {
+    $team = Team::factory()->create();
+    AiCreditBalance::query()->where('team_id', $team->getKey())->delete();
+    $balance = AiCreditBalance::factory()->create(['team_id' => $team->getKey()]);
+
+    livewire(ListAiCreditBalances::class)
+        ->mountAction(TestAction::make('resetPeriod')->table($balance))
+        ->assertMountedActionModalSee('Free')
+        ->assertMountedActionModalSee('Pro')
+        ->assertMountedActionModalSee('Enterprise');
+});

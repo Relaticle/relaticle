@@ -271,10 +271,8 @@ final class AiCreditBalanceResource extends Resource
      */
     private static function planOptions(): array
     {
-        return [
-            'free' => 'Free',
-            'pro' => 'Pro',
-            'enterprise' => 'Enterprise',
-        ];
+        return collect(Plan::cases())
+            ->mapWithKeys(fn (Plan $plan): array => [$plan->value => $plan->label()])
+            ->all();
     }
 }
