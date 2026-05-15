@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Enums\Plan;
 use App\Models\User;
 use Relaticle\Chat\Commands\ResetCreditsCommand;
 use Relaticle\Chat\Models\AiCreditBalance;
@@ -23,7 +24,7 @@ it('resets credits for teams whose billing period has ended', function (): void 
     $this->artisan('chat:reset-credits')->assertSuccessful();
 
     $balance = AiCreditBalance::query()->where('team_id', $team->getKey())->first();
-    expect($balance->credits_remaining)->toBe((int) config('chat.credits.free'));
+    expect($balance->credits_remaining)->toBe(Plan::Free->credits());
     expect($balance->credits_used)->toBe(0);
     expect($balance->period_ends_at->greaterThan(now()))->toBeTrue();
 });

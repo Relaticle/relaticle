@@ -268,26 +268,21 @@ final readonly class CreditService
         return max(1, (int) ceil($raw));
     }
 
-    public function resetPeriod(
-        Team $team,
-        ?int $creditAllowance = null,
-        ?string $plan = null,
-        ?string $sysadminId = null,
-    ): void {
-        DB::transaction(function () use ($team, $creditAllowance, $plan, $sysadminId): void {
+    public function resetPeriod(Team $team, ?string $sysadminId = null): void
+    {
+        DB::transaction(function () use ($team, $sysadminId): void {
+            $plan = $team->plan;
+            $allowance = $plan->credits();
+
             $previous = AiCreditBalance::query()
                 ->where('team_id', $team->getKey())
                 ->lockForUpdate()
                 ->first();
 
-            $resolvedPlan = $plan ?? 'free';
-            $resolvedAllowance = $creditAllowance
-                ?? (int) config('chat.credits.'.$resolvedPlan, 0);
-
             AiCreditBalance::query()->updateOrCreate(
                 ['team_id' => $team->getKey()],
                 [
-                    'credits_remaining' => $resolvedAllowance,
+                    'credits_remaining' => $allowance,
                     'credits_used' => 0,
                     'period_starts_at' => now()->startOfMonth(),
                     'period_ends_at' => now()->endOfMonth(),
@@ -306,8 +301,8 @@ final readonly class CreditService
                 'credits_charged' => 0,
                 'metadata' => [
                     'action' => 'reset_period',
-                    'plan' => $resolvedPlan,
-                    'allowance_granted' => $resolvedAllowance,
+                    'plan' => $plan->value,
+                    'allowance_granted' => $allowance,
                     'previous_credits_remaining' => $previous?->credits_remaining,
                     'previous_credits_used' => $previous?->credits_used,
                     'sysadmin_id' => $sysadminId,

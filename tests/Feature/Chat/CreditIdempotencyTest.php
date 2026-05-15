@@ -12,7 +12,7 @@ it('does not double-charge when settle is called twice with the same idempotency
     $user = User::factory()->withPersonalTeam()->create();
     $team = $user->currentTeam;
     $service = app(CreditService::class);
-    $service->resetPeriod($team, 100);
+    $service->resetPeriod($team);
 
     DB::table('agent_conversations')->insert([
         'id' => 'conv_1',

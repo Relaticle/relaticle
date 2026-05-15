@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\SystemAdmin\Filament\Resources;
 
+use App\Enums\Plan;
 use Filament\Actions\Action;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
@@ -208,14 +209,16 @@ final class AiCreditBalanceResource extends Resource
             ])
             ->action(function (array $data, AiCreditBalance $record, CreditService $service): void {
                 $plan = (string) $data['plan'];
-                $allowance = (int) config('chat.credits.'.$plan, 0);
+                $team = $record->team;
+                $team->forceFill(['plan' => $plan])->save();
+                $team->refresh();
 
                 $service->resetPeriod(
-                    team: $record->team,
-                    creditAllowance: $allowance,
-                    plan: $plan,
+                    team: $team,
                     sysadminId: (string) auth('sysadmin')->id(),
                 );
+
+                $allowance = $team->plan->credits();
 
                 Notification::make()
                     ->title('Billing period reset')
@@ -241,18 +244,21 @@ final class AiCreditBalanceResource extends Resource
             ])
             ->action(function (array $data, EloquentCollection $records, CreditService $service): void {
                 $plan = (string) $data['plan'];
-                $allowance = (int) config('chat.credits.'.$plan, 0);
                 $sysadminId = (string) auth('sysadmin')->id();
 
                 foreach ($records as $record) {
                     /** @var AiCreditBalance $record */
+                    $team = $record->team;
+                    $team->forceFill(['plan' => $plan])->save();
+                    $team->refresh();
+
                     $service->resetPeriod(
-                        team: $record->team,
-                        creditAllowance: $allowance,
-                        plan: $plan,
+                        team: $team,
                         sysadminId: $sysadminId,
                     );
                 }
+
+                $allowance = Plan::from($plan)->credits();
 
                 Notification::make()
                     ->title('Billing periods reset')
@@ -270,7 +276,6 @@ final class AiCreditBalanceResource extends Resource
     {
         return [
             'free' => 'Free',
-            'starter' => 'Starter',
             'pro' => 'Pro',
             'enterprise' => 'Enterprise',
         ];
