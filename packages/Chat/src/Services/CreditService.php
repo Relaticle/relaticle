@@ -280,15 +280,13 @@ final readonly class CreditService
                 ->lockForUpdate()
                 ->first();
 
-            $previousPlan = $previous instanceof AiCreditBalance ? $previous->plan : null;
-            $resolvedPlan = $plan ?? $previousPlan ?? 'free';
+            $resolvedPlan = $plan ?? 'free';
             $resolvedAllowance = $creditAllowance
                 ?? (int) config('chat.credits.'.$resolvedPlan, 0);
 
             AiCreditBalance::query()->updateOrCreate(
                 ['team_id' => $team->getKey()],
                 [
-                    'plan' => $resolvedPlan,
                     'credits_remaining' => $resolvedAllowance,
                     'credits_used' => 0,
                     'period_starts_at' => now()->startOfMonth(),

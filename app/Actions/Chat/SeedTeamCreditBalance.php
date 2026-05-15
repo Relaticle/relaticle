@@ -31,7 +31,6 @@ final readonly class SeedTeamCreditBalance
                 'team_id' => $team->getKey(),
                 'credits_remaining' => $allowance,
                 'credits_used' => 0,
-                'plan' => $plan,
                 'period_starts_at' => now()->startOfMonth(),
                 'period_ends_at' => now()->endOfMonth(),
             ]);

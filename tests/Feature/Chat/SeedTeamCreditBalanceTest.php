@@ -19,8 +19,7 @@ it('creates a free-plan balance for a team that has none', function (): void {
     app(SeedTeamCreditBalance::class)->handle($team);
 
     $balance = AiCreditBalance::query()->where('team_id', $team->getKey())->firstOrFail();
-    expect($balance->plan)->toBe('free')
-        ->and($balance->credits_remaining)->toBe((int) config('chat.credits.free'))
+    expect($balance->credits_remaining)->toBe((int) config('chat.credits.free'))
         ->and($balance->credits_used)->toBe(0)
         ->and($balance->period_ends_at->isAfter(now()))->toBeTrue();
 });
@@ -53,6 +52,5 @@ it('respects the plan passed in for paid-tier seeding', function (): void {
     app(SeedTeamCreditBalance::class)->handle($team, plan: 'pro');
 
     $balance = AiCreditBalance::query()->where('team_id', $team->getKey())->firstOrFail();
-    expect($balance->plan)->toBe('pro')
-        ->and($balance->credits_remaining)->toBe(2_500);
+    expect($balance->credits_remaining)->toBe(2_500);
 });
