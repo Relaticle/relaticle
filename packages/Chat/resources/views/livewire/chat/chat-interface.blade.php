@@ -431,6 +431,13 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
     currentToolStatus: null,
     now: Date.now(),
     copyTickerId: null,
+    currentPlan: @js(auth()->user()?->currentTeam?->plan?->value ?? \App\Enums\Plan::default()->value),
+    currentPlanLabel: @js(auth()->user()?->currentTeam?->plan?->label() ?? \App\Enums\Plan::default()->label()),
+    allowedModels: @js(
+        collect((auth()->user()?->currentTeam?->plan ?? \App\Enums\Plan::default())->allowedModels())
+            ->map(fn ($m) => $m->value)
+            ->all()
+    ),
     selectedModel: 'auto',
     undoToast: null,
     // When the user types + sends during an active stream, we stash the
@@ -495,6 +502,12 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
     },
 
     selectModel(value) {
+        if (! this.allowedModels.includes(value)) {
+            window.dispatchEvent(new CustomEvent('chat:model-locked', {
+                detail: { model: value, plan: this.currentPlan, planLabel: this.currentPlanLabel },
+            }));
+            return;
+        }
         this.selectedModel = value;
         try { localStorage.setItem('chat:model', value); } catch (_) { /* ignore */ }
     },
@@ -556,7 +569,9 @@ Alpine.data('chatInterface', (initialConversationId, sendUrl, initialMessage, in
     },
 
     init() {
-        const validModels = this.modelOptions.map((o) => o.value);
+        const validModels = this.modelOptions
+            .map((o) => o.value)
+            .filter((v) => this.allowedModels.includes(v));
         let stored = null;
         try { stored = localStorage.getItem('chat:model'); } catch (_) { /* ignore */ }
         const candidate = stored || initialModel || 'auto';

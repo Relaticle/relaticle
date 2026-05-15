@@ -87,7 +87,14 @@
             input: '',
             submitting: false,
             error: null,
-            selectedModel: defaultModel || 'auto',
+            currentPlan: @js(auth()->user()?->currentTeam?->plan?->value ?? \App\Enums\Plan::default()->value),
+            currentPlanLabel: @js(auth()->user()?->currentTeam?->plan?->label() ?? \App\Enums\Plan::default()->label()),
+            allowedModels: @js(
+                collect((auth()->user()?->currentTeam?->plan ?? \App\Enums\Plan::default())->allowedModels())
+                    ->map(fn ($m) => $m->value)
+                    ->all()
+            ),
+            selectedModel: 'auto',
             modelOptions: [
                 { value: 'auto', label: 'Auto', provider: null },
                 { value: 'claude-sonnet', label: 'Sonnet 4.6', provider: 'anthropic' },
@@ -125,7 +132,18 @@
                 return found?.provider ?? null;
             },
 
+            init() {
+                const candidate = defaultModel || 'auto';
+                this.selectedModel = this.allowedModels.includes(candidate) ? candidate : 'auto';
+            },
+
             selectModel(value) {
+                if (! this.allowedModels.includes(value)) {
+                    window.dispatchEvent(new CustomEvent('chat:model-locked', {
+                        detail: { model: value, plan: this.currentPlan, planLabel: this.currentPlanLabel },
+                    }));
+                    return;
+                }
                 this.selectedModel = value;
             },
 
