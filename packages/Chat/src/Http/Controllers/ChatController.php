@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\Chat\Http\Controllers;
 
+use App\Enums\Plan;
 use App\Models\Company;
 use App\Models\Note;
 use App\Models\Opportunity;
@@ -95,11 +96,16 @@ final readonly class ChatController
                 ->where('team_id', $team->getKey())
                 ->first();
 
+            $isFree = $team->plan === Plan::Free;
+
             return response()->json([
                 'error' => 'credits_exhausted',
-                'message' => 'You have used all your AI credits for this billing period.',
+                'message' => "You have used all {$team->plan->credits()} credits for this {$team->plan->label()} plan period.",
+                'plan' => $team->plan->value,
+                'allowance' => $team->plan->credits(),
                 'reset_at' => $balance?->period_ends_at?->toIso8601String(),
-                'upgrade_url' => url('/app/billing'),
+                'upgrade_available' => $isFree,
+                'upgrade_url' => $isFree ? url('/app/billing') : null,
             ], 402);
         }
 
