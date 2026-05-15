@@ -33,6 +33,12 @@ it('does not double-seed when called twice', function (): void {
 
     expect($first->getKey())->toBe($second->getKey());
     expect(AiCreditBalance::query()->where('team_id', $team->getKey())->count())->toBe(1);
+
+    $seedAudits = AiCreditTransaction::query()
+        ->where('team_id', $team->getKey())
+        ->where('metadata->action', 'seed_initial_balance')
+        ->count();
+    expect($seedAudits)->toBe(1);
 });
 
 it('seeds a Pro allowance when the team is on Pro at creation time', function (): void {

@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Enums\Plan;
 use App\Listeners\SeedTeamCreditBalanceListener;
 use App\Models\Team;
 use App\Models\User;
@@ -17,7 +18,7 @@ it('seeds a free-plan balance when a Team is created via the normal flow', funct
         'name' => 'New Team',
         'personal_team' => false,
         'slug' => 'new-team-'.now()->timestamp,
-        'plan' => 'free',
+        'plan' => Plan::default()->value,
     ]);
 
     expect(AiCreditBalance::query()->where('team_id', $team->getKey())->exists())->toBeTrue();
