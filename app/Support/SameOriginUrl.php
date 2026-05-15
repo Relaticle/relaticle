@@ -25,6 +25,16 @@ final readonly class SameOriginUrl
             return $absoluteUrl;
         }
 
+        $sourceHost = $parsed['host'] ?? null;
+
+        if ($sourceHost !== null) {
+            $appHost = parse_url((string) config('app.url'), PHP_URL_HOST);
+
+            if (! is_string($appHost) || $sourceHost !== $appHost) {
+                return $absoluteUrl;
+            }
+        }
+
         $url = $request->getSchemeAndHttpHost().$parsed['path'];
 
         if (isset($parsed['query'])) {

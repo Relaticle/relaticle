@@ -394,6 +394,18 @@ describe('photo url generation', function () {
         expect($response->getContent())->toBe('https://app.relaticle.test/storage/profile-photos/x.png');
     });
 
+    test('SameOriginUrl leaves external host URLs untouched', function () {
+        config(['app.url' => 'https://relaticle.test']);
+
+        Route::get('/_test/external-url', fn () => SameOriginUrl::rewrite('https://my-bucket.s3.amazonaws.com/profile-photos/x.png?X-Amz-Signature=abc'))
+            ->middleware('web');
+
+        $response = $this->get('https://app.relaticle.test/_test/external-url');
+
+        $response->assertOk();
+        expect($response->getContent())->toBe('https://my-bucket.s3.amazonaws.com/profile-photos/x.png?X-Amz-Signature=abc');
+    });
+
     test('avatar url preserves query string from disk url', function () {
         config(['app.url' => 'https://relaticle.test']);
 
