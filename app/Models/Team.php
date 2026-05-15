@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Enums\OnboardingReferralSource;
 use App\Enums\OnboardingUseCase;
+use App\Enums\Plan;
 use App\Services\AvatarService;
 use Database\Factories\TeamFactory;
 use Filament\Models\Contracts\HasAvatar;
@@ -41,6 +42,7 @@ use Spatie\Sluggable\SlugOptions;
     'name',
     'slug',
     'personal_team',
+    'plan',
     'onboarding_use_case',
     'onboarding_context',
     'onboarding_referral_source',
@@ -141,6 +143,7 @@ final class Team extends JetstreamTeam implements HasAvatar
     {
         return [
             'personal_team' => 'boolean',
+            'plan' => Plan::class,
             'onboarding_use_case' => OnboardingUseCase::class,
             'onboarding_context' => 'array',
             'onboarding_referral_source' => OnboardingReferralSource::class,

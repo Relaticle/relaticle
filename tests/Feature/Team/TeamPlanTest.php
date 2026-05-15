@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Enums\Plan;
 use App\Models\User;
 use Illuminate\Support\Facades\Schema;
 
@@ -18,4 +19,11 @@ it('defaults new teams to the Free plan value', function (): void {
 
 it('does not have a plan column on ai_credit_balances after migration', function (): void {
     expect(Schema::hasColumn('ai_credit_balances', 'plan'))->toBeFalse();
+});
+
+it('casts plan to the Plan enum on the Team model', function (): void {
+    $user = User::factory()->withPersonalTeam()->create();
+
+    expect($user->currentTeam->plan)->toBeInstanceOf(Plan::class);
+    expect($user->currentTeam->plan)->toBe(Plan::Free);
 });
