@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
+use App\Enums\Plan;
 use App\Models\User;
-use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Relaticle\Chat\Enums\AiCreditType;
 use Relaticle\Chat\Models\AiCreditBalance;
@@ -11,10 +12,10 @@ use Relaticle\Chat\Services\CreditService;
 
 mutates(CreditService::class);
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->user = User::factory()->withPersonalTeam()->create();
     $this->team = $this->user->currentTeam;
-    $this->service = app(CreditService::class);
+    $this->service = resolve(CreditService::class);
 });
 
 it('returns zero balance when no balance record exists', function (): void {
@@ -110,7 +111,7 @@ it('adds tool call bonus to credit calculation', function (): void {
 });
 
 it('resets period credits', function (): void {
-    $this->travelTo(Carbon::create(2026, 4, 1));
+    $this->travelTo(Date::create(2026, 4, 1));
 
     AiCreditBalance::query()->updateOrCreate(['team_id' => $this->team->getKey()], [
         'team_id' => $this->team->getKey(),
@@ -120,10 +121,10 @@ it('resets period credits', function (): void {
         'period_ends_at' => now()->subMonth()->endOfMonth(),
     ]);
 
-    $this->service->resetPeriod($this->team, 100);
+    $this->service->resetPeriod($this->team);
 
     $balance = AiCreditBalance::query()->where('team_id', $this->team->getKey())->first();
-    expect($balance->credits_remaining)->toBe(100)
+    expect($balance->credits_remaining)->toBe(Plan::Free->credits())
         ->and($balance->credits_used)->toBe(0)
         ->and($balance->period_starts_at->format('Y-m-d'))->toBe('2026-04-01');
 });
@@ -144,7 +145,7 @@ it('auto-creates a zero balance when deduct is called on a missing team', functi
 
     expect(AiCreditBalance::query()->where('team_id', $team->getKey())->exists())->toBeFalse();
 
-    app(CreditService::class)->deduct(
+    resolve(CreditService::class)->deduct(
         team: $team,
         user: $user,
         type: AiCreditType::Chat,
