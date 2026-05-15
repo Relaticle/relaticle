@@ -74,6 +74,39 @@
                     <p class="font-medium">{{ $user->email }}</p>
                 </div>
 
+                <!-- Team Picker -->
+                @if($teams->count() > 0)
+                    <div class="space-y-2">
+                        <p class="text-sm font-medium">Connect to which team?</p>
+                        <p class="text-xs text-muted-foreground">This connector will only see data from the team you choose. To use a different team later, revoke and re-add the connector.</p>
+
+                        <div class="space-y-2 mt-2" role="radiogroup" aria-label="Team selection">
+                            @foreach($teams as $team)
+                                <label class="flex items-center gap-3 rounded-md border p-3 cursor-pointer hover:bg-muted/50">
+                                    <input
+                                        type="radio"
+                                        name="team_id"
+                                        value="{{ $team->getKey() }}"
+                                        form="authorizeForm"
+                                        required
+                                        @checked($team->getKey() === $selectedTeamId)
+                                        class="h-4 w-4"
+                                    >
+                                    <span class="text-sm font-medium">{{ $team->name }}</span>
+                                    @if($team->personal_team)
+                                        <span class="text-xs text-muted-foreground ml-auto">Personal</span>
+                                    @endif
+                                </label>
+                            @endforeach
+                        </div>
+                    </div>
+                @else
+                    <div class="rounded-lg border border-destructive/50 p-4 bg-destructive/10">
+                        <p class="text-sm font-medium">You don't belong to any teams.</p>
+                        <p class="text-xs text-muted-foreground mt-1">Create or join a team in Relaticle before authorizing this connector.</p>
+                    </div>
+                @endif
+
                 <!-- Scopes / Permissions -->
                 @if(count($scopes) > 0)
                     <div class="space-y-2">
@@ -118,7 +151,7 @@
                     <input type="hidden" name="state" value="{{ $request->state }}">
                     <input type="hidden" name="client_id" value="{{ $client->id }}">
                     <input type="hidden" name="auth_token" value="{{ $authToken }}">
-                    <button type="submit" class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full" id="authorizeButton">
+                    <button type="submit" @disabled($teams->count() === 0) class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full" id="authorizeButton">
                         <span id="authorizeText">Authorize</span>
 
                         <svg id="loadingSpinner" class="animate-spin -ml-1 mr-3 h-4 w-4 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
