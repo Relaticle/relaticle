@@ -42,22 +42,6 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | AI Credit Limits per Plan
-    |--------------------------------------------------------------------------
-    |
-    | Monthly AI credit allowances for each subscription plan tier.
-    |
-    */
-
-    'credits' => [
-        'free' => (int) env('AI_CREDITS_FREE', 100),
-        'starter' => (int) env('AI_CREDITS_STARTER', 500),
-        'pro' => (int) env('AI_CREDITS_PRO', 2000),
-        'enterprise' => (int) env('AI_CREDITS_ENTERPRISE', 10000),
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
     | Tool Call Credit Bonus
     |--------------------------------------------------------------------------
     |
