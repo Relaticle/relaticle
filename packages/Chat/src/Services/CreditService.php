@@ -19,10 +19,6 @@ final readonly class CreditService
 {
     public function hasCredits(Team $team): bool
     {
-        if ((bool) config('ai.unlimited_credits', false)) {
-            return true;
-        }
-
         $balance = $this->ensureBalance($team);
 
         return $balance->credits_remaining > 0;
@@ -34,10 +30,6 @@ final readonly class CreditService
      */
     public function reserveCredit(Team $team): bool
     {
-        if ((bool) config('ai.unlimited_credits', false)) {
-            return true;
-        }
-
         $this->ensureBalance($team);
 
         return DB::transaction(function () use ($team): bool {
@@ -67,10 +59,6 @@ final readonly class CreditService
      */
     public function refundReservation(Team $team, int $credits = 1, ?string $idempotencyToken = null): void
     {
-        if ((bool) config('ai.unlimited_credits', false)) {
-            return;
-        }
-
         if ($idempotencyToken !== null) {
             $cacheKey = "chat:refund-lock:{$team->getKey()}:{$idempotencyToken}";
             if (! Cache::add($cacheKey, '1', now()->addHour())) {
@@ -149,10 +137,6 @@ final readonly class CreditService
         ?string $conversationId = null,
         ?string $idempotencyKey = null,
     ): void {
-        if ((bool) config('ai.unlimited_credits', false)) {
-            return;
-        }
-
         if ($idempotencyKey !== null && AiCreditTransaction::query()
             ->where('team_id', $team->getKey())
             ->where('idempotency_key', $idempotencyKey)
@@ -216,10 +200,6 @@ final readonly class CreditService
         int $reservedCredits = 1,
         ?string $idempotencyKey = null,
     ): void {
-        if ((bool) config('ai.unlimited_credits', false)) {
-            return;
-        }
-
         if ($idempotencyKey !== null && AiCreditTransaction::query()
             ->where('team_id', $team->getKey())
             ->where('idempotency_key', $idempotencyKey)

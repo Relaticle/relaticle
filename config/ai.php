@@ -58,18 +58,6 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Unlimited Credits (Testing)
-    |--------------------------------------------------------------------------
-    |
-    | When true, AI credit checks always pass and deductions are skipped.
-    | Intended for local testing only — never enable in production.
-    |
-    */
-
-    'unlimited_credits' => (bool) env('AI_UNLIMITED_CREDITS', false),
-
-    /*
-    |--------------------------------------------------------------------------
     | Tool Call Credit Bonus
     |--------------------------------------------------------------------------
     |
