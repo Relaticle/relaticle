@@ -9,6 +9,7 @@ use App\Support\SameOriginUrl;
 use Filament\Auth\Notifications\NoticeOfEmailChangeRequest;
 use Filament\Auth\Notifications\VerifyEmailChange;
 use Illuminate\Auth\Notifications\VerifyEmail;
+use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Notification;
@@ -426,14 +427,12 @@ describe('photo url generation', function () {
 
         Route::get('/_test/avatar-url-query', function () {
             // Force a disk URL that includes a query string (e.g. signed URL style).
-            Storage::shouldReceive('disk')
-                ->andReturn(new class
-                {
-                    public function url(string $path): string
-                    {
-                        return 'https://relaticle.test/storage/'.$path.'?signature=abc123';
-                    }
-                });
+            $disk = Mockery::mock(FilesystemAdapter::class);
+            $disk->shouldReceive('url')
+                ->andReturnUsing(fn (string $path): string => 'https://relaticle.test/storage/'.$path.'?signature=abc123');
+            $disk->shouldIgnoreMissing();
+
+            Storage::shouldReceive('disk')->andReturn($disk);
 
             return auth()->user()->getFilamentAvatarUrl();
         })->middleware('web');

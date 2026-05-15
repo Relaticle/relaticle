@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Support;
 
+use Illuminate\Support\Uri;
+
 final readonly class SameOriginUrl
 {
     public static function rewrite(string $absoluteUrl): string
@@ -13,34 +15,28 @@ final readonly class SameOriginUrl
         }
 
         $request = resolve('request');
-        $host = $request->getHost();
+        $requestHost = $request->getHost();
 
-        if ($host === '' || $host === 'localhost') {
+        if ($requestHost === '' || $requestHost === 'localhost') {
             return $absoluteUrl;
         }
 
-        $parsed = parse_url($absoluteUrl);
+        $sourceUri = Uri::of($absoluteUrl);
+        $sourcePath = $sourceUri->path();
 
-        if ($parsed === false || ! isset($parsed['path']) || blank($parsed['path'])) {
+        if (blank($sourcePath)) {
             return $absoluteUrl;
         }
 
-        $sourceHost = $parsed['host'] ?? null;
+        $sourceHost = $sourceUri->host();
 
-        if ($sourceHost !== null) {
-            $appHost = parse_url((string) config('app.url'), PHP_URL_HOST);
-
-            if (! is_string($appHost) || $sourceHost !== $appHost) {
-                return $absoluteUrl;
-            }
+        if (filled($sourceHost) && $sourceHost !== Uri::of((string) config('app.url'))->host()) {
+            return $absoluteUrl;
         }
 
-        $url = $request->getSchemeAndHttpHost().$parsed['path'];
+        $rewritten = $request->getSchemeAndHttpHost().'/'.ltrim($sourcePath, '/');
+        $query = (string) $sourceUri->query();
 
-        if (isset($parsed['query'])) {
-            $url .= '?'.$parsed['query'];
-        }
-
-        return $url;
+        return $query === '' ? $rewritten : $rewritten.'?'.$query;
     }
 }
