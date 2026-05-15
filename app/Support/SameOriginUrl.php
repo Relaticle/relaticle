@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Support;
 
-final class SameOriginUrl
+final readonly class SameOriginUrl
 {
     public static function rewrite(string $absoluteUrl): string
     {
