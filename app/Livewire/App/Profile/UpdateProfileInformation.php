@@ -21,6 +21,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Illuminate\Contracts\View\View;
 use Illuminate\Filesystem\FilesystemAdapter;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification as NotificationFacade;
 use League\Flysystem\UnableToCheckFileExistence;
 use League\Uri\Components\Query;
@@ -55,44 +56,7 @@ final class UpdateProfileInformation extends BaseLivewireComponent
                             ->directory('profile-photos')
                             ->visibility('public')
                             ->formatStateUsing(fn () => auth('web')->user()?->profile_photo_path)
-                            ->getUploadedFileUsing(function (FileUpload $component, string $file, string|array|null $storedFileNames): ?array {
-                                /** @var FilesystemAdapter $storage */
-                                $storage = $component->getDisk();
-
-                                $shouldFetchFileInformation = $component->shouldFetchFileInformation();
-
-                                if ($shouldFetchFileInformation) {
-                                    try {
-                                        if (! $storage->exists($file)) {
-                                            return null;
-                                        }
-                                    } catch (UnableToCheckFileExistence) {
-                                        return null;
-                                    }
-                                }
-
-                                $url = null;
-
-                                if ($component->getVisibility() === 'private') {
-                                    try {
-                                        $url = $storage->temporaryUrl(
-                                            $file,
-                                            now()->addMinutes(config('filament.temporary_file_url_expiry_minutes', 30))->endOfHour(),
-                                        );
-                                    } catch (Throwable) {
-                                        // Driver does not support temporary URLs; fall back to public URL.
-                                    }
-                                }
-
-                                $url ??= $storage->url($file);
-
-                                return [
-                                    'name' => ($component->isMultiple() ? ($storedFileNames[$file] ?? null) : $storedFileNames) ?? basename($file),
-                                    'size' => $shouldFetchFileInformation ? $storage->size($file) : 0,
-                                    'type' => $shouldFetchFileInformation ? $storage->mimeType($file) : null,
-                                    'url' => SameOriginUrl::rewrite((string) $url),
-                                ];
-                            }),
+                            ->getUploadedFileUsing($this->resolveProfilePhotoUploadInfo(...)),
                         Actions::make([
                             Action::make('removeProfilePhoto')
                                 ->label(__('profile.actions.remove_photo'))
@@ -147,8 +111,10 @@ final class UpdateProfileInformation extends BaseLivewireComponent
     public function removeProfilePhoto(): void
     {
         try {
-            resolve(RemoveUserProfilePhoto::class)->handle($this->authUser());
+            resolve(RemoveUserProfilePhoto::class)->remove($this->authUser());
         } catch (Throwable $e) {
+            Log::withContext(['user_id' => $this->authUser()->getKey()]);
+
             report($e);
 
             Notification::make()
@@ -168,6 +134,60 @@ final class UpdateProfileInformation extends BaseLivewireComponent
             ->success()
             ->title(__('profile.notifications.photo_removed'))
             ->send();
+    }
+
+    /**
+     * Build the FilePond preview payload for an already-uploaded profile photo,
+     * mirroring Filament's default getUploadedFileUsing logic but rewriting the
+     * URL through SameOriginUrl so cross-subdomain previews load same-origin.
+     *
+     * @param  string|array<string, string>|null  $storedFileNames
+     * @return array{name: string, size: int, type: string|null, url: string}|null
+     */
+    private function resolveProfilePhotoUploadInfo(FileUpload $component, string $file, string|array|null $storedFileNames): ?array
+    {
+        /** @var FilesystemAdapter $storage */
+        $storage = $component->getDisk();
+
+        $shouldFetchFileInformation = $component->shouldFetchFileInformation();
+
+        if ($shouldFetchFileInformation) {
+            try {
+                if (! $storage->exists($file)) {
+                    return null;
+                }
+            } catch (UnableToCheckFileExistence) {
+                return null;
+            }
+        }
+
+        $url = null;
+
+        if ($component->getVisibility() === 'private') {
+            try {
+                $url = $storage->temporaryUrl(
+                    $file,
+                    now()->addMinutes(config('filament.temporary_file_url_expiry_minutes', 30))->endOfHour(),
+                );
+            } catch (Throwable) {
+                // Driver does not support temporary URLs; fall back to public URL.
+            }
+        }
+
+        $url ??= $storage->url($file);
+
+        $resolvedName = $component->isMultiple()
+            ? ($storedFileNames[$file] ?? null)
+            : (is_string($storedFileNames) ? $storedFileNames : null);
+
+        $mimeType = $shouldFetchFileInformation ? $storage->mimeType($file) : null;
+
+        return [
+            'name' => $resolvedName ?? basename($file),
+            'size' => $shouldFetchFileInformation ? $storage->size($file) : 0,
+            'type' => $mimeType === false ? null : $mimeType,
+            'url' => SameOriginUrl::rewrite((string) $url),
+        ];
     }
 
     /**
