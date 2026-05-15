@@ -9,11 +9,13 @@ use Filament\Facades\Filament;
 use Relaticle\Chat\Enums\AiCreditType;
 use Relaticle\Chat\Models\AiCreditBalance;
 use Relaticle\Chat\Models\AiCreditTransaction;
+use Relaticle\Chat\Services\CreditService;
 use Relaticle\SystemAdmin\Filament\Resources\AiCreditBalanceResource;
 use Relaticle\SystemAdmin\Filament\Resources\AiCreditBalanceResource\Pages\ListAiCreditBalances;
 use Relaticle\SystemAdmin\Models\SystemAdministrator;
 
 mutates(AiCreditBalanceResource::class);
+mutates(CreditService::class);
 
 beforeEach(function (): void {
     $this->admin = SystemAdministrator::factory()->create();

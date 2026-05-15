@@ -9,6 +9,8 @@ use Relaticle\Chat\Models\AiCreditBalance;
 use Relaticle\Chat\Models\AiCreditTransaction;
 use Relaticle\Chat\Services\CreditService;
 
+mutates(CreditService::class);
+
 it('resets a Free team to 300 credits via the scheduled reset', function (): void {
     $user = User::factory()->withPersonalTeam()->create();
     $team = $user->currentTeam;

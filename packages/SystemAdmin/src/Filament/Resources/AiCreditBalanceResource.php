@@ -26,6 +26,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Override;
 use Relaticle\Chat\Models\AiCreditBalance;
 use Relaticle\Chat\Services\CreditService;
@@ -208,21 +209,19 @@ final class AiCreditBalanceResource extends Resource
                     ->required(),
             ])
             ->action(function (array $data, AiCreditBalance $record, CreditService $service): void {
-                $plan = (string) $data['plan'];
+                $planString = (string) $data['plan'];
                 $team = $record->team;
-                $team->forceFill(['plan' => $plan])->save();
-                $team->refresh();
+                $sysadminId = (string) auth('sysadmin')->id();
 
-                $service->resetPeriod(
-                    team: $team,
-                    sysadminId: (string) auth('sysadmin')->id(),
-                );
-
-                $allowance = $team->plan->credits();
+                DB::transaction(function () use ($team, $planString, $service, $sysadminId): void {
+                    $team->plan = Plan::from($planString);
+                    $team->save();
+                    $service->resetPeriod($team, $sysadminId);
+                });
 
                 Notification::make()
                     ->title('Billing period reset')
-                    ->body("Granted {$allowance} credits.")
+                    ->body("Granted {$team->plan->credits()} credits.")
                     ->success()
                     ->send();
             });
@@ -243,26 +242,24 @@ final class AiCreditBalanceResource extends Resource
                     ->required(),
             ])
             ->action(function (array $data, EloquentCollection $records, CreditService $service): void {
-                $plan = (string) $data['plan'];
+                $planString = (string) $data['plan'];
+                $plan = Plan::from($planString);
                 $sysadminId = (string) auth('sysadmin')->id();
+                $count = $records->count();
 
-                foreach ($records as $record) {
-                    /** @var AiCreditBalance $record */
-                    $team = $record->team;
-                    $team->forceFill(['plan' => $plan])->save();
-                    $team->refresh();
-
-                    $service->resetPeriod(
-                        team: $team,
-                        sysadminId: $sysadminId,
-                    );
-                }
-
-                $allowance = Plan::from($plan)->credits();
+                DB::transaction(function () use ($records, $plan, $service, $sysadminId): void {
+                    foreach ($records as $record) {
+                        /** @var AiCreditBalance $record */
+                        $team = $record->team;
+                        $team->plan = $plan;
+                        $team->save();
+                        $service->resetPeriod($team, $sysadminId);
+                    }
+                });
 
                 Notification::make()
                     ->title('Billing periods reset')
-                    ->body("Granted {$allowance} credits to {$records->count()} teams.")
+                    ->body("Granted {$plan->credits()} credits to {$count} teams.")
                     ->success()
                     ->send();
             })
