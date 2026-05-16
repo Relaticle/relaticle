@@ -22,6 +22,7 @@ return new class extends Migration
                 ->references('id')->on('agent_conversation_messages')
                 ->cascadeOnDelete();
             $table->index(['message_id', 'type']);
+            $table->index(['type', 'record_id']);
         });
     }
 };
