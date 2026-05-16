@@ -27,6 +27,7 @@ use Relaticle\Chat\Models\AiCreditBalance;
 use Relaticle\Chat\Services\AiModelResolver;
 use Relaticle\Chat\Services\CreditService;
 use Relaticle\Chat\Services\TipTapDocumentParser;
+use Relaticle\Chat\Support\LikePattern;
 use Relaticle\Chat\Support\TitleSanitizer;
 
 final readonly class ChatController
@@ -222,7 +223,7 @@ final readonly class ChatController
             'q' => ['required', 'string', 'min:2', 'max:100'],
         ]);
 
-        $search = $this->escapeLikeWildcards($validated['q']);
+        $search = LikePattern::escape($validated['q']);
         $limit = 5;
 
         /** @var User $user */
@@ -354,10 +355,5 @@ final readonly class ChatController
             'title' => $title,
             'conversation_id' => $conversationId,
         ]);
-    }
-
-    private function escapeLikeWildcards(string $value): string
-    {
-        return str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $value);
     }
 }

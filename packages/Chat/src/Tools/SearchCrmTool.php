@@ -13,6 +13,7 @@ use App\Models\User;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Ai\Contracts\Tool;
 use Laravel\Ai\Tools\Request;
+use Relaticle\Chat\Support\LikePattern;
 
 final class SearchCrmTool implements Tool
 {
@@ -31,7 +32,7 @@ final class SearchCrmTool implements Tool
 
     public function handle(Request $request): string
     {
-        $query = (string) $request->string('query');
+        $query = LikePattern::escape((string) $request->string('query'));
         $limit = min((int) ($request['limit'] ?? 5), 10);
         /** @var User $user */
         $user = auth()->user();
