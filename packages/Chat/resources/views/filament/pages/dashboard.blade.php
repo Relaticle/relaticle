@@ -101,13 +101,10 @@
                 { value: 'claude-opus', label: 'Opus 4.7', provider: 'anthropic' },
                 { value: 'gpt-5-5', label: 'GPT 5.5', provider: 'openai' },
                 { value: 'gpt-5-4', label: 'GPT 5.4', provider: 'openai' },
-                { value: 'gemini-3-flash', label: 'Gemini 3 Flash', provider: 'gemini' },
-                { value: 'gemini-3-1-pro', label: 'Gemini 3.1 Pro', provider: 'gemini' },
             ],
             providerIcons: @js([
                 'anthropic' => svg('ri-claude-fill')->toHtml(),
                 'openai' => svg('ri-openai-fill')->toHtml(),
-                'gemini' => svg('ri-gemini-fill')->toHtml(),
             ]),
 
             providerIconHtml(provider) {
@@ -118,7 +115,6 @@
                 return ({
                     anthropic: 'text-[#D4763C]',
                     openai: 'text-gray-900 dark:text-gray-200',
-                    gemini: 'text-blue-500',
                 })[provider] || '';
             },
 

@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Enums\Plan;
 use App\Models\User;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
+use Relaticle\Chat\Enums\AiModel;
 use Relaticle\Chat\Services\AiModelResolver;
 use Tests\TestCase;
 
@@ -50,4 +51,15 @@ it('resolves Auto to Sonnet for any plan', function (): void {
     $resolved = resolve(AiModelResolver::class)->resolve($user, 'auto');
 
     expect($resolved['model'])->toBe('claude-sonnet-4-6');
+});
+
+it('falls back to ClaudeSonnet when a Gemini model is requested', function (): void {
+    $user = User::factory()->withPersonalTeam()->create();
+
+    $user->currentTeam->forceFill(['plan' => Plan::Pro])->save();
+
+    $resolved = (new AiModelResolver)->resolve($user, AiModel::Gemini3Flash->value);
+
+    expect($resolved['provider'])->toBe('anthropic');
+    expect($resolved['model'])->toBe(AiModel::ClaudeSonnet->modelId());
 });

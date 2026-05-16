@@ -30,6 +30,10 @@ final readonly class AiModelResolver
             $aiModel = AiModel::ClaudeSonnet;
         }
 
+        if ($aiModel->provider() === 'gemini') {
+            $aiModel = AiModel::ClaudeSonnet;
+        }
+
         if ($aiModel === AiModel::Auto) {
             $aiModel = AiModel::ClaudeSonnet;
         }
