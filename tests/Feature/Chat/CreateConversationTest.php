@@ -11,6 +11,9 @@ use Relaticle\Chat\Models\AgentConversation;
 use Relaticle\Chat\Models\AiCreditBalance;
 use Tests\Helpers\ChatDocument;
 
+use function Pest\Laravel\actingAs;
+use function Pest\Laravel\postJson;
+
 beforeEach(function (): void {
     $this->user = User::factory()->withPersonalTeam()->create();
     $this->team = $this->user->currentTeam;
@@ -200,4 +203,29 @@ it('returns 403 when the user has no current team', function (): void {
     $this->postJson(route('chat.conversations.create'), [
         'document' => ChatDocument::fromText('Hi'),
     ])->assertStatus(403);
+});
+
+it('rate-limits createConversation per team plan', function (): void {
+    $user = User::factory()->withPersonalTeam()->create();
+    actingAs($user);
+
+    AiCreditBalance::query()->updateOrCreate(['team_id' => $user->currentTeam->getKey()], [
+        'team_id' => $user->currentTeam->getKey(),
+        'credits_remaining' => 1000,
+        'credits_used' => 0,
+        'period_starts_at' => now()->startOfMonth(),
+        'period_ends_at' => now()->endOfMonth(),
+    ]);
+
+    $limit = $user->currentTeam->plan->rateLimit();
+
+    for ($i = 0; $i < $limit; $i++) {
+        postJson(route('chat.conversations.create'), [
+            'document' => ChatDocument::fromText("hi {$i}"),
+        ])->assertOk();
+    }
+
+    postJson(route('chat.conversations.create'), [
+        'document' => ChatDocument::fromText('over'),
+    ])->assertStatus(429);
 });
