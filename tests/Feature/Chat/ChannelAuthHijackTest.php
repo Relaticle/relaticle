@@ -45,3 +45,20 @@ it('blocks user B from accessing a conversation created by user A', function ():
     expect(chatChannelAuth($userB, $conversationId))->toBeFalse();
     expect(chatChannelAuth($userA, $conversationId))->toBeTrue();
 });
+
+it('does not authorize one user against another user channel that shares an integer-cast prefix', function (): void {
+    $userA = User::factory()->withPersonalTeam()->create();
+    $userB = User::factory()->withPersonalTeam()->create();
+
+    // Both ULIDs start with "01" (Crockford timestamp prefix in 2026).
+    expect($userA->getKey())->toStartWith('01');
+    expect($userB->getKey())->toStartWith('01');
+
+    // Demonstrate the bug if it ever regresses: int-casting both ULIDs collapses to 1.
+    expect((int) $userA->getKey())->toBe((int) $userB->getKey());
+
+    // The channel auth must NOT confuse them.
+    expect(userChannelAuth($userA, $userB->getKey()))->toBeFalse();
+    expect(userChannelAuth($userB, $userA->getKey()))->toBeFalse();
+    expect(userChannelAuth($userA, $userA->getKey()))->toBeTrue();
+});

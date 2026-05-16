@@ -66,3 +66,28 @@ function chatChannelAuth(User $user, string $conversationId): bool
 
     return (bool) $callback($user, $conversationId);
 }
+
+/**
+ * Invoke the App.Models.User.{id} broadcast channel authorization callback.
+ *
+ * Mirrors chatChannelAuth — retrieves the registered closure via reflection
+ * and invokes it directly, so tests exercise the real production callback.
+ */
+function userChannelAuth(User $user, string $id): bool
+{
+    $broadcaster = app(BroadcasterContract::class);
+    $reflection = new ReflectionClass($broadcaster);
+    $prop = $reflection->getProperty('channels');
+    $prop->setAccessible(true);
+    $channels = $prop->getValue($broadcaster);
+
+    $callback = $channels['App.Models.User.{id}'] ?? null;
+
+    if ($callback === null) {
+        require base_path('routes/channels.php');
+
+        return userChannelAuth($user, $id);
+    }
+
+    return (bool) $callback($user, $id);
+}
