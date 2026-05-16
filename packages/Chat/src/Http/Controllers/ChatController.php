@@ -77,7 +77,7 @@ final readonly class ChatController
             403
         );
 
-        if (! empty($validated['model']) && $validated['model'] !== AiModel::Auto->value) {
+        if (filled($validated['model'] ?? null) && $validated['model'] !== AiModel::Auto->value) {
             $requestedModel = AiModel::from($validated['model']);
 
             if (! $team->plan->allowsModel($requestedModel)) {
@@ -196,6 +196,16 @@ final readonly class ChatController
     {
         /** @var User $user */
         $user = $request->user();
+        $team = $user->currentTeam;
+
+        $row = DB::table('agent_conversations')->where('id', $conversationId)->first();
+
+        abort_if($row === null, 404);
+        abort_if(
+            $row->user_id !== (string) $user->getKey()
+                || ($row->team_id !== null && $row->team_id !== $team->getKey()),
+            404,
+        );
 
         Cache::put(
             "chat:cancel:{$conversationId}",

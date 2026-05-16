@@ -4,39 +4,72 @@ declare(strict_types=1);
 
 use App\Models\User;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\Str;
+use Relaticle\Chat\Http\Controllers\ChatController;
+use Relaticle\Chat\Models\AiCreditBalance;
+use Tests\Helpers\ChatDocument;
+
+use function Pest\Laravel\actingAs;
+use function Pest\Laravel\postJson;
+
+mutates(ChatController::class);
 
 it('marks a conversation as cancelled when cancel endpoint hit', function (): void {
     $user = User::factory()->withPersonalTeam()->create();
-    $this->actingAs($user);
+    $team = $user->currentTeam;
 
-    $conversationId = 'test-conv-cancel';
+    $conversationId = (string) Str::uuid7();
+
+    DB::table('agent_conversations')->insert([
+        'id' => $conversationId,
+        'user_id' => (string) $user->getKey(),
+        'team_id' => $team->getKey(),
+        'title' => 'Test conversation',
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+
     $cacheKey = "chat:cancel:{$conversationId}";
 
     expect(Cache::has($cacheKey))->toBeFalse();
 
-    $this->postJson(route('chat.cancel', ['conversationId' => $conversationId]))
+    actingAs($user);
+    postJson(route('chat.cancel', ['conversationId' => $conversationId]))
         ->assertOk()
         ->assertJson(['cancelled' => true]);
 
     expect(Cache::get($cacheKey))->toBe((string) $user->getKey());
 });
 
-it('overwrites the cancel marker with the requesting user id', function (): void {
+it('returns 404 when another user tries to cancel a conversation', function (): void {
+    Queue::fake();
+
     $userA = User::factory()->withPersonalTeam()->create();
     $userB = User::factory()->withPersonalTeam()->create();
+    $teamA = $userA->currentTeam;
 
-    $this->actingAs($userA);
-    $conversationId = 'test-conv-other-user';
-    Cache::put("chat:cancel:{$conversationId}", (string) $userA->getKey(), 60);
+    AiCreditBalance::updateOrCreate(
+        ['team_id' => $teamA->getKey()],
+        ['credits_remaining' => 100, 'period_ends_at' => now()->addMonth()],
+    );
 
-    $this->actingAs($userB);
-    $this->postJson(route('chat.cancel', ['conversationId' => $conversationId]))
-        ->assertOk();
+    actingAs($userA);
+    $response = postJson(route('chat.conversations.create'), [
+        'document' => ChatDocument::fromText('hi'),
+    ])->assertOk();
 
-    expect(Cache::get("chat:cancel:{$conversationId}"))->toBe((string) $userB->getKey());
+    $conversationId = $response->json('conversation_id');
+
+    actingAs($userB);
+    postJson(route('chat.cancel', ['conversationId' => $conversationId]))
+        ->assertNotFound();
+
+    expect(Cache::has("chat:cancel:{$conversationId}"))->toBeFalse();
 });
 
 it('returns 401 for unauthenticated cancel', function (): void {
-    $this->postJson(route('chat.cancel', ['conversationId' => 'x']))
+    postJson(route('chat.cancel', ['conversationId' => 'x']))
         ->assertUnauthorized();
 });
