@@ -11,6 +11,8 @@ use Relaticle\Chat\Enums\AiCreditType;
 use Relaticle\Chat\Models\AiCreditTransaction;
 use Relaticle\Chat\Services\CreditService;
 
+mutates(CreditService::class);
+
 it('does not double-charge when settle is called twice with the same idempotency key', function (): void {
     $user = User::factory()->withPersonalTeam()->create();
     $team = $user->currentTeam;
