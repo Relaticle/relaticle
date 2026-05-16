@@ -13,7 +13,6 @@ use App\Support\CustomFieldMerger;
 use App\Support\TenantFkValidator;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\ValidationException;
 
 final readonly class UpdateTask
 {
@@ -36,7 +35,7 @@ final readonly class UpdateTask
             'opportunity_ids' => Opportunity::class,
         ]);
 
-        $this->assertAssigneesInWorkspace($user, $data['assignee_ids'] ?? null);
+        TenantFkValidator::assertUsersInWorkspace($user, $data, ['assignee_ids']);
 
         $attributes = Arr::only($data, ['title', 'custom_fields']);
 
@@ -66,32 +65,5 @@ final readonly class UpdateTask
         $this->notifyAssignees->execute($task, $previousAssigneeIds);
 
         return $task->load('customFieldValues.customField.options');
-    }
-
-    // FOLLOWUP: extract to TenantFkValidator::assertUsersInWorkspace($user, $data, ['assignee_ids'])
-    private function assertAssigneesInWorkspace(User $user, mixed $assigneeIds): void
-    {
-        if (! is_array($assigneeIds) || $assigneeIds === []) {
-            return;
-        }
-
-        $team = $user->currentTeam;
-
-        if ($team === null) {
-            throw ValidationException::withMessages(['team' => 'No active workspace.']);
-        }
-
-        $memberIds = $team->users()->pluck('users.id')->all();
-        $memberIds[] = $team->user_id;
-        $memberIdsStr = array_map(strval(...), $memberIds);
-
-        foreach ($assigneeIds as $assigneeId) {
-            throw_unless(
-                in_array((string) $assigneeId, $memberIdsStr, true),
-                ValidationException::withMessages([
-                    'assignee_ids' => 'One or more assignees are not in your workspace.',
-                ])
-            );
-        }
     }
 }

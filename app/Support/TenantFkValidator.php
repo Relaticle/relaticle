@@ -84,6 +84,38 @@ final readonly class TenantFkValidator
      * @param  array<string, mixed>  $data
      * @param  list<string>  $fields
      */
+    public static function assertUsersInWorkspace(User $user, array $data, array $fields): void
+    {
+        $team = $user->currentTeam;
+
+        if ($team === null) {
+            throw ValidationException::withMessages(['team' => 'No active workspace.']);
+        }
+
+        $memberIds = $team->users()->pluck('users.id')->all();
+        $memberIds[] = $team->user_id;
+        $memberIds = array_map(strval(...), $memberIds);
+
+        foreach ($fields as $field) {
+            $values = $data[$field] ?? null;
+            if (! is_array($values) || $values === []) {
+                continue;
+            }
+
+            foreach ($values as $value) {
+                if (! in_array((string) $value, $memberIds, true)) {
+                    throw ValidationException::withMessages([
+                        $field => 'One or more assignees are not in your workspace.',
+                    ]);
+                }
+            }
+        }
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     * @param  list<string>  $fields
+     */
     public static function assertUserInWorkspace(User $user, array $data, array $fields): void
     {
         $team = $user->currentTeam;
