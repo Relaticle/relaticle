@@ -26,6 +26,7 @@ return new class extends Migration
             $table->timestamp('created_at');
 
             $table->index(['team_id', 'created_at']);
+            $table->index(['type', 'created_at']);
             $table->index('conversation_id');
             $table->index(['team_id', 'user_id', 'created_at']);
 
