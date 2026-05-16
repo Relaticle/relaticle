@@ -20,10 +20,16 @@ final class AiCreditBalanceFactory extends Factory
      */
     public function definition(): array
     {
+        $team = Team::factory()->create();
+        $allowance = $team->plan->credits();
+        $used = fake()->numberBetween(0, $allowance);
+
+        $team->aiCreditBalance()->delete();
+
         return [
-            'team_id' => Team::factory(),
-            'credits_remaining' => fake()->numberBetween(0, 500),
-            'credits_used' => fake()->numberBetween(0, 500),
+            'team_id' => $team->getKey(),
+            'credits_remaining' => $allowance - $used,
+            'credits_used' => $used,
             'period_starts_at' => now()->startOfMonth(),
             'period_ends_at' => now()->endOfMonth(),
         ];
