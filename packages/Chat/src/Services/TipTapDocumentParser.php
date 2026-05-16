@@ -11,9 +11,14 @@ use App\Models\People;
 use App\Models\Task;
 use App\Models\Team;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Validation\ValidationException;
 
 final class TipTapDocumentParser
 {
+    private const int MAX_DEPTH = 64;
+
+    private const int MAX_NODES = 5000;
+
     /**
      * Walk a TipTap document JSON tree.
      *
@@ -24,8 +29,9 @@ final class TipTapDocumentParser
     {
         $textParts = [];
         $mentions = [];
+        $nodeCount = 0;
 
-        $this->walkDocument($document, $textParts, $mentions);
+        $this->walkDocument($document, $textParts, $mentions, $nodeCount, 0);
 
         $mentions = $this->filterToTeam($mentions, $team);
 
@@ -40,8 +46,16 @@ final class TipTapDocumentParser
      * @param  list<string>  $textParts
      * @param  list<array{type: string, id: string, label: string}>  $mentions
      */
-    private function walkDocument(array $node, array &$textParts, array &$mentions): void
+    private function walkDocument(array $node, array &$textParts, array &$mentions, int &$nodeCount, int $depth): void
     {
+        if ($depth > self::MAX_DEPTH) {
+            throw ValidationException::withMessages(['document' => 'Message is too deep.']);
+        }
+
+        if (++$nodeCount > self::MAX_NODES) {
+            throw ValidationException::withMessages(['document' => 'Message is too large.']);
+        }
+
         $type = $node['type'] ?? null;
 
         if ($type === 'text') {
@@ -95,7 +109,7 @@ final class TipTapDocumentParser
 
         foreach ($content as $child) {
             if (is_array($child)) {
-                $this->walkDocument($child, $textParts, $mentions);
+                $this->walkDocument($child, $textParts, $mentions, $nodeCount, $depth + 1);
             }
         }
     }

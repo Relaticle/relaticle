@@ -3,8 +3,10 @@
 declare(strict_types=1);
 
 use App\Models\Company;
+use App\Models\Team;
 use App\Models\User;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
+use Illuminate\Validation\ValidationException;
 use Relaticle\Chat\Services\TipTapDocumentParser;
 use Tests\TestCase;
 
@@ -246,3 +248,27 @@ it('does not match mention labels inside larger words', function (): void {
     expect($nodes[1]['attrs']['label'])->toBe('Acme');
     expect(end($nodes))->toBe(['type' => 'text', 'text' => ' inside it']);
 });
+
+it('throws when document exceeds max node depth', function (): void {
+    $deep = ['type' => 'text', 'text' => 'leaf'];
+    for ($i = 0; $i < 65; $i++) {
+        $deep = ['type' => 'paragraph', 'content' => [$deep]];
+    }
+    $doc = ['type' => 'doc', 'content' => [$deep]];
+
+    $team = Team::factory()->create();
+
+    resolve(TipTapDocumentParser::class)->parse($doc, $team);
+})->throws(ValidationException::class, 'too deep');
+
+it('throws when document exceeds max node count', function (): void {
+    $children = [];
+    for ($i = 0; $i < 5001; $i++) {
+        $children[] = ['type' => 'text', 'text' => 'x'];
+    }
+    $doc = ['type' => 'doc', 'content' => [['type' => 'paragraph', 'content' => $children]]];
+
+    $team = Team::factory()->create();
+
+    resolve(TipTapDocumentParser::class)->parse($doc, $team);
+})->throws(ValidationException::class, 'too large');
