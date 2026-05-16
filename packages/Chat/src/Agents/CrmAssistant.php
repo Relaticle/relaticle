@@ -45,7 +45,11 @@ use Relaticle\Chat\Tools\Task\GetTaskTool as ChatGetTaskTool;
 use Relaticle\Chat\Tools\Task\ListTasksTool as ChatListTasksTool;
 use Relaticle\Chat\Tools\Task\UpdateTaskTool as ChatUpdateTaskTool;
 
-#[Provider(['anthropic', 'openai', 'gemini'])]
+// Gemini is excluded until laravel/ai's Gemini driver hoists `tool_config`
+// to the request top-level. Currently, providerOptions() values are merged
+// into generationConfig, so Gemini's function_calling_config mode cannot be
+// set via this mechanism — leaving the sequential-write guard unenforceable.
+#[Provider(['anthropic', 'openai'])]
 #[MaxSteps(15)]
 #[Temperature(0.3)]
 #[Timeout(120)]
