@@ -31,6 +31,7 @@ use Spatie\Sluggable\SlugOptions;
 /**
  * @property string $name
  * @property string $slug
+ * @property Plan $plan
  * @property ?string $invite_link_token
  * @property ?Carbon $invite_link_token_expires_at
  * @property ?OnboardingUseCase $onboarding_use_case
@@ -42,7 +43,6 @@ use Spatie\Sluggable\SlugOptions;
     'name',
     'slug',
     'personal_team',
-    'plan',
     'onboarding_use_case',
     'onboarding_context',
     'onboarding_referral_source',

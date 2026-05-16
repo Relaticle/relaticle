@@ -3,8 +3,11 @@
 declare(strict_types=1);
 
 use App\Enums\Plan;
+use App\Models\Team;
 use App\Models\User;
 use Illuminate\Support\Facades\Schema;
+
+mutates(Team::class);
 
 it('has a plan column on teams', function (): void {
     expect(Schema::hasColumn('teams', 'plan'))->toBeTrue();
@@ -26,4 +29,8 @@ it('casts plan to the Plan enum on the Team model', function (): void {
 
     expect($user->currentTeam->plan)->toBeInstanceOf(Plan::class);
     expect($user->currentTeam->plan)->toBe(Plan::Free);
+});
+
+it('does not list plan in the fillable attribute', function (): void {
+    expect((new Team)->getFillable())->not->toContain('plan');
 });
