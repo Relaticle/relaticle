@@ -98,7 +98,10 @@ final readonly class TenantFkValidator
 
         foreach ($fields as $field) {
             $values = $data[$field] ?? null;
-            if (! is_array($values) || $values === []) {
+            if (! is_array($values)) {
+                continue;
+            }
+            if ($values === []) {
                 continue;
             }
 
