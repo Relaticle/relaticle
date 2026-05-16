@@ -23,7 +23,8 @@ final readonly class AiModelResolver
     {
         $aiModel = $this->resolveModel($user, $override);
 
-        $plan = $user->currentTeam?->plan ?? Plan::default();
+        $team = $user->currentTeam;
+        $plan = $team !== null ? $team->plan : Plan::default();
 
         if (! $plan->allowsModel($aiModel)) {
             $aiModel = AiModel::ClaudeSonnet;

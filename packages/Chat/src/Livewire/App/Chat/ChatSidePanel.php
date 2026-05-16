@@ -6,6 +6,7 @@ namespace Relaticle\Chat\Livewire\App\Chat;
 
 use App\Enums\Plan;
 use App\Livewire\BaseLivewireComponent;
+use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Livewire\Attributes\Computed;
 use Relaticle\Chat\Models\AiCreditBalance;
@@ -81,13 +82,19 @@ final class ChatSidePanel extends BaseLivewireComponent
     #[Computed]
     public function plan(): Plan
     {
-        return auth()->user()?->currentTeam?->plan ?? Plan::default();
+        /** @var User|null $user */
+        $user = auth()->user();
+        $team = $user?->currentTeam;
+
+        return $team !== null ? $team->plan : Plan::default();
     }
 
     #[Computed]
     public function creditsRemaining(): int
     {
-        $teamId = auth()->user()?->currentTeam?->getKey();
+        /** @var User|null $user */
+        $user = auth()->user();
+        $teamId = $user?->currentTeam?->getKey();
 
         if ($teamId === null) {
             return 0;
