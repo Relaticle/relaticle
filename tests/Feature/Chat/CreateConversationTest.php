@@ -6,6 +6,7 @@ use App\Models\Company;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
+use Relaticle\Chat\Http\Controllers\ChatController;
 use Relaticle\Chat\Jobs\ProcessChatMessage;
 use Relaticle\Chat\Models\AgentConversation;
 use Relaticle\Chat\Models\AiCreditBalance;
@@ -13,6 +14,8 @@ use Tests\Helpers\ChatDocument;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\postJson;
+
+mutates(ChatController::class);
 
 beforeEach(function (): void {
     $this->user = User::factory()->withPersonalTeam()->create();
