@@ -5,7 +5,6 @@ declare(strict_types=1);
 use App\Models\User;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
 use Relaticle\Chat\Http\Controllers\ChatController;
 use Relaticle\Chat\Models\AiCreditBalance;
@@ -44,8 +43,6 @@ it('marks a conversation as cancelled when cancel endpoint hit', function (): vo
 });
 
 it('returns 404 when another user tries to cancel a conversation', function (): void {
-    Queue::fake();
-
     $userA = User::factory()->withPersonalTeam()->create();
     $userB = User::factory()->withPersonalTeam()->create();
     $teamA = $userA->currentTeam;
@@ -63,6 +60,34 @@ it('returns 404 when another user tries to cancel a conversation', function (): 
     $conversationId = $response->json('conversation_id');
 
     actingAs($userB);
+    postJson(route('chat.cancel', ['conversationId' => $conversationId]))
+        ->assertNotFound();
+
+    expect(Cache::has("chat:cancel:{$conversationId}"))->toBeFalse();
+});
+
+it('returns 404 when a teammate (same team, different user) tries to cancel another user\'s conversation', function (): void {
+    $owner = User::factory()->withPersonalTeam()->create();
+    $team = $owner->currentTeam;
+
+    $teammate = User::factory()->create();
+    $team->users()->attach($teammate, ['role' => 'editor']);
+    $teammate->switchTeam($team);
+
+    AiCreditBalance::query()->updateOrCreate(['team_id' => $team->getKey()], [
+        'team_id' => $team->getKey(),
+        'credits_remaining' => 100,
+        'credits_used' => 0,
+        'period_starts_at' => now()->startOfMonth(),
+        'period_ends_at' => now()->endOfMonth(),
+    ]);
+
+    actingAs($owner);
+    $conversationId = postJson(route('chat.conversations.create'), [
+        'document' => ChatDocument::fromText('hi'),
+    ])->assertOk()->json('conversation_id');
+
+    actingAs($teammate);
     postJson(route('chat.cancel', ['conversationId' => $conversationId]))
         ->assertNotFound();
 
