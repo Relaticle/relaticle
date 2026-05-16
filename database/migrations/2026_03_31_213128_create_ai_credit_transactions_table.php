@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignUlid('team_id')->constrained()->cascadeOnDelete();
             $table->foreignUlid('user_id')->nullable()->constrained()->nullOnDelete();
             $table->string('conversation_id', 36)->nullable();
-            $table->string('idempotency_key')->nullable();
+            $table->string('idempotency_key');
             $table->string('type');
             $table->string('model');
             $table->unsignedInteger('input_tokens')->default(0);
