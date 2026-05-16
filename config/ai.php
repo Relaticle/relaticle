@@ -42,30 +42,6 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Tool Call Credit Bonus
-    |--------------------------------------------------------------------------
-    |
-    | Additional credits charged when the AI invokes a tool call during
-    | a chat interaction, on top of the base model multiplier cost.
-    |
-    */
-
-    'tool_call_credit_bonus' => 0.5,
-
-    /*
-    |--------------------------------------------------------------------------
-    | Pending Action Expiry
-    |--------------------------------------------------------------------------
-    |
-    | Minutes before a pending action (awaiting user approval) expires
-    | automatically and is marked as expired.
-    |
-    */
-
-    'pending_action_expiry_minutes' => 15,
-
-    /*
-    |--------------------------------------------------------------------------
     | AI Providers
     |--------------------------------------------------------------------------
     |
