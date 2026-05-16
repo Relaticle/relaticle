@@ -25,8 +25,7 @@ return new class extends Migration
 
         Schema::table('agent_conversation_messages', function (Blueprint $table): void {
             $table->jsonb('document')
-                ->default(DB::raw("'{\"type\":\"doc\",\"content\":[]}'::jsonb"))
-                ->after('content');
+                ->default(DB::raw("'{\"type\":\"doc\",\"content\":[]}'::jsonb"));
         });
     }
 };
