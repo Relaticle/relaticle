@@ -33,6 +33,8 @@ return new class extends Migration
             $table->index(['status', 'expires_at']);
             $table->index(['team_id', 'user_id', 'status']);
 
+            $table->index('message_id');
+
             $table->foreign('conversation_id')->references('id')->on('agent_conversations')->cascadeOnDelete();
             $table->foreign('message_id')->references('id')->on('agent_conversation_messages')->nullOnDelete();
         });
