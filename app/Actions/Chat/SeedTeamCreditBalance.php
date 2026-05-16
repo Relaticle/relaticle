@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions\Chat;
 
+use App\Enums\Plan;
 use App\Models\Team;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -25,7 +26,7 @@ final readonly class SeedTeamCreditBalance
                 return $existing;
             }
 
-            $plan = $team->plan;
+            $plan = $team->plan ?? Plan::default();
             $allowance = $plan->credits();
 
             $balance = AiCreditBalance::query()->create([

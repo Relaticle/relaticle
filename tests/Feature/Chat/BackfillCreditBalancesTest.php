@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Actions\Chat\SeedTeamCreditBalance;
+use App\Enums\Plan;
 use App\Models\Team;
 use Relaticle\Chat\Models\AiCreditBalance;
 
@@ -28,4 +29,18 @@ it('backfills credit balances for teams that have none', function (): void {
     expect($t1->fresh()->aiCreditBalance)->not->toBeNull()
         ->and($t2->fresh()->aiCreditBalance)->not->toBeNull()
         ->and($t3->fresh()->aiCreditBalance)->not->toBeNull();
+});
+
+it('backfills a team that lacks a plan value without crashing', function (): void {
+    $team = Team::factory()->create();
+
+    AiCreditBalance::query()->where('team_id', $team->getKey())->delete();
+
+    // Simulate a team whose `plan` attribute is null (as would happen when the
+    // backfill migration runs before the `plan` column migration has applied).
+    $team->forceFill(['plan' => null]);
+
+    $balance = resolve(SeedTeamCreditBalance::class)->handle($team);
+
+    expect($balance->credits_remaining)->toBe(Plan::default()->credits());
 });
