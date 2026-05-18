@@ -202,6 +202,22 @@ describe('Hero AI tab — conversation', function () {
         $response->assertSee('Add Sarah Chen');
         $response->assertSee('VP of Engineering');
     });
+
+    it('places all message content in the initial HTML so reduced-motion users see it', function () {
+        $response = $this->get('/');
+
+        $response->assertStatus(200);
+        // Exchange 1
+        $response->assertSee('You have 3 overdue tasks');
+        // Exchange 2 climax
+        $response->assertSee('Mark 3 tasks complete');
+        $response->assertSee('Call Sarah Chen · Send proposal · Schedule demo');
+        // Undo toast
+        $response->assertSee('3 tasks marked complete');
+        $response->assertSee('Undo (5s)');
+        // Exchange 3
+        $response->assertSee('Added Sarah and linked her to Kovra Systems');
+    });
 });
 
 describe('Hero AI tab — app shell', function () {
