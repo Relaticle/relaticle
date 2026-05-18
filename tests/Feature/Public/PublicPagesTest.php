@@ -223,6 +223,15 @@ describe('Hero AI tab — app shell', function () {
         $response->assertStatus(200);
         $response->assertSee('hero-shell-nav-chat-active', false);
     });
+
+    it('renders the conversation title bar with new chat button and model picker', function () {
+        $response = $this->get('/');
+
+        $response->assertStatus(200);
+        $response->assertSee('Overdue tasks this week');
+        $response->assertSee('New chat');
+        $response->assertSee('Auto');
+    });
 });
 
 describe('Error handling', function () {

@@ -14,6 +14,22 @@
     {{-- Main pane (chat column) --}}
     <div class="flex-1 flex flex-col min-w-0">
 
+        {{-- Conversation title bar --}}
+        <div class="border-b border-gray-200/60 dark:border-white/[0.06] px-4 sm:px-6 md:px-8 py-2 flex items-center gap-3 text-xs">
+            <div class="flex items-center gap-2 min-w-0 flex-1">
+                <x-ri-sparkling-2-fill class="w-3.5 h-3.5 text-gray-400 dark:text-gray-600 shrink-0"/>
+                <span class="font-medium text-gray-800 dark:text-gray-200 truncate">Overdue tasks this week</span>
+            </div>
+            <button type="button" tabindex="-1" class="hidden sm:inline-flex items-center gap-1 rounded-md border border-gray-200 dark:border-white/[0.08] bg-white dark:bg-white/[0.03] px-2 py-1 text-[10px] font-medium text-gray-600 dark:text-gray-300">
+                <x-ri-add-line class="w-3 h-3"/>
+                New chat
+            </button>
+            <div class="flex items-center gap-1 rounded-md border border-gray-200 dark:border-white/[0.08] bg-white dark:bg-white/[0.03] px-2 py-1 text-[10px] font-medium text-gray-600 dark:text-gray-300">
+                <span>Auto</span>
+                <x-ri-arrow-down-s-line class="w-3 h-3"/>
+            </div>
+        </div>
+
         {{-- Messages --}}
         <div x-ref="messagesScroll" class="flex-1 overflow-y-auto p-4 sm:p-6 md:px-8 md:py-6 space-y-5 sm:space-y-6 scroll-smooth">
             @include('home.partials.hero-agent-conversation')
