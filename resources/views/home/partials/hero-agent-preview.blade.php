@@ -6,6 +6,14 @@
         -webkit-user-select: none;
         -webkit-user-drag: none;
     }
+    /* Hide scrollbar — panel reads as a video preview, scrollbar would break the illusion */
+    .hero-agent-preview .overflow-y-auto {
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+    .hero-agent-preview .overflow-y-auto::-webkit-scrollbar {
+        display: none;
+    }
 </style>
 
 <div x-data="heroChat()"
