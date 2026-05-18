@@ -29,6 +29,26 @@
     --duration-slow: 800ms;
 }
 
+/* ─── Surface tokens ─── */
+/* Light values in :root; dark overrides in .dark. Used via bg-[var(--name)] in Blade. */
+:root {
+    --surface-card-bg: rgb(249 250 251 / 0.8);            /* gray-50/80 */
+    --surface-card-border: rgb(229 231 235 / 0.8);        /* gray-200/80 */
+    --surface-shell-bg: rgb(249 250 251 / 0.6);           /* gray-50/60 */
+    --surface-shell-divider: rgb(229 231 235 / 0.6);      /* gray-200/60 */
+    --surface-input-bg: rgb(249 250 251 / 0.8);           /* gray-50/80 */
+    --surface-input-border: rgb(229 231 235 / 0.8);       /* gray-200/80 */
+}
+
+.dark {
+    --surface-card-bg: rgb(255 255 255 / 0.02);
+    --surface-card-border: rgb(255 255 255 / 0.06);
+    --surface-shell-bg: rgb(255 255 255 / 0.015);
+    --surface-shell-divider: rgb(255 255 255 / 0.06);
+    --surface-input-bg: rgb(255 255 255 / 0.03);
+    --surface-input-border: rgb(255 255 255 / 0.06);
+}
+
 @custom-variant dark (&:where(.dark, .dark *));
 
 /* Hero gradient text animation — slow, subtle shimmer */

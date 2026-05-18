@@ -28,7 +28,7 @@
             <div class="mcp-el mcp-text mcp-text-1 text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
                 You have 3 overdue tasks:
             </div>
-            <div class="mcp-el mcp-task-card mcp-task-1 rounded-lg p-3 border border-gray-200/80 dark:border-white/[0.06] bg-gray-50/80 dark:bg-white/[0.02]">
+            <div class="mcp-el mcp-task-card mcp-task-1 rounded-lg p-3 border border-[var(--surface-card-border)] bg-[var(--surface-card-bg)]">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2.5">
                         <x-ri-checkbox-blank-circle-line class="w-3.5 h-3.5 text-gray-400 dark:text-gray-500 shrink-0"/>
@@ -40,7 +40,7 @@
                     <span class="text-[10px] font-medium text-rose-600 dark:text-rose-400 uppercase tracking-wider">Overdue</span>
                 </div>
             </div>
-            <div class="mcp-el mcp-task-card mcp-task-2 rounded-lg p-3 border border-gray-200/80 dark:border-white/[0.06] bg-gray-50/80 dark:bg-white/[0.02]">
+            <div class="mcp-el mcp-task-card mcp-task-2 rounded-lg p-3 border border-[var(--surface-card-border)] bg-[var(--surface-card-bg)]">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2.5">
                         <x-ri-checkbox-blank-circle-line class="w-3.5 h-3.5 text-gray-400 dark:text-gray-500 shrink-0"/>
@@ -52,7 +52,7 @@
                     <span class="text-[10px] font-medium text-rose-600 dark:text-rose-400 uppercase tracking-wider">Overdue</span>
                 </div>
             </div>
-            <div class="mcp-el mcp-task-card mcp-task-3 rounded-lg p-3 border border-gray-200/80 dark:border-white/[0.06] bg-gray-50/80 dark:bg-white/[0.02]">
+            <div class="mcp-el mcp-task-card mcp-task-3 rounded-lg p-3 border border-[var(--surface-card-border)] bg-[var(--surface-card-bg)]">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2.5">
                         <x-ri-checkbox-blank-circle-line class="w-3.5 h-3.5 text-gray-400 dark:text-gray-500 shrink-0"/>
@@ -104,7 +104,7 @@
                             <x-ri-check-line class="w-3 h-3"/>
                             Approve
                         </button>
-                        <button type="button" tabindex="-1" class="inline-flex items-center gap-1.5 rounded-md border border-gray-200 dark:border-white/[0.08] bg-white dark:bg-white/[0.03] px-3 py-1.5 text-[11px] font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/[0.06] transition-colors">
+                        <button type="button" tabindex="-1" class="inline-flex items-center gap-1.5 rounded-md border border-[var(--surface-input-border)] bg-[var(--surface-input-bg)] px-3 py-1.5 text-[11px] font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/[0.06] transition-colors">
                             <x-ri-close-line class="w-3 h-3"/>
                             Reject
                         </button>
@@ -146,7 +146,7 @@
             <div class="mcp-el mcp-text mcp-text-3 text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
                 Added Sarah and linked her to Kovra Systems.
             </div>
-            <div class="mcp-el mcp-card rounded-lg p-3 border border-gray-200/80 dark:border-white/[0.06] bg-gray-50/80 dark:bg-white/[0.02]">
+            <div class="mcp-el mcp-card rounded-lg p-3 border border-[var(--surface-card-border)] bg-[var(--surface-card-bg)]">
                 <div class="flex items-center justify-between">
                     <div>
                         <div class="text-sm font-semibold text-gray-900 dark:text-white">Sarah Chen</div>

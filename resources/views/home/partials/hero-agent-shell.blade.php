@@ -1,7 +1,7 @@
 {{-- Mock Filament app shell sidebar — visible from md: up, hidden on mobile --}}
-<aside class="hidden md:flex md:w-48 lg:w-56 shrink-0 flex-col border-r border-gray-200/60 dark:border-white/[0.06] bg-gray-50/60 dark:bg-white/[0.015]">
+<aside class="hidden md:flex md:w-48 lg:w-56 shrink-0 flex-col border-r border-[var(--surface-shell-divider)] bg-[var(--surface-shell-bg)]">
     {{-- Workspace switcher --}}
-    <div class="flex items-center gap-2 px-3 py-3 border-b border-gray-200/60 dark:border-white/[0.06]">
+    <div class="flex items-center gap-2 px-3 py-3 border-b border-[var(--surface-shell-divider)]">
         <div class="w-6 h-6 rounded-md bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center shrink-0">
             <span class="text-[10px] font-bold text-white">RT</span>
         </div>
@@ -45,7 +45,7 @@
     </nav>
 
     {{-- Recent chats --}}
-    <div class="px-2 pb-3 border-t border-gray-200/60 dark:border-white/[0.06] pt-3">
+    <div class="px-2 pb-3 border-t border-[var(--surface-shell-divider)] pt-3">
         <div class="px-2 text-[9px] uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-1.5">Recent</div>
         <div class="px-2 py-1 text-[11px] text-gray-500 dark:text-gray-500 truncate">Overdue tasks this week</div>
         <div class="px-2 py-1 text-[11px] text-gray-500 dark:text-gray-500 truncate">Q1 pipeline review</div>
