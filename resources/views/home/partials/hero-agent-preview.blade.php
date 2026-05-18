@@ -51,7 +51,8 @@
 <script>
     function heroChat() {
         return {
-            ease: [0.22, 1, 0.36, 1],
+            // Mirrors theme.css --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1)
+            ease: [0.16, 1, 0.3, 1],
             cycleMs: 22000,
             holdMs: 4000,
             reducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches,

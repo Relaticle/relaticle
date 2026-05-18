@@ -20,6 +20,15 @@
     --color-primary: oklch(0.541 0.247 293.009); /* DEFAULT: primary-600 */
 }
 
+/* ─── Motion tokens ─── */
+/* If you change --ease-out-expo, also update the `ease` array in hero-agent-preview.blade.php */
+:root {
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    --duration-fast: 200ms;
+    --duration-base: 350ms;
+    --duration-slow: 800ms;
+}
+
 @custom-variant dark (&:where(.dark, .dark *));
 
 /* Hero gradient text animation — slow, subtle shimmer */
@@ -100,7 +109,7 @@
 
 .hero-enter {
     opacity: 0;
-    animation: hero-fade-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation: hero-fade-up var(--duration-slow) var(--ease-out-expo) forwards;
 }
 
 .hero-enter-1 { animation-delay: 0ms; }
@@ -112,8 +121,8 @@
 
 /* Tab active indicator slide */
 .hero-tab-indicator {
-    transition: left 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-                width 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: left var(--duration-base) var(--ease-out-expo),
+                width var(--duration-base) var(--ease-out-expo);
 }
 
 /* Respect reduced motion preference */
