@@ -34,11 +34,11 @@
         {{-- Conversation title bar — mirrors app chat-page header: back chevron, title, overflow --}}
         <div class="px-4 sm:px-6 md:px-8 py-2.5 flex items-center gap-3 text-xs">
             <button type="button" tabindex="-1" aria-hidden="true" class="inline-flex h-6 w-6 items-center justify-center rounded-md text-gray-400 dark:text-gray-500">
-                <x-ri-arrow-left-s-line class="w-4 h-4"/>
+                <x-heroicon-o-chevron-left class="w-4 h-4"/>
             </button>
             <span class="font-medium text-gray-900 dark:text-gray-100 truncate flex-1">Overdue tasks this week</span>
             <button type="button" tabindex="-1" aria-hidden="true" class="inline-flex h-6 w-6 items-center justify-center rounded-md text-gray-400 dark:text-gray-500">
-                <x-ri-more-2-line class="w-4 h-4"/>
+                <x-heroicon-o-ellipsis-horizontal class="w-4 h-4"/>
             </button>
         </div>
 

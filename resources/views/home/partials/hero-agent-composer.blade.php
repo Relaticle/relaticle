@@ -11,10 +11,10 @@
         <div class="flex items-center justify-between gap-2 px-3 pb-2.5">
             <button type="button" tabindex="-1" class="inline-flex items-center gap-1 rounded-md px-2 py-1 text-pico font-medium text-gray-500 dark:text-gray-400">
                 <span>Auto</span>
-                <x-ri-arrow-down-s-line class="w-3 h-3"/>
+                <x-heroicon-o-chevron-down class="w-3 h-3"/>
             </button>
             <button id="hero-composer-send" type="button" tabindex="-1" aria-hidden="true" class="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-primary-600 text-white">
-                <x-ri-arrow-up-line class="w-4 h-4"/>
+                <x-heroicon-s-arrow-up class="w-4 h-4"/>
             </button>
         </div>
     </div>
