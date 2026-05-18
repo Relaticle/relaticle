@@ -225,7 +225,7 @@ describe('Hero AI tab — app shell', function () {
         $response = $this->get('/');
 
         $response->assertStatus(200);
-        $response->assertSee('Dashboard');
+        $response->assertSee('Home');
         $response->assertSee('People');
         $response->assertSee('Companies');
         $response->assertSee('Opportunities');
@@ -233,11 +233,12 @@ describe('Hero AI tab — app shell', function () {
         $response->assertSee('Notes');
     });
 
-    it('marks the Chat nav item as the active section', function () {
+    it('marks the active chat conversation in the Chats group', function () {
         $response = $this->get('/');
 
         $response->assertStatus(200);
-        $response->assertSee('hero-shell-nav-chat-active', false);
+        $response->assertSee('hero-shell-chat-active', false);
+        $response->assertSee('Chats');
     });
 
     it('renders the conversation title bar with new chat button and model picker', function () {
