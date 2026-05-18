@@ -232,6 +232,15 @@ describe('Hero AI tab — app shell', function () {
         $response->assertSee('New chat');
         $response->assertSee('Auto');
     });
+
+    it('renders the composer with model picker and send button affordance', function () {
+        $response = $this->get('/');
+
+        $response->assertStatus(200);
+        $response->assertSee('Ask anything');
+        $response->assertSee('hero-composer-send', false);
+        $response->assertSee('hero-composer-cursor', false);
+    });
 });
 
 describe('Error handling', function () {
