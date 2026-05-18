@@ -198,7 +198,8 @@ describe('Hero AI tab — conversation', function () {
         $response->assertSee('Send proposal to Trellis Labs');
         $response->assertSee('Schedule demo with Kovra Systems');
         $response->assertSee('Mark them all as done');
-        $response->assertSee('Approval required');
+        // Approval action card shows the operation badge ("Update") + summary.
+        $response->assertSee('Update');
         $response->assertSee('Add Sarah Chen');
         $response->assertSee('VP of Engineering');
     });
