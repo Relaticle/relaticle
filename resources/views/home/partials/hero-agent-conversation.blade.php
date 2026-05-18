@@ -95,7 +95,7 @@
                         <x-heroicon-o-x-mark class="w-3 h-3"/>
                         Reject
                     </button>
-                    <span class="ml-auto text-pico text-gray-400 dark:text-gray-500">Undo for 5s after approval</span>
+                    <span class="ml-auto hidden sm:inline text-pico text-gray-400 dark:text-gray-500">Undo for 5s after approval</span>
                 </div>
             </div>
         </div>

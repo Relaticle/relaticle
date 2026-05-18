@@ -57,7 +57,7 @@
         return {
             // Mirrors theme.css --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1)
             ease: [0.16, 1, 0.3, 1],
-            cycleMs: 22000,
+            cycleMs: 15000,
             holdMs: 4000,
             reducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
             paused: false,
@@ -146,15 +146,15 @@
                 animate(root.querySelector('.mcp-text-2'),    { opacity: [0, 1], transform: ['translateY(6px)', 'translateY(0px)'] }, { delay: 5.8, duration: 0.3, ease: ease });
                 animate(root.querySelector('.mcp-action-card'), { opacity: [0, 1], transform: ['translateY(8px) scale(0.98)', 'translateY(0px) scale(1)'] }, { delay: 6.2, duration: 0.45, ease: ease });
 
-                // ─── Exchange 3: create with @-mention (t=12.5–17.0) ───
-                // 12400ms = delay 12.5s - 100ms
-                this.scrollTimers.push(setTimeout(function() { self.scrollMessageIntoView('.mcp-user-3'); }, 12400));
-                animate(root.querySelector('.mcp-user-3'),    { opacity: [0, 1], transform: ['translateX(12px)', 'translateX(0px)'] }, { delay: 12.5, duration: 0.4, ease: ease });
-                animate(root.querySelector('.mcp-avatar-3'),  { opacity: [0, 1], transform: ['scale(0.8)', 'scale(1)'] }, { delay: 13.0, duration: 0.3, ease: ease });
-                animate(root.querySelector('.mcp-label-3'),   { opacity: [0, 1] }, { delay: 13.0, duration: 0.3, ease: ease });
-                animate(root.querySelector('.mcp-tool-3'),    { opacity: [0, 1], transform: ['translateX(-6px)', 'translateX(0px)'] }, { delay: 13.3, duration: 0.3, ease: ease });
-                animate(root.querySelector('.mcp-text-3'),    { opacity: [0, 1], transform: ['translateY(6px)', 'translateY(0px)'] }, { delay: 13.7, duration: 0.3, ease: ease });
-                animate(root.querySelector('.mcp-card'),      { opacity: [0, 1], transform: ['scale(0.97)', 'scale(1)'] }, { delay: 14.0, duration: 0.4, ease: ease });
+                // ─── Exchange 3: create with @-mention (t=8.5–10.4) ───
+                // 8400ms = delay 8.5s - 100ms
+                this.scrollTimers.push(setTimeout(function() { self.scrollMessageIntoView('.mcp-user-3'); }, 8400));
+                animate(root.querySelector('.mcp-user-3'),    { opacity: [0, 1], transform: ['translateX(12px)', 'translateX(0px)'] }, { delay: 8.5, duration: 0.4, ease: ease });
+                animate(root.querySelector('.mcp-avatar-3'),  { opacity: [0, 1], transform: ['scale(0.8)', 'scale(1)'] }, { delay: 9.0, duration: 0.3, ease: ease });
+                animate(root.querySelector('.mcp-label-3'),   { opacity: [0, 1] }, { delay: 9.0, duration: 0.3, ease: ease });
+                animate(root.querySelector('.mcp-tool-3'),    { opacity: [0, 1], transform: ['translateX(-6px)', 'translateX(0px)'] }, { delay: 9.3, duration: 0.3, ease: ease });
+                animate(root.querySelector('.mcp-text-3'),    { opacity: [0, 1], transform: ['translateY(6px)', 'translateY(0px)'] }, { delay: 9.7, duration: 0.3, ease: ease });
+                animate(root.querySelector('.mcp-card'),      { opacity: [0, 1], transform: ['scale(0.97)', 'scale(1)'] }, { delay: 10.0, duration: 0.4, ease: ease });
 
                 var totalMs = this.cycleMs + this.holdMs;
                 this.nextCycleTimer = setTimeout(function() {
