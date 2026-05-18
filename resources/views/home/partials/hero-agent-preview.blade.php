@@ -7,28 +7,35 @@
      @mouseleave="resume()"
      @focusin="pause()"
      @focusout="resume()"
-     class="hero-agent-preview relative bg-white dark:bg-neutral-950 flex flex-col h-[520px] sm:h-[580px] md:h-[640px]">
+     class="hero-agent-preview relative bg-white dark:bg-neutral-950 flex h-[520px] sm:h-[580px] md:h-[640px]">
 
-    {{-- Messages --}}
-    <div x-ref="messagesScroll" class="flex-1 overflow-y-auto p-4 sm:p-6 md:px-8 md:py-6 space-y-5 sm:space-y-6 scroll-smooth">
-        @include('home.partials.hero-agent-conversation')
+    @include('home.partials.hero-agent-shell')
+
+    {{-- Main pane (chat column) --}}
+    <div class="flex-1 flex flex-col min-w-0">
+
+        {{-- Messages --}}
+        <div x-ref="messagesScroll" class="flex-1 overflow-y-auto p-4 sm:p-6 md:px-8 md:py-6 space-y-5 sm:space-y-6 scroll-smooth">
+            @include('home.partials.hero-agent-conversation')
+        </div>
+
+        {{-- Composer (decorative input) --}}
+        <div class="mcp-el mcp-input border-t border-gray-100 dark:border-white/[0.06] px-4 sm:px-6 md:px-8 py-3">
+            <div class="flex items-center gap-3 bg-gray-50/80 dark:bg-white/[0.03] rounded-lg border border-gray-200/80 dark:border-white/[0.06] px-3.5 py-2.5">
+                <x-ri-sparkling-2-fill class="w-4 h-4 text-gray-400/50 dark:text-gray-500/50 shrink-0"/>
+                <span class="text-sm text-gray-400 dark:text-gray-500 flex-1">Ask anything…</span>
+                <x-ri-mic-line class="w-4 h-4 text-gray-300 dark:text-gray-600 shrink-0" aria-hidden="true"/>
+                <div class="text-[10px] text-gray-300 dark:text-gray-600 border border-gray-200 dark:border-white/[0.06] rounded px-1.5 py-0.5 font-mono">⌘J</div>
+            </div>
+        </div>
+
     </div>
 
-    {{-- Undo toast (anchored to chat panel, not scroll container) --}}
+    {{-- Undo toast — anchored to whole panel, NOT inside chat column --}}
     <div class="mcp-el mcp-undo-toast pointer-events-none absolute bottom-20 left-1/2 -translate-x-1/2 z-20 inline-flex items-center gap-3 rounded-lg bg-gray-900 dark:bg-white px-3 py-2 text-xs font-medium text-white dark:text-gray-900 shadow-lg" aria-hidden="true">
         <x-ri-check-line class="w-3.5 h-3.5"/>
         <span>3 tasks marked complete</span>
         <button type="button" tabindex="-1" class="text-primary-300 dark:text-primary-700 font-semibold">Undo (5s)</button>
-    </div>
-
-    {{-- Input bar --}}
-    <div class="mcp-el mcp-input border-t border-gray-100 dark:border-white/[0.06] px-4 sm:px-6 md:px-8 py-3">
-        <div class="flex items-center gap-3 bg-gray-50/80 dark:bg-white/[0.03] rounded-lg border border-gray-200/80 dark:border-white/[0.06] px-3.5 py-2.5">
-            <x-ri-sparkling-2-fill class="w-4 h-4 text-gray-400/50 dark:text-gray-500/50 shrink-0"/>
-            <span class="text-sm text-gray-400 dark:text-gray-500 flex-1">Ask anything…</span>
-            <x-ri-mic-line class="w-4 h-4 text-gray-300 dark:text-gray-600 shrink-0" aria-hidden="true"/>
-            <div class="text-[10px] text-gray-300 dark:text-gray-600 border border-gray-200 dark:border-white/[0.06] rounded px-1.5 py-0.5 font-mono">⌘J</div>
-        </div>
     </div>
 
 </div>

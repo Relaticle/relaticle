@@ -204,6 +204,27 @@ describe('Hero AI tab — conversation', function () {
     });
 });
 
+describe('Hero AI tab — app shell', function () {
+    it('renders the sidebar navigation items', function () {
+        $response = $this->get('/');
+
+        $response->assertStatus(200);
+        $response->assertSee('Dashboard');
+        $response->assertSee('People');
+        $response->assertSee('Companies');
+        $response->assertSee('Opportunities');
+        $response->assertSee('Tasks');
+        $response->assertSee('Notes');
+    });
+
+    it('marks the Chat nav item as the active section', function () {
+        $response = $this->get('/');
+
+        $response->assertStatus(200);
+        $response->assertSee('hero-shell-nav-chat-active', false);
+    });
+});
+
 describe('Error handling', function () {
     it('returns 404 for non-existent routes', function () {
         $response = $this->get('/non-existent-page');
