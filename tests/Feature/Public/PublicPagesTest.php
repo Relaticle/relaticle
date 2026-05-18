@@ -241,13 +241,11 @@ describe('Hero AI tab — app shell', function () {
         $response->assertSee('Chats');
     });
 
-    it('renders the conversation title bar with new chat button and model picker', function () {
+    it('renders the conversation title with the chat name', function () {
         $response = $this->get('/');
 
         $response->assertStatus(200);
         $response->assertSee('Overdue tasks this week');
-        $response->assertSee('New chat');
-        $response->assertSee('Auto');
     });
 
     it('renders the composer with model picker and send button affordance', function () {

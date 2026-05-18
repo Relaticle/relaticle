@@ -14,20 +14,15 @@
     {{-- Main pane (chat column) --}}
     <div class="flex-1 flex flex-col min-w-0">
 
-        {{-- Conversation title bar --}}
-        <div class="border-b border-[var(--surface-shell-divider)] px-4 sm:px-6 md:px-8 py-2 flex items-center gap-3 text-xs">
-            <div class="flex items-center gap-2 min-w-0 flex-1">
-                <x-ri-sparkling-2-fill class="w-3.5 h-3.5 text-gray-400 dark:text-gray-600 shrink-0"/>
-                <span class="font-medium text-gray-800 dark:text-gray-200 truncate">Overdue tasks this week</span>
-            </div>
-            <button type="button" tabindex="-1" class="hidden sm:inline-flex items-center gap-1 rounded-md border border-[var(--surface-input-border)] bg-[var(--surface-input-bg)] px-2 py-1 text-pico font-medium text-gray-600 dark:text-gray-300">
-                <x-ri-add-line class="w-3 h-3"/>
-                New chat
+        {{-- Conversation title bar — mirrors app chat-page header: back chevron, title, overflow --}}
+        <div class="px-4 sm:px-6 md:px-8 py-2.5 flex items-center gap-3 text-xs">
+            <button type="button" tabindex="-1" aria-hidden="true" class="inline-flex h-6 w-6 items-center justify-center rounded-md text-gray-400 dark:text-gray-500">
+                <x-ri-arrow-left-s-line class="w-4 h-4"/>
             </button>
-            <div class="flex items-center gap-1 rounded-md border border-[var(--surface-input-border)] bg-[var(--surface-input-bg)] px-2 py-1 text-pico font-medium text-gray-600 dark:text-gray-300">
-                <span>Auto</span>
-                <x-ri-arrow-down-s-line class="w-3 h-3"/>
-            </div>
+            <span class="font-medium text-gray-900 dark:text-gray-100 truncate flex-1">Overdue tasks this week</span>
+            <button type="button" tabindex="-1" aria-hidden="true" class="inline-flex h-6 w-6 items-center justify-center rounded-md text-gray-400 dark:text-gray-500">
+                <x-ri-more-2-line class="w-4 h-4"/>
+            </button>
         </div>
 
         {{-- Messages --}}
@@ -39,11 +34,10 @@
 
     </div>
 
-    {{-- Undo toast — anchored to whole panel, NOT inside chat column --}}
-    <div class="mcp-el mcp-undo-toast pointer-events-none absolute bottom-20 left-1/2 -translate-x-1/2 z-20 inline-flex items-center gap-3 rounded-lg bg-gray-900 dark:bg-white px-3 py-2 text-xs font-medium text-white dark:text-gray-900 shadow-lg" aria-hidden="true">
-        <x-ri-check-line class="w-3.5 h-3.5"/>
-        <span>3 tasks marked complete</span>
-        <button type="button" tabindex="-1" class="text-primary-300 dark:text-primary-700 font-semibold">Undo (5s)</button>
+    {{-- Undo toast — white card to match real app chat undo pattern --}}
+    <div class="mcp-el mcp-undo-toast pointer-events-none absolute bottom-20 left-1/2 -translate-x-1/2 z-40 inline-flex items-center gap-3 rounded-lg border border-gray-200 bg-white px-4 py-2 shadow-lg dark:border-white/[0.08] dark:bg-gray-800" aria-hidden="true">
+        <span class="text-sm text-gray-700 dark:text-gray-300">3 tasks marked complete</span>
+        <button type="button" tabindex="-1" class="rounded-md bg-primary-600 px-2 py-1 text-pico font-medium text-white">Undo (5s)</button>
     </div>
 
 </div>
