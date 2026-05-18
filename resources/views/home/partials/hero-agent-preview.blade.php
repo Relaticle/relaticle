@@ -20,8 +20,7 @@
     {{-- Non-interactive overlay: blocks clicks, right-click, drag.
          Mouseenter/leave on the root still fire — they trigger from cursor
          crossing the bounding rect, not from event dispatch on a specific child.
-         z-30 puts it above all panel content; the undo toast at z-40 still
-         renders above this. --}}
+         z-30 puts it above all panel content. --}}
     <div aria-hidden="true"
          class="absolute inset-0 z-30 cursor-default"
          @contextmenu.prevent></div>
@@ -49,12 +48,6 @@
 
         @include('home.partials.hero-agent-composer')
 
-    </div>
-
-    {{-- Undo toast — white card to match real app chat undo pattern --}}
-    <div class="mcp-el mcp-undo-toast pointer-events-none absolute bottom-20 left-1/2 -translate-x-1/2 z-40 inline-flex items-center gap-3 rounded-lg border border-gray-200 bg-white px-4 py-2 shadow-lg dark:border-white/[0.08] dark:bg-gray-800" aria-hidden="true">
-        <span class="text-sm text-gray-700 dark:text-gray-300">3 tasks marked complete</span>
-        <button type="button" tabindex="-1" class="rounded-md bg-primary-600 px-2 py-1 text-pico font-medium text-white">Undo (5s)</button>
     </div>
 
 </div>
@@ -100,8 +93,6 @@
                     el.style.opacity = '1';
                     el.style.transform = '';
                 });
-                var toast = this.$root.querySelector('.mcp-undo-toast');
-                if (toast) toast.style.opacity = '0';
             },
 
             scrollMessageIntoView(selector) {
@@ -154,10 +145,6 @@
                 animate(root.querySelector('.mcp-label-2'),   { opacity: [0, 1] }, { delay: 5.5, duration: 0.3, ease: ease });
                 animate(root.querySelector('.mcp-text-2'),    { opacity: [0, 1], transform: ['translateY(6px)', 'translateY(0px)'] }, { delay: 5.8, duration: 0.3, ease: ease });
                 animate(root.querySelector('.mcp-action-card'), { opacity: [0, 1], transform: ['translateY(8px) scale(0.98)', 'translateY(0px) scale(1)'] }, { delay: 6.2, duration: 0.45, ease: ease });
-
-                // Undo toast: in at t=8.0, out at t=11.5
-                animate(root.querySelector('.mcp-undo-toast'), { opacity: [0, 1], transform: ['translate(-50%, 16px)', 'translate(-50%, 0px)'] }, { delay: 8.0, duration: 0.35, ease: ease });
-                animate(root.querySelector('.mcp-undo-toast'), { opacity: [1, 0] }, { delay: 11.5, duration: 0.4, ease: ease });
 
                 // ─── Exchange 3: create with @-mention (t=12.5–17.0) ───
                 // 12400ms = delay 12.5s - 100ms

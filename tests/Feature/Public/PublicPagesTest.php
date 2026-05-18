@@ -212,9 +212,6 @@ describe('Hero AI tab — conversation', function () {
         // Exchange 2 climax
         $response->assertSee('Mark 3 tasks complete');
         $response->assertSee('Call Sarah Chen · Send proposal · Schedule demo');
-        // Undo toast
-        $response->assertSee('3 tasks marked complete');
-        $response->assertSee('Undo (5s)');
         // Exchange 3
         $response->assertSee('Added Sarah and linked her to Kovra Systems');
     });
