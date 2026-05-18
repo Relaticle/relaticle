@@ -18,6 +18,12 @@
     --color-primary-900: oklch(0.380 0.178 293.745);
     --color-primary-950: oklch(0.283 0.135 291.089);
     --color-primary: oklch(0.541 0.247 293.009); /* DEFAULT: primary-600 */
+
+    /* Off-step typography for compact UI surfaces */
+    --text-pico: 0.625rem;     /* 10px */
+    --text-pico--line-height: 0.875rem;
+    --text-micro: 0.6875rem;   /* 11px */
+    --text-micro--line-height: 0.9375rem;
 }
 
 /* ─── Motion tokens ─── */
