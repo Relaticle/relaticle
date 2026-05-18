@@ -42,6 +42,22 @@
                 </x-marketing.button>
             </div>
 
+            {{-- Watch demo CTA (only renders when video asset exists) --}}
+            @if(file_exists(public_path('videos/hero-demo.mp4')))
+                <button
+                    type="button"
+                    x-data
+                    @click="$dispatch('open-hero-demo')"
+                    class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors -mt-1"
+                >
+                    <x-ri-play-circle-line class="w-4 h-4"/>
+                    Watch 30s demo
+                    <x-ri-arrow-right-up-line class="w-3 h-3"/>
+                </button>
+
+                @include('home.partials.hero-demo-modal')
+            @endif
+
             {{-- ── App Preview with tabs ── --}}
             <div class="relative w-full max-w-5xl mt-8 md:mt-12">
 

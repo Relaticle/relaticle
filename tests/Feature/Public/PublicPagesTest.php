@@ -259,6 +259,47 @@ describe('Hero AI tab — app shell', function () {
     });
 });
 
+describe('Hero AI tab — demo CTA', function () {
+    it('does not show the Watch demo link when video file is missing', function () {
+        $videoPath = public_path('videos/hero-demo.mp4');
+        if (file_exists($videoPath)) {
+            rename($videoPath, $videoPath.'.backup');
+        }
+
+        try {
+            $response = $this->get('/');
+
+            $response->assertStatus(200);
+            $response->assertDontSee('Watch 30s demo');
+        } finally {
+            if (file_exists($videoPath.'.backup')) {
+                rename($videoPath.'.backup', $videoPath);
+            }
+        }
+    });
+
+    it('shows the Watch demo link and modal when the video file exists', function () {
+        $videoPath = public_path('videos/hero-demo.mp4');
+        $created = false;
+        if (! file_exists($videoPath)) {
+            touch($videoPath);
+            $created = true;
+        }
+
+        try {
+            $response = $this->get('/');
+
+            $response->assertStatus(200);
+            $response->assertSee('Watch 30s demo');
+            $response->assertSee('hero-demo-modal', false);
+        } finally {
+            if ($created && file_exists($videoPath)) {
+                unlink($videoPath);
+            }
+        }
+    });
+});
+
 describe('Error handling', function () {
     it('returns 404 for non-existent routes', function () {
         $response = $this->get('/non-existent-page');
