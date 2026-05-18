@@ -23,7 +23,7 @@
      @mouseleave="resume()"
      @focusin="pause()"
      @focusout="resume()"
-     class="hero-agent-preview relative bg-white dark:bg-neutral-950 flex h-[520px] sm:h-[580px] md:h-[640px]">
+     class="hero-agent-preview relative bg-gray-50 dark:bg-gray-950 flex h-[520px] sm:h-[580px] md:h-[640px]">
 
     {{-- Non-interactive overlay: blocks clicks, right-click, drag.
          Mouseenter/leave on the root still fire — they trigger from cursor
@@ -38,20 +38,16 @@
     {{-- Main pane (chat column) --}}
     <div class="flex-1 flex flex-col min-w-0">
 
-        {{-- Conversation title bar — mirrors app chat-page header: back chevron, title, overflow --}}
-        <div class="px-4 sm:px-6 md:px-8 py-2.5 flex items-center gap-3 text-xs">
-            <button type="button" tabindex="-1" aria-hidden="true" class="inline-flex h-6 w-6 items-center justify-center rounded-md text-gray-400 dark:text-gray-500">
-                <x-heroicon-o-chevron-left class="w-4 h-4"/>
-            </button>
-            <span class="font-medium text-gray-900 dark:text-gray-100 truncate flex-1">Overdue tasks this week</span>
-            <button type="button" tabindex="-1" aria-hidden="true" class="inline-flex h-6 w-6 items-center justify-center rounded-md text-gray-400 dark:text-gray-500">
-                <x-heroicon-o-ellipsis-horizontal class="w-4 h-4"/>
-            </button>
+        {{-- Conversation title — mirrors app chat-page H1: bold, left-aligned, no chrome --}}
+        <div class="px-4 sm:px-6 md:px-8 pt-4 pb-2">
+            <h2 class="text-base font-semibold text-gray-900 dark:text-white truncate">Overdue tasks this week</h2>
         </div>
 
         {{-- Messages --}}
-        <div x-ref="messagesScroll" class="flex-1 overflow-y-auto p-4 sm:p-6 md:px-8 md:py-6 space-y-5 sm:space-y-6 scroll-smooth">
-            @include('home.partials.hero-agent-conversation')
+        <div x-ref="messagesScroll" class="flex-1 overflow-y-auto p-4 sm:p-6 md:px-8 md:py-6 scroll-smooth">
+            <div class="mx-auto w-full max-w-3xl space-y-5 sm:space-y-6">
+                @include('home.partials.hero-agent-conversation')
+            </div>
         </div>
 
         @include('home.partials.hero-agent-composer')

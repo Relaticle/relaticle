@@ -4,7 +4,7 @@
      at the bottom containing the active conversation.
      Icons use Heroicon outline to match the real Filament app exactly (the rest of
      the marketing site uses Remix Icon per project convention). --}}
-<aside class="hidden md:flex md:w-48 lg:w-56 shrink-0 flex-col border-r border-gray-200 bg-white dark:border-white/[0.06] dark:bg-neutral-950">
+<aside class="hidden md:flex md:w-48 lg:w-56 shrink-0 flex-col border-r border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
     {{-- Workspace switcher --}}
     <div class="flex items-center gap-2 px-3 py-3">
         <div class="flex h-7 w-7 items-center justify-center rounded-md bg-gray-900 shrink-0 dark:bg-white/[0.1]">
