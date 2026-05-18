@@ -46,12 +46,12 @@
         {{-- Chats group --}}
         <div class="pt-4">
             <div class="flex items-center justify-between px-2 pb-1">
-                <span class="text-pico uppercase tracking-wider font-medium text-gray-500 dark:text-gray-500">Chats</span>
+                <span class="text-xs font-medium text-gray-500 dark:text-gray-400">Chats</span>
                 <x-heroicon-o-chevron-up class="w-3 h-3 text-gray-400 dark:text-gray-500"/>
             </div>
             {{-- Active chat — mirrors fi-active with light gray bg + primary icon --}}
             <div id="hero-shell-chat-active" class="flex items-center gap-2 rounded-md bg-gray-100 px-2 py-2 font-medium text-gray-900 dark:bg-white/[0.06] dark:text-white">
-                <x-heroicon-o-chat-bubble-left-right class="w-4 h-4 shrink-0 text-primary dark:text-primary-400"/>
+                <x-heroicon-o-chat-bubble-left class="w-4 h-4 shrink-0 text-primary dark:text-primary-400"/>
                 <span class="truncate">Overdue tasks this week</span>
             </div>
         </div>
