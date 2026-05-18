@@ -187,6 +187,23 @@ describe('Social authentication routes', function () {
     });
 });
 
+describe('Hero AI tab — conversation', function () {
+    it('renders the three exchanges in initial DOM', function () {
+        $response = $this->get('/');
+
+        $response->assertStatus(200);
+        $response->assertSee("What's overdue this week?", false);
+        $response->assertSee('Searching tasks');
+        $response->assertSee('Call Sarah Chen');
+        $response->assertSee('Send proposal to Trellis Labs');
+        $response->assertSee('Schedule demo with Kovra Systems');
+        $response->assertSee('Mark them all as done');
+        $response->assertSee('Approval required');
+        $response->assertSee('Add Sarah Chen');
+        $response->assertSee('VP of Engineering');
+    });
+});
+
 describe('Error handling', function () {
     it('returns 404 for non-existent routes', function () {
         $response = $this->get('/non-existent-page');

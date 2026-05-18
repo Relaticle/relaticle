@@ -1,104 +1,24 @@
 <style>.hero-agent-preview .mcp-el { opacity: 0; }</style>
 
 <div x-data="heroChat()"
-     @hero-chat-reset.window="resetChat()"
+     @hero-chat-reset.window="cancelInflight(); resetChat()"
      @hero-chat-animate.window="animateChat()"
-     class="hero-agent-preview bg-white dark:bg-neutral-950 flex flex-col min-h-[300px] sm:min-h-[400px] md:min-h-[500px]">
+     @mouseenter="pause()"
+     @mouseleave="resume()"
+     @focusin="pause()"
+     @focusout="resume()"
+     class="hero-agent-preview relative bg-white dark:bg-neutral-950 flex flex-col h-[520px] sm:h-[580px] md:h-[640px]">
 
     {{-- Messages --}}
-    <div class="flex-1 p-4 sm:p-6 md:px-8 md:py-6 space-y-5 sm:space-y-6">
+    <div x-ref="messagesScroll" class="flex-1 overflow-y-auto p-4 sm:p-6 md:px-8 md:py-6 space-y-5 sm:space-y-6 scroll-smooth">
+        @include('home.partials.hero-agent-conversation')
+    </div>
 
-        {{-- User 1 --}}
-        <div class="mcp-el mcp-user flex items-start gap-2.5">
-            <div class="w-6 h-6 rounded-full bg-gray-200 dark:bg-white/[0.1] flex items-center justify-center shrink-0 mt-4">
-                <x-ri-user-3-fill class="w-3 h-3 text-gray-500 dark:text-gray-400"/>
-            </div>
-            <div class="flex-1 min-w-0">
-                <div class="text-xs font-semibold text-gray-900 dark:text-white mb-1">You</div>
-                <div class="text-sm text-gray-900 dark:text-gray-100 leading-relaxed">
-                    Add Sarah Chen as a contact at <span class="inline-flex items-center gap-1 rounded-md bg-primary/10 dark:bg-primary/20 px-1.5 py-0.5 text-[12.5px] font-medium text-primary-700 dark:text-primary-300 align-baseline">@Kovra Systems</span>. She's VP of Engineering.
-                </div>
-            </div>
-        </div>
-
-        {{-- Assistant 1: Tool call + result card --}}
-        <div class="flex items-start gap-2.5">
-            <div class="w-6 h-6 rounded-full bg-gray-900 dark:bg-white/[0.15] flex items-center justify-center shrink-0 mt-4 mcp-el mcp-avatar">
-                <x-ri-sparkling-2-fill class="w-3 h-3 text-white dark:text-gray-300"/>
-            </div>
-            <div class="flex-1 min-w-0">
-                <div class="mcp-el mcp-label text-xs font-semibold text-gray-900 dark:text-white mb-1">Assistant</div>
-                <div class="space-y-2.5">
-                    <div class="mcp-el mcp-tool flex items-center gap-2 text-[11px] sm:text-xs">
-                        <span class="inline-flex items-center gap-1.5 text-primary dark:text-primary-300 font-medium">
-                            <x-ri-loader-4-line class="w-3 h-3 shrink-0"/>
-                            <span>Creating contact…</span>
-                        </span>
-                        <span class="text-emerald-600 dark:text-emerald-400 font-medium">done</span>
-                    </div>
-                    <div class="mcp-el mcp-text text-sm text-gray-600 dark:text-gray-300 leading-relaxed">Added Sarah and linked her to Kovra Systems.</div>
-                    <a href="#" class="mcp-el mcp-card block rounded-lg p-3 border border-gray-200/80 dark:border-white/[0.06] bg-gray-50/80 dark:bg-white/[0.02] hover:border-gray-300 dark:hover:border-white/[0.10] transition-colors">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <div class="text-sm font-semibold text-gray-900 dark:text-white">Sarah Chen</div>
-                                <div class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">VP of Engineering · Kovra Systems</div>
-                            </div>
-                            <div class="w-7 h-7 rounded-full bg-gradient-to-br from-rose-400 to-orange-300 dark:from-rose-500 dark:to-orange-400 flex items-center justify-center shrink-0">
-                                <span class="text-[10px] font-bold text-white">SC</span>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        {{-- User 2 --}}
-        <div class="mcp-el mcp-user flex items-start gap-2.5">
-            <div class="w-6 h-6 rounded-full bg-gray-200 dark:bg-white/[0.1] flex items-center justify-center shrink-0 mt-4">
-                <x-ri-user-3-fill class="w-3 h-3 text-gray-500 dark:text-gray-400"/>
-            </div>
-            <div class="flex-1 min-w-0">
-                <div class="text-xs font-semibold text-gray-900 dark:text-white mb-1">You</div>
-                <div class="text-sm text-gray-900 dark:text-gray-100 leading-relaxed">
-                    Delete the <span class="inline-flex items-center gap-1 rounded-md bg-primary/10 dark:bg-primary/20 px-1.5 py-0.5 text-[12.5px] font-medium text-primary-700 dark:text-primary-300 align-baseline">@Trellis Labs</span> opportunity.
-                </div>
-            </div>
-        </div>
-
-        {{-- Assistant 2: Approval card (destructive op gate) --}}
-        <div class="flex items-start gap-2.5">
-            <div class="w-6 h-6 rounded-full bg-gray-900 dark:bg-white/[0.15] flex items-center justify-center shrink-0 mt-4 mcp-el mcp-avatar">
-                <x-ri-sparkling-2-fill class="w-3 h-3 text-white dark:text-gray-300"/>
-            </div>
-            <div class="flex-1 min-w-0">
-                <div class="mcp-el mcp-label text-xs font-semibold text-gray-900 dark:text-white mb-1">Assistant</div>
-                <div class="space-y-2.5">
-                    <div class="mcp-el mcp-text text-sm text-gray-600 dark:text-gray-300 leading-relaxed">This will delete an opportunity. Confirm to proceed.</div>
-                    <div class="mcp-el mcp-action-card rounded-lg border border-amber-200/80 dark:border-amber-500/30 bg-amber-50/60 dark:bg-amber-500/[0.06] overflow-hidden">
-                        <div class="px-3 pt-2.5 pb-2 flex items-center gap-2">
-                            <x-ri-shield-keyhole-line class="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0"/>
-                            <span class="text-[11px] uppercase tracking-wider font-semibold text-amber-700 dark:text-amber-400">Approval required</span>
-                        </div>
-                        <div class="px-3 pb-3">
-                            <div class="text-sm font-semibold text-gray-900 dark:text-white">Delete opportunity</div>
-                            <div class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Trellis Labs · Team Expansion · $85K</div>
-                            <div class="mt-3 flex items-center gap-2">
-                                <button type="button" class="inline-flex items-center gap-1.5 rounded-md bg-gray-900 dark:bg-white px-3 py-1.5 text-[11px] font-medium text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors">
-                                    <x-ri-check-line class="w-3 h-3"/>
-                                    Approve
-                                </button>
-                                <button type="button" class="inline-flex items-center gap-1.5 rounded-md border border-gray-200 dark:border-white/[0.08] bg-white dark:bg-white/[0.03] px-3 py-1.5 text-[11px] font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/[0.06] transition-colors">
-                                    <x-ri-close-line class="w-3 h-3"/>
-                                    Reject
-                                </button>
-                                <span class="ml-auto text-[10px] text-gray-400 dark:text-gray-500">Undo for 5s after approval</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
+    {{-- Undo toast (anchored to chat panel, not scroll container) --}}
+    <div class="mcp-el mcp-undo-toast pointer-events-none absolute bottom-20 left-1/2 -translate-x-1/2 z-20 inline-flex items-center gap-3 rounded-lg bg-gray-900 dark:bg-white px-3 py-2 text-xs font-medium text-white dark:text-gray-900 shadow-lg" aria-hidden="true">
+        <x-ri-check-line class="w-3.5 h-3.5"/>
+        <span>3 tasks marked complete</span>
+        <button type="button" tabindex="-1" class="text-primary-300 dark:text-primary-700 font-semibold">Undo (5s)</button>
     </div>
 
     {{-- Input bar --}}
@@ -117,42 +37,126 @@
     function heroChat() {
         return {
             ease: [0.22, 1, 0.36, 1],
+            cycleMs: 22000,
+            holdMs: 4000,
+            reducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+            paused: false,
+            nextCycleTimer: null,
+            scrollTimers: [],
 
             resetChat() {
                 this.$root.querySelectorAll('.mcp-el').forEach(function(el) {
                     el.style.opacity = '0';
+                    el.style.transform = '';
                 });
+                if (this.$refs.messagesScroll) {
+                    this.$refs.messagesScroll.scrollTop = 0;
+                }
+            },
+
+            cancelInflight() {
+                this.$root.querySelectorAll('.mcp-el').forEach(function(el) {
+                    if (el.getAnimations) {
+                        el.getAnimations().forEach(function(a) { a.cancel(); });
+                    }
+                });
+                if (this.nextCycleTimer) {
+                    clearTimeout(this.nextCycleTimer);
+                    this.nextCycleTimer = null;
+                }
+                this.scrollTimers.forEach(function(t) { clearTimeout(t); });
+                this.scrollTimers = [];
+            },
+
+            showAllImmediate() {
+                this.$root.querySelectorAll('.mcp-el').forEach(function(el) {
+                    el.style.opacity = '1';
+                    el.style.transform = '';
+                });
+                var toast = this.$root.querySelector('.mcp-undo-toast');
+                if (toast) toast.style.opacity = '0';
+            },
+
+            scrollMessageIntoView(selector) {
+                var el = this.$root.querySelector(selector);
+                if (!el || !this.$refs.messagesScroll) return;
+                var scroller = this.$refs.messagesScroll;
+                var target = el.offsetTop - 16;
+                scroller.scrollTo({ top: Math.max(0, target), behavior: 'smooth' });
             },
 
             animateChat() {
+                this.cancelInflight();
                 this.resetChat();
 
-                if (typeof animate !== 'function') return;
+                if (this.reducedMotion) {
+                    this.showAllImmediate();
+                    return;
+                }
 
+                if (typeof animate !== 'function') {
+                    this.showAllImmediate();
+                    return;
+                }
+
+                this.runCycle();
+            },
+
+            runCycle() {
                 var root = this.$root;
                 var ease = this.ease;
-                var users = root.querySelectorAll('.mcp-user');
-                var avatars = root.querySelectorAll('.mcp-avatar');
-                var labels = root.querySelectorAll('.mcp-label');
-                var tools = root.querySelectorAll('.mcp-tool');
-                var texts = root.querySelectorAll('.mcp-text');
+                var self = this;
 
                 animate(root.querySelector('.mcp-input'), { opacity: [0, 1] }, { duration: 0.3, ease: ease });
 
-                // Conversation 1 — non-destructive create with @-mention
-                animate(users[0], { opacity: [0, 1], transform: ['translateX(12px)', 'translateX(0px)'] }, { delay: 0.2, duration: 0.4, ease: ease });
-                animate(avatars[0], { opacity: [0, 1], transform: ['scale(0.8)', 'scale(1)'] }, { delay: 0.65, duration: 0.3, ease: ease });
-                animate(labels[0], { opacity: [0, 1] }, { delay: 0.65, duration: 0.3, ease: ease });
-                animate(tools[0], { opacity: [0, 1], transform: ['translateX(-6px)', 'translateX(0px)'] }, { delay: 0.7, duration: 0.3, ease: ease });
-                animate(texts[0], { opacity: [0, 1], transform: ['translateY(6px)', 'translateY(0px)'] }, { delay: 0.95, duration: 0.35, ease: ease });
-                animate(root.querySelector('.mcp-card'), { opacity: [0, 1], transform: ['scale(0.97)', 'scale(1)'] }, { delay: 1.15, duration: 0.4, ease: ease });
+                // ─── Exchange 1: overdue tasks (t=0.5–4.5) ───
+                animate(root.querySelector('.mcp-user-1'),    { opacity: [0, 1], transform: ['translateX(12px)', 'translateX(0px)'] }, { delay: 0.5, duration: 0.4, ease: ease });
+                animate(root.querySelector('.mcp-avatar-1'),  { opacity: [0, 1], transform: ['scale(0.8)', 'scale(1)'] }, { delay: 1.0, duration: 0.3, ease: ease });
+                animate(root.querySelector('.mcp-label-1'),   { opacity: [0, 1] }, { delay: 1.0, duration: 0.3, ease: ease });
+                animate(root.querySelector('.mcp-tool-1'),    { opacity: [0, 1], transform: ['translateX(-6px)', 'translateX(0px)'] }, { delay: 1.3, duration: 0.3, ease: ease });
+                animate(root.querySelector('.mcp-text-1'),    { opacity: [0, 1], transform: ['translateY(6px)', 'translateY(0px)'] }, { delay: 1.7, duration: 0.3, ease: ease });
+                animate(root.querySelector('.mcp-task-1'),    { opacity: [0, 1], transform: ['translateY(8px)', 'translateY(0px)'] }, { delay: 2.0, duration: 0.35, ease: ease });
+                animate(root.querySelector('.mcp-task-2'),    { opacity: [0, 1], transform: ['translateY(8px)', 'translateY(0px)'] }, { delay: 2.3, duration: 0.35, ease: ease });
+                animate(root.querySelector('.mcp-task-3'),    { opacity: [0, 1], transform: ['translateY(8px)', 'translateY(0px)'] }, { delay: 2.6, duration: 0.35, ease: ease });
 
-                // Conversation 2 — destructive op gated by approval
-                animate(users[1], { opacity: [0, 1], transform: ['translateX(12px)', 'translateX(0px)'] }, { delay: 1.6, duration: 0.4, ease: ease });
-                animate(avatars[1], { opacity: [0, 1], transform: ['scale(0.8)', 'scale(1)'] }, { delay: 2.0, duration: 0.3, ease: ease });
-                animate(labels[1], { opacity: [0, 1] }, { delay: 2.0, duration: 0.3, ease: ease });
-                animate(texts[1], { opacity: [0, 1], transform: ['translateY(6px)', 'translateY(0px)'] }, { delay: 2.2, duration: 0.35, ease: ease });
-                animate(root.querySelector('.mcp-action-card'), { opacity: [0, 1], transform: ['translateY(8px) scale(0.98)', 'translateY(0px) scale(1)'] }, { delay: 2.45, duration: 0.45, ease: ease });
+                // ─── Exchange 2: bulk approval (t=5.0–9.0) ───
+                // 4900ms = delay 5.0s - 100ms (scroll leads user msg by 100ms so target is in-view when it fades in)
+                this.scrollTimers.push(setTimeout(function() { self.scrollMessageIntoView('.mcp-user-2'); }, 4900));
+                animate(root.querySelector('.mcp-user-2'),    { opacity: [0, 1], transform: ['translateX(12px)', 'translateX(0px)'] }, { delay: 5.0, duration: 0.4, ease: ease });
+                animate(root.querySelector('.mcp-avatar-2'),  { opacity: [0, 1], transform: ['scale(0.8)', 'scale(1)'] }, { delay: 5.5, duration: 0.3, ease: ease });
+                animate(root.querySelector('.mcp-label-2'),   { opacity: [0, 1] }, { delay: 5.5, duration: 0.3, ease: ease });
+                animate(root.querySelector('.mcp-text-2'),    { opacity: [0, 1], transform: ['translateY(6px)', 'translateY(0px)'] }, { delay: 5.8, duration: 0.3, ease: ease });
+                animate(root.querySelector('.mcp-action-card'), { opacity: [0, 1], transform: ['translateY(8px) scale(0.98)', 'translateY(0px) scale(1)'] }, { delay: 6.2, duration: 0.45, ease: ease });
+
+                // Undo toast: in at t=8.0, out at t=11.5
+                animate(root.querySelector('.mcp-undo-toast'), { opacity: [0, 1], transform: ['translate(-50%, 16px)', 'translate(-50%, 0px)'] }, { delay: 8.0, duration: 0.35, ease: ease });
+                animate(root.querySelector('.mcp-undo-toast'), { opacity: [1, 0] }, { delay: 11.5, duration: 0.4, ease: ease });
+
+                // ─── Exchange 3: create with @-mention (t=12.5–17.0) ───
+                // 12400ms = delay 12.5s - 100ms
+                this.scrollTimers.push(setTimeout(function() { self.scrollMessageIntoView('.mcp-user-3'); }, 12400));
+                animate(root.querySelector('.mcp-user-3'),    { opacity: [0, 1], transform: ['translateX(12px)', 'translateX(0px)'] }, { delay: 12.5, duration: 0.4, ease: ease });
+                animate(root.querySelector('.mcp-avatar-3'),  { opacity: [0, 1], transform: ['scale(0.8)', 'scale(1)'] }, { delay: 13.0, duration: 0.3, ease: ease });
+                animate(root.querySelector('.mcp-label-3'),   { opacity: [0, 1] }, { delay: 13.0, duration: 0.3, ease: ease });
+                animate(root.querySelector('.mcp-tool-3'),    { opacity: [0, 1], transform: ['translateX(-6px)', 'translateX(0px)'] }, { delay: 13.3, duration: 0.3, ease: ease });
+                animate(root.querySelector('.mcp-text-3'),    { opacity: [0, 1], transform: ['translateY(6px)', 'translateY(0px)'] }, { delay: 13.7, duration: 0.3, ease: ease });
+                animate(root.querySelector('.mcp-card'),      { opacity: [0, 1], transform: ['scale(0.97)', 'scale(1)'] }, { delay: 14.0, duration: 0.4, ease: ease });
+
+                var totalMs = this.cycleMs + this.holdMs;
+                this.nextCycleTimer = setTimeout(function() {
+                    if (!self.paused) self.animateChat();
+                }, totalMs);
+            },
+
+            pause() {
+                this.paused = true;
+                this.cancelInflight();
+            },
+
+            resume() {
+                if (!this.paused) return;
+                this.paused = false;
+                this.animateChat();
             }
         };
     }
