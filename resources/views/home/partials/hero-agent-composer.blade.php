@@ -5,7 +5,7 @@
         <span class="text-sm text-gray-400 dark:text-gray-500 flex-1">Ask anything…</span>
         <span id="hero-composer-cursor" class="hero-composer-cursor block w-px h-4 bg-primary/60 dark:bg-primary/80 -ml-3.5" aria-hidden="true"></span>
         <div class="flex items-center gap-1.5">
-            <button type="button" tabindex="-1" class="inline-flex items-center gap-1 rounded-md border border-[var(--surface-input-border)] bg-[var(--surface-input-bg)] px-2 py-1 text-[10px] font-medium text-gray-600 dark:text-gray-300">
+            <button type="button" tabindex="-1" class="inline-flex items-center gap-1 rounded-md border border-[var(--surface-input-border)] bg-[var(--surface-input-bg)] px-2 py-1 text-pico font-medium text-gray-600 dark:text-gray-300">
                 <span>Auto</span>
                 <x-ri-arrow-down-s-line class="w-3 h-3"/>
             </button>

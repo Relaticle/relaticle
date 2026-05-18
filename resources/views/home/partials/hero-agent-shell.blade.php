@@ -3,17 +3,17 @@
     {{-- Workspace switcher --}}
     <div class="flex items-center gap-2 px-3 py-3 border-b border-[var(--surface-shell-divider)]">
         <div class="w-6 h-6 rounded-md bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center shrink-0">
-            <span class="text-[10px] font-bold text-white">RT</span>
+            <span class="text-pico font-bold text-white">RT</span>
         </div>
         <div class="flex-1 min-w-0">
-            <div class="text-[11px] font-semibold text-gray-900 dark:text-white truncate">Relaticle</div>
-            <div class="text-[9px] text-gray-500 dark:text-gray-500 truncate">Workspace</div>
+            <div class="text-micro font-semibold text-gray-900 dark:text-white truncate">Relaticle</div>
+            <div class="text-pico text-gray-500 dark:text-gray-500 truncate">Workspace</div>
         </div>
         <x-ri-arrow-down-s-line class="w-3 h-3 text-gray-400 dark:text-gray-500"/>
     </div>
 
     {{-- Nav items --}}
-    <nav class="flex-1 px-2 py-3 space-y-0.5 text-[12px]">
+    <nav class="flex-1 px-2 py-3 space-y-0.5 text-xs">
         <div class="flex items-center gap-2 px-2 py-1.5 rounded-md text-gray-600 dark:text-gray-400">
             <x-ri-dashboard-line class="w-3.5 h-3.5 shrink-0"/>
             <span>Dashboard</span>
@@ -46,8 +46,8 @@
 
     {{-- Recent chats --}}
     <div class="px-2 pb-3 border-t border-[var(--surface-shell-divider)] pt-3">
-        <div class="px-2 text-[9px] uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-1.5">Recent</div>
-        <div class="px-2 py-1 text-[11px] text-gray-500 dark:text-gray-500 truncate">Overdue tasks this week</div>
-        <div class="px-2 py-1 text-[11px] text-gray-500 dark:text-gray-500 truncate">Q1 pipeline review</div>
+        <div class="px-2 text-pico uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-1.5">Recent</div>
+        <div class="px-2 py-1 text-micro text-gray-500 dark:text-gray-500 truncate">Overdue tasks this week</div>
+        <div class="px-2 py-1 text-micro text-gray-500 dark:text-gray-500 truncate">Q1 pipeline review</div>
     </div>
 </aside>

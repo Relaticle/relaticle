@@ -20,11 +20,11 @@
                 <x-ri-sparkling-2-fill class="w-3.5 h-3.5 text-gray-400 dark:text-gray-600 shrink-0"/>
                 <span class="font-medium text-gray-800 dark:text-gray-200 truncate">Overdue tasks this week</span>
             </div>
-            <button type="button" tabindex="-1" class="hidden sm:inline-flex items-center gap-1 rounded-md border border-[var(--surface-input-border)] bg-[var(--surface-input-bg)] px-2 py-1 text-[10px] font-medium text-gray-600 dark:text-gray-300">
+            <button type="button" tabindex="-1" class="hidden sm:inline-flex items-center gap-1 rounded-md border border-[var(--surface-input-border)] bg-[var(--surface-input-bg)] px-2 py-1 text-pico font-medium text-gray-600 dark:text-gray-300">
                 <x-ri-add-line class="w-3 h-3"/>
                 New chat
             </button>
-            <div class="flex items-center gap-1 rounded-md border border-[var(--surface-input-border)] bg-[var(--surface-input-bg)] px-2 py-1 text-[10px] font-medium text-gray-600 dark:text-gray-300">
+            <div class="flex items-center gap-1 rounded-md border border-[var(--surface-input-border)] bg-[var(--surface-input-bg)] px-2 py-1 text-pico font-medium text-gray-600 dark:text-gray-300">
                 <span>Auto</span>
                 <x-ri-arrow-down-s-line class="w-3 h-3"/>
             </div>
