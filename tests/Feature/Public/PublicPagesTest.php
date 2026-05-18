@@ -256,6 +256,15 @@ describe('Hero AI tab — app shell', function () {
         $response->assertSee('hero-composer-send', false);
         $response->assertSee('hero-composer-cursor', false);
     });
+
+    it('renders the non-interactive overlay above panel content', function () {
+        $response = $this->get('/');
+
+        $response->assertStatus(200);
+        // Overlay is an absolutely-positioned aria-hidden div with z-30
+        $response->assertSee('z-30', false);
+        $response->assertSee('user-select: none', false);
+    });
 });
 
 describe('Hero AI tab — demo CTA', function () {

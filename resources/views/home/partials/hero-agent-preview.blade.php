@@ -1,4 +1,12 @@
-<style>.hero-agent-preview .mcp-el { opacity: 0; }</style>
+<style>
+    .hero-agent-preview .mcp-el { opacity: 0; }
+    .hero-agent-preview,
+    .hero-agent-preview * {
+        user-select: none;
+        -webkit-user-select: none;
+        -webkit-user-drag: none;
+    }
+</style>
 
 <div x-data="heroChat()"
      @hero-chat-reset.window="cancelInflight(); resetChat()"
@@ -8,6 +16,15 @@
      @focusin="pause()"
      @focusout="resume()"
      class="hero-agent-preview relative bg-white dark:bg-neutral-950 flex h-[520px] sm:h-[580px] md:h-[640px]">
+
+    {{-- Non-interactive overlay: blocks clicks, right-click, drag.
+         Mouseenter/leave on the root still fire — they trigger from cursor
+         crossing the bounding rect, not from event dispatch on a specific child.
+         z-30 puts it above all panel content; the undo toast at z-40 still
+         renders above this. --}}
+    <div aria-hidden="true"
+         class="absolute inset-0 z-30 cursor-default"
+         @contextmenu.prevent></div>
 
     @include('home.partials.hero-agent-shell')
 
