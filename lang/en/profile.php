@@ -55,6 +55,23 @@ return [
             'description' => 'Schedule your account for deletion.',
             'notice' => 'Deleting your account will schedule it for permanent removal after a 30-day grace period. You can cancel the deletion by logging back in at any time before that. After the grace period, all your data will be permanently deleted.',
         ],
+        'passkeys' => [
+            'title' => 'Passkeys',
+            'description' => 'Manage your passkeys for passwordless sign-in.',
+            'unsupported' => 'Passkeys are not supported in this browser.',
+            'empty' => 'No passkeys yet. Add one to sign in without a password.',
+            'added' => 'Added :time',
+            'last_used' => 'Last used :time',
+            'add_passkey' => 'Add passkey',
+            'name_label' => 'Passkey name',
+            'name_placeholder' => 'e.g., MacBook Pro, iPhone',
+            'register' => 'Register passkey',
+            'registering' => 'Registering...',
+            'cancel' => 'Cancel',
+            'remove' => 'Remove',
+            'remove_confirm_title' => 'Remove passkey',
+            'remove_confirm' => 'Remove this passkey? You will no longer be able to use it to sign in. Enter your password to confirm.',
+        ],
     ],
 
     'actions' => [
@@ -75,6 +92,9 @@ return [
         ],
         'delete_account_blocked' => [
             'title' => 'Account deletion blocked',
+        ],
+        'passkey_removed' => [
+            'success' => 'Passkey removed.',
         ],
     ],
 
