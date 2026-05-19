@@ -61,8 +61,12 @@
         return {
             // Mirrors theme.css --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1)
             ease: [0.16, 1, 0.3, 1],
-            cycleMs: 15000,
-            holdMs: 4000,
+            // cycleMs is the total budget for one animation cycle. Exchange 3
+            // climaxes near t=10.4s, so 12000ms gives ~1.6s to read the final
+            // frame before the hold begins. holdMs is the extra dwell before
+            // the next cycle starts.
+            cycleMs: 12000,
+            holdMs: 1500,
             reducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
             paused: false,
             nextCycleTimer: null,
