@@ -322,3 +322,77 @@ describe('Response meta', function () {
         $response->assertSuccessful();
     });
 });
+
+describe('Hero AI tab — animation timeline', function () {
+    it('hides the data-table outer container at cycle start', function () {
+        $response = $this->get('/');
+        $response->assertSuccessful();
+
+        // The exchange 1 tool-result table container must be opacity-controlled
+        // by the .mcp-el CSS rule. Without this class, the rounded border ghosts
+        // through before any animation runs.
+        $body = $response->getContent();
+        expect($body)->toContain('mcp-el mcp-tasks-table');
+    });
+
+    it('declares a single hold of ~2s after the final exchange before restart', function () {
+        $response = $this->get('/');
+        $response->assertSuccessful();
+
+        // After exchange 3 ends near t=10.4s, the cycle should restart within
+        // ~3s, not sit idle for 8s+. cycleMs is the post-ex3 active+hold budget.
+        $body = $response->getContent();
+
+        // 12000 = 12s total cycle (10.4s active + 1.6s rest) — preferred value.
+        expect($body)->toContain('cycleMs: 12000');
+        expect($body)->toContain('holdMs: 1500');
+    });
+
+    it('uses a unified Y-slide for assistant content', function () {
+        $response = $this->get('/');
+        $response->assertSuccessful();
+        $body = $response->getContent();
+
+        // After unification: every assistant child uses translateY for its slide.
+        // The legacy mixed translateX(-6) on tool indicators is replaced.
+        expect($body)->not->toContain("translateX('-6px')");
+        expect($body)->not->toContain('translateX(-6px)');
+    });
+
+    it('schedules scroll-into-view 350ms before the following user message', function () {
+        $response = $this->get('/');
+        $response->assertSuccessful();
+        $body = $response->getContent();
+
+        // 4650 = exchange-2 user delay (5000) - 350ms lead
+        // 8150 = exchange-3 user delay (8500) - 350ms lead
+        expect($body)->toContain('4650');
+        expect($body)->toContain('8150');
+    });
+
+    it('animates the 3 task rows as a single staggered group with 120ms spacing', function () {
+        $response = $this->get('/');
+        $response->assertSuccessful();
+        $body = $response->getContent();
+
+        // Reduce stagger: 2.0 / 2.12 / 2.24 (was 2.0 / 2.3 / 2.6)
+        expect($body)->toContain('delay: 2.0');
+        expect($body)->toContain('delay: 2.12');
+        expect($body)->toContain('delay: 2.24');
+    });
+
+    it('delays the assistant bubble so it appears together with its first child', function () {
+        $response = $this->get('/');
+        $response->assertSuccessful();
+        $body = $response->getContent();
+
+        // After fix: bubble + first child share a delay so the bubble never
+        // appears empty. Exchange 1 first child is mcp-tool-1 at delay 1.3.
+        // Exchange 2 first child is mcp-text-2 at delay 5.8.
+        // Exchange 3 first child is mcp-tool-3 at delay 9.3.
+        // The bubble's avatar animation now matches its first child's delay.
+        expect(substr_count($body, 'delay: 1.3,'))->toBeGreaterThanOrEqual(2);
+        expect(substr_count($body, 'delay: 5.8,'))->toBeGreaterThanOrEqual(2);
+        expect(substr_count($body, 'delay: 9.3,'))->toBeGreaterThanOrEqual(2);
+    });
+});
