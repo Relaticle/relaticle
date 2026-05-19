@@ -150,8 +150,8 @@
                 animate(root.querySelector('.mcp-text-1'),    { opacity: [0, 1], transform: ['translateY(6px)', 'translateY(0px)'] }, { delay: 1.7, duration: 0.3, ease: ease });
                 animate(root.querySelector('.mcp-tasks-table'), { opacity: [0, 1] }, { delay: 1.95, duration: 0.3, ease: ease });
                 animate(root.querySelector('.mcp-task-1'),    { opacity: [0, 1], transform: ['translateY(8px)', 'translateY(0px)'] }, { delay: 2.0, duration: 0.35, ease: ease });
-                animate(root.querySelector('.mcp-task-2'),    { opacity: [0, 1], transform: ['translateY(8px)', 'translateY(0px)'] }, { delay: 2.3, duration: 0.35, ease: ease });
-                animate(root.querySelector('.mcp-task-3'),    { opacity: [0, 1], transform: ['translateY(8px)', 'translateY(0px)'] }, { delay: 2.6, duration: 0.35, ease: ease });
+                animate(root.querySelector('.mcp-task-2'),    { opacity: [0, 1], transform: ['translateY(8px)', 'translateY(0px)'] }, { delay: 2.12, duration: 0.35, ease: ease });
+                animate(root.querySelector('.mcp-task-3'),    { opacity: [0, 1], transform: ['translateY(8px)', 'translateY(0px)'] }, { delay: 2.24, duration: 0.35, ease: ease });
 
                 // ─── Exchange 2: bulk approval (t=5.0–9.0) ───
                 // 4650ms = delay 5.0s - 350ms (scroll lead). Smooth scroll
