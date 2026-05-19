@@ -140,8 +140,8 @@
 
                 // ─── Exchange 1: overdue tasks (t=0.5–4.5) ───
                 animate(root.querySelector('.mcp-user-1'),    { opacity: [0, 1], transform: ['translateX(12px)', 'translateX(0px)'] }, { delay: 0.5, duration: 0.4, ease: ease });
-                animate(root.querySelector('.mcp-avatar-1'),  { opacity: [0, 1], transform: ['scale(0.8)', 'scale(1)'] }, { delay: 1.0, duration: 0.3, ease: ease });
-                animate(root.querySelector('.mcp-label-1'),   { opacity: [0, 1] }, { delay: 1.0, duration: 0.3, ease: ease });
+                animate(root.querySelector('.mcp-avatar-1'),  { opacity: [0, 1], transform: ['scale(0.8)', 'scale(1)'] }, { delay: 1.3, duration: 0.3, ease: ease });
+                animate(root.querySelector('.mcp-label-1'),   { opacity: [0, 1] }, { delay: 1.3, duration: 0.3, ease: ease });
                 animate(root.querySelector('.mcp-tool-1'),    { opacity: [0, 1], transform: ['translateX(-6px)', 'translateX(0px)'] }, { delay: 1.3, duration: 0.3, ease: ease });
                 animate(root.querySelector('.mcp-text-1'),    { opacity: [0, 1], transform: ['translateY(6px)', 'translateY(0px)'] }, { delay: 1.7, duration: 0.3, ease: ease });
                 animate(root.querySelector('.mcp-tasks-table'), { opacity: [0, 1] }, { delay: 1.95, duration: 0.3, ease: ease });
@@ -153,8 +153,8 @@
                 // 4900ms = delay 5.0s - 100ms (scroll leads user msg by 100ms so target is in-view when it fades in)
                 this.scrollTimers.push(setTimeout(function() { self.scrollMessageIntoView('.mcp-user-2'); }, 4900));
                 animate(root.querySelector('.mcp-user-2'),    { opacity: [0, 1], transform: ['translateX(12px)', 'translateX(0px)'] }, { delay: 5.0, duration: 0.4, ease: ease });
-                animate(root.querySelector('.mcp-avatar-2'),  { opacity: [0, 1], transform: ['scale(0.8)', 'scale(1)'] }, { delay: 5.5, duration: 0.3, ease: ease });
-                animate(root.querySelector('.mcp-label-2'),   { opacity: [0, 1] }, { delay: 5.5, duration: 0.3, ease: ease });
+                animate(root.querySelector('.mcp-avatar-2'),  { opacity: [0, 1], transform: ['scale(0.8)', 'scale(1)'] }, { delay: 5.8, duration: 0.3, ease: ease });
+                animate(root.querySelector('.mcp-label-2'),   { opacity: [0, 1] }, { delay: 5.8, duration: 0.3, ease: ease });
                 animate(root.querySelector('.mcp-text-2'),    { opacity: [0, 1], transform: ['translateY(6px)', 'translateY(0px)'] }, { delay: 5.8, duration: 0.3, ease: ease });
                 animate(root.querySelector('.mcp-action-card'), { opacity: [0, 1], transform: ['translateY(8px) scale(0.98)', 'translateY(0px) scale(1)'] }, { delay: 6.2, duration: 0.45, ease: ease });
 
@@ -162,8 +162,8 @@
                 // 8400ms = delay 8.5s - 100ms
                 this.scrollTimers.push(setTimeout(function() { self.scrollMessageIntoView('.mcp-user-3'); }, 8400));
                 animate(root.querySelector('.mcp-user-3'),    { opacity: [0, 1], transform: ['translateX(12px)', 'translateX(0px)'] }, { delay: 8.5, duration: 0.4, ease: ease });
-                animate(root.querySelector('.mcp-avatar-3'),  { opacity: [0, 1], transform: ['scale(0.8)', 'scale(1)'] }, { delay: 9.0, duration: 0.3, ease: ease });
-                animate(root.querySelector('.mcp-label-3'),   { opacity: [0, 1] }, { delay: 9.0, duration: 0.3, ease: ease });
+                animate(root.querySelector('.mcp-avatar-3'),  { opacity: [0, 1], transform: ['scale(0.8)', 'scale(1)'] }, { delay: 9.3, duration: 0.3, ease: ease });
+                animate(root.querySelector('.mcp-label-3'),   { opacity: [0, 1] }, { delay: 9.3, duration: 0.3, ease: ease });
                 animate(root.querySelector('.mcp-tool-3'),    { opacity: [0, 1], transform: ['translateX(-6px)', 'translateX(0px)'] }, { delay: 9.3, duration: 0.3, ease: ease });
                 animate(root.querySelector('.mcp-text-3'),    { opacity: [0, 1], transform: ['translateY(6px)', 'translateY(0px)'] }, { delay: 9.7, duration: 0.3, ease: ease });
                 animate(root.querySelector('.mcp-card'),      { opacity: [0, 1], transform: ['scale(0.97)', 'scale(1)'] }, { delay: 10.0, duration: 0.4, ease: ease });
