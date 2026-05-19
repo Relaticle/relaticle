@@ -2,10 +2,10 @@
 <div class="border-t border-gray-200 bg-white px-4 py-4 dark:border-gray-700 dark:bg-gray-900">
     <div class="mcp-el mcp-input mx-auto w-full max-w-3xl">
         <div class="relative rounded-2xl border border-gray-200 bg-white transition-colors focus-within:border-primary-500 dark:border-gray-700 dark:bg-gray-800">
-            {{-- Editor row — placeholder + cursor sit tight; remaining row width is empty space (like a real text input). --}}
-            <div class="flex items-center px-4 pt-3.5 pb-1.5">
+            {{-- Editor row — placeholder anchored top-left; remaining space mimics a multi-line text input. --}}
+            <div class="px-4 pt-3.5 pb-1.5 min-h-[60px]">
                 <span class="text-sm text-gray-400 dark:text-gray-500">Ask anything…</span>
-                <span id="hero-composer-cursor" class="hero-composer-cursor block w-px h-4 bg-primary/60 dark:bg-primary/80 ml-px" aria-hidden="true"></span>
+                <span id="hero-composer-cursor" class="hero-composer-cursor inline-block w-px h-4 align-middle bg-primary/60 dark:bg-primary/80 ml-px" aria-hidden="true"></span>
             </div>
 
             {{-- Footer row: model picker on the left, send button on the right --}}

@@ -38,9 +38,9 @@
     {{-- Main pane (chat column) --}}
     <div class="flex-1 flex flex-col min-w-0">
 
-        {{-- Conversation title — mirrors app chat-page H1: bold, left-aligned, no chrome --}}
-        <div class="px-4 sm:px-6 md:px-8 pt-4 pb-2">
-            <h2 class="text-base font-semibold text-gray-900 dark:text-white truncate">Overdue tasks this week</h2>
+        {{-- Conversation title — mirrors app chat-page H1: large, bold, left-aligned, no chrome --}}
+        <div class="px-4 sm:px-6 md:px-8 pt-5 pb-3">
+            <h2 class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white truncate">Overdue tasks this week</h2>
         </div>
 
         {{-- Messages --}}
