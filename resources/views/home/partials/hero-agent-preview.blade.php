@@ -103,7 +103,14 @@
                 var el = this.$root.querySelector(selector);
                 if (!el || !this.$refs.messagesScroll) return;
                 var scroller = this.$refs.messagesScroll;
-                var target = el.offsetTop - 16;
+                // offsetTop is relative to the nearest positioned ancestor
+                // (the panel root, which has position: relative), not the
+                // scroller. Use getBoundingClientRect so the target is the
+                // element's screen position relative to the scroller's
+                // current scroll viewport, with a 16px headroom above.
+                var elTop = el.getBoundingClientRect().top;
+                var scrollerTop = scroller.getBoundingClientRect().top;
+                var target = scroller.scrollTop + (elTop - scrollerTop) - 16;
                 scroller.scrollTo({ top: Math.max(0, target), behavior: 'smooth' });
             },
 
