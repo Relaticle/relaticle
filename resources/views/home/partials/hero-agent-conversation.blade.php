@@ -22,9 +22,11 @@
             You have 3 overdue tasks:
         </div>
 
-        <div class="mt-3 space-y-2">
-            <div class="mcp-el mcp-task-card mcp-task-1 rounded-xl border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-900">
-                <div class="flex items-center justify-between">
+        {{-- Tool result table — mirrors packages/Chat/.../components/chat/data-table.blade.php:
+             one container card, rows inside separated by a divider. Not nested cards. --}}
+        <div class="mt-3 overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700">
+            <div class="divide-y divide-gray-100 dark:divide-gray-700">
+                <div class="mcp-el mcp-task-card mcp-task-1 flex items-center justify-between px-3 py-2.5">
                     <div class="flex items-center gap-2.5">
                         <x-heroicon-o-stop-circle class="w-3.5 h-3.5 text-gray-400 dark:text-gray-500 shrink-0"/>
                         <div>
@@ -34,9 +36,7 @@
                     </div>
                     <span class="text-pico font-medium text-rose-600 dark:text-rose-400 uppercase tracking-wider">Overdue</span>
                 </div>
-            </div>
-            <div class="mcp-el mcp-task-card mcp-task-2 rounded-xl border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-900">
-                <div class="flex items-center justify-between">
+                <div class="mcp-el mcp-task-card mcp-task-2 flex items-center justify-between px-3 py-2.5">
                     <div class="flex items-center gap-2.5">
                         <x-heroicon-o-stop-circle class="w-3.5 h-3.5 text-gray-400 dark:text-gray-500 shrink-0"/>
                         <div>
@@ -46,9 +46,7 @@
                     </div>
                     <span class="text-pico font-medium text-rose-600 dark:text-rose-400 uppercase tracking-wider">Overdue</span>
                 </div>
-            </div>
-            <div class="mcp-el mcp-task-card mcp-task-3 rounded-xl border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-900">
-                <div class="flex items-center justify-between">
+                <div class="mcp-el mcp-task-card mcp-task-3 flex items-center justify-between px-3 py-2.5">
                     <div class="flex items-center gap-2.5">
                         <x-heroicon-o-stop-circle class="w-3.5 h-3.5 text-gray-400 dark:text-gray-500 shrink-0"/>
                         <div>
