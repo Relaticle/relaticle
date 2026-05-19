@@ -27,8 +27,10 @@
     </div>
 
     {{-- Tool result table — sibling of the bubble. Mirrors data-table.blade.php:
-         one container, rows separated by a hairline divider. --}}
-    <div class="max-w-[85%] overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
+         one container, rows separated by a hairline divider.
+         mcp-el keeps the container hidden during reset so its outline doesn't
+         ghost through before exchange 1 begins. --}}
+    <div class="mcp-el mcp-tasks-table max-w-[85%] overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
         <div class="divide-y divide-gray-100 dark:divide-gray-700">
             <div class="mcp-el mcp-task-card mcp-task-1 flex items-center justify-between px-3 py-2.5">
                 <div class="flex items-center gap-2.5">
