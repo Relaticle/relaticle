@@ -49,9 +49,11 @@ final class SearchTool extends Tool
         ];
     }
 
-    public function handle(Request $request): ResponseFactory
+    public function handle(Request $request): Response|ResponseFactory
     {
-        $this->ensureTokenCan('read');
+        if (($denied = $this->denyIfTokenCannot('read')) instanceof Response) {
+            return $denied;
+        }
 
         /** @var User $user */
         $user = auth()->user();
