@@ -146,7 +146,7 @@
                 animate(root.querySelector('.mcp-user-1'),    { opacity: [0, 1], transform: ['translateX(12px)', 'translateX(0px)'] }, { delay: 0.5, duration: 0.4, ease: ease });
                 animate(root.querySelector('.mcp-avatar-1'),  { opacity: [0, 1], transform: ['scale(0.8)', 'scale(1)'] }, { delay: 1.3, duration: 0.3, ease: ease });
                 animate(root.querySelector('.mcp-label-1'),   { opacity: [0, 1] }, { delay: 1.3, duration: 0.3, ease: ease });
-                animate(root.querySelector('.mcp-tool-1'),    { opacity: [0, 1], transform: ['translateX(-6px)', 'translateX(0px)'] }, { delay: 1.3, duration: 0.3, ease: ease });
+                animate(root.querySelector('.mcp-tool-1'),    { opacity: [0, 1], transform: ['translateY(6px)', 'translateY(0px)'] }, { delay: 1.3, duration: 0.3, ease: ease });
                 animate(root.querySelector('.mcp-text-1'),    { opacity: [0, 1], transform: ['translateY(6px)', 'translateY(0px)'] }, { delay: 1.7, duration: 0.3, ease: ease });
                 animate(root.querySelector('.mcp-tasks-table'), { opacity: [0, 1] }, { delay: 1.95, duration: 0.3, ease: ease });
                 animate(root.querySelector('.mcp-task-1'),    { opacity: [0, 1], transform: ['translateY(8px)', 'translateY(0px)'] }, { delay: 2.0, duration: 0.35, ease: ease });
@@ -168,7 +168,7 @@
                 animate(root.querySelector('.mcp-user-3'),    { opacity: [0, 1], transform: ['translateX(12px)', 'translateX(0px)'] }, { delay: 8.5, duration: 0.4, ease: ease });
                 animate(root.querySelector('.mcp-avatar-3'),  { opacity: [0, 1], transform: ['scale(0.8)', 'scale(1)'] }, { delay: 9.3, duration: 0.3, ease: ease });
                 animate(root.querySelector('.mcp-label-3'),   { opacity: [0, 1] }, { delay: 9.3, duration: 0.3, ease: ease });
-                animate(root.querySelector('.mcp-tool-3'),    { opacity: [0, 1], transform: ['translateX(-6px)', 'translateX(0px)'] }, { delay: 9.3, duration: 0.3, ease: ease });
+                animate(root.querySelector('.mcp-tool-3'),    { opacity: [0, 1], transform: ['translateY(6px)', 'translateY(0px)'] }, { delay: 9.3, duration: 0.3, ease: ease });
                 animate(root.querySelector('.mcp-text-3'),    { opacity: [0, 1], transform: ['translateY(6px)', 'translateY(0px)'] }, { delay: 9.7, duration: 0.3, ease: ease });
                 animate(root.querySelector('.mcp-card'),      { opacity: [0, 1], transform: ['scale(0.97)', 'scale(1)'] }, { delay: 10.0, duration: 0.4, ease: ease });
 
